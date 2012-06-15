@@ -584,15 +584,17 @@ proc gather_aws_system_info {instance_id user_id region} {
         set params "InstanceId $instance_id"
         lappend cmd $params
         lappend cmd {}
-        catch {set result [eval $cmd]} err_msg
-        output $err_msg
-	if {[string match "*does not exist*" $err_msg]} {
-		# maybe the instance has been submitted to start
-		# we'll take a nap and try again once
-		sleep 5
-		set result [eval $cmd]
-        output $result
+	if [catch {set  result [eval $cmd]} result] {
+		error_out "AWS error: DescribeInstances $params\012\012$result" 9999
 	}
+output $result
+	#if {[string match "*does not exist*" $err_msg]} {
+	#	# maybe the instance has been submitted to start
+	#	# we'll take a nap and try again once
+	#	sleep 5
+	#	set result [eval $cmd]
+    #    output $result
+	#}
         set xmldoc [dom parse -simple $result]
         set root [$xmldoc documentElement]
         set xml_no_ns [[$root removeAttribute xmlns] asXML]
