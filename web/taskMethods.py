@@ -2179,7 +2179,7 @@ class taskMethods:
                     sHTML += "<div class=\"step_header_icons\">"
                     sHTML += "<span class=\"ui-icon ui-icon-info forceinline parameter_help_btn\" title=\"" + sDesc.replace("\"", "") + "\"></span>"
 
-                    if bEditable:
+                    if catocommon.is_true(bEditable):
                         sHTML += "<span class=\"ui-icon ui-icon-close forceinline parameter_remove_btn pointer\" remove_id=\"" + sPID + "\"></span>"
 
                     sHTML += "</div>"

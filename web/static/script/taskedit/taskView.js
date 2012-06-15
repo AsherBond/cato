@@ -26,7 +26,7 @@ $(document).ready(function () {
     //asset, print and show log links
     //the print link
     $("#print_link").live("click", function () {
-        var url = "taskPrint.aspx?task_id=" + g_task_id;
+        var url = "taskPrint?task_id=" + g_task_id;
         openWindow(url, "taskPrint", "location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700");
     });
 

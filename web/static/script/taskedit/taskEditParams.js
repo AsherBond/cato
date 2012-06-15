@@ -271,8 +271,8 @@ function doDeleteParam() {
     });
 }
 function doGetParams(type, id, editable, snip, readonly) {
-    if (!editable) editable = true;
-    if (!snip) snip = true;
+    if (editable === undefined) editable = true;
+    if (snip === undefined) snip = true;
 
     $.ajax({
         async: false,
@@ -286,8 +286,6 @@ function doGetParams(type, id, editable, snip, readonly) {
 
             //have to rebind the tooltips here
             bindParameterToolTips();
-
-            $("#update_success_msg").text("Update Successful").fadeOut(2000);
         },
         error: function (response) {
             showAlert(response.responseText);

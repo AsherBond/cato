@@ -739,7 +739,7 @@ def AddNodeToXMLColumn(sTable, sXMLColumn, sWhereClause, sXPath, sXMLToAdd):
     # but parameters for example are by definition arrays of parameter nodes.
     try:
         db = catocommon.new_conn()
-        log("Adding node [%s] to [%s] in [%s.%s where %s]." % (sXMLToAdd, sXPath, sTable, sXMLColumn, sWhereClause), 3)
+        log("Adding node [%s] to [%s] in [%s.%s where %s]." % (sXMLToAdd, sXPath, sTable, sXMLColumn, sWhereClause), 4)
         sSQL = "select " + sXMLColumn + " from " + sTable + " where " + sWhereClause
         sXML = db.select_col_noexcep(sSQL)
         if not sXML:
@@ -797,7 +797,7 @@ def AddNodeToXMLColumn(sTable, sXMLColumn, sWhereClause, sXPath, sXMLToAdd):
 def SetNodeValueinXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToSet, sValue):
     try:
         db = catocommon.new_conn()
-        log("Setting node [%s] to [%s] in [%s.%s where %s]." % (sNodeToSet, sValue, sTable, sXMLColumn, sWhereClause), 3)
+        log("Setting node [%s] to [%s] in [%s.%s where %s]." % (sNodeToSet, sValue, sTable, sXMLColumn, sWhereClause), 4)
         sSQL = "select " + sXMLColumn + " from " + sTable + " where " + sWhereClause
         sXML = db.select_col_noexcep(sSQL)
         if not sXML:
@@ -835,7 +835,7 @@ def SetNodeAttributeinXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToSet, sA
     # THIS ONE WILL do adds if the attribute doesn't exist, or update it if it does.
     try:
         db = catocommon.new_conn()
-        log("Setting [%s] attribute [%s] to [%s] in [%s.%s where %s]" % (sNodeToSet, sAttribute, sValue, sTable, sXMLColumn, sWhereClause), 3)
+        log("Setting [%s] attribute [%s] to [%s] in [%s.%s where %s]" % (sNodeToSet, sAttribute, sValue, sTable, sXMLColumn, sWhereClause), 4)
 
         sXML = ""
 
@@ -887,7 +887,7 @@ def SetNodeAttributeinXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToSet, sA
 def RemoveNodeFromXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToRemove):
     try:
         db = catocommon.new_conn()
-        log("Removing node [%s] from [%s.%s where %s]." % (sNodeToRemove, sTable, sXMLColumn, sWhereClause), 3)
+        log("Removing node [%s] from [%s.%s where %s]." % (sNodeToRemove, sTable, sXMLColumn, sWhereClause), 4)
         sSQL = "select " + sXMLColumn + " from " + sTable + " where " + sWhereClause
         sXML = db.select_col_noexcep(sSQL)
         if not sXML:
@@ -901,7 +901,7 @@ def RemoveNodeFromXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToRemove):
             # get the specified node from the doc
             xNodeToWhack = xd.find(sNodeToRemove)
             if xNodeToWhack is None:
-                log("INFO: attempt to remove [%s] - the element was not found." % sNodeToRemove, 2)
+                log("INFO: attempt to remove [%s] - the element was not found." % sNodeToRemove, 4)
                 # no worries... what you want to delete doesn't exist?  perfect!
                 return
 

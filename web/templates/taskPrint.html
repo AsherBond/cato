@@ -1,0 +1,48 @@
+$def with ()
+$var jsfiles: taskedit/taskPrint.js taskedit/taskEditParams.js
+
+$var cssfiles: taskEdit.css taskView.css
+
+<div id="printable_content" class="printable_content">
+    <div align="center">
+        <h3><span id="lblTaskNameHeader"></span><span id="version_tag"> Version: <span id="lblVersionHeader"></span></span></h3>
+    </div>
+    <div class="codebox">        <span class="detail_label">Code:</span>
+        <span id="lblTaskCode" class="code" Style="font-size: 1.2em;"></span>
+        <br />
+        <span class="detail_label">Status: </span>
+        <span id="lblStatus" class="code" Style="font-size: 1.2em;"></span>
+        <br />
+        <span class="detail_label">Concurrent Instances:</span>
+        <span id="lblConcurrentInstances" class="task_details code"
+        Style="font-size: 1.2em;"></span>
+        <br />
+        <span class="detail_label">Number to Queue:</span>
+        <span id="lblQueueDepth" class="task_details code" Style="font-size: 1.2em;"></span>
+        <br />
+        <span class="detail_label">Description:</span>
+        <br />
+        <span id="lblDescription" rows="10" class="code"
+        Style="font-size: 1.2em;"></span>
+        <!-- *** Commented out per Bug 1029 ***
+        <span id="lblDirect" class="code"></span>
+        Direct to Asset?<br />-->
+    </div>
+    <hr />
+    <div id="div_parameters">
+        <div class="ui-state-default">
+            <h3>Parameters</h3>
+        </div>
+        <div id="parameters"></div>
+    </div>
+    <hr />
+    <div id="div_steps">
+        <div class="ui-state-default">
+            <h3>Steps</h3>
+        </div>
+        Not yet implemented.
+        <ul id="codeblock_steps">
+        </ul>
+    </div>
+</div>
+

@@ -103,7 +103,7 @@ $(document).ready(function () {
 //the SUBTASK and RUN TASK commands
 //the view link
     $("#steps .task_print_btn").live("click", function () {
-        var url = "taskPrint.aspx?task_id=" + $(this).attr("task_id");
+        var url = "taskPrint?task_id=" + $(this).attr("task_id");
         openWindow(url, "taskPrint", "location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700");
     });
     //the edit link

@@ -132,6 +132,10 @@ class taskRunLog:
     def GET(self):
         return render_popup.taskRunLog()
 
+class taskPrint:        
+    def GET(self):
+        return render_popup.taskPrint()
+
 class taskActivityLog:        
     def GET(self):
         return render.taskActivityLog()
@@ -482,6 +486,7 @@ if __name__ != "cato_admin_ui":
         '/cloudAccountEdit', 'cloudAccountEdit',
         '/cloudDiscovery', 'cloudDiscovery',
         '/taskEdit', 'taskEdit',
+        '/taskPrint', 'taskPrint',
         '/taskRunLog', 'taskRunLog',
         '/taskActivityLog', 'taskActivityLog',
         '/taskManage', 'taskManage',
