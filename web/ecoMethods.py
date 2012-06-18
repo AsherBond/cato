@@ -1044,23 +1044,6 @@ class ecoMethods:
 
                         sHTML += " </div>" # end outer div
 
-
-                        #  # we are building this as a two-column stack.  We'll use tables.
-                        #  # and a modulus to see if we're on an even numbered pass
-                        #  if i % 2 == 0:
-#                              #      # even - a first column
-                        #      sHTML += "<tr><td width=\"50%\">" + sAction + "</td>"
-                        #  }
-                        #  else
-#                              #      # odd - a second column
-                        #      sHTML += "</td><td width=\"50%\">" + sAction + "</td></tr>"
-                        #  }
-
-
-                        # i += 1
-
-                    # sHTML += "</table>"
-
                     # need a clearfloat div here, as javascript flow logic will be 
                     # dynamically adding and removing floats
                     sHTML += "<div class=\"clearfloat\"></div>"
@@ -1292,6 +1275,13 @@ class ecoMethods:
     def wmGetEcosystemObjects(self):
         try:
             sEcosystemID = uiCommon.getAjaxArg("sEcosystemID")
+            sAccountID = uiCommon.getAjaxArg("sAccountID")
+
+            ca = cloud.CloudAccount()
+            ca.FromID(sAccountID)
+            if ca.ID is None:
+                return "Failed to get Cloud Account details for Cloud Account ID [" + sAccountID + "]."
+
             sHTML = ""
 
             sSQL = "select eo.ecosystem_object_type, count(*) as num_objects" \
@@ -1305,37 +1295,61 @@ class ecoMethods:
                 return self.db.error
 
             if dt:
+                sHTML += "<table>"
+                i = 0
                 for dr in dt:
+                    cot = ca.Provider.GetObjectTypeByName(dr["ecosystem_object_type"])
+
+                    # every 5 items gets a new row
+                    if i % 5 == 0:
+                        sHTML += "<tr>"
                     # TODO: we need a way to get the pretty label for an object type here, since we moved 
                     # it out of the database.
                     # perhaps a static class method to look up a type name based on the id?
                     # or a peek into the CloudProviders object in the session might be better.
                     
-                    sThisShouldBeAPrettyName = dr["ecosystem_object_type"]
-                    
                     # something here can look up the icon for each type if we wanna do that.
-                    sIcon = "aws_16.png"
+                    sIcon = "%s.png" % cot.ID
 
-                    sIcon = "<img src=\"static/images/icons/" + sIcon + "\" alt=\"\" style=\"width: 16px; height: 16px;\" />&nbsp;&nbsp;&nbsp;"
+                    sHTML += "<td>"
+                    sHTML += " <div class=\"ecosystem_type\"" \
+                       " id=\"" + cot.ID + "\"" \
+                       " label=\"" + cot.Label + "\"" \
+                       ">"
 
-                    sLabel = sIcon + sThisShouldBeAPrettyName + " (" + str(dr["num_objects"]) + ")"
+                    sHTML += "<div class=\"ui-widget-content ui-corner-all action_btn action_inner\">" # outer div with no styling at all
 
-                    sHTML += "<div class=\"ui-widget-content ui-corner-all ecosystem_type\" id=\"" + dr["ecosystem_object_type"] + "\" label=\"" + sThisShouldBeAPrettyName + "\">"
-                    sHTML += "    <div class=\"ecosystem_type_header\">"
-                    sHTML += "        <div class=\"ecosystem_item_header_title\">"
-                    sHTML += "            <span>" + sLabel + "</span>"
-                    sHTML += "        </div>"
-                    sHTML += "        <div class=\"ecosystem_item_header_icons\">"
-                    # might eventually enable whacking the whole group
-                    sHTML += "        </div>"
-                    sHTML += "    </div>"
-                    sHTML += "    <div class=\"ecosystem_type_detail\" >"
-                    # might eventually show some detail
-                    sHTML += "    </div>"
-
-
+                    sHTML += "<div class=\"step_header_title\">"
                     sHTML += "</div>"
 
+                    sHTML += "<div class=\"step_header_icons\">"
+                    sHTML += "(" + str(dr["num_objects"]) + ")"
+                    sHTML += "</div>"
+
+                    # gotta clear the floats
+                    sHTML += "<div class=\"clearfloat\">"
+
+                    sHTML += "<img class=\"action_icon\" src=\"static/images/cloud_object_types/" + sIcon + "\" alt=\"\" style=\"width: 32px; height: 32px; margin-left: -8px; padding-top: 10px;\" />"
+
+
+                    sHTML += " </div>"
+                    sHTML += " </div>" # end inner div
+
+                    sHTML += "<span class=\"action_name\">"
+                    sHTML += cot.Label
+                    sHTML += "</span>"
+
+
+                    sHTML += " </div>" # end outer div
+                    
+                    sHTML += "</td>"
+                    
+                    if i % 5 == 4:
+                        sHTML += "</tr>"
+
+                    i += 1
+
+                sHTML += "</table>"
             else:
                 sHTML += "<span>This ecosystem does not contain any Cloud Objects.</span>"
 
@@ -1478,24 +1492,29 @@ class ecoMethods:
                     # there *might* be a column named "Tags"... if so, it's special and contains the xml of a tag set.
                     # now draw the tag columns only
                     if prop.Name == "Tags":
-                        xDoc = ET.fromstring(prop.Value)
-                        if xDoc is not None:
-                            sHTML += "<div class=\"ui-widget-header\">AWS Tags</div>"
-                            for xeTag in xDoc.findall("item"):
-                                sHTML += "<div class=\"ecosystem_item_property\">" + xeTag.findtext("key", "") + \
-                                    ": <span class=\"ecosystem_item_property_value\">" + xeTag.findtext("value", "") + "</span></div>"
+                        if prop.Value:
+                            xDoc = ET.fromstring(prop.Value)
+                            if xDoc is not None:
+                                sHTML += "<div class=\"ui-widget-header\">AWS Tags</div>"
+                                for xeTag in xDoc.findall("item"):
+                                    sHTML += "<div class=\"ecosystem_item_property\">" + xeTag.findtext("key", "") + \
+                                        ": <span class=\"ecosystem_item_property_value\">" + xeTag.findtext("value", "") + "</span></div>"
             
 
                 # now lets draw the Storm tags
                 #  ! NOT the same kind of set as above, this one is multiple simple key/value pairs for an object_id
                 # we have all the tags in dtStormTags - we need only the ones for sObjectID
                 if dtStormTags:
-                    sHTML += "<div class=\"ui-widget-header\">Storm Tags</div>"
+                    # we only wanna show this section if the object id matched
+                    i = 0
                     for drTag in dtStormTags:
                         if drTag["ecosystem_object_id"] == sObjectID:
+                            if i==0:
+                                sHTML += "<div class=\"ui-widget-header\">Storm Tags</div>"
+                            
                             sHTML += "<div class=\"ecosystem_item_property\">" + drTag["key_name"] + \
                                 ": <span class=\"ecosystem_item_property_value\">" + drTag["value"] + "</span></div>"
-            
+                            i += 1
             return sHTML
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)

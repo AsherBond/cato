@@ -388,12 +388,14 @@ function getEcosystemLog() {
 function getEcosystemObjectList() {
 	"use strict";
 
+	var account_id = $.cookie("selected_cloud_account");
+
     showPleaseWait();
 
     $.ajax({
         type: "POST",
         url: "ecoMethods/wmGetEcosystemObjects",
-        data: '{"sEcosystemID":"' + g_eco_id + '"}',
+        data: '{"sEcosystemID":"' + g_eco_id + '", "sAccountID":"' + account_id + '"}',
         contentType: "application/json; charset=utf-8",
         dataType: "html",
         success: function (response) {

@@ -67,30 +67,12 @@ div.action_inner
 	box-shadow: 5px 5px 5px #ccc;
 }
 
-.ecosystem_type
-{
-	cursor: pointer;
-	margin: 0px 0px 5px 4px;
-	padding-left: 5px;
-	color: #202020;
-	list-style-type: none;
+div.ecosystem_type {
+    margin: 20px 0 20px 30px;
+    text-align: center;
+    width: 120px;
 }
-.ecosystem_type_header
-{
-	font-weight: bold;
-	height: 24px;
-}
-.ecosystem_type img
-{
-	padding: 2px 2px 2px 2px;
-}
-.ecosystem_type_icon
-{
-	margin: 0px;
-	padding: 0px;
-	height: 16px;
-	width: 16px;
-}
+
 .ecosystem_item_header_title
 {
 	float: left;
