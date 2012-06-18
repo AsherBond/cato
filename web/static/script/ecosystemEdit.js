@@ -199,12 +199,17 @@ function tabWasClicked(tab) {
     //hide 'em all
     $("#content_te .detail_panel").addClass("hidden");
 
+    //show the one you clicked
+    $(detail_div).removeClass("hidden");
+
     //do some case specific ajax calls
     if (tab == "objects") {
         getEcosystemObjectList();
     } else if (tab == "details") {
-    	//GetDetails();
-        // TODO: Issue #284
+		if (typeof(STORM) != "undefined") {
+	    	getEcosystemLog();
+		}
+
         GetRegistry(g_eco_id);
 
         //temporarily hidden until we enable parameters on ecosystems
@@ -215,9 +220,6 @@ function tabWasClicked(tab) {
 	    //getActionCategories();
 	    //getActions();
     }
-
-    //show the one you clicked
-    $(detail_div).removeClass("hidden");
 }
 
 function flowButtons($selector) {
@@ -291,6 +293,18 @@ function getEcosystemLog() {
             	$("#show_stopstorm_btn").hide();
         	}
 			
+			    
+			//set this up to auto-refresh if the status is one of the 'in process' statuses
+			// but this only happens if certain content is visible
+			if ( !$('#storm_status').is(':hidden')  ||
+				!$('#ecosystem_log').is(':hidden')  ||
+	  			!$('#storm_output').is(':hidden') ) {
+		        
+		        if (log.storm_status == 'Starting' || log.storm_status == 'Stopping') {
+					setTimeout("getEcosystemLog()", 10000);
+				}
+			}
+
             $("#storm_status").text(log.storm_status);
             $("#last_update_dt").text(log.last_update_dt);
             
