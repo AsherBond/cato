@@ -171,7 +171,7 @@ class User(object):
         except Exception, ex:
             raise ex
 
-    def Authenticate(self, login_id, password, change_password=None, answer=None):
+    def Authenticate(self, login_id, password, client_ip, change_password=None, answer=None):
         try:
             # Some of the failure to authenticate return values pass back a token.
             # this is so we can know how to prompt the user.
@@ -274,6 +274,18 @@ class User(object):
             sql = "update users set failed_login_attempts=0, last_login_dt=now() %s where user_id='%s'" % (change_clause, self.ID)
             if not db.exec_db_noexcep(sql):
                 print db.error
+        
+            # whack and add to the user_session table
+            if not db.exec_db_noexcep("delete from user_session where user_id = '" + self.ID + "'"):
+                print db.error
+                return False, "Unable to update session table. (1)"
+            
+            sql = """insert into user_session (user_id, address, login_dt, heartbeat, kick)
+                values ('%s','%s', now(), now(), 0)""" % (self.ID, client_ip)
+            if not db.exec_db_noexcep(sql):
+                print db.error
+                return False, "Unable to update session table. (1)"
+
         
             return True, ""
         except Exception, ex:
