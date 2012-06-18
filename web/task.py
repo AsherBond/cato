@@ -602,14 +602,15 @@ class Task(object):
             if db.error:
                 raise Exception("Unable to get step ids." + db.error)
 
-            for drStepIDs in dtStepIDs:
-                sSQL = "update _copy_task_step" \
-                    " set function_xml = replace(lower(function_xml)," \
-                    " '" + drStepIDs["step_id"].lower() + "'," \
-                    " '" + drStepIDs["newstep_id"] + "')" \
-                    " where function_name in ('if','loop','exists','while')"
-                if not db.tran_exec_noexcep(sSQL):
-                    raise Exception(db.error)
+            if dtStepIDs:
+                for drStepIDs in dtStepIDs:
+                    sSQL = "update _copy_task_step" \
+                        " set function_xml = replace(lower(function_xml)," \
+                        " '" + drStepIDs["step_id"].lower() + "'," \
+                        " '" + drStepIDs["newstep_id"] + "')" \
+                        " where function_name in ('if','loop','exists','while')"
+                    if not db.tran_exec_noexcep(sSQL):
+                        raise Exception(db.error)
 
             #finally, put the temp steps table in the real steps table
             sSQL = "insert into task select * from _copy_task"
