@@ -22,7 +22,7 @@ $(document).ready(function () {
 	//params
 	doGetParams("task", g_task_id, false);
 	//get the commands
-	//doGetCommands();
+	doGetCommands();
 
 });
 
@@ -46,6 +46,27 @@ function doGetDetails() {
                 $("#lblTaskNameHeader").text(task.Name);
                 $("#lblVersionHeader").text(task.Version + (task.IsDefaultVersion ? " (default)" : ""));
 	       		
+			} catch (ex) {
+				showAlert(ex.message);
+			}
+        },
+        error: function (response) {
+            showAlert(response.responseText);
+        }
+    });
+}
+
+function doGetCommands() {
+	$.ajax({
+        type: "POST",
+        async: true,
+        url: "taskMethods/wmGetStepsPrint",
+        data: '{"sTaskID":"' + g_task_id + '"}',
+        contentType: "application/json; charset=utf-8",
+        dataType: "text",
+        success: function (response) {
+	       try {
+	       		$("#codeblock_steps").html(response);
 			} catch (ex) {
 				showAlert(ex.message);
 			}

@@ -235,6 +235,115 @@ def GetStepTemplate(oStep):
     # This returns a Tuple with three values.
     return sHTML, sOptionHTML, sVariableHTML
 
+def DrawReadOnlyStep(oStep, bDisplayNotes):
+    sStepID = oStep.ID
+
+    fn = uiCommon.GetTaskFunction(oStep.FunctionName)
+    if fn is None:
+        # the function doesn't exist (was probably deprecated)
+        # we need at least a basic strip with a delete button
+        sNoFunc = "<li>";            
+        sNoFunc += "<div class=\"ui-state-default ui-state-highlightview_step\" id=\"" + sStepID + "\">"
+        sNoFunc += "    <div class=\"view_step_header ui-state-default ui-state-highlight\" id=\"view_step_header_" + sStepID + "\"><img src=\"static/images/icons/status_unknown_16.png\" /></div>"
+        sNoFunc += "    <div class=\"view_step_detail ui-state-highlight\" id=\"step_detail_" + sStepID + "\">"
+        sNoFunc += "Error building Step - Unable to get the details for the command type '" + oStep.FunctionName + "'.<br />"
+        sNoFunc += "This command type may have been deprecated - check the latest Cato release notes.<br />"
+        sNoFunc += "      </div>"
+        sNoFunc += "</div>"
+        sNoFunc += "</li>"
+
+        return sNoFunc
+    
+    # set this global flag so embedded steps will know what to do
+    bShowNotes = bDisplayNotes
+
+    sMainHTML = ""
+    sOptionHTML = ""
+
+    sStepOrder = ("" if oStep.Order == -1 else str(oStep.Order) + ": ")
+
+    # labels are different here than in Full Steps.
+    sLabel = sStepOrder + fn.Category.Label + " - " + fn.Label
+    sSkipHeaderClass = ("step_header_skip" if oStep.Commented else "")
+    sSkipStepClass = ("step_skip" if oStep.Commented else "")
+    
+    sSkipClass = ""
+    sExpandedClass = ""
+    if oStep.Commented:
+        sExpandedClass = "step_collapsed"
+        sSkipClass = "style=\"color: #ACACAC\""
+
+    sMainHTML += "<li class=\"step " + sSkipStepClass + "\" id=\"" + sStepID + "\">"
+    sMainHTML += "<div class=\"view_step " + sSkipHeaderClass + "\" id=\"" + sStepID + "\">"
+    sMainHTML += "    <div class=\"ui-state-default view_step_header " + sSkipHeaderClass + "\" id=\"view_step_header_" + sStepID + "\">"
+    sMainHTML += "       <span " + sSkipClass + ">" + sLabel + "</span>"
+    sMainHTML += "    </div>"
+    sMainHTML += "    <div class=\"view_step_detail " + sExpandedClass + "\" id=\"step_detail_" + sStepID + "\">"
+
+    html, sOptionHTML = GetStepTemplate_View(oStep)
+    sMainHTML += html
+
+#    if bShowNotes:
+#        if oStep.Description:
+#            sMainHTML += DrawStepNotes_View(oStep.Description)
+#
+    if sOptionHTML != "":
+        sMainHTML += DrawStepOptions_View(sOptionHTML)
+
+    # sMainHTML += "    </div>"
+    sMainHTML += "</div>"
+    sMainHTML += "</li>"
+
+    return sMainHTML
+
+def GetStepTemplate_View(oStep):
+    sFunction = oStep.FunctionName
+    sHTML = ""
+    sOptionHTML = ""
+    
+    if sFunction.lower() == "if":
+        sHTML = If_View(oStep)
+    elif sFunction.lower() == "loop":
+        sHTML = Loop_View(oStep)
+    elif sFunction.lower() == "loop":
+        sHTML = Loop_View(oStep)
+    elif sFunction.lower() == "while":
+        sHTML = While_View(oStep)
+    elif sFunction.lower() == "exists":
+        sHTML = Exists_View(oStep)
+    elif sFunction.lower() == "run_task":
+        """"""#sHTML = RunTask_View(oStep)
+    elif sFunction.lower() == "subtask":
+        """"""#sHTML = Subtask_View(oStep)
+    else:
+        sHTML, sOptionHTML = DrawReadOnlyStepFromXMLDocument(oStep)
+    
+    return sHTML, sOptionHTML
+
+def DrawReadOnlyStepFromXMLDocument(oStep):
+    xd = oStep.FunctionXDoc
+    sHTML = ""
+    sOptionHTML = ""
+    if xd is not None:
+        for xe in xd:
+            # PAY ATTENTION!
+            # there are a few xml nodes inside the function_xml that are reserved for internal features.
+            # these nodes WILL NOT BE DRAWN as part of the step editing area.
+            
+            # "variables" is a reserved node name
+            if xe.tag == "step_variables": 
+                continue
+            
+            # now, for embedded content, the step may have an xpath "prefix"
+            sXPath = xe.tag
+            
+            log("Drawing [" + sXPath + "]", 4)
+            sNodeHTML, sNodeOptionHTML = DrawReadOnlyNode(xe, sXPath, oStep)
+            sHTML += sNodeHTML
+            sOptionHTML += sNodeOptionHTML
+            
+    return sHTML, sOptionHTML
+
 def DrawStepFromXMLDocument(oStep):
     xd = oStep.FunctionXDoc
     # 
@@ -389,6 +498,98 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
         #it may be that these fields themselves are removable
         if bIsRemovable:
             sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + sXPath + "\" step_id=\"" + oStep.ID + "\"></span>"
+    
+    #ok, now that we've drawn it, it might be intended to go on the "options tab".
+    #if so, stick it there
+    if sOptionTab:
+        return "", sHTML
+    else:
+        return sHTML, ""
+        
+def DrawReadOnlyNode(xeNode, sXPath, oStep):
+    """
+    Some important notes:
+    1) a node IsEditable if it has the attribute "is_array".  (It's an array, therefore it's contents are 'editable'.)
+    """
+    sHTML = ""
+    sNodeName = xeNode.tag
+    
+    sNodeLabel = xeNode.get("label", sNodeName)
+    sIsEditable = xeNode.get("is_array", "")
+    bIsEditable = catocommon.is_true(sIsEditable)
+    
+    sOptionTab = xeNode.get("option_tab", "")
+    
+    log("-- Label: " + sNodeLabel, 4)
+    log("-- Editable: " + sIsEditable + " - " + str(bIsEditable), 4)
+    log("-- Elements: " + str(len(xeNode)), 4)
+    log("-- Option Field?: " + sOptionTab, 4)
+    
+    #if a node has children we'll draw it with some hierarchical styling.
+    #AND ALSO if it's editable, even if it has no children, we'll still draw it as a container.
+    
+    # this dict holds the nodes that have the same name
+    # meaning they are part of an array
+    dictNodes = {}
+    
+    if len(xeNode) > 0 or bIsEditable:
+        #if there is only one child, AND it's not part of an array
+        #don't draw the header or the bounding box, just a composite field label.
+        if len(xeNode) == 1 and not bIsEditable:
+            log("-- no more children ... drawing ... ", 4)
+            #get the first (and only) node
+            xeOnlyChild = xeNode[0] #.find("*[1]")
+            
+            #call DrawNode just on the off chance it actually has children
+            sChildXPath = sXPath + "/" + xeOnlyChild.tag
+            # DrawNode returns a tuple, but here we only care about the first value
+            # because "editable" nodes shouldn't be options.
+            sNodeHTML, sOptionHTML = DrawReadOnlyNode(xeOnlyChild, sChildXPath, oStep)
+            if sOptionTab:
+                sHTML += sNodeName + "." + sOptionHTML
+            else:
+                sHTML += sNodeName + "." + sNodeHTML
+        else: #there is more than one child... business as usual
+            log("-- more children ... drawing and drilling down ... ", 4)
+            sHTML += "<div class=\"ui-widget-content ui-corner-bottom step_group\">" #this section
+            sHTML += "  <div class=\"ui-state-default step_group_header\">" #header
+            sHTML += "      <div class=\"step_header_title\">" + sNodeLabel + "</div>"
+            sHTML += "  </div>" #end header
+    
+            for xeChildNode in xeNode:
+                sChildNodeName = xeChildNode.tag
+                sChildXPath = sXPath + "/" + sChildNodeName
+    
+                # here's the magic... are there any children nodes here with the SAME NAME?
+                # if so they need an index on the xpath
+                if len(xeNode.findall(sChildNodeName)) > 1:
+                    # since the document won't necessarily be in perfect order,
+                    # we need to keep track of same named nodes and their indexes.
+                    # so, stick each array node up in a lookup table.
+
+                    # is it already in my lookup table?
+                    iLastIndex = 0
+                    if dictNodes.has_key(sChildNodeName):
+                        # there, increment it and set it
+                        iLastIndex = dictNodes[sChildNodeName] + 1
+                        dictNodes[sChildNodeName] = iLastIndex
+                    else:
+                        # not there, add it
+                        iLastIndex = 1
+                        dictNodes[sChildNodeName] = iLastIndex
+
+                    sChildXPath = sChildXPath + "[" + str(iLastIndex) + "]"
+                    
+                # it's not possible for an 'editable' node to be in the options tab if it's parents aren't,
+                # so here we ignore the options return
+                sNodeHTML, sBunk = DrawReadOnlyNode(xeChildNode, sChildXPath, oStep)
+                if sBunk:
+                    log("WARNING: This shouldn't have returned 'option' html.", 2)
+                sHTML += sNodeHTML
+    
+            sHTML += "</div>"
+    else: #end section
+        sHTML += DrawReadOnlyField(xeNode, sXPath, oStep)
     
     #ok, now that we've drawn it, it might be intended to go on the "options tab".
     #if so, stick it there
@@ -566,6 +767,53 @@ def DrawField(xe, sXPath, oStep):
     log("---- ... done", 4)
     return sHTML
 
+def DrawReadOnlyField(xe, sXPath, oStep):
+    sHTML = ""
+    sNodeValue = (xe.text if xe.text else "")
+    log("---- Value :" + sNodeValue, 4)
+    
+    sNodeLabel = xe.get("label", xe.tag)
+    sLabelClasses = xe.get("label_class", "")
+    sLabelStyle = xe.get("label_style", "")
+    sNodeLabel = "<span class=\"" + sLabelClasses + "\" style=\"" + sLabelStyle + "\">" + sNodeLabel + ": </span>"
+
+    sBreakBefore = xe.get("break_before", "")
+    sBreakAfter = xe.get("break_after", "")
+    sHRBefore = xe.get("hr_before", "")
+    sHRAfter = xe.get("hr_after", "")
+
+    log("---- Break Before/After : %s/%s" % (sBreakBefore, sBreakAfter), 4)
+    log("---- HR Before/After : %s/%s" % (sHRBefore, sHRAfter), 4)
+
+
+    #some getting started layout possibilities
+    if sBreakBefore == catocommon.is_true(sBreakBefore):
+        sHTML += "<br />"
+    if sHRBefore == catocommon.is_true(sHRBefore):
+        sHTML += "<hr />"
+
+    # HERE IT IS!
+    sHTML += sNodeLabel + "<span class=\"code\" style=\"padding-right: 8px;\">" + sNodeValue + "</span>"
+
+    #some final layout possibilities
+    if catocommon.is_true(sBreakAfter):
+        sHTML += "<br />"
+    if catocommon.is_true(sHRAfter):
+        sHTML += "<hr />"
+
+    log("---- ... done", 4)
+    return sHTML
+
+def DrawStepOptions_View(sOptionHTML):
+    # this is the section that is common to all steps.
+    sHTML = ""
+
+    sHTML += "<hr />"
+    sHTML += "Options:<br />"
+    sHTML += "<div class=\"codebox\">" + sOptionHTML + "</div>"
+
+    return sHTML
+
 def CommonAttribsWithID(oStep, bRequired, sXPath, sElementID, sAdditionalClasses):
     # if it's embedded it will have a prefix
     sXPath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "") + sXPath
@@ -678,6 +926,61 @@ def DrawEmbeddedStep(oStep):
     sMainHTML += "</div>"
 
     return sMainHTML
+
+def DrawEmbeddedReadOnlyStep(xEmbeddedFunction):
+    if xEmbeddedFunction is not None:
+        sFunctionName = xEmbeddedFunction.get("name", "")
+
+        fn = uiCommon.GetTaskFunction(sFunctionName)
+
+        # !!!!! This isn't a new step! ... It's an extension of the parent step.
+        # but, since it's a different 'function', we'll treat it like a different step for now
+        oEmbeddedStep = task.Step() # a new step object
+        oEmbeddedStep.Function = fn # a function object
+        oEmbeddedStep.FunctionName = sFunctionName
+        oEmbeddedStep.FunctionXDoc = xEmbeddedFunction
+
+        # we need the full function, not just the inner part that's on the parent step xml.
+        if fn is None:
+            # the function doesn't exist (was probably deprecated)
+            # we need at least a basic strip with a delete button
+            sNoFunc = "<div class=\"embedded_step\">"
+            sNoFunc += "    <div class=\"ui-state-default ui-state-highlight step_header\">"
+            sNoFunc += "        <div class=\"step_header_title\"><img src=\"static/images/icons/status_unknown_16.png\" /></div>"
+            sNoFunc += "    </div>"
+            sNoFunc += "    <div class=\"ui-widget-content ui-state-highlight ui-corner-bottom step_detail\" >"
+            sNoFunc += "Error building Step - Unable to get the details for the command type '" + sFunctionName + "'.<br />"
+            sNoFunc += "This command type may have been deprecated - check the latest Cato release notes.<br />"
+            sNoFunc += "    </div>"
+            sNoFunc += "</div>"
+    
+            return sNoFunc
+        
+        sMainHTML = ""
+    
+        # labels are different here than in Full Steps.
+        sIcon = ("" if not fn.Icon else fn.Icon)
+        sLabel = "<img class=\"step_header_function_icon\" src=\"" + sIcon + "\" alt=\"\" /> " + \
+            fn.Category.Label + " - " + fn.Label
+    
+        sMainHTML += "<div class=\"embedded_step\">"
+        sMainHTML += "    <div class=\"ui-state-default step_header\">"
+        sMainHTML += "        <div class=\"step_header_title\">"
+        sMainHTML += "            <span>" + sLabel + "</span>"
+        sMainHTML += "        </div>"
+        sMainHTML += "    </div>"
+        sMainHTML += "     <div class=\"ui-widget-content ui-corner-bottom step_detail\" >"
+    
+        #!!! this returns a tuple with optional "options" and "variable" html
+        sStepHTML, sOptionHTML = GetStepTemplate_View(oEmbeddedStep)
+        sMainHTML += sStepHTML
+        
+        if sOptionHTML != "":
+            sMainHTML += DrawStepOptions_View(sOptionHTML)
+
+        sMainHTML += "</div>"
+    
+        return sMainHTML
 
 def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
     sStepID = oStep.ID
@@ -845,21 +1148,6 @@ def DrawDropZone(oStep, xEmbeddedFunction, sXPath, sLabel, bRequired):
     # check for an xpath prefix
     sXPath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "") + sXPath
     
-    # some of our 'columns' may be complex XPaths.  XPaths have invalid characters for use in 
-    # an HTML ID attribute
-    # but we need it to be unique... so just 'clean up' the column name
-    sXPathBasedID = sXPath.replace("[", "").replace("]", "").replace("/", "")
-
-    # the dropzone
-    sDropZone = "<div" + \
-        (" is_required=\"true\" value=\"\"" if bRequired else "") + \
-        " id=\"" + oStep.FunctionName + "_" + oStep.ID + "_" + sXPathBasedID + "_dropzone\"" \
-        " xpath=\"" + sXPath + "\"" \
-        " step_id=\"" + oStep.ID + "\"" \
-        " class=\"step_nested_drop_target " + ("is_required" if bRequired else "") + "\">Click here to add a Command.</div>"
-#        " datafield_id=\"" + sElementID + "\"" \
-
-
     # manually create a step object, which will basically only have the function_xml.
     if xEmbeddedFunction is not None:
         sFunctionName = xEmbeddedFunction.get("name", "")
@@ -879,7 +1167,19 @@ def DrawDropZone(oStep, xEmbeddedFunction, sXPath, sLabel, bRequired):
         
         sHTML += DrawEmbeddedStep(oEmbeddedStep)
     else:
-        sHTML += sDropZone 
+        # some of our 'columns' may be complex XPaths.  XPaths have invalid characters for use in 
+        # an HTML ID attribute
+        # but we need it to be unique... so just 'clean up' the column name
+        sXPathBasedID = sXPath.replace("[", "").replace("]", "").replace("/", "")
+    
+        # the dropzone
+        sHTML += "<div" + \
+            (" is_required=\"true\" value=\"\"" if bRequired else "") + \
+            " id=\"" + oStep.FunctionName + "_" + oStep.ID + "_" + sXPathBasedID + "_dropzone\"" \
+            " xpath=\"" + sXPath + "\"" \
+            " step_id=\"" + oStep.ID + "\"" \
+            " class=\"step_nested_drop_target " + ("is_required" if bRequired else "") + "\">Click here to add a Command.</div>"
+    #        " datafield_id=\"" + sElementID + "\"" \
        
     return sHTML
 
@@ -2156,6 +2456,66 @@ def If(oStep):
         uiCommon.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
+def If_View(oStep):
+    try:
+        sStepID = oStep.ID
+        xd = oStep.FunctionXDoc
+    
+        sHTML = ""
+    
+        xTests = xd.findall("tests/test")
+        sHTML += "<div id=\"if_" + sStepID + "_conditions\" number=\"" + str(len(xTests)) + "\">"
+    
+        i = 1 # because XPath starts at "1"
+        for xTest in xTests:
+            sEval = xTest.findtext("eval", None)
+            xAction = xTest.find("action", None)
+    
+            if i == 1:
+                sHTML += "If:<br />"
+            else:
+                sHTML += "Else If:<br />"
+    
+            if sEval is not None:
+                sHTML += "<div class=\"codebox\">" + uiCommon.SafeHTML(sEval) + "</div>"
+            else:
+                sHTML += "ERROR: Malformed XML for Step ID [" + sStepID + "].  Missing 'eval' element."
+    
+    
+            if xAction is not None:
+                xEmbeddedFunction = xAction.find("function")
+                sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
+            else:
+                sHTML += "ERROR: Malformed XML for Step ID [" + sStepID + "].  Missing 'action' element."
+    
+    
+            if i != 1:
+                sHTML += "</div>"
+    
+            i += 1
+    
+        sHTML += "</div>"
+    
+    
+        sHTML += "<div>"
+    
+        # the final 'else' area
+        xElse = xd.find("else", "")
+        if xElse is not None:
+            sHTML += "Else (no 'If' conditions matched):"
+
+            xEmbeddedFunction = xElse.find("function")
+            sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
+        else:
+            sHTML += "<div class=\"no_step\">No 'Else' action defined.</div>"
+            
+        sHTML += "</div>"
+    
+        return sHTML
+    except Exception:
+        uiCommon.log_nouser(traceback.format_exc(), 0)
+        return "Unable to draw Step - see log for details."
+
 def Loop(oStep):
     try:
         xd = oStep.FunctionXDoc
@@ -2218,6 +2578,54 @@ def Loop(oStep):
         uiCommon.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
+def Loop_View(oStep):
+    try:
+        xd = oStep.FunctionXDoc
+    
+        sStart = xd.findtext("start", "")
+        sIncrement = xd.findtext("increment", "")
+        sCounter = xd.findtext("counter", "")
+        sTest = xd.findtext("test", "")
+        sCompareTo = xd.findtext("compare_to", "")
+        sMax = xd.findtext("max", "")
+    
+        xAction = xd.find("action")
+    
+        sHTML = ""
+    
+    
+        sHTML += "Counter variable"
+        sHTML += "<span class=\"code\">" + sCounter + "</span>"
+    
+        sHTML += " begins at"
+        sHTML += "<span class=\"code\">" + sStart + "</span>"
+    
+        sHTML += " and increments by"
+        sHTML += "<span class=\"code\">" + sIncrement + "</span>."
+    
+        sHTML += "<br />Loop will continue while variable is"
+        sHTML += " <span class=\"code\">" + sTest + "</span>"
+        sHTML += " <span class=\"code\">" + sCompareTo + "</span>"    
+    
+        sHTML += " or"
+        sHTML += "<span class=\"code\">" + sMax + "</span>"
+        sHTML += " loops have occured."
+    
+        sHTML += "<hr />"
+    
+        # enable the dropzone for the Action
+        if xAction is not None:
+            xEmbeddedFunction = xAction.find("function")
+            sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
+        else:
+            sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing 'action' element."
+    
+    
+        return sHTML
+    except Exception:
+        uiCommon.log_nouser(traceback.format_exc(), 0)
+        return "Unable to draw Step - see log for details."
+
 def While(oStep):
     try:
         xd = oStep.FunctionXDoc
@@ -2237,6 +2645,31 @@ def While(oStep):
             xEmbeddedFunction = xAction.find("function")
             # xEmbeddedFunction might be None, but we pass it anyway to get the empty zone drawn
             sHTML += DrawDropZone(oStep, xEmbeddedFunction, "action", "<hr />Action:<br />", True)
+        else:
+            sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing 'action' element."
+    
+    
+        return sHTML
+    except Exception:
+        uiCommon.log_nouser(traceback.format_exc(), 0)
+        return "Unable to draw Step - see log for details."
+
+def While_View(oStep):
+    try:
+        xd = oStep.FunctionXDoc
+    
+        sTest = xd.findtext("test", "")
+        xAction = xd.find("action")
+    
+        sHTML = ""
+        sHTML += "While: \n"
+        sHTML += "<span class=\"code\">" + sTest + "</span>"    
+    
+        # enable the dropzone for the Action
+        if xAction is not None:
+            sHTML += "<hr />Action:<br />"
+            xEmbeddedFunction = xAction.find("function")
+            sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
         else:
             sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing 'action' element."
     
@@ -2325,6 +2758,51 @@ def Exists(oStep):
             sHTML += DrawDropZone(oStep, xEmbeddedFunction, sCol, "Negative Action:<br />", True)
         else:
             sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing '" + sCol + "' element."
+    
+        #  The End.
+        return sHTML
+
+    except Exception:
+        uiCommon.log_nouser(traceback.format_exc(), 0)
+        return "Unable to draw Step - see log for details."
+
+def Exists_View(oStep):
+    try:
+        xd = oStep.FunctionXDoc
+    
+        sHTML = ""
+        sHTML += "<div id=\"v" + oStep.ID + "_vars\">"
+        sHTML += "Variables to Test:<br />"
+    
+        xPairs = xd.findall("variables/variable")
+        i = 1
+        for xe in xPairs:
+            sKey = xe.findtext("name", "")
+            sIsTrue = xe.findtext("is_true", "")
+    
+            if sIsTrue == "1":
+                sHTML += "<span class=\"code\">" + uiCommon.SafeHTML(sKey) + " (IsTrue) </span>"
+            else:
+                sHTML += "<span class=\"code\">" + uiCommon.SafeHTML(sKey) + "</span>"
+        sHTML += "</div>"
+    
+        #  Exists have a Positive and Negative action
+        xPositiveAction = xd.find("actions/positive_action")
+        xNegativeAction = xd.find("actions/negative_action")
+
+        sHTML += "<br />Positive Action:<br />"
+        if xPositiveAction is not None:
+            xEmbeddedFunction = xPositiveAction.find("function")
+            sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
+        else:
+            sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "]."
+    
+        sHTML += "<br />Negative Action:<br />"
+        if xNegativeAction is not None:
+            xEmbeddedFunction = xNegativeAction.find("function")
+            sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
+        else:
+            sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "]."
     
         #  The End.
         return sHTML

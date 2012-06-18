@@ -721,7 +721,58 @@ class taskMethods:
             return sHTML
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
-        
+
+    
+    def wmGetStepsPrint(self):
+        try:
+            sTaskID = uiCommon.getAjaxArg("sTaskID")
+
+            if len(sTaskID) < 36:
+                return "Unable to get Steps - invalid Task ID."
+
+            sHTML = ""
+            
+            #instantiate a Task object
+            oTask = task.Task()
+            sErr = oTask.FromID(sTaskID, False)
+            if sErr:
+                uiCommon.log(sErr, 2)
+
+            # MAIN codeblock first
+            sHTML += "<div class=\"ui-state-default te_header\">MAIN</div>"
+            sHTML += "<div class=\"codeblock_box\">"
+            sHTML += self.BuildSteps(oTask, "MAIN")
+            sHTML += "</div>"
+
+            # for the rest of the codeblocks
+            for cb in oTask.Codeblocks.itervalues():
+                # don't redraw MAIN
+                if cb.Name == "MAIN":
+                    continue
+                
+                sHTML += "<div class=\"ui-state-default te_header\" id=\"cbt_" + cb.Name + "\">" + cb.Name + "</div>"
+                sHTML += "<div class=\"codeblock_box\">"
+                sHTML += self.BuildSteps(oTask, cb.Name)
+                sHTML += "</div>"
+
+            return sHTML
+        except Exception:
+            uiCommon.log_nouser(traceback.format_exc(), 0)
+    
+    def BuildSteps(self, oTask, sCodeblockName):
+        try:
+            sHTML = ""
+
+            if oTask.Codeblocks[sCodeblockName].Steps:
+                for order, oStep in oTask.Codeblocks[sCodeblockName].Steps.iteritems():
+                    sHTML += ST.DrawReadOnlyStep(oStep, True)
+            else:
+                sHTML = "<li class=\"no_step\">No Commands defined for this Codeblock.</li>"
+            
+            return sHTML
+        except Exception:
+            uiCommon.log_nouser(traceback.format_exc(), 0)
+
     def wmGetStep(self):
         try:
             sStepID = uiCommon.getAjaxArg("sStepID")
