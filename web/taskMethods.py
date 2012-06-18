@@ -90,9 +90,16 @@ class taskMethods:
         try:
             sFilter = uiCommon.getAjaxArg("sSearch")
             sStatus = uiCommon.getAjaxArg("sStatus")
-            sRecords = uiCommon.getAjaxArg("sRecords", "200")
             sFrom = uiCommon.getAjaxArg("sFrom", "")
             sTo = uiCommon.getAjaxArg("sTo", "")
+            sRecords = uiCommon.getAjaxArg("sRecords", "200")
+            
+            # # of records must be numeric
+            try:
+                sRecords = str(int(sRecords))
+            except TypeError:
+                sRecords = "200"
+                
 
             sHTML = ""
             sWhereString = " where (1=1) "
@@ -108,6 +115,7 @@ class taskMethods:
                             "or ti.task_status like '%%" + term + "%%' " \
                             "or ar.hostname like '%%" + term + "%%' " \
                             "or a.asset_name like '%%" + term + "%%' " \
+                            "or t.task_code like '%%" + term + "%%' " \
                             "or t.task_name like '%%" + term + "%%' " \
                             "or t.version like '%%" + term + "%%' " \
                             "or u.username like '%%" + term + "%%' " \
