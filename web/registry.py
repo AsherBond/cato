@@ -40,7 +40,6 @@ class Registry(object):
     
                         self.xml_tree = ET.fromstring("<registry />")
                         
-            print self.xml_text
         except Exception, ex:
             raise Exception(ex)
         finally:

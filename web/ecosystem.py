@@ -257,7 +257,6 @@ class Ecotemplate(object):
                         ea.TaskVersion = ea.Task.Version
             
             # yay!
-            print "done"
             db.tran_commit()
             return True, None
 
@@ -272,8 +271,6 @@ class Ecotemplate(object):
             et = Ecotemplate()
             if et is not None:
                 # populate it from self
-                print sNewName
-                print self.ID
                 et.Name = sNewName
                 et.Description = self.Description
                 et.StormFileType = self.StormFileType

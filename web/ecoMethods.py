@@ -248,7 +248,6 @@ class ecoMethods:
                 et.FromID(sEcoTemplateID)
                 if et is not None:
                     result, msg = et.DBCopy(sNewName)
-                    print "out"
                     if not result:
                         return "{\"error\" : \"%s\"}" % msg
                     

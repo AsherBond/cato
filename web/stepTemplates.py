@@ -2833,7 +2833,6 @@ def Codeblock(oStep):
             if oStep.Task.Codeblocks:
                 for cb in oStep.Task.Codeblocks.itervalues():
                     if sCB == cb.Name:
-                        print "match"
                         sHTML += """<span class=\"ui-icon ui-icon-link forceinline codeblock_goto_btn pointer\" title=\"Go To Codeblock\"
                             codeblock=\"%s\"></span>\n""" % sCB
                         break
