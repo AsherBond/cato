@@ -68,7 +68,9 @@ class getlicense:
     def GET(self):
         try:
             result, msg, lic = license.check_license()
-            return "{\"result\":\"%s\",\"message\":\"%s\",\"license\":\"%s\"}" % (result, msg, uiCommon.packJSON(uiCommon.FixBreaks(uiCommon.SafeHTML(lic))))
+            if lic:
+                lic = uiCommon.packJSON(uiCommon.FixBreaks(uiCommon.SafeHTML(lic)))
+            return "{\"result\":\"%s\",\"message\":\"%s\",\"license\":\"%s\"}" % (result, msg, lic)
         except Exception, ex:
             print ex.__str__()    
             
