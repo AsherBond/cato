@@ -65,7 +65,7 @@ class taskMethods:
             tasks = task.Tasks(sFilter)
             if tasks.rows:
                 for row in tasks.rows:
-                    sHTML += "<tr task_id=\"" + row["task_id"] + "\">"
+                    sHTML += "<tr task_id=\"" + row["task_id"] + "\" status=\"" + row["task_status"] + "\">"
                     sHTML += "<td class=\"chkboxcolumn\">"
                     sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
                     " id=\"chk_" + row["original_task_id"] + "\"" \

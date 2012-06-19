@@ -97,7 +97,11 @@ function GetItems() {
 		    //what happens when you click a row?
 		    $(".selectable").click(function () {
 		        showPleaseWait();
-		        location.href = '/taskEdit?task_id=' + $(this).parent().attr("task_id");
+		    	if ($(this).parent().attr("status") == "Approved") {
+			        location.href = '/taskView?task_id=' + $(this).parent().attr("task_id");
+			    } else {
+			        location.href = '/taskEdit?task_id=' + $(this).parent().attr("task_id");
+			    }
 		    });
 
         },

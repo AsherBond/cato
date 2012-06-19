@@ -1,130 +1,80 @@
 $def with ()
-$var jsfiles: taskedit/taskEdit.js 	taskedit/taskView.js taskedit/taskVersions.js taskedit/taskEditDebug.js taskedit/taskEditCodeblock.js taskedit/taskEditParams.js taskedit/taskEditSteps.js taskedit/taskEditCommandSpecific.js taskedit/taskStepVarsEdit.js jquery/jquery.rightClick.js jquery/jquery.ui.ufd-0.6/jquery.ui.ufd.js toolbox.js validation.js objectTag.js registry.js parametersOnDialog.js taskLaunchDialog.js
+$var jsfiles: taskedit/taskEdit.js 	taskedit/taskView.js taskedit/taskVersions.js taskedit/taskEditDebug.js taskedit/taskEditParams.js toolbox.js objectTag.js registry.js parametersOnDialog.js taskLaunchDialog.js
 
 $var cssfiles: registry.css taskEdit.css taskView.css
 
-<link href="static/script/jquery/jquery.ui.ufd-0.6/css/ufd-base.css" rel="stylesheet" type="text/css" />
-<link href="static/script/jquery/jquery.ui.ufd-0.6/css/plain/plain.css" rel="stylesheet" type="text/css" />
-
 <div id="left_panel_te">
     <div id="toolbox">
-        <div id="toolbox_tabs" class="toolbox_tabs_2row">
-            <span id="tab_schedules" linkto="div_schedules" class="ui-state-default ui-corner-top toolbox_tab">Schedules</span><span id="tab_parameters"
-            linkto="div_parameters"
-            class="ui-state-default ui-corner-top toolbox_tab">Parameters</span><span id="tab_clipboard"
-            linkto="div_clipboard" class="ui-state-default ui-corner-top toolbox_tab">Clipboard</span>
-            <br />
-            <span id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top ui-state-active toolbox_tab"> Details</span><span id="tab_versions" linkto="div_versions" class="ui-state-default ui-corner-top toolbox_tab">Versions</span><span
-            id="tab_commands" linkto="div_commands" class="ui-state-default ui-corner-top toolbox_tab">Commands</span><span
-            id="tab_debug" linkto="div_debug" class="ui-state-default ui-corner-top toolbox_tab">Run</span>
-            <!--<<span
+        <div id="toolbox_tabs" class="toolbox_tabs_1_row">
+            <span id="tab_versions" linkto="div_versions" class="ui-state-default ui-corner-top toolbox_tab ui-tabs-selected ui-state-active"> Versions&nbsp;</span><span id="tab_parameters" linkto="div_parameters" class="ui-state-default ui-corner-top toolbox_tab"
+            style="padding-left: 6px; padding-right: 6px;">Parameters</span><span id="tab_schedules"
+            linkto="div_schedules" class="ui-state-default ui-corner-top toolbox_tab"
+            style="padding-left: 6px; padding-right: 6px;">Schedules</span><span id="tab_debug"
+            linkto="div_debug" class="ui-state-default ui-corner-top toolbox_tab">Run</span>
+            <!--<span
             id="tab_registry" linkto="div_registry" class="ui-state-default ui-corner-top toolbox_tab"
             style="padding-left: 7px; padding-right: 7px;">Registry</span><span
             id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>-->
         </div>
-        <div id="div_details" class="toolbox_panel">
-            <div style="padding: 0 0 0 5px;">
-                <span class="detail_label">Code:</span>
-                <input type="text" id="txtTaskCode" class="task_details code" validate_as=""
-                te_group="detail_fields" column="task_code" />
-                <br />
-                <span class="detail_label">Name:</span>
-                <input type="text" id="txtTaskName" class="task_details code" te_group="detail_fields"
-                column="task_name" />
-                <br />
-                <span class="detail_label">Description:</span>
-                <br />
-                <textarea id="txtDescription" rows="5" class="code" te_group="detail_fields" column="task_desc"></textarea>
-                <br />
-                <!-- *** Commented out per Bug 1029 ***
-                <input type="checkbox" class="chkbox" id="chkDirect" te_group="detail_fields"
-                column="use_connector_system" />
-                Direct to Asset?<br />-->
-                <span class="detail_label">Concurrent Instances:</span>
-                <input type="text" id="txtConcurrentInstances" class="task_details code"
-                te_group="detail_fields" column="concurrent_instances" validate_as="posint" />
-                <br />
-                <span class="detail_label">Number to Queue:</span>
-                <input type="text" id="txtQueueDepth" class="task_details code" te_group="detail_fields"
-                column="queue_depth" validate_as="posint" />
-                <br />
-                <br />
-                <hr />
-                <center>
-                    <span id="show_log_link">Change Log</span>
-                    <span id="show_runlog_link">Last Run Log</span>
-                </center>
-            </div>
-        </div>
-        <div id="div_versions" class="toolbox_panel hidden">
+        <div id="div_versions" class="toolbox_panel">
+            <center>
+                <span id="show_log_link">View Change Log</span>
+                <span id="show_runlog_link">View Last Run Log</span>
+            </center>
+            <br />
+            <br />
             <span class="detail_label">Selected Version:</span>
             <span id="lblVersion" class="code"></span>
             <br />
             <span class="detail_label">Status: </span>
             <span id="lblStatus2" class="code"></span>
             <br />
-            <span id="approve_btn">Approve</span>
+            <asp:Button ID="btnSetDefault" Text="Set as Default" OnClick="btnSetDefault_Click" />
             <hr />
             <span class="detail_label">All Versions:</span>
             <ul id="versions"></ul>
-            <center>
-                <span id="new_version_btn">New Version</span>
-            </center>
-        </div>
-        <div id="div_commands" class="toolbox_panel hidden">
-            <span id="command_help_btn">Help</span>
-            <hr />
-            <table border="0" width="100%">
-                <tr>
-                    <td width="30%"><ul id="categories"></ul></td>
-                    <td width="70%"><div class="category_functions" id="category_functions"></div></td>
-                </tr>
-            </table>
+            <input type="button" value="New Version" onclick="ShowVersionAdd();return false;" />
         </div>
         <div id="div_debug" class="toolbox_panel hidden">
             <!--<p>
             Test Asset:<br />
             <input type="text" id="txtTestAsset" Enabled="false" asset_id="" class="code"
             Width="80%" />
-            <img class="asset_picker_btn pointer" src="static/images/icons/search.png" link_to="txtTestAsset"
+            <img class="asset_picker_btn pointer" src="../images/icons/search.png" link_to="ctl00_phDetail_txtTestAsset"
             alt="" />
-            <img id="debug_asset_clear_btn" class="pointer" src="static/images/icons/fileclose.png"
+            <img id="debug_asset_clear_btn" class="pointer" src="../images/icons/fileclose.png"
             alt="" />
             </p>-->
-            <div id="debug_last_run" class="hidden">
-                <h4>Last Run</h4>
-                Submitted:
-                <span id="debug_submitted"></span>
+            <p>
+                Last Run Time:
+                <span id="lblLastRunDT"></span>
                 <br />
-                Completed:
-                <span id="debug_completed"></span>
-                <br />
-                Status:
-                <span id="debug_status"></span>
-                <br />
-                Instance:
-                <span id="debug_instance"></span>
-                <br />
-                Submitted By:
-                <span id="debug_submitted_by"></span>
-                <br />
-
-                View Log:
-                <span id="debug_view_latest_log" class="ui-icon ui-icon-search debug_btn" style="display: inline-block;"></span>
-
-                <hr />
-            </div>
-            <div style="text-align: center;">
+                Last Run Status:
+                <span id="lblLastRunStatus"></span>
+                <asp:Image ID="debug_view_latest_log" class="debug_btn" ImageUrl="../images/icons/view_text_16.png"
+                />
+            </p>
+            <br />
+            <hr />
+            <br />
+            <p style="text-align: center;">
                 Current Status:
                 <span id="lblCurrentStatus"></span>
                 <br />
-                <img id="debug_stop_btn" class="debug_btn" src="static/images/icons/player_stop_32.png"
+                <img id="debug_stop_btn" class="debug_btn" src="../images/icons/player_stop_32.png"
                 alt="" />
-                <img id="debug_run_btn" class="debug_btn" src="static/images/icons/player_play_32.png"
+                <img id="debug_run_btn" class="debug_btn" src="../images/icons/player_play_32.png"
                 alt="" />
-                <img id="debug_view_active_log" class="debug_btn" src="static/images/icons/view_text_32.png"
+                <img id="debug_view_active_log" class="debug_btn" src="../images/icons/view_text_32.png"
                 alt="" />
-            </div>
+            </p>
+        </div>
+        <div id="div_tags" class="toolbox_panel hidden">
+            <span id="tag_add_btn" class="tag_add_btn pointer"> <img alt="" src="static/images/icons/edit_add.png" /> click to add </span>
+            <ul id="objects_tags"></ul>
+        </div>
+        <div id="div_registry" class="toolbox_panel hidden">
+            <div id="registry_content"></div>
         </div>
         <div id="div_parameters" class="toolbox_panel hidden">
             <span id="parameter_add_btn">Add New</span>
@@ -142,578 +92,96 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             </div>
             <div id="toolbox_schedules" class="ui-widget-content"></div>
         </div>
-        <div id="div_clipboard" class="toolbox_panel hidden">
-            <span id="clear_clipboard_btn">Clear All</span>
-            <hr />
-            <ul id="clipboard"></ul>
-        </div>
-        <div id="div_tags" class="toolbox_panel hidden">
-            <span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
-            <ul id="objects_tags"></ul>
-        </div>
-        <div id="div_registry" class="toolbox_panel hidden">
-            <div id="registry_content"></div>
-        </div>
     </div>
 </div>
-<div id="content_te">
+<div id="content_te" class="display">
     <center>
-        <h3><span id="lblTaskNameHeader"></span><span id="version_tag"> Version: <span id="lblVersionHeader"></span></span></h3>
+        <h3><span id="lblTaskNameHeader"></span><span id="version_tag">Version: <span id="lblVersionHeader"></span></span></h3>
     </center>
-    <div class="te_help_box">
-        <img src="static/images/icons/about_24.png" height="16px" width="16px" alt="" />
-        <div id="te_help_box_detail" class="te_help_box_detail"></div>
+    <div class="ui-state-highlight">
+        <p>
+            <img src="static/images/icons/encrypted_32.png" alt="" />
+            This Task is "Approved". Changes are not permitted.
+        </p>
     </div>
-    <div id="all">
-        <div class="ui-state-default te_header">
-            <div class="step_section_title">
-                <span id="step_toggle_all_btn" class="ui-state-default ui-corner-all ui-icon ui-icon-triangle-2-n-s forceinline step_toggle_all_btn pointer"
-                title="Expand/Collapse All Steps"></span><span
-                id="codeblock_steps_title" class="step_title"></span><span id="codeblock_selector_btn"></span>
-                <div id="codeblock_selector" class="ui-widget-content ui-corner-bottom hidden">
-                    <ul id="codeblocks"></ul>
-                    <center>
-                        <span id="codeblock_add_btn">Add New</span>
-                    </center>
-                </div>
-            </div>
-            <div class="step_section_icons">
-                <span id="print_link" class="ui-icon ui-icon-print pointer task_print_link"> </span>
-            </div>
-        </div>
-        <div id="task_steps">
-            <ul id="steps" class="sortable"></ul>
-        </div>
-    </div>
-</div>
-<div id="step_update_array" class="hidden"></div>
-<div class="hidden">
-    <input type="hidden" id="hidCodeblockName" Value="MAIN" />
-    <input type="hidden" id="hidParamType" value="task" />
-    <input type="hidden" id="hidObjectType" value="3" />
-    <input type="hidden" id="hidOriginalTaskID" />
-    <input type="hidden" id="hidStepDelete" />
-    <input type="hidden" id="hidParamDelete" />
-</div>
-<div id="step_delete_confirm_dialog" title="Delete Step" class="hidden ui-state-highlight">
-    <p>
-        <span class="ui-icon ui-icon-info" style="float: left; margin: 0 7px 50px 0;"></span>
-        <span>Are you sure you want to delete this step?</span>
-    </p>
-</div>
-<div id="embedded_step_delete_confirm_dialog" title="Remove Command" class="hidden ui-state-highlight">
-    <p>
-        <span class="ui-icon ui-icon-info" style="float: left; margin: 0 7px 50px 0;"></span>
-        <span>Are you sure you want to remove this Command?</span>
-        <input type="hidden" id="embedded_step_remove_xpath" value="" />
-        <input type="hidden" id="embedded_step_parent_id" value="" />
-    </p>
-</div>
-<div id="codeblock_delete_confirm_dialog" title="Delete Codeblock" class="hidden ui-state-highlight">
-    <p>
-        <span class="ui-icon ui-icon-info" style="float: left; margin: 0 7px 50px 0;"></span>
-        <span>Are you sure you want to delete this Codeblock and all the Steps it contains?</span>
-    </p>
-    <input type="hidden" id="codeblock_to_delete" value=""/>
-</div>
-<div id="asset_picker_dialog" title="Select an Asset" class="hidden ui-state-highlight">
-    <center>
-        <span style="padding-left: 15px; padding-top: 5px; font-weight: bold;">Enter search
-            criteria:</span><span style="padding-left: 15px; padding-top: 5px;">
-            <input id="asset_search_text" class="search_text" />
-        </span><span id="asset_search_btn">Search</span>
-        <hr />
-        <div style="text-align: left; height: 300px; overflow: auto;" id="asset_picker_results"></div>
-        <input type="hidden" id="asset_picker_target_field" value="" />
-        <input type="hidden" id="asset_picker_target_name_field" value="" />
-    </center>
-</div>
-<div id="task_picker_dialog" title="Select a Task" class="hidden ui-state-highlight">
-    <span style="padding-left: 15px; padding-top: 5px; font-weight: bold;">Enter search
-        criteria:</span>
-    <input id="task_search_text" />
-    <span id="task_search_btn">Search</span>
-    <hr />
-    <div id="task_picker_results"></div>
-    <input type="hidden" id="task_picker_target_field_id" value="" />
-    <input type="hidden" id="task_picker_step_id" value="" />
-</div>
-<div id="step_reorder_helper" class="step_reorder_helper">
-    Drop me in the new position.
-</div>
-<div id="step_validation_template" class="step_validation_template hidden">
-    <img src="static/images/icons/status_unknown_32.png" alt="" />
-    The following Command has <span></span>item(s) needing attention.
-</div>
-<div id="conn_picker" class="ui-widget-content ui-corner-all value_picker hidden">
-    <span class="ui-state-default value_picker_title"> <img src="static/images/icons/connect_no.png" alt="" style="height: 12px" /> Select a Connection &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span id="conn_picker_close_btn"  class="ui-icon ui-icon-close floatright pointer"></span> </span>
-    <div id="conn_picker_connections">
-        No connections have been defined on this Task.
-    </div>
-</div>
-<div id="key_picker" class="ui-widget-content ui-corner-all value_picker hidden">
-    <span class="ui-state-default value_picker_title"> <img src="static/images/icons/connect_no.png" alt="" style="height: 12px" /> Select a Key &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span id="key_picker_close_btn"  class="ui-icon ui-icon-close floatright pointer"></span> </span>
-    <div id="key_picker_keys">
-        No keys have been defined for this Command type.
-    </div>
-</div>
-<div id="codeblock_picker" class="ui-widget-content ui-corner-all value_picker hidden">
-    <span class="ui-state-default value_picker_title"> <img src="static/images/icons/news_subscribe.png" alt="" style="height: 12px" /> Select a Codeblock &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span id="codeblock_picker_close_btn"  class="ui-icon ui-icon-close floatright pointer"></span> </span>
-    <div id="codeblock_picker_codeblocks">
-        No other codeblocks have been defined on this Task.
-    </div>
-</div>
-<div id="var_picker" class="ui-widget-content ui-corner-all value_picker hidden">
-    <span class="ui-state-default value_picker_title"> <img src="static/images/icons/bookmark.png" alt="" style="height: 12px" /> Select a Variable &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span id="var_picker_close_btn" class="ui-icon ui-icon-close floatright pointer"></span> </span>
-    <div id="var_picker_variables">
-        No variables have been defined on this Task.
-    </div>
-</div>
-<div id="addVersion_dialog" class="hidden" title="Create Another Version">
-    Current Version Number:
-    <span id="lblCurrentVersion" Text=""></span>
-    <hr />
-    <center>
-        <input id="rbMinor" checked="checked" name="rbMinorMajor" value="Minor" type="radio" />
-        <label for="rbMinor">New Minor Version (<span id="lblNewMinorVersion"></span>)</label>
+    <br />
+    <div class="codebox">
+        <span class="detail_label">Code:</span>
+        <span id="lblTaskCode" class="code" Style="font-size: 1.2em;"></span>
         <br />
-        <input id="rbMajor" name="rbMinorMajor" value="Major" type="radio" />
-        <label for="rbMajor">New Major Version (<span id="lblNewMajorVersion"></span>)</label>
+        <span class="detail_label">Status: </span>
+        <span id="lblStatus" class="code" Style="font-size: 1.2em;"></span>
         <br />
-    </center>
+        <span class="detail_label">Concurrent Instances:</span>
+        <span id="lblConcurrentInstances" class="task_details code"
+        Style="font-size: 1.2em;"></span>
+        <br />
+        <span class="detail_label">Number to Queue:</span>
+        <span id="lblQueueDepth" class="task_details code" Style="font-size: 1.2em;"></span>
+        <br />
+        <span class="detail_label">Description:</span>
+        <br />
+        <span id="lblDescription" rows="10" class="code"
+        Style="font-size: 1.2em;"></span>
+        <!-- *** Commented out per Bug 1029 ***
+        <span id="lblDirect" class="code"></span>
+        Direct to Asset?<br />
+        -->
+    </div>
+    <hr />
+    <div id="div_steps" class="">
+        <h3> Steps</h3>
+        <ul id="codeblock_steps">
+            #######<asp:PlaceHolder ID="phSteps"></asp:PlaceHolder>
+        </ul>
+    </div>
+    <hr />
 </div>
-<div id="fn_runtask_parameter_dialog" class="hidden" title="Task Parameters">
-    <div id="fn_runtask_parameter_dialog_params"></div>
-</div>
+<!--DIALOGS-->
 <div id="task_launch_dialog" title="Run Task">
     <div id="plan_edit_dialog" title="Edit Plan"></div>
 </div>
 <div id="param_edit_dialog" title="Parameter"></div>
 <div id="param_delete_confirm_dialog" title="Remove Parameter"></div>
-<div id="command_help_dialog" title="Command Help">
-    <div id="command_help_dialog_detail"></div>
+<!--
+<div id="asset_picker_dialog" title="Select an Asset" class="hidden ui-state-highlight">
+<span style="padding-left: 15px; padding-top: 5px; font-weight: bold;">Enter search
+criteria:</span> <span style="padding-left: 15px; padding-top: 5px;">
+<input id="asset_search_text" class="search_text" /></span> <span style="padding-left: 15px;
+padding-top: 5px;">
+<img src="../images/icons/btnSearch.png" alt="" style="border: none; vertical-align: top;"
+id="asset_search_btn" class="pointer" /></span>
+<div id="asset_picker_results">
 </div>
-<div id="approve_dialog" title="Approve" class="hidden">
-    <p>
-        Changing this Version to Approved status will permanently lock it.
-    </p>
-    <br />
-    <p style="font-style: italic;">
-        (Once Approved, changes to this version will not be allowed.)
-    </p>
-    <br />
-    <p>
-        This action cannot be undone.
-    </p>
-    <br />
-    <p>
-        Are you sure you wish to Approve this Version?
-    </p>
-    <p style="text-align: center;">
-        <input type="checkbox" id="chkMakeDefault" />
-        <label for="chkMakeDefault">Mark as the 'Default' Version?</label>
-    </p>
+<input type="hidden" id="asset_picker_target_field" value="" />
+<input type="hidden" id="asset_picker_target_name_field" value="" />
 </div>
-<div id="codeblock_edit_dialog" title="Codeblock" class="hidden">
-    <p>
-        Enter a name for the Codeblock:
-    </p>
-    <input id="new_codeblock_name" validate_as="identifier" />
-    <div id="codeblock_edit_dialog_msg" style="color: Red;"></div>
-</div>
-<div id="big_box_dialog" title="Edit Value" class="hidden">
-    <textarea id="big_box_text" rows="20" class="code w100pct"></textarea>
-    <input type="hidden" id="big_box_link" />
-</div>
-<div id="clip_dialog" title="Clipboard Item" class="hidden">
-    <div style="overflow: auto; height: 600px;">
-        <ul id="clip_dialog_clip"></ul>
-    </div>
+-->
+<div id="addVersion_dialog" class="hidden" title="Create Another Version">
+    Current Version Number:
+    <span id="lblCurrentVersion"></span>
+    <center>
+        <input id="rbMinor" checked="checked" name="rbMinorMajor" value="Minor" type="radio" />
+        New Minor Version<span id="lblNewMinor"></span>
+        <br />
+        <input id="rbMajor" name="rbMinorMajor" value="Major" type="radio" />
+        New Major Version<span id="lblNewMajor"></span>
+        <br />
+        <input type="button" value="Create New Version" onclick="CreateNewVersion();return false;" />
+        <input type="button" value="Cancel" onclick="CloseVersionDialog();return false;" />
+    </center>
 </div>
 <!-- Registry dialogs. -->
 <div id="reg_edit_dialog" class="hidden"></div>
 <div id="reg_add_dialog" class="hidden"></div>
 <!-- End Registry dialogs.-->
 <input type="hidden" id="reg_type" value="task" />
-<!-- Step Variable Edit dialog. -->
-<div id="step_var_edit_dialog" title="Edit Command Variables">
-    <div id="phVars"></div>
-    <div class="hidden">
-        <input type="hidden" id="hidStepID" />
-        <input type="hidden" id="hidOutputParseType" />
-        <input type="hidden" id="hidRowDelimiter" />
-        <input type="hidden" id="hidColDelimiter" />
-        <input type="hidden" id="delimiter_picker_target" />
-    </div>
-</div>
-<div id="delimiter_picker_dialog" title="Select a Delimiter">
-    <ol id="ol_delimiters">
-        <li id="d_9" class="delimiter" val="9">
-            TAB
-        </li>
-        <li id="d_10" class="delimiter" val="10">
-            LF
-        </li>
-        <li id="d_27" class="delimiter" val="27">
-            ESC
-        </li>
-        <li id="d_32" class="delimiter" val="32">
-            SP
-        </li>
-        <li id="d_33" class="delimiter" val="33">
-            &#33;
-        </li>
-        <li id="d_34" class="delimiter" val="34">
-            &#34;
-        </li>
-        <li id="d_35" class="delimiter" val="35">
-            &#35;
-        </li>
-        <li id="d_36" class="delimiter" val="36">
-            &#36;
-        </li>
-        <li id="d_37" class="delimiter" val="37">
-            &#37;
-        </li>
-        <li id="d_38" class="delimiter" val="38">
-            &#38;
-        </li>
-        <li id="d_39" class="delimiter" val="39">
-            &#39;
-        </li>
-        <li id="d_40" class="delimiter" val="40">
-            &#40;
-        </li>
-        <li id="d_41" class="delimiter" val="41">
-            &#41;
-        </li>
-        <li id="d_42" class="delimiter" val="42">
-            &#42;
-        </li>
-        <li id="d_43" class="delimiter" val="43">
-            &#43;
-        </li>
-        <li id="d_44" class="delimiter" val="44">
-            &#44;
-        </li>
-        <li id="d_45" class="delimiter" val="45">
-            &#45;
-        </li>
-        <li id="d_46" class="delimiter" val="46">
-            &#46;
-        </li>
-        <li id="d_47" class="delimiter" val="47">
-            &#47;
-        </li>
-        <li id="d_48" class="delimiter" val="48">
-            &#48;
-        </li>
-        <li id="d_49" class="delimiter" val="49">
-            &#49;
-        </li>
-        <li id="d_50" class="delimiter" val="50">
-            &#50;
-        </li>
-        <li id="d_51" class="delimiter" val="51">
-            &#51;
-        </li>
-        <li id="d_52" class="delimiter" val="52">
-            &#52;
-        </li>
-        <li id="d_53" class="delimiter" val="53">
-            &#53;
-        </li>
-        <li id="d_54" class="delimiter" val="54">
-            &#54;
-        </li>
-        <li id="d_55" class="delimiter" val="55">
-            &#55;
-        </li>
-        <li id="d_56" class="delimiter" val="56">
-            &#56;
-        </li>
-        <li id="d_57" class="delimiter" val="57">
-            &#57;
-        </li>
-        <li id="d_58" class="delimiter" val="58">
-            &#58;
-        </li>
-        <li id="d_59" class="delimiter" val="59">
-            &#59;
-        </li>
-        <li id="d_60" class="delimiter" val="60">
-            &#60;
-        </li>
-        <li id="d_61" class="delimiter" val="61">
-            &#61;
-        </li>
-        <li id="d_62" class="delimiter" val="62">
-            &#62;
-        </li>
-        <li id="d_63" class="delimiter" val="63">
-            &#63;
-        </li>
-        <li id="d_64" class="delimiter" val="64">
-            &#64;
-        </li>
-        <li id="d_65" class="delimiter" val="65">
-            &#65;
-        </li>
-        <li id="d_66" class="delimiter" val="66">
-            &#66;
-        </li>
-        <li id="d_67" class="delimiter" val="67">
-            &#67;
-        </li>
-        <li id="d_68" class="delimiter" val="68">
-            &#68;
-        </li>
-        <li id="d_69" class="delimiter" val="69">
-            &#69;
-        </li>
-        <li id="d_70" class="delimiter" val="70">
-            &#70;
-        </li>
-        <li id="d_71" class="delimiter" val="71">
-            &#71;
-        </li>
-        <li id="d_72" class="delimiter" val="72">
-            &#72;
-        </li>
-        <li id="d_73" class="delimiter" val="73">
-            &#73;
-        </li>
-        <li id="d_74" class="delimiter" val="74">
-            &#74;
-        </li>
-        <li id="d_75" class="delimiter" val="75">
-            &#75;
-        </li>
-        <li id="d_76" class="delimiter" val="76">
-            &#76;
-        </li>
-        <li id="d_77" class="delimiter" val="77">
-            &#77;
-        </li>
-        <li id="d_78" class="delimiter" val="78">
-            &#78;
-        </li>
-        <li id="d_79" class="delimiter" val="79">
-            &#79;
-        </li>
-        <li id="d_80" class="delimiter" val="80">
-            &#80;
-        </li>
-        <li id="d_81" class="delimiter" val="81">
-            &#81;
-        </li>
-        <li id="d_82" class="delimiter" val="82">
-            &#82;
-        </li>
-        <li id="d_83" class="delimiter" val="83">
-            &#83;
-        </li>
-        <li id="d_84" class="delimiter" val="84">
-            &#84;
-        </li>
-        <li id="d_85" class="delimiter" val="85">
-            &#85;
-        </li>
-        <li id="d_86" class="delimiter" val="86">
-            &#86;
-        </li>
-        <li id="d_87" class="delimiter" val="87">
-            &#87;
-        </li>
-        <li id="d_88" class="delimiter" val="88">
-            &#88;
-        </li>
-        <li id="d_89" class="delimiter" val="89">
-            &#89;
-        </li>
-        <li id="d_90" class="delimiter" val="90">
-            &#90;
-        </li>
-        <li id="d_91" class="delimiter" val="91">
-            &#91;
-        </li>
-        <li id="d_92" class="delimiter" val="92">
-            &#92;
-        </li>
-        <li id="d_93" class="delimiter" val="93">
-            &#93;
-        </li>
-        <li id="d_94" class="delimiter" val="94">
-            &#94;
-        </li>
-        <li id="d_95" class="delimiter" val="95">
-            &#95;
-        </li>
-        <li id="d_96" class="delimiter" val="96">
-            &#96;
-        </li>
-        <li id="d_97" class="delimiter" val="97">
-            &#97;
-        </li>
-        <li id="d_98" class="delimiter" val="98">
-            &#98;
-        </li>
-        <li id="d_99" class="delimiter" val="99">
-            &#99;
-        </li>
-        <li id="d_100" class="delimiter" val="100">
-            &#100;
-        </li>
-        <li id="d_101" class="delimiter" val="101">
-            &#101;
-        </li>
-        <li id="d_102" class="delimiter" val="102">
-            &#102;
-        </li>
-        <li id="d_103" class="delimiter" val="103">
-            &#103;
-        </li>
-        <li id="d_104" class="delimiter" val="104">
-            &#104;
-        </li>
-        <li id="d_105" class="delimiter" val="105">
-            &#105;
-        </li>
-        <li id="d_106" class="delimiter" val="106">
-            &#106;
-        </li>
-        <li id="d_107" class="delimiter" val="107">
-            &#107;
-        </li>
-        <li id="d_108" class="delimiter" val="108">
-            &#108;
-        </li>
-        <li id="d_109" class="delimiter" val="109">
-            &#109;
-        </li>
-        <li id="d_110" class="delimiter" val="110">
-            &#110;
-        </li>
-        <li id="d_111" class="delimiter" val="111">
-            &#111;
-        </li>
-        <li id="d_112" class="delimiter" val="112">
-            &#112;
-        </li>
-        <li id="d_113" class="delimiter" val="113">
-            &#113;
-        </li>
-        <li id="d_114" class="delimiter" val="114">
-            &#114;
-        </li>
-        <li id="d_115" class="delimiter" val="115">
-            &#115;
-        </li>
-        <li id="d_116" class="delimiter" val="116">
-            &#116;
-        </li>
-        <li id="d_117" class="delimiter" val="117">
-            &#117;
-        </li>
-        <li id="d_118" class="delimiter" val="118">
-            &#118;
-        </li>
-        <li id="d_119" class="delimiter" val="119">
-            &#119;
-        </li>
-        <li id="d_120" class="delimiter" val="120">
-            &#120;
-        </li>
-        <li id="d_121" class="delimiter" val="121">
-            &#121;
-        </li>
-        <li id="d_122" class="delimiter" val="122">
-            &#122;
-        </li>
-        <li id="d_123" class="delimiter" val="123">
-            &#123;
-        </li>
-        <li id="d_124" class="delimiter" val="124">
-            &#124;
-        </li>
-        <li id="d_125" class="delimiter" val="125">
-            &#125;
-        </li>
-        <li id="d_126" class="delimiter" val="126">
-            &#126;
-        </li>
-    </ol>
-</div>
-<div id="variable_add_dialog_delimited" title="Define Variable" class="ui-state-highlight">
-    <table class="w100pct" border="0">
-        <tr>
-            <td width="40%"> Variable: </td>
-            <td>
-            <input type="text" id="new_delimited_var_name" class="var_name w100pct code" />
-            </td>
-        </tr>
-        <tr>
-            <td> Column Position: </td>
-            <td>
-            <input type="text" id="new_delimited_position" class="w100pct code" />
-            </td>
-        </tr>
-        <tr>
-            <td align="center" colspan="2"><span id="delimited_msg" class="var_error_msg"></span></td>
-        </tr>
-    </table>
-</div>
-<div id="variable_add_dialog_parsed" title="Define Variable" class="ui-state-highlight">
-    <table class="w100pct" border="0">
-        <tr>
-            <td colspan="3" align="center">
-            <input type="radio" name="parsed_type" value="delimited" />
-            Delimited&nbsp;
-            <input type="radio" name="parsed_type" value="range" checked="checked" />
-            Range&nbsp;
-            <input type="radio" name="parsed_type" value="regex" />
-            Regex&nbsp;
-            <input type="radio" name="parsed_type" value="xpath" />
-            Xpath&nbsp;
-            <hr />
-            </td>
-        </tr>
-        <tr>
-            <td width="40%"> Variable: </td>
-            <td colspan="2">
-            <input type="text" id="new_parsed_var_name" class="var_name w100pct code" />
-            </td>
-        </tr>
-        <tr>
-            <td><span id="new_parsed_l_label">Begin Position:</span></td>
-            <td>
-            <div id="parsed_lmode_div">
-                <input type="radio" name="parsed_lmode_rb" value="index" checked="checked" />
-                Position
-                <br />
-                <input type="radio" name="parsed_lmode_rb" value="string" />
-                Prefix
-            </div></td>
-            <td valign="middle">
-            <input type="text" id="new_parsed_l_val" class="w100pct code" />
-            </td>
-        </tr>
-        <tr>
-            <td><span id="new_parsed_r_label">End Position:</span></td>
-            <td>
-            <div id="parsed_rmode_div">
-                <input type="radio" name="parsed_rmode_rb" value="index" checked="checked" />
-                Position
-                <br />
-                <input type="radio" name="parsed_rmode_rb" value="string" />
-                Suffix
-            </div></td>
-            <td valign="middle">
-            <input type="text" id="new_parsed_r_val" class="w100pct code" />
-            </td>
-        </tr>
-        <tr>
-            <td align="center" colspan="3"><span id="parsed_msg" class="var_error_msg"></span></td>
-        </tr>
-    </table>
-</div>
+<!--END DIALOGS-->
+<input id="hidPageSaveType" type="hidden" value="dynamic" />
+<input id="hidObjectType" type="hidden" value="3" />
+<input type="hidden" id="hidOriginalTaskID" />
+<input type="hidden" id="hidTaskID" />
+<input type="hidden" id="hidDefault" />
+<input type="hidden" id="hidDebugActiveInstance" />
+<input type="hidden" id="hidParamType" value="task" />
+

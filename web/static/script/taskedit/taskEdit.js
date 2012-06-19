@@ -193,9 +193,13 @@ function doGetDetails() {
                 //task 'view' page.
                 //this is to prevent any sort of attempts on the client to load an approved or otherwise 'locked' 
                 // version into the edit page.
-                if (task.Status == "Approved")
-                {
-                    location.href = "taskView.aspx?task_id=" + g_task_id;
+                var pagename = window.location.pathname;
+        		pagename = pagename.substring(pagename.lastIndexOf('/') + 1);
+        		if (pagename != "taskView") {
+					if (task.Status == "Approved")
+	                {
+	                    location.href = "taskView?task_id=" + g_task_id;
+	                }
                 }
 
                 $("#lblVersion").text(task.Version);
