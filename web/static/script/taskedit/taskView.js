@@ -126,7 +126,7 @@ function doGetViewDetails() {
 	       		}
 	       		
 			} catch (ex) {
-				showAlert(ex);
+				showAlert(ex.message);
 			}
         },
         error: function (response) {

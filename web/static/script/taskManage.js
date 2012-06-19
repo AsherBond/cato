@@ -273,7 +273,7 @@ function DeleteItems() {
 		        
                 $("#delete_dialog").dialog("close");
 			} catch (ex) {
-				showAlert(ex.Message);
+				showAlert(ex.message);
 			}
         },
         error: function (response) {
@@ -372,7 +372,7 @@ function SaveNewTask() {
 		            showAlert(response);
 		        }
 			} catch (ex) {
-				showAlert(response);
+				showAlert(ex.message);
 			}
         },
         error: function (response) {

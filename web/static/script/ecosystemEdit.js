@@ -175,7 +175,7 @@ function GetDetails() {
 			    getActions();
 
 			} catch (ex) {
-				showAlert(ecosys);
+				showAlert(ex.message);
 			}
 		},
 		error : function(response) {

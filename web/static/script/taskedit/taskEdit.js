@@ -227,7 +227,7 @@ function doGetDetails() {
                 $("#lblVersionHeader").text(task.Version + (task.IsDefaultVersion ? " (default)" : ""));
 	       		
 			} catch (ex) {
-				showAlert(ex);
+				showAlert(ex.message);
 			}
         },
         error: function (response) {
@@ -291,7 +291,7 @@ function doGetSteps() {
 				validateStep();
 				$("#codeblock_steps_title").text(codeblock_name);
 			} catch (ex) {
-				showAlert(response);
+				showAlert(ex.message);
 			}
         },
         error: function (response) {

@@ -318,7 +318,7 @@ function SaveItem(close_after_save) {
 		            showAlert(response);
 		        }
 			} catch (ex) {
-				showAlert(response);
+				showAlert(ex.message);
 			}
         },
         error: function (response) {

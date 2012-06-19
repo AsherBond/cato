@@ -239,7 +239,7 @@ function GetDetails() {
 			 	$("#lblEcoTemplateHeader").html(template.Name);
 			 	$("#txtDescription").val(unpackJSON(template.Description));
 			} catch (ex) {
-				showAlert(template);
+				showAlert(ex.message);
 			}
 		},
 		error : function(response) {
