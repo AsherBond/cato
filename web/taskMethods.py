@@ -216,6 +216,20 @@ class taskMethods:
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
 
+    def wmTaskSetDefault(self):
+        try:
+            sID = uiCommon.getAjaxArg("sTaskID")
+            
+            result, err = task.Task.SetAsDefault(sID)
+
+            if not result:
+                uiCommon.log(err, 2)
+                return "{\"result\":\"fail\",\"error\":\"%s\"}" % err
+            
+            return "{\"result\":\"success\"}"
+        except Exception:
+            uiCommon.log_nouser(traceback.format_exc(), 0)
+
     def wmGetTaskCodeFromID(self):
         sOriginalTaskID = uiCommon.getAjaxArg("sOriginalTaskID")
 
@@ -234,6 +248,28 @@ class taskMethods:
                 return "{\"code\" : \"%s\"}" % (sTaskCode)
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
+
+    @staticmethod
+    def GetTaskStatus(sTaskID):
+        if not uiCommon.IsGUID(sTaskID):
+            uiCommon.log("Invalid or missing Task ID.")
+
+        try:
+            db = catocommon.new_conn()
+            sSQL = "select task_status from task where task_id = '%s'" % sTaskID
+            sStatus = db.select_col_noexcep(sSQL)
+            if not sStatus:
+                if db.error:
+                    uiCommon.log("Unable to get task status." + db.error)
+                else:
+                    return ""
+            else:
+                return sStatus
+        except Exception:
+            uiCommon.log_nouser(traceback.format_exc(), 0)
+        finally:
+            if db.conn.socket:
+                db.close()
 
 
     def wmGetTaskVersionsDropdown(self):
@@ -261,7 +297,7 @@ class taskMethods:
             sTaskID = uiCommon.getAjaxArg("sTaskID")
             sHTML = ""
 
-            sSQL = "select task_id, version, default_version," \
+            sSQL = "select task_id, version, default_version, task_status," \
                 " case default_version when 1 then ' (default)' else '' end as is_default," \
                 " case task_status when 'Approved' then 'locked' else 'unlocked' end as status_icon," \
                 " created_dt" \
@@ -278,7 +314,8 @@ class taskMethods:
                 if dt:
                     for dr in dt:
                         sHTML += "<li class=\"ui-widget-content ui-corner-all version code\" id=\"v_" + dr["task_id"] + "\""
-                        sHTML += "task_id=\"" + dr["task_id"] + "\">"
+                        sHTML += "task_id=\"" + dr["task_id"] + "\""
+                        sHTML += "status=\"" + dr["task_status"] + "\">"
                         sHTML += "<span class=\"ui-icon ui-icon-" + dr["status_icon"] + " forceinline\"></span>"
                         sHTML += str(dr["version"]) + "&nbsp;&nbsp;" + str(dr["created_dt"]) + dr["is_default"]
                         sHTML += "</li>"

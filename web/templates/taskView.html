@@ -1,8 +1,15 @@
 $def with ()
-$var jsfiles: taskedit/taskEdit.js 	taskedit/taskView.js taskedit/taskVersions.js taskedit/taskEditDebug.js taskedit/taskEditParams.js toolbox.js objectTag.js registry.js parametersOnDialog.js taskLaunchDialog.js
+$var jsfiles: taskedit/taskView.js taskedit/taskVersions.js taskedit/taskEditDebug.js taskedit/taskEditParams.js toolbox.js objectTag.js registry.js parametersOnDialog.js taskLaunchDialog.js
 
 $var cssfiles: registry.css taskEdit.css taskView.css
 
+<script type="text/javascript">
+	//here because other pages (task edit, print) share the taskView.js file.
+	//but versions is the default tab on this page so we wanna load it initially.
+	$$(document).ready(function() {
+		doGetVersions();
+	}); 
+</script>
 <div id="left_panel_te">
     <div id="toolbox">
         <div id="toolbox_tabs" class="toolbox_tabs_1_row">
@@ -29,45 +36,56 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             <span class="detail_label">Status: </span>
             <span id="lblStatus2" class="code"></span>
             <br />
-            <asp:Button ID="btnSetDefault" Text="Set as Default" OnClick="btnSetDefault_Click" />
+            <span id="set_default_btn">Set as Default</span>
             <hr />
             <span class="detail_label">All Versions:</span>
             <ul id="versions"></ul>
-            <input type="button" value="New Version" onclick="ShowVersionAdd();return false;" />
+            <span id="new_version_btn">New Version</span>
         </div>
         <div id="div_debug" class="toolbox_panel hidden">
             <!--<p>
             Test Asset:<br />
             <input type="text" id="txtTestAsset" Enabled="false" asset_id="" class="code"
             Width="80%" />
-            <img class="asset_picker_btn pointer" src="../images/icons/search.png" link_to="ctl00_phDetail_txtTestAsset"
+            <img class="asset_picker_btn pointer" src="static/images/icons/search.png" link_to="ctl00_phDetail_txtTestAsset"
             alt="" />
-            <img id="debug_asset_clear_btn" class="pointer" src="../images/icons/fileclose.png"
+            <img id="debug_asset_clear_btn" class="pointer" src="static/images/icons/fileclose.png"
             alt="" />
             </p>-->
-            <p>
-                Last Run Time:
-                <span id="lblLastRunDT"></span>
+            <div id="debug_last_run" class="hidden">
+                <h4>Last Run</h4>
+                Submitted:
+                <span id="debug_submitted"></span>
                 <br />
-                Last Run Status:
-                <span id="lblLastRunStatus"></span>
-                <asp:Image ID="debug_view_latest_log" class="debug_btn" ImageUrl="../images/icons/view_text_16.png"
-                />
-            </p>
-            <br />
-            <hr />
-            <br />
-            <p style="text-align: center;">
+                Completed:
+                <span id="debug_completed"></span>
+                <br />
+                Status:
+                <span id="debug_status"></span>
+                <br />
+                Instance:
+                <span id="debug_instance"></span>
+                <br />
+                Submitted By:
+                <span id="debug_submitted_by"></span>
+                <br />
+
+                View Log:
+                <span id="debug_view_latest_log" class="ui-icon ui-icon-search debug_btn" style="display: inline-block;"></span>
+
+                <hr />
+            </div>
+            <div style="text-align: center;">
                 Current Status:
                 <span id="lblCurrentStatus"></span>
                 <br />
-                <img id="debug_stop_btn" class="debug_btn" src="../images/icons/player_stop_32.png"
+                <img id="debug_stop_btn" class="debug_btn" src="static/images/icons/player_stop_32.png"
                 alt="" />
-                <img id="debug_run_btn" class="debug_btn" src="../images/icons/player_play_32.png"
+                <img id="debug_run_btn" class="debug_btn" src="static/images/icons/player_play_32.png"
                 alt="" />
-                <img id="debug_view_active_log" class="debug_btn" src="../images/icons/view_text_32.png"
+                <img id="debug_view_active_log" class="debug_btn" src="static/images/icons/view_text_32.png"
                 alt="" />
-            </p>
+            </div>
         </div>
         <div id="div_tags" class="toolbox_panel hidden">
             <span id="tag_add_btn" class="tag_add_btn pointer"> <img alt="" src="static/images/icons/edit_add.png" /> click to add </span>
@@ -96,7 +114,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
 </div>
 <div id="content_te" class="display">
     <center>
-        <h3><span id="lblTaskNameHeader"></span><span id="version_tag">Version: <span id="lblVersionHeader"></span></span></h3>
+        <h3><span id="lblTaskNameHeader"></span><span id="version_tag"> Version: <span id="lblVersionHeader"></span></span></h3>
     </center>
     <div class="ui-state-highlight">
         <p>
@@ -130,10 +148,8 @@ $var cssfiles: registry.css taskEdit.css taskView.css
     </div>
     <hr />
     <div id="div_steps" class="">
-        <h3> Steps</h3>
-        <ul id="codeblock_steps">
-            #######<asp:PlaceHolder ID="phSteps"></asp:PlaceHolder>
-        </ul>
+        <h3>Steps</h3>
+        <ul id="codeblock_steps"></ul>
     </div>
     <hr />
 </div>
@@ -149,7 +165,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
 criteria:</span> <span style="padding-left: 15px; padding-top: 5px;">
 <input id="asset_search_text" class="search_text" /></span> <span style="padding-left: 15px;
 padding-top: 5px;">
-<img src="../images/icons/btnSearch.png" alt="" style="border: none; vertical-align: top;"
+<img src="static/images/icons/btnSearch.png" alt="" style="border: none; vertical-align: top;"
 id="asset_search_btn" class="pointer" /></span>
 <div id="asset_picker_results">
 </div>
@@ -159,16 +175,15 @@ id="asset_search_btn" class="pointer" /></span>
 -->
 <div id="addVersion_dialog" class="hidden" title="Create Another Version">
     Current Version Number:
-    <span id="lblCurrentVersion"></span>
+    <span id="lblCurrentVersion" Text=""></span>
+    <hr />
     <center>
         <input id="rbMinor" checked="checked" name="rbMinorMajor" value="Minor" type="radio" />
-        New Minor Version<span id="lblNewMinor"></span>
+        <label for="rbMinor">New Minor Version (<span id="lblNewMinorVersion"></span>)</label>
         <br />
         <input id="rbMajor" name="rbMinorMajor" value="Major" type="radio" />
-        New Major Version<span id="lblNewMajor"></span>
+        <label for="rbMajor">New Major Version (<span id="lblNewMajorVersion"></span>)</label>
         <br />
-        <input type="button" value="Create New Version" onclick="CreateNewVersion();return false;" />
-        <input type="button" value="Cancel" onclick="CloseVersionDialog();return false;" />
     </center>
 </div>
 <!-- Registry dialogs. -->

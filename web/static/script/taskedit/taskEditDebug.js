@@ -227,18 +227,20 @@ function doGetDebug() {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (debug) {
-	       try {
-				if (debug.task_status) {
-					$("#debug_submitted").html(debug.submitted_dt);
-					$("#debug_completed").html(debug.completed_dt);
-					$("#debug_status").html(debug.task_status);
-					$("#debug_instance").html(debug.task_instance);
-					$("#debug_submitted_by").html(debug.submitted_by);
-					
-					$("#debug_last_run").show();
+			try {
+				if (debug) {
+					if (debug.task_status) {
+						$("#debug_submitted").html(debug.submitted_dt);
+						$("#debug_completed").html(debug.completed_dt);
+						$("#debug_status").html(debug.task_status);
+						$("#debug_instance").html(debug.task_instance);
+						$("#debug_submitted_by").html(debug.submitted_by);
+						
+						$("#debug_last_run").show();
+					}
 				}
 			} catch (ex) {
-				showAlert(response);
+				showAlert(ex.message);
 			}
         },
         error: function (response) {

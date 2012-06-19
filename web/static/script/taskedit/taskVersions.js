@@ -100,18 +100,47 @@ function doGetVersions() {
 		    $("#versions .version").disableSelection();
 		    
 		    //the onclick event of the 'version' elements
+		    //unbind it just to be safe
+		    $("#versions .version").unbind('click');
 		    $("#versions .version").click(function () {
+		    	// so, if we're switching pages it does a full redirect.  But, if the target
+		    	// status is the same, we'll just update some content.
+                var pagename = window.location.pathname;
+        		pagename = pagename.substring(pagename.lastIndexOf('/') + 1);
+				if ($(this).attr("status") == "Approved" && pagename != "taskView")
+                {
+			    	location.href="taskView?task_id=" + $(this).attr("task_id");
+			    	return;
+                }
+				if ($(this).attr("status") == "Development" && pagename != "taskEdit")
+                {
+			    	location.href="taskEdit?tab=versions&task_id=" + $(this).attr("task_id");
+			    	return;
+                }
+
+
+				// If there was a mismatch we'll never get here.  So, if we're here... it must be 
+				// the same page, so we can just update some content.
 		    	//NOTE: this changes the g_task_id, and pushes a new URL into the address bar
 		    	g_task_id = $(this).attr("task_id")
-				history.replaceState({}, "", "taskEdit?task_id=" + g_task_id);
+				history.replaceState({}, "", pagename + "?task_id=" + g_task_id);
 			    $("#versions .version").removeClass("version_selected")
 			    $(this).addClass("version_selected");
-		    	//get the details
-		    	doGetDetails();
-				//get the codeblocks
-				doGetCodeblocks();
-				//get the steps
-				doGetSteps();
+
+		    	// things are page specific
+				if (pagename == "taskView")
+                {
+			    	doGetViewDetails();
+					doGetViewSteps();
+				}
+				
+				if (pagename == "taskEdit")
+                {
+			    	doGetDetails();
+					doGetCodeblocks();
+					doGetSteps();
+				}
+				
 		    });
 		    
 		    //whatever the current version is... change it's class in the list

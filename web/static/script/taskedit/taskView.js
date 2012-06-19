@@ -42,7 +42,119 @@ $(document).ready(function () {
         var url = "taskRunLog?task_id=" + g_task_id;
         openWindow(url, "TaskRunLog" + g_task_id, "location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700");
     });
+    
+	// this code is shared by many pages, but a few things should happen only on the taskView page.
+    var pagename = window.location.pathname;
+	pagename = pagename.substring(pagename.lastIndexOf('/') + 1);
+	if (pagename == "taskView")
+    {
+	    $("#set_default_btn").button({ icons: { primary: "ui-icon-check"} });
+	    $("#set_default_btn").click(function () {
+			$.ajax({
+		        type: "POST",
+		        async: true,
+		        url: "taskMethods/wmTaskSetDefault",
+		        data: '{"sTaskID":"' + g_task_id + '"}',
+		        contentType: "application/json; charset=utf-8",
+		        dataType: "json",
+		        success: function (response) {
+					if (response.result) {
+		                if (response.result == "success") {
+		                    $("#update_success_msg").text("Update Successful").fadeOut(2000);
+		                } else {
+		                    $("#update_success_msg").text("Update Failed").fadeOut(2000);
+		                    showInfo(response.error);
+		                }
+	               }
+		        },
+		        error: function (response) {
+		            showAlert(response.responseText);
+		        }
+		    });
+	    });
+
+		doGetViewDetails();
+		doGetViewSteps();
+	}
 });
+
+function doGetViewDetails() {
+	$.ajax({
+        type: "POST",
+        async: true,
+        url: "taskMethods/wmGetTask",
+        data: '{"sTaskID":"' + g_task_id + '"}',
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (task) {
+	       try {
+				$("#hidOriginalTaskID").val(task.OriginalTaskID);
+				$("#lblTaskCode").text(task.Code);
+				$("#lblDescription").text(task.Description);
+				$("#lblConcurrentInstances").text(task.ConcurrentInstances);
+				$("#lblQueueDepth").text(task.QueueDepth);
+	       		
+                $("#lblVersion").text(task.Version);
+                $("#lblCurrentVersion").text(task.Version);
+				$("#lblStatus").text(task.Status);
+				$("#lblStatus2").text(task.Status);
+
+                $("#lblNewMinorVersion").text(task.NextMinorVersion);
+                $("#lblNewMajorVersion").text(task.NextMajorVersion);
+
+                /*                    
+                 * ok, this is important.
+                 * there are some rules for the process of 'Approving' a task.
+                 * specifically:
+                 * -- if there are no other approved tasks in this family, this one will become the default.
+                 * -- if there is another approved task in this family, we show the checkbox
+                 * -- allowing the user to decide whether or not to make this one the default
+                 */
+                if (task.NumberOfApprovedVersions > "0")
+                    $("#chkMakeDefault").show();
+                else
+                    $("#chkMakeDefault").hide();
+
+                //the header
+                $("#lblTaskNameHeader").text(task.Name);
+                $("#lblVersionHeader").text(task.Version + (task.IsDefaultVersion == "True" ? " (default)" : ""));
+	       		
+	       		if (task.IsDefaultVersion == "True") {
+	       			$("#set_default_btn").hide();
+	       		} else {
+	       			$("#set_default_btn").show();
+	       		}
+	       		
+			} catch (ex) {
+				showAlert(ex);
+			}
+        },
+        error: function (response) {
+            showAlert(response.responseText);
+        }
+    });
+}
+
+function doGetViewSteps() {
+	$.ajax({
+        type: "POST",
+        async: true,
+        url: "taskMethods/wmGetStepsPrint",
+        data: '{"sTaskID":"' + g_task_id + '"}',
+        contentType: "application/json; charset=utf-8",
+        dataType: "text",
+        success: function (response) {
+	       try {
+	       		$("#codeblock_steps").html(response);
+			} catch (ex) {
+				showAlert(ex.message);
+			}
+        },
+        error: function (response) {
+            showAlert(response.responseText);
+        }
+    });
+}
 
 function tabWasClicked(tab) {
     //load on this page is taking too long.  So, we'll get the tab content on click instead.

@@ -312,6 +312,31 @@ class Task(object):
             raise ex
         finally:
             db.close()
+    
+    @staticmethod    
+    def SetAsDefault(task_id):
+        """A static method, because it's not worth instantiating a whole task just to flip a switch."""
+        try:
+            db = catocommon.new_conn()
+            
+            sSQL = """update task set default_version = 0
+                where original_task_id = 
+                (select original_task_id from task where task_id = '%s')""" % task_id
+            if not db.tran_exec_noexcep(sSQL):
+                return False, db.error
+            
+            sSQL = """update task set default_version = 1 where task_id = '%s'""" % task_id
+            if not db.tran_exec_noexcep(sSQL):
+                return False, db.error
+
+            db.tran_commit()
+
+            return True, ""
+        
+        except Exception, ex:
+            raise ex
+        finally:
+            db.close()
         
     def DBSave(self, db = None):
         try:
@@ -656,7 +681,7 @@ class Task(object):
             self.Version = dr["version"]
             self.Status = dr["task_status"]
             self.OriginalTaskID = dr["original_task_id"]
-            self.IsDefaultVersion = (True if dr["default_version"] == "1" else False)
+            self.IsDefaultVersion = (True if dr["default_version"] == 1 else False)
             self.Description = (dr["task_desc"] if dr["task_desc"] else "")
             self.ConcurrentInstances = (dr["concurrent_instances"] if dr["concurrent_instances"] else "")
             self.QueueDepth = (dr["queue_depth"] if dr["queue_depth"] else "")

@@ -110,7 +110,17 @@ class taskManage:
 
 class taskEdit:        
     def GET(self):
-        return render.taskEdit()
+        # NOTE: Getting the task edit page has a safety check.
+        # An "Approved" task cannot be opened in the editor... so...
+        # we check the status here before doing anything, and redirect accordingly.
+        i = uiGlobals.web.input(task_id=None)
+        if i.task_id:
+            task_status = taskMethods.GetTaskStatus(i.task_id)
+            if task_status == "Approved":
+                uiCommon.log("Warning: Attempt to explicitly access an Approved Task in the editor.", 2)
+                return render.taskView()
+            else:
+                return render.taskEdit()
 
 class taskRunLog:        
     def GET(self):

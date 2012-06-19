@@ -345,11 +345,11 @@ function doDetailFieldUpdate(ctl) {
 		                }
 		                else {
 		                    $("#update_success_msg").text("Update Failed").fadeOut(2000);
-		                    showInfo(msg);
+		                    showInfo(response);
 		                }
 	               }
 				} catch (ex) {
-					showAlert(response);
+					showAlert(ex.message);
 				}
             },
             error: function (response) {
