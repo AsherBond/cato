@@ -49,6 +49,7 @@
 	overflow: hidden;
 	background: #f8f8f8;
 	padding: 2px 2px 2px 0px;
+	border-right: 1px solid #000;
 }
 
 * html #left_panel_te
@@ -94,15 +95,18 @@
 {
 	width: 16px;
 	height: 16px;
+	margin: 4px 6px 1px 4px;
 }
 .function
 {
-	font-size: 0.8em;
+	font-size: 1em;
+	padding: 5px 5px 0px 5px;
 }
 .function_icon
 {
 	width: 16px;
 	height: 16px;
+	margin-right: 5px;
 }
 .function_helper
 {
@@ -247,21 +251,30 @@
 
 .toolbox_tabs_3row
 {
-	padding: 5px 4px 0px 1px;
+  padding: 8px 6px 0px 3px;
 	height: 60px;
-	font-size: 1.2em;
+  font-size: 1.1em;
+  border-bottom: 1px solid #CFCFCF;
+  border-right: 1px solid #AFAFAF;
+  background: #DFDFDF;
 }
 .toolbox_tabs_2row
 {
-	padding: 5px 4px 0px 1px;
-	height: 42px;
-	font-size: 1.2em;
+  padding: 8px 6px 0px 3px;
+  height: 40px;
+  font-size: 1.1em;
+  border-bottom: 1px solid #CFCFCF;
+  border-right: 1px solid #AFAFAF;
+  background: #DFDFDF;
 }
 .toolbox_tabs_1row
 {
-	padding: 5px 4px 0px 1px;
+  padding: 8px 6px 0px 3px;
 	height: 20px;
-	font-size: 1.2em;
+  font-size: 1.1em;
+  border-bottom: 1px solid #CFCFCF;
+  border-right: 1px solid #AFAFAF;
+  background: #DFDFDF;
 }
 
 .toolbox_tab
@@ -277,8 +290,7 @@
 
 .toolbox_panel
 {
-	padding-top: 10px;
-	background-color: #f8f8f8;
+	padding: 10px 4px 4px 4px;   
 	height: 500px;
 	overflow: auto;
 }
@@ -427,7 +439,6 @@
 }
 .step_detail
 {
-	clear: both;
 	padding: 4px 4px 0px 4px;
 	background: #EFEFEF;
 	font-size: 11px;

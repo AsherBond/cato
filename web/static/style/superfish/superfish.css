@@ -37,6 +37,9 @@
 .sf-menu a img
 {
 	padding-right: 6px;
+	margin-bottom: -16px;
+	padding-bottom: 8px;
+	padding-top: 2px;
 }
 .sf-menu li:hover ul, .sf-menu li.sfHover ul
 {
@@ -84,7 +87,7 @@ so theme changes are easier.
 {
 	/* visited pseudo selector so IE6 applies text colour*/
 	color: #fff;
-	font-size: .95em;
+	font-size: 1em;
 }
 .sf-menu li
 {
@@ -110,7 +113,7 @@ so theme changes are easier.
 /*** arrows **/
 .sf-menu a.sf-with-ul
 {
-	padding-right: 2.25em;
+	padding-right: 8px;
 	min-width: 1px; /* trigger IE7 hasLayout so spans position accurately */
 }
 .sf-sub-indicator

@@ -8,8 +8,8 @@
 
 input
 {
-	padding: 1px 2px 1px 2px;
-	margin: 2px 2px 2px 0px;
+	padding: 2px 4px 2px 2px;
+	margin: 6px 0px 6px 0px;
 	border: solid 1px #C5DBEC;
 	line-height: normal;
 	font-size-adjust: none;
@@ -19,10 +19,9 @@ input
 textarea
 {
 	overflow: auto;
-	padding: 1px 2px 1px 2px;
+	padding: 2px 2px 2px 2px;
 	margin: 2px 2px 2px 0px;
 	border: solid 1px #C5DBEC;
-	font-family: Gill Sans, sans-serif;
 	font-style: normal;
 	font-variant: normal;
 	font-weight: normal;
@@ -51,6 +50,14 @@ input[type="checkbox"]
 {
 	border: none;
 	width: 15px;
+	line-height: 36px;
+}
+
+select
+{
+	border: none;
+	line-height: 36px;
+	margin: 6px 8px 6px 0px;
 }
 .chkbox
 {
