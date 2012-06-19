@@ -45,6 +45,7 @@ from ecoMethods import ecoMethods
 
 import uiCommon
 import uiGlobals
+import license
 
 
 def notfound():
@@ -65,30 +66,11 @@ class announcement:
 
 class getlicense:        
     def GET(self):
-        license_text = """<p>
-                    Copyright 2012 Cloud Sidekick
-                </p>
-                <p>
-                    Use of this software indicates agreement with the included software LICENSE.
-                </p>
-                <p>
-                    The LICENSE can be found in the application directory where this Cloud Sidekick product is installed.
-                </p>"""
-        # the value will either be 'agreed' or ''
-        from settings import settings
-        license_status = settings.settings.get_application_setting("general/license_status")
-        if license_status == "agreed":
-            return ""
-        else:
-            # not agreed, return the LICENSE file.
-            filename = "%s/LICENSE" % base_path
-            with open(filename, 'r') as f_in:
-                if f_in:
-                    what_came_in = f_in.read()
-                    if what_came_in:
-                        return uiCommon.FixBreaks(uiCommon.SafeHTML(what_came_in))
-
-            return license_text
+        try:
+            result, msg, lic = license.check_license()
+            return "{\"result\":\"%s\",\"message\":\"%s\",\"license\":\"%s\"}" % (result, msg, uiCommon.packJSON(uiCommon.FixBreaks(uiCommon.SafeHTML(lic))))
+        except Exception, ex:
+            print ex.__str__()    
             
 
 # the default page if no URI is given, just an information message
