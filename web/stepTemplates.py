@@ -311,10 +311,14 @@ def GetStepTemplate_View(oStep):
         sHTML = While_View(oStep)
     elif sFunction.lower() == "exists":
         sHTML = Exists_View(oStep)
+    elif sFunction.lower() == "new_connection":
+        sHTML = NewConnection_View(oStep)
     elif sFunction.lower() == "run_task":
-        """"""#sHTML = RunTask_View(oStep)
+        sHTML = RunTask_View(oStep)
     elif sFunction.lower() == "subtask":
-        """"""#sHTML = Subtask_View(oStep)
+        sHTML = Subtask_View(oStep)
+    elif sFunction.lower() == "sql_exec":
+        sHTML = SqlExec_View(oStep)
     else:
         sHTML, sOptionHTML = DrawReadOnlyStepFromXMLDocument(oStep)
     
@@ -646,9 +650,8 @@ def DrawField(xe, sXPath, oStep):
         # there is no "default" datasource... if nothing is available, it draws an empty picker
         sDatasource = xe.get("datasource", "")
         sDataSet = xe.get("dataset", "")
-        sFieldStyle = xe.get("style", "")
 
-        sHTML += sNodeLabel + " <select " + CommonAttribs(oStep, False, sXPath, sFieldStyle) + ">\n"
+        sHTML += sNodeLabel + " <select " + CommonAttribs(oStep, False, sXPath, sCSSClasses) + ">\n"
         
         # empty one
         sHTML += "<option " + SetOption("", sNodeValue) + " value=\"\"></option>\n"
@@ -734,7 +737,7 @@ def DrawField(xe, sXPath, oStep):
         # NOTE: If it has the "combo" style and a value, that means we're allowing the user to enter a value that may not be 
         # in the dataset.  If that's the case, we must add the actual saved value to the list too. 
         if not bValueWasInData: # we didn't find it in the data ..
-            if "combo" in sFieldStyle and sNodeValue:   # and it's a combo and not empty
+            if "combo" in sCSSClasses and sNodeValue:   # and it's a combo and not empty
                 sHTML += "<option " + SetOption(sNodeValue, sNodeValue) + " value=\"" + sNodeValue + "\">" + sNodeValue + "</option>\n";            
 
         sHTML += "</select>"
@@ -793,7 +796,7 @@ def DrawReadOnlyField(xe, sXPath, oStep):
         sHTML += "<hr />"
 
     # HERE IT IS!
-    sHTML += sNodeLabel + "<span class=\"code\" style=\"padding-right: 8px;\">" + sNodeValue + "</span>"
+    sHTML += sNodeLabel + "<span class=\"code\" style=\"padding-right: 8px;\"> " + sNodeValue + "</span>"
 
     #some final layout possibilities
     if catocommon.is_true(sBreakAfter):
@@ -1727,6 +1730,70 @@ def SqlExec(oStep):
         uiCommon.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
+def SqlExec_View(oStep):
+    try:
+        sStepID = oStep.ID
+        xd = oStep.FunctionXDoc
+
+        """TAKE NOTE:
+        * 
+        * Similar to the windows command...
+        * ... we are updating a record here when we GET the data.
+        * 
+        * Why?  Because this command has modes.
+        * The data has different meaning depending on the 'mode'.
+        * 
+        * So, on the client if the user changes the 'mode', the new command may not need all the fields
+        * that the previous selection needed.
+        * 
+        * So, we just wipe any unused fields based on the current mode.
+        * """
+        sCommand = xd.findtext("sql", "")
+        sConnName = xd.findtext("conn_name", "")
+        sMode = xd.findtext("mode", "")
+        sHandle = xd.findtext("handle", "")
+
+        sHTML = ""
+        bDrawVars = False
+        bDrawSQLBox = False
+        bDrawHandle = False
+        bDrawKeyValSection = False
+
+        sHTML += "Connection:\n"
+        sHTML += "<span class=\"code\">" + sConnName + "</span>"
+
+        sHTML += "Mode:\n"
+        sHTML += "<span class=\"code\">" + sMode + "</span>"
+
+
+        if sMode == "BEGIN" or sMode == "COMMIT" or sMode == "ROLLBACK":
+            """Does nothing special"""
+        elif sMode == "PREPARE":
+            bDrawSQLBox = True
+            bDrawHandle = True
+        elif sMode == "RUN":
+            bDrawVars = True
+            bDrawHandle = True
+            bDrawKeyValSection = True
+        else:
+            bDrawVars = True
+            bDrawSQLBox = True
+
+        if bDrawHandle:
+            sHTML += "Handle:\n"
+            sHTML += "<span class=\"code\">" + sHandle + "</span>"
+
+        if bDrawKeyValSection:
+            sHTML += DrawReadOnlyKeyValueSection(oStep, False, False, "Bind", "Value")
+
+        if bDrawSQLBox:
+            sHTML += "<br />SQL:\n"
+            sHTML += "<div class=\"codebox\">" + uiCommon.SafeHTML(sCommand) + "</div>"
+        return sHTML, bDrawVars
+    except Exception:
+        uiCommon.log_nouser(traceback.format_exc(), 0)
+        return "Unable to draw Step - see log for details."
+
 def RunTask(oStep):
     try:
         db = catocommon.new_conn()
@@ -1933,6 +2000,105 @@ def RunTask(oStep):
         if db.conn.socket:
             db.close()
 
+def RunTask_View(oStep):
+    try:
+        db = catocommon.new_conn()
+
+        sStepID = oStep.ID
+        xd = oStep.FunctionXDoc
+    
+        sActualTaskID = ""
+        # sOnSuccess = ""
+        # sOnError = ""
+        sAssetID = ""
+        sAssetName = ""
+        sLabel = ""
+        sHTML = ""
+        sParameterXML = ""
+        
+        sOriginalTaskID = xd.findtext("original_task_id", "")
+        sVersion = xd.findtext("version")
+        sHandle = xd.findtext("handle", "")
+        sTime = xd.findtext("time_to_wait", "")
+        sAssetID = xd.findtext("asset_id", "")
+    
+        # get the name and code for belonging to this otid and version
+        if uiCommon.IsGUID(sOriginalTaskID):
+            sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
+                " where original_task_id = '" + sOriginalTaskID + "'" + \
+                (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
+    
+            dr = db.select_row_dict(sSQL)
+            if db.error:
+                uiCommon.log_nouser(db.error, 0)
+                return "Error retrieving target Task.(1)" + db.error
+    
+            if dr is not None:
+                sLabel = dr["task_code"] + " : " + dr["task_name"]
+                sActualTaskID = dr["task_id"]
+                sParameterXML = (dr["parameter_xml"] if dr["parameter_xml"] else "")
+            else:
+                return "Unable to find task [" + sOriginalTaskID + "] version [" + sVersion + "]." + db.error
+    
+    
+        # IF IT's A GUID...
+        #  get the asset name belonging to this asset_id
+        #  OTHERWISE
+        #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
+        if uiCommon.IsGUID(sAssetID):
+            sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
+    
+            sAssetName = db.select_col_noexcep(sSQL)
+            if db.error:
+                return "Error retrieving Run Task Asset Name." + db.error
+    
+            if sAssetName == "":
+                return "Unable to find Asset by ID - [" + sAssetID + "]." + db.error
+        else:
+            sAssetName = sAssetID
+    
+    
+    
+    
+        # all good, draw the widget
+        sHTML += "Task: \n"
+        sHTML += "<span class=\"code\">" + sLabel + "</span>"
+    
+        # versions
+        if uiCommon.IsGUID(sOriginalTaskID):
+            sHTML += "<br />"
+            sHTML += "Version: \n"
+            sHTML += "<span class=\"code\">" + (sVersion if sVersion else "Default") + "</span>"
+    
+    
+    
+        sHTML += "<br />"
+
+        #  asset
+        sHTML += "Asset: \n"
+        sHTML += "<span class=\"code\">" + sAssetName + "</span>"
+    
+        sHTML += "<br />"
+        sHTML += "Task Handle:\n"
+        sHTML += "<span class=\"code\">" + sHandle + "</span>"
+    
+        sHTML += " Time to Wait:\n"
+        sHTML += "<span class=\"code\">" + sTime + "</span>"
+    
+        if sActualTaskID:
+            if sParameterXML:
+                sHTML += "<hr />"
+                sHTML += "Parameters"
+                sHTML += DrawCommandParameterSection(sParameterXML, False, True)
+        
+        return sHTML
+    except Exception:
+        uiCommon.log_nouser(traceback.format_exc(), 0)
+        return "Unable to draw Step - see log for details."
+    finally:
+        if db.conn.socket:
+            db.close()
+
 def Subtask(oStep):
     try:
         db = catocommon.new_conn()
@@ -2028,7 +2194,7 @@ def Subtask(oStep):
                 for dr in dt:
                     sHTML += "<option " + SetOption(str(dr["version"]), sVersion) + " value=\"" + str(dr["version"]) + "\">" + str(dr["version"]) + "</option>\n"
             else:
-                return "Unable to continue - no connection types defined in the database."
+                return "Unable to continue - Cannot find Version for Task [" + sOriginalTaskID + "]."
     
             sHTML += "</select></span>\n"
     
@@ -2038,6 +2204,61 @@ def Subtask(oStep):
         sHTML += "<span class=\"ui-icon ui-icon-document forceinline\"></span> ( click to view parameters )</span>"
         sHTML += "<div class=\"subtask_view_parameters\"></div>"
         sHTML += "</div>"
+    
+        return sHTML
+    except Exception:
+        uiCommon.log_nouser(traceback.format_exc(), 0)
+        return "Unable to draw Step - see log for details."
+    finally:
+        if db.conn.socket:
+            db.close()
+
+def Subtask_View(oStep):
+    try:
+        db = catocommon.new_conn()
+
+        xd = oStep.FunctionXDoc
+    
+        sActualTaskID = ""
+        sLabel = ""
+        sHTML = ""
+    
+        sOriginalTaskID = xd.findtext("original_task_id", "")
+        sVersion = xd.findtext("version", "")
+    
+        # get the name and code for belonging to this otid and version
+        if uiCommon.IsGUID(sOriginalTaskID):
+            sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
+                " where original_task_id = '" + sOriginalTaskID + "'" + \
+                (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
+    
+            dr = db.select_row_dict(sSQL)
+            if db.error:
+                uiCommon.log("Error retrieving subtask.(1)<br />" + db.error)
+                return "Error retrieving subtask.(1)<br />" + db.error
+
+            if dr is not None:
+                sLabel = dr["task_code"] + " : " + dr["task_name"]
+                sActualTaskID = dr["task_id"]
+                sParameterXML = (dr["parameter_xml"] if dr["parameter_xml"] else "")
+            else:
+                return "Unable to find task [" + sOriginalTaskID + "] version [" + sVersion + "]."
+    
+        # all good, draw the widget
+        sHTML += "Task: \n"
+        sHTML += "<span class=\"code\">" + sLabel + "</span>"
+        # versions
+        if uiCommon.IsGUID(sOriginalTaskID):
+            sHTML += "<br />"
+            sHTML += "Version: \n"
+            sHTML += "<span class=\"code\">" + (sVersion if sVersion else "Default") + "</span>"
+    
+        # let's display a div for the parameters
+        if sActualTaskID:
+            if sParameterXML:
+                sHTML += "<hr />"
+                sHTML += "Parameters"
+                sHTML += DrawCommandParameterSection(sParameterXML, False, True)
     
         return sHTML
     except Exception:
@@ -2344,6 +2565,61 @@ def NewConnection(oStep):
             
         # nothing special here, just draw the field.
         sHTML += DrawField(xConnName, "conn_name", oStep)
+    
+        return sHTML
+    except Exception:
+        uiCommon.log_nouser(traceback.format_exc(), 0)
+        return "Unable to draw Step - see log for details."
+
+def NewConnection_View(oStep):
+    try:
+        log("New Connection command:", 4)
+        sStepID = oStep.ID
+        xd = oStep.FunctionXDoc
+        xAsset = xd.find("asset")
+        xConnName = xd.find("conn_name")
+        xConnType = xd.find("conn_type")
+        xCloudName = xd.find("cloud_name")
+        sAssetID = ("" if xAsset is None else ("" if xAsset.text is None else xAsset.text))
+        sConnType = ("ssh" if xConnType is None else ("ssh" if xConnType.text is None else xConnType.text))
+        sCloudName = ("" if xCloudName is None else ("" if xCloudName.text is None else xCloudName.text))
+    
+        sHTML = ""
+        sHTML += "Connect via: \n"
+        sHTML += "<span class=\"code\">" + sConnType + "</span>"
+
+        # now, based on the type, we might show or hide certain things
+        if sConnType == "ssh - ec2":
+            sHTML += " to Instance \n"
+            sHTML += "<span class=\"code\">" + sAssetID + "</span>"
+    
+            sHTML += " in Cloud \n"
+            sHTML += "<span class=\"code\">" + sCloudName + "</span>"
+        else:
+            # ASSET
+            # IF IT's A GUID...
+            #  get the asset name belonging to this asset_id
+            #  OTHERWISE
+            #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
+            if uiCommon.IsGUID(sAssetID):
+                sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
+                db = catocommon.new_conn()
+                sAssetName = db.select_col_noexcep(sSQL)
+                if not sAssetName:
+                    sAssetName = sAssetID
+                    if db.error:
+                        uiCommon.log("Unable to look up Asset name." + db.error)
+                    else:
+                        SetNodeValueinCommandXML(sStepID, "asset", "")
+                db.close()
+            else:
+                sAssetName = sAssetID
+    
+            sHTML += " to Asset \n"
+            sHTML += "<span class=\"code\">" + sAssetName + "</span>"
+           
+        # nothing special here, just draw the field.
+        sHTML += DrawReadOnlyField(xConnName, "conn_name", oStep)
     
         return sHTML
     except Exception:
@@ -2838,3 +3114,72 @@ def Codeblock(oStep):
                         break
 
     return sHTML
+
+def DrawCommandParameterSection(sParameterXML, bEditable, bSnipValues):
+    sHTML = ""
+
+    if sParameterXML:
+        xParams = ET.fromstring(sParameterXML)
+        if xParams is None:
+            uiCommon.log("Parameter XML data is invalid.")
+
+        for xParameter in xParams.findall("parameter"):
+            sPID = xParameter.get("id", "")
+            sName = xParameter.findtext("name", "")
+            sDesc = xParameter.findtext("desc", "")
+
+            bEncrypt = catocommon.is_true(xParameter.get("encrypt", ""))
+
+            sHTML += "<div class=\"parameter\">"
+            sHTML += "  <div class=\"ui-state-default parameter_header\">"
+
+            sHTML += "<div class=\"step_header_title\"><span class=\"parameter_name"
+            sHTML += (" pointer" if bEditable else "") # make the name a pointer if it's editable
+            sHTML += "\" id=\"" + sPID + "\">"
+            sHTML += sName
+            sHTML += "</span></div>"
+
+            sHTML += "<div class=\"step_header_icons\">"
+            sHTML += "<span class=\"ui-icon ui-icon-info forceinline parameter_help_btn\" title=\"" + sDesc.replace("\"", "") + "\"></span>"
+
+            if catocommon.is_true(bEditable):
+                sHTML += "<span class=\"ui-icon ui-icon-close forceinline parameter_remove_btn pointer\" remove_id=\"" + sPID + "\"></span>"
+
+            sHTML += "</div>"
+            sHTML += "</div>"
+
+
+            sHTML += "<div class=\"ui-widget-content ui-corner-bottom clearfloat parameter_detail\">"
+
+            # desc - a short snip is shown here... 75 chars.
+
+            # if sDesc):
+            #     if bSnipValues:
+            #         sDesc = uiCommon.GetSnip(sDesc, 75)
+            #     else
+            #         sDesc = uiCommon.FixBreaks(sDesc)
+            # sHTML += "<div class=\"parameter_desc hidden\">" + sDesc + "</div>"
+
+
+            # values
+            xValues = xParameter.find("values")
+            if xValues is not None:
+                for xValue in xValues.findall("value"):
+                    sValue = ("" if not xValue.text else xValue.text)
+
+                    # only show stars IF it's encrypted, but ONLY if it has a value
+                    if bEncrypt and sValue:
+                        sValue = "********"
+                    else:
+                        if bSnipValues:
+                            sValue = uiCommon.GetSnip(sValue, 64)
+                        else:
+                            sValue = uiCommon.FixBreaks(sValue, "")
+
+                    sHTML += "<div class=\"ui-widget-content ui-corner-tl ui-corner-bl parameter_value\">" + sValue + "</div>"
+
+            sHTML += "</div>"
+            sHTML += "</div>"
+    
+    return sHTML
+    
