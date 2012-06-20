@@ -159,6 +159,17 @@ $(document).ready(function () {
     // unblock when ajax activity stops 
     //$().ajaxStop($.unblockUI);
 
+    //the command help dialog
+    $("#command_help_dialog").dialog({
+        autoOpen: false,
+        width: 800,
+        height: 600
+    });
+    // this dialog has huge content... it's important to empty it when its closed
+    // otherwise the page dom is noticeably slower.
+	$("#command_help_dialog").bind("dialogclose", function(event) {
+		$("#command_help_dialog_detail").empty();
+	});
 
 
 	//get the details

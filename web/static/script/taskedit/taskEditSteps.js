@@ -128,10 +128,12 @@ $(document).ready(function() {
     // Command tab details
     //help button
     $("#command_help_btn").button({ icons: { primary: "ui-icon-help"} });
-
-    $("#command_help_btn").live("click", function () {
-        var url = "taskCommandHelp.aspx";
-        openWindow(url, "commandhelp", "location=no,status=no,scrollbars=yes,width=800,height=700");
+    $("#command_help_btn").click(function () {
+		showPleaseWait();
+		$("#command_help_dialog_detail").load("static/_command_help.html", function() {
+	        $("#command_help_dialog").dialog("open");
+	        hidePleaseWait();
+		});
     });
 
     //the onclick event of the 'skip' icon of each step

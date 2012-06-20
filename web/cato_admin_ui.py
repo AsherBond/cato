@@ -302,6 +302,7 @@ def CacheTaskCommands():
     try:
         sCatHTML = ""
         sFunHTML = ""
+        sHelpHTML = ""
 
         # so, we will use the FunctionCategories class in the session that was loaded at login, and build the list items for the commands tab.
         cats = uiCommon.GetTaskFunctionCategories()
@@ -335,6 +336,15 @@ def CacheTaskCommands():
                     sFunHTML += "</div>"
                     sFunHTML += "</div>"
 
+                    sHelpHTML += "<div>"
+                    sHelpHTML += "<img src=\"" + fn.Icon + "\" alt=\"\" style=\"height: 16px; width: 16px;\" />"
+                    sHelpHTML += "<span style=\"font-weight: bold; padding-left: 10px;\">" + fn.Category.Label + " : " + fn.Label + "</span>"
+                    sHelpHTML += "</div>"
+                    sHelpHTML += "<div style=\"margin-top: 6px;\">"
+                    sHelpHTML += fn.Help
+                    sHelpHTML += "</div>"
+                    sHelpHTML += "<hr />"
+    
                 sFunHTML += "</div>"
 
         with open("%s/static/_categories.html" % web_root, 'w') as f_out:
@@ -346,6 +356,11 @@ def CacheTaskCommands():
             if not f_out:
                 print "ERROR: unable to create static/_functions.html."
             f_out.write(sFunHTML)
+
+        with open("%s/static/_command_help.html" % web_root, 'w') as f_out:
+            if not f_out:
+                print "ERROR: unable to create static/_command_help.html."
+            f_out.write(sHelpHTML)
 
     except Exception, ex:
         uiCommon.log_nouser(ex.__str__(), 0)
