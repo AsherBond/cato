@@ -1,7 +1,7 @@
 <categories>
 	<category name="connect" label="Connect" description="Commands for connecting to and disconnecting from Assets." icon="static/images/icons/connect_no_32.png">
 		<commands>
-			<command name="new_connection" label="New Connection" description="Creates a new connection to an Asset." help="&lt;b&gt;New Connection&lt;/b&gt;&lt;br&gt;New Connection will create a named connection to an Asset.&lt;br /&gt; Select the connection type, pick the Asset and Name the connection to be used in the task." icon="static/images/icons/connect_creating_32.png">
+			<command name="new_connection" label="New Connection" description="Creates a new connection to an Asset." help="New Connection will create a named connection to an Asset.&lt;br /&gt; Select the connection type, pick the Asset and Name the connection to be used in the task." icon="static/images/icons/connect_creating_32.png">
 				<function name="new_connection">
 					<conn_type input_type="select">ssh</conn_type>
 					<cloud_name input_type="dropdown" style="combo" />
@@ -9,7 +9,7 @@
 					<conn_name input_type="text" label="as" required="true" class="w200px" help="Name this connection for reference in the Task.">CONN1</conn_name>
 				</function>
 			</command>
-			<command name="drop_connection" label="Drop Connection" description="Drops the connection to an Asset." help="&lt;b&gt;Drop Connection&lt;/b&gt;&lt;br&gt;Drop Connection will close the a named connection made earlier in the execution of the task. Select the connection name either by clicking the icon to the right of the Connection Name box or typing the name in." icon="static/images/icons/connect_no_32.png">
+			<command name="drop_connection" label="Drop Connection" description="Drops the connection to an Asset." help="Drop Connection will close the a named connection made earlier in the execution of the task. Select the connection name either by clicking the icon to the right of the Connection Name box or typing the name in." icon="static/images/icons/connect_no_32.png">
 				<function name="drop_connection">
 					<conn_name input_type="text" label="Connection" connection_picker="true" />
 				</function>
@@ -18,13 +18,13 @@
 	</category>
 	<category name="control" label="Control" description="Commands for controlling the a Task." icon="static/images/icons/configure_32.png">
 		<commands>
-			<command name="end" label="End" description="End Task execution." help="&lt;b&gt;End&lt;/b&gt;&lt;br&gt;The End command halts the execution of the task. Use the 'End with Status' drop down selector to choose the status that the task should be set to when it exits. The Log Message box can be used to specify a reason for the ending of the task." icon="static/images/icons/player_stop_32.png">
+			<command name="end" label="End" description="End Task execution." help="The End command halts the execution of the task. Use the 'End with Status' drop down selector to choose the status that the task should be set to when it exits. The Log Message box can be used to specify a reason for the ending of the task." icon="static/images/icons/player_stop_32.png">
 				<function name="end">
 					<status input_type="dropdown" label="Status" datasource="local" dataset="Completed|Error|Cancelled">Completed</status>
 					<message input_type="textarea" rows="3" label="Message" class="w95pct" label_style="display: block;" />
 				</function>
 			</command>
-			<command name="run_task" label="Run Task" description="Run Task executes launches another task." help="&lt;b&gt;Run Task&lt;/b&gt;&lt;br&gt;&lt;br&gt;Run task is used to launch a task in a seperate execution stream. Select the task to be run and optionally select the asset on which is to be executed against. The task will get scheduled for immediate execution and will run independently from the calling task." icon="static/images/icons/player_play_32.png">
+			<command name="run_task" label="Run Task" description="Run Task executes launches another task." help="Run task is used to launch a task in a seperate execution stream. Select the task to be run and optionally select the asset on which is to be executed against. The task will get scheduled for immediate execution and will run independently from the calling task." icon="static/images/icons/player_play_32.png">
 				<function name="run_task">
 					<original_task_id input_type="text" />
 					<version input_type="text" />
@@ -36,17 +36,17 @@
 					<parameters></parameters>
 				</function>
 			</command>
-			<command name="sleep" label="Sleep" description="Sleeps for a selected number of seconds." help="&lt;b&gt;Sleep&lt;/b&gt;&lt;br&gt;Sleep is used to pause task execution for the number of seconds entered." icon="static/images/icons/player_pause_32.png">
+			<command name="sleep" label="Sleep" description="Sleeps for a selected number of seconds." help="Sleep is used to pause task execution for the number of seconds entered." icon="static/images/icons/player_pause_32.png">
 				<function name="sleep">
 					<seconds input_type="text" label="Sleep"/>
 				</function>
 			</command>
-			<command name="cancel_task" label="Cancel Task" description="Cancels one or more running Tasks." help="&lt;b&gt;Sleep&lt;/b&gt;&lt;br&gt;Cancel Task is used to force task execution to stop on one or more running Tasks." icon="static/images/icons/stop_32.png">
+			<command name="cancel_task" label="Cancel Task" description="Cancels one or more running Tasks." help="Cancel Task is used to force task execution to stop on one or more running Tasks." icon="static/images/icons/stop_32.png">
 				<function name="cancel_task">
 					<task_instance input_type="text" label="Task Instance ID(s)" class="w95pct" />
 				</function>
 			</command>
-			<command name="wait_for_tasks" label="Wait For Tasks" description="Waits for one or more Tasks to complete." help="&lt;b&gt;Wait For Task&lt;/b&gt;&lt;p&gt;Waits for one or more processing Tasks to complete.  Enter one or more Task Handles, and the command will wait until all of them have completed processing.&lt;/p&gt;&lt;p&gt;A Task will be considered 'completed' if it is in any of the non-running statuses, including Canceled, Error, and Completed.&lt;/p&gt;&lt;p style='font-style: italic;'&gt;Note: Enter Handle names as text, such as MYHANDLE, not in variable reference syntax [[MYHANDLE]].&lt;/p&gt;" icon="static/images/icons/wait_32.png">
+			<command name="wait_for_tasks" label="Wait For Tasks" description="Waits for one or more Tasks to complete." help="&lt;p&gt;Waits for one or more processing Tasks to complete.  Enter one or more Task Handles, and the command will wait until all of them have completed processing.&lt;/p&gt;&lt;p&gt;A Task will be considered 'completed' if it is in any of the non-running statuses, including Canceled, Error, and Completed.&lt;/p&gt;&lt;p style='font-style: italic;'&gt;Note: Enter Handle names as text, such as MYHANDLE, not in variable reference syntax [[MYHANDLE]].&lt;/p&gt;" icon="static/images/icons/wait_32.png">
 				<function name="wait_for_tasks">
 					<handles>
 						<handle>
@@ -55,13 +55,13 @@
 					</handles>
 				</function>
 			</command>
-			<command name="get_instance_handle" label="Get Task Instance" description="Gets a handle on a running Task Instance." help="&lt;b&gt;Wait For Task&lt;/b&gt;&lt;p&gt;Get a handle on a running Task Instance.  Enter a Task Instance number, and the command will return variable handle exposing all the properties of the running Task.&lt;/p&gt;&lt;p&gt;Note: Enter Handle names as text, such as MYHANDLE, not in variable reference syntax [[MYHANDLE]].&lt;/p&gt;" icon="static/images/icons/get_instance_32.png">
+			<command name="get_instance_handle" label="Get Task Instance" description="Gets a handle on a running Task Instance." help="&lt;p&gt;Get a handle on a running Task Instance.  Enter a Task Instance number, and the command will return variable handle exposing all the properties of the running Task.&lt;/p&gt;&lt;p&gt;Note: Enter Handle names as text, such as MYHANDLE, not in variable reference syntax [[MYHANDLE]].&lt;/p&gt;" icon="static/images/icons/get_instance_32.png">
 				<function name="get_instance_handle">
 					<instance input_type="text" label="Task Instance" />
 					<handle input_type="text" label="Handle" />
 				</function>
 			</command>
-			<command name="set_debug_level" label="Set Logging Level" description="Changes the logging level of the running Task." help="&lt;b&gt;Set Logging Level&lt;/b&gt;&lt;br&gt;Set Logging Level is used to change the output logging level of the Task currently executing.&lt;br /&gt;&lt;br /&gt;Useful for turning logging off in high transaction Tasks, then enabling the output of just a few key statements needed for debugging.&lt;br /&gt;&lt;br /&gt;``variables`` are permitted." icon="static/images/icons/debug_level_32.png">
+			<command name="set_debug_level" label="Set Logging Level" description="Changes the logging level of the running Task." help="Set Logging Level is used to change the output logging level of the Task currently executing.&lt;br /&gt;&lt;br /&gt;Useful for turning logging off in high transaction Tasks, then enabling the output of just a few key statements needed for debugging.&lt;br /&gt;&lt;br /&gt;``variables`` are permitted." icon="static/images/icons/debug_level_32.png">
 				<function name="set_debug_level">
 					<debug_level input_type="dropdown" label="Logging Level" datasource="function" dataset="ddDataSource_GetDebugLevels">2</debug_level>
 				</function>
@@ -70,7 +70,7 @@
 	</category>
 	<category name="flow" label="Flow" description="Commands for defining logic flow within a Task." icon="static/images/icons/agt_reload_32.png">
 		<commands>
-			<command name="if" label="If" description="If, Then, Else conditional logic." help="&lt;b&gt;If&lt;/b&gt;&lt;br&gt;If is used to perform conditional logic within a task to change the flow of execution. If supports multiple 'then' or 'else if' conditionals and a final else command.&lt;br&gt;&lt;br&gt;Each if statement requires at least one test comparison and one action command. First add the if comparison test to the If: input box.&lt;br&gt;&lt;br&gt;Syntax rules: all character string comparisions require quotes to surround the values to be compared. Numeric comparisions do not require quotes. For example to compare a two strings to see if they are equal:&lt;br&gt;'[[A_STRING]]' == 'YES'&lt;br&gt;or to compare two numbers:&lt;br&gt;[[A_NUMBER]] &lt; 10&lt;br&gt;Valid operator are as follows: == (equal), != (not equal), &lt; (less than), &gt; (greater than), &lt;= (less than or equal to), &gt;= (greater than or equal to).&lt;br&gt;&lt;br&gt;Add a command to the if, else if, or else that will be processed when the if test is tested to be positive or else condition is met. This is done by clicking in the command box and dragging over a command from the toolbox on the left. NOTE: if multiple commands need to be processed it is best to consolidate these commands within a codeblock.&lt;br&gt;&lt;br&gt;Multiple else if tests and commands can be added as needed by clicking on the plus sign below the command box. And else command can be added by clicking on the final else section. " icon="static/images/icons/kmenuedit_32.png">
+			<command name="if" label="If" description="If, Then, Else conditional logic." help="If is used to perform conditional logic within a task to change the flow of execution. If supports multiple 'then' or 'else if' conditionals and a final else command.&lt;br&gt;&lt;br&gt;Each if statement requires at least one test comparison and one action command. First add the if comparison test to the If: input box.&lt;br&gt;&lt;br&gt;Syntax rules: all character string comparisions require quotes to surround the values to be compared. Numeric comparisions do not require quotes. For example to compare a two strings to see if they are equal:&lt;br&gt;'[[A_STRING]]' == 'YES'&lt;br&gt;or to compare two numbers:&lt;br&gt;[[A_NUMBER]] &lt; 10&lt;br&gt;Valid operator are as follows: == (equal), != (not equal), &lt; (less than), &gt; (greater than), &lt;= (less than or equal to), &gt;= (greater than or equal to).&lt;br&gt;&lt;br&gt;Add a command to the if, else if, or else that will be processed when the if test is tested to be positive or else condition is met. This is done by clicking in the command box and dragging over a command from the toolbox on the left. NOTE: if multiple commands need to be processed it is best to consolidate these commands within a codeblock.&lt;br&gt;&lt;br&gt;Multiple else if tests and commands can be added as needed by clicking on the plus sign below the command box. And else command can be added by clicking on the final else section. " icon="static/images/icons/kmenuedit_32.png">
 				<function name="if">
 					<tests>
 						<test>
@@ -80,7 +80,7 @@
 					</tests>
 				</function>
 			</command>
-			<command name="loop" label="Loop" description="Loop for a specified number of interations." help="&lt;b&gt;Loop&lt;/b&gt;&lt;br&gt;The Loop command is similar to a for loop in programming languages. The Loop starts with a specified counter variable set to a integer and continues through the loop until the test is no longer true or a predefined number of iterations has occured.&lt;br&gt;&lt;br&gt;Enter a variable name in the Counter Variable input field. This counter variable can be used in the command, codeblock or subtask that is called during the loop. Override the number that the counter variable starts at as well as the number that the counter variable increments by if necessary.&lt;br&gt;&lt;br&gt;Next define the test condition by optionally changing the test operator (defaults to &lt;=) and the value to compare the counter variable with. This is usually going to be some sort of variable itself. For instance to loop through a variable array one would select &lt;= as the operator and the variable substitution [[MY_VARIABLE,*]] which will substitute for the total number of elements in the MY_VARIABLE array.&lt;br&gt;&lt;br&gt;Lastly add a command to the loop that will be processed each iteration. This is done by clicking in the loop command box and dragging over a command from the toolbox on the left. NOTE: if multiple commands need to be processed in the loop it is best to consolidate these commands within a codeblock. " icon="static/images/icons/quick_restart_32.png">
+			<command name="loop" label="Loop" description="Loop for a specified number of interations." help="The Loop command is similar to a for loop in programming languages. The Loop starts with a specified counter variable set to a integer and continues through the loop until the test is no longer true or a predefined number of iterations has occured.&lt;br&gt;&lt;br&gt;Enter a variable name in the Counter Variable input field. This counter variable can be used in the command, codeblock or subtask that is called during the loop. Override the number that the counter variable starts at as well as the number that the counter variable increments by if necessary.&lt;br&gt;&lt;br&gt;Next define the test condition by optionally changing the test operator (defaults to &lt;=) and the value to compare the counter variable with. This is usually going to be some sort of variable itself. For instance to loop through a variable array one would select &lt;= as the operator and the variable substitution [[MY_VARIABLE,*]] which will substitute for the total number of elements in the MY_VARIABLE array.&lt;br&gt;&lt;br&gt;Lastly add a command to the loop that will be processed each iteration. This is done by clicking in the loop command box and dragging over a command from the toolbox on the left. NOTE: if multiple commands need to be processed in the loop it is best to consolidate these commands within a codeblock. " icon="static/images/icons/quick_restart_32.png">
 				<function name="loop">
 					<start input_type="text">1</start>
 					<counter input_type="text" />
@@ -91,27 +91,27 @@
 					<max input_type="text" />
 				</function>
 			</command>
-			<command name="codeblock" label="Codeblock" description="Branches to the specified Codeblock." help="&lt;b&gt;Codeblock&lt;/b&gt;&lt;br&gt;Codeblocks are sections of a task that can be created to encapsulate one or more steps into a logical flow of execution. Codeblocks are usually created to run in a loop or conditionally with the if command. They can also be used to simplify viewing of the task by seperating the logic into sections.&lt;br&gt;&lt;br&gt;When a codeblock is called during the execution of the task all variables and arrays created before the codeblock is executed are available for reference inside of the codeblock. Also all variables created inside the codeblock are available after the codeblock exits. &lt;br&gt;&lt;br&gt;Select a codeblock from the drop down list or type in the name. " icon="static/images/icons/news_subscribe_32.png">
+			<command name="codeblock" label="Codeblock" description="Branches to the specified Codeblock." help="Codeblocks are sections of a task that can be created to encapsulate one or more steps into a logical flow of execution. Codeblocks are usually created to run in a loop or conditionally with the if command. They can also be used to simplify viewing of the task by seperating the logic into sections.&lt;br&gt;&lt;br&gt;When a codeblock is called during the execution of the task all variables and arrays created before the codeblock is executed are available for reference inside of the codeblock. Also all variables created inside the codeblock are available after the codeblock exits. &lt;br&gt;&lt;br&gt;Select a codeblock from the drop down list or type in the name. " icon="static/images/icons/news_subscribe_32.png">
 				<function name="codeblock">
 					<codeblock input_type="text" />
 				</function>
 			</command>
-			<command name="subtask" label="Subtask" description="Loads and executes the specified Task." help="&lt;b&gt;Subtask&lt;/b&gt;&lt;br&gt;Subtask runs the task identified in the Task: entry field. All variables available prior to subtask execution are available within the subtask and any variables set during the subtask are available after it is finished.&lt;br&gt;&lt;br&gt;Subtasks are usually best for common execution logic that can be shared across multiple tasks. " icon="static/images/icons/tab_duplicate_32.png">
+			<command name="subtask" label="Subtask" description="Loads and executes the specified Task." help="Subtask runs the task identified in the Task: entry field. All variables available prior to subtask execution are available within the subtask and any variables set during the subtask are available after it is finished.&lt;br&gt;&lt;br&gt;Subtasks are usually best for common execution logic that can be shared across multiple tasks. " icon="static/images/icons/tab_duplicate_32.png">
 				<function name="subtask">
 					<original_task_id input_type="text" />
 					<version input_type="text" />
 				</function>
 			</command>
-			<command name="break_loop" label="Break Loop" description="Stops looping" help="&lt;b&gt;Break Loop&lt;/b&gt;&lt;br /&gt;Used to break out of a loop when a certain condition is met, and looping is no longer neccessary." icon="static/images/icons/break_loop.png">
+			<command name="break_loop" label="Break Loop" description="Stops looping" help="Used to break out of a loop when a certain condition is met, and looping is no longer neccessary." icon="static/images/icons/break_loop.png">
 				<function name="break_loop" />
 			</command>
-			<command name="while" label="While" description="Performs a while loop until condition is not true." help="&lt;b&gt;While&lt;/b&gt;&lt;br&gt;The While command is similar to a while loop in programming languages. The Test condition is evaluated at the top of each iteration.&lt;br&gt;&lt;br&gt;In the following example the while loop will continue iterating until the runtime variable my_variable evaluates to something other than yes.&lt;br&gt;'[[my_variable]]' == 'yes'" icon="static/images/icons/quick_restart_32.png">
+			<command name="while" label="While" description="Performs a while loop until condition is not true." help="The While command is similar to a while loop in programming languages. The Test condition is evaluated at the top of each iteration.&lt;br&gt;&lt;br&gt;In the following example the while loop will continue iterating until the runtime variable my_variable evaluates to something other than yes.&lt;br&gt;'[[my_variable]]' == 'yes'" icon="static/images/icons/quick_restart_32.png">
 				<function name="while">
 					<test input_type="text" />
 					<action />
 				</function>
 			</command>
-			<command name="comment" label="Comment" description="A comment block." help="&lt;b&gt;Commentn&lt;/b&gt;&lt;br&gt;Comment is simply an inline comment box within a codeblock.  It is ignored by the Task Engine." icon="static/images/icons/comment_32.png">
+			<command name="comment" label="Comment" description="A comment block." help="Comment is simply an inline comment box within a codeblock.  It is ignored by the Task Engine." icon="static/images/icons/comment_32.png">
 				<function name="comment">
 					<comment input_type="textarea" rows="3" label="Comment" class="w95pct" style="display: block;" />
 				</function>
@@ -120,7 +120,7 @@
 	</category>
 	<category name="interact" label="Interact" description="Commands for interacting with any connected Asset." icon="static/images/icons/exec_32.png">
 		<commands>
-			<command name="sql_exec" label="Execute SQL" description="Executes SQL on a remote database." help="&lt;b&gt;Execute SQL&lt;/b&gt;&lt;br /&gt;&lt;p&gt;Execute SQL is used to run a sql command against a remote database. A valid connection to the target database must first be established with the New Connection command and the name of the connection be used in the Connection: entry field.&lt;/p&gt;&lt;br /&gt;&lt;p&gt;Certain database engines such as Oracle regcognize different types of SQL commands (PL/SQL or prepared statements for example.)&lt;/p&gt;&lt;br /&gt;&lt;p&gt;Select an execution mode using the Mode: dropdown.  (The SQL mode is the most commonly used mode.)&lt;/p&gt;&lt;br /&gt;&lt;p&gt;Enter the SQL command to be executed in the text entry field. This should be the native SQL to be used against the target database, besides variable substitution no translation will occur.&lt;/p&gt;&lt;br /&gt;&lt;p&gt;If performing a select operation set variables by clicking on the Variables icon below." icon="static/images/icons/database_32.png">
+			<command name="sql_exec" label="Execute SQL" description="Executes SQL on a remote database." help="&lt;p&gt;Execute SQL is used to run a sql command against a remote database. A valid connection to the target database must first be established with the New Connection command and the name of the connection be used in the Connection: entry field.&lt;/p&gt;&lt;br /&gt;&lt;p&gt;Certain database engines such as Oracle regcognize different types of SQL commands (PL/SQL or prepared statements for example.)&lt;/p&gt;&lt;br /&gt;&lt;p&gt;Select an execution mode using the Mode: dropdown.  (The SQL mode is the most commonly used mode.)&lt;/p&gt;&lt;br /&gt;&lt;p&gt;Enter the SQL command to be executed in the text entry field. This should be the native SQL to be used against the target database, besides variable substitution no translation will occur.&lt;/p&gt;&lt;br /&gt;&lt;p&gt;If performing a select operation set variables by clicking on the Variables icon below." icon="static/images/icons/database_32.png">
 				<function name="sql_exec" variables="true" parse_method="1">
 					<conn_name input_type="text" connection_picker="true" />
 					<mode input_type="select">SQL</mode>
@@ -128,7 +128,7 @@
 					<handle input_type="text" />
 				</function>
 			</command>
-			<command name="cmd_line" label="Command Line" description="A command issued to the Asset via a Command Line." help="&lt;b&gt;Command Line Interface&lt;/b&gt;&lt;br&gt;Used to communicate with a remote system over ssh or telnet connection types.&lt;br&gt;First select the connection name that will be used. Next enter the command that should be sent to the remote system. Prior to the command being sent, variable substitution will occur. After the command is sent, the Command Engine will wait for the command line prompt to appear.&lt;br&gt;&lt;br&gt;Options: The options button has three options overrides. &lt;br&gt;Timeout value in seconds, this is the number of seconds the command engine will wait for the command line prompt to return until it timeouts out the process. &lt;br&gt;Positive Response overrides the set of characters that the Command Engine waits for to determine that the command is finished running. Accepts regular expressions .&lt;br&gt;Negative Response is a set of characters that the Command Engine looks for and will error out if it sees them respond from the remote system.&lt;br&gt;&lt;br&gt;Variables can be populated via the Command Line Interface command. Click the icon next to the word Variables to name the variables and configure how they are set." icon="static/images/icons/konsole_32.png">
+			<command name="cmd_line" label="Command Line" description="A command issued to the Asset via a Command Line." help="Used to communicate with a remote system over ssh or telnet connection types.&lt;br&gt;First select the connection name that will be used. Next enter the command that should be sent to the remote system. Prior to the command being sent, variable substitution will occur. After the command is sent, the Command Engine will wait for the command line prompt to appear.&lt;br&gt;&lt;br&gt;Options: The options button has three options overrides. &lt;br&gt;Timeout value in seconds, this is the number of seconds the command engine will wait for the command line prompt to return until it timeouts out the process. &lt;br&gt;Positive Response overrides the set of characters that the Command Engine waits for to determine that the command is finished running. Accepts regular expressions .&lt;br&gt;Negative Response is a set of characters that the Command Engine looks for and will error out if it sees them respond from the remote system.&lt;br&gt;&lt;br&gt;Variables can be populated via the Command Line Interface command. Click the icon next to the word Variables to name the variables and configure how they are set." icon="static/images/icons/konsole_32.png">
 				<function name="cmd_line" variables="true" parse_method="2">
 					<conn_name input_type="text" connection_picker="true" label="Connection" break_after="true" required="true" />
 					<command input_type="textarea" rows="3" label="Command" class="w95pct" required="true" label_style="display: block;" />
@@ -137,31 +137,31 @@
 					<negative_response input_type="text" option_tab="Options" label="Negative Response" break_after="true" />
 				</function>
 			</command>
-			<command name="winrm_cmd" label="Windows Remote Management" description="A command issued via the WinRM tool for interaction with Windows hosts." help="&lt;b&gt;Windows Remote Management Command&lt;/b&gt;&lt;br&gt;Can connect to an instance of the WinRM service running on a Windows host and issue commands. Enter the command that should be executed. Prior to the command being executed, variable substitution will occur. &lt;br&gt;&lt;br&gt;Options:&lt;br&gt;Timeout value in seconds, this is the number of seconds the command engine will wait for the command prompt to return until it timeouts out the process." icon="static/images/icons/konsole_32.png">
+			<command name="winrm_cmd" label="Windows Remote Management" description="A command issued via the WinRM tool for interaction with Windows hosts." help="Can connect to an instance of the WinRM service running on a Windows host and issue commands. Enter the command that should be executed. Prior to the command being executed, variable substitution will occur. &lt;br&gt;&lt;br&gt;Options:&lt;br&gt;Timeout value in seconds, this is the number of seconds the command engine will wait for the command prompt to return until it timeouts out the process." icon="static/images/icons/konsole_32.png">
 				<function name="winrm_cmd" variables="true" parse_method="2">
 					<command input_type="textarea" rows="3" label="Command" class="w95pct" style="display: block;" />
 					<timeout input_type="text" option_tab="Options" label="Timeout" break_after="true" />
 				</function>
 			</command>
-			<command name="send_email" label="Send Email" description="Sends an email to the specified list of recipients." help="&lt;b&gt;Send Email&lt;/b&gt;&lt;br&gt;Send Email is used to send email messages. Enter the email addresses in the To: field, comma seperated. The Subject field takes the subject and the Message field accepts the body of the message. Html formatting is allowed in the message field only." icon="static/images/icons/mail_send_32.png">
+			<command name="send_email" label="Send Email" description="Sends an email to the specified list of recipients." help="Send Email is used to send email messages. Enter the email addresses in the To: field, comma seperated. The Subject field takes the subject and the Message field accepts the body of the message. Html formatting is allowed in the message field only." icon="static/images/icons/mail_send_32.png">
 				<function name="send_email">
 					<to input_type="text" label="To" class="w95pct" />
 					<subject input_type="text" label="Subject" class="w95pct" />
 					<body input_type="textarea" rows="3" label="Body" class="w95pct" />
 				</function>
 			</command>
-			<command name="add_summary_item" label="Add Summary Item" description="Adds an item to the Task 'Results Summary' dialog that appears when a Task is completed." help="&lt;b&gt;Add Summary Item &lt;/b&gt;&lt;br&gt;When a Task is complete, a detailed log is available but often it's too detailed.  The 'Results Summary' is a more concise output dialog that will appear instead of the log if any Summary items are defined. This will typically be useful output data from the task. Variable substitution occurs prior to the message insertion into the database." icon="static/images/icons/add_summary_item_32.png">
+			<command name="add_summary_item" label="Add Summary Item" description="Adds an item to the Task 'Results Summary' dialog that appears when a Task is completed." help="When a Task is complete, a detailed log is available but often it's too detailed.  The 'Results Summary' is a more concise output dialog that will appear instead of the log if any Summary items are defined. This will typically be useful output data from the task. Variable substitution occurs prior to the message insertion into the database." icon="static/images/icons/add_summary_item_32.png">
 				<function name="add_summary_item">
 					<name label="Item Name" input_type="text" break_after="true" style="display: block;" />
 					<detail input_type="textarea" rows="3" label="Detail" class="w95pct" style="display: block;" />
 				</function>
 			</command>
-			<command name="log_msg" label="Log Message" description="Places a message in the logging table." help="&lt;b&gt;Log Message&lt;/b&gt;&lt;br&gt;Use Log Message to place a message in the logging table. This can be informational, for debugging purposes, or for saving error messages. Variable substitution occurs prior to the message insertion into the database." icon="static/images/icons/signature_32.png">
+			<command name="log_msg" label="Log Message" description="Places a message in the logging table." help="Use Log Message to place a message in the logging table. This can be informational, for debugging purposes, or for saving error messages. Variable substitution occurs prior to the message insertion into the database." icon="static/images/icons/signature_32.png">
 				<function name="log_msg">
 					<message input_type="textarea" rows="2" label="Log" class="w95pct" required="true" label_style="display: block;" />
 				</function>
 			</command>
-			<command name="http" label="HTTP" description="Http get to retrieve html data." help="&lt;b&gt;HTTP&lt;/b&gt;&lt;br&gt;The HTTP command can either issue an http get remote url. It will retrieve the resulting html or xml and place that data in the output buffer to be processed into variables.&lt;br&gt;&lt;br&gt;Select either http get or post from the Request Type drop down. Next type in the url text box that is to be issued. Make sure to include the http:// or https:// prefix to the url. &lt;br&gt;&lt;br&gt;Parameters can be added to the Post request type. Click the + icon below the Parameters section to add Key Value pairs that will be sent to the target url. &lt;br&gt;&lt;br&gt;Variables can be populated from the resulting html or xml that is returned from the target webserver. Click the Variables icon to popup the variables management page." icon="static/images/icons/internet_32.png">
+			<command name="http" label="HTTP" description="Http get to retrieve html data." help="The HTTP command can either issue an http get remote url. It will retrieve the resulting html or xml and place that data in the output buffer to be processed into variables.&lt;br&gt;&lt;br&gt;Select either http get or post from the Request Type drop down. Next type in the url text box that is to be issued. Make sure to include the http:// or https:// prefix to the url. &lt;br&gt;&lt;br&gt;Parameters can be added to the Post request type. Click the + icon below the Parameters section to add Key Value pairs that will be sent to the target url. &lt;br&gt;&lt;br&gt;Variables can be populated from the resulting html or xml that is returned from the target webserver. Click the Variables icon to popup the variables management page." icon="static/images/icons/internet_32.png">
 				<function name="http" variables="true" parse_method="2">
 					<type input_type="dropdown" label="Request Type" datasource="local" dataset="GET|POST">GET</type>
 					<url input_type="textarea" rows="1" label="URL" class="w95pct" required="true" label_style="display: block;" />
@@ -178,7 +178,7 @@
 	</category>
 	<category name="variable" label="Variable" description="Commands for setting and manipulating runtime variables." icon="static/images/icons/bookmark_add_32.png">
 		<commands>
-			<command name="set_variable" label="Set Variables" description="Sets a variable to a value." help="&lt;b&gt;Set Variable&lt;/b&gt;&lt;br&gt;Set Variable is used to populate a variable with alphanumeric data. It can be used to set multiple variables within the same command. &lt;br&gt;&lt;br&gt;Add the variable name to the Variable: input field. Allowable characters: A-z, 0-9, underscore and dash. To set a specific element in a variable array, use a comma immediately followed by an integer. For example to set the fifth element in the variable array MY_VAR: MY_VAR,5&lt;br&gt;&lt;br&gt;Use the modifier drop down selector to change the data to upper or lower case as the variable is set&lt;br&gt;&lt;br&gt;Enter the data to set the variable to in the Value: entry field. This can be any length with any type of data.&lt;br&gt;&lt;br&gt;To set multiple variables with the same Set Variable command click the plus sign or click to add another text below the last variable added." icon="static/images/icons/bookmark_add_32.png">
+			<command name="set_variable" label="Set Variables" description="Sets a variable to a value." help="Set Variable is used to populate a variable with alphanumeric data. It can be used to set multiple variables within the same command. &lt;br&gt;&lt;br&gt;Add the variable name to the Variable: input field. Allowable characters: A-z, 0-9, underscore and dash. To set a specific element in a variable array, use a comma immediately followed by an integer. For example to set the fifth element in the variable array MY_VAR: MY_VAR,5&lt;br&gt;&lt;br&gt;Use the modifier drop down selector to change the data to upper or lower case as the variable is set&lt;br&gt;&lt;br&gt;Enter the data to set the variable to in the Value: entry field. This can be any length with any type of data.&lt;br&gt;&lt;br&gt;To set multiple variables with the same Set Variable command click the plus sign or click to add another text below the last variable added." icon="static/images/icons/bookmark_add_32.png">
 				<function name="set_variable">
 					<variables>
 						<variable>
@@ -189,7 +189,7 @@
 					</variables>
 				</function>
 			</command>
-			<command name="clear_variable" label="Clear Variables" description="Removes variables from memory." help="&lt;b&gt;Clear Variables&lt;/b&gt;&lt;br&gt;&lt;br&gt;Clear Variables is used to delete a variable from memory. If the variable is an array the whole array will be cleared. Add additional variables to be cleared by clicking the add link. " icon="static/images/icons/bookmark_delete_32.png">
+			<command name="clear_variable" label="Clear Variables" description="Removes variables from memory." help="Clear Variables is used to delete a variable from memory. If the variable is an array the whole array will be cleared. Add additional variables to be cleared by clicking the add link. " icon="static/images/icons/bookmark_delete_32.png">
 				<function name="clear_variable">
 					<variables>
 						<variable>
@@ -198,12 +198,12 @@
 					</variables>
 				</function>
 			</command>
-			<command name="parse_text" label="Parse Text" description="Variables to be extracted from text data." help="&lt;b&gt;Parse Text&lt;/b&gt;&lt;br&gt;Parse Text is used when there there are data or variables that need to be further processed into variables or arrays of variables. For instance suppose there is a variable populated with text that needs to be parsed using row and column delimiters. Enter the variable (or multiple variables if required) in the Text to Process: input box and click the Variables icon below. Enter set the row and column delmiters and identify the variables to be populated. " icon="static/images/icons/bookmark_toolbar_32.png">
+			<command name="parse_text" label="Parse Text" description="Variables to be extracted from text data." help="Parse Text is used when there there are data or variables that need to be further processed into variables or arrays of variables. For instance suppose there is a variable populated with text that needs to be parsed using row and column delimiters. Enter the variable (or multiple variables if required) in the Text to Process: input box and click the Variables icon below. Enter set the row and column delmiters and identify the variables to be populated. " icon="static/images/icons/bookmark_toolbar_32.png">
 				<function name="parse_text" variables="true" parse_method="2">
 					<text input_type="textarea" rows="3" label="Text" class="w95pct" required="true" label_style="display: block;" />
 				</function>
 			</command>
-			<command name="substring" label="Substring" description="Sets a variable to a portion of the specified text." help="&lt;b&gt;Substring&lt;/b&gt;&lt;br&gt;Substring is used to populate a variable with part of a string. Enter the name of the variable to be set in the Variable: entry field. The start index is the position in the Source String to start. 0 is the first position. End Index will contain the last position to be part of the value extracted. This can be an integer, a plus sign and number of characters past the start index (+5 to get the start index plus five more characters) or the word 'end' to make the end position the last character in the string.&lt;br&gt;&lt;br&gt;Source String is the set of characters to be extracted from." icon="static/images/icons/editcut_32.png">
+			<command name="substring" label="Substring" description="Sets a variable to a portion of the specified text." help="Substring is used to populate a variable with part of a string. Enter the name of the variable to be set in the Variable: entry field. The start index is the position in the Source String to start. 0 is the first position. End Index will contain the last position to be part of the value extracted. This can be an integer, a plus sign and number of characters past the start index (+5 to get the start index plus five more characters) or the word 'end' to make the end position the last character in the string.&lt;br&gt;&lt;br&gt;Source String is the set of characters to be extracted from." icon="static/images/icons/editcut_32.png">
 				<function name="substring">
 					<variable_name input_type="text" />
 					<start input_type="text" />
@@ -222,7 +222,7 @@
 					</pairs>
 				</function>
 			</command>
-			<command name="exists" label="Exists" description="The Exists command will check one or more variables to ensure they have values" help="&lt;b&gt;Exists&lt;/b&gt;&lt;br /&gt;The Exists command will check one or more variables to ensure they have values&lt;br /&gt;" icon="static/images/icons/exists.png">
+			<command name="exists" label="Exists" description="The Exists command will check one or more variables to ensure they have values" help="The Exists command will check one or more variables to ensure they have values&lt;br /&gt;" icon="static/images/icons/exists.png">
 				<function name="exists">
 					<variables>
 						<variable>
