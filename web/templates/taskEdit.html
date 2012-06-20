@@ -22,7 +22,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             style="padding-left: 7px; padding-right: 7px;">Registry</span><span
             id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>-->
         </div>
-        <div id="div_details" class="toolbox_panel">
+        <div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel">
             <div style="padding: 0 0 0 5px;">
                 <span class="detail_label">Code:</span>
                 <input type="text" id="txtTaskCode" class="task_details code" validate_as=""
@@ -56,7 +56,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
                 </center>
             </div>
         </div>
-        <div id="div_versions" class="toolbox_panel hidden">
+        <div id="div_versions" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <span class="detail_label">Selected Version:</span>
             <span id="lblVersion" class="code"></span>
             <br />
@@ -71,7 +71,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
                 <span id="new_version_btn">New Version</span>
             </center>
         </div>
-        <div id="div_commands" class="toolbox_panel hidden">
+        <div id="div_commands" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <span id="command_help_btn">Help</span>
             <hr />
             <table border="0" width="100%">
@@ -81,7 +81,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
                 </tr>
             </table>
         </div>
-        <div id="div_debug" class="toolbox_panel hidden">
+        <div id="div_debug" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <!--<p>
             Test Asset:<br />
             <input type="text" id="txtTestAsset" Enabled="false" asset_id="" class="code"
@@ -126,12 +126,12 @@ $var cssfiles: registry.css taskEdit.css taskView.css
                 alt="" />
             </div>
         </div>
-        <div id="div_parameters" class="toolbox_panel hidden">
+        <div id="div_parameters" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <span id="parameter_add_btn">Add New</span>
             <hr />
             <div id="parameters"></div>
         </div>
-        <div id="div_schedules" class="toolbox_panel hidden">
+        <div id="div_schedules" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <div class="ui-state-default">
                 <span class="detail_label">Action Plans</span>
             </div>
@@ -142,16 +142,16 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             </div>
             <div id="toolbox_schedules" class="ui-widget-content"></div>
         </div>
-        <div id="div_clipboard" class="toolbox_panel hidden">
+        <div id="div_clipboard" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <span id="clear_clipboard_btn">Clear All</span>
             <hr />
             <ul id="clipboard"></ul>
         </div>
-        <div id="div_tags" class="toolbox_panel hidden">
+        <div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
             <ul id="objects_tags"></ul>
         </div>
-        <div id="div_registry" class="toolbox_panel hidden">
+        <div id="div_registry" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <div id="registry_content"></div>
         </div>
     </div>

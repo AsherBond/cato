@@ -49,18 +49,7 @@
 	overflow: hidden;
 	background: #f8f8f8;
 	padding: 2px 2px 2px 0px;
-	border-right: 1px solid #000;
 }
-
-* html #left_panel_te
-{
-	height: 100%;
-	top: 0px;
-	bottom: 0px;
-	border-top: 37px solid #f8f8f8; /*border-bottom: 20px solid #f8f8f8;*/
-	color: #444;
-}
-
 
 /* End Alternate content */
 .detail_label
@@ -252,29 +241,20 @@
 .toolbox_tabs_3row
 {
   padding: 8px 6px 0px 3px;
-	height: 60px;
+  height: 60px;
   font-size: 1.1em;
-  border-bottom: 1px solid #CFCFCF;
-  border-right: 1px solid #AFAFAF;
-  background: #DFDFDF;
 }
 .toolbox_tabs_2row
 {
   padding: 8px 6px 0px 3px;
   height: 40px;
   font-size: 1.1em;
-  border-bottom: 1px solid #CFCFCF;
-  border-right: 1px solid #AFAFAF;
-  background: #DFDFDF;
 }
 .toolbox_tabs_1row
 {
   padding: 8px 6px 0px 3px;
-	height: 20px;
+  height: 20px;
   font-size: 1.1em;
-  border-bottom: 1px solid #CFCFCF;
-  border-right: 1px solid #AFAFAF;
-  background: #DFDFDF;
 }
 
 .toolbox_tab

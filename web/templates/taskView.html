@@ -12,7 +12,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
 </script>
 <div id="left_panel_te">
     <div id="toolbox">
-        <div id="toolbox_tabs" class="toolbox_tabs_1_row">
+        <div id="toolbox_tabs" class="toolbox_tabs_1row">
             <span id="tab_versions" linkto="div_versions" class="ui-state-default ui-corner-top toolbox_tab ui-tabs-selected ui-state-active"> Versions&nbsp;</span><span id="tab_parameters" linkto="div_parameters" class="ui-state-default ui-corner-top toolbox_tab"
             style="padding-left: 6px; padding-right: 6px;">Parameters</span><span id="tab_schedules"
             linkto="div_schedules" class="ui-state-default ui-corner-top toolbox_tab"
@@ -23,7 +23,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             style="padding-left: 7px; padding-right: 7px;">Registry</span><span
             id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>-->
         </div>
-        <div id="div_versions" class="toolbox_panel">
+        <div id="div_versions" class="ui-widget-content ui-corner-top toolbox_panel">
             <center>
                 <span id="show_log_link">View Change Log</span>
                 <span id="show_runlog_link">View Last Run Log</span>
@@ -42,7 +42,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             <ul id="versions"></ul>
             <span id="new_version_btn">New Version</span>
         </div>
-        <div id="div_debug" class="toolbox_panel hidden">
+        <div id="div_debug" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <!--<p>
             Test Asset:<br />
             <input type="text" id="txtTestAsset" Enabled="false" asset_id="" class="code"
@@ -87,19 +87,19 @@ $var cssfiles: registry.css taskEdit.css taskView.css
                 alt="" />
             </div>
         </div>
-        <div id="div_tags" class="toolbox_panel hidden">
+        <div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <span id="tag_add_btn" class="tag_add_btn pointer"> <img alt="" src="static/images/icons/edit_add.png" /> click to add </span>
             <ul id="objects_tags"></ul>
         </div>
-        <div id="div_registry" class="toolbox_panel hidden">
+        <div id="div_registry" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <div id="registry_content"></div>
         </div>
-        <div id="div_parameters" class="toolbox_panel hidden">
+        <div id="div_parameters" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <span id="parameter_add_btn">Add New</span>
             <hr />
             <div id="parameters"></div>
         </div>
-        <div id="div_schedules" class="toolbox_panel hidden">
+        <div id="div_schedules" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <div class="ui-state-default">
                 <span class="detail_label">Action Plans</span>
             </div>

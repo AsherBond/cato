@@ -26,7 +26,7 @@
 //gives the ability to have page-specific tab enhancements.
 
 $(document).ready(function () {
-    $("#toolbox .toolbox_panel").height($("#left_panel_te").height() - $("#toolbox_tabs").height() - 5);
+    $("#toolbox .toolbox_panel").height($("#left_panel_te").height() - $("#toolbox_tabs").height() - 20);
 
     //the tab toggle click event
     $("#toolbox_tabs .toolbox_tab").click(function () {
