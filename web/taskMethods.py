@@ -786,7 +786,7 @@ class taskMethods:
             # MAIN codeblock first
             sHTML += "<div class=\"ui-state-default te_header\">MAIN</div>"
             sHTML += "<div class=\"codeblock_box\">"
-            sHTML += self.BuildSteps(oTask, "MAIN")
+            sHTML += self.BuildReadOnlySteps(oTask, "MAIN")
             sHTML += "</div>"
 
             # for the rest of the codeblocks
@@ -797,19 +797,20 @@ class taskMethods:
                 
                 sHTML += "<div class=\"ui-state-default te_header\" id=\"cbt_" + cb.Name + "\">" + cb.Name + "</div>"
                 sHTML += "<div class=\"codeblock_box\">"
-                sHTML += self.BuildSteps(oTask, cb.Name)
+                sHTML += self.BuildReadOnlySteps(oTask, cb.Name)
                 sHTML += "</div>"
 
             return sHTML
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
     
-    def BuildSteps(self, oTask, sCodeblockName):
+    def BuildReadOnlySteps(self, oTask, sCodeblockName):
         try:
             sHTML = ""
 
             if oTask.Codeblocks[sCodeblockName].Steps:
                 for order, oStep in oTask.Codeblocks[sCodeblockName].Steps.iteritems():
+                    uiCommon.log("Building %s - %d : %s" % (sCodeblockName, order, oStep.FunctionName), 4)
                     sHTML += ST.DrawReadOnlyStep(oStep, True)
             else:
                 sHTML = "<li class=\"no_step\">No Commands defined for this Codeblock.</li>"

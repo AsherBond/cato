@@ -48,9 +48,9 @@
 			</command>
 			<command name="wait_for_tasks" label="Wait For Tasks" description="Waits for one or more Tasks to complete." help="&lt;p&gt;Waits for one or more processing Tasks to complete.  Enter one or more Task Handles, and the command will wait until all of them have completed processing.&lt;/p&gt;&lt;p&gt;A Task will be considered 'completed' if it is in any of the non-running statuses, including Canceled, Error, and Completed.&lt;/p&gt;&lt;p style='font-style: italic;'&gt;Note: Enter Handle names as text, such as MYHANDLE, not in variable reference syntax [[MYHANDLE]].&lt;/p&gt;" icon="static/images/icons/wait_32.png">
 				<function name="wait_for_tasks">
-					<handles>
-						<handle>
-							<name input_type="text" />
+					<handles label="Handles">
+						<handle label="Handle">
+							<name input_type="text" label="Name" />
 						</handle>
 					</handles>
 				</function>
@@ -145,9 +145,9 @@
 			</command>
 			<command name="send_email" label="Send Email" description="Sends an email to the specified list of recipients." help="Send Email is used to send email messages. Enter the email addresses in the To: field, comma seperated. The Subject field takes the subject and the Message field accepts the body of the message. Html formatting is allowed in the message field only." icon="static/images/icons/mail_send_32.png">
 				<function name="send_email">
-					<to input_type="text" label="To" class="w95pct" />
-					<subject input_type="text" label="Subject" class="w95pct" />
-					<body input_type="textarea" rows="3" label="Body" class="w95pct" />
+					<to input_type="text" label="To" class="w95pct" label_style="display: block;" />
+					<subject input_type="text" label="Subject" class="w95pct" label_style="display: block;" />
+					<body input_type="textarea" rows="3" label="Body" class="w95pct" label_style="display: block;" />
 				</function>
 			</command>
 			<command name="add_summary_item" label="Add Summary Item" description="Adds an item to the Task 'Results Summary' dialog that appears when a Task is completed." help="When a Task is complete, a detailed log is available but often it's too detailed.  The 'Results Summary' is a more concise output dialog that will appear instead of the log if any Summary items are defined. This will typically be useful output data from the task. Variable substitution occurs prior to the message insertion into the database." icon="static/images/icons/add_summary_item_32.png">
@@ -180,20 +180,20 @@
 		<commands>
 			<command name="set_variable" label="Set Variables" description="Sets a variable to a value." help="Set Variable is used to populate a variable with alphanumeric data. It can be used to set multiple variables within the same command. &lt;br&gt;&lt;br&gt;Add the variable name to the Variable: input field. Allowable characters: A-z, 0-9, underscore and dash. To set a specific element in a variable array, use a comma immediately followed by an integer. For example to set the fifth element in the variable array MY_VAR: MY_VAR,5&lt;br&gt;&lt;br&gt;Use the modifier drop down selector to change the data to upper or lower case as the variable is set&lt;br&gt;&lt;br&gt;Enter the data to set the variable to in the Value: entry field. This can be any length with any type of data.&lt;br&gt;&lt;br&gt;To set multiple variables with the same Set Variable command click the plus sign or click to add another text below the last variable added." icon="static/images/icons/bookmark_add_32.png">
 				<function name="set_variable">
-					<variables>
-						<variable>
-							<name input_type="text" />
-							<value input_type="text" />
-							<modifier input_type="select">DEFAULT</modifier>
+					<variables label="Variables">
+						<variable label="Variable">
+							<name input_type="text" label="Name" />
+							<value input_type="text" label="Value" />
+							<modifier input_type="select" label="Modifier">DEFAULT</modifier>
 						</variable>
 					</variables>
 				</function>
 			</command>
 			<command name="clear_variable" label="Clear Variables" description="Removes variables from memory." help="Clear Variables is used to delete a variable from memory. If the variable is an array the whole array will be cleared. Add additional variables to be cleared by clicking the add link. " icon="static/images/icons/bookmark_delete_32.png">
 				<function name="clear_variable">
-					<variables>
-						<variable>
-							<name input_type="text" />
+					<variables label="Variables">
+						<variable label="Variable">
+							<name input_type="text" label="Name" />
 						</variable>
 					</variables>
 				</function>
@@ -205,19 +205,19 @@
 			</command>
 			<command name="substring" label="Substring" description="Sets a variable to a portion of the specified text." help="Substring is used to populate a variable with part of a string. Enter the name of the variable to be set in the Variable: entry field. The start index is the position in the Source String to start. 0 is the first position. End Index will contain the last position to be part of the value extracted. This can be an integer, a plus sign and number of characters past the start index (+5 to get the start index plus five more characters) or the word 'end' to make the end position the last character in the string.&lt;br&gt;&lt;br&gt;Source String is the set of characters to be extracted from." icon="static/images/icons/editcut_32.png">
 				<function name="substring">
-					<variable_name input_type="text" />
-					<start input_type="text" />
-					<end input_type="text" />
-					<source input_type="text" />
+					<variable_name input_type="text" label="Variable" required="true" />
+					<start input_type="text" label="Start" />
+					<end input_type="text" label="End" />
+					<source input_type="textarea" rows="3" label="Text" class="w95pct" required="true" label_style="display: block;" />
 				</function>
 			</command>
 			<command name="set_ecosystem_registry" label="Set Ecosystem Registry" description="Updates a value in an Ecosystem Registry" help="Set Ecosystem Registry is used to update a value in an Ecosystem Registry.&lt;br /&gt;&lt;br /&gt;Useful for saving Task specific state or configuration information between Task runs.&lt;br /&gt;&lt;br /&gt;[[variables]] are permitted." icon="static/images/icons/kexi_32.png">
 				<function name="set_ecosystem_registry">
-					<pairs>
+					<pairs label="Pairs">
 						<pair>
-							<key input_type="text" />
-							<value input_type="text" />
-							<mask input_type="checkbox" />
+							<key input_type="text" label="Key" />
+							<value input_type="text" label="Value" />
+							<mask input_type="checkbox" label="Masked?" />
 						</pair>
 					</pairs>
 				</function>

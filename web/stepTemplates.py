@@ -300,6 +300,7 @@ def GetStepTemplate_View(oStep):
     sFunction = oStep.FunctionName
     sHTML = ""
     sOptionHTML = ""
+    bShowVars = False
     
     if sFunction.lower() == "if":
         sHTML = If_View(oStep)
@@ -321,6 +322,13 @@ def GetStepTemplate_View(oStep):
         sHTML = SqlExec_View(oStep)
     else:
         sHTML, sOptionHTML = DrawReadOnlyStepFromXMLDocument(oStep)
+        
+    # oStep.OutputParseType is how we know to show variables
+    # 
+    if oStep.OutputParseType > 0:
+        sVars = DrawVariableSectionForDisplay(oStep, False)
+        if sVars:
+            sHTML += "<hr />Variables:" + sVars
     
     return sHTML, sOptionHTML
 
@@ -775,6 +783,7 @@ def DrawReadOnlyField(xe, sXPath, oStep):
     sNodeValue = (xe.text if xe.text else "")
     log("---- Value :" + sNodeValue, 4)
     
+    sInputType = xe.get("input_type", "")
     sNodeLabel = xe.get("label", xe.tag)
     sLabelClasses = xe.get("label_class", "")
     sLabelStyle = xe.get("label_style", "")
@@ -796,7 +805,10 @@ def DrawReadOnlyField(xe, sXPath, oStep):
         sHTML += "<hr />"
 
     # HERE IT IS!
-    sHTML += sNodeLabel + "<span class=\"code\" style=\"padding-right: 8px;\"> " + sNodeValue + "</span>"
+    if sInputType == "textarea":
+        sHTML += sNodeLabel + "<div class=\"codebox\" style=\"padding-right: 8px;\"> " + uiCommon.SafeHTML(sNodeValue) + "</div>"
+    else:
+        sHTML += sNodeLabel + "<span class=\"code\" style=\"padding-right: 8px;\"> " + uiCommon.SafeHTML(sNodeValue) + "</span>"
 
     #some final layout possibilities
     if catocommon.is_true(sBreakAfter):
@@ -962,9 +974,10 @@ def DrawEmbeddedReadOnlyStep(xEmbeddedFunction):
         sMainHTML = ""
     
         # labels are different here than in Full Steps.
-        sIcon = ("" if not fn.Icon else fn.Icon)
-        sLabel = "<img class=\"step_header_function_icon\" src=\"" + sIcon + "\" alt=\"\" /> " + \
-            fn.Category.Label + " - " + fn.Label
+#        sIcon = ("" if not fn.Icon else fn.Icon)
+#        sLabel = "<img class=\"step_header_function_icon\" src=\"" + sIcon + "\" alt=\"\" /> " + \
+#            fn.Category.Label + " - " + fn.Label
+        sLabel = fn.Category.Label + " - " + fn.Label
     
         sMainHTML += "<div class=\"embedded_step\">"
         sMainHTML += "    <div class=\"ui-state-default step_header\">"
@@ -1732,7 +1745,6 @@ def SqlExec(oStep):
 
 def SqlExec_View(oStep):
     try:
-        sStepID = oStep.ID
         xd = oStep.FunctionXDoc
 
         """TAKE NOTE:
@@ -1754,7 +1766,6 @@ def SqlExec_View(oStep):
         sHandle = xd.findtext("handle", "")
 
         sHTML = ""
-        bDrawVars = False
         bDrawSQLBox = False
         bDrawHandle = False
         bDrawKeyValSection = False
@@ -1772,11 +1783,9 @@ def SqlExec_View(oStep):
             bDrawSQLBox = True
             bDrawHandle = True
         elif sMode == "RUN":
-            bDrawVars = True
             bDrawHandle = True
             bDrawKeyValSection = True
         else:
-            bDrawVars = True
             bDrawSQLBox = True
 
         if bDrawHandle:
@@ -1789,7 +1798,7 @@ def SqlExec_View(oStep):
         if bDrawSQLBox:
             sHTML += "<br />SQL:\n"
             sHTML += "<div class=\"codebox\">" + uiCommon.SafeHTML(sCommand) + "</div>"
-        return sHTML, bDrawVars
+        return sHTML
     except Exception:
         uiCommon.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
@@ -2088,7 +2097,7 @@ def RunTask_View(oStep):
         if sActualTaskID:
             if sParameterXML:
                 sHTML += "<hr />"
-                sHTML += "Parameters"
+                sHTML += "Parameters:"
                 sHTML += DrawCommandParameterSection(sParameterXML, False, True)
         
         return sHTML
@@ -2257,7 +2266,7 @@ def Subtask_View(oStep):
         if sActualTaskID:
             if sParameterXML:
                 sHTML += "<hr />"
-                sHTML += "Parameters"
+                sHTML += "Parameters:"
                 sHTML += DrawCommandParameterSection(sParameterXML, False, True)
     
         return sHTML
