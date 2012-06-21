@@ -19,6 +19,9 @@ import uiCommon
 
 class Registry(object):
     def __init__(self, object_id):
+        self.xml_tree = None
+        self.xml_text = None
+        
         try:
             db = catocommon.new_conn()
             self.object_id = object_id
