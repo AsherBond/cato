@@ -72,6 +72,7 @@ class User(object):
     ForceChange = False
     Email = ""
     SettingsXML = ""
+    Tags = []
     
     @staticmethod
     def ValidatePassword(uid, pwd):
@@ -269,6 +270,15 @@ class User(object):
             
             
             # ALL GOOD!
+            # what are the users tags?
+            sql = "select tag_name from object_tags where object_type = 1 and object_id='%s'" % (self.ID)
+            # NOTE this is "select_all", not "select_all_dict"... because I DO want a list.
+            rows = db.select_all(sql)
+            tags = []
+            for tag in rows:
+                tags.append(tag[0])
+            self.Tags = tags
+            
 
             # reset the user counters and last_login
             sql = "update users set failed_login_attempts=0, last_login_dt=now() %s where user_id='%s'" % (change_clause, self.ID)

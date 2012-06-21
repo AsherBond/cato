@@ -121,10 +121,12 @@ class uiMethods:
             
             #all good, put a few key things in the session, not the whole object
             # yes, I said SESSION not a cookie, otherwise it could be hacked client side
+            
             current_user = {}
             current_user["user_id"] = u.ID
             current_user["full_name"] = u.FullName
             current_user["role"] = u.Role
+            current_user["tags"] = u.Tags
             current_user["email"] = u.Email
             current_user["ip_address"] = uiGlobals.web.ctx.ip
             uiCommon.SetSessionObject("user", current_user)
@@ -1153,7 +1155,7 @@ class uiMethods:
             if not sObjectID or not sTagName:
                 return "{ \"error\" : \"Missing or invalid Object ID or Tag Name.\" }"
     
-            sSQL = """delete from object_tags where object_id = '%s' and tag_name = '%s'""" & (sObjectID, sTagName)
+            sSQL = """delete from object_tags where object_id = '%s' and tag_name = '%s'""" % (sObjectID, sTagName)
     
             if not self.db.exec_db_noexcep(sSQL):
                 uiCommon.log_nouser(self.db.error, 0)

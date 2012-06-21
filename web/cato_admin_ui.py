@@ -561,15 +561,15 @@ if __name__ != "cato_admin_ui":
     # Uncomment the following - it will print out all the core methods in the app
     # this will be handy during the conversion, as we add functions to uiGlobals.RoleMethods.
 #    for s in dir():
-#        print "\"/%s\" : [\"Administrator\", \"Developer\"]," % s
+#        print "\"/%s\" : [\"Developer\"]," % s
 #    for s in dir(uiMethods):
-#        print "\"%s\" : [\"Administrator\", \"Developer\"]," % s
+#        print "\"/uiMethods/%s\" : [\"Developer\"]," % s
 #    for s in dir(taskMethods):
-#        print "\"/%s\" : [\"Administrator\", \"Developer\"]," % s
+#        print "\"/taskMethods/%s\" : [\"Developer\"]," % s
 #    for s in dir(ecoMethods):
-#        print "\"%s\" : [\"Administrator\", \"Developer\"]," % s
+#        print "\"/ecoMethods/%s\" : [\"Developer\"]," % s
 #    for s in dir(cloudMethods):
-#        print "\"%s\" : [\"Administrator\", \"Developer\"]," % s
+#        print "\"/cloudMethods/%s\" : [\"Developer\"]," % s
 
 
     # NOTE: this "application" attribute will only be used if we're attached to as a 
