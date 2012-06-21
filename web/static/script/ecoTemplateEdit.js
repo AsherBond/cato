@@ -235,6 +235,7 @@ function GetDetails() {
 		dataType : "json",
 		success : function(template) {
 			try {
+				$("#hidEcoTemplateID").val(template.ID);
 				$("#txtEcoTemplateName").val(template.Name);
 			 	$("#lblEcoTemplateHeader").html(template.Name);
 			 	$("#txtDescription").val(unpackJSON(template.Description));
@@ -296,6 +297,8 @@ function tabWasClicked(tab) {
 		detail_div = "#div_storm_detail";
 	} else if(tab == "ecosystems") {
 		GetEcosystems();
+    } else if (tab == "tags") {
+        GetObjectsTags($("#hidEcoTemplateID").val());
 	} else if(tab == "details") {
 		GetDetails();
 	}

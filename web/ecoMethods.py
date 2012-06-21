@@ -914,7 +914,7 @@ class ecoMethods:
             uiCommon.log_nouser(traceback.format_exc(), 0)
             return traceback.format_exc()
 
-    def wmGetEcotemplateActionCategories(self):
+    def wmGetEcosystemActionCategories(self):
         try:
             sEcoTemplateID = uiCommon.getAjaxArg("sEcoTemplateID")
             sHTML = ""
@@ -954,7 +954,7 @@ class ecoMethods:
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
 
-    def wmGetEcotemplateActionButtons(self):
+    def wmGetEcosystemActionButtons(self):
         try:
             sEcoTemplateID = uiCommon.getAjaxArg("sEcoTemplateID")
             sHTML = ""

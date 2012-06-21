@@ -146,7 +146,7 @@ function GetCurrentObjectID() {
     if (oid == "" || (typeof oid == "undefined")) { oid = $("input[id$='hidObjectID']").val(); }
     if (oid == "" || (typeof oid == "undefined")) { oid = $("input[id$='hidCurrentEditID']").val(); }
     if (oid == "" || (typeof oid == "undefined")) { oid = $("input[id$='hidOriginalTaskID']").val(); }
-    if (oid == "" || (typeof oid == "undefined")) { oid = $("input[id$='hidProcedureID']").val(); }
+    if (oid == "" || (typeof oid == "undefined")) { oid = $("input[id$='hidEcoTemplateID']").val(); }
 
     if (typeof oid == "undefined")
         oid = "";
