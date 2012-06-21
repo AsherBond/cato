@@ -41,7 +41,7 @@ $(document).ready(function() {
             var ahtml = '<li id="' + id.replace(/ /g, "") + '" val="' + tag_name + '" class="tag">';
             ahtml += '<table class="object_tags_table"><tr>';
             ahtml += '<td style="vertical-align: middle;">' + tag_name + '</td>';
-            ahtml += '<td width="1px"><img class="tag_remove_btn" remove_id="' + id + '" src="static/images/icons/fileclose.png" alt="" /></td>';
+            ahtml += '<td width="1px"><span class="ui-icon ui-icon-close tag_remove_btn" remove_id="' + id + '"></span></td>';
             ahtml += '</tr></table>';
             ahtml += '</li>';
 

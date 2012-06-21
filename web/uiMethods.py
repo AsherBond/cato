@@ -256,7 +256,7 @@ class uiMethods:
             
             # each item
             for sItem in aItems:
-                sHTML += "<p style=\"margin-left: 10px;\">" + sItem + "</p>";                
+                sHTML += "<p style=\"margin-left: 10px;\">" + sItem + "</p>"          
             
             sHTML += "<br />"
             sHTML += "<p>" + sActionLine + "</p>"
@@ -706,7 +706,7 @@ class uiMethods:
             sParameterXML = uiCommon.unpackJSON(sParameterXML)
             
             # we gotta peek into the XML and encrypt any newly keyed values
-            sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML);          
+            sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML)          
 
             sSQL = "insert into action_plan (task_id, action_id, ecosystem_id, account_id," \
                 " run_on_dt, parameter_xml, debug_level, source)" \
@@ -749,7 +749,7 @@ class uiMethods:
             sParameterXML = uiCommon.unpackJSON(sParameterXML)
             
             # we gotta peek into the XML and encrypt any newly keyed values
-            sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML);                
+            sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML)                
 
             # figure out a label and a description
             sDesc = ""
@@ -800,7 +800,7 @@ class uiMethods:
             sParameterXML = uiCommon.unpackJSON(sParameterXML)
             
             # we gotta peek into the XML and encrypt any newly keyed values
-            sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML);                
+            sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML)                
 
             sSQL = "update action_plan" \
                 " set parameter_xml = " + ("'" + catocommon.tick_slash(sParameterXML) + "'" if sParameterXML else "null") + "," \
@@ -839,7 +839,7 @@ class uiMethods:
             sParameterXML = uiCommon.unpackJSON(sParameterXML)
             
             # we gotta peek into the XML and encrypt any newly keyed values
-            sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML);                
+            sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML)                
 
             # whack all plans for this schedule, it's been changed
             sSQL = "delete from action_plan where schedule_id = '" + sScheduleID + "'"
@@ -1262,11 +1262,13 @@ class uiMethods:
                
                
             if args.has_key("Groups"):
+                # if the Groups argument was empty, that means delete them all!
+                # no matter what the case, we're doing a whack-n-add here.
+                sql = "delete from object_tags where object_id = '%s'" % user_id
+                if not self.db.exec_db_noexcep(sql):
+                    uiCommon.log_nouser(self.db.error, 0)
+                # now, lets do any groups that were passed in. 
                 if args["Groups"]:
-                    # now, lets do any groups that were passed in. 
-                    sql = "delete from object_tags where object_id = '%s'" % user_id
-                    if not self.db.exec_db_noexcep(sql):
-                        uiCommon.log_nouser(self.db.error, 0)
                     for tag in args["Groups"]:
                         sql = "insert object_tags (object_type, object_id, tag_name) values (1, '%s','%s')" % (user_id, tag)
                         if not self.db.exec_db_noexcep(sql):
@@ -1395,9 +1397,9 @@ class uiMethods:
                             "\">"
                         sHTML += "<div class=\"search_dialog_value_name\">"
                         if bAllowMultiSelect:
-                            sHTML += "<input type='checkbox' name='assetcheckboxes' id='assetchk_" + row["asset_id"] + "' value='assetchk_" + row["asset_id"] + "'>";
-                        sHTML += "<span>" + row["asset_name"] + "</span>";
-                        sHTML += "</div>";
+                            sHTML += "<input type='checkbox' name='assetcheckboxes' id='assetchk_" + row["asset_id"] + "' value='assetchk_" + row["asset_id"] + "'>"
+                        sHTML += "<span>" + row["asset_name"] + "</span>"
+                        sHTML += "</div>"
 
                         sHTML += "<span class=\"search_dialog_value_inline_item\">Address: " + row["address"] + "</span>"
     
@@ -1580,6 +1582,7 @@ class uiMethods:
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
             return traceback.format_exc()
+
     def wmDeleteCredentials(self):
         try:
             sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
@@ -1654,7 +1657,7 @@ class uiMethods:
                     result, err = t.DBSave()
                     if result:
                         # add security log
-                        uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Task, t.ID, t.Name, "Created by import.");
+                        uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Task, t.ID, t.Name, "Created by import.")
 
                         items.append({"type" : "task", "id" : t.ID, "name" : t.Name}) 
                     else:
