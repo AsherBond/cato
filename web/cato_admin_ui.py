@@ -100,6 +100,10 @@ class credentialEdit:
     def GET(self):
         return render.credentialEdit()
 
+class tagEdit:        
+    def GET(self):
+        return render.tagEdit()
+
 class userEdit:        
     def GET(self):
         return render.userEdit()
@@ -512,6 +516,7 @@ if __name__ != "cato_admin_ui":
         '/ecosystemEdit', 'ecosystemEdit',
         '/userEdit', 'userEdit',
         '/assetEdit', 'assetEdit',
+        '/tagEdit', 'tagEdit',
         '/credentialEdit', 'credentialEdit',
         '/announcement', 'announcement',
         '/getlicense', 'getlicense',

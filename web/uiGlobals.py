@@ -67,6 +67,7 @@ class CatoObjectTypes(object):
     Task = 3
     Schedule = 4
     Registry = 6
+    Tag = 7
     MessageTemplate = 18
     Parameter = 34
     Credential = 35
