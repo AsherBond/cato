@@ -39,9 +39,9 @@ class Clouds(object):
                             "or provider like '%%" + term + "%%' " \
                             "or api_url like '%%" + term + "%%') "
     
-            sSQL = "select cloud_id, cloud_name, provider, api_url, api_protocol" \
-                " from clouds" \
-                " where 1=1 " + sWhereString + " order by provider, cloud_name"
+            sSQL = """select cloud_id, cloud_name, provider, api_url, api_protocol
+                from clouds
+                where 1=1 %s order by provider, cloud_name""" % sWhereString
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
@@ -212,11 +212,11 @@ class CloudAccounts(object):
             if sProvider:
                 sWhereString += " and provider = '%s'" % sProvider
                 
-            sSQL = "select account_id, account_name, account_number, provider, login_id, auto_manage_security," \
-                " case is_default when 1 then 'Yes' else 'No' end as is_default," \
-                " (select count(*) from ecosystem where account_id = cloud_account.account_id) as has_ecosystems" \
-                " from cloud_account" \
-                " where 1=1 " + sWhereString + " order by is_default desc, account_name"
+            sSQL = """select account_id, account_name, account_number, provider, login_id, auto_manage_security,
+                case is_default when 1 then 'Yes' else 'No' end as is_default,
+                (select count(*) from ecosystem where account_id = cloud_account.account_id) as has_ecosystems
+                from cloud_account
+                where 1=1 %s order by is_default desc, account_name""" % sWhereString
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)

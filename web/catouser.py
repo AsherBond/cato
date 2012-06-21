@@ -38,12 +38,12 @@ class Users(object):
                             "or u.status like '%%" + term + "%%' " \
                             "or u.last_login_dt like '%%" + term + "%%') "
     
-            sSQL = "select u.user_id, u.username, u.full_name, u.last_login_dt, u.email," \
-                " case when u.status = '1' then 'Enabled' when u.status = '-1' then 'Locked'" \
-                " when u.status = '0' then 'Disabled' end as status," \
-                " u.authentication_type, u.user_role as role" \
-                " from users u" \
-                " where u.status <> 86 " + sWhereString + " order by u.full_name"
+            sSQL = """select u.user_id, u.username, u.full_name, u.last_login_dt, u.email,
+                case when u.status = '1' then 'Enabled' when u.status = '-1' then 'Locked'
+                when u.status = '0' then 'Disabled' end as status,
+                u.authentication_type, u.user_role as role
+                from users u
+                where u.status <> 86 %s order by u.full_name""" % sWhereString
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)

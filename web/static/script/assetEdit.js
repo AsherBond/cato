@@ -301,14 +301,13 @@ function SaveAsset() {
         return false;
     }
 
-    //put the tags in a string for submission
-    var sTags = "";
-    $("#objects_tags .tag").each(function(intIndex) {
-        if (sTags == "")
-            sTags += $(this).attr("id").replace(/ot_/, "");
-        else
-            sTags += "," + $(this).attr("id").replace(/ot_/, "");
-    });
+    //put the tags in an array for submission
+    var sTags = new Array();
+    $("#objects_tags .tag").each(
+        function (idx) {
+            sTags[idx] = $(this).attr("val");
+        });
+
 
 	var cred = {}
     cred.ID = sCredentialID;

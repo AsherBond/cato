@@ -26,7 +26,7 @@ from catocommon import catocommon
 import uiCommon
 from datetime import datetime
 
-# Note: this is not a container for Ecotemplate objects - it's just a rowset from the database
+# Note: this is not a container for Task objects - it's just a rowset from the database
 # with an AsJSON method.
 # why? Because we don't need a full object for list pages and dropdowns.
 class Tasks(object):
@@ -38,15 +38,17 @@ class Tasks(object):
                 aSearchTerms = sFilter.split()
                 for term in aSearchTerms:
                     if term:
-                        sWhereString += " and (a.task_name like '%%" + term + "%%' " \
-                            "or a.task_code like '%%" + term + "%%' " \
-                            "or a.task_desc like '%%" + term + "%%' " \
-                            "or a.task_status like '%%" + term + "%%') "
+                        sWhereString += " and (t.task_name like '%%" + term + "%%' " \
+                            "or t.task_code like '%%" + term + "%%' " \
+                            "or t.task_desc like '%%" + term + "%%' " \
+                            "or t.task_status like '%%" + term + "%%') "
     
-            sSQL = "select a.task_id, a.original_task_id, a.task_name, a.task_code, a.task_desc, a.version, a.task_status," \
-                " (select count(*) from task where original_task_id = a.original_task_id) as versions" \
-                " from task a" \
-                " where a.default_version = 1 " + sWhereString + " order by a.task_code"
+            sSQL = """select t.task_id, t.original_task_id, t.task_name, t.task_code, t.task_desc, t.version, t.task_status,
+                (select count(*) from task where original_task_id = t.original_task_id) as versions,
+                group_concat(ot.tag_name order by ot.tag_name separator ',') as tags
+                from task t
+                left outer join object_tags ot on t.original_task_id = ot.object_id
+                where t.default_version = 1 %s group by t.original_task_id order by t.task_code""" % sWhereString
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)

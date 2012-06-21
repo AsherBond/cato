@@ -37,12 +37,14 @@ class Assets(object):
                             "or a.asset_status like '%%" + term + "%%' " \
                             "or ac.username like '%%" + term + "%%') "
     
-            sSQL = "select a.asset_id, a.asset_name, a.asset_status, a.address," \
-                " case when ac.shared_or_local = 1 then 'Local - ' else 'Shared - ' end as shared_or_local," \
-                " case when ac.domain <> '' then concat(ac.domain, cast(char(92) as char), ac.username) else ac.username end as credentials" \
-                " from asset a" \
-                " left outer join asset_credential ac on ac.credential_id = a.credential_id" \
-                " where 1=1 " + sWhereString + " order by a.asset_name"
+            sSQL = """select a.asset_id, a.asset_name, a.asset_status, a.address,
+                case when ac.shared_or_local = 1 then 'Local - ' else 'Shared - ' end as shared_or_local,
+                case when ac.domain <> '' then concat(ac.domain, cast(char(92) as char), ac.username) else ac.username end as credentials,
+                group_concat(ot.tag_name order by ot.tag_name separator ',') as tags
+                from asset a
+                left outer join object_tags ot on a.asset_id = ot.object_id
+                left outer join asset_credential ac on ac.credential_id = a.credential_id
+                where 1=1 %s group by a.asset_id order by a.asset_name""" % sWhereString
 
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
@@ -328,9 +330,9 @@ class Credentials(object):
                             "or domain like '%%" + term + "%%' " \
                             "or shared_cred_desc like '%%" + term + "%%') "
     
-            sSQL = "select credential_id, credential_name, username, domain, shared_cred_desc" \
-                " from asset_credential" \
-                " where shared_or_local = 0 " + sWhereString + " order by credential_name"
+            sSQL = """select credential_id, credential_name, username, domain, shared_cred_desc
+                from asset_credential
+                where shared_or_local = 0 %s order by credential_name""" % sWhereString
 
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
