@@ -37,6 +37,7 @@ os.chdir(web_root)
 # they are used, just in the URL mapping for web.py down below.
 from catocommon import catocommon
 from wmHandler import wmHandler
+from taskMethods import taskMethods
 
 import uiCommon
 import uiGlobals
