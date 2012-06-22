@@ -135,20 +135,23 @@ $(document).ready(function () {
                 $(this).dialog("close");
 
                 var task_id = $("#hidTaskID").val();
-                var task_name = $("#lblTaskName").html();
                 var asset_id = $("#hidAssetID").val();
                 var ecosystem_id = $("#hidEcosystemID").val();
                 var account_id = $("#hidAccountID").val();
-                var account_name = $("#lblAccountName").val();
                 var instance = $("#hidInstanceID").val();
                 var debug_level = $("#hidDebugLevel").val();
 
-				var args = '{"task_id":"' + task_id + '", "task_name":"' + task_name + '", "debug_level":"' + debug_level + '"';
+                var task_name = $("#lblTaskName").text();
+                var ecosystem_name = $("#lblEcosystemName").text();
+                var account_name = $("#lblAccountName").text();
+
+				var args = '{"task_id":"' + task_id + '", "task_name":"' + task_name + '", "debug_level":"' + debug_level + '", "instance":"' + instance + '"';
         
 				if (account_id)
 					args += ', "account_id":"' + account_id + '", "account_name":"' + account_name + '"';
 				    
-			    args += ', "ecosystem_id":"' + ecosystem_id + '", "instance":"' + instance + '"';
+				if (ecosystem_id)
+				    args += ', "ecosystem_id":"' + ecosystem_id + '", "ecosystem_name":"' + ecosystem_name + '"';
 			    
 				args += '}';
   

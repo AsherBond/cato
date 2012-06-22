@@ -20,8 +20,8 @@ $(document).ready(function () {
     //but the page requires a placeholder div... called "task_launch_dialog"
     var d = '<span id="task_launch_dialog_task_name"></span><hr />' +
                 'Cloud Account: <span id="task_launch_dialog_account_name"></span>' +
-                '<span id="task_launch_dialog_ecosystem_pnl">&nbsp;&nbsp;Ecosystem:&nbsp;&nbsp;' +
-                '<select id="task_launch_dialog_ecosystem"></select></span>' +
+                '&nbsp;&nbsp;Ecosystem:&nbsp;&nbsp;' +
+                '<select id="task_launch_dialog_ecosystem"></select>' +
                 '&nbsp;&nbsp;Logging Level:&nbsp;&nbsp;' +
                 '<select id="task_launch_dialog_debug_level">' +
                 '   <option value="0">None</option>' +
@@ -448,7 +448,7 @@ function ShowTaskLaunchDialog(jsonargs) {
     if (args.ecosystem_id) {
         $("#task_launch_dialog_ecosystem_id").val(args.ecosystem_id);
         eco_id = args.ecosystem_id;
-        $("#task_launch_dialog_ecosystem_pnl").addClass("hidden");
+        $("#task_launch_dialog_ecosystem").html("<option>" + args.ecosystem_name + "</option>");
     } else {
         $.ajax({
             async: true,

@@ -166,10 +166,10 @@ function GetDetails() {
 				$("#hidEcoTemplateID").val(ecosys.EcotemplateID);
 				$("#hidEcosystemID").val(ecosys.ID);
 				$("#txtEcosystemName").val(ecosys.Name);
-				$("#lblEcosystemNameHeader").html(ecosys.Name);
+				$("#lblEcosystemNameHeader").text(ecosys.Name);
 				$("#txtDescription").val(ecosys.Description);
-				$("#lblEcotemplateName").html(ecosys.EcotemplateName);
-				$("#lblCreated").html(ecosys.CreatedDate);
+				$("#lblEcotemplateName").text(ecosys.EcotemplateName);
+				$("#lblCreated").text(ecosys.CreatedDate);
 				
 				$("#txtStormFile").val(ecosys.StormFile);
 
@@ -567,6 +567,7 @@ function getActions() {
 		        var task_id = $(this).attr("task_id").replace(/t_/, "");
 		        var task_name = $(this).attr("task_name")
 		        var task_version = $(this).attr("task_version")
+				var ecosystem_name = $("#lblEcosystemNameHeader").text();
 		
 		        //since this is an "action", we'll pass the action name AND the task name, rather than bother with 
 		        //another goofy argument.
@@ -575,8 +576,9 @@ function getActions() {
 		        //show the dialog
 		        //note: we are not passing account_id - the dialog will pick the default
 		        var args = '{"task_id":"' + task_id + '", \
-		            "task_name":"' + task_name + '", \
-		            "ecosystem_id":"' + g_eco_id + '", \
+		        	"task_name":"' + task_name + '", \
+		        	"ecosystem_id":"' + g_eco_id + '", \
+		            "ecosystem_name":"' + ecosystem_name + '", \
 		            "action_id":"' + action_id + '"}';
 		
 		        //I hate that we have to occasionally do this setTimeout to get the visual effects time to work.
@@ -619,6 +621,7 @@ function GetEcosystemSchedules() {
 			        var task_id = $(this).parent().attr("task_id");
 			        var task_name = $(this).parent().attr("task_name")
 			        var task_version = $(this).parent().attr("task_version")
+					var ecosystem_name = $("#lblEcosystemNameHeader").text();
 			
 			        //since this is an "action", we'll pass the action name AND the task name, rather than bother with 
 			        //another goofy argument.
@@ -629,6 +632,7 @@ function GetEcosystemSchedules() {
 			        var args = '{"task_id":"' + task_id + '", \
 			            "task_name":"' + task_name + '", \
 			            "ecosystem_id":"' + g_eco_id + '", \
+		            	"ecosystem_name":"' + ecosystem_name + '", \
 	            		"action_id":"' + action_id + '"}';
 			        
 			        ShowTaskLaunchDialog(args);
@@ -658,7 +662,8 @@ function GetEcosystemSchedules() {
 			        var task_id = $(this).parent().attr("task_id");
 			        var task_name = $(this).parent().attr("task_name")
 			        var task_version = $(this).parent().attr("task_version")
-			
+					var ecosystem_name = $("#lblEcosystemNameHeader").text();
+					
 			        //since this is an "action", we'll pass the action name AND the task name, rather than bother with 
 			        //another goofy argument.
 			        task_name = $(this).parent().attr("action") + " : (" + task_name + " - " + task_version + ")";
@@ -668,6 +673,7 @@ function GetEcosystemSchedules() {
 			        var args = '{"task_id":"' + task_id + '", \
 			            "task_name":"' + task_name + '", \
 			            "ecosystem_id":"' + g_eco_id + '", \
+		            	"ecosystem_name":"' + ecosystem_name + '", \
 	            		"action_id":"' + action_id + '"}';
 			        
 			        ShowTaskLaunchDialog(args);
