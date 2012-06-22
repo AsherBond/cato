@@ -15,7 +15,6 @@
  
 import os
 import traceback
-import urllib
 import json
 from datetime import datetime
 import xml.etree.ElementTree as ET
@@ -30,63 +29,11 @@ import tag
 import registry
 from settings import settings
 
-# unlike uiCommon, which is used for shared ui elements
-# this is a methods class mapped to urls for web.py
-# --- we CAN'T instantiate it - that's not how web.py works.
-# (apparently it does the instantiation itself, or maybe not - it might just look into it.)
-# it expects these classes to have GET and POST methods
-
 # these are generic ui web methods, and stuff that's not enough to need it's own file.
-class login:
-    def GET(self):
-        # visiting the login page kills the session
-        uiGlobals.session.kill()
-        
-        qs = ""
-        i = uiGlobals.web.input(msg=None)
-        if i.msg:
-            qs = "?msg=" + urllib.quote_plus(i.msg)
-        raise uiGlobals.web.seeother('/static/login.html' + qs)
-
-class logout:        
-    def GET(self):
-        i = uiGlobals.web.input(msg=None)
-        msg = "User Logged out at %s" % datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-        if i.msg:
-            msg = i.msg
-        uiCommon.ForceLogout(msg)
 
 class uiMethods:
-    #the GET and POST methods here are hooked by web.py.
-    #whatever method is requested, that function is called.
-
-    # the db connection that is used in this module.
     db = None
     
-    def GET(self, method):
-        try:
-            self.db = catocommon.new_conn()
-            methodToCall = getattr(self, method)
-            result = methodToCall()
-            return result
-        except Exception as ex:
-            raise ex
-        finally:
-            if self.db.conn.socket:
-                self.db.close()
-
-    def POST(self, method):
-        try:
-            self.db = catocommon.new_conn()
-            methodToCall = getattr(self, method)
-            result = methodToCall()
-            return result
-        except Exception as ex:
-            raise ex
-        finally:
-            if self.db.conn.socket:
-                self.db.close()
-
     def wmAttemptLogin(self):
         try:
             in_name = uiCommon.getAjaxArg("username")

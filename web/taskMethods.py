@@ -15,7 +15,6 @@
  
 import os
 import re
-import urllib2
 import traceback
 import json
 import time
@@ -28,35 +27,8 @@ import stepTemplates as ST
 
 # task-centric web methods
 
-# the db connection that is used in this module.
-db = None
-
 class taskMethods:
-    #the GET and POST methods here are hooked by web.py.
-    #whatever method is requested, that function is called.
-    def GET(self, method):
-        try:
-            self.db = catocommon.new_conn()
-            methodToCall = getattr(self, method)
-            result = methodToCall()
-            return result
-        except Exception as ex:
-            raise ex
-        finally:
-            if self.db.conn.socket:
-                self.db.close()
-
-    def POST(self, method):
-        try:
-            self.db = catocommon.new_conn()
-            methodToCall = getattr(self, method)
-            result = methodToCall()
-            return result
-        except Exception as ex:
-            raise ex
-        finally:
-            if self.db.conn.socket:
-                self.db.close()
+    db = None
 
     def wmGetTasksTable(self):
         try:

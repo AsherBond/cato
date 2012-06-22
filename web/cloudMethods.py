@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
 import traceback
 import xml.etree.ElementTree as ET
 import uiGlobals
@@ -24,36 +23,9 @@ import cloud
 
 # methods for dealing with clouds and cloud accounts
 
-# the db connection that is used in this module.
-db = None
-
 class cloudMethods:
-    #the GET and POST methods here are hooked by web.py.
-    #whatever method is requested, that function is called.
-    def GET(self, method):
-        try:
-            self.db = catocommon.new_conn()
-            methodToCall = getattr(self, method)
-            result = methodToCall()
-            return result
-        except Exception as ex:
-            raise ex
-        finally:
-            if self.db.conn.socket:
-                self.db.close()
-
-    def POST(self, method):
-        try:
-            self.db = catocommon.new_conn()
-            methodToCall = getattr(self, method)
-            result = methodToCall()
-            return result
-        except Exception as ex:
-            raise ex
-        finally:
-            if self.db.conn.socket:
-                self.db.close()
-
+    db = None
+    
     """ Clouds edit page """
     def wmGetCloudsTable(self):
         try:

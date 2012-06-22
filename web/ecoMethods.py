@@ -28,41 +28,8 @@ from catocommon import catocommon
 import ecosystem
 import cloud
 
-# unlike uiCommon, which is used for shared ui elements
-# this is a methods class mapped to urls for web.py
-# --- we CAN'T instantiate it - that's not how web.py works.
-# (apparently it does the instantiation itself, or maybe not - it might just look into it.)
-# it expects these classes to have GET and POST methods
-
-# the db connection that is used in this module.
-db = None
-
 class ecoMethods:
-    #the GET and POST methods here are hooked by web.py.
-    #whatever method is requested, that function is called.
-    def GET(self, method):
-        try:
-            self.db = catocommon.new_conn()
-            methodToCall = getattr(self, method)
-            result = methodToCall()
-            return result
-        except Exception as ex:
-            raise ex
-        finally:
-            if self.db.conn.socket:
-                self.db.close()
-
-    def POST(self, method):
-        try:
-            self.db = catocommon.new_conn()
-            methodToCall = getattr(self, method)
-            result = methodToCall()
-            return result
-        except Exception as ex:
-            raise ex
-        finally:
-            if self.db.conn.socket:
-                self.db.close()
+    db = None
 
     def wmGetEcotemplate(self):
         try:

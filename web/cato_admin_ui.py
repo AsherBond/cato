@@ -22,6 +22,7 @@ import urllib
 import pickle
 import shelve
 import xml.etree.ElementTree as ET
+from datetime import datetime
 
 web_root = os.path.abspath(os.path.dirname(__file__))
 base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -35,17 +36,11 @@ os.chdir(web_root)
 # DON'T REMOVE these that Aptana shows as "unused".
 # they are used, just in the URL mapping for web.py down below.
 from catocommon import catocommon
-from uiMethods import uiMethods
-from uiMethods import logout
-from uiMethods import login
-
-from taskMethods import taskMethods
-from cloudMethods import cloudMethods
-from ecoMethods import ecoMethods
+from wmHandler import wmHandler
 
 import uiCommon
 import uiGlobals
-import license
+import catolicense
 
 
 def notfound():
@@ -67,7 +62,7 @@ class announcement:
 class getlicense:        
     def GET(self):
         try:
-            result, msg, lic = license.check_license()
+            result, msg, lic = catolicense.check_license()
             if lic:
                 lic = uiCommon.packJSON(uiCommon.FixBreaks(uiCommon.SafeHTML(lic)))
             return "{\"result\":\"%s\",\"message\":\"%s\",\"license\":\"%s\"}" % (result, msg, lic)
@@ -215,7 +210,27 @@ class temp:
                 return f.read()
         except Exception, ex:
             return ex.__str__()
-    
+
+class login:
+    def GET(self):
+        # visiting the login page kills the session
+        uiGlobals.session.kill()
+        
+        qs = ""
+        i = uiGlobals.web.input(msg=None)
+        if i.msg:
+            qs = "?msg=" + urllib.quote_plus(i.msg)
+        raise uiGlobals.web.seeother('/static/login.html' + qs)
+
+class logout:        
+    def GET(self):
+        i = uiGlobals.web.input(msg=None)
+        msg = "User Logged out at %s" % datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+        if i.msg:
+            msg = i.msg
+        uiCommon.ForceLogout(msg)
+        
+
 #Authentication preprocessor
 def auth_app_processor(handle):
     path = web.ctx.path
@@ -487,13 +502,9 @@ if __name__ != "cato_admin_ui":
         print "Setting debug level to default (%d)..." % dbglvl
     uiGlobals.debuglevel = dbglvl
             
-
+    # the LAST LINE must be our /(.*) catchall, which is handled by uiMethods.
     urls = (
         '/', 'home',
-        '/uiMethods/(.*)', 'uiMethods',
-        '/cloudMethods/(.*)', 'cloudMethods',
-        '/taskMethods/(.*)', 'taskMethods',
-        '/ecoMethods/(.*)', 'ecoMethods',
         '/login', 'login',
         '/logout', 'logout',
         '/home', 'home',
@@ -523,7 +534,8 @@ if __name__ != "cato_admin_ui":
         '/upload', 'upload',
         '/settings', 'settings',
         '/temp/(.*)', 'temp',
-        '/bypass', 'bypass'
+        '/bypass', 'bypass',
+        '/(.*)', 'wmHandler',
     )
 
 

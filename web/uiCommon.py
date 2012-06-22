@@ -98,17 +98,19 @@ def getAjaxArgs():
 
 def getAjaxArg(sArg, sDefault=""):
     """Picks out and returns a single value."""
-    data = uiGlobals.web.data()
-    dic = json.loads(data)
-    
-    if dic.has_key(sArg):
-        if dic[sArg]:
-            return dic[sArg]
+    try:
+        data = uiGlobals.web.data()
+        dic = json.loads(data)
+        if dic.has_key(sArg):
+            if dic[sArg]:
+                return dic[sArg]
+            else:
+                return sDefault
         else:
             return sDefault
-    else:
-        return sDefault
-
+    except ValueError:
+        raise Exception("getAjaxArg - no JSON arguments to decode. This method required a POST with JSON arguments.")
+    
 def GetCookie(sCookie):
     cookie=uiGlobals.web.cookies().get(sCookie)
     if cookie:
