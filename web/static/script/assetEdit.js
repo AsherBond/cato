@@ -509,7 +509,9 @@ function LoadEditDialog(editCount, editAssetID) {
             // at load default to the first tab
             $('#AddAssetTabs').tabs('select', 0);
 
-	        GetObjectsTags(asset.ID);
+	        if (typeof(GetObjectsTags) != 'undefined') {
+		        GetObjectsTags(asset.ID);
+	        }
 
 		    $("#edit_dialog").data("title.dialog", "Modify Asset");
 		    $("#edit_dialog").dialog("open");

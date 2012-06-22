@@ -1,5 +1,5 @@
 $def with ()
-$var jsfiles: taskedit/taskEdit.js 	taskedit/taskView.js taskedit/taskVersions.js taskedit/taskEditDebug.js taskedit/taskEditCodeblock.js taskedit/taskEditParams.js taskedit/taskEditSteps.js taskedit/taskEditCommandSpecific.js taskedit/taskStepVarsEdit.js jquery/jquery.rightClick.js jquery/jquery.ui.ufd-0.6/jquery.ui.ufd.js toolbox.js validation.js objectTag.js registry.js parametersOnDialog.js taskLaunchDialog.js
+$var jsfiles: taskedit/taskEdit.js 	taskedit/taskView.js taskedit/taskVersions.js taskedit/taskEditDebug.js taskedit/taskEditCodeblock.js taskedit/taskEditParams.js taskedit/taskEditSteps.js taskedit/taskEditCommandSpecific.js taskedit/taskStepVarsEdit.js jquery/jquery.rightClick.js jquery/jquery.ui.ufd-0.6/jquery.ui.ufd.js toolbox.js validation.js tags.js registry.js parametersOnDialog.js taskLaunchDialog.js
 
 $var cssfiles: registry.css taskEdit.css taskView.css
 
@@ -16,8 +16,8 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             <br />
             <span id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top ui-state-active toolbox_tab"> Details</span><span id="tab_versions" linkto="div_versions" class="ui-state-default ui-corner-top toolbox_tab">Versions</span><span
             id="tab_commands" linkto="div_commands" class="ui-state-default ui-corner-top toolbox_tab">Commands</span><span
-            id="tab_debug" linkto="div_debug" class="ui-state-default ui-corner-top toolbox_tab">Run</span><!--#EE#<span
-            id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>#EE#-->
+            id="tab_debug" linkto="div_debug" class="ui-state-default ui-corner-top toolbox_tab">Run</span><span
+            id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>
 
             <!--<<span
             id="tab_registry" linkto="div_registry" class="ui-state-default ui-corner-top toolbox_tab"
@@ -148,10 +148,10 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             <hr />
             <ul id="clipboard"></ul>
         </div>
-        <!--#EE#<div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+        <div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
             <ul id="objects_tags"></ul>
-        </div>#EE#-->
+        </div>
         <div id="div_registry" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <div id="registry_content"></div>
         </div>

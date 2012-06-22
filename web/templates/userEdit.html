@@ -1,5 +1,5 @@
 $def with ()
-$var jsfiles: managePageCommon.js userEdit.js objectTag.js
+$var jsfiles: managePageCommon.js userEdit.js tags.js
 $var cssfiles:
 
 <div style="display: none;">
@@ -64,9 +64,9 @@ $var cssfiles:
             <li>
                 <a href="#GeneralTab"><span>General</span></a>
             </li>
-            <!--#EE#<li>
+            <li>
                 <a href="#GroupsTab"><span>Groups (Tags)</span></a>
-            </li>#EE#-->
+            </li>
         </ul>
         <div id="GeneralTab" style="height: 350px;">
             <table style="width: 98%;">
@@ -160,11 +160,11 @@ $var cssfiles:
                 <span id="show_log_link">View Change Log</span>
             </center>
         </div>
-        <!--#EE#<div id="GroupsTab">
+        <div id="GroupsTab">
             <span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
             <hr />
             <ul id="objects_tags"></ul>
-        </div>#EE#-->
+        </div>
     </div>
 </div>
 <div id="delete_dialog" class="hidden" title="Delete User">

@@ -298,7 +298,9 @@ function tabWasClicked(tab) {
 	} else if(tab == "ecosystems") {
 		GetEcosystems();
     } else if (tab == "tags") {
-        GetObjectsTags($("#hidEcoTemplateID").val());
+        if (typeof(GetObjectsTags) != 'undefined') {
+	        GetObjectsTags($("#hidEcoTemplateID").val());
+        }
 	} else if(tab == "details") {
 		GetDetails();
 	}

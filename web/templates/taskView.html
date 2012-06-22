@@ -1,5 +1,5 @@
 $def with ()
-$var jsfiles: taskedit/taskView.js taskedit/taskVersions.js taskedit/taskEditDebug.js taskedit/taskEditParams.js toolbox.js objectTag.js registry.js parametersOnDialog.js taskLaunchDialog.js
+$var jsfiles: taskedit/taskView.js taskedit/taskVersions.js taskedit/taskEditDebug.js taskedit/taskEditParams.js toolbox.js tags.js registry.js parametersOnDialog.js taskLaunchDialog.js
 
 $var cssfiles: registry.css taskEdit.css taskView.css
 
@@ -17,8 +17,8 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             style="padding-left: 6px; padding-right: 6px;">Parameters</span><span id="tab_schedules"
             linkto="div_schedules" class="ui-state-default ui-corner-top toolbox_tab"
             style="padding-left: 6px; padding-right: 6px;">Schedules</span><span id="tab_debug"
-            linkto="div_debug" class="ui-state-default ui-corner-top toolbox_tab">Run</span><!--#EE#<span
-            id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>#EE#-->
+            linkto="div_debug" class="ui-state-default ui-corner-top toolbox_tab">Run</span><span
+            id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>
             <!--<span
             id="tab_registry" linkto="div_registry" class="ui-state-default ui-corner-top toolbox_tab"
             style="padding-left: 7px; padding-right: 7px;">Registry</span>-->
@@ -87,10 +87,10 @@ $var cssfiles: registry.css taskEdit.css taskView.css
                 alt="" />
             </div>
         </div>
-        <!--#EE#<div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+        <div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
             <ul id="objects_tags"></ul>
-        </div>#EE#-->
+        </div>
         <div id="div_registry" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <div id="registry_content"></div>
         </div>

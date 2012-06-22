@@ -170,7 +170,9 @@ function tabWasClicked(tab) {
     } else if (tab == "registry") {
         GetRegistry($("#hidOriginalTaskID").val());
     } else if (tab == "tags") {
-        GetObjectsTags($("#hidOriginalTaskID").val());
+        if (typeof(GetObjectsTags) != 'undefined') {
+	        GetObjectsTags($("#hidOriginalTaskID").val());
+        }
     } else if (tab == "clipboard") {
         doGetClips();
     } else if (tab == "debug") {
