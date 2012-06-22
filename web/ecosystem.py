@@ -33,13 +33,15 @@ class Ecotemplates(object):
                 aSearchTerms = sFilter.split()
                 for term in aSearchTerms:
                     if term:
-                        sWhereString += " and (a.ecotemplate_name like '%%" + term + "%%' " \
-                            "or a.ecotemplate_desc like '%%" + term + "%%') "
+                        sWhereString += " and (et.ecotemplate_name like '%%" + term + "%%' " \
+                            "or et.ecotemplate_desc like '%%" + term + "%%') "
     
-            sSQL = "select a.ecotemplate_id, a.ecotemplate_name, a.ecotemplate_desc," \
-                " (select count(*) from ecosystem where ecotemplate_id = a.ecotemplate_id) as in_use" \
-                " from ecotemplate a" \
-                " where 1=1 %s order by a.ecotemplate_name" % sWhereString
+            sSQL = """select et.ecotemplate_id, et.ecotemplate_name, et.ecotemplate_desc,
+                (select count(*) from ecosystem where ecotemplate_id = et.ecotemplate_id) as in_use,
+                group_concat(ot.tag_name order by ot.tag_name separator ',') as tags
+                from ecotemplate et
+                left outer join object_tags ot on et.ecotemplate_id = ot.object_id
+                where 1=1 %s group by et.ecotemplate_id order by et.ecotemplate_name""" % sWhereString
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
@@ -362,12 +364,14 @@ class Ecosystems(object):
                             "or e.ecosystem_desc like '%%" + term + "%%' " \
                             "or et.ecotemplate_name like '%%" + term + "%%') "
     
-            sSQL = "select e.ecosystem_id, e.ecosystem_name, e.ecosystem_desc, e.account_id, et.ecotemplate_name," \
-                " e.storm_status, e.created_dt, e.last_update_dt," \
-                " (select count(*) from ecosystem_object where ecosystem_id = e.ecosystem_id) as num_objects" \
-                " from ecosystem e" \
-                " join ecotemplate et on e.ecotemplate_id = et.ecotemplate_id" \
-                " where e.account_id = '%s' %s order by e.ecosystem_name" % (sAccountID, sWhereString)
+            sSQL = """select e.ecosystem_id, e.ecosystem_name, e.ecosystem_desc, e.account_id, et.ecotemplate_name,
+                e.storm_status, e.created_dt, e.last_update_dt,
+                (select count(*) from ecosystem_object where ecosystem_id = e.ecosystem_id) as num_objects,
+                group_concat(ot.tag_name order by ot.tag_name separator ',') as tags
+                from ecosystem e
+                join ecotemplate et on e.ecotemplate_id = et.ecotemplate_id
+                left outer join object_tags ot on e.ecosystem_id = ot.object_id
+                where e.account_id = '%s' %s group by e.ecosystem_id order by e.ecosystem_name""" % (sAccountID, sWhereString)
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)

@@ -347,7 +347,7 @@ function restrictEntryToTag(e, field) {
     var c = whatKey(e);
     if (!c) { return true; }
 
-    if (/[a-zA-Z0-9_.\-@#& ]/.test(c)) {
+    if (/[a-zA-Z0-9_.\-@#&]/.test(c)) {
         return true;
     }
     else {

@@ -100,6 +100,10 @@ class credentialEdit:
     def GET(self):
         return render.credentialEdit()
 
+class tagEdit:        
+    def GET(self):
+        return render.tagEdit()
+
 class userEdit:        
     def GET(self):
         return render.userEdit()
@@ -302,6 +306,7 @@ def CacheTaskCommands():
     try:
         sCatHTML = ""
         sFunHTML = ""
+        sHelpHTML = ""
 
         # so, we will use the FunctionCategories class in the session that was loaded at login, and build the list items for the commands tab.
         cats = uiCommon.GetTaskFunctionCategories()
@@ -335,6 +340,15 @@ def CacheTaskCommands():
                     sFunHTML += "</div>"
                     sFunHTML += "</div>"
 
+                    sHelpHTML += "<div>"
+                    sHelpHTML += "<img src=\"" + fn.Icon + "\" alt=\"\" style=\"height: 16px; width: 16px;\" />"
+                    sHelpHTML += "<span style=\"font-weight: bold; padding-left: 10px;\">" + fn.Category.Label + " : " + fn.Label + "</span>"
+                    sHelpHTML += "</div>"
+                    sHelpHTML += "<div style=\"margin-top: 6px;\">"
+                    sHelpHTML += fn.Help
+                    sHelpHTML += "</div>"
+                    sHelpHTML += "<hr />"
+    
                 sFunHTML += "</div>"
 
         with open("%s/static/_categories.html" % web_root, 'w') as f_out:
@@ -346,6 +360,11 @@ def CacheTaskCommands():
             if not f_out:
                 print "ERROR: unable to create static/_functions.html."
             f_out.write(sFunHTML)
+
+        with open("%s/static/_command_help.html" % web_root, 'w') as f_out:
+            if not f_out:
+                print "ERROR: unable to create static/_command_help.html."
+            f_out.write(sHelpHTML)
 
     except Exception, ex:
         uiCommon.log_nouser(ex.__str__(), 0)
@@ -497,6 +516,7 @@ if __name__ != "cato_admin_ui":
         '/ecosystemEdit', 'ecosystemEdit',
         '/userEdit', 'userEdit',
         '/assetEdit', 'assetEdit',
+        '/tagEdit', 'tagEdit',
         '/credentialEdit', 'credentialEdit',
         '/announcement', 'announcement',
         '/getlicense', 'getlicense',
@@ -541,15 +561,15 @@ if __name__ != "cato_admin_ui":
     # Uncomment the following - it will print out all the core methods in the app
     # this will be handy during the conversion, as we add functions to uiGlobals.RoleMethods.
 #    for s in dir():
-#        print "\"/%s\" : [\"Administrator\", \"Developer\"]," % s
+#        print "\"/%s\" : [\"Developer\"]," % s
 #    for s in dir(uiMethods):
-#        print "\"%s\" : [\"Administrator\", \"Developer\"]," % s
+#        print "\"/uiMethods/%s\" : [\"Developer\"]," % s
 #    for s in dir(taskMethods):
-#        print "\"/%s\" : [\"Administrator\", \"Developer\"]," % s
+#        print "\"/taskMethods/%s\" : [\"Developer\"]," % s
 #    for s in dir(ecoMethods):
-#        print "\"%s\" : [\"Administrator\", \"Developer\"]," % s
+#        print "\"/ecoMethods/%s\" : [\"Developer\"]," % s
 #    for s in dir(cloudMethods):
-#        print "\"%s\" : [\"Administrator\", \"Developer\"]," % s
+#        print "\"/cloudMethods/%s\" : [\"Developer\"]," % s
 
 
     # NOTE: this "application" attribute will only be used if we're attached to as a 

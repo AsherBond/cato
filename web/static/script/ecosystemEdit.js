@@ -163,6 +163,8 @@ function GetDetails() {
 		success : function(ecosys) {
 			try {
 				g_ecotemplate_id = ecosys.EcotemplateID
+				$("#hidEcoTemplateID").val(ecosys.EcotemplateID);
+				$("#hidEcosystemID").val(ecosys.ID);
 				$("#txtEcosystemName").val(ecosys.Name);
 				$("#lblEcosystemNameHeader").html(ecosys.Name);
 				$("#txtDescription").val(ecosys.Description);
@@ -498,7 +500,7 @@ function getActionCategories() {
     $.ajax({
         type: "POST",
         async: false,
-        url: "ecoMethods/wmGetEcotemplateActionCategories",
+        url: "ecoMethods/wmGetEcosystemActionCategories",
         data: '{"sEcoTemplateID":"' + g_ecotemplate_id + '"}',
         contentType: "application/json; charset=utf-8",
         dataType: "html",
@@ -537,7 +539,7 @@ function getActions() {
     $.ajax({
         type: "POST",
         async: false,
-        url: "ecoMethods/wmGetEcotemplateActionButtons",
+        url: "ecoMethods/wmGetEcosystemActionButtons",
         data: '{"sEcoTemplateID":"' + g_ecotemplate_id + '"}',
         contentType: "application/json; charset=utf-8",
         dataType: "html",

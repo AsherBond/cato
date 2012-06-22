@@ -16,11 +16,12 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             <br />
             <span id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top ui-state-active toolbox_tab"> Details</span><span id="tab_versions" linkto="div_versions" class="ui-state-default ui-corner-top toolbox_tab">Versions</span><span
             id="tab_commands" linkto="div_commands" class="ui-state-default ui-corner-top toolbox_tab">Commands</span><span
-            id="tab_debug" linkto="div_debug" class="ui-state-default ui-corner-top toolbox_tab">Run</span>
+            id="tab_debug" linkto="div_debug" class="ui-state-default ui-corner-top toolbox_tab">Run</span><!--#EE#<span
+            id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>#EE#-->
+
             <!--<<span
             id="tab_registry" linkto="div_registry" class="ui-state-default ui-corner-top toolbox_tab"
-            style="padding-left: 7px; padding-right: 7px;">Registry</span><span
-            id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>-->
+            style="padding-left: 7px; padding-right: 7px;">Registry</span>-->
         </div>
         <div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel">
             <div style="padding: 0 0 0 5px;">
@@ -72,7 +73,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             </center>
         </div>
         <div id="div_commands" class="ui-widget-content ui-corner-top toolbox_panel hidden">
-            <span id="command_help_btn">Help</span>
+            <span id="command_help_btn">Command Help</span>
             <hr />
             <table border="0" width="100%">
                 <tr>
@@ -147,10 +148,10 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             <hr />
             <ul id="clipboard"></ul>
         </div>
-        <div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+        <!--#EE#<div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
             <ul id="objects_tags"></ul>
-        </div>
+        </div>#EE#-->
         <div id="div_registry" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <div id="registry_content"></div>
         </div>
@@ -190,7 +191,8 @@ $var cssfiles: registry.css taskEdit.css taskView.css
 <div class="hidden">
     <input type="hidden" id="hidCodeblockName" Value="MAIN" />
     <input type="hidden" id="hidParamType" value="task" />
-    <input type="hidden" id="hidObjectType" value="3" />
+    <input id="hidPageSaveType" type="hidden" value="dynamic" />
+    <input id="hidObjectType" type="hidden" value="3" />
     <input type="hidden" id="hidOriginalTaskID" />
     <input type="hidden" id="hidStepDelete" />
     <input type="hidden" id="hidParamDelete" />

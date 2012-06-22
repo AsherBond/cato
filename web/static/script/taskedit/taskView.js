@@ -196,12 +196,9 @@ function doGetPlans() {
 
 			    //click on an action plan in the toolbox pops the dialog AND the inner dialog
 			    $("#div_schedules #toolbox_plans .action_plan_name").click(function () {
-			        var task_name = $("#ctl00_phDetail_lblTaskNameHeader").html() + " - " + $("#ctl00_phDetail_lblVersionHeader").html();
-			        var asset_id = $("#ctl00_phDetail_txtTestAsset").attr("asset_id");
-			
+			        var task_name = $("#lblTaskNameHeader").html() + " - " + $("#lblVersionHeader").html();
 			        var args = '{"task_id":"' + g_task_id + '", "task_name":"' + task_name + '", "debug_level":"4"}';
 			        ShowTaskLaunchDialog(args);
-
 			        ShowPlanEditDialog(this);
 			    });
         	}
@@ -234,12 +231,9 @@ function doGetPlans() {
 	            
                 //click on a schedule in the toolbox - pops the edit dialog and the inner dialog
 				$("#div_schedules #toolbox_schedules .schedule_name").click(function () {
-			        var task_name = $("#ctl00_phDetail_lblTaskNameHeader").html() + " - " + $("#ctl00_phDetail_lblVersionHeader").html();
-			        var asset_id = $("#ctl00_phDetail_txtTestAsset").attr("asset_id");
-			
+			        var task_name = $("#lblTaskNameHeader").html() + " - " + $("#lblVersionHeader").html();
 			        var args = '{"task_id":"' + g_task_id + '", "task_name":"' + task_name + '", "debug_level":"4"}';
 			        ShowTaskLaunchDialog(args);
-
 				    ShowPlanEditDialog(this);
 				});
 

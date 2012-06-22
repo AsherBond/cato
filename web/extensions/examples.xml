@@ -1,67 +1,22 @@
 <categories>
-	<category name="extensions" label="Extensions" description="Extension Commands for performing functions not part of the Cato base product." icon="static/images/icons/extensions_32.png">
+	<category name="examples" label="Examples" description="Example extension commands." icon="static/extensions/icons/examples.png">
 		<commands>
-			<command name="hello_world" label="Hello World" description="Writes 'Hello World' to the Task Engine Log." help="&lt;b&gt;Hello World&lt;/b&gt;&lt;br&gt;An extension example. Writes 'Hello World' to the Task Engine log." icon="static/images/icons/smiley_32.png">
+			<command name="hello_world" label="Hello World" description="Writes 'Hello World' to the Task Engine Log." help="An extension example. Writes 'Hello World' to the Task Engine log." icon="static/images/icons/smiley_32.png">
 				<function name="hello_world" extension="examples/hello_world/hello_world.tcl">
-					<test input_type="dropdown" label="test" hr_after="true" style="combo" datasource="file" dataset="vals.xml" />
+					<!--<test input_type="dropdown" label="test" hr_after="true" style="combo" datasource="file" dataset="vals.xml" />-->
 					<message input_type="text" label="Say" />
 				</function>
 			</command>
-			<command name="python_example" label="Python Example" description="A Python extension." help="" icon="static/images/icons/python_32.png">
+			<command name="python_example" label="Python Example" description="A Python extension." help="An example of an extension that executes a Python script." icon="static/extensions/icons/python_32.png">
 				<function name="python_example" extension="examples/python_example/python_example.tcl">
 					<arg input_type="text" label="Argument" />
 				</function>
 			</command>
-			<command name="bash_example" label="Bash Example" description="A shell script extension." help="" icon="static/images/icons/shellscript_32.png">
+			<command name="bash_example" label="Bash Example" description="A shell script extension." help="An example of an extension that executes a Shell script." icon="static/extensions/icons/shellscript_32.png">
 				<function name="bash_example" extension="examples/bash_example/bash_example.tcl">
 					<arg input_type="text" label="Argument" />
 				</function>
 			</command>
-			<command name="posix_info" label="POSIX Info" description="Retrieves the basic system properties available on POSIX systems." help="" icon="static/extensions/icons/sysinfo_32.png">
-				<function name="posix_info" extension="sysinfo/posix/posix_info.tcl">
-					<conn_name input_type="text" label="Connection" />
-					<result_variable input_type="text" label="Result Variable" />
-					<timeout input_type="text" option_tab="Options" />
-					<positive_response input_type="text" option_tab="Options" />
-					<negative_response input_type="text" option_tab="Options" />
-				</function>
-			</command>
-			<command name="linux_info" label="Linux Info" description="Retrieves properties commonly available on most Linux systems." help="" icon="static/extensions/icons/sysinfo_32.png">
-				<function name="linux_info" extension="sysinfo/linux/linux_info.tcl">
-					<conn_name input_type="text" label="Connection" />
-					<result_variable input_type="text" label="Result Variable" />
-					<timeout input_type="text" option_tab="Options" />
-					<positive_response input_type="text" option_tab="Options" />
-					<negative_response input_type="text" option_tab="Options" />
-				</function>
-			</command>
-			<command name="ohai_info" label="Ohai Info" description="Captures the information made available by Ohai - Opscode's open source information gathering tool." help="" icon="static/extensions/icons/sysinfo_32.png">
-				<function name="ohai_info" extension="sysinfo/ohai/ohai_info.tcl">
-					<conn_name input_type="text" label="Connection" connection_picker="true" help="The Connection to use." />
-					<result_variable input_type="text" label="Result Variable" help="Results of the command will be placed in this variable." />
-					<timeout input_type="text" option_tab="Options" />
-					<positive_response input_type="text" option_tab="Options" />
-					<negative_response input_type="text" option_tab="Options" />
-				</function>
-			</command>
-			<command name="read_file" label="Read File" description="Reads a file into variables for processing." help="&lt;b&gt;Read File&lt;/b&gt;&lt;br&gt;Read File will read the contents of a file and process into variables for use in the task." icon="static/extensions/icons/readfile_32.png">
-				<function name="read_file" extension="read_file/read_file.tcl" variables="true" parse_method="2">
-					<filename input_type="text" label="File Name" />
-					<start input_type="text" label="Start Position" />
-					<num_chars input_type="text" label="Number of Characters to Read" />
-				</function>
-			</command>
-			<!--<command name="transfer" label="Transfer" description="File transfer between hosts." help="&lt;b&gt;Transfer&lt;/b&gt; is used to copy a file between two Assets. Required values are: From: Asset, File and To: Asset, File." icon="static/images/icons/transfer_32.png">
-			<function name="transfer">
-			<from_asset input_type="text" />
-			<from_file input_type="text" />
-			<to_asset input_type="text" />
-			<to_file input_type="text" />
-			<mode input_type="select">SCP</mode>
-			<command input_type="select" />
-			<returnvar input_type="text" />
-			</function>
-			</command>-->
 		</commands>
 	</category>
 	<!--<category name="os_compute" label="OS Compute" description="" icon="icons/openstack_32.png">

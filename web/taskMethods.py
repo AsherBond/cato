@@ -786,7 +786,7 @@ class taskMethods:
             # MAIN codeblock first
             sHTML += "<div class=\"ui-state-default te_header\">MAIN</div>"
             sHTML += "<div class=\"codeblock_box\">"
-            sHTML += self.BuildSteps(oTask, "MAIN")
+            sHTML += self.BuildReadOnlySteps(oTask, "MAIN")
             sHTML += "</div>"
 
             # for the rest of the codeblocks
@@ -797,19 +797,20 @@ class taskMethods:
                 
                 sHTML += "<div class=\"ui-state-default te_header\" id=\"cbt_" + cb.Name + "\">" + cb.Name + "</div>"
                 sHTML += "<div class=\"codeblock_box\">"
-                sHTML += self.BuildSteps(oTask, cb.Name)
+                sHTML += self.BuildReadOnlySteps(oTask, cb.Name)
                 sHTML += "</div>"
 
             return sHTML
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
     
-    def BuildSteps(self, oTask, sCodeblockName):
+    def BuildReadOnlySteps(self, oTask, sCodeblockName):
         try:
             sHTML = ""
 
             if oTask.Codeblocks[sCodeblockName].Steps:
                 for order, oStep in oTask.Codeblocks[sCodeblockName].Steps.iteritems():
+                    uiCommon.log("Building %s - %d : %s" % (sCodeblockName, order, oStep.FunctionName), 4)
                     sHTML += ST.DrawReadOnlyStep(oStep, True)
             else:
                 sHTML = "<li class=\"no_step\">No Commands defined for this Codeblock.</li>"
@@ -2249,72 +2250,7 @@ class taskMethods:
             if self.db.error:
                 uiCommon.log_nouser(self.db.error, 0)
 
-            if sParameterXML:
-                xParams = ET.fromstring(sParameterXML)
-                if xParams is None:
-                    uiCommon.log("Parameter XML data for " + sType + " [" + sID + "] is invalid.")
-
-                sHTML = ""
-
-                for xParameter in xParams.findall("parameter"):
-                    sPID = xParameter.get("id", "")
-                    sName = xParameter.findtext("name", "")
-                    sDesc = xParameter.findtext("desc", "")
-
-                    bEncrypt = catocommon.is_true(xParameter.get("encrypt", ""))
-
-                    sHTML += "<div class=\"parameter\">"
-                    sHTML += "  <div class=\"ui-state-default parameter_header\">"
-
-                    sHTML += "<div class=\"step_header_title\"><span class=\"parameter_name"
-                    sHTML += (" pointer" if bEditable else "") # make the name a pointer if it's editable
-                    sHTML += "\" id=\"" + sPID + "\">"
-                    sHTML += sName
-                    sHTML += "</span></div>"
-
-                    sHTML += "<div class=\"step_header_icons\">"
-                    sHTML += "<span class=\"ui-icon ui-icon-info forceinline parameter_help_btn\" title=\"" + sDesc.replace("\"", "") + "\"></span>"
-
-                    if catocommon.is_true(bEditable):
-                        sHTML += "<span class=\"ui-icon ui-icon-close forceinline parameter_remove_btn pointer\" remove_id=\"" + sPID + "\"></span>"
-
-                    sHTML += "</div>"
-                    sHTML += "</div>"
-
-
-                    sHTML += "<div class=\"ui-widget-content ui-corner-bottom clearfloat parameter_detail\">"
-
-                    # desc - a short snip is shown here... 75 chars.
-
-                    # if sDesc):
-                    #     if bSnipValues:
-                    #         sDesc = uiCommon.GetSnip(sDesc, 75)
-                    #     else
-                    #         sDesc = uiCommon.FixBreaks(sDesc)
-                    # sHTML += "<div class=\"parameter_desc hidden\">" + sDesc + "</div>"
-
-
-                    # values
-                    xValues = xParameter.find("values")
-                    if xValues is not None:
-                        for xValue in xValues.findall("value"):
-                            sValue = ("" if not xValue.text else xValue.text)
-
-                            # only show stars IF it's encrypted, but ONLY if it has a value
-                            if bEncrypt and sValue:
-                                sValue = "********"
-                            else:
-                                if bSnipValues:
-                                    sValue = uiCommon.GetSnip(sValue, 64)
-                                else:
-                                    sValue = uiCommon.FixBreaks(sValue, "")
-
-                            sHTML += "<div class=\"ui-widget-content ui-corner-tl ui-corner-bl parameter_value\">" + sValue + "</div>"
-
-                    sHTML += "</div>"
-                    sHTML += "</div>"
-
-                return sHTML
+            return ST.DrawCommandParameterSection(sParameterXML, bEditable, bSnipValues)
 
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)

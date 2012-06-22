@@ -1,11 +1,15 @@
 $def with ()
-$var jsfiles: toolbox.js storm.js stormRunDialog.js parametersOnDialog.js ecoTemplateEdit.js stormEcotemplateEdit.js jsonlint/c/js/json2.js jsonlint/c/js/jsl.parser.js jsonlint/c/js/jsl.format.js jsonlint/c/js/jsl.interactions.js
+$var jsfiles: toolbox.js storm.js stormRunDialog.js parametersOnDialog.js ecoTemplateEdit.js objectTag.js stormEcotemplateEdit.js jsonlint/c/js/json2.js jsonlint/c/js/jsl.parser.js jsonlint/c/js/jsl.format.js jsonlint/c/js/jsl.interactions.js
 $var cssfiles: taskEdit.css taskView.css ecoTemplateEdit.css
 
 <div id="left_panel_te">
     <div id="toolbox">
         <div id="toolbox_tabs" class="toolbox_tabs_1row">
-            <span id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top ui-state-active toolbox_tab">Details</span><span id="tab_storm" linkto="div_storm" class="ui-state-default ui-corner-top toolbox_tab storm">Storm</span><span id="tab_tasks" linkto="div_tasks" class="ui-state-default ui-corner-top toolbox_tab">Tasks</span><span id="tab_ecosystems" linkto="div_ecosystems" class="ui-state-default ui-corner-top toolbox_tab">Ecosystems</span>
+            <span id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top ui-state-active toolbox_tab">Details</span><span 
+            id="tab_storm" linkto="div_storm" class="ui-state-default ui-corner-top toolbox_tab storm">Storm</span><span 
+            id="tab_tasks" linkto="div_tasks" class="ui-state-default ui-corner-top toolbox_tab">Tasks</span><span 
+            id="tab_ecosystems" linkto="div_ecosystems" class="ui-state-default ui-corner-top toolbox_tab">Ecosystems</span><!--#EE#<span
+            id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>#EE#-->
         </div>
         <div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel">
             <div style="padding: 0 0 0 5px;">
@@ -55,6 +59,10 @@ $var cssfiles: taskEdit.css taskView.css ecoTemplateEdit.css
                 <div id="ecosystem_results"></div>
             </div>
         </div>
+        <!--#EE#<div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+            <span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
+            <ul id="objects_tags"></ul>#EE#-->
+        </div>
     </div>
 </div>
 <div id="content_te">
@@ -103,6 +111,8 @@ $var cssfiles: taskEdit.css taskView.css ecoTemplateEdit.css
     </div>
 </div>
 <div class="hidden">
+    <input id="hidPageSaveType" type="hidden" value="dynamic" />
+    <input id="hidObjectType" type="hidden" value="51" />
     <input type="hidden" id="hidParamType" value="task" />
     <input type="hidden" id="hidEcoTemplateID" />
 </div>

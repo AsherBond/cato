@@ -82,7 +82,7 @@ def check_roles(method):
             log("User requesting %s - insufficient permissions" % method, 0)
             return False
     else:
-        log("ERROR: %s does not have a role mapping." %method, 0)
+        log("ERROR: %s does not have a role mapping." % method, 0)
         return False
 
 def CatoEncrypt(s):
@@ -390,6 +390,16 @@ def GetSessionUserRole():
             return role
         else:
             ForceLogout("Server Session has expired (2). Please log in again.")
+    except Exception:
+        log_nouser(traceback.format_exc(), 0)
+
+def GetSessionUserTags():
+    try:
+        tags = GetSessionObject("user", "tags")
+        if tags:
+            return tags
+        else:
+            ForceLogout("Server Session has expired (3). Please log in again.")
     except Exception:
         log_nouser(traceback.format_exc(), 0)
 

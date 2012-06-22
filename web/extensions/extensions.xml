@@ -1,0 +1,51 @@
+<categories>
+	<category name="extensions" label="Extensions" description="Extension Commands for performing functions not part of the Cato base product." icon="static/images/icons/extensions_32.png">
+		<commands>
+			<command name="posix_info" label="POSIX Info" description="Retrieves the basic system properties available on POSIX systems." help="Retrieves the basic system properties available on POSIX systems.  The Result Variable is an XML document, and can be accessed via xpath variable syntax or the Parse Text command." icon="static/extensions/icons/sysinfo_32.png">
+				<function name="posix_info" extension="sysinfo/posix/posix_info.tcl">
+					<conn_name input_type="text" label="Connection" />
+					<result_variable input_type="text" label="Result Variable" />
+					<timeout input_type="text" option_tab="Options" />
+					<positive_response input_type="text" option_tab="Options" />
+					<negative_response input_type="text" option_tab="Options" />
+				</function>
+			</command>
+			<command name="linux_info" label="Linux Info" description="Retrieves properties commonly available on most Linux systems." help="Retrieves the basic system properties available on most Linux systems.  The Result Variable is an XML document, and can be accessed via xpath variable syntax or the Parse Text command." icon="static/extensions/icons/sysinfo_32.png">
+				<function name="linux_info" extension="sysinfo/linux/linux_info.tcl">
+					<conn_name input_type="text" label="Connection" />
+					<result_variable input_type="text" label="Result Variable" />
+					<timeout input_type="text" option_tab="Options" />
+					<positive_response input_type="text" option_tab="Options" />
+					<negative_response input_type="text" option_tab="Options" />
+				</function>
+			</command>
+			<command name="ohai_info" label="Ohai Info" description="Captures the information made available by Ohai - Opscode's open source information gathering tool." help="Captures the information made available by Ohai - Opscode's open source information gathering tool.  Ohai must be installed on the target system.  Ohai delivers results in JSON format, which can be accessed by variable syntax." icon="static/extensions/icons/sysinfo_32.png">
+				<function name="ohai_info" extension="sysinfo/ohai/ohai_info.tcl">
+					<conn_name input_type="text" label="Connection" connection_picker="true" help="The Connection to use." />
+					<result_variable input_type="text" label="Result Variable" help="Results of the command will be placed in this variable." />
+					<timeout input_type="text" option_tab="Options" />
+					<positive_response input_type="text" option_tab="Options" />
+					<negative_response input_type="text" option_tab="Options" />
+				</function>
+			</command>
+			<command name="read_file" label="Read File" description="Reads a file into variables for processing." help="Read File will read the contents of a file and process into variables for use in the task." icon="static/extensions/icons/readfile_32.png">
+				<function name="read_file" extension="read_file/read_file.tcl" variables="true" parse_method="2">
+					<filename input_type="text" label="File Name" />
+					<start input_type="text" label="Start Position" />
+					<num_chars input_type="text" label="Number of Characters to Read" />
+				</function>
+			</command>
+			<!--<command name="transfer" label="Transfer" description="File transfer between hosts." help="Transfer is used to copy a file between two Assets. Required values are: From: Asset, File and To: Asset, File." icon="static/images/icons/transfer_32.png">
+			<function name="transfer">
+			<from_asset input_type="text" />
+			<from_file input_type="text" />
+			<to_asset input_type="text" />
+			<to_file input_type="text" />
+			<mode input_type="select">SCP</mode>
+			<command input_type="select" />
+			<returnvar input_type="text" />
+			</function>
+			</command>-->
+		</commands>
+	</category>
+</categories>

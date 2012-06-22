@@ -914,7 +914,7 @@ class ecoMethods:
             uiCommon.log_nouser(traceback.format_exc(), 0)
             return traceback.format_exc()
 
-    def wmGetEcotemplateActionCategories(self):
+    def wmGetEcosystemActionCategories(self):
         try:
             sEcoTemplateID = uiCommon.getAjaxArg("sEcoTemplateID")
             sHTML = ""
@@ -954,7 +954,7 @@ class ecoMethods:
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
 
-    def wmGetEcotemplateActionButtons(self):
+    def wmGetEcosystemActionButtons(self):
         try:
             sEcoTemplateID = uiCommon.getAjaxArg("sEcoTemplateID")
             sHTML = ""
@@ -1765,8 +1765,17 @@ class ecoMethods:
             #sSignature = "&signature=" + uiCommon.PercentEncodeRfc3986(sSignature)
             sSignature = "&signature=" + urllib.quote_plus(sSignature)
             
-            sHost = (uiGlobals.config["stormapiurl"] if uiGlobals.config["stormapiurl"] else "http//127.0.0.1")
-            sPort = (uiGlobals.config["stormapiport"] if uiGlobals.config["stormapiport"] else "8080")
+            sHost = "http://localhost"
+            if uiGlobals.config.has_key("stormapiurl"):
+                sHost = (uiGlobals.config["stormapiurl"] if uiGlobals.config["stormapiurl"] else "http://localhost")
+            else:
+                uiCommon.log("Warning: stormApiUrl setting not defined in cato.conf... using http://localhost", 2)
+
+            sPort = "8080"
+            if uiGlobals.config.has_key("stormapiport"):
+                sPort = (uiGlobals.config["stormapiport"] if uiGlobals.config["stormapiport"] else "8080")
+            else:
+                uiCommon.log("Warning: stormApiPort setting not defined in cato.conf... using 8080", 2)
             
             sURL = "{0}:{1}/{2}{3}{4}".format(sHost, sPort, sStringToSign, sSignature, sQS)
                     
