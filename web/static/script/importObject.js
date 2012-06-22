@@ -29,6 +29,10 @@ $(document).ready(function () {
 		if(e.which == 13) { GetURL(); }
 	});
 	
+	$("#url_load_btn").click(function() {
+		GetURL();
+	});
+
 	$("#import_xml_btn").button({ icons: { primary: "ui-icon-check"} });
     $("#import_xml_btn").click(function() {
 		var xml = packJSON($("#xml_to_import").val());
