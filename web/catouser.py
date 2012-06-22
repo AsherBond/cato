@@ -275,9 +275,10 @@ class User(object):
             # NOTE this is "select_all", not "select_all_dict"... because I DO want a list.
             rows = db.select_all(sql)
             tags = []
-            for tag in rows:
-                tags.append(tag[0])
-            self.Tags = tags
+            if rows:
+                for tag in rows:
+                    tags.append(tag[0])
+                self.Tags = tags
             
 
             # reset the user counters and last_login
