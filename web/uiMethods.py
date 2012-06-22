@@ -25,7 +25,6 @@ import cloud
 import catouser
 import asset
 import task
-import tag
 import registry
 from settings import settings
 

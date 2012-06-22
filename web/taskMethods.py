@@ -156,13 +156,16 @@ class taskMethods:
                     sHTML += "<td class=\"selectable\">%s</td>" % row["task_instance"]
                     sHTML += "<td class=\"selectable\">%s</td>" % row["task_code"]
                     sHTML += "<td class=\"selectable\">%s</td>" % task_label
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["asset_name"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["asset_name"] if row["asset_name"] else "")
                     sHTML += "<td class=\"selectable\">%s</td>" % row["task_status"]
                     sHTML += "<td class=\"selectable\">%s</td>" % row["started_by"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["ce_name"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % str(row["process_id"])
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["ecosystem_name"]
-                    sHTML += "<td class=\"selectable\">%s<br />%s<br />%s</td>" % (row["submitted_dt"], row["started_dt"], row["completed_dt"])
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["ce_name"] if row["ce_name"] else "")
+                    sHTML += "<td class=\"selectable\">%s</td>" % str((row["process_id"] if row["process_id"] else ""))
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["ecosystem_name"] if row["ecosystem_name"] else "")
+                    sHTML += "<td class=\"selectable\">%s<br />%s</td>" % (
+                        ("(s)&nbsp;%s" % row["submitted_dt"].replace(" ","&nbsp;") if row["submitted_dt"] else ""), 
+                        ("(c)&nbsp;%s" % row["completed_dt"].replace(" ","&nbsp;") if row["completed_dt"] else "")
+                        )
                     sHTML += "<td class=\"selectable\"><span onclick=\"location.href='taskEdit?task_id=%s'\" class=\"ui-icon ui-icon-pencil pointer\"></span></td>" % row["task_id"]
                     
                     sHTML += "</tr>"
