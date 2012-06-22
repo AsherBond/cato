@@ -219,27 +219,107 @@ proc gather_account_info {account_id} {
 proc get_eco_tags {var_name params} {
 	set proc_name get_eco_tag
 
-	set sql "select ecosystem_object_id from ecosystem_object_tag where ecosystem_id = '$::ECOSYSTEM_ID'"
+    set first_xml "<DescribeTagsResponse><requestId></requestId><tagSet>"
+    set last_xml "</tagSet></DescribeTagsResponse>"
+
+	set sql "select eot.ecosystem_object_id, eot.key_name, eot.value, eo.ecosystem_object_type from ecosystem_object_tag as eot join ecosystem_object eo where eo.ecosystem_id = '$::ECOSYSTEM_ID' and eo.ecosystem_object_id = eot.ecosystem_object_id and eo.ecosystem_id = eot.ecosystem_id"
 	set msg "DescribeTags $params"
-	foreach {a b c d} $params {
-        if {"key" eq $b && $d eq "instance"} {
+    set sql_parts ""
+	foreach {xml_key xml_value} $params {
+        # we have to assume that the sml is in the proper order for this to work
+        if {[string match "Filter.*.Name" $xml_key]} {
+            set key_type $xml_value
+            for {set ii 0} {$ii < [llength $sql_parts]} {incr ii} {
+                if {$ii == 0} {
+                    append sql " and ([lindex $sql_parts $ii]"
+                } else {
+                    append sql " or [lindex $sql_parts $ii]"
+                }
+            }
+            if {[llength $sql_parts] > 0} {
+                append sql ")"
+            }
+            set sql_parts ""
             continue
         }
-		if {"key" == "$b"} {
-			set sql "$sql and key_name = '$d'"
-		} elseif {"value" == "$b"} {
-			set sql "$sql and value = '$d'"
+		switch -- $key_type {
+            "resource-id" {
+                lappend sql_parts "eo.ecosystem_object_id = '$xml_value'"
+            }
+            "resource-type" {
+                switch -- $xml_value {
+                    "instance" {
+                        lappend sql_parts "eo.ecosystem_object_type = 'aws_ec2_instance'"
+                    }
+                    "security-group" {
+                        lappend sql_parts "eo.ecosystem_object_type = 'aws_ec2_security_group'"
+                    }
+                    "volume" {
+                        lappend sql_parts "eo.ecosystem_object_type = 'aws_ec2_volume'"
+                    }
+                    "snapshot" {
+                        lappend sql_parts "eo.ecosystem_object_type = 'aws_ec2_snapshot'"
+                    }
+                    "image" {
+                        lappend sql_parts "eo.ecosystem_object_type = 'aws_ec2_image'"
+                    }
+                    default {
+                        error_out "DescribeTags error: unsupported resource-type $xml_value" 9999
+                    }
+                }
+            }
+            "key" {
+                lappend sql_parts "eot.key_name = '$xml_value'"
+            }
+            "value" {
+                lappend sql_parts "eot.value = '$xml_value'"
+            }
+            default {
+                error_out "DescribeTags error: unsupported filter name $xml_value" 9999
+            }
 		}
 	}
+    for {set ii 0} {$ii < [llength $sql_parts]} {incr ii} {
+        if {$ii == 0} {
+            append sql " and ([lindex $sql_parts $ii]"
+        } else {
+            append sql " or [lindex $sql_parts $ii]"
+        }
+    }
+    if {[llength $sql_parts] > 0} {
+        append sql ")"
+    }
 	$::db_query $::CONN $sql
     set  objects [$::db_query $::CONN $sql -list]
 	set ii 0
-        foreach object $objects {
-		incr ii
-		set_variable $var_name,$ii $object
-		set msg "$msg\n$object"
+    set items ""
+    foreach object $objects {
+        switch -- [lindex $object 3] {
+            "aws_ec2_instance" {
+                set type "instance"
+            }
+            "aws_ec2_security_group" {
+                set type "security-group"
+            }
+            "aws_ec2_volume" {
+                set type "volume"
+            }
+            "aws_ec2_snapshot" {
+                set type "snapshot"
+            }
+            "aws_ec2_image" {
+                set type "image"
+            }
+            default {
+                set type [lindex $object 3]
+            }
+        }
+        set items "$items<item><resourceId>[lindex $object 0]</resourceId><resourceType>$type</resourceType><key>[lindex $object 1]</key><value>[lindex $object 2]</value></item>"
+		#set_variable $var_name,$ii $object
+		#set msg "$msg\n$object"
 	}
-	insert_audit $::STEP_ID  "" "$msg" ""
+    set_variable $var_name "$first_xml$items$last_xml"
+	insert_audit $::STEP_ID  "" "DescribeTags $params\012$first_xml$items$last_xml" ""
 	return
 
 }
@@ -400,7 +480,7 @@ proc aws_Generic {product operation path command} {
 	}
         tclcloud::configure aws $::CLOUD_LOGIN_ID $::CLOUD_LOGIN_PASS $region_endpoint
         set cmd "tclcloud::call $product \"$aws_region\" $operation"
-output $cmd
+    output $cmd
 	lappend cmd $params
 	lappend cmd $version
 	if {$::DEBUG_LEVEL >= 3} {
@@ -5463,12 +5543,15 @@ proc for_loop {command task_name} {
 	set initial [replace_variables_all [$::ROOT selectNodes string(start)]]
 	set counter [string toupper [$::ROOT selectNodes string(counter)]]
 	set loop_test [$::ROOT selectNodes string(test)]
-	set compare_to [replace_variables_all [$::ROOT selectNodes string(compare_to)]]
+	set orig_compare_to [$::ROOT selectNodes string(compare_to)]
 	set increment [replace_variables_all [$::ROOT selectNodes string(increment)]]
 	set max_iterations [replace_variables_all [$::ROOT selectNodes string(max)]]
 
 	set action [$::ROOT selectNodes action/function]
 	
+	if {"$counter" == ""} {
+		error_out "loop error - counter variable cannot be empty" 9999
+	}
 	if {"$action" == ""} {
 		error_out "Loop action is empty, action is required." 2020
 	}
@@ -5488,6 +5571,7 @@ proc for_loop {command task_name} {
 	set loop_var2 "\$$loop_var"
 	set ::runtime_arr($counter,1) [expr $initial + [expr 0 - $increment]]
 	set max_iterations ""
+	set compare_to [replace_variables_all $orig_compare_to]
 	
 	output "loop_var is $loop_var" 5
 	output "loop_var2 is $loop_var2" 5
@@ -5499,6 +5583,9 @@ proc for_loop {command task_name} {
 	output "increment by $increment" 5
 	output "compare_to is $compare_to" 5
 	output "loop test: $initial $loop_test $compare_to" 4
+    if {"$compare_to" eq ""} {
+		error_out "loop error - loop test condition \"$orig_compare_to\" evaluates to \"\"" 9999
+    }
 	#output "command is $command" 2
 	for {set $loop_var $initial} {[expr $loop_var2 $loop_test $compare_to]} {incr $loop_var $increment} {
 		if {"$max_iterations" > "" && $max_iterations < [expr $loop_var2]} {
