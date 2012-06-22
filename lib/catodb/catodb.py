@@ -52,7 +52,7 @@ class Db(object):
         if result:
             return result
         else:
-            return False
+            return None
 
 
     def select_row(self, sql, params=()):
@@ -72,7 +72,7 @@ class Db(object):
         if result:
             return result
         else:
-            return False
+            return None
 
     def select_col(self, sql, params=()):
         """Gets a single value from the database.  If the query returns more than one column, the first is used."""
@@ -91,7 +91,7 @@ class Db(object):
         if result:
             return result[0]
         else:
-            return False
+            return None
 
     def exec_db(self, sql, params=()):
         """Used for updates, inserts and deletes"""
