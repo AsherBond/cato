@@ -22,5 +22,9 @@ $(document).ready(function () {
 		}
     });
 
-	$("#getting_started_items").load("uiMethods/wmGetGettingStarted");
+	$("#getting_started_items").load("uiMethods/wmGetGettingStarted", function(responseText) {
+		if (responseText) {
+			$("#getting_started_message").show();
+		}
+	});
 });

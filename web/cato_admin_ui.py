@@ -270,8 +270,8 @@ def auth_app_processor(handle):
         return handle()
     else:
         print path
-        if "Methods\/wm" in path:
-            raise web.seeother('notAllowed')
+        if "Methods/wm" in path:
+            return ""
         else:
             return "Some content on this page isn't available to your user."
 

@@ -70,6 +70,7 @@ class uiMethods:
             
             current_user = {}
             current_user["user_id"] = u.ID
+            current_user["user_name"] = u.LoginID
             current_user["full_name"] = u.FullName
             current_user["role"] = u.Role
             current_user["tags"] = u.Tags
@@ -159,6 +160,7 @@ class uiMethods:
             sset = settings.settings()
             sHTML = ""
             
+            user_name = uiCommon.GetSessionObject("user", "user_name")
             user_role = uiCommon.GetSessionUserRole()
             if user_role == "Administrator":
                 items = []
@@ -175,6 +177,23 @@ class uiMethods:
                     sHTML += self.DrawGettingStartedItem("messengersettings", "Messenger Settings", items, "<a href=\"/settings?module=messenger\">Click here</a> to update Messenger settings.")
     
                 
+                items = []
+                sSQL = "select security_question, security_answer, email from users where username = 'administrator'"
+                dr = self.db.select_row_dict(sSQL)
+                if dr:
+                    if not dr["email"]:
+                        items.append("Set Administrator email account to receive system notifications.")
+
+                    if not dr["security_question"] or not dr["security_answer"]:
+                        items.append("Select a security challenge question and response.")
+                
+                if items:
+                    if user_name.lower() == "administrator":
+                        sHTML += self.DrawGettingStartedItem("adminaccount", "Administrator Account", items, "<a href=\"#\" onclick=\"showMyAccount();\">Click here</a> to update Administrator account settings.")
+                    else:
+                        sHTML += self.DrawGettingStartedItem("adminaccount", "Administrator Account", items, "You must be logged in as 'Administrator' to change these settings.")                    
+                
+
                 items = []
                 sSQL = "select login_id, login_password from cloud_account"
                 dt = self.db.select_all_dict(sSQL)
