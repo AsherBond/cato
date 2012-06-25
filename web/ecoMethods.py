@@ -1038,9 +1038,13 @@ class ecoMethods:
             if self.db.error:
                 uiCommon.log_nouser(self.db.error, 0)
 
-            sStormStatus = ("" if not dr["storm_status"] else dr["storm_status"])
-            sStormParameterXML = ("" if not dr["storm_parameter_xml"] else dr["storm_parameter_xml"])
-            sLastUpdateDT = ("" if not dr["last_update_dt"] else str(dr["last_update_dt"]))
+            sStormStatus = "Unknown"
+            sStormParameterXML = ""
+            sLastUpdateDT = "Unknown"
+            if dr:
+                sStormStatus = ("" if not dr["storm_status"] else dr["storm_status"])
+                sStormParameterXML = ("" if not dr["storm_parameter_xml"] else dr["storm_parameter_xml"])
+                sLastUpdateDT = ("" if not dr["last_update_dt"] else str(dr["last_update_dt"]))
 
             # log
             sSQL = "select ecosystem_log_id, ecosystem_id, ecosystem_object_type, ecosystem_object_id, logical_id, status, log, convert(update_dt, CHAR(20))" \
