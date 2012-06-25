@@ -21,7 +21,10 @@
 import traceback
 import uuid
 import json
-import xml.etree.ElementTree as ET
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 from catocommon import catocommon
 import uiCommon
 from datetime import datetime

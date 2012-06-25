@@ -17,10 +17,13 @@
  
 import sys
 import os
-import xml.etree.ElementTree as ET
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 
 base_path = os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0])))
-lib_path = os.path.join(base_path, lib")
+lib_path = os.path.join(base_path, "lib")
 sys.path.append(lib_path)
 
 import task

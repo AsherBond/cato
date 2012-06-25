@@ -23,7 +23,10 @@ import cgi
 import re
 import pickle
 import copy
-import xml.etree.ElementTree as ET
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 from catocommon import catocommon
 from settings import settings
 

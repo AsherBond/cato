@@ -21,8 +21,11 @@ import sys
 import urllib
 import pickle
 import shelve
-import xml.etree.ElementTree as ET
 from datetime import datetime
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 
 web_root = os.path.abspath(os.path.dirname(__file__))
 base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

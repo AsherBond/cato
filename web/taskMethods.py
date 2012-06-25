@@ -18,7 +18,10 @@ import re
 import traceback
 import json
 import time
-import xml.etree.ElementTree as ET
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 import uiGlobals
 import uiCommon
 from catocommon import catocommon
