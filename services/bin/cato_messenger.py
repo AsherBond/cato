@@ -18,7 +18,6 @@
 
 import os
 import sys
-import time
 import smtplib
 from email.MIMEMultipart import MIMEMultipart
 from email.mime.text import MIMEText
