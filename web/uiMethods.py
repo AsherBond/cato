@@ -379,7 +379,7 @@ class uiMethods:
                         return uiCommon.packJSON("".join(tail))
             
             return uiCommon.packJSON("Unable to read logfile. [%s]" % logfile)
-        except Exception, ex:
+        except Exception as ex:
             return ex.__str__()
             
     def wmGetLog(self):

@@ -45,7 +45,7 @@ class Clouds(object):
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -53,7 +53,7 @@ class Clouds(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
 
@@ -105,7 +105,7 @@ class Cloud(object):
             #well, if we got here we have a problem... the ID provided wasn't found anywhere.
             #this should never happen, so bark about it.
             raise Exception("Warning - Unable to find a Cloud with id [%s] on any Providers." % sCloudID)   
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     def IsValidForCalls(self):
@@ -125,7 +125,7 @@ class Cloud(object):
             sb.append("\"%s\" : \"%s\"" % ("Region", self.Region))
             sb.append("}")
             return "".join(sb)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     #STATIC METHOD
@@ -150,7 +150,7 @@ class Cloud(object):
             c.FromID(sNewID)
             #yay!
             return c, None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -183,7 +183,7 @@ class Cloud(object):
                     return False, db.error
 
             return True, None
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -220,7 +220,7 @@ class CloudAccounts(object):
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -228,7 +228,7 @@ class CloudAccounts(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
 class CloudAccount(object):
@@ -274,7 +274,7 @@ class CloudAccount(object):
 
             else: 
                 raise Exception("Unable to build Cloud Account object. Either no Cloud Accounts are defined, or no Account with ID [" + sAccountID + "] could be found.")
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -311,7 +311,7 @@ class CloudAccount(object):
             
             sb.append("}")
             return "".join(sb)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     #STATIC METHOD
@@ -371,7 +371,7 @@ class CloudAccount(object):
 
             # yay!
             return ca, None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -409,7 +409,7 @@ class CloudAccount(object):
                 db.exec_db_noexcep(sSQL)
 
             return True, None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()

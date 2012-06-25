@@ -47,7 +47,7 @@ class Users(object):
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -55,7 +55,7 @@ class Users(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
 class User(object):
@@ -111,7 +111,7 @@ class User(object):
                 db.close()        
                 
             return True, None
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
 
     def FromName(self, sUsername):
@@ -161,7 +161,7 @@ class User(object):
 
             else: 
                 print "Unable to build User object. Either no Users are defined, or no User with ID/Login [%s%s] could be found." % (user_id, login_id)
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()        
@@ -169,7 +169,7 @@ class User(object):
     def AsJSON(self):
         try:
             return json.dumps(self.__dict__)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     def Authenticate(self, login_id, password, client_ip, change_password=None, answer=None):
@@ -299,7 +299,7 @@ class User(object):
 
         
             return True, ""
-        except Exception, ex:
+        except Exception as ex:
             print ex.__str__()
             return False, ex.__str__()
         finally:
@@ -365,7 +365,7 @@ class User(object):
             u.AddPWToHistory(sEncPW)
             
             return u, None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -394,7 +394,7 @@ class User(object):
                 return True
     
             return False
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             if db: db.close()
@@ -405,7 +405,7 @@ class User(object):
             sql = "insert user_password_history (user_id, change_time, password) values ('%s', now(), '%s')" % (self.ID, pw)
             if not db.exec_db_noexcep(sql):
                 print db.error
-        except Exception, ex:
+        except Exception as ex:
             return False, ex.__str__()
         finally:
             db.close()        

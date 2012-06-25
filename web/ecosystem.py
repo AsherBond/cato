@@ -45,7 +45,7 @@ class Ecotemplates(object):
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -53,7 +53,7 @@ class Ecotemplates(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         
 class Ecotemplate(object):
@@ -121,7 +121,7 @@ class Ecotemplate(object):
                                 self.Actions[ea.ID] = ea
             else: 
                 raise Exception("Error building Ecotemplate object: " + db.error)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -135,7 +135,7 @@ class Ecotemplate(object):
             sb.append("\"%s\" : \"%s\"" % ("Description", uiCommon.packJSON(self.Description)))
             sb.append("}")
             return "".join(sb)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
 
@@ -164,7 +164,7 @@ class Ecotemplate(object):
                     return True
                 
             return False
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -262,7 +262,7 @@ class Ecotemplate(object):
             db.tran_commit()
             return True, None
 
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -288,7 +288,7 @@ class Ecotemplate(object):
                 return True, ""
             
             return False, "Unable to create a new Ecotemplate."
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     def DBUpdate(self):
@@ -312,7 +312,7 @@ class Ecotemplate(object):
                     return False, db.error
             
             return True, ""
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -345,7 +345,7 @@ class EcotemplateAction(object):
             self.TaskVersion = (str(dr["task_version"]) if dr["task_version"] else "")
             self.Icon = dr["action_icon"]
             self.ParameterDefaultsXML = dr["parameter_defaults"]
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         
 # Note: this is not a container for Ecotemplate objects - it's just a rowset from the database
@@ -375,7 +375,7 @@ class Ecosystems(object):
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -383,7 +383,7 @@ class Ecosystems(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows, default=uiCommon.jsonSerializeHandler)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         
 class Ecosystem(object):
@@ -445,7 +445,7 @@ class Ecosystem(object):
             e.FromID(sID)
             #yay!
             return e, None
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -469,7 +469,7 @@ class Ecosystem(object):
                 return False, db.error
             
             return True, ""
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -502,7 +502,7 @@ class Ecosystem(object):
                 self.NumObjects = str(dr["num_objects"])
             else: 
                 raise Exception("Error building Ecosystem object: " + db.error)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -519,7 +519,7 @@ class Ecosystem(object):
 #            sb.append("\"%s\" : \"%s\"" % ("Description", uiCommon.packJSON(self.Description)))
 #            sb.append("}")
 #            return "".join(sb)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
             

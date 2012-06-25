@@ -133,7 +133,7 @@ class CloudProviders(dict):
                             p.CloudObjectTypes[cot.ID] = cot
                         pv.Products[p.Name] = p
                     self[pv.Name] = pv
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -164,7 +164,7 @@ class Provider(object):
                 return cp[sProvider]
             else:
                 raise Exception("Provider [" + sProvider + "] does not exist in the cloud_providers session xml.")
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     def GetAllObjectTypes(self):
@@ -176,7 +176,7 @@ class Provider(object):
                     if cot is not None:
                         cots[cot.ID] = cot
             return cots
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
 
@@ -229,7 +229,7 @@ class Provider(object):
             
             sb.append("}")
             return "".join(sb)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
 class Product(object):
@@ -274,7 +274,7 @@ class Product(object):
 
             sb.append("}")
             return "".join(sb)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
        
 class CloudObjectType(object):
@@ -319,7 +319,7 @@ class CloudObjectType(object):
 
             sb.append("}")
             return "".join(sb)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
    
 class CloudObjectTypeProperty:

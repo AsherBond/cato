@@ -46,7 +46,7 @@ class Registry(object):
     
                         self.xml_tree = ET.fromstring("<registry />")
                         
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -75,7 +75,7 @@ class Registry(object):
                 return False, "Unable to add - path [%s] was not found in registry." % xpath
             
             return True, ""
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
             
     def SetNodeText(self, xpath, value, encrypt):
@@ -111,7 +111,7 @@ class Registry(object):
                 return False, "Unable to update - path [%s] was not found in registry." % xpath
             
             return True, ""
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
            
     def DeleteNode(self, xpath):
@@ -140,7 +140,7 @@ class Registry(object):
                 return False, "Unable to add - path [%s] was not found in registry." % xpath
             
             return True, ""
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
            
     def DBSave(self):
@@ -152,7 +152,7 @@ class Registry(object):
                 return False, "Error: Could not create Registry." + db.error
             
             return True, ""
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -192,7 +192,7 @@ class Registry(object):
                 html = "Registry is empty."
             
             return html
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
 
     def DrawRegistryNode(self, xeNode, sXPath):
@@ -260,7 +260,7 @@ class Registry(object):
 
             return html
 
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         
     def DrawRegistryItem(self, xe, sXPath):
@@ -303,7 +303,7 @@ class Registry(object):
 
             return html
 
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         
 

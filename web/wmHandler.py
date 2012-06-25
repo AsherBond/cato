@@ -62,7 +62,7 @@ class wmHandler:
                         methodToCall = getattr(cls(), methodname, None)
                     else:
                         return "Class [%s] does not exist or could not be loaded." % modname
-                except ImportError, ex:
+                except ImportError as ex:
                     print ex.__str__()
                     return "Module [%s] does not exist." % modname
             else:

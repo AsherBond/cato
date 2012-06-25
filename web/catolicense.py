@@ -28,5 +28,5 @@ def check_license():
             # not agreed, return the LICENSE file.
             return "fail", "", license_text
 
-    except Exception, ex:
+    except Exception as ex:
         print ex.__str__()    

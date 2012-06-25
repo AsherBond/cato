@@ -1249,7 +1249,7 @@ class taskMethods:
     
                         # xRoot.Add(new XElement(sXPath, sValue))
                         # xRoot.SetElementValue(sXPath, sValue)
-                    except Exception, ex:
+                    except Exception as ex:
                         uiCommon.log("Error Saving Step [" + sStepID + "].  Could not find and cannot create the [" + sXPath + "] property in the XML." + ex.__str__())
                         return ""
     
@@ -2960,7 +2960,7 @@ class taskMethods:
                             return uiCommon.packJSON(uiCommon.SafeHTML(f.read()))
             
             return uiCommon.packJSON("Unable to read logfile. [%s]" % logfile)
-        except Exception, ex:
+        except Exception as ex:
             return ex.__str__()
             
     def wmExportTasks(self):
@@ -2990,7 +2990,7 @@ class taskMethods:
                 f_out.write(xml)
                 
             return "{\"export_file\" : \"%s\"}" % filename
-        except Exception, ex:
+        except Exception as ex:
             return ex.__str__()
             
     def wmGetTaskStatusCounts(self):

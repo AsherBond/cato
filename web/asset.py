@@ -48,7 +48,7 @@ class Assets(object):
 
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -56,7 +56,7 @@ class Assets(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
 class Asset(object):
@@ -123,7 +123,7 @@ class Asset(object):
                 self.ConnString = ("" if not dr["conn_string"] else dr["conn_string"])
             else: 
                 raise Exception("Unable to build Asset object. Either no Assets are defined, or no Asset by ID/Name could be found.")
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()        
@@ -131,7 +131,7 @@ class Asset(object):
     def AsJSON(self):
         try:
             return json.dumps(self.__dict__)
-        except Exception, ex:
+        except Exception as ex:
             raise ex    
 
     @staticmethod
@@ -149,7 +149,7 @@ class Asset(object):
                 return True
     
             return False
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             if db: db.close()
@@ -223,7 +223,7 @@ class Asset(object):
             a.RefreshTags(tags)
             return a, None
 
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     def DBUpdate(self, tags="", credential_update_mode="", credential=None):
@@ -286,7 +286,7 @@ class Asset(object):
             self.RefreshTags(tags)
 
             return True, None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -309,7 +309,7 @@ class Asset(object):
                     sql = "insert object_tags (object_type, object_id, tag_name) values (2, '%s','%s')" % (self.ID, tag)
                     if not db.exec_db_noexcep(sql):
                         print "Error creating Tags for Asset %s." % self.ID
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -336,7 +336,7 @@ class Credentials(object):
 
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -344,7 +344,7 @@ class Credentials(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
 class Credential(object):
@@ -399,7 +399,7 @@ class Credential(object):
                 self.Description = ("" if not dr["shared_cred_desc"] else dr["shared_cred_desc"])
             else: 
                 raise Exception("Unable to build Credential object. Either no Credentials are defined, or no Credential by ID could be found.")
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()        
@@ -414,7 +414,7 @@ class Credential(object):
             # but it needs one.
             if not self.ID:
                 self.ID = catocommon.new_guid()
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     def DBCreateNew(self):
@@ -449,7 +449,7 @@ class Credential(object):
             # need to move this function to catocommon
             # uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Credential, sCredentialID, sCredentialName, "")
             return True, None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -466,7 +466,7 @@ class Credential(object):
             #uiCommon.WriteObjectDeleteLog(uiGlobals.CatoObjectTypes.Asset, sAssetID, sAssetName.strip().replace("'", "''"), "Credential deleted" + sOriginalCredentialID + " " + sOriginalUserName)
 
             return True, None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -504,7 +504,7 @@ class Credential(object):
 #                uiCommon.WriteObjectPropertyChangeLog(uiGlobals.CatoObjectTypes.Asset, sAssetID, sAssetName.strip().replace("'", "''") + "Changed credential", sOriginalUserName, sCredUsername)
 
             return True, None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -512,6 +512,6 @@ class Credential(object):
     def AsJSON(self):
         try:
             return json.dumps(self.__dict__)
-        except Exception, ex:
+        except Exception as ex:
             raise ex    
 

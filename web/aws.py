@@ -64,7 +64,7 @@ class awsInterface(object):
                 return None, err
 
             return sXML, None
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
 
     def BuildURL(self, ca, c, cot, additional_args={}):
@@ -196,5 +196,5 @@ class awsInterface(object):
             sHostURL = c.APIProtocol.lower() + "://" + sHostName + sResourceURI
             return sHostURL + "?" + sQueryString + "&Signature=" + sSignature, None
 
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)

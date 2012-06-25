@@ -41,7 +41,7 @@ class FunctionCategories(object):
                         self.Categories.append(cat)
                         
                 return True
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     # append extension files to the class
@@ -61,7 +61,7 @@ class FunctionCategories(object):
                         self.Categories.append(cat)
                         
                 return True
-        except Exception, ex:
+        except Exception as ex:
             # appending does not throw an exception, just a warning in the log
             log_nouser("WARNING: Error parsing extension command file [" + sFileName + "]. " + ex.__str__(), 0)
 

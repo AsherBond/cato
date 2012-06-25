@@ -511,7 +511,7 @@ def HTTPGet(url, timeout=30, headers={}):
             if result:
                 return result, None
 
-        except urllib2.URLError, ex:
+        except urllib2.URLError as ex:
             if hasattr(ex, "reason"):
                 log_nouser("HTTPGet: failed to reach a server.", 2)
                 log_nouser(ex.reason, 2)
