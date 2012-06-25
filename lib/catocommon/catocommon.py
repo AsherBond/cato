@@ -106,7 +106,7 @@ def read_config():
             ver = version_file.read()
             key_vals["version"] = ver
     else:
-        print "Info: VERSION file does not exist."
+        print("Info: VERSION file does not exist.")
     
     
     
@@ -193,7 +193,7 @@ class CatoProcess():
         #if we're not redirecting stdout, all messages that come through here get sent there too
         if config.has_key("redirect_stdout"):
             if config["redirect_stdout"] == "false":
-                print output_string[:-1]
+                print(output_string[:-1])
 
         # the file is always written
         fp = open(self.logfile_name, 'a')
