@@ -106,14 +106,6 @@ def DrawFullStep(oStep):
     
     sMainHTML += "<li class=\"step " + sSkipStepClass + "\" id=\"" + sStepID + "\" " + sLockClause + ">"
     
-    # TODO - stop doing this as a special field and just do a web method for comment/uncomment
-    # the "commented" property is just a common field on all steps - it's hidden in the header.
-#    sCommentFieldID = catocommon.new_guid()
-#    sMainHTML += "<input type=\"text\"" \
-#        " value=\"" + ("1" if oStep.Commented else "0") + "\"" + \
-#        CommonAttribsWithID(oStep, "_common", False, "commented", sCommentFieldID, "hidden") + \
-#        " />"
-    
     
     # step expand image
     sExpandImage = "triangle-1-s"
@@ -138,7 +130,6 @@ def DrawFullStep(oStep):
     sMainHTML += "            <span id=\"step_skip_btn_" + sStepID + "\" skip=\"" + sSkipVal + "\"" \
         " class=\"ui-icon ui-icon-" + sSkipIcon + " forceinline step_skip_btn\" step_id=\"" + sStepID + "\"" \
         " title=\"Skip this Step\"></span>"
-# see above TODO        " datafield_id=\"" + sCommentFieldID + "\"" \
 
     sMainHTML += "            <span class=\"ui-icon ui-icon-close forceinline step_delete_btn\" remove_id=\"" + sStepID + "\" title=\"Delete Step\"></span>"
     sMainHTML += "        </div>"
@@ -1045,8 +1036,9 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
         sHTML += "            <div id=\"step_common_detail_" + sStepID + "_notes\"" \
             " class=\"step_common_detail " + ("" if sShowOnLoad == "notes" else "step_common_collapsed") + "\"" \
             " style=\"height: 100px;\">"
-#        sHTML += "                <textarea rows=\"4\" " + CommonAttribs(sStepID, "_common", False, "step_desc", "") + \
-#            " help=\"Enter notes for this Command.\" reget_on_change=\"true\">" + oStep.Description + "</textarea>"
+            
+        sHTML += "                <textarea rows=\"4\" " + CommonAttribs(oStep, False, "step_desc", "") + \
+            " help=\"Enter notes for this Command.\" reget_on_change=\"true\">" + oStep.Description + "</textarea>"
         sHTML += "            </div>"
 
         # embedded commands *could* show the help, but I don't like the look of it.

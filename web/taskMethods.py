@@ -1162,100 +1162,100 @@ class taskMethods:
     
             uiCommon.log("Updating step [%s (%s)] setting [%s] to [%s]." % (sFunction, sStepID, sXPath, sValue) , 4)
             
-            # TODO - not gonna do this any more, do a web method for commenting instead
-            # if the function type is "_common" that means this is a literal column on the step table.
-#            if sFunction == "_common":
-#                sValue = catocommon.tick_slash(sValue) # escape single quotes for the SQL insert
-#                sSQL = "update task_step set " + sXPath + " = '" + sValue + "' where step_id = '" + sStepID + "'"
-#    
-#                if not self.db.exec_db_noexcep(sSQL):
-#                    uiCommon.log_nouser(self.db.error, 0)
-#    
-#            else:
+            # Some xpaths are hardcoded because they're on the step table and not in the xml.
+            # this currently only applies to the step_desc column ("notes" field).
+            if sXPath == "step_desc":
+                sValue = catocommon.tick_slash(sValue) # escape single quotes for the SQL insert
+                sSQL = "update task_step set " + sXPath + " = '" + sValue + "' where step_id = '" + sStepID + "'"
+    
+                if not self.db.exec_db_noexcep(sSQL):
+                    uiCommon.log_nouser(self.db.error, 0)
+    
+            else:
 
-            # XML processing
-            # get the xml from the step table and update it
-            sSQL = "select function_xml from task_step where step_id = '" + sStepID + "'"
-
-            sXMLTemplate = self.db.select_col_noexcep(sSQL)
-
-            if self.db.error:
-                uiCommon.log("Unable to get XML data for step [" + sStepID + "].")
-
-            xDoc = ET.fromstring(sXMLTemplate)
-            if xDoc is None:
-                uiCommon.log("XML data for step [" + sStepID + "] is invalid.")
-
-            try:
-                uiCommon.log("... looking for %s" % sXPath, 4)
-                xNode = xDoc.find(sXPath)
-
-                if xNode is None:
-                    uiCommon.log("XML data for step [" + sStepID + "] does not contain '" + sXPath + "' node.")
-
-                xNode.text = sValue
-            except Exception:
+                # XML processing
+                # get the xml from the step table and update it
+                sSQL = "select function_xml from task_step where step_id = '" + sStepID + "'"
+    
+                sXMLTemplate = self.db.select_col_noexcep(sSQL)
+    
+                if self.db.error:
+                    uiCommon.log("Unable to get XML data for step [" + sStepID + "].")
+    
+                xDoc = ET.fromstring(sXMLTemplate)
+                if xDoc is None:
+                    uiCommon.log("XML data for step [" + sStepID + "] is invalid.")
+    
                 try:
-                    # here's the deal... given an XPath statement, we simply cannot add a new node if it doesn't exist.
-                    # why?  because xpath is a query language.  It doesnt' describe exactly what to add due to wildcards and # foo syntax.
-
-                    # but, what we can do is make an assumption in our specific case... 
-                    # that we are only wanting to add because we changed an underlying command XML template, and there are existing commands.
-
-                    # so... we will split the xpath into segments, and traverse upward until we find an actual node.
-                    # once we have it, we will need to add elements back down.
-
-                    # string[] nodes = sXPath.Split('/')
-
-                    # for node in nodes:
-#                         #     # try: to select THIS one, and stick it on the backwards stack
-                    #     xNode = xRoot.find("# " + node)
-                    #     if xNode is None:
-                    #         uiCommon.log("XML data for step [" + sStepID + "] does not contain '" + sXPath + "' node.")
-
-                    # }
-
-                    xFoundNode = None
-                    aMissingNodes = []
-
-                    # if there are no slashes we'll just add this one explicitly as a child of root
-                    if sXPath.find("/") == -1:
-                        xDoc.append(ET.Element(sXPath))
-                    else:                             # and if there are break it down
-                        sWorkXPath = sXPath
-                        while sWorkXPath.find("/") > -1:
-                            idx = uiCommon.LastIndexOf(sWorkXPath, "/") + 1
-                            aMissingNodes.append(sWorkXPath[idx:])
-                            sWorkXPath = sWorkXPath[:idx]
-
-                            xFoundNode = xDoc.find(sWorkXPath)
-                            if xFoundNode is not None:
-                                # Found one! stop looping
-                                break
-
-                        # now that we know where to start (xFoundNode), we can use that as a basis for adding
-                        for sNode in aMissingNodes:
-                            xFoundNode.append(ET.Element(sNode))
-
-                    # now we should be good to stick the value on the final node.
+                    uiCommon.log("... looking for %s" % sXPath, 4)
                     xNode = xDoc.find(sXPath)
+    
                     if xNode is None:
                         uiCommon.log("XML data for step [" + sStepID + "] does not contain '" + sXPath + "' node.")
-
+    
                     xNode.text = sValue
-
-                    # xRoot.Add(new XElement(sXPath, sValue))
-                    # xRoot.SetElementValue(sXPath, sValue)
-                except Exception, ex:
-                    uiCommon.log("Error Saving Step [" + sStepID + "].  Could not find and cannot create the [" + sXPath + "] property in the XML." + ex.__str__())
-                    return ""
-
-            sSQL = "update task_step set " \
-                " function_xml = '" + catocommon.tick_slash(ET.tostring(xDoc)) + "'" \
-                " where step_id = '" + sStepID + "';"
-
-            if not self.db.exec_db_noexcep(sSQL):
-                uiCommon.log(self.db)
+                except Exception:
+                    try:
+                        # here's the deal... given an XPath statement, we simply cannot add a new node if it doesn't exist.
+                        # why?  because xpath is a query language.  It doesnt' describe exactly what to add due to wildcards and # foo syntax.
+    
+                        # but, what we can do is make an assumption in our specific case... 
+                        # that we are only wanting to add because we changed an underlying command XML template, and there are existing commands.
+    
+                        # so... we will split the xpath into segments, and traverse upward until we find an actual node.
+                        # once we have it, we will need to add elements back down.
+    
+                        # string[] nodes = sXPath.Split('/')
+    
+                        # for node in nodes:
+    #                         #     # try: to select THIS one, and stick it on the backwards stack
+                        #     xNode = xRoot.find("# " + node)
+                        #     if xNode is None:
+                        #         uiCommon.log("XML data for step [" + sStepID + "] does not contain '" + sXPath + "' node.")
+    
+                        # }
+    
+                        xFoundNode = None
+                        aMissingNodes = []
+    
+                        # if there are no slashes we'll just add this one explicitly as a child of root
+                        if sXPath.find("/") == -1:
+                            xDoc.append(ET.Element(sXPath))
+                        else:                             # and if there are break it down
+                            sWorkXPath = sXPath
+                            while sWorkXPath.find("/") > -1:
+                                idx = uiCommon.LastIndexOf(sWorkXPath, "/") + 1
+                                aMissingNodes.append(sWorkXPath[idx:])
+                                sWorkXPath = sWorkXPath[:idx]
+    
+                                xFoundNode = xDoc.find(sWorkXPath)
+                                if xFoundNode is not None:
+                                    # Found one! stop looping
+                                    break
+    
+                            # now that we know where to start (xFoundNode), we can use that as a basis for adding
+                            for sNode in aMissingNodes:
+                                xFoundNode.append(ET.Element(sNode))
+    
+                        # now we should be good to stick the value on the final node.
+                        xNode = xDoc.find(sXPath)
+                        if xNode is None:
+                            uiCommon.log("XML data for step [" + sStepID + "] does not contain '" + sXPath + "' node.")
+    
+                        xNode.text = sValue
+    
+                        # xRoot.Add(new XElement(sXPath, sValue))
+                        # xRoot.SetElementValue(sXPath, sValue)
+                    except Exception, ex:
+                        uiCommon.log("Error Saving Step [" + sStepID + "].  Could not find and cannot create the [" + sXPath + "] property in the XML." + ex.__str__())
+                        return ""
+    
+                sSQL = "update task_step set " \
+                    " function_xml = '" + catocommon.tick_slash(ET.tostring(xDoc)) + "'" \
+                    " where step_id = '" + sStepID + "';"
+    
+                if not self.db.exec_db_noexcep(sSQL):
+                    uiCommon.log(self.db)
     
     
             sSQL = "select task_id, codeblock_name, step_order from task_step where step_id = '" + sStepID + "'"
