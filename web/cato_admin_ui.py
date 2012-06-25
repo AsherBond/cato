@@ -22,16 +22,17 @@ import urllib
 import pickle
 import shelve
 from datetime import datetime
-try:
-    import xml.etree.cElementTree as ET
-except ImportError:
-    import xml.etree.ElementTree as ET
 
 web_root = os.path.abspath(os.path.dirname(__file__))
 base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 sys.path.append(web_root)
+
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 
 # to avoid any path issues, "cd" to the web root.
 os.chdir(web_root)
