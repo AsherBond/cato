@@ -669,7 +669,7 @@ class Task(object):
 
             return sNewTaskID
         except Exception as ex:
-            print traceback.format_exc()
+            print(traceback.format_exc())
             raise ex
         finally:
             db.close()
@@ -777,7 +777,7 @@ class Task(object):
                         if self.Codeblocks.has_key(oStep.Codeblock):
                             self.Codeblocks[oStep.Codeblock].Steps[oStep.Order] = oStep
                         else:
-                            print "WARNING: Step thinks it belongs in codeblock [%s] but this task doesn't have that codeblock." % (oStep.Codeblock if oStep.Codeblock else "NONE")
+                            print("WARNING: Step thinks it belongs in codeblock [%s] but this task doesn't have that codeblock." % (oStep.Codeblock if oStep.Codeblock else "NONE"))
         except Exception as ex:
             raise ex
 
@@ -972,12 +972,12 @@ class Step(object):
                     self.OutputColumnDelimiter = int(self.FunctionXDoc.get("col_delimiter", 0))
                 except ET.ParseError:
                     self.IsValid = False
-                    print traceback.format_exc()    
-                    print "CRITICAL: Unable to parse function xml in step [%s]." % self.ID
+                    print(traceback.format_exc())    
+                    print("CRITICAL: Unable to parse function xml in step [%s]." % self.ID)
                 except Exception:
                     self.IsValid = False
-                    print traceback.format_exc()    
-                    print "CRITICAL: Exception in processing step [%s]." % self.ID
+                    print(traceback.format_exc())  
+                    print("CRITICAL: Exception in processing step [%s]." % self.ID)
 
             #this.Function = Function.GetFunctionByName(dr["function_name"]);
             self.FunctionName = dr["function_name"]

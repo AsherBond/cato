@@ -146,11 +146,10 @@ class Ecotemplate(object):
             sSQL = "select ecotemplate_id from ecotemplate" \
                 " where ecotemplate_name = '" + self.Name + "'" \
                 " or ecotemplate_id = '" + self.ID + "'"
-            print sSQL
             db = catocommon.new_conn()
             dr = db.select_row_dict(sSQL)
             if db.error:
-                print db.error
+                print(db.error)
                 raise Exception("Ecotemplate Object: Unable to check for existing Name or ID. " + db.error)
             
             if dr is not None:
@@ -160,7 +159,6 @@ class Ecotemplate(object):
                     # we're setting the ids to the same as the database so it's more accurate.
                     
                     self.ID = dr["ecotemplate_id"]
-                    print dr["ecotemplate_id"]
                     return True
                 
             return False
@@ -224,7 +222,6 @@ class Ecotemplate(object):
             # actions aren't referenced by id anywhere, so we'll just give them a new guid
             # to prevent any risk of PK issues.
             for ea in self.Actions.itervalues():
-                print ea.Name
                 sSQL = "insert into ecotemplate_action" \
                     " (action_id, ecotemplate_id, action_name, action_desc, category, action_icon, original_task_id, task_version, parameter_defaults)" \
                     " values (" \
@@ -305,7 +302,7 @@ class Ecotemplate(object):
 
             db = catocommon.new_conn()
             if not db.exec_db_noexcep(sSQL):
-                print db.error
+                print(db.error)
                 if db.error == "key_violation":
                     return None, "An Ecotemplate with that name already exists.  Please select another name."
                 else:

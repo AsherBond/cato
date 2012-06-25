@@ -381,20 +381,20 @@ class cloudMethods:
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
 
-    def wmGetProviderObjectTypes(self):
-        try:
-            sProvider = uiCommon.getAjaxArg("sProvider")
-            sHTML = ""
-            cp = providers.CloudProviders()
-            if cp:
-                p = cp[sProvider]
-                for i in p.GetAllObjectTypes.items():
-                    print i
-                    
-            return sHTML
-        except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
-            return traceback.format_exc()
+#    def wmGetProviderObjectTypes(self):
+#        try:
+#            sProvider = uiCommon.getAjaxArg("sProvider")
+#            sHTML = ""
+#            cp = providers.CloudProviders()
+#            if cp:
+#                p = cp[sProvider]
+#                for i in p.GetAllObjectTypes.items():
+#                    print i
+#                    
+#            return sHTML
+#        except Exception:
+#            uiCommon.log_nouser(traceback.format_exc(), 0)
+#            return traceback.format_exc()
     
     def wmGetCloudObjectList(self):
         try:
@@ -476,7 +476,7 @@ class cloudMethods:
 
                 # loop data columns
                 for prop in props:
-                    print "%s - %s" % (prop.Name, prop.Value)
+                    print("%s - %s" % (prop.Name, prop.Value))
                     sValue = (prop.Value if prop.Value else "")
                     sHTML += "<td>"
 
@@ -494,7 +494,7 @@ class cloudMethods:
                                     sTags += "<b>%s</b> : %s<br />" % (xeTag.findtext("key", ""), xeTag.findtext("value", ""))
                                 sHTML += sTags
                         except: # couldn't parse it.  hmmm....
-                            print traceback.format_exc()
+                            print(traceback.format_exc())
                             # I guess just stick the value in there, but make it safe
                             sHTML += uiCommon.SafeHTML(sValue)
                     else:                         

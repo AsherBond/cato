@@ -1997,7 +1997,6 @@ class taskMethods:
                             # dropdowns get a "selected" indicator
                             sValueToSelect = xDefValues.findtext("value", "")
                             if sValueToSelect:
-                                print sValueToSelect
                                 # find the right one by value and give it the "selected" attribute.
                                 for xVal in xTaskParamValues.findall("value"):
                                     if xVal.text == sValueToSelect:
@@ -2986,7 +2985,7 @@ class taskMethods:
             filename = "%s_%s.csk" % (t.Name.replace(" ","").replace("/",""), seconds)
             with open("%s/temp/%s" % (uiGlobals.web_root, filename), 'w') as f_out:
                 if not f_out:
-                    print "ERROR: unable to write task export file."
+                    uiCommon.log("ERROR: unable to write task export file.", 2)
                 f_out.write(xml)
                 
             return "{\"export_file\" : \"%s\"}" % filename
@@ -3281,7 +3280,6 @@ class taskMethods:
             # validate it
             # parse the doc from the table
             xd = func.TemplateXDoc
-            print ET.tostring(xd)
             if xd is None:
                 uiCommon.log("Unable to get Function Template.")
             

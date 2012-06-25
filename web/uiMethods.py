@@ -1102,7 +1102,7 @@ class uiMethods:
                                 # replace our special tokens with the values
                                 body = body.replace("##FULLNAME##", u.FullName).replace("##USERNAME##", u.LoginID).replace("##PASSWORD##", sNewPassword).replace("##URL##", sURL)
 
-                                print "Would send email here..."
+                                print("Would send email here...")
 #                                if !uiCommon.SendEmailMessage(sEmail.strip(), ag.APP_COMPANYNAME + " Account Management", "Account Action in " + ag.APP_NAME, sBody, 0000BYREF_ARG0000sErr:
                         
             

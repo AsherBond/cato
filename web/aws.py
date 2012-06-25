@@ -30,7 +30,7 @@ class awsInterface(object):
             ca.FromID(account_id)
             if ca.ID is None:
                 msg =  "Failed to get Cloud Account details for Cloud Account ID [" + account_id + "]."
-                print msg
+                print(msg)
                 return None, msg
 
             if cloud_object_type is not None:
@@ -38,12 +38,12 @@ class awsInterface(object):
                 # if a key field is missing.
                 if not cloud_object_type.ID:
                     msg = "Cannot find definition for requested object type [" + cloud_object_type.ID + "]"
-                    print msg 
+                    print(msg)
                     return None, msg
 
             else:
                 msg = "GetCloudObjectType failed for [" + cloud_object_type.ID + "]"
-                print msg
+                print(msg)
                 return None, msg
             
             # get the cloud object
@@ -57,8 +57,6 @@ class awsInterface(object):
             if err:
                 return None, err
             
-            # print sURL
-
             sXML, err = HTTPGet(sURL, 30)
             if err:
                 return None, err
@@ -108,7 +106,7 @@ class awsInterface(object):
 
             if not sHostName:
                 msg = "Unable to reconcile an endpoint from the Cloud [" + c.Name + "] or Cloud Object [" + cot.ID + "] definitions."
-                print msg
+                print(msg)
                 return None, msg
             
             # HOST URI
