@@ -29,11 +29,11 @@ class Ecosync(catocommon.CatoService):
 
     ecosync_mode = ""
 
-    def check_instance(self, conn, id):
+    def check_instance(self, conn, iid):
         res = conn.get_all_instances([id])
         if res:
             instance = res[0][0]
-            if instance.state not in [pending, running, shutting-down, stopping, stopped]:
+            if instance.state not in ["pending", "running", "shutting-down", "stopping", "stopped"]:
                 ret_code = 0
             else:
                 ret_code = 1
@@ -43,44 +43,44 @@ class Ecosync(catocommon.CatoService):
         return ret_code
 
 
-    def delete_eco_object(self, acc_id, type, obj_id, cloud_id):
+    def delete_eco_object(self, acc_id, obj_type, obj_id, cloud_id):
 
         self.output("Deleting $object_id of type $object_type from account id $account_id and cloud id $cloud_id" %
-            (obj_id, type, acc_id, cloud_id))
+            (obj_id, obj_type, acc_id, cloud_id))
 
         sql = """delete eo from ecosystem_object eo join ecosystem e 
                 where e.account_id = %s and eo.ecosystem_object_type = %s 
                 and eo.ecosystem_object_id = %s and eo.cloud_id = %s"""
-        self.db.exec_db(sql, (acc_id, type, obj_id, cloud_id))
+        self.db.exec_db(sql, (acc_id, obj_type, obj_id, cloud_id))
 
 
-    def check_object(self, conn, type, obj_id):
+    def check_object(self, conn, obj_type, obj_id):
 
-        if type == "AWS::EC2::Instance":
+        if obj_type == "AWS::EC2::Instance":
             ret_code = self.check_instance(conn, obj_id)
-        elif type == "AWS::EC2::Volume":
+        elif obj_type == "AWS::EC2::Volume":
             ret_code = self.check_volumes(conn, obj_id)
-        elif type == "AWS::S3::Bucket":
+        elif obj_type == "AWS::S3::Bucket":
             ret_code = self.check_volumes(conn, obj_id)
-        elif type == "AWS::EC2::SecurityGroup":
+        elif obj_type == "AWS::EC2::SecurityGroup":
             ret_code = self.check_volumes(conn, obj_id)
-        elif type == "AWS::EC2::EIP":
+        elif obj_type == "AWS::EC2::EIP":
             ret_code = self.check_volumes(conn, obj_id)
-        elif type == "AWS::EC2::Volume":
+        elif obj_type == "AWS::EC2::Volume":
             ret_code = self.check_volumes(conn, obj_id)
-        elif type == "AWS::EC2::Volume":
+        elif obj_type == "AWS::EC2::Volume":
             ret_code = self.check_volumes(conn, obj_id)
-        elif type == "AWS::EC2::Volume":
+        elif obj_type == "AWS::EC2::Volume":
             ret_code = self.check_volumes(conn, obj_id)
-        elif type == "AWS::EC2::Volume":
+        elif obj_type == "AWS::EC2::Volume":
             ret_code = self.check_volumes(conn, obj_id)
-        elif type == "AWS::EC2::Volume":
+        elif obj_type == "AWS::EC2::Volume":
             ret_code = self.check_volumes(conn, obj_id)
-        elif type == "AWS::EC2::Volume":
+        elif obj_type == "AWS::EC2::Volume":
             ret_code = self.check_volumes(conn, obj_id)
-        elif type == "AWS::EC2::Volume":
+        elif obj_type == "AWS::EC2::Volume":
             ret_code = self.check_volumes(conn, obj_id)
-        elif type == "AWS::EC2::Volume":
+        elif obj_type == "AWS::EC2::Volume":
             ret_code = self.check_volumes(conn, obj_id)
         else:
             ret_code = 1
@@ -95,11 +95,10 @@ class Ecosync(catocommon.CatoService):
 
         old_account_id = ""
         rows = self.db.select_all(sql)
-        print rows
         if rows:
             for row in rows:
                 object_id = row[0]
-                type = row[1]
+                obj_type = row[1]
                 cloud_id = row[2]
                 account_id = row[3]
                 if old_account_id != account_id:
@@ -108,14 +107,14 @@ class Ecosync(catocommon.CatoService):
                     conn = self.get_cloud_connection(account_id, cloud_id)
                     old_account_id = account_id
 
-                if not self.check_object(conn, type, object_id):
-                    self.eco_object(account_id, type, object_id, cloud_id)
+                if not self.check_object(conn, obj_type, object_id):
+                    self.eco_object(account_id, obj_type, object_id, cloud_id)
 
 
     def get_settings(self):
-
+        """
         ### ecosync has no settings table at the moment
-        x = 1
+        """
 
 
     def main_process(self):
