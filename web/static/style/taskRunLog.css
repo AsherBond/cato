@@ -72,6 +72,7 @@ textarea
 	font: .8em Courier New;
 	background: #FFF;
 	padding: 1px 8px 1px 8px;
+	min-height: 10px;
 }
 .log_variable_name
 {

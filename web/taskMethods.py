@@ -2781,24 +2781,58 @@ class taskMethods:
         sTaskInstance = uiCommon.getAjaxArg("sTaskInstance")
         sRows = uiCommon.getAjaxArg("sRows")
 
-        # OK, here's something neat.
-        # the TE *might* write a row in the log table with some xml content for a "results summary".
-        # we don't wanna hardcode too much, so we'll just inspect each log row looking for a flag.
-        # if we find it, we'll hold on to the data until the end and display it nicely instead of the log.
-        sResultSummary = ""
-        
+        sLog = ""
+        sSummary = ""
+
         try:
             if not sTaskInstance:
                 return "{\"log\" : \"Unable to get log - no Instance passed to wmGetTaskRunLog.\"}"
             
-            sLimitClause = " limit 100"
+            sLimitClause = " limit 200"
 
             if sRows:
                 if sRows == "all":
                     sLimitClause = ""
                 else:
-                    sLimitClause = " limit " + sRows
+                    try:
+                        sRows = int(sRows)
+                    except:
+                        sRows = 200
+                        
+                    sLimitClause = " limit " + str(sRows)
+                    
+            # how many log rows are there?
+            sSQL = "select count(*) from task_instance_log where task_instance = %s" % sTaskInstance
+            numrows = self.db.select_col_noexcep(sSQL)
+            
+            # RESULT SUMMARY - there may be rows that are "result summary" rows.
+            # check if this rows 'command_text' contains 'result_summary'
+            sSQL = """select log from task_instance_log 
+                where task_instance = %s 
+                and command_text = 'result_summary'
+                order by id""" % sTaskInstance
 
+            dt = self.db.select_all_dict(sSQL)
+            if self.db.error:
+                uiCommon.log_nouser(self.db.error, 0)
+
+            if dt:
+                for dr in dt:
+                    try:                         
+                        # almost done... if there is a Result Summary ... display that.
+                        if dr["log"]:
+                            xdSummary = ET.fromstring(dr["log"])
+                            if xdSummary is not None:
+                                for item in xdSummary.findall("items/item"):
+                                    name = item.findtext("name", "")
+                                    detail = item.findtext("detail", "")
+                                    sSummary += "<div class='result_summary_item_name'>%s</div>" % name
+                                    sSummary += "<div class='result_summary_item_detail ui-widget-content ui-corner-all'>%s</div>" % detail    
+                    except Exception:
+                        uiCommon.log_nouser(traceback.format_exc(), 0)
+
+
+            # NOW carry on with the regular rows
             sSQL = "select til.task_instance, til.entered_dt, til.connection_name, til.log," \
                 " til.step_id, s.step_order, s.function_name, s.function_name as function_label, s.codeblock_name, " \
                 " til.command_text," \
@@ -2813,26 +2847,13 @@ class taskMethods:
             if self.db.error:
                 uiCommon.log_nouser(self.db.error, 0)
 
-            sLog = ""
-            sSummary = ""
-
             if dt:
                 sLog += "<ul class=\"log\">\n"
                 sThisStepID = ""
                 sPrevStepID = ""
 
                 for dr in dt:
-                    # first, check if this row contains the 'results summary'
-                    # this will be indicated by the text "Results Summary" in the *command* field.
-                    if dr["command_text"]:
-                        if dr["command_text"] == "result_summary":
-                            sResultSummary = dr["log"]
-                            continue
-                    
                     sThisStepID = dr["step_id"]
-
-
-
 
                     # start a new list item and header only if we are moving on to a different step.
                     if sPrevStepID != sThisStepID:
@@ -2881,12 +2902,12 @@ class taskMethods:
 
 
                     # it might be a log entry:
+                    # ( we write out the div even if it's empty, so the user 
+                    # will see an indication of progress
+                    sLog += "    <div class=\"log_results ui-widget-content ui-corner-all\">\n"
                     if dr["log"].strip():
-                        # commented out to save space
-                        # sLog += "Results:\n"
-                        sLog += "    <div class=\"log_results ui-widget-content ui-corner-all\">\n"
                         sLog += uiCommon.FixBreaks(uiCommon.SafeHTML(dr["log"]))
-                        sLog += "    </div>\n"
+                    sLog += "    </div>\n"
 
 
 #  VARIABLE STUFF IS NOT YET ACTIVE
@@ -2914,20 +2935,8 @@ class taskMethods:
                 sLog += "</li>\n"
                 sLog += "</ul>\n"
 
-                try:                         
-                    # almost done... if there is a Result Summary ... display that.
-                    if sResultSummary:
-                        xdSummary = ET.fromstring(sResultSummary)
-                        if xdSummary is not None:
-                            for item in xdSummary.findall("items/item"):
-                                name = item.findtext("name", "")
-                                detail = item.findtext("detail", "")
-                                sSummary += "<div class='result_summary_item_name'>%s</div>" % name
-                                sSummary += "<div class='result_summary_item_detail ui-widget-content ui-corner-all'>%s</div>" % detail    
-                except Exception:
-                    uiCommon.log_nouser(traceback.format_exc(), 0)
             
-            return "{\"log\" : \"%s\", \"summary\" : \"%s\"}" % (uiCommon.packJSON(sLog), uiCommon.packJSON(sSummary))
+            return "{\"log\" : \"%s\", \"summary\" : \"%s\", \"totalrows\" : \"%s\"}" % (uiCommon.packJSON(sLog), uiCommon.packJSON(sSummary), str(numrows))
 
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)

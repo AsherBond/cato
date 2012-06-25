@@ -11,87 +11,96 @@ $var cssfiles: taskRunLog.css
 <input type="hidden" id="hidRows" value="100" />
 <input type="hidden" id="hidDebugLevel" />
 
-<div class="ui-widget-header center">
-    <h4><span id="lblTaskName"></span></h4>
-</div>
-<div class="ui-widget-content ui-corner-all instance_header">
-    <span class="instance_label">Instance: </span>
-    <span id="lblTaskInstance">N/A</span>
-    - <span class="instance_label">Status: </span>
-    <span id="lblStatus">Never Executed</span>
-    - <span class="instance_label">Started: </span>
-    <span id="lblStartedDT">N/A</span>
-    - <span class="instance_label">Completed: </span>
-    <span id="lblCompletedDT">N/A</span>
-</div>
-<div class="ui-widget-content ui-corner-all instance_header action_bar">
-    <div class="floatleft">
-        <span id="refresh_btn" class="pointer"> <img alt="Refresh" src="static/images/icons/reload.png" /></span>
-        <span id="phCancel"><span id="abort_btn" class="pointer"> <img alt="Cancel Task" src="static/images/icons/player_stop_22.png" /></span></span>
-        <span id="phResubmit"><span id="resubmit_btn" class="pointer"> <img alt="Run Task" src="static/images/icons/player_play_22.png" /> </span></span>
+<div id="ti_header" style="position: fixed; top: 0; width: 100%; padding-right: 4px; background: #ffffff;">
+    <div class="ui-widget-header center">
+        <h4><span id="lblTaskName"></span></h4>
     </div>
-    <div class="floatright">
-        <span id="show_detail" class="vis_btn vis_btn_off">Details</span><span id="show_cmd"
-        class="vis_btn vis_btn_off">Commands</span><span id="show_results" class="vis_btn">Results</span>
-        <span id="get_all" class="vis_btn vis_btn_off">All Rows</span>
+    <div class="ui-widget-content ui-corner-all instance_header">
+        <span class="instance_label">Instance: </span>
+        <span id="lblTaskInstance">N/A</span>
+        - <span class="instance_label">Status: </span>
+        <span id="lblStatus">Never Executed</span>
+        - <span class="instance_label">Started: </span>
+        <span id="lblStartedDT">N/A</span>
+        - <span class="instance_label">Completed: </span>
+        <span id="lblCompletedDT">N/A</span>
     </div>
-    <div class="clearfloat"></div>
-</div>
-<div id="full_details" class="ui-widget-content ui-corner-all instance_header hidden">
-    <table width="100%">
-        <tr>
-            <td width="150px"><span class="instance_label">Cloud Account:</span></td>
-            <td><span id="lblAccountName"></span></td>
-            <td width="150px"><span class="instance_label">Submitted By:</span></td>
-            <td><span id="lblSubmittedBy"></span></td>
-        </tr>
-        <tr>
-            <td width="150px"><span class="instance_label">Ecosystem:</span></td>
-            <td><span id="lblEcosystemName"></span></td>
-            <td width="150px"><span class="instance_label">Submitted:</span></td>
-            <td><span id="lblSubmittedDT"></span></td>
-        </tr>
-        <tr>
-            <td width="150px"><span class="instance_label">Asset:</span></td>
-            <td><span id="lblAssetName"></span></td>
-            <td width="150px"><span class="instance_label">Submitted By Instance:</span></td>
-            <td><span id="lblSubmittedByInstance" tag="jump_to_instance"></span></td>
-        </tr>
-        <tr>
-            <td width="150px"><span class="instance_label">CE Node:</span></td>
-            <td><span id="lblCENode"></span></td>
-            <td width="150px"><span class="instance_label">PID:</span></td>
-            <td><span id="lblPID"></span></td>
-        </tr>
-    </table>
-</div>
-<hr />
-<div id="pnlOtherInstances" class="ui-widget-content ui-corner-all instance_header hidden">
-    <table class="jtable" cellspacing="1" cellpadding="1" width="100%">
-        <thead>
+    <div class="ui-widget-content ui-corner-all instance_header action_bar">
+        <div class="floatleft">
+            <span id="refresh_btn" class="pointer"> <img alt="Refresh" src="static/images/icons/reload.png" /></span>
+            <span id="phCancel"><span id="abort_btn" class="pointer"> <img alt="Cancel Task" src="static/images/icons/player_stop_22.png" /></span></span>
+            <span id="phResubmit"><span id="resubmit_btn" class="pointer"> <img alt="Run Task" src="static/images/icons/player_play_22.png" /> </span></span>
+        </div>
+        <div class="floatright">
+            <span id="show_detail" class="vis_btn vis_btn_off">Details</span><span id="show_cmd"
+            class="vis_btn vis_btn_off">Commands</span><span id="show_results" class="vis_btn">Results</span>
+            <span class="get_all vis_btn vis_btn_off">All Rows</span>
+        </div>
+        <div class="clearfloat"></div>
+    </div>
+    <div id="full_details" class="ui-widget-content ui-corner-all instance_header hidden">
+        <table width="100%">
             <tr>
-                <th class="col_header"> Instance </th>
-                <th class="col_header"> Status </th>
+                <td width="150px"><span class="instance_label">Cloud Account:</span></td>
+                <td><span id="lblAccountName"></span></td>
+                <td width="150px"><span class="instance_label">Submitted By:</span></td>
+                <td><span id="lblSubmittedBy"></span></td>
             </tr>
-        </thead>
-        <tbody id="other_instances"></tbody>
-    </table>
-    <hr />
+            <tr>
+                <td width="150px"><span class="instance_label">Ecosystem:</span></td>
+                <td><span id="lblEcosystemName"></span></td>
+                <td width="150px"><span class="instance_label">Submitted:</span></td>
+                <td><span id="lblSubmittedDT"></span></td>
+            </tr>
+            <tr>
+                <td width="150px"><span class="instance_label">Asset:</span></td>
+                <td><span id="lblAssetName"></span></td>
+                <td width="150px"><span class="instance_label">Submitted By Instance:</span></td>
+                <td><span id="lblSubmittedByInstance" tag="jump_to_instance"></span></td>
+            </tr>
+            <tr>
+                <td width="150px"><span class="instance_label">CE Node:</span></td>
+                <td><span id="lblCENode"></span></td>
+                <td width="150px"><span class="instance_label">PID:</span></td>
+                <td><span id="lblPID"></span></td>
+            </tr>
+        </table>
+    </div>
 </div>
-<div class="ui-widget-content ui-corner-all result_summary">
-    <div class="ui-widget-header ui-corner-top result_summary_header">
-        Result Summary
+<div id="ti_content" style="margin-top: 84px;">
+    <div id="pnlOtherInstances" class="ui-widget-content ui-corner-all instance_header hidden">
+        <table class="jtable" cellspacing="1" cellpadding="1" width="100%">
+            <thead>
+                <tr>
+                    <th class="col_header"> Instance </th>
+                    <th class="col_header"> Status </th>
+                </tr>
+            </thead>
+            <tbody id="other_instances"></tbody>
+        </table>
+        <hr />
     </div>
-    <div class="result_summary_detail">
-        <div id="ltSummary"></div>
+    <div class="ui-widget-content ui-corner-all result_summary">
+        <div class="ui-widget-header ui-corner-top result_summary_header">
+            Result Summary
+        </div>
+        <div class="result_summary_detail">
+            <div id="ltSummary"></div>
+        </div>
     </div>
-</div>
-<div class="ui-widget-content ui-corner-all result_summary">
-    <div class="ui-widget-header ui-corner-top result_summary_header">
-        Log <a id="view_logfile_btn" href="#">(view logfile)</a>
-    </div>
-    <div class="result_summary_detail">
-        <div id="ltLog"></div>
+    <div class="ui-widget-content ui-corner-all result_summary">
+        <div class="ui-widget-header ui-corner-top result_summary_header">
+            Log <span id="row_count_lbl"></span>
+            <div class="floatright">
+                <a id="view_logfile_btn" href="#">(view logfile) </a>
+            </div>
+        </div>
+        <div class="result_summary_detail">
+            <div id="ltLog"></div>
+            <div style="text-align: center;">
+                <span id="get_all_bottom" class="get_all vis_btn vis_btn_off pointer hidden">Get All Rows</span>
+            </div>
+        </div>
     </div>
 </div>
 <div id="resubmit_dialog" title="Run Task" class="ui-state-highlight">

@@ -91,9 +91,9 @@ $(document).ready(function () {
         $("#show_detail").toggleClass("vis_btn_off");
 
         if ($("#full_details").hasClass("hidden")) {
-            $(".log").height($(".log").height() + 64);
+            $("#ti_content").css("margin-top","84px");
         } else {
-            $(".log").height($(".log").height() - 64);
+            $("#ti_content").css("margin-top","174px");
         }
     });
     $("#show_cmd").click(function () {
@@ -106,9 +106,13 @@ $(document).ready(function () {
     });
 
     //repost and ask for the whole log
-    $("#get_all").click(function () {
+    $(".get_all").click(function () {
         if (confirm("This may take a long time.\n\nAre you sure?"))
-            self.location.href = 'taskRunLog?task_instance=' + $("#hidInstanceID").val() + '&rows=all';
+        	// we use this class programatically later to determine if 
+        	// all rows have been requested.
+        	$(".get_all").removeClass("vis_btn_off");
+        	$("#get_all_bottom").hide();
+            doGetLog("all");
     });
 
 
@@ -252,8 +256,12 @@ function doGetDetails() {
 			}
 			
 			//we rely on the details to get the log
-			doGetLog();
-
+			// and we get all rows if that's previously been selected.
+			if ($(".get_all").hasClass("vis_btn_off"))
+				doGetLog(200);
+			else
+				doGetLog("all");
+			
         },
         error: function (response) {
             showAlert(response.responseText);
@@ -261,17 +269,20 @@ function doGetDetails() {
     });
 }
 
-function doGetLog() {
-    instance = $("#hidInstanceID").val();
-
+function doGetLog(rows) {
+    var instance = $("#hidInstanceID").val();
+	
 	if (instance == '')
 		return;
 
+	$("#ltLog").empty();
+	$("#ltSummary").empty();
+            	
     $.ajax({
         async: false,
         type: "POST",
         url: "taskMethods/wmGetTaskRunLog",
-        data: '{"sTaskInstance":"' + instance + '"}',
+        data: '{"sTaskInstance":"' + instance + '", "sRows":"' + rows + '"}',
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
@@ -280,7 +291,19 @@ function doGetLog() {
             	
             if (response.summary)
             	$("#ltSummary").replaceWith(unpackJSON(response.summary));
-            	
+       
+            if (response.totalrows)
+            	if (rows == "all") {
+            		$("#row_count_lbl").text(" - all " + response.totalrows + " rows.");
+            		$("#get_all_bottom").hide();
+            	}
+            	else if (rows >= response.totalrows) {
+            		$("#row_count_lbl").empty();
+            	}
+            	else {
+					$("#row_count_lbl").text(" - " + rows + "/" + response.totalrows + " rows.");            	
+					$("#get_all_bottom").show();
+				}          	
         },
         error: function (response) {
             showAlert(response.responseText);
