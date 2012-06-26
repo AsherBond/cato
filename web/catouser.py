@@ -59,20 +59,21 @@ class Users(object):
             raise ex
 
 class User(object):
-    ID = ""
-    FullName = ""
-    Status = ""
-    LoginID = ""
-    Role = ""
-    LastLoginDT = ""
-    AuthenticationType = ""
-    ExpirationDT = ""
-    SecurityQuestion = ""
-    FailedLoginAttempts = 0
-    ForceChange = False
-    Email = ""
-    SettingsXML = ""
-    Tags = []
+    def __init__(self):
+        self.ID = ""
+        self.FullName = ""
+        self.Status = ""
+        self.LoginID = ""
+        self.Role = ""
+        self.LastLoginDT = ""
+        self.AuthenticationType = ""
+        self.ExpirationDT = ""
+        self.SecurityQuestion = ""
+        self.FailedLoginAttempts = 0
+        self.ForceChange = False
+        self.Email = ""
+        self.SettingsXML = ""
+        self.Tags = []
     
     @staticmethod
     def ValidatePassword(uid, pwd):

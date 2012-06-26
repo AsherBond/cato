@@ -58,13 +58,14 @@ class Clouds(object):
 
 
 class Cloud(object):
-    IsUserDefined = True
-    ID = None
-    Name = None
-    APIUrl = None
-    APIProtocol = None
-    Region = None
-    Provider = None
+    def __init__(self):
+        self.IsUserDefined = True
+        self.ID = None
+        self.Name = None
+        self.APIUrl = None
+        self.APIProtocol = None
+        self.Region = None
+        self.Provider = None
 
     #the default constructor (manual creation)
     def FromArgs(self, p, bUserDefined, sID, sName, sAPIUrl, sAPIProtocol, sRegion):
@@ -232,13 +233,14 @@ class CloudAccounts(object):
             raise ex
 
 class CloudAccount(object):
-    ID = None
-    Name = None
-    AccountNumber = None
-    LoginID = None
-    LoginPassword = None
-    IsDefault = None
-    Provider = None
+    def __init__(self):
+        self.ID = None
+        self.Name = None
+        self.AccountNumber = None
+        self.LoginID = None
+        self.LoginPassword = None
+        self.IsDefault = None
+        self.Provider = None
 
     def FromID(self, sAccountID):
         try:

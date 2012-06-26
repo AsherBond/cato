@@ -57,16 +57,6 @@ class Ecotemplates(object):
             raise ex
         
 class Ecotemplate(object):
-    ID = None
-    Name = None
-    Description = None
-    StormFileType = None
-    StormFile = None
-    IncludeTasks = False #used for export to xml
-    DBExists = None
-    OnConflict = "cancel" #the default behavior for all conflicts is to cancel the operation
-    Actions = {}
-
     def __init__(self):
         self.ID = catocommon.new_guid()
         self.Name = None
@@ -316,15 +306,16 @@ class Ecotemplate(object):
 
 
 class EcotemplateAction(object):
-    ID = None
-    Name = None
-    Description = None
-    Category = None
-    OriginalTaskID = None
-    TaskVersion = None
-    Icon = None
-    ParameterDefaultsXML = None
-    Ecotemplate = None #pointer to our parent Template.
+    def __init__(self):
+        self.ID = None
+        self.Name = None
+        self.Description = None
+        self.Category = None
+        self.OriginalTaskID = None
+        self.TaskVersion = None
+        self.Icon = None
+        self.ParameterDefaultsXML = None
+        self.Ecotemplate = None #pointer to our parent Template.
 
     # for export, we might want to tell the action to include the whole referenced task object
     # pretty rare, since for general use we don't wanna be lugging around a whole task.
@@ -384,19 +375,20 @@ class Ecosystems(object):
             raise ex
         
 class Ecosystem(object):
-    ID = catocommon.new_guid()
-    Name = None
-    Description = None
-    StormFile = None
-    AccountID = None
-    EcotemplateID = None
-    EcotemplateName = None #no referenced objects just yet, just the name and ID until we need more.
-    ParameterXML = None
-    CloudID = None
-    StormStatus = None
-    CreatedDate = None
-    LastUpdate = None
-    NumObjects = 0
+    def __init__(self):
+        self.ID = catocommon.new_guid()
+        self.Name = None
+        self.Description = None
+        self.StormFile = None
+        self.AccountID = None
+        self.EcotemplateID = None
+        self.EcotemplateName = None #no referenced objects just yet, just the name and ID until we need more.
+        self.ParameterXML = None
+        self.CloudID = None
+        self.StormStatus = None
+        self.CreatedDate = None
+        self.LastUpdate = None
+        self.NumObjects = 0
 
     def FromArgs(self, sName, sDescription, sEcotemplateID, sAccountID):
         if not sName or not sEcotemplateID or not sAccountID:

@@ -60,20 +60,21 @@ class Assets(object):
             raise ex
 
 class Asset(object):
-    ID = ""
-    Name = ""
-    Status = ""
-    Port = ""
-    DBName = ""
-    Address = ""
-    UserName = ""
-    SharedOrLocal = ""
-    CredentialID = ""
-    Password = ""
-    Domain = ""
-    SharedCredName = ""
-    SharedCredDesc = ""
-    ConnString = ""
+    def __init__(self):
+        self.ID = ""
+        self.Name = ""
+        self.Status = ""
+        self.Port = ""
+        self.DBName = ""
+        self.Address = ""
+        self.UserName = ""
+        self.SharedOrLocal = ""
+        self.CredentialID = ""
+        self.Password = ""
+        self.Domain = ""
+        self.SharedCredName = ""
+        self.SharedCredDesc = ""
+        self.ConnString = ""
 
     def FromName(self, sAssetName):
         self.PopulateAsset(asset_name=sAssetName)
@@ -348,17 +349,17 @@ class Credentials(object):
             raise ex
 
 class Credential(object):
-    ID = None
-    Username = None
-    Password = None
-    SharedOrLocal = None
-    Name = None
-    Description = None
-    Domain = None
-    PrivilegedPassword = None
     
     def __init__(self):
         self.ID = catocommon.new_guid()
+        self.ID = None
+        self.Username = None
+        self.Password = None
+        self.SharedOrLocal = None
+        self.Name = None
+        self.Description = None
+        self.Domain = None
+        self.PrivilegedPassword = None
         
     def FromArgs(self, sName, sDesc, sUsername, sPassword, sShared, sDomain, sPrivPassword):
         self.Name = sName

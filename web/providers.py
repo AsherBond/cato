@@ -139,13 +139,6 @@ class CloudProviders(dict):
             db.close()
 
 class Provider(object):
-    Name = None
-    TestProduct = None
-    TestObject = None
-    UserDefinedClouds = None
-    Clouds = {}
-    Products = {}
-    
     def __init__(self, sName, sTestProduct, sTestObject, bUserDefinedClouds):
         self.Name = sName
         self.TestProduct = sTestProduct
@@ -233,17 +226,12 @@ class Provider(object):
             raise ex
 
 class Product(object):
-    ParentProviderName = None
-    Name = None
-    Label = None
-    APIUrlPrefix = None
-    APIUri = None
-    APIVersion = None
-    #Product CONTAINS a named dictionary of CloudObjectTypes
-    CloudObjectTypes = {}
-    
-    #constructor
     def __init__(self, parent):
+        self.Name = None
+        self.Label = None
+        self.APIUrlPrefix = None
+        self.APIUri = None
+        self.APIVersion = None
         self.ParentProviderName = parent.Name
         self.CloudObjectTypes = {}
 
@@ -278,21 +266,16 @@ class Product(object):
             raise ex
        
 class CloudObjectType(object):
-    ParentProduct = None
-    ID = None
-    Label = None
-    APICall = None
-    APIRequestGroupFilter = None
-    APIRequestRecordFilter = None
-    XMLRecordXPath = None
-    Properties = [] #!!! This is a list, not a dictionary
-    Instances = {} # a dictionary of results, keyed by the unique 'id'
-    
-    #constructor
     def __init__(self, parent):
+        self.ID = None
+        self.Label = None
+        self.APICall = None
+        self.APIRequestGroupFilter = None
+        self.APIRequestRecordFilter = None
+        self.XMLRecordXPath = None
         self.ParentProduct = parent
-        self.Properties = []
-        self.Instances = {}
+        self.Properties = [] #!!! This is a list, not a dictionary
+        self.Instances = {} # a dictionary of results, keyed by the unique 'id'
 
     def IsValidForCalls(self):
         if self.XMLRecordXPath and self.ID:
@@ -323,19 +306,15 @@ class CloudObjectType(object):
             raise ex
    
 class CloudObjectTypeProperty:
-    ParentObjectTypeID = None
-    Name = None
-    Label = None
-    XPath = None
-    SortOrder = None
-    HasIcon = False
-    IsID = False
-    ShortList = True
-    ValueIsXML = False
-    Value = None
-    
-    #constructor
     def __init__(self, parent):
+        self.Name = None
+        self.Label = None
+        self.XPath = None
+        self.SortOrder = None
+        self.HasIcon = False
+        self.IsID = False
+        self.ShortList = True
+        self.ValueIsXML = False
         self.ParentObjectTypeID = parent.ID
         self.Value = None
 
