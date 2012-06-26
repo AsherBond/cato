@@ -28,7 +28,7 @@ try:
 except ImportError:
     import xml.etree.ElementTree as ET
 from catocommon import catocommon
-from settings import settings
+from catosettings import settings
 
 
 """The following is needed when serializing objects that have datetime or other non-serializable
@@ -559,7 +559,7 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
     try:
         log("Querying the cloud for %s" % sObjectType, 4)
         
-        import cloud
+        from catocloud import cloud
         
         # first, get the cloud
         c = cloud.Cloud()

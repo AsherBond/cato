@@ -40,12 +40,12 @@ os.chdir(web_root)
 # DON'T REMOVE these that Aptana shows as "unused".
 # they are used, just in the URL mapping for web.py down below.
 from catocommon import catocommon
+from catolicense import catolicense
 from wmHandler import wmHandler
 from taskMethods import taskMethods
 
 import uiCommon
 import uiGlobals
-import catolicense
 
 
 def notfound():

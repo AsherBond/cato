@@ -20,9 +20,8 @@ except ImportError:
     import xml.etree.ElementTree as ET
 import uiGlobals
 import uiCommon
-import providers
 from catocommon import catocommon
-import cloud
+from catocloud import cloud
 
 # methods for dealing with clouds and cloud accounts
 
@@ -62,7 +61,7 @@ class cloudMethods:
         try:
             sUserDefinedOnly = uiCommon.getAjaxArg("sUserDefinedOnly")
             sHTML = ""
-            cp = providers.CloudProviders()
+            cp = cloud.CloudProviders()
             if cp:
                 for name, p in cp.iteritems():
                     if catocommon.is_true(sUserDefinedOnly):
@@ -133,7 +132,7 @@ class cloudMethods:
                 c.APIUrl = sAPIUrl
 
                 #get a new provider by name
-                c.Provider = providers.Provider.FromName(sProvider)
+                c.Provider = cloud.Provider.FromName(sProvider)
                 result, msg = c.DBUpdate()
                 if not result:
                     uiCommon.log(msg, 2)
@@ -270,7 +269,7 @@ class cloudMethods:
         try:
             sProvider = uiCommon.getAjaxArg("sProvider")
             
-            cp = providers.CloudProviders()
+            cp = cloud.CloudProviders()
             if cp is None:
                 return "{\"result\":\"fail\",\"error\":\"Failed to get Providers.\"}"
             else:
@@ -324,7 +323,7 @@ class cloudMethods:
                     
                     # note: we must reassign the whole provider
                     # changing the name screws up the CloudProviders object in the session, which is writable! (oops)
-                    ca.Provider = providers.Provider.FromName(sProvider)
+                    ca.Provider = cloud.Provider.FromName(sProvider)
                     result, msg = ca.DBUpdate()
                     if not result:
                         uiCommon.log(msg, 2)
@@ -408,7 +407,7 @@ class cloudMethods:
                 if dt:
                     sHTML = self.DrawTableForType(sAccountID, sObjectType, dt)
                 else:
-                    sHTML = "No data returned from the Cloud Provider."
+                    sHTML = "No data returned from the Cloud Provider.<br />[%s]" % (err if err else "")
             else:
                 sHTML += "<div class=\"ui-widget\" style=\"margin-top: 10px;\">"
                 sHTML += "<div style=\"padding: 10px;\" class=\"ui-state-highlight ui-corner-all\">"

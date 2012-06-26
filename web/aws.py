@@ -18,7 +18,7 @@ import time
 import hmac
 import hashlib
 import base64
-import cloud
+from catocloud import cloud
 from uiCommon import HTTPGet
 
 class awsInterface(object):

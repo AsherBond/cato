@@ -19,7 +19,7 @@
 """
 import json
 import re
-from settings import settings
+from catosettings import settings
 from catocommon import catocommon
 
 class Users(object): 
@@ -411,4 +411,3 @@ class User(object):
         finally:
             db.close()        
 
-         

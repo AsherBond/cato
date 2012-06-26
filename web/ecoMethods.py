@@ -28,8 +28,8 @@ import json
 import uiGlobals
 import uiCommon
 from catocommon import catocommon
-import ecosystem
-import cloud
+from catoecosystem import ecosystem
+from catocloud import cloud
 
 class ecoMethods:
     db = None

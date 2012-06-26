@@ -21,15 +21,17 @@ try:
     import xml.etree.cElementTree as ET
 except ImportError:
     import xml.etree.ElementTree as ET
+
+from catocommon import catocommon
+from catouser import catouser
+from catocloud import cloud
+from catoasset import asset
+from catotask import task
+from catoregistry import registry
+from catosettings import settings
+
 import uiGlobals
 import uiCommon
-from catocommon import catocommon
-import cloud
-import catouser
-import asset
-import task
-import registry
-from settings import settings
 
 # these are generic ui web methods, and stuff that's not enough to need it's own file.
 

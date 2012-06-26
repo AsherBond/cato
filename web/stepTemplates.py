@@ -20,11 +20,11 @@ try:
     import xml.etree.cElementTree as ET
 except ImportError:
     import xml.etree.ElementTree as ET
-import providers
 from uiGlobals import ConnectionTypes
 import uiGlobals
-import task
+from catotask import task
 from catocommon import catocommon
+from catocloud import cloud
 
 """
 LIKE uiCommon - this isn't a class that gets instantiated ... it's just a collection of 
@@ -1093,12 +1093,12 @@ def ddDataSource_GetAWSClouds():
     data = {}
     
     # AWS regions
-    p = providers.Provider.FromName("Amazon AWS")
+    p = cloud.Provider.FromName("Amazon AWS")
     if p is not None:
         for c in p.Clouds:
             data[c.Name] = c.Name
     # Eucalyptus clouds
-    p = providers.Provider.FromName("Eucalyptus")
+    p = cloud.Provider.FromName("Eucalyptus")
     if p is not None:
         for c in p.Clouds:
             data[c.Name] = c.Name
@@ -1597,7 +1597,7 @@ def GetEcosystemObjects(oStep):
 
         # this builds a unique list of all object types, provider agnostic
         otypes = {}
-        cp = providers.CloudProviders()
+        cp = cloud.CloudProviders()
         if cp is not None:
             for p in cp.itervalues():
                 cots = p.GetAllObjectTypes()

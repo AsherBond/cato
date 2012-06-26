@@ -25,7 +25,7 @@ except ImportError:
 import uiGlobals
 import uiCommon
 from catocommon import catocommon
-import task
+from catotask import task
 import stepTemplates as ST
 
 # task-centric web methods
