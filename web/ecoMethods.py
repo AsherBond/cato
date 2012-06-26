@@ -775,10 +775,10 @@ class ecoMethods:
                     sHTML += "<td class=\"selectable\">%s</td>" % row["ecosystem_name"]
                     sHTML += "<td class=\"selectable\">%s</td>" % row["ecotemplate_name"]
                     sHTML += "<td class=\"selectable\">%s</td>" % (row["ecosystem_desc"] if row["ecosystem_desc"] else "")
-                    sHTML += "<td class=\"selectable\">%s</td>" % (row["storm_status"] if row["storm_status"] else "")
+                    sHTML += "<td class=\"selectable stormstatus\">%s</td>" % (row["storm_status"] if row["storm_status"] else "")
                     sHTML += "<td class=\"selectable\">%s</td>" % (str(row["created_dt"]) if row["created_dt"] else "")
                     sHTML += "<td class=\"selectable\">%s</td>" % (str(row["last_update_dt"]) if row["last_update_dt"] else "")
-                    sHTML += "<td class=\"selectable\">%s</td>" % str(row["num_objects"])
+                    sHTML += "<td class=\"selectable itemcount\">%s</td>" % str(row["num_objects"])
                     
                     sHTML += "</tr>"
     

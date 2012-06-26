@@ -116,47 +116,63 @@ function ShowItemAdd() {
 }
 
 function DeleteItems() {
+	proceed = false;
     var ArrayString = $("#hidSelectedArray").val();
-    $.ajax({
-        type: "POST",
-        url: "ecoMethods/wmDeleteEcosystems",
-        data: '{"sDeleteArray":"' + ArrayString + '"}',
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-        	if (response.info) {
-    			showInfo(response.info);
-        	} else if (response.error) {
-        		showAlert(response.error);
-            } else if (response.result == "success") {
-                $("#hidSelectedArray").val("");
-                $("#delete_dialog").dialog("close");
+    $.each(ArrayString.split(","), function(index, value) { 
+		status = $("tr[ecosystem_id='" + value + "'] .stormstatus").text();
+		if (status != "") {
+			warnmsg = "One or more of the selected Ecosystems was created by Storm.\n\nManually deleting the Ecosystem will *not* deallocate any resources, and will leave no 'one-click' way to do so.\n\nAre you sure?";
+		} 
+	});
+	
+	if (warnmsg != "")
+		proceed = confirm(warnmsg);
 
-                // clear the search field and fire a search click, should reload the grid
-                $("#txtSearch").val("");
-                GetItems();
-
-                hidePleaseWait();
-                showInfo('Delete Successful');
-            } else {
-                showAlert(response);
-
-                $("#delete_dialog").dialog("close");
-                
-                // reload the list, some may have been deleted.
-                // clear the search field and fire a search click, should reload the grid
-                $("#txtSearch").val("");
-                GetItems();
-            }
-
-            $("#hidSelectedArray").val("");
-        },
-
-        error: function (response) {
-            showAlert(response.responseText);
-        }
-    });
-
+	if (proceed == true) {
+	    $.ajax({
+	        type: "POST",
+	        url: "ecoMethods/wmDeleteEcosystems",
+	        data: '{"sDeleteArray":"' + ArrayString + '"}',
+	        contentType: "application/json; charset=utf-8",
+	        dataType: "json",
+	        success: function (response) {
+	        	if (response.info) {
+	    			showInfo(response.info);
+	        	} else if (response.error) {
+	        		showAlert(response.error);
+	            } else if (response.result == "success") {
+	                $("#hidSelectedArray").val("");
+	                $("#delete_dialog").dialog("close");
+	
+	                // clear the search field and fire a search click, should reload the grid
+	                $("#txtSearch").val("");
+	                GetItems();
+	
+	                hidePleaseWait();
+	                showInfo('Delete Successful');
+	            } else {
+	                showAlert(response);
+	
+	                $("#delete_dialog").dialog("close");
+	                
+	                // reload the list, some may have been deleted.
+	                // clear the search field and fire a search click, should reload the grid
+	                $("#txtSearch").val("");
+	                GetItems();
+	            }
+	
+	            $("#hidSelectedArray").val("");
+	        },
+	
+	        error: function (response) {
+	            showAlert(response.responseText);
+	        }
+	    });
+	} else {
+		// if we clear them the user won't know which ones might have warned
+		//ClearSelectedRows();
+		$("#delete_dialog").dialog("close");
+	}
 }
 
 
