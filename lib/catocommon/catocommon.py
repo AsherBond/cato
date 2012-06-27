@@ -41,21 +41,15 @@ def cato_encrypt(s):
         return catocryptpy.encrypt_string(s,config["key"])
     else:
         return ""
-def get_base_path():
-    # try recursion up the abspath looking for 'cato'
-    base_path = ""
-    dirs = os.path.abspath(sys.argv[0]).split("/")
-    path = []
-    for d in dirs:
-        path.append(d)
-        if d == 'cato':
-            base_path = "/".join(path)
-            break
-
+def _get_base_path():
+    # this library file will always be in basepath/lib/catocommon
+    # so we will take off two directories and that will be the base_path
+    # this function should only be called from catocommon
+    base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     return base_path
     
 def read_config():
-    base_path = get_base_path()
+    base_path = _get_base_path()
 
     filename = os.path.join(base_path, "conf/cato.conf")        
     if not os.path.isfile(filename):
@@ -170,10 +164,10 @@ class CatoProcess():
         self.my_pid = os.getpid()
         self.process_name = process_name
         self.initialize_logfile()
-        self.home = get_base_path()
+        self.home = _get_base_path()
 
     def initialize_logfile(self):
-        base_path = get_base_path()
+        base_path = _get_base_path()
         # logfiles go where defined in cato.conf, but in the base_path if not defined
         self.logfiles_path = (config["logfiles"] if config["logfiles"] else os.path.join(base_path, "logfiles"))
         self.logfile_name = os.path.join(self.logfiles_path,  self.process_name.lower()+".log")
