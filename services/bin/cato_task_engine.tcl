@@ -2580,7 +2580,7 @@ proc replace_calc {the_string} {
         set first_index [string first "csk_calc\(" $the_string]
         set right_p 0
         set left_p 1
-        for {set ii [expr $first_index + 5]} {$ii <= [string length $the_string]} {incr ii} {
+        for {set ii [expr $first_index + 9]} {$ii <= [string length $the_string]} {incr ii} {
                 set char [string index $the_string $ii]
                 #output "char is $char"
                 if {"$char" == ")"} {
@@ -2598,8 +2598,8 @@ proc replace_calc {the_string} {
                 error_out "Unbalanced parenthesis in the calc function >$the_string<" 2002
         }
 
-        if {[catch {set little_string [expr [string range $the_string [expr $first_index + 4] $ii]]} errorMsg]} {
-		error_out "calc function error, invalid syntax, [string range $the_string [expr $first_index + 4] $ii]" 2003
+        if {[catch {set little_string [expr [string range $the_string [expr $first_index + 8] $ii]]} errorMsg]} {
+		error_out "calc function error, invalid syntax, [string range $the_string [expr $first_index + 8] $ii]" 2003
 	}
         return [string replace $the_string $first_index $ii $little_string]
 
@@ -3862,7 +3862,7 @@ proc process_function {task_name function_name command} {
 			
 			set variable_nodes [$::ROOT selectNodes  {//variable}]
 			foreach the_node $variable_nodes {
-				set variable_name [replace_variables_all [$the_node selectNodes string(name)]]
+				set variable_name [string toupper [replace_variables_all [$the_node selectNodes string(name)]]]
 				set is_true [$the_node selectNodes string(is_true)]
 				
 				output "checking if >$variable_name< exists..." 4
@@ -3885,12 +3885,19 @@ proc process_function {task_name function_name command} {
 			}
 			
 			# depending on the test, which one do we want?
+            set action ""
 			if {"$all_true"=="1"} {
 				output "EXISTS - all variables test out - positive response." 3
-				set action [[$::ROOT selectNodes actions/positive_action/function] asXML]
+				set action_node [$::ROOT selectNodes actions/positive_action/function]
+                if {"$action_node" ne ""} {
+                    set action [$action_node asXML]
+                }
 			} else {
 				output "EXISTS - one or more variables don't exist or aren't true - negative response." 3
-				set action [[$::ROOT selectNodes actions/negative_action/function] asXML]
+				set action_node [$::ROOT selectNodes actions/negative_action/function]
+                if {"$action_node" ne ""} {
+                    set action [$action_node asXML]
+                }
 			}
 
 			del_xml_root
@@ -3909,7 +3916,9 @@ proc process_function {task_name function_name command} {
 				
 				output "'EXISTS' Action Command is {$function_name}" 1
 				output "'EXISTS' Action Full Commmand: {$command}" 6
-			}
+			} else {
+                return
+            }
 		}
         "while" {
         }
