@@ -45,7 +45,7 @@ class Ecotemplates(object):
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -53,20 +53,10 @@ class Ecotemplates(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         
 class Ecotemplate(object):
-    ID = None
-    Name = None
-    Description = None
-    StormFileType = None
-    StormFile = None
-    IncludeTasks = False #used for export to xml
-    DBExists = None
-    OnConflict = "cancel" #the default behavior for all conflicts is to cancel the operation
-    Actions = {}
-
     def __init__(self):
         self.ID = catocommon.new_guid()
         self.Name = None
@@ -121,7 +111,7 @@ class Ecotemplate(object):
                                 self.Actions[ea.ID] = ea
             else: 
                 raise Exception("Error building Ecotemplate object: " + db.error)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -135,7 +125,7 @@ class Ecotemplate(object):
             sb.append("\"%s\" : \"%s\"" % ("Description", uiCommon.packJSON(self.Description)))
             sb.append("}")
             return "".join(sb)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
 
@@ -146,11 +136,10 @@ class Ecotemplate(object):
             sSQL = "select ecotemplate_id from ecotemplate" \
                 " where ecotemplate_name = '" + self.Name + "'" \
                 " or ecotemplate_id = '" + self.ID + "'"
-            print sSQL
             db = catocommon.new_conn()
             dr = db.select_row_dict(sSQL)
             if db.error:
-                print db.error
+                print(db.error)
                 raise Exception("Ecotemplate Object: Unable to check for existing Name or ID. " + db.error)
             
             if dr is not None:
@@ -160,11 +149,10 @@ class Ecotemplate(object):
                     # we're setting the ids to the same as the database so it's more accurate.
                     
                     self.ID = dr["ecotemplate_id"]
-                    print dr["ecotemplate_id"]
                     return True
                 
             return False
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -224,7 +212,6 @@ class Ecotemplate(object):
             # actions aren't referenced by id anywhere, so we'll just give them a new guid
             # to prevent any risk of PK issues.
             for ea in self.Actions.itervalues():
-                print ea.Name
                 sSQL = "insert into ecotemplate_action" \
                     " (action_id, ecotemplate_id, action_name, action_desc, category, action_icon, original_task_id, task_version, parameter_defaults)" \
                     " values (" \
@@ -262,7 +249,7 @@ class Ecotemplate(object):
             db.tran_commit()
             return True, None
 
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -288,7 +275,7 @@ class Ecotemplate(object):
                 return True, ""
             
             return False, "Unable to create a new Ecotemplate."
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     def DBUpdate(self):
@@ -305,29 +292,30 @@ class Ecotemplate(object):
 
             db = catocommon.new_conn()
             if not db.exec_db_noexcep(sSQL):
-                print db.error
+                print(db.error)
                 if db.error == "key_violation":
                     return None, "An Ecotemplate with that name already exists.  Please select another name."
                 else:
                     return False, db.error
             
             return True, ""
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
 
 
 class EcotemplateAction(object):
-    ID = None
-    Name = None
-    Description = None
-    Category = None
-    OriginalTaskID = None
-    TaskVersion = None
-    Icon = None
-    ParameterDefaultsXML = None
-    Ecotemplate = None #pointer to our parent Template.
+    def __init__(self):
+        self.ID = None
+        self.Name = None
+        self.Description = None
+        self.Category = None
+        self.OriginalTaskID = None
+        self.TaskVersion = None
+        self.Icon = None
+        self.ParameterDefaultsXML = None
+        self.Ecotemplate = None #pointer to our parent Template.
 
     # for export, we might want to tell the action to include the whole referenced task object
     # pretty rare, since for general use we don't wanna be lugging around a whole task.
@@ -345,7 +333,7 @@ class EcotemplateAction(object):
             self.TaskVersion = (str(dr["task_version"]) if dr["task_version"] else "")
             self.Icon = dr["action_icon"]
             self.ParameterDefaultsXML = dr["parameter_defaults"]
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         
 # Note: this is not a container for Ecotemplate objects - it's just a rowset from the database
@@ -375,7 +363,7 @@ class Ecosystems(object):
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -383,23 +371,24 @@ class Ecosystems(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows, default=uiCommon.jsonSerializeHandler)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         
 class Ecosystem(object):
-    ID = catocommon.new_guid()
-    Name = None
-    Description = None
-    StormFile = None
-    AccountID = None
-    EcotemplateID = None
-    EcotemplateName = None #no referenced objects just yet, just the name and ID until we need more.
-    ParameterXML = None
-    CloudID = None
-    StormStatus = None
-    CreatedDate = None
-    LastUpdate = None
-    NumObjects = 0
+    def __init__(self):
+        self.ID = catocommon.new_guid()
+        self.Name = None
+        self.Description = None
+        self.StormFile = None
+        self.AccountID = None
+        self.EcotemplateID = None
+        self.EcotemplateName = None #no referenced objects just yet, just the name and ID until we need more.
+        self.ParameterXML = None
+        self.CloudID = None
+        self.StormStatus = None
+        self.CreatedDate = None
+        self.LastUpdate = None
+        self.NumObjects = 0
 
     def FromArgs(self, sName, sDescription, sEcotemplateID, sAccountID):
         if not sName or not sEcotemplateID or not sAccountID:
@@ -445,7 +434,7 @@ class Ecosystem(object):
             e.FromID(sID)
             #yay!
             return e, None
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -469,7 +458,7 @@ class Ecosystem(object):
                 return False, db.error
             
             return True, ""
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -502,7 +491,7 @@ class Ecosystem(object):
                 self.NumObjects = str(dr["num_objects"])
             else: 
                 raise Exception("Error building Ecosystem object: " + db.error)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -519,7 +508,7 @@ class Ecosystem(object):
 #            sb.append("\"%s\" : \"%s\"" % ("Description", uiCommon.packJSON(self.Description)))
 #            sb.append("}")
 #            return "".join(sb)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
             

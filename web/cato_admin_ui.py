@@ -21,7 +21,6 @@ import sys
 import urllib
 import pickle
 import shelve
-import xml.etree.ElementTree as ET
 from datetime import datetime
 
 web_root = os.path.abspath(os.path.dirname(__file__))
@@ -30,18 +29,23 @@ lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 sys.path.append(web_root)
 
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
+
 # to avoid any path issues, "cd" to the web root.
 os.chdir(web_root)
 
 # DON'T REMOVE these that Aptana shows as "unused".
 # they are used, just in the URL mapping for web.py down below.
 from catocommon import catocommon
+from catolicense import catolicense
 from wmHandler import wmHandler
 from taskMethods import taskMethods
 
 import uiCommon
 import uiGlobals
-import catolicense
 
 
 def notfound():
@@ -67,8 +71,8 @@ class getlicense:
             if lic:
                 lic = uiCommon.packJSON(uiCommon.FixBreaks(uiCommon.SafeHTML(lic)))
             return "{\"result\":\"%s\",\"message\":\"%s\",\"license\":\"%s\"}" % (result, msg, lic)
-        except Exception, ex:
-            print ex.__str__()    
+        except Exception as ex:
+            print(ex.__str__())
             
 
 # the default page if no URI is given, just an information message
@@ -195,7 +199,7 @@ class upload:
             fullpath = "%s/%s" % (web_root, filepath)
             with open(fullpath, 'w') as f_out:
                 if not f_out:
-                    print "ERROR: unable to open %s for writing." % fullpath
+                    print("ERROR: unable to open %s for writing." % fullpath)
                 f_out.write(x["fupFile"].file.read()) # writes the uploaded file to the newly created file.
             
             # all done, we loop back to the file_upload.html page, but this time include
@@ -209,7 +213,7 @@ class temp:
             f = open("%s/temp/%s" % (web_root, filename))
             if f:
                 return f.read()
-        except Exception, ex:
+        except Exception as ex:
             return ex.__str__()
 
 class login:
@@ -269,9 +273,9 @@ def auth_app_processor(handle):
     if uiCommon.check_roles(path):
         return handle()
     else:
-        print path
-        if "Methods\/wm" in path:
-            raise web.seeother('notAllowed')
+        print(path)
+        if "Methods/wm" in path:
+            return ""
         else:
             return "Some content on this page isn't available to your user."
 
@@ -307,14 +311,14 @@ def SetTaskCommands():
         # it will get created every time a user logs in, but can be read by all.
         with open("%s/datacache/_categories.pickle" % web_root, 'w') as f_out:
             if not f_out:
-                print "ERROR: unable to create datacache/_categories.pickle."
+                print("ERROR: unable to create datacache/_categories.pickle.")
             pickle.dump(cats, f_out, pickle.HIGHEST_PROTOCOL)
         
         #rebuild the cache html files
         CacheTaskCommands()
 
         return True
-    except Exception, ex:
+    except Exception as ex:
         uiCommon.log_nouser("Unable to load Task Commands XML." + ex.__str__(), 0)
 
 def CacheTaskCommands():
@@ -327,7 +331,7 @@ def CacheTaskCommands():
         # so, we will use the FunctionCategories class in the session that was loaded at login, and build the list items for the commands tab.
         cats = uiCommon.GetTaskFunctionCategories()
         if not cats:
-            print "Error: Task Function Categories class is not in the datacache."
+            print("Error: Task Function Categories class is not in the datacache.")
         else:
             for cat in cats:
                 sCatHTML += "<li class=\"ui-widget-content ui-corner-all command_item category\""
@@ -369,20 +373,20 @@ def CacheTaskCommands():
 
         with open("%s/static/_categories.html" % web_root, 'w') as f_out:
             if not f_out:
-                print "ERROR: unable to create static/_categories.html."
+                print("ERROR: unable to create static/_categories.html.")
             f_out.write(sCatHTML)
 
         with open("%s/static/_functions.html" % web_root, 'w') as f_out:
             if not f_out:
-                print "ERROR: unable to create static/_functions.html."
+                print("ERROR: unable to create static/_functions.html.")
             f_out.write(sFunHTML)
 
         with open("%s/static/_command_help.html" % web_root, 'w') as f_out:
             if not f_out:
-                print "ERROR: unable to create static/_command_help.html."
+                print("ERROR: unable to create static/_command_help.html.")
             f_out.write(sHelpHTML)
 
-    except Exception, ex:
+    except Exception as ex:
         uiCommon.log_nouser(ex.__str__(), 0)
 
 def CacheMenu():
@@ -458,17 +462,17 @@ def CacheMenu():
     
     with open("%s/static/_amenu.html" % web_root, 'w') as f_out:
         if not f_out:
-            print "ERROR: unable to create static/_amenu.html."
+            print("ERROR: unable to create static/_amenu.html.")
         f_out.write(sAdminMenu)
 
     with open("%s/static/_dmenu.html" % web_root, 'w') as f_out:
         if not f_out:
-            print "ERROR: unable to create static/_dmenu.html."
+            print("ERROR: unable to create static/_dmenu.html.")
         f_out.write(sDevMenu)
 
     with open("%s/static/_umenu.html" % web_root, 'w') as f_out:
         if not f_out:
-            print "ERROR: unable to create static/_umenu.html."
+            print("ERROR: unable to create static/_umenu.html.")
         f_out.write(sUserMenu)
 
 
@@ -486,7 +490,7 @@ if __name__ != "cato_admin_ui":
     config = catocommon.read_config()
 
     if "version" in config:
-        print "Cato UI - Version %s" % config["version"]
+        print("Cato UI - Version %s" % config["version"])
 
     if "web_port" in config:
         port = config["web_port"]
@@ -497,10 +501,10 @@ if __name__ != "cato_admin_ui":
         try:
             dbglvl = int(config["web_debug"])
         except:
-            print "Warning: web_debug setting in cato.conf must be an integer between 0-4."
-        print "Setting debug level to %d..." % dbglvl
+            print("Warning: web_debug setting in cato.conf must be an integer between 0-4.")
+        print("Setting debug level to %d..." % dbglvl)
     else:
-        print "Setting debug level to default (%d)..." % dbglvl
+        print("Setting debug level to default (%d)..." % dbglvl)
     uiGlobals.debuglevel = dbglvl
             
     # the LAST LINE must be our /(.*) catchall, which is handled by uiMethods.
@@ -574,15 +578,15 @@ if __name__ != "cato_admin_ui":
     # Uncomment the following - it will print out all the core methods in the app
     # this will be handy during the conversion, as we add functions to uiGlobals.RoleMethods.
 #    for s in dir():
-#        print "\"/%s\" : [\"Developer\"]," % s
+#        print("\"/%s\" : [\"Developer\"]," % s)
 #    for s in dir(uiMethods):
-#        print "\"/uiMethods/%s\" : [\"Developer\"]," % s
+#        print("\"/uiMethods/%s\" : [\"Developer\"]," % s)
 #    for s in dir(taskMethods):
-#        print "\"/taskMethods/%s\" : [\"Developer\"]," % s
+#        print("\"/taskMethods/%s\" : [\"Developer\"]," % s)
 #    for s in dir(ecoMethods):
-#        print "\"/ecoMethods/%s\" : [\"Developer\"]," % s
+#        print("\"/ecoMethods/%s\" : [\"Developer\"]," % s)
 #    for s in dir(cloudMethods):
-#        print "\"/cloudMethods/%s\" : [\"Developer\"]," % s
+#        print("\"/cloudMethods/%s\" : [\"Developer\"]," % s)
 
 
     # NOTE: this "application" attribute will only be used if we're attached to as a 

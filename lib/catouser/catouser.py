@@ -19,7 +19,7 @@
 """
 import json
 import re
-from settings import settings
+from catosettings import settings
 from catocommon import catocommon
 
 class Users(object): 
@@ -47,7 +47,7 @@ class Users(object):
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -55,24 +55,25 @@ class Users(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
 class User(object):
-    ID = ""
-    FullName = ""
-    Status = ""
-    LoginID = ""
-    Role = ""
-    LastLoginDT = ""
-    AuthenticationType = ""
-    ExpirationDT = ""
-    SecurityQuestion = ""
-    FailedLoginAttempts = 0
-    ForceChange = False
-    Email = ""
-    SettingsXML = ""
-    Tags = []
+    def __init__(self):
+        self.ID = ""
+        self.FullName = ""
+        self.Status = ""
+        self.LoginID = ""
+        self.Role = ""
+        self.LastLoginDT = ""
+        self.AuthenticationType = ""
+        self.ExpirationDT = ""
+        self.SecurityQuestion = ""
+        self.FailedLoginAttempts = 0
+        self.ForceChange = False
+        self.Email = ""
+        self.SettingsXML = ""
+        self.Tags = []
     
     @staticmethod
     def ValidatePassword(uid, pwd):
@@ -111,7 +112,7 @@ class User(object):
                 db.close()        
                 
             return True, None
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
 
     def FromName(self, sUsername):
@@ -160,8 +161,8 @@ class User(object):
                 self.SettingsXML = ("" if not dr["settings_xml"] else dr["settings_xml"])
 
             else: 
-                print "Unable to build User object. Either no Users are defined, or no User with ID/Login [%s%s] could be found." % (user_id, login_id)
-        except Exception, ex:
+                print("Unable to build User object. Either no Users are defined, or no User with ID/Login [%s%s] could be found." % (user_id, login_id))
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()        
@@ -169,7 +170,7 @@ class User(object):
     def AsJSON(self):
         try:
             return json.dumps(self.__dict__)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     def Authenticate(self, login_id, password, client_ip, change_password=None, answer=None):
@@ -187,7 +188,7 @@ class User(object):
 
             self.PopulateUser(login_id=login_id)
             if not self.ID:
-                print "User.Authenticate : Unable to find user record for [%s]." % login_id
+                print("User.Authenticate : Unable to find user record for [%s]." % login_id)
                 return False, ""
             
             # These checks happen BEFORE we verify the password
@@ -199,7 +200,7 @@ class User(object):
             # Check failed login attempts against the security policy
             if self.FailedLoginAttempts and sset.PassMaxAttempts:
                 if self.FailedLoginAttempts >= sset.PassMaxAttempts:
-                    print "User.Authenticate : Invalid login attempt - excessive failures."
+                    print("User.Authenticate : Invalid login attempt - excessive failures.")
                     return False, "failures"
             
             # TODO - check if the account is expired 
@@ -223,12 +224,12 @@ class User(object):
                     self.ForceChange = True
                     sql = "update users set force_change=1 where user_id='%s'" % self.ID
                     if not db.exec_db_noexcep(sql):
-                        print db.error
+                        print(db.error)
                 else:
                     sql = "update users set failed_login_attempts=failed_login_attempts+1 where user_id='%s'" % self.ID
                     if not db.exec_db_noexcep(sql):
-                        print db.error
-                    print "User.Authenticate : Invalid login attempt - [%s] wrong security question answer." % (login_id)
+                        print(db.error)
+                    print("User.Authenticate : Invalid login attempt - [%s] wrong security question answer." % (login_id))
                     return False, "Incorrect security answer."
             
             
@@ -242,8 +243,8 @@ class User(object):
                 if db_pwd != encpwd:
                     sql = "update users set failed_login_attempts=failed_login_attempts+1 where user_id='%s'" % self.ID
                     if not db.exec_db_noexcep(sql):
-                        print db.error
-                    print "User.Authenticate : Invalid login attempt - [%s] bad password." % (login_id)
+                        print(db.error)
+                    print("User.Authenticate : Invalid login attempt - [%s] bad password." % (login_id))
                     return False, ""
 
             # TODO:
@@ -284,23 +285,23 @@ class User(object):
             # reset the user counters and last_login
             sql = "update users set failed_login_attempts=0, last_login_dt=now() %s where user_id='%s'" % (change_clause, self.ID)
             if not db.exec_db_noexcep(sql):
-                print db.error
+                print(db.error)
         
             # whack and add to the user_session table
             if not db.exec_db_noexcep("delete from user_session where user_id = '" + self.ID + "'"):
-                print db.error
+                print(db.error)
                 return False, "Unable to update session table. (1)"
             
             sql = """insert into user_session (user_id, address, login_dt, heartbeat, kick)
                 values ('%s','%s', now(), now(), 0)""" % (self.ID, client_ip)
             if not db.exec_db_noexcep(sql):
-                print db.error
+                print(db.error)
                 return False, "Unable to update session table. (1)"
 
         
             return True, ""
-        except Exception, ex:
-            print ex.__str__()
+        except Exception as ex:
+            print(ex.__str__())
             return False, ex.__str__()
         finally:
             db.close()        
@@ -357,7 +358,7 @@ class User(object):
                 for tag in sGroupArray:
                     sql = "insert object_tags (object_type, object_id, tag_name) values (1, '%s','%s')" % (sNewID, tag)
                     if not db.exec_db_noexcep(sql):
-                        print "Error creating Groups for new user %s." % sNewID
+                        print("Error creating Groups for new user %s." % sNewID)
             
             # now it's inserted... lets get it back from the db as a complete object for confirmation.
             u = User()
@@ -365,7 +366,7 @@ class User(object):
             u.AddPWToHistory(sEncPW)
             
             return u, None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -394,7 +395,7 @@ class User(object):
                 return True
     
             return False
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             if db: db.close()
@@ -404,10 +405,9 @@ class User(object):
             db = catocommon.new_conn()
             sql = "insert user_password_history (user_id, change_time, password) values ('%s', now(), '%s')" % (self.ID, pw)
             if not db.exec_db_noexcep(sql):
-                print db.error
-        except Exception, ex:
+                print(db.error)
+        except Exception as ex:
             return False, ex.__str__()
         finally:
             db.close()        
 
-         

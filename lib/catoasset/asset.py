@@ -48,7 +48,7 @@ class Assets(object):
 
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -56,24 +56,25 @@ class Assets(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
 class Asset(object):
-    ID = ""
-    Name = ""
-    Status = ""
-    Port = ""
-    DBName = ""
-    Address = ""
-    UserName = ""
-    SharedOrLocal = ""
-    CredentialID = ""
-    Password = ""
-    Domain = ""
-    SharedCredName = ""
-    SharedCredDesc = ""
-    ConnString = ""
+    def __init__(self):
+        self.ID = ""
+        self.Name = ""
+        self.Status = ""
+        self.Port = ""
+        self.DBName = ""
+        self.Address = ""
+        self.UserName = ""
+        self.SharedOrLocal = ""
+        self.CredentialID = ""
+        self.Password = ""
+        self.Domain = ""
+        self.SharedCredName = ""
+        self.SharedCredDesc = ""
+        self.ConnString = ""
 
     def FromName(self, sAssetName):
         self.PopulateAsset(asset_name=sAssetName)
@@ -123,7 +124,7 @@ class Asset(object):
                 self.ConnString = ("" if not dr["conn_string"] else dr["conn_string"])
             else: 
                 raise Exception("Unable to build Asset object. Either no Assets are defined, or no Asset by ID/Name could be found.")
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()        
@@ -131,7 +132,7 @@ class Asset(object):
     def AsJSON(self):
         try:
             return json.dumps(self.__dict__)
-        except Exception, ex:
+        except Exception as ex:
             raise ex    
 
     @staticmethod
@@ -149,7 +150,7 @@ class Asset(object):
                 return True
     
             return False
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             if db: db.close()
@@ -209,7 +210,7 @@ class Asset(object):
             "'" + sCredentialID + "'" \
             ")"
             if not db.tran_exec_noexcep(sSQL):
-                print db.error
+                print(db.error)
                 if db.error == "key_violation":
                     return None, "Asset Name '" + sAssetName + "' already in use, choose another."
                 else: 
@@ -223,7 +224,7 @@ class Asset(object):
             a.RefreshTags(tags)
             return a, None
 
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     def DBUpdate(self, tags="", credential_update_mode="", credential=None):
@@ -286,7 +287,7 @@ class Asset(object):
             self.RefreshTags(tags)
 
             return True, None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -308,8 +309,8 @@ class Asset(object):
                 for tag in tags:
                     sql = "insert object_tags (object_type, object_id, tag_name) values (2, '%s','%s')" % (self.ID, tag)
                     if not db.exec_db_noexcep(sql):
-                        print "Error creating Tags for Asset %s." % self.ID
-        except Exception, ex:
+                        print("Error creating Tags for Asset %s." % self.ID)
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -336,7 +337,7 @@ class Credentials(object):
 
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -344,21 +345,21 @@ class Credentials(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
 class Credential(object):
-    ID = None
-    Username = None
-    Password = None
-    SharedOrLocal = None
-    Name = None
-    Description = None
-    Domain = None
-    PrivilegedPassword = None
     
     def __init__(self):
         self.ID = catocommon.new_guid()
+        self.ID = None
+        self.Username = None
+        self.Password = None
+        self.SharedOrLocal = None
+        self.Name = None
+        self.Description = None
+        self.Domain = None
+        self.PrivilegedPassword = None
         
     def FromArgs(self, sName, sDesc, sUsername, sPassword, sShared, sDomain, sPrivPassword):
         self.Name = sName
@@ -399,7 +400,7 @@ class Credential(object):
                 self.Description = ("" if not dr["shared_cred_desc"] else dr["shared_cred_desc"])
             else: 
                 raise Exception("Unable to build Credential object. Either no Credentials are defined, or no Credential by ID could be found.")
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()        
@@ -414,7 +415,7 @@ class Credential(object):
             # but it needs one.
             if not self.ID:
                 self.ID = catocommon.new_guid()
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     def DBCreateNew(self):
@@ -449,7 +450,7 @@ class Credential(object):
             # need to move this function to catocommon
             # uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Credential, sCredentialID, sCredentialName, "")
             return True, None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -466,7 +467,7 @@ class Credential(object):
             #uiCommon.WriteObjectDeleteLog(uiGlobals.CatoObjectTypes.Asset, sAssetID, sAssetName.strip().replace("'", "''"), "Credential deleted" + sOriginalCredentialID + " " + sOriginalUserName)
 
             return True, None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -504,7 +505,7 @@ class Credential(object):
 #                uiCommon.WriteObjectPropertyChangeLog(uiGlobals.CatoObjectTypes.Asset, sAssetID, sAssetName.strip().replace("'", "''") + "Changed credential", sOriginalUserName, sCredUsername)
 
             return True, None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -512,6 +513,6 @@ class Credential(object):
     def AsJSON(self):
         try:
             return json.dumps(self.__dict__)
-        except Exception, ex:
+        except Exception as ex:
             raise ex    
 

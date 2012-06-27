@@ -13,7 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
  
-import xml.etree.ElementTree as ET
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 from uiCommon import log_nouser
 
 # FunctionCategories contains a list of all Category objects, 
@@ -38,7 +41,7 @@ class FunctionCategories(object):
                         self.Categories.append(cat)
                         
                 return True
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     # append extension files to the class
@@ -58,7 +61,7 @@ class FunctionCategories(object):
                         self.Categories.append(cat)
                         
                 return True
-        except Exception, ex:
+        except Exception as ex:
             # appending does not throw an exception, just a warning in the log
             log_nouser("WARNING: Error parsing extension command file [" + sFileName + "]. " + ex.__str__(), 0)
 

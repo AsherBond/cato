@@ -16,12 +16,15 @@
 import traceback
 from uiCommon import log
 import uiCommon
-import xml.etree.ElementTree as ET
-import providers
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 from uiGlobals import ConnectionTypes
 import uiGlobals
-import task
+from catotask import task
 from catocommon import catocommon
+from catocloud import cloud
 
 """
 LIKE uiCommon - this isn't a class that gets instantiated ... it's just a collection of 
@@ -106,14 +109,6 @@ def DrawFullStep(oStep):
     
     sMainHTML += "<li class=\"step " + sSkipStepClass + "\" id=\"" + sStepID + "\" " + sLockClause + ">"
     
-    # TODO - stop doing this as a special field and just do a web method for comment/uncomment
-    # the "commented" property is just a common field on all steps - it's hidden in the header.
-#    sCommentFieldID = catocommon.new_guid()
-#    sMainHTML += "<input type=\"text\"" \
-#        " value=\"" + ("1" if oStep.Commented else "0") + "\"" + \
-#        CommonAttribsWithID(oStep, "_common", False, "commented", sCommentFieldID, "hidden") + \
-#        " />"
-    
     
     # step expand image
     sExpandImage = "triangle-1-s"
@@ -138,7 +133,6 @@ def DrawFullStep(oStep):
     sMainHTML += "            <span id=\"step_skip_btn_" + sStepID + "\" skip=\"" + sSkipVal + "\"" \
         " class=\"ui-icon ui-icon-" + sSkipIcon + " forceinline step_skip_btn\" step_id=\"" + sStepID + "\"" \
         " title=\"Skip this Step\"></span>"
-# see above TODO        " datafield_id=\"" + sCommentFieldID + "\"" \
 
     sMainHTML += "            <span class=\"ui-icon ui-icon-close forceinline step_delete_btn\" remove_id=\"" + sStepID + "\" title=\"Delete Step\"></span>"
     sMainHTML += "        </div>"
@@ -1045,8 +1039,9 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
         sHTML += "            <div id=\"step_common_detail_" + sStepID + "_notes\"" \
             " class=\"step_common_detail " + ("" if sShowOnLoad == "notes" else "step_common_collapsed") + "\"" \
             " style=\"height: 100px;\">"
-#        sHTML += "                <textarea rows=\"4\" " + CommonAttribs(sStepID, "_common", False, "step_desc", "") + \
-#            " help=\"Enter notes for this Command.\" reget_on_change=\"true\">" + oStep.Description + "</textarea>"
+            
+        sHTML += "                <textarea rows=\"4\" " + CommonAttribs(oStep, False, "step_desc", "") + \
+            " help=\"Enter notes for this Command.\" reget_on_change=\"true\">" + oStep.Description + "</textarea>"
         sHTML += "            </div>"
 
         # embedded commands *could* show the help, but I don't like the look of it.
@@ -1098,12 +1093,12 @@ def ddDataSource_GetAWSClouds():
     data = {}
     
     # AWS regions
-    p = providers.Provider.FromName("Amazon AWS")
+    p = cloud.Provider.FromName("Amazon AWS")
     if p is not None:
         for c in p.Clouds:
             data[c.Name] = c.Name
     # Eucalyptus clouds
-    p = providers.Provider.FromName("Eucalyptus")
+    p = cloud.Provider.FromName("Eucalyptus")
     if p is not None:
         for c in p.Clouds:
             data[c.Name] = c.Name
@@ -1602,7 +1597,7 @@ def GetEcosystemObjects(oStep):
 
         # this builds a unique list of all object types, provider agnostic
         otypes = {}
-        cp = providers.CloudProviders()
+        cp = cloud.CloudProviders()
         if cp is not None:
             for p in cp.itervalues():
                 cots = p.GetAllObjectTypes()

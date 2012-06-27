@@ -21,7 +21,10 @@
 import traceback
 import uuid
 import json
-import xml.etree.ElementTree as ET
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 from catocommon import catocommon
 import uiCommon
 from datetime import datetime
@@ -52,7 +55,7 @@ class Tasks(object):
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
-        except Exception, ex:
+        except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
@@ -60,7 +63,7 @@ class Tasks(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
 class Task(object):
@@ -118,7 +121,7 @@ class Task(object):
             else:
                 return sErr
             
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -147,7 +150,7 @@ class Task(object):
             else:
                 return sErr
             
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -205,7 +208,7 @@ class Task(object):
             # PARAMETERS
             self.ParameterXDoc = xTask.find("parameters")
 
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
 
@@ -293,7 +296,7 @@ class Task(object):
 
             sb.append("}")
             return "".join(sb)
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     def CheckDBExists(self):
@@ -310,7 +313,7 @@ class Task(object):
                 self.ID = dr["task_id"]
                 self.OriginalTaskID = dr["original_task_id"]
                 self.DBExists = True
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -335,7 +338,7 @@ class Task(object):
 
             return True, ""
         
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -501,7 +504,7 @@ class Task(object):
 
             return True, ""
 
-        except Exception, ex:
+        except Exception as ex:
             return False, "Error updating the DB. " + ex.__str__()
 
     def Copy(self, iMode, sNewTaskName, sNewTaskCode):
@@ -665,8 +668,8 @@ class Task(object):
             db.tran_commit()
 
             return sNewTaskID
-        except Exception, ex:
-            print traceback.format_exc()
+        except Exception as ex:
+            print(traceback.format_exc())
             raise ex
         finally:
             db.close()
@@ -774,8 +777,8 @@ class Task(object):
                         if self.Codeblocks.has_key(oStep.Codeblock):
                             self.Codeblocks[oStep.Codeblock].Steps[oStep.Order] = oStep
                         else:
-                            print "WARNING: Step thinks it belongs in codeblock [%s] but this task doesn't have that codeblock." % (oStep.Codeblock if oStep.Codeblock else "NONE")
-        except Exception, ex:
+                            print("WARNING: Step thinks it belongs in codeblock [%s] but this task doesn't have that codeblock." % (oStep.Codeblock if oStep.Codeblock else "NONE"))
+        except Exception as ex:
             raise ex
 
     def IncrementMajorVersion(self):
@@ -855,7 +858,7 @@ class Step(object):
             sb.append("\"%s\" : \"%s\"" % ("FunctionName", self.FunctionName))
             sb.append("}")
             return "".join(sb)        
-        except Exception, ex:
+        except Exception as ex:
             raise ex
 
     def FromXML(self, sStepXML="", sCodeblockName=""):
@@ -912,7 +915,7 @@ class Step(object):
                 uiCommon.log("Error getting Step by ID: " + db.error, 2)
             
             return None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -940,7 +943,7 @@ class Step(object):
                 uiCommon.log("Error getting Step by ID: " + db.error, 2)
             
             return None
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         finally:
             db.close()
@@ -969,12 +972,12 @@ class Step(object):
                     self.OutputColumnDelimiter = int(self.FunctionXDoc.get("col_delimiter", 0))
                 except ET.ParseError:
                     self.IsValid = False
-                    print traceback.format_exc()    
-                    print "CRITICAL: Unable to parse function xml in step [%s]." % self.ID
+                    print(traceback.format_exc())    
+                    print("CRITICAL: Unable to parse function xml in step [%s]." % self.ID)
                 except Exception:
                     self.IsValid = False
-                    print traceback.format_exc()    
-                    print "CRITICAL: Exception in processing step [%s]." % self.ID
+                    print(traceback.format_exc())  
+                    print("CRITICAL: Exception in processing step [%s]." % self.ID)
 
             #this.Function = Function.GetFunctionByName(dr["function_name"]);
             self.FunctionName = dr["function_name"]
@@ -1008,7 +1011,7 @@ class Step(object):
                 if dr.has_key("version"):
                     self.Task.Version = dr["version"]
             return self
-        except Exception, ex:
+        except Exception as ex:
             raise ex
         
 class StepUserSettings(object):

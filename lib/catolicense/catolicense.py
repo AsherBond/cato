@@ -18,7 +18,7 @@ def check_license():
                 </p>"""
             
         # the value will either be 'agreed' or ''
-        from settings import settings
+        from catosettings import settings
         license_status = settings.settings.get_application_setting("general/license_status")
         
         # the value will either be 'agreed' or ''
@@ -28,5 +28,5 @@ def check_license():
             # not agreed, return the LICENSE file.
             return "fail", "", license_text
 
-    except Exception, ex:
-        print ex.__str__()    
+    except Exception as ex:
+        print(ex.__str__())    

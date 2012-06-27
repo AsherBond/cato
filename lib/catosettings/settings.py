@@ -62,8 +62,8 @@ class settings(object):
                     self.PageViewLogging = catocommon.is_true(row["page_view_logging"])
                     self.ReportViewLogging = catocommon.is_true(row["report_view_logging"])
                     self.AllowLogin = catocommon.is_true(row["allow_login"])
-            except Exception, ex:
-                raise Exception(ex)
+            except Exception as ex:
+                raise ex
             finally:
                 db.close()
             
@@ -92,9 +92,9 @@ class settings(object):
                     return False, db.error
             
                 return True, ""
-            except Exception, ex:
-                raise Exception(ex)
-                print ex
+            except Exception as ex:
+                raise ex
+                print(ex)
             finally:
                 db.close()
 
@@ -121,8 +121,8 @@ class settings(object):
                     self.Enabled = catocommon.is_true(row["mode_off_on"])
                     self.LoopDelay = row["loop_delay_sec"]
                     self.MaxProcesses = row["max_processes"]
-            except Exception, ex:
-                raise Exception(ex)
+            except Exception as ex:
+                raise ex
             finally:
                 db.close()
             
@@ -138,8 +138,8 @@ class settings(object):
                     return False, db.error
             
                 return True, ""
-            except Exception, ex:
-                raise Exception(ex)
+            except Exception as ex:
+                raise ex
             finally:
                 db.close()
 
@@ -183,8 +183,8 @@ class settings(object):
                     self.FromEmail = row["from_email"]
                     self.FromName = row["from_name"]
                     self.AdminEmail = row["admin_email"]
-            except Exception, ex:
-                raise Exception(ex)
+            except Exception as ex:
+                raise ex
             finally:
                 db.close()
             
@@ -217,9 +217,9 @@ class settings(object):
                     return False, db.error
             
                 return True, ""
-            except Exception, ex:
-                print ex.__str__()
-                raise Exception(ex)
+            except Exception as ex:
+                print(ex.__str__())
+                raise ex
             finally:
                 db.close()
 
@@ -250,8 +250,8 @@ class settings(object):
                     self.ScheduleMinDepth = row["schedule_min_depth"]
                     self.ScheduleMaxDays = row["schedule_max_days"]
                     self.CleanAppRegistry = row["clean_app_registry"]
-            except Exception, ex:
-                raise Exception(ex)
+            except Exception as ex:
+                raise ex
             finally:
                 db.close()
             
@@ -269,8 +269,8 @@ class settings(object):
                     return False, db.error
             
                 return True, ""
-            except Exception, ex:
-                raise Exception(ex)
+            except Exception as ex:
+                raise ex
             finally:
                 db.close()
 
@@ -293,10 +293,10 @@ class settings(object):
                 if xdoc is not None:
                     return xdoc.findtext(xpath, "")
                 
-            print "Info: attempt to find application settings [%s] failed." % xpath
+            print("Info: attempt to find application settings [%s] failed." % xpath)
             return ""
-        except Exception, ex:
-            raise Exception(ex)
+        except Exception as ex:
+            raise ex
         finally:
             db.close()
         
@@ -305,7 +305,7 @@ class settings(object):
         try:
             # key is required, category is not
             if not setting:
-                print "Info: attempt to set application setting - missing setting name [%s/%s]." % (category, setting)
+                print("Info: attempt to set application setting - missing setting name [%s/%s]." % (category, setting))
                 return False, "Setting is a required value."
             
             sSQL = "select setting_xml from application_settings where id = 1"
@@ -350,11 +350,11 @@ class settings(object):
                     sSQL = "update application_settings set setting_xml='%s' where id=1" % ET.tostring(xdoc)
                     db = catocommon.new_conn()
                     if not db.exec_db_noexcep(sSQL):
-                        print "Info: attempt to set application setting [%s/%s] failed." % (category, setting)
+                        print("Info: attempt to set application setting [%s/%s] failed." % (category, setting))
                         return False, db.error
         
             return True, ""
-        except Exception, ex:
-            raise Exception(ex)
+        except Exception as ex:
+            raise ex
         finally:
             db.close()

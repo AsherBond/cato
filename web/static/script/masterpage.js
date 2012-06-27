@@ -118,31 +118,7 @@ $(document).ready(function () {
 	// when you show the user settings dialog, an ajax gets the values
 	// if it's not a 'local' account, some of the fields are hidden.
     $("#my_account_link").click(function () {
-    	//do the ajax
-	    $.ajax({
-	        type: "GET",
-	        url: "uiMethods/wmGetMyAccount",
-	        contentType: "application/json; charset=utf-8",
-	        dataType: "json",
-	        success: function (account) {
-	        	$("#my_password").val("");
-	        	$("#my_password_confirm").val("");
-	        	$("#my_question").val("");
-	        	$("#my_answer").val("");
-	            if (account) {
-	                $("#my_fullname").html(account.full_name);
-	                $("#my_username").html(account.username);
-	                $("#my_email").val(account.email);
-	                $("#my_question").val(account.security_question);
-	            }
-	        },
-	        error: function (response) {
-	            showAlert(response);
-	        }
-	    });
-    	
-    	//finally, show the dialog
-	    $("#my_account_dialog").dialog("open");
+		showMyAccount();
     });
 
 
@@ -161,7 +137,32 @@ $(document).ready(function () {
 	}
 
 });
-
+function showMyAccount() {
+    $.ajax({
+        type: "GET",
+        url: "uiMethods/wmGetMyAccount",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (account) {
+        	$("#my_password").val("");
+        	$("#my_password_confirm").val("");
+        	$("#my_question").val("");
+        	$("#my_answer").val("");
+            if (account) {
+                $("#my_fullname").html(account.full_name);
+                $("#my_username").html(account.username);
+                $("#my_email").val(account.email);
+                $("#my_question").val(account.security_question);
+            }
+        },
+        error: function (response) {
+            showAlert(response);
+        }
+    });
+	
+	//finally, show the dialog
+    $("#my_account_dialog").dialog("open");
+}
 function showAbout() {
 	$("#app_version").load("uiMethods/wmGetVersion");
 	$("#db_info").load("uiMethods/wmGetDBInfo");

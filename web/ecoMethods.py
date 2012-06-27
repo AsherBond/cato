@@ -20,13 +20,16 @@ from datetime import datetime
 import hashlib
 import base64
 import hmac
-import xml.etree.ElementTree as ET
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 import json
 import uiGlobals
 import uiCommon
 from catocommon import catocommon
-import ecosystem
-import cloud
+from catoecosystem import ecosystem
+from catocloud import cloud
 
 class ecoMethods:
     db = None
@@ -772,10 +775,10 @@ class ecoMethods:
                     sHTML += "<td class=\"selectable\">%s</td>" % row["ecosystem_name"]
                     sHTML += "<td class=\"selectable\">%s</td>" % row["ecotemplate_name"]
                     sHTML += "<td class=\"selectable\">%s</td>" % (row["ecosystem_desc"] if row["ecosystem_desc"] else "")
-                    sHTML += "<td class=\"selectable\">%s</td>" % (row["storm_status"] if row["storm_status"] else "")
+                    sHTML += "<td class=\"selectable stormstatus\">%s</td>" % (row["storm_status"] if row["storm_status"] else "")
                     sHTML += "<td class=\"selectable\">%s</td>" % (str(row["created_dt"]) if row["created_dt"] else "")
                     sHTML += "<td class=\"selectable\">%s</td>" % (str(row["last_update_dt"]) if row["last_update_dt"] else "")
-                    sHTML += "<td class=\"selectable\">%s</td>" % str(row["num_objects"])
+                    sHTML += "<td class=\"selectable itemcount\">%s</td>" % str(row["num_objects"])
                     
                     sHTML += "</tr>"
     
@@ -1035,9 +1038,13 @@ class ecoMethods:
             if self.db.error:
                 uiCommon.log_nouser(self.db.error, 0)
 
-            sStormStatus = ("" if not dr["storm_status"] else dr["storm_status"])
-            sStormParameterXML = ("" if not dr["storm_parameter_xml"] else dr["storm_parameter_xml"])
-            sLastUpdateDT = ("" if not dr["last_update_dt"] else str(dr["last_update_dt"]))
+            sStormStatus = "Unknown"
+            sStormParameterXML = ""
+            sLastUpdateDT = "Unknown"
+            if dr:
+                sStormStatus = ("" if not dr["storm_status"] else dr["storm_status"])
+                sStormParameterXML = ("" if not dr["storm_parameter_xml"] else dr["storm_parameter_xml"])
+                sLastUpdateDT = ("" if not dr["last_update_dt"] else str(dr["last_update_dt"]))
 
             # log
             sSQL = "select ecosystem_log_id, ecosystem_id, ecosystem_object_type, ecosystem_object_id, logical_id, status, log, convert(update_dt, CHAR(20))" \

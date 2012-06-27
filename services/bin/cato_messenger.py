@@ -18,7 +18,6 @@
 
 import os
 import sys
-import time
 import smtplib
 from email.MIMEMultipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -30,7 +29,7 @@ sys.path.append(lib_path)
 conf_path = os.path.join(base_path, "conf")
 sys.path.append(conf_path)
 
-from settings import settings
+from catosettings import settings
 from catocryptpy import catocryptpy
 from catocommon import catocommon
 

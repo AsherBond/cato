@@ -18,7 +18,6 @@
 
 import os
 import sys
-import time
 
 ### requires croniter from https://github.com/taichino/croniter
 from croniter import croniter
@@ -30,7 +29,7 @@ sys.path.append(lib_path)
 conf_path = os.path.join(base_path, "conf")
 sys.path.append(conf_path)
 
-from settings import settings
+from catosettings import settings
 from catocommon import catocommon
 
 class Scheduler(catocommon.CatoService):
@@ -66,7 +65,7 @@ class Scheduler(catocommon.CatoService):
 
     def expand_this_schedule(self, row):
 
-        id = row[0]
+        schedule_id = row[0]
         now = row[1]
         months = row[2]
         days_or_weeks = row[3]
@@ -93,7 +92,7 @@ class Scheduler(catocommon.CatoService):
         #days = self.split_clean(self.string map(self.day_map, days))
         #months = self.split_clean(months)
 
-        the_dates = ""
+        #the_dates = ""
         #print days_or_weeks
         #print days
         if days_or_weeks == 1:
@@ -111,14 +110,14 @@ class Scheduler(catocommon.CatoService):
         the_start_dt = datetime.fromtimestamp(start_dt)
         cron_string = minutes.rstrip(",") + " " + hours.rstrip(",") + " " + dom + " " +  months + " " + dow
         #print cron_string
-        iter = croniter(cron_string, the_start_dt) 
+        citer = croniter(cron_string, the_start_dt) 
         for _ in range(start_instances):
-            date = iter.get_next(datetime)
+            date = citer.get_next(datetime)
             #print date
             sql = """insert into action_plan 
                     (task_id,run_on_dt,action_id,ecosystem_id,parameter_xml,debug_level,source,schedule_id, account_id)
                     values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-            self.db.exec_db(sql, (task_id, date, action_id, ecosystem_id, parameter_xml, debug_level, 'schedule', id, account_id))
+            self.db.exec_db(sql, (task_id, date, action_id, ecosystem_id, parameter_xml, debug_level, 'schedule', schedule_id, account_id))
 
     def expand_schedules(self):
 

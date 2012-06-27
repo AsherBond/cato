@@ -23,9 +23,12 @@ import cgi
 import re
 import pickle
 import copy
-import xml.etree.ElementTree as ET
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 from catocommon import catocommon
-from settings import settings
+from catosettings import settings
 
 
 """The following is needed when serializing objects that have datetime or other non-serializable
@@ -508,7 +511,7 @@ def HTTPGet(url, timeout=30, headers={}):
             if result:
                 return result, None
 
-        except urllib2.URLError, ex:
+        except urllib2.URLError as ex:
             if hasattr(ex, "reason"):
                 log_nouser("HTTPGet: failed to reach a server.", 2)
                 log_nouser(ex.reason, 2)
@@ -556,7 +559,7 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
     try:
         log("Querying the cloud for %s" % sObjectType, 4)
         
-        import cloud
+        from catocloud import cloud
         
         # first, get the cloud
         c = cloud.Cloud()

@@ -18,11 +18,14 @@ import re
 import traceback
 import json
 import time
-import xml.etree.ElementTree as ET
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 import uiGlobals
 import uiCommon
 from catocommon import catocommon
-import task
+from catotask import task
 import stepTemplates as ST
 
 # task-centric web methods
@@ -156,13 +159,16 @@ class taskMethods:
                     sHTML += "<td class=\"selectable\">%s</td>" % row["task_instance"]
                     sHTML += "<td class=\"selectable\">%s</td>" % row["task_code"]
                     sHTML += "<td class=\"selectable\">%s</td>" % task_label
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["asset_name"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["asset_name"] if row["asset_name"] else "")
                     sHTML += "<td class=\"selectable\">%s</td>" % row["task_status"]
                     sHTML += "<td class=\"selectable\">%s</td>" % row["started_by"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["ce_name"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % str(row["process_id"])
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["ecosystem_name"]
-                    sHTML += "<td class=\"selectable\">%s<br />%s<br />%s</td>" % (row["submitted_dt"], row["started_dt"], row["completed_dt"])
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["ce_name"] if row["ce_name"] else "")
+                    sHTML += "<td class=\"selectable\">%s</td>" % str((row["process_id"] if row["process_id"] else ""))
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["ecosystem_name"] if row["ecosystem_name"] else "")
+                    sHTML += "<td class=\"selectable\">%s<br />%s</td>" % (
+                        ("(s)&nbsp;%s" % row["submitted_dt"].replace(" ","&nbsp;") if row["submitted_dt"] else ""), 
+                        ("(c)&nbsp;%s" % row["completed_dt"].replace(" ","&nbsp;") if row["completed_dt"] else "")
+                        )
                     sHTML += "<td class=\"selectable\"><span onclick=\"location.href='taskEdit?task_id=%s'\" class=\"ui-icon ui-icon-pencil pointer\"></span></td>" % row["task_id"]
                     
                     sHTML += "</tr>"
@@ -1159,100 +1165,100 @@ class taskMethods:
     
             uiCommon.log("Updating step [%s (%s)] setting [%s] to [%s]." % (sFunction, sStepID, sXPath, sValue) , 4)
             
-            # TODO - not gonna do this any more, do a web method for commenting instead
-            # if the function type is "_common" that means this is a literal column on the step table.
-#            if sFunction == "_common":
-#                sValue = catocommon.tick_slash(sValue) # escape single quotes for the SQL insert
-#                sSQL = "update task_step set " + sXPath + " = '" + sValue + "' where step_id = '" + sStepID + "'"
-#    
-#                if not self.db.exec_db_noexcep(sSQL):
-#                    uiCommon.log_nouser(self.db.error, 0)
-#    
-#            else:
+            # Some xpaths are hardcoded because they're on the step table and not in the xml.
+            # this currently only applies to the step_desc column ("notes" field).
+            if sXPath == "step_desc":
+                sValue = catocommon.tick_slash(sValue) # escape single quotes for the SQL insert
+                sSQL = "update task_step set " + sXPath + " = '" + sValue + "' where step_id = '" + sStepID + "'"
+    
+                if not self.db.exec_db_noexcep(sSQL):
+                    uiCommon.log_nouser(self.db.error, 0)
+    
+            else:
 
-            # XML processing
-            # get the xml from the step table and update it
-            sSQL = "select function_xml from task_step where step_id = '" + sStepID + "'"
-
-            sXMLTemplate = self.db.select_col_noexcep(sSQL)
-
-            if self.db.error:
-                uiCommon.log("Unable to get XML data for step [" + sStepID + "].")
-
-            xDoc = ET.fromstring(sXMLTemplate)
-            if xDoc is None:
-                uiCommon.log("XML data for step [" + sStepID + "] is invalid.")
-
-            try:
-                uiCommon.log("... looking for %s" % sXPath, 4)
-                xNode = xDoc.find(sXPath)
-
-                if xNode is None:
-                    uiCommon.log("XML data for step [" + sStepID + "] does not contain '" + sXPath + "' node.")
-
-                xNode.text = sValue
-            except Exception:
+                # XML processing
+                # get the xml from the step table and update it
+                sSQL = "select function_xml from task_step where step_id = '" + sStepID + "'"
+    
+                sXMLTemplate = self.db.select_col_noexcep(sSQL)
+    
+                if self.db.error:
+                    uiCommon.log("Unable to get XML data for step [" + sStepID + "].")
+    
+                xDoc = ET.fromstring(sXMLTemplate)
+                if xDoc is None:
+                    uiCommon.log("XML data for step [" + sStepID + "] is invalid.")
+    
                 try:
-                    # here's the deal... given an XPath statement, we simply cannot add a new node if it doesn't exist.
-                    # why?  because xpath is a query language.  It doesnt' describe exactly what to add due to wildcards and # foo syntax.
-
-                    # but, what we can do is make an assumption in our specific case... 
-                    # that we are only wanting to add because we changed an underlying command XML template, and there are existing commands.
-
-                    # so... we will split the xpath into segments, and traverse upward until we find an actual node.
-                    # once we have it, we will need to add elements back down.
-
-                    # string[] nodes = sXPath.Split('/')
-
-                    # for node in nodes:
-#                         #     # try: to select THIS one, and stick it on the backwards stack
-                    #     xNode = xRoot.find("# " + node)
-                    #     if xNode is None:
-                    #         uiCommon.log("XML data for step [" + sStepID + "] does not contain '" + sXPath + "' node.")
-
-                    # }
-
-                    xFoundNode = None
-                    aMissingNodes = []
-
-                    # if there are no slashes we'll just add this one explicitly as a child of root
-                    if sXPath.find("/") == -1:
-                        xDoc.append(ET.Element(sXPath))
-                    else:                             # and if there are break it down
-                        sWorkXPath = sXPath
-                        while sWorkXPath.find("/") > -1:
-                            idx = uiCommon.LastIndexOf(sWorkXPath, "/") + 1
-                            aMissingNodes.append(sWorkXPath[idx:])
-                            sWorkXPath = sWorkXPath[:idx]
-
-                            xFoundNode = xDoc.find(sWorkXPath)
-                            if xFoundNode is not None:
-                                # Found one! stop looping
-                                break
-
-                        # now that we know where to start (xFoundNode), we can use that as a basis for adding
-                        for sNode in aMissingNodes:
-                            xFoundNode.append(ET.Element(sNode))
-
-                    # now we should be good to stick the value on the final node.
+                    uiCommon.log("... looking for %s" % sXPath, 4)
                     xNode = xDoc.find(sXPath)
+    
                     if xNode is None:
                         uiCommon.log("XML data for step [" + sStepID + "] does not contain '" + sXPath + "' node.")
-
+    
                     xNode.text = sValue
-
-                    # xRoot.Add(new XElement(sXPath, sValue))
-                    # xRoot.SetElementValue(sXPath, sValue)
-                except Exception, ex:
-                    uiCommon.log("Error Saving Step [" + sStepID + "].  Could not find and cannot create the [" + sXPath + "] property in the XML." + ex.__str__())
-                    return ""
-
-            sSQL = "update task_step set " \
-                " function_xml = '" + catocommon.tick_slash(ET.tostring(xDoc)) + "'" \
-                " where step_id = '" + sStepID + "';"
-
-            if not self.db.exec_db_noexcep(sSQL):
-                uiCommon.log(self.db)
+                except Exception:
+                    try:
+                        # here's the deal... given an XPath statement, we simply cannot add a new node if it doesn't exist.
+                        # why?  because xpath is a query language.  It doesnt' describe exactly what to add due to wildcards and # foo syntax.
+    
+                        # but, what we can do is make an assumption in our specific case... 
+                        # that we are only wanting to add because we changed an underlying command XML template, and there are existing commands.
+    
+                        # so... we will split the xpath into segments, and traverse upward until we find an actual node.
+                        # once we have it, we will need to add elements back down.
+    
+                        # string[] nodes = sXPath.Split('/')
+    
+                        # for node in nodes:
+    #                         #     # try: to select THIS one, and stick it on the backwards stack
+                        #     xNode = xRoot.find("# " + node)
+                        #     if xNode is None:
+                        #         uiCommon.log("XML data for step [" + sStepID + "] does not contain '" + sXPath + "' node.")
+    
+                        # }
+    
+                        xFoundNode = None
+                        aMissingNodes = []
+    
+                        # if there are no slashes we'll just add this one explicitly as a child of root
+                        if sXPath.find("/") == -1:
+                            xDoc.append(ET.Element(sXPath))
+                        else:                             # and if there are break it down
+                            sWorkXPath = sXPath
+                            while sWorkXPath.find("/") > -1:
+                                idx = uiCommon.LastIndexOf(sWorkXPath, "/") + 1
+                                aMissingNodes.append(sWorkXPath[idx:])
+                                sWorkXPath = sWorkXPath[:idx]
+    
+                                xFoundNode = xDoc.find(sWorkXPath)
+                                if xFoundNode is not None:
+                                    # Found one! stop looping
+                                    break
+    
+                            # now that we know where to start (xFoundNode), we can use that as a basis for adding
+                            for sNode in aMissingNodes:
+                                xFoundNode.append(ET.Element(sNode))
+    
+                        # now we should be good to stick the value on the final node.
+                        xNode = xDoc.find(sXPath)
+                        if xNode is None:
+                            uiCommon.log("XML data for step [" + sStepID + "] does not contain '" + sXPath + "' node.")
+    
+                        xNode.text = sValue
+    
+                        # xRoot.Add(new XElement(sXPath, sValue))
+                        # xRoot.SetElementValue(sXPath, sValue)
+                    except Exception as ex:
+                        uiCommon.log("Error Saving Step [" + sStepID + "].  Could not find and cannot create the [" + sXPath + "] property in the XML." + ex.__str__())
+                        return ""
+    
+                sSQL = "update task_step set " \
+                    " function_xml = '" + catocommon.tick_slash(ET.tostring(xDoc)) + "'" \
+                    " where step_id = '" + sStepID + "';"
+    
+                if not self.db.exec_db_noexcep(sSQL):
+                    uiCommon.log(self.db)
     
     
             sSQL = "select task_id, codeblock_name, step_order from task_step where step_id = '" + sStepID + "'"
@@ -1991,7 +1997,6 @@ class taskMethods:
                             # dropdowns get a "selected" indicator
                             sValueToSelect = xDefValues.findtext("value", "")
                             if sValueToSelect:
-                                print sValueToSelect
                                 # find the right one by value and give it the "selected" attribute.
                                 for xVal in xTaskParamValues.findall("value"):
                                     if xVal.text == sValueToSelect:
@@ -2778,24 +2783,58 @@ class taskMethods:
         sTaskInstance = uiCommon.getAjaxArg("sTaskInstance")
         sRows = uiCommon.getAjaxArg("sRows")
 
-        # OK, here's something neat.
-        # the TE *might* write a row in the log table with some xml content for a "results summary".
-        # we don't wanna hardcode too much, so we'll just inspect each log row looking for a flag.
-        # if we find it, we'll hold on to the data until the end and display it nicely instead of the log.
-        sResultSummary = ""
-        
+        sLog = ""
+        sSummary = ""
+
         try:
             if not sTaskInstance:
                 return "{\"log\" : \"Unable to get log - no Instance passed to wmGetTaskRunLog.\"}"
             
-            sLimitClause = " limit 100"
+            sLimitClause = " limit 200"
 
             if sRows:
                 if sRows == "all":
                     sLimitClause = ""
                 else:
-                    sLimitClause = " limit " + sRows
+                    try:
+                        sRows = int(sRows)
+                    except:
+                        sRows = 200
+                        
+                    sLimitClause = " limit " + str(sRows)
+                    
+            # how many log rows are there?
+            sSQL = "select count(*) from task_instance_log where task_instance = %s" % sTaskInstance
+            numrows = self.db.select_col_noexcep(sSQL)
+            
+            # RESULT SUMMARY - there may be rows that are "result summary" rows.
+            # check if this rows 'command_text' contains 'result_summary'
+            sSQL = """select log from task_instance_log 
+                where task_instance = %s 
+                and command_text = 'result_summary'
+                order by id""" % sTaskInstance
 
+            dt = self.db.select_all_dict(sSQL)
+            if self.db.error:
+                uiCommon.log_nouser(self.db.error, 0)
+
+            if dt:
+                for dr in dt:
+                    try:                         
+                        # almost done... if there is a Result Summary ... display that.
+                        if dr["log"]:
+                            xdSummary = ET.fromstring(dr["log"])
+                            if xdSummary is not None:
+                                for item in xdSummary.findall("items/item"):
+                                    name = item.findtext("name", "")
+                                    detail = item.findtext("detail", "")
+                                    sSummary += "<div class='result_summary_item_name'>%s</div>" % name
+                                    sSummary += "<div class='result_summary_item_detail ui-widget-content ui-corner-all'>%s</div>" % detail    
+                    except Exception:
+                        uiCommon.log_nouser(traceback.format_exc(), 0)
+
+
+            # NOW carry on with the regular rows
             sSQL = "select til.task_instance, til.entered_dt, til.connection_name, til.log," \
                 " til.step_id, s.step_order, s.function_name, s.function_name as function_label, s.codeblock_name, " \
                 " til.command_text," \
@@ -2810,26 +2849,13 @@ class taskMethods:
             if self.db.error:
                 uiCommon.log_nouser(self.db.error, 0)
 
-            sLog = ""
-            sSummary = ""
-
             if dt:
                 sLog += "<ul class=\"log\">\n"
                 sThisStepID = ""
                 sPrevStepID = ""
 
                 for dr in dt:
-                    # first, check if this row contains the 'results summary'
-                    # this will be indicated by the text "Results Summary" in the *command* field.
-                    if dr["command_text"]:
-                        if dr["command_text"] == "result_summary":
-                            sResultSummary = dr["log"]
-                            continue
-                    
                     sThisStepID = dr["step_id"]
-
-
-
 
                     # start a new list item and header only if we are moving on to a different step.
                     if sPrevStepID != sThisStepID:
@@ -2878,12 +2904,12 @@ class taskMethods:
 
 
                     # it might be a log entry:
+                    # ( we write out the div even if it's empty, so the user 
+                    # will see an indication of progress
+                    sLog += "    <div class=\"log_results ui-widget-content ui-corner-all\">\n"
                     if dr["log"].strip():
-                        # commented out to save space
-                        # sLog += "Results:\n"
-                        sLog += "    <div class=\"log_results ui-widget-content ui-corner-all\">\n"
                         sLog += uiCommon.FixBreaks(uiCommon.SafeHTML(dr["log"]))
-                        sLog += "    </div>\n"
+                    sLog += "    </div>\n"
 
 
 #  VARIABLE STUFF IS NOT YET ACTIVE
@@ -2911,20 +2937,8 @@ class taskMethods:
                 sLog += "</li>\n"
                 sLog += "</ul>\n"
 
-                try:                         
-                    # almost done... if there is a Result Summary ... display that.
-                    if sResultSummary:
-                        xdSummary = ET.fromstring(sResultSummary)
-                        if xdSummary is not None:
-                            for item in xdSummary.findall("items/item"):
-                                name = item.findtext("name", "")
-                                detail = item.findtext("detail", "")
-                                sSummary += "<div class='result_summary_item_name'>%s</div>" % name
-                                sSummary += "<div class='result_summary_item_detail ui-widget-content ui-corner-all'>%s</div>" % detail    
-                except Exception:
-                    uiCommon.log_nouser(traceback.format_exc(), 0)
             
-            return "{\"log\" : \"%s\", \"summary\" : \"%s\"}" % (uiCommon.packJSON(sLog), uiCommon.packJSON(sSummary))
+            return "{\"log\" : \"%s\", \"summary\" : \"%s\", \"totalrows\" : \"%s\"}" % (uiCommon.packJSON(sLog), uiCommon.packJSON(sSummary), str(numrows))
 
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
@@ -2945,7 +2959,7 @@ class taskMethods:
                             return uiCommon.packJSON(uiCommon.SafeHTML(f.read()))
             
             return uiCommon.packJSON("Unable to read logfile. [%s]" % logfile)
-        except Exception, ex:
+        except Exception as ex:
             return ex.__str__()
             
     def wmExportTasks(self):
@@ -2971,11 +2985,11 @@ class taskMethods:
             filename = "%s_%s.csk" % (t.Name.replace(" ","").replace("/",""), seconds)
             with open("%s/temp/%s" % (uiGlobals.web_root, filename), 'w') as f_out:
                 if not f_out:
-                    print "ERROR: unable to write task export file."
+                    uiCommon.log("ERROR: unable to write task export file.", 2)
                 f_out.write(xml)
                 
             return "{\"export_file\" : \"%s\"}" % filename
-        except Exception, ex:
+        except Exception as ex:
             return ex.__str__()
             
     def wmGetTaskStatusCounts(self):
@@ -3266,7 +3280,6 @@ class taskMethods:
             # validate it
             # parse the doc from the table
             xd = func.TemplateXDoc
-            print ET.tostring(xd)
             if xd is None:
                 uiCommon.log("Unable to get Function Template.")
             

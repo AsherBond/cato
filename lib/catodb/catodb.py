@@ -29,8 +29,8 @@ class Db(object):
             self.conn = pymysql.connect(host=server, port=int(port), 
                 user=user, passwd=password, db=database)
             self.conn.autocommit(1)
-        except Exception, e:
-            raise Exception(e)
+        except Exception as e:
+            raise e
     
     def ping_db(self):
         self.conn.ping(True)
@@ -38,7 +38,7 @@ class Db(object):
     def select_all(self, sql, params=()):
         """Gets a row set for a provided query."""
         if sql == "":
-            print "select_all: SQL cannot be empty."
+            print("select_all: SQL cannot be empty.")
             return None
         
         try:
@@ -46,19 +46,19 @@ class Db(object):
             c.execute(sql, params)
             result = c.fetchall()
             c.close()
-        except Exception, e:
-            raise Exception(e)
+        except Exception as e:
+            raise e
 
         if result:
             return result
         else:
-            return False
+            return None
 
 
     def select_row(self, sql, params=()):
         """Gets a single row for a provided query.  If there are multiple rows, the first is returned."""
         if sql == "":
-            print "select_row: SQL cannot be empty."
+            print("select_row: SQL cannot be empty.")
             return None
         
         try:
@@ -66,18 +66,18 @@ class Db(object):
             c.execute(sql, params)
             result = c.fetchone()
             c.close()
-        except Exception, e:
-            raise Exception(e)
+        except Exception as e:
+            raise e
 
         if result:
             return result
         else:
-            return False
+            return None
 
     def select_col(self, sql, params=()):
         """Gets a single value from the database.  If the query returns more than one column, the first is used."""
         if sql == "":
-            print "select_column: SQL cannot be empty."
+            print("select_column: SQL cannot be empty.")
             return None
         
         try:
@@ -85,18 +85,18 @@ class Db(object):
             c.execute(sql, params)
             result = c.fetchone()
             c.close()
-        except Exception, e:
-            raise Exception(e)
+        except Exception as e:
+            raise e
 
         if result:
             return result[0]
         else:
-            return False
+            return None
 
     def exec_db(self, sql, params=()):
         """Used for updates, inserts and deletes"""
         if sql == "":
-            print "update: SQL cannot be empty."
+            print("update: SQL cannot be empty.")
             return None
         
         try:
@@ -104,23 +104,23 @@ class Db(object):
             c.execute(sql, params)
             self.conn.commit()
             c.close()
-        except Exception, e:
-            raise Exception(e)
+        except Exception as e:
+            raise e
 
         return True
 
     def tran_exec(self, sql, params=()):
         """DOES NOT perform a commit!"""
         if sql == "":
-            print "update: SQL cannot be empty."
+            print("update: SQL cannot be empty.")
             return None
         
         try:
             c = self.conn.cursor()
             c.execute(sql, params)
             c.close()
-        except Exception, e:
-            raise Exception(e)
+        except Exception as e:
+            raise e
 
         return True
 
@@ -157,7 +157,7 @@ class Db(object):
     def select_all_dict(self, sql, params=()):
         """Gets a row set for a provided query."""
         if sql == "":
-            print "select_all: SQL cannot be empty."
+            print("select_all: SQL cannot be empty.")
             return None
         
         try:
@@ -165,8 +165,8 @@ class Db(object):
             c.execute(sql, params)
             result = c.fetchall()
             c.close()
-        except Exception, e:
-            raise Exception(e)
+        except Exception as e:
+            raise e
 
         if result:
             return result
@@ -177,7 +177,7 @@ class Db(object):
     def select_row_dict(self, sql, params=()):
         """Gets a single row for a provided query.  If there are multiple rows, the first is returned."""
         if sql == "":
-            print "select_row: SQL cannot be empty."
+            print("select_row: SQL cannot be empty.")
             return None
         
         try:
@@ -185,8 +185,8 @@ class Db(object):
             c.execute(sql, params)
             result = c.fetchone()
             c.close()
-        except Exception, e:
-            raise Exception(e)
+        except Exception as e:
+            raise e
 
         if result:
             return result
@@ -198,7 +198,7 @@ class Db(object):
     def exec_proc(self, sql, params=()):
         """Executes a procedure.  If there is a result set, it is returned."""
         if sql == "":
-            print "exec_proc: SQL cannot be empty."
+            print("exec_proc: SQL cannot be empty.")
             return None
         
         try:
@@ -209,8 +209,8 @@ class Db(object):
             c.close()
             # we will discard any additional result sets
             self.conn.next_result()
-        except Exception, e:
-            raise Exception(e)
+        except Exception as e:
+            raise e
 
         if result:
             return result
@@ -233,7 +233,7 @@ class Db(object):
                 return result #result is already a single column
             else:
                 return "" #returns an empty string, not a boolean!
-        except Exception, e:
+        except Exception as e:
             self.error = e.__str__()
             
         return None
@@ -241,7 +241,7 @@ class Db(object):
     def exec_db_noexcep(self, sql, params=()):
         try:
             self.exec_db(sql, params)
-        except Exception, e:
+        except Exception as e:
             if "1062" in e.__str__():
                 self.error = "key_violation"
             else:
@@ -253,7 +253,7 @@ class Db(object):
     def tran_exec_noexcep(self, sql, params=()):
         try:
             self.tran_exec(sql, params)
-        except Exception, e:
+        except Exception as e:
             self.conn.rollback()
             if "1062" in e.__str__():
                 self.error = "key_violation"
