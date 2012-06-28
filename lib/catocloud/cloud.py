@@ -17,6 +17,7 @@
     THIS CLASS has it's own database connections.
     Why?  Because it isn't only used by the UI.
 """
+import os
 import json
 try:
     import xml.etree.cElementTree as ET
@@ -425,7 +426,11 @@ class CloudProviders(dict):
     #the constructor requires an ET Document
     def __init__(self):
         try:
-            xRoot = ET.parse("../conf/cloud_providers.xml")
+            base_path = catocommon._get_base_path()
+            filename = os.path.join(base_path, "conf/cloud_providers.xml")
+            if not os.path.isfile(filename):
+                raise Exception("conf/cloud_providers.xml file does not exist.")
+            xRoot = ET.parse(filename)
             if not xRoot:
                 raise Exception("Error: Invalid or missing Cloud Providers XML.")
             else:
