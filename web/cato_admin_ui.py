@@ -33,6 +33,11 @@ try:
     import xml.etree.cElementTree as ET
 except ImportError:
     import xml.etree.ElementTree as ET
+try:
+    ET.ElementTree.iterfind
+except AttributeError as ex:
+    del(ET)
+    import catoxml.etree.ElementTree as ET
 
 # to avoid any path issues, "cd" to the web root.
 os.chdir(web_root)
