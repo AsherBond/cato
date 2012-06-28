@@ -1,7 +1,14 @@
 #!/usr/bin/env python
+
+import os
 import sys
 import re
 import socket
+
+base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
+lib_path = os.path.join(base_path, "lib")
+sys.path.insert(0, lib_path)
+
 import boto
 from boto.route53.record import ResourceRecordSets
 
@@ -36,9 +43,6 @@ def r53_switch_dns_address(a_key, s_key, dns_name, new_ip, new_ttl=""):
         r = e
     return r
     
-
-
-#AKIAIYTIQPMQR7LCLN7Q UrqCQSk8b7/0wP1Axf9caJNJxFq4c05flk0Rw+nO djangodemo.cloudsidekick.com A 60 173.205.188.90 173.205.188.91
 a_key = sys.argv[1]
 s_key = sys.argv[2]
 dns_name = sys.argv[3]

@@ -25,9 +25,7 @@ from datetime import datetime
 
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 lib_path = os.path.join(base_path, "lib")
-sys.path.append(lib_path)
-conf_path = os.path.join(base_path, "conf")
-sys.path.append(conf_path)
+sys.path.insert(0, lib_path)
 
 from catosettings import settings
 from catocommon import catocommon
