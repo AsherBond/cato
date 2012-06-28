@@ -47,34 +47,16 @@ then
 fi
 
 mkdir -p $DEPLOY_DIR
-mkdir -p $DEPLOY_DIR/web
-mkdir -p $DEPLOY_DIR/services
-mkdir -p $DEPLOY_DIR/lib
-mkdir -p $DEPLOY_DIR/conf
-mkdir -p $DEPLOY_DIR/util
 
-rsync -aq conf/default.cato.conf $DEPLOY_DIR/conf
-rsync -aq conf/catoencrypt $DEPLOY_DIR/conf
-rsync -aq conf/cloud_providers.xml $DEPLOY_DIR/conf
-rsync -aq database/* $DEPLOY_DIR/conf/data
-rsync -aq util/* $DEPLOY_DIR/util
+cp -R conf $DEPLOY_DIR/.
+cp -R util $DEPLOY_DIR/.
+cp -R lib $DEPLOY_DIR/.
 
-# not needed in here any more, now in cato/lib
-# rsync -aq lib/catocryptpy/* $DEPLOY_DIR/conf/catocryptpy
-# rsync -aq lib/catocrypttcl/* $DEPLOY_DIR/conf/catocrypttcl
-
-rsync -q NOTICE $DEPLOY_DIR/
-rsync -q LICENSE $DEPLOY_DIR/
-rsync -q VERSION $DEPLOY_DIR/
-rsync -q TODO $DEPLOY_DIR/
-rsync -q README $DEPLOY_DIR/
-
-rsync -aq lib/* $DEPLOY_DIR/lib
-
-if [ $SILENT = 0 ]
-then 
-	echo "Creating services link to conf dir..."
-fi
+cp -R NOTICE $DEPLOY_DIR/.
+cp -R LICENSE $DEPLOY_DIR/.
+cp -R VERSION $DEPLOY_DIR/.
+cp -R TODO $DEPLOY_DIR/.
+cp -R README $DEPLOY_DIR/.
 
 
 # web
@@ -86,28 +68,8 @@ then
 		echo "Copying web files..."
 	fi
 
-	# code
-	rsync -aq web/static/* $DEPLOY_DIR/web/static
-	rsync -aq web/extensions/* $DEPLOY_DIR/web/extensions
-	rsync -aq web/templates/* $DEPLOY_DIR/web/templates
+    cp -R web $DEPLOY_DIR/.
 
-	# empty stuff
-	#the temp directory
-	mkdir -p $DEPLOY_DIR/web/temp
-	#the cache directory
-	mkdir -p $DEPLOY_DIR/web/datacache
-
-	#explicit local files
-	rsync -q web/*.py $DEPLOY_DIR/web/
-	rsync -q web/*.xml $DEPLOY_DIR/web/
-	rsync -q web/*.sh $DEPLOY_DIR/web/
-
-	if [ $SILENT = 0 ]
-	then 
-		echo "Creating web link to conf dir..."
-	fi
-
-	# ln -s $DEPLOY_DIR/conf $DEPLOY_DIR/web/conf
 fi
 
 #services
@@ -119,15 +81,13 @@ then
 		echo "Copying services files..."
 	fi
 
-	rsync -aq services/*.sh $DEPLOY_DIR/services
-	rsync -aq services/bin/* $DEPLOY_DIR/services/bin
+	cp -R services $DEPLOY_DIR/.
 
 	if [ $SILENT = 0 ]
 	then 
 		echo "Creating services link to conf dir..."
 	fi
 
-	# ln -s $DEPLOY_DIR/conf $DEPLOY_DIR/services/conf
 fi
 
 if [ $SILENT = 0 ]
