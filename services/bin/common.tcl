@@ -134,7 +134,7 @@ proc check_already_running {} {
 
 proc read_config {} {
 	set ::HOME $::CATO_HOME
-	linsert ::auto_path 0 $::HOME/lib
+	set ::auto_path [linsert $::auto_path 0 $::HOME/lib]
 	package require base64
 	package require blowfish
 	package require catocrypttcl
