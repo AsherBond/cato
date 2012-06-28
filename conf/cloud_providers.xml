@@ -11,7 +11,7 @@
 				<cloud id="54d17fl3-fhs8-9xj4-dj6h-2j678vh572h5" name="sa-east-1" region="sa-east-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
 			</clouds>
 			<products>
-				<product name="ec2" label="EC2" api_version="2011-12-01" api_url_prefix="ec2.">
+				<product name="ec2" label="EC2" type="compute" api_version="2011-12-01" api_url_prefix="ec2.">
 					<object_types>
 						<type id="aws_ec2_address" label="Elastic IP Addresses" api_call="DescribeAddresses" xml_record_xpath="addressesSet/item">
 							<property name="PublicIp" label="" xpath="publicIp" id_field="1" short_list="1" sort_order="1" />
@@ -70,20 +70,20 @@
 					</object_types>
 				</product>
 				<product name="iam" label="IAM" type="identity" api_url_prefix="iam." api_version="2010-05-08">
-					   <object_types>
-							   <type id="aws_iam_group" label="IAM User Group" api_call="ListGroups" xml_record_xpath="ListGroupsResult/Groups/member">
-									   <property name="GroupName" label="" xpath="GroupName" id_field="1" short_list="1" sort_order="1" />
-									   <property name="Path" label="" xpath="Path" short_list="1" sort_order="2" />
-									   <property name="Arn" label="" xpath="Arn" short_list="1" sort_order="3" />
-							   </type>
-							   <type id="aws_iam_user" label="IAM User" api_call="ListUsers" xml_record_xpath="ListUsersResult/Users/member">
-									   <property name="UserName" label="" xpath="UserName" id_field="1" short_list="1" sort_order="1" />
-									   <property name="Path" label="" xpath="Path" short_list="1" sort_order="2" />
-									   <property name="Arn" label="" xpath="Arn" short_list="1" sort_order="3" />
-							   </type>
-					   </object_types>
-			   </product>
-			   <product name="autoscaling" label="Auto Scaling" api_url_prefix="autoscaling." api_version="2010-08-01">
+					<object_types>
+						<type id="aws_iam_group" label="IAM User Group" api_call="ListGroups" xml_record_xpath="ListGroupsResult/Groups/member">
+							<property name="GroupName" label="" xpath="GroupName" id_field="1" short_list="1" sort_order="1" />
+							<property name="Path" label="" xpath="Path" short_list="1" sort_order="2" />
+							<property name="Arn" label="" xpath="Arn" short_list="1" sort_order="3" />
+						</type>
+						<type id="aws_iam_user" label="IAM User" api_call="ListUsers" xml_record_xpath="ListUsersResult/Users/member">
+							<property name="UserName" label="" xpath="UserName" id_field="1" short_list="1" sort_order="1" />
+							<property name="Path" label="" xpath="Path" short_list="1" sort_order="2" />
+							<property name="Arn" label="" xpath="Arn" short_list="1" sort_order="3" />
+						</type>
+					</object_types>
+				</product>
+				<product name="autoscaling" label="Auto Scaling" api_url_prefix="autoscaling." api_version="2010-08-01">
 					<object_types>
 						<type id="aws_as_group" label="Auto Scaling Groups" api_call="DescribeAutoScalingGroups" xml_record_xpath="AutoScalingGroups/member">
 							<property name="GroupName" label="" xpath="AutoScalingGroupName" id_field="1" short_list="1" sort_order="1" />
@@ -137,7 +137,7 @@
 						</type>
 					</object_types>
 				</product>
-				<product name="s3" label="S3" api_url_prefix="s3-" api_version="2006-03-01" api_uri="/">
+				<product name="s3" label="S3" type="storage" api_url_prefix="s3-" api_version="2006-03-01" api_uri="/">
 					<object_types>
 						<type id="aws_s3_bucket" label="S3 Bucket" api_call="" xml_record_xpath="Buckets/Bucket">
 							<property name="Name" label="" xpath="Name" id_field="1" short_list="1" sort_order="1" />
@@ -271,37 +271,37 @@
 			</products>
 		</provider>
 		<!--<provider name="OpenStack" test_product="compute" test_object="" user_defined_clouds="true">
-			<products>
-				<product name="compute" label="Compute" api_version="v1.1" api_url_prefix="az-1." api_uri="/">
-					<object_types>
-						<type id="os_servers" label="Servers" api_call="/{tenant}/servers/detail" xml_record_xpath="servers/server">
-							<property name="id" label="ID" id_field="1" short_list="1" sort_order="1" />
-							<property name="name" label="Name" short_list="1" sort_order="2" />
-							<property name="status" label="Status" short_list="1" sort_order="2" />
-						</type>
-						<type id="os_images" label="Images" api_call="/{tenant}/images" xml_record_xpath="images/image">
-							<property name="id" label="ID" id_field="1" short_list="1" sort_order="1" />
-							<property name="name" label="Name" short_list="1" sort_order="2" />
-						</type>
-						<type id="os_flavors" label="Flavors" api_call="/{tenant}/flavors/detail" xml_record_xpath="flavors/flavor">
-							<property name="id" label="ID" id_field="1" short_list="1" sort_order="1" />
-							<property name="name" label="Name" short_list="1" sort_order="2" />
-							<property name="disk" label="Disk" short_list="1" sort_order="3" />
-							<property name="ram" label="Ram" short_list="1" sort_order="4" />
-							<property name="vcpus" label="CPU" short_list="1" sort_order="5" />
-						</type>
-					</object_types>
-				</product>
-				<product name="identity" label="Identity" api_version="v2.0" api_url_prefix="" api_uri=":35357/">
-					<object_types>
-						<type id="os_tenants" label="Tenants" api_call="/tenants" xml_record_xpath="tenants/tenant">
-							<property name="id" label="ID" id_field="1" short_list="1" sort_order="1" />
-							<property name="name" label="Name" short_list="1" sort_order="2" />
-							<property name="enabled" label="Enabled?" short_list="1" sort_order="3" />
-						</type>
-					</object_types>
-				</product>
-			</products>
+		<products>
+		<product name="compute" label="Compute" api_version="v1.1" api_url_prefix="az-1." api_uri="/">
+		<object_types>
+		<type id="os_servers" label="Servers" api_call="/{tenant}/servers/detail" xml_record_xpath="servers/server">
+		<property name="id" label="ID" id_field="1" short_list="1" sort_order="1" />
+		<property name="name" label="Name" short_list="1" sort_order="2" />
+		<property name="status" label="Status" short_list="1" sort_order="2" />
+		</type>
+		<type id="os_images" label="Images" api_call="/{tenant}/images" xml_record_xpath="images/image">
+		<property name="id" label="ID" id_field="1" short_list="1" sort_order="1" />
+		<property name="name" label="Name" short_list="1" sort_order="2" />
+		</type>
+		<type id="os_flavors" label="Flavors" api_call="/{tenant}/flavors/detail" xml_record_xpath="flavors/flavor">
+		<property name="id" label="ID" id_field="1" short_list="1" sort_order="1" />
+		<property name="name" label="Name" short_list="1" sort_order="2" />
+		<property name="disk" label="Disk" short_list="1" sort_order="3" />
+		<property name="ram" label="Ram" short_list="1" sort_order="4" />
+		<property name="vcpus" label="CPU" short_list="1" sort_order="5" />
+		</type>
+		</object_types>
+		</product>
+		<product name="identity" label="Identity" api_version="v2.0" api_url_prefix="" api_uri=":35357/">
+		<object_types>
+		<type id="os_tenants" label="Tenants" api_call="/tenants" xml_record_xpath="tenants/tenant">
+		<property name="id" label="ID" id_field="1" short_list="1" sort_order="1" />
+		<property name="name" label="Name" short_list="1" sort_order="2" />
+		<property name="enabled" label="Enabled?" short_list="1" sort_order="3" />
+		</type>
+		</object_types>
+		</product>
+		</products>
 		</provider>-->
-</providers>
+	</providers>
 </root>

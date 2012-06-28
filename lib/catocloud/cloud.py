@@ -489,6 +489,7 @@ class CloudProviders(dict):
                         p.Name = xProduct.get("name", None)
                         #use the name for the label if it doesn't exist.
                         p.Label = xProduct.get("label", p_name)
+                        p.Type = xProduct.get("type", None)
                         p.APIUrlPrefix = xProduct.get("api_url_prefix", None)
                         p.APIUri = xProduct.get("api_uri", None)
                         p.APIVersion = xProduct.get("api_version", None)
@@ -587,6 +588,14 @@ class Provider(object):
                     
         return None
 
+    def GetProductByType(self, sProductType):
+        """Get a Product by it's Type instead of Name."""
+        for p in self.Products.itervalues():
+            if p.Type == sProductType:
+                return p
+                    
+        return None
+
     def AsJSON(self):
         try:
             # this is built manually, because clouds have a provider object, which would be recursive.
@@ -627,6 +636,7 @@ class Product(object):
     def __init__(self, parent):
         self.Name = None
         self.Label = None
+        self.Type = None
         self.APIUrlPrefix = None
         self.APIUri = None
         self.APIVersion = None
@@ -645,6 +655,7 @@ class Product(object):
             sb.append("{")
             sb.append("\"%s\" : \"%s\"," % ("Name", self.Name))
             sb.append("\"%s\" : \"%s\"," % ("Label", self.Label))
+            sb.append("\"%s\" : \"%s\"," % ("Type", self.Type))
             sb.append("\"%s\" : \"%s\"," % ("APIUrlPrefix", self.APIUrlPrefix))
             sb.append("\"%s\" : \"%s\"," % ("APIUri", self.APIUri))
             sb.append("\"%s\" : \"%s\"," % ("APIVersion", self.APIVersion))
