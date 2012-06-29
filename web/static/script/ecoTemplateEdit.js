@@ -208,11 +208,6 @@ $(document).ready(function() {
 	});
 
 	GetDetails();
-	getActions();
-	
-	//TONS of stuff happens here to initialize the action widgets that were just returned.
-	// these are all 'live' bindings, but in a function just so this block isn't so huge.
-	initActions();
 
 	//last, because it can load before the user sees it.
 	$('#action_icons').load('ecoMethods/wmGetActionIcons', function() {
@@ -239,6 +234,13 @@ function GetDetails() {
 				$("#txtEcoTemplateName").val(template.Name);
 			 	$("#lblEcoTemplateHeader").html(template.Name);
 			 	$("#txtDescription").val(unpackJSON(template.Description));
+			 	
+		 		getActions();
+	
+				//TONS of stuff happens here to initialize the action widgets that were just returned.
+				// these are all 'live' bindings, but in a function just so this block isn't so huge.
+				initActions();
+
 			} catch (ex) {
 				showAlert(ex.message);
 			}
