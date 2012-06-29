@@ -14,8 +14,7 @@
 # limitations under the License.
  
 import traceback
-from uiCommon import log
-import uiCommon
+from catouicommon import uiCommon as UI
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -26,8 +25,7 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 
-from uiGlobals import ConnectionTypes
-import uiGlobals
+from catouiglobals import uiGlobals
 from catotask import task
 from catocommon import catocommon
 from catocloud import cloud
@@ -44,7 +42,7 @@ def DrawFullStep(oStep):
     sStepID = oStep.ID
     
     # this uses a uiCommon function, because the functions were cached
-    fn = uiCommon.GetTaskFunction(oStep.FunctionName)
+    fn = UI.GetTaskFunction(oStep.FunctionName)
     if fn:
         oStep.Function = fn
     else:
@@ -96,7 +94,7 @@ def DrawFullStep(oStep):
     #but certain ones do.
     sSnip = ""
     if oStep.Description:
-        sSnip = uiCommon.GetSnip(oStep.Description, 75)
+        sSnip = UI.GetSnip(oStep.Description, 75)
         #special words get in indicator icon, but only one in highest order
         if "IMPORTANT" in sSnip:
             sSnip = "<img src=\"static/images/icons/flag_red.png\" />" + sSnip.replace("IMPORTANT", "")
@@ -105,7 +103,7 @@ def DrawFullStep(oStep):
         elif "NOTE" in sSnip or "INFO" in sSnip:
             sSnip = "<img src=\"static/images/icons/flag_blue.png\" />" + sSnip.replace("NOTE", "").replace("INFO", "")
     #else:
-    #    sSnip = uiCommon.GetSnip(GetValueSnip(oStep), 75)
+    #    sSnip = UI.GetSnip(GetValueSnip(oStep), 75)
 
     
     sLabel += ("" if sSnip == "" else "<span style=\"padding-left:15px; font-style:italic; font-weight:normal\">[" + sSnip + "]</span>")
@@ -228,7 +226,7 @@ def GetStepTemplate(oStep):
         xd = oStep.FunctionXDoc
         if xd is not None:
             sPopulatesVars = xd.get("variables", "false")
-            log("Populates Variables? " + sPopulatesVars, 4)
+            UI.log("Populates Variables? " + sPopulatesVars, 4)
             if catocommon.is_true(sPopulatesVars):
                 sVariableHTML += DrawVariableSectionForDisplay(oStep, True)
     
@@ -238,7 +236,7 @@ def GetStepTemplate(oStep):
 def DrawReadOnlyStep(oStep, bDisplayNotes):
     sStepID = oStep.ID
 
-    fn = uiCommon.GetTaskFunction(oStep.FunctionName)
+    fn = UI.GetTaskFunction(oStep.FunctionName)
     if fn is None:
         # the function doesn't exist (was probably deprecated)
         # we need at least a basic strip with a delete button
@@ -349,7 +347,7 @@ def DrawReadOnlyStepFromXMLDocument(oStep):
             # now, for embedded content, the step may have an xpath "prefix"
             sXPath = xe.tag
             
-            log("Drawing [" + sXPath + "]", 4)
+            UI.log("Drawing [" + sXPath + "]", 4)
             sNodeHTML, sNodeOptionHTML = DrawReadOnlyNode(xe, sXPath, oStep)
             sHTML += sNodeHTML
             sOptionHTML += sNodeOptionHTML
@@ -369,8 +367,8 @@ def DrawStepFromXMLDocument(oStep):
     # 
     sHTML = ""
     sOptionHTML = ""
-    #log("Command XML:", 4)
-    #log(ET.tostring(xd), 4)
+    #UI.log("Command XML:", 4)
+    #UI.log(ET.tostring(xd), 4)
     if xd is not None:
         # for each node in the function element
         # each node will become a field on the step.
@@ -388,7 +386,7 @@ def DrawStepFromXMLDocument(oStep):
             # now, for embedded content, the step may have an xpath "prefix"
             sXPath = xe.tag
             
-            log("Drawing [" + sXPath + "]", 4)
+            UI.log("Drawing [" + sXPath + "]", 4)
             sNodeHTML, sNodeOptionHTML = DrawNode(xe, sXPath, oStep)
             sHTML += sNodeHTML
             sOptionHTML += sNodeOptionHTML
@@ -414,11 +412,11 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
     
     sOptionTab = xeNode.get("option_tab", "")
     
-    log("-- Label: " + sNodeLabel, 4)
-    log("-- Editable: " + sIsEditable + " - " + str(bIsEditable), 4)
-    log("-- Removable: " + str(bIsRemovable), 4)
-    log("-- Elements: " + str(len(xeNode)), 4)
-    log("-- Option Field?: " + sOptionTab, 4)
+    UI.log("-- Label: " + sNodeLabel, 4)
+    UI.log("-- Editable: " + sIsEditable + " - " + str(bIsEditable), 4)
+    UI.log("-- Removable: " + str(bIsRemovable), 4)
+    UI.log("-- Elements: " + str(len(xeNode)), 4)
+    UI.log("-- Option Field?: " + sOptionTab, 4)
     
     #if a node has children we'll draw it with some hierarchical styling.
     #AND ALSO if it's editable, even if it has no children, we'll still draw it as a container.
@@ -431,7 +429,7 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
         #if there is only one child, AND it's not part of an array
         #don't draw the header or the bounding box, just a composite field label.
         if len(xeNode) == 1 and not bIsEditable:
-            log("-- no more children ... drawing ... ", 4)
+            UI.log("-- no more children ... drawing ... ", 4)
             #get the first (and only) node
             xeOnlyChild = xeNode[0] #.find("*[1]")
             
@@ -449,7 +447,7 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
             if bIsRemovable:
                 sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + sXPath + "\" step_id=\"" + oStep.ID + "\"></span>"
         else: #there is more than one child... business as usual
-            log("-- more children ... drawing and drilling down ... ", 4)
+            UI.log("-- more children ... drawing and drilling down ... ", 4)
             sHTML += "<div class=\"ui-widget-content ui-corner-bottom step_group\">" #this section
             sHTML += "  <div class=\"ui-state-default step_group_header\">" #header
             sHTML += "      <div class=\"step_header_title\">" + sNodeLabel + "</div>"
@@ -501,7 +499,7 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
                 # so here we ignore the options return
                 sNodeHTML, sBunk = DrawNode(xeChildNode, sChildXPath, oStep, bIsEditable)
                 if sBunk:
-                    log("WARNING: This shouldn't have returned 'option' html.", 2)
+                    UI.log("WARNING: This shouldn't have returned 'option' html.", 2)
                 sHTML += sNodeHTML
     
             sHTML += "</div>"
@@ -532,10 +530,10 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
     
     sOptionTab = xeNode.get("option_tab", "")
     
-    log("-- Label: " + sNodeLabel, 4)
-    log("-- Editable: " + sIsEditable + " - " + str(bIsEditable), 4)
-    log("-- Elements: " + str(len(xeNode)), 4)
-    log("-- Option Field?: " + sOptionTab, 4)
+    UI.log("-- Label: " + sNodeLabel, 4)
+    UI.log("-- Editable: " + sIsEditable + " - " + str(bIsEditable), 4)
+    UI.log("-- Elements: " + str(len(xeNode)), 4)
+    UI.log("-- Option Field?: " + sOptionTab, 4)
     
     #if a node has children we'll draw it with some hierarchical styling.
     #AND ALSO if it's editable, even if it has no children, we'll still draw it as a container.
@@ -548,7 +546,7 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
         #if there is only one child, AND it's not part of an array
         #don't draw the header or the bounding box, just a composite field label.
         if len(xeNode) == 1 and not bIsEditable:
-            log("-- no more children ... drawing ... ", 4)
+            UI.log("-- no more children ... drawing ... ", 4)
             #get the first (and only) node
             xeOnlyChild = xeNode[0] #.find("*[1]")
             
@@ -562,7 +560,7 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
             else:
                 sHTML += sNodeName + "." + sNodeHTML
         else: #there is more than one child... business as usual
-            log("-- more children ... drawing and drilling down ... ", 4)
+            UI.log("-- more children ... drawing and drilling down ... ", 4)
             sHTML += "<div class=\"ui-widget-content ui-corner-bottom step_group\">" #this section
             sHTML += "  <div class=\"ui-state-default step_group_header\">" #header
             sHTML += "      <div class=\"step_header_title\">" + sNodeLabel + "</div>"
@@ -596,7 +594,7 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
                 # so here we ignore the options return
                 sNodeHTML, sBunk = DrawReadOnlyNode(xeChildNode, sChildXPath, oStep)
                 if sBunk:
-                    log("WARNING: This shouldn't have returned 'option' html.", 2)
+                    UI.log("WARNING: This shouldn't have returned 'option' html.", 2)
                 sHTML += sNodeHTML
     
             sHTML += "</div>"
@@ -613,7 +611,7 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
 def DrawField(xe, sXPath, oStep):
     sHTML = ""
     sNodeValue = (xe.text if xe.text else "")
-    log("---- Value :" + sNodeValue, 4)
+    UI.log("---- Value :" + sNodeValue, 4)
     
     sNodeLabel = xe.get("label", xe.tag)
     sLabelClasses = xe.get("label_class", "")
@@ -631,10 +629,10 @@ def DrawField(xe, sXPath, oStep):
     sRequired = xe.get("required", "")
     bRequired = catocommon.is_true(sRequired)
 
-    log("---- Input Type :" + sInputType, 4)
-    log("---- Break Before/After : %s/%s" % (sBreakBefore, sBreakAfter), 4)
-    log("---- HR Before/After : %s/%s" % (sHRBefore, sHRAfter), 4)
-    log("---- Required : %s" % (str(bRequired)), 4)
+    UI.log("---- Input Type :" + sInputType, 4)
+    UI.log("---- Break Before/After : %s/%s" % (sBreakBefore, sBreakAfter), 4)
+    UI.log("---- HR Before/After : %s/%s" % (sHRBefore, sHRAfter), 4)
+    UI.log("---- Required : %s" % (str(bRequired)), 4)
 
 
     #some getting started layout possibilities
@@ -670,9 +668,9 @@ def DrawField(xe, sXPath, oStep):
         bValueWasInData = False
         
         if sDatasource == "":
-            log("---- 'datasource' attribute not found, defaulting to 'local'.", 4)
+            UI.log("---- 'datasource' attribute not found, defaulting to 'local'.", 4)
         if sDatasource == "file":
-            log("---- File datasource ... reading [" + sDataSet + "] ...", 4)
+            UI.log("---- File datasource ... reading [" + sDataSet + "] ...", 4)
             try:
                 # sDataset is a file name.
                 # sFormat is the type of data
@@ -680,35 +678,35 @@ def DrawField(xe, sXPath, oStep):
                 sFormat = xe.get("format", "")
 
                 if sFormat == "":
-                    log("---- 'format' attribute not found, defaulting to 'flat'.", 4)
+                    UI.log("---- 'format' attribute not found, defaulting to 'flat'.", 4)
             
                 if sFormat.lower() == "xml":
                     sTable = xe.get("table", "")
                     sValueNode = xe.get("valuenode", "")
                     
                     if sTable == "":
-                        log("---- 'table' attribute not found, defaulting to 'values'.", 4)
+                        UI.log("---- 'table' attribute not found, defaulting to 'values'.", 4)
                     if sValueNode == "":
-                        log("---- 'valuenode' attribute not found, defaulting to 'value'.", 4)
+                        UI.log("---- 'valuenode' attribute not found, defaulting to 'value'.", 4)
                     
                     xml = ET.parse("extensions/" + sDataSet)
                     if xml:
                         nodes = xml.findall(".//" + sValueNode)
                         if len(nodes) > 0:
-                            log("---- Found data ... parsing ...", 4)
+                            UI.log("---- Found data ... parsing ...", 4)
                             for node in nodes:
                                 sHTML += "<option " + SetOption(node.text, sNodeValue) + " value=\"" + node.text + "\">" + node.text + "</option>\n"
                                 if node.text == sNodeValue: bValueWasInData = True
                         else:
-                            log("---- Dataset found but cannot find values in [" + sValueNode + "].", 4)
+                            UI.log("---- Dataset found but cannot find values in [" + sValueNode + "].", 4)
                     else:
-                        log("---- Dataset file not found or unable to read.", 4)
+                        UI.log("---- Dataset file not found or unable to read.", 4)
                     
                 else:
-                    log("---- opening [" + sDataSet + "].", 4)
+                    UI.log("---- opening [" + sDataSet + "].", 4)
                     f = open("%s/extensions/%s" % (uiGlobals.web_root, sDataSet), 'rb')
                     if not f:
-                        log("ERROR: extensions/" + sDataSet + " not found", 0)
+                        UI.log("ERROR: extensions/" + sDataSet + " not found", 0)
 
                     for line in f:
                         val = line.strip()
@@ -717,10 +715,10 @@ def DrawField(xe, sXPath, oStep):
                         
                     f.close()
             except Exception:
-                uiCommon.log_nouser(traceback.format_exc(), 0)
+                UI.log_nouser(traceback.format_exc(), 0)
                 return "Unable to render input element [" + sXPath + "]. Lookup file [" + sDataSet + "] not found or incorrect format."
         elif sDatasource == "function":
-            log("---- Function datasource ... executing [" + sDataSet + "] ...", 4)
+            UI.log("---- Function datasource ... executing [" + sDataSet + "] ...", 4)
             # this executes a function to populate the drop down
             # at this time, the function must exist in this namespace
             # we expect the function to return a dictionary
@@ -732,9 +730,9 @@ def DrawField(xe, sXPath, oStep):
                             sHTML += "<option " + SetOption(key, sNodeValue) + " value=\"" + key + "\">" + val + "</option>\n"
                             if key == sNodeValue: bValueWasInData = True
             except Exception:
-                uiCommon.log_nouser(traceback.format_exc(), 0)
+                UI.log_nouser(traceback.format_exc(), 0)
         else: # default is "local"
-            log("---- Inline datasource ... reading my own 'dataset' attribute ...", 4)
+            UI.log("---- Inline datasource ... reading my own 'dataset' attribute ...", 4)
             # data is pipe delimited
             aValues = sDataSet.split('|')
             for sVal in aValues:
@@ -775,13 +773,13 @@ def DrawField(xe, sXPath, oStep):
     if catocommon.is_true(sHRAfter):
         sHTML += "<hr />"
 
-    log("---- ... done", 4)
+    UI.log("---- ... done", 4)
     return sHTML
 
 def DrawReadOnlyField(xe, sXPath, oStep):
     sHTML = ""
     sNodeValue = (xe.text if xe.text else "")
-    log("---- Value :" + sNodeValue, 4)
+    UI.log("---- Value :" + sNodeValue, 4)
     
     sInputType = xe.get("input_type", "")
     sNodeLabel = xe.get("label", xe.tag)
@@ -794,8 +792,8 @@ def DrawReadOnlyField(xe, sXPath, oStep):
     sHRBefore = xe.get("hr_before", "")
     sHRAfter = xe.get("hr_after", "")
 
-    log("---- Break Before/After : %s/%s" % (sBreakBefore, sBreakAfter), 4)
-    log("---- HR Before/After : %s/%s" % (sHRBefore, sHRAfter), 4)
+    UI.log("---- Break Before/After : %s/%s" % (sBreakBefore, sBreakAfter), 4)
+    UI.log("---- HR Before/After : %s/%s" % (sHRBefore, sHRAfter), 4)
 
 
     #some getting started layout possibilities
@@ -806,9 +804,9 @@ def DrawReadOnlyField(xe, sXPath, oStep):
 
     # HERE IT IS!
     if sInputType == "textarea":
-        sHTML += sNodeLabel + "<div class=\"codebox\" style=\"padding-right: 8px;\"> " + uiCommon.SafeHTML(sNodeValue) + "</div>"
+        sHTML += sNodeLabel + "<div class=\"codebox\" style=\"padding-right: 8px;\"> " + UI.SafeHTML(sNodeValue) + "</div>"
     else:
-        sHTML += sNodeLabel + "<span class=\"code\" style=\"padding-right: 8px;\"> " + uiCommon.SafeHTML(sNodeValue) + "</span>"
+        sHTML += sNodeLabel + "<span class=\"code\" style=\"padding-right: 8px;\"> " + UI.SafeHTML(sNodeValue) + "</span>"
 
     #some final layout possibilities
     if catocommon.is_true(sBreakAfter):
@@ -816,7 +814,7 @@ def DrawReadOnlyField(xe, sXPath, oStep):
     if catocommon.is_true(sHRAfter):
         sHTML += "<hr />"
 
-    log("---- ... done", 4)
+    UI.log("---- ... done", 4)
     return sHTML
 
 def DrawStepOptions_View(sOptionHTML):
@@ -858,7 +856,7 @@ def CommonAttribs(oStep, bRequired, sXPath, sAdditionalClasses):
         " onchange=\"javascript:onStepFieldChange(this, '" + oStep.ID + "', '" + sXPath + "');\""
 
 def DrawEmbeddedStep(oStep):
-    uiCommon.log("** Embedded Step: [%s] prefix [%s]" % (oStep.FunctionName, oStep.XPathPrefix), 4)
+    UI.log("** Embedded Step: [%s] prefix [%s]" % (oStep.FunctionName, oStep.XPathPrefix), 4)
     # JUST KNOW!
     # this isn't a "real" step ... meaning it isn't in the task_step table as an individual row
     # it's a step object we manually created.
@@ -896,7 +894,7 @@ def DrawEmbeddedStep(oStep):
         fn.Category.Label + " - " + fn.Label
 
     # invalid for embedded
-    # sSnip = uiCommon.GetSnip(oStep.Description, 75)
+    # sSnip = UI.GetSnip(oStep.Description, 75)
     # sLabel += ("" if not oStep.Description) else "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[" + sSnip + "]")
 
     # sLockClause = (" onclick=\"return false;\"" if !oStep.Locked else "")
@@ -946,7 +944,7 @@ def DrawEmbeddedReadOnlyStep(xEmbeddedFunction):
     if xEmbeddedFunction is not None:
         sFunctionName = xEmbeddedFunction.get("name", "")
 
-        fn = uiCommon.GetTaskFunction(sFunctionName)
+        fn = UI.GetTaskFunction(sFunctionName)
 
         # !!!!! This isn't a new step! ... It's an extension of the parent step.
         # but, since it's a different 'function', we'll treat it like a different step for now
@@ -1113,47 +1111,47 @@ def ddDataSource_GetAWSClouds():
 
 def AddToCommandXML(sStepID, sXPath, sXMLToAdd):
     try:
-        if not uiCommon.IsGUID(sStepID):
-            uiCommon.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "].")
+        if not UI.IsGUID(sStepID):
+            UI.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "].")
 
-        uiCommon.AddNodeToXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sXPath, sXMLToAdd)
+        UI.AddNodeToXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sXPath, sXMLToAdd)
 
         return
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
 
 def SetNodeValueinCommandXML(sStepID, sNodeToSet, sValue):
     try:
-        if not uiCommon.IsGUID(sStepID):
-            uiCommon.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "] ")
+        if not UI.IsGUID(sStepID):
+            UI.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "] ")
 
-        uiCommon.SetNodeValueinXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToSet, sValue)
+        UI.SetNodeValueinXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToSet, sValue)
 
         return
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
 
 def SetNodeAttributeinCommandXML(sStepID, sNodeToSet, sAttribute, sValue):
     try:
-        if not uiCommon.IsGUID(sStepID):
-            uiCommon.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "] ")
+        if not UI.IsGUID(sStepID):
+            UI.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "] ")
 
-        uiCommon.SetNodeAttributeinXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToSet, sAttribute, sValue)
+        UI.SetNodeAttributeinXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToSet, sAttribute, sValue)
 
         return
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
 
 def RemoveFromCommandXML(sStepID, sNodeToRemove):
     try:
-        if not uiCommon.IsGUID(sStepID):
-            uiCommon.log("Unable to modify step.<br />Invalid or missing Step ID. [" + sStepID + "]<br />")
+        if not UI.IsGUID(sStepID):
+            UI.log("Unable to modify step.<br />Invalid or missing Step ID. [" + sStepID + "]<br />")
         
-        uiCommon.RemoveNodeFromXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToRemove)
+        UI.RemoveNodeFromXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToRemove)
 
         return
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
 
 def DrawDropZone(oStep, xEmbeddedFunction, sXPath, sLabel, bRequired):
     # drop zones are common for all the steps that can contain embedded steps.
@@ -1169,7 +1167,7 @@ def DrawDropZone(oStep, xEmbeddedFunction, sXPath, sLabel, bRequired):
     if xEmbeddedFunction is not None:
         sFunctionName = xEmbeddedFunction.get("name", "")
 
-        fn = uiCommon.GetTaskFunction(sFunctionName)
+        fn = UI.GetTaskFunction(sFunctionName)
 
         # !!!!! This isn't a new step! ... It's an extension of the parent step.
         # but, since it's a different 'function', we'll treat it like a different step for now
@@ -1228,7 +1226,7 @@ def DrawKeyValueSection(oStep, bShowPicker, bShowMaskOption, sKeyLabel, sValueLa
 
         sHTML += "<td class=\"w1pct\"><input type=\"text\" " + CommonAttribsWithID(oStep, True, "pairs/pair[" + str(i) + "]/key", sElementID, "") + \
             " validate_as=\"variable\"" \
-            " value=\"" + uiCommon.SafeHTML(sKey) + "\"" \
+            " value=\"" + UI.SafeHTML(sKey) + "\"" \
             " help=\"Enter a name.\"" \
             " /></td>"
 
@@ -1246,7 +1244,7 @@ def DrawKeyValueSection(oStep, bShowPicker, bShowMaskOption, sKeyLabel, sValueLa
         sCommonAttribs = CommonAttribsWithID(oStep, True, "pairs/pair[" + str(i) + "]/value", sValueFieldID, "w90pct")
 
         sHTML += "<td class=\"w50pct\"><input type=\"text\" " + sCommonAttribs + \
-            " value=\"" + uiCommon.SafeHTML(sVal) + "\"" \
+            " value=\"" + UI.SafeHTML(sVal) + "\"" \
             " help=\"Enter a value.\"" \
             " />\n"
 
@@ -1302,7 +1300,7 @@ def DrawVariableSectionForDisplay(oStep, bShowEditLink):
     iParseType = oStep.OutputParseType
     iRowDelimiter = oStep.OutputRowDelimiter
     iColumnDelimiter = oStep.OutputColumnDelimiter
-    uiCommon.log("Parse Type [%d], Row Delimiter [%d], Col Delimiter [%d]" % (iParseType, iRowDelimiter, iColumnDelimiter), 4)
+    UI.log("Parse Type [%d], Row Delimiter [%d], Col Delimiter [%d]" % (iParseType, iRowDelimiter, iColumnDelimiter), 4)
 
     sHTML = ""
     if bShowEditLink:
@@ -1332,23 +1330,23 @@ def GetVariablesForStepForDisplay(oStep):
 
     sHTML = ""
     if xDoc is not None:
-        # uiCommon.log("Command Variable XML:\n%s" % ET.tostring(xDoc), 4)
+        # UI.log("Command Variable XML:\n%s" % ET.tostring(xDoc), 4)
         xVars = xDoc.findall("step_variables/variable")
         if xVars is None:
             return "Variable XML data for step [" + sStepID + "] does not contain any 'variable' elements."
         
         if len(xVars) > 0:
-            uiCommon.log("-- Rendering [%d] variables ..." % len(xVars), 4)
+            UI.log("-- Rendering [%d] variables ..." % len(xVars), 4)
             # build the HTML
             sHTML += "<table class=\"step_variables\" width=\"99%\" border=\"0\">\n"
             sHTML += "<tbody>"
             
             # loop
             for xVar in xVars:
-                sName = uiCommon.SafeHTML(xVar.findtext("name", ""))
+                sName = UI.SafeHTML(xVar.findtext("name", ""))
                 sType = xVar.findtext("type", "").lower()
                 
-                uiCommon.log("---- Variable [%s] is type [%s]" % (sName, sType), 4)
+                UI.log("---- Variable [%s] is type [%s]" % (sName, sType), 4)
                 
                 sHTML += "<tr>"
                 sHTML += "<td class=\"row\"><span class=\"code\">" + sName + "</span></td>"
@@ -1371,13 +1369,13 @@ def GetVariablesForStepForDisplay(oStep):
                     else:
                         return "Variable XML data for step [" + sStepID + "] does not contain a valid end marker."
 
-                    sHTML += "<td class=\"row\">Characters in Range:</td><td class=\"row\"><span class=\"code\">" + uiCommon.SafeHTML(sLProp) + " - " + uiCommon.SafeHTML(sRProp) + "</span></td>"
+                    sHTML += "<td class=\"row\">Characters in Range:</td><td class=\"row\"><span class=\"code\">" + UI.SafeHTML(sLProp) + " - " + UI.SafeHTML(sRProp) + "</span></td>"
                 elif sType == "delimited":
-                    sHTML += "<td class=\"row\">Value at Index Position:</td><td class=\"row\"><span class=\"code\">" + uiCommon.SafeHTML(xVar.findtext("position", "")) + "</span></td>"
+                    sHTML += "<td class=\"row\">Value at Index Position:</td><td class=\"row\"><span class=\"code\">" + UI.SafeHTML(xVar.findtext("position", "")) + "</span></td>"
                 elif sType == "regex":
-                    sHTML += "<td class=\"row\">Regular Expression:</td><td class=\"row\"><span class=\"code\">" + uiCommon.SafeHTML(xVar.findtext("regex", "")) + "</span></td>"
+                    sHTML += "<td class=\"row\">Regular Expression:</td><td class=\"row\"><span class=\"code\">" + UI.SafeHTML(xVar.findtext("regex", "")) + "</span></td>"
                 elif sType == "xpath":
-                    sHTML += "<td class=\"row\">Xpath:</td><td class=\"row\"><span class=\"code\">" + uiCommon.SafeHTML(xVar.findtext("xpath", "")) + "</span></td>"
+                    sHTML += "<td class=\"row\">Xpath:</td><td class=\"row\"><span class=\"code\">" + UI.SafeHTML(xVar.findtext("xpath", "")) + "</span></td>"
                 else:
                     sHTML += "INVALID TYPE"
                 
@@ -1478,18 +1476,18 @@ def GetVariablesForStepForEdit(oStep):
             if sType == "range":
                 # the markers can be a range indicator or a string.
                 if xVar.findtext("range_begin") is not None:
-                    sLProp = uiCommon.SafeHTML(xVar.findtext("range_begin", ""))
+                    sLProp = UI.SafeHTML(xVar.findtext("range_begin", ""))
                     sLIdxChecked = " checked=\"checked\""
                 elif xVar.findtext("prefix") is not None:
-                    sLProp = uiCommon.SafeHTML(xVar.findtext("prefix", ""))
+                    sLProp = UI.SafeHTML(xVar.findtext("prefix", ""))
                     sLPosChecked = " checked=\"checked\""
                 else:
                     return "Variable XML data for step [" + sStepID + "] does not contain a valid begin marker."
                 if xVar.findtext("range_end") is not None:
-                    sRProp = uiCommon.SafeHTML(xVar.findtext("range_end", ""))
+                    sRProp = UI.SafeHTML(xVar.findtext("range_end", ""))
                     sRIdxChecked = " checked=\"checked\""
                 elif xVar.findtext("suffix") is not None:
-                    sRProp = uiCommon.SafeHTML(xVar.findtext("suffix", ""))
+                    sRProp = UI.SafeHTML(xVar.findtext("suffix", ""))
                     sRPosChecked = " checked=\"checked\""
                 else:
                     return "Variable XML data for step [" + sStepID + "] does not contain a valid end marker."
@@ -1524,7 +1522,7 @@ def GetVariablesForStepForEdit(oStep):
                         " value=\"" + sLProp + "\" validate_as=\"posint\" />."
                 
             elif sType == "regex":
-                sLProp = uiCommon.SafeHTML(xVar.findtext("regex", ""))
+                sLProp = UI.SafeHTML(xVar.findtext("regex", ""))
                 sVarStrip = "Variable: " \
                     " <input type=\"text\" class=\"var_name code var_unique\" id=\"" + sVarGUID + "_name\"" \
                         " validate_as=\"variable\"" \
@@ -1535,7 +1533,7 @@ def GetVariablesForStepForEdit(oStep):
                         " id=\"" + sVarGUID + "_l_prop\"" \
                         " value=\"" + sLProp + "\" />."
             elif sType == "xpath":
-                sLProp = uiCommon.SafeHTML(xVar.findtext("xpath", ""))
+                sLProp = UI.SafeHTML(xVar.findtext("xpath", ""))
                 sVarStrip = "Variable: " \
                     " <input type=\"text\" class=\"var_name code var_unique\" id=\"" + sVarGUID + "_name\"" \
                         " validate_as=\"variable\"" \
@@ -1633,7 +1631,7 @@ def GetEcosystemObjects(oStep):
 
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def SqlExec(oStep):
@@ -1741,7 +1739,7 @@ def SqlExec(oStep):
             sHTML += "<textarea " + sCommonAttribsForTA + " help=\"Enter a SQL query or procedure.\">" + sCommand + "</textarea>"
         return sHTML, bDrawVarButton
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def SqlExec_View(oStep):
@@ -1798,10 +1796,10 @@ def SqlExec_View(oStep):
 
         if bDrawSQLBox:
             sHTML += "<br />SQL:\n"
-            sHTML += "<div class=\"codebox\">" + uiCommon.SafeHTML(sCommand) + "</div>"
+            sHTML += "<div class=\"codebox\">" + UI.SafeHTML(sCommand) + "</div>"
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def RunTask(oStep):
@@ -1835,14 +1833,14 @@ def RunTask(oStep):
         # sOnError = xError.findtext(value, "")
     
         # get the name and code for belonging to this otid and version
-        if uiCommon.IsGUID(sOriginalTaskID):
+        if UI.IsGUID(sOriginalTaskID):
             sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
                 " where original_task_id = '" + sOriginalTaskID + "'" + \
                 (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
     
             dr = db.select_row_dict(sSQL)
             if db.error:
-                uiCommon.log_nouser(db.error, 0)
+                UI.log_nouser(db.error, 0)
                 return "Error retrieving target Task.(1)" + db.error
     
             if dr is not None:
@@ -1859,7 +1857,7 @@ def RunTask(oStep):
     
                 dr = db.select_row_dict(sSQL)
                 if db.error:
-                    uiCommon.log_nouser(db.error, 0)
+                    UI.log_nouser(db.error, 0)
                     return "Error retrieving target Task.(2)<br />" + db.error
     
                 if dr is not None:
@@ -1878,7 +1876,7 @@ def RunTask(oStep):
         #  get the asset name belonging to this asset_id
         #  OTHERWISE
         #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
-        if uiCommon.IsGUID(sAssetID):
+        if UI.IsGUID(sAssetID):
             sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
     
             sAssetName = db.select_col_noexcep(sSQL)
@@ -1919,7 +1917,7 @@ def RunTask(oStep):
                 " task_id=\"" + sActualTaskID + "\"></span>\n"
     
         # versions
-        if uiCommon.IsGUID(sOriginalTaskID):
+        if UI.IsGUID(sOriginalTaskID):
             sHTML += "<br />"
             sHTML += "Version: \n"
             sHTML += "<select " + CommonAttribs(oStep, False, "version", "") + " reget_on_change=\"true\">\n"
@@ -1931,7 +1929,7 @@ def RunTask(oStep):
                 " order by version"
             dt = db.select_all_dict(sSQL)
             if db.error:
-                uiCommon.log_nouser(db.error, 0)
+                UI.log_nouser(db.error, 0)
                 return "Database Error:" + db.error
     
             if dt:
@@ -1955,11 +1953,11 @@ def RunTask(oStep):
         sHTML += "Asset: \n"
         sHTML += "<input type=\"text\"" \
             " help=\"Select an Asset or enter a variable.\"" + \
-            ("" if uiCommon.IsGUID(sAssetID) else " syntax=\"variable\"") + \
+            ("" if UI.IsGUID(sAssetID) else " syntax=\"variable\"") + \
             " step_id=\"" + sStepID + "\"" \
             " class=\"code w75pct\"" \
             " id=\"fn_run_task_assetname_" + sStepID + "\"" + \
-            (" disabled=\"disabled\"" if uiCommon.IsGUID(sAssetID) else "") + \
+            (" disabled=\"disabled\"" if UI.IsGUID(sAssetID) else "") + \
             " onchange=\"javascript:pushStepFieldChangeVia(this, '" + sAssetField + "');\"" \
             " value=\"" + sAssetName + "\" />\n"
     
@@ -2004,7 +2002,7 @@ def RunTask(oStep):
         
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
     finally:
         if db.conn.socket:
@@ -2033,14 +2031,14 @@ def RunTask_View(oStep):
         sAssetID = xd.findtext("asset_id", "")
     
         # get the name and code for belonging to this otid and version
-        if uiCommon.IsGUID(sOriginalTaskID):
+        if UI.IsGUID(sOriginalTaskID):
             sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
                 " where original_task_id = '" + sOriginalTaskID + "'" + \
                 (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
     
             dr = db.select_row_dict(sSQL)
             if db.error:
-                uiCommon.log_nouser(db.error, 0)
+                UI.log_nouser(db.error, 0)
                 return "Error retrieving target Task.(1)" + db.error
     
             if dr is not None:
@@ -2055,7 +2053,7 @@ def RunTask_View(oStep):
         #  get the asset name belonging to this asset_id
         #  OTHERWISE
         #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
-        if uiCommon.IsGUID(sAssetID):
+        if UI.IsGUID(sAssetID):
             sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
     
             sAssetName = db.select_col_noexcep(sSQL)
@@ -2075,7 +2073,7 @@ def RunTask_View(oStep):
         sHTML += "<span class=\"code\">" + sLabel + "</span>"
     
         # versions
-        if uiCommon.IsGUID(sOriginalTaskID):
+        if UI.IsGUID(sOriginalTaskID):
             sHTML += "<br />"
             sHTML += "Version: \n"
             sHTML += "<span class=\"code\">" + (sVersion if sVersion else "Default") + "</span>"
@@ -2103,7 +2101,7 @@ def RunTask_View(oStep):
         
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
     finally:
         if db.conn.socket:
@@ -2124,14 +2122,14 @@ def Subtask(oStep):
         sVersion = xd.findtext("version", "")
     
         # get the name and code for belonging to this otid and version
-        if uiCommon.IsGUID(sOriginalTaskID):
+        if UI.IsGUID(sOriginalTaskID):
             sSQL = "select task_id, task_code, task_name from task" \
                 " where original_task_id = '" + sOriginalTaskID + "'" + \
                 (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
     
             dr = db.select_row_dict(sSQL)
             if db.error:
-                uiCommon.log("Error retrieving subtask.(1)<br />" + db.error)
+                UI.log("Error retrieving subtask.(1)<br />" + db.error)
                 return "Error retrieving subtask.(1)<br />" + db.error
 
             if dr is not None:
@@ -2147,7 +2145,7 @@ def Subtask(oStep):
     
                 dr = db.select_row_dict(sSQL)
                 if db.error:
-                    uiCommon.log("Error retrieving subtask.(2)<br />" + db.error)
+                    UI.log("Error retrieving subtask.(2)<br />" + db.error)
                     return "Error retrieving subtask.(2)<br />" + db.error
     
                 if dr is not None:
@@ -2158,7 +2156,7 @@ def Subtask(oStep):
                     SetNodeValueinCommandXML(sStepID, "version", "")
                 else:
                     # a default doesnt event exist, really fail...
-                    uiCommon.log("Unable to find task [" + sOriginalTaskID + "] version [" + sVersion + "].")
+                    UI.log("Unable to find task [" + sOriginalTaskID + "] version [" + sVersion + "].")
                     return "Unable to find task [" + sOriginalTaskID + "] version [" + sVersion + "]."
     
         # all good, draw the widget
@@ -2186,7 +2184,7 @@ def Subtask(oStep):
             sHTML += "<span class=\"ui-icon ui-icon-print forceinline task_print_btn pointer\" title=\"View Task\"" \
                 " task_id=\"" + sActualTaskID + "\"></span>\n"
         # versions
-        if uiCommon.IsGUID(sOriginalTaskID):
+        if UI.IsGUID(sOriginalTaskID):
             sHTML += "<br />"
             sHTML += "Version: \n"
             sHTML += "<select " + CommonAttribs(oStep, False, "version", "") + \
@@ -2199,7 +2197,7 @@ def Subtask(oStep):
                 " order by version"
             dt = db.select_all_dict(sSQL)
             if db.error:
-                uiCommon.log_nouser(db.error, 0)
+                UI.log_nouser(db.error, 0)
             if dt:
                 for dr in dt:
                     sHTML += "<option " + SetOption(str(dr["version"]), sVersion) + " value=\"" + str(dr["version"]) + "\">" + str(dr["version"]) + "</option>\n"
@@ -2217,7 +2215,7 @@ def Subtask(oStep):
     
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
     finally:
         if db.conn.socket:
@@ -2237,14 +2235,14 @@ def Subtask_View(oStep):
         sVersion = xd.findtext("version", "")
     
         # get the name and code for belonging to this otid and version
-        if uiCommon.IsGUID(sOriginalTaskID):
+        if UI.IsGUID(sOriginalTaskID):
             sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
                 " where original_task_id = '" + sOriginalTaskID + "'" + \
                 (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
     
             dr = db.select_row_dict(sSQL)
             if db.error:
-                uiCommon.log("Error retrieving subtask.(1)<br />" + db.error)
+                UI.log("Error retrieving subtask.(1)<br />" + db.error)
                 return "Error retrieving subtask.(1)<br />" + db.error
 
             if dr is not None:
@@ -2258,7 +2256,7 @@ def Subtask_View(oStep):
         sHTML += "Task: \n"
         sHTML += "<span class=\"code\">" + sLabel + "</span>"
         # versions
-        if uiCommon.IsGUID(sOriginalTaskID):
+        if UI.IsGUID(sOriginalTaskID):
             sHTML += "<br />"
             sHTML += "Version: \n"
             sHTML += "<span class=\"code\">" + (sVersion if sVersion else "Default") + "</span>"
@@ -2272,7 +2270,7 @@ def Subtask_View(oStep):
     
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
     finally:
         if db.conn.socket:
@@ -2323,7 +2321,7 @@ def WaitForTasks(oStep):
     
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def SetEcosystemRegistry(oStep):
@@ -2379,7 +2377,7 @@ def ClearVariable(oStep):
     
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def SetVariable(oStep):
@@ -2424,7 +2422,7 @@ def SetVariable(oStep):
     
             sHTML += "<td class=\"w75pct\" style=\"vertical-align: bottom;\"><textarea rows=\"1\" style=\"height: 18px;\" " + sCommonAttribs + \
                 " help=\"Enter a value for the Variable.\"" \
-                ">" + uiCommon.SafeHTML(sVal) + "</textarea>\n"
+                ">" + UI.SafeHTML(sVal) + "</textarea>\n"
     
             # big box button
             sHTML += "<span class=\"ui-icon ui-icon-pencil forceinline big_box_btn pointer\" link_to=\"" + sValueFieldID + "\"></span></td>\n"
@@ -2464,12 +2462,12 @@ def SetVariable(oStep):
     
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def NewConnection(oStep):
     try:
-        log("New Connection command:", 4)
+        UI.log("New Connection command:", 4)
         sStepID = oStep.ID
         xd = oStep.FunctionXDoc
         xAsset = xd.find("asset")
@@ -2484,7 +2482,7 @@ def NewConnection(oStep):
         sHTML += "Connect via: \n"
         sHTML += "<select " + CommonAttribs(oStep, True, "conn_type", "") + " reget_on_change=\"true\">\n"
     
-        for ct in ConnectionTypes:
+        for ct in uiGlobals.ConnectionTypes:
             sHTML += "<option " + SetOption(ct, sConnType) + " value=\"" + ct + "\">" + ct + "</option>\n"
     
         sHTML += "</select>\n"
@@ -2492,7 +2490,7 @@ def NewConnection(oStep):
         # now, based on the type, we might show or hide certain things
         if sConnType == "ssh - ec2":
             # if the assetid is a guid, it means the user switched from another connection type... wipe it.
-            if uiCommon.IsGUID(sAssetID):
+            if UI.IsGUID(sAssetID):
                 SetNodeValueinCommandXML(sStepID, "asset", "")
                 sAssetID = ""
             
@@ -2535,14 +2533,14 @@ def NewConnection(oStep):
             #  get the asset name belonging to this asset_id
             #  OTHERWISE
             #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
-            if uiCommon.IsGUID(sAssetID):
+            if UI.IsGUID(sAssetID):
                 sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
                 db = catocommon.new_conn()
                 sAssetName = db.select_col_noexcep(sSQL)
                 if not sAssetName:
                     sAssetName = sAssetID
                     if db.error:
-                        uiCommon.log("Unable to look up Asset name." + db.error)
+                        UI.log("Unable to look up Asset name." + db.error)
                     else:
                         SetNodeValueinCommandXML(sStepID, "asset", "")
                 db.close()
@@ -2578,12 +2576,12 @@ def NewConnection(oStep):
     
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def NewConnection_View(oStep):
     try:
-        log("New Connection command:", 4)
+        UI.log("New Connection command:", 4)
         sStepID = oStep.ID
         xd = oStep.FunctionXDoc
         xAsset = xd.find("asset")
@@ -2611,14 +2609,14 @@ def NewConnection_View(oStep):
             #  get the asset name belonging to this asset_id
             #  OTHERWISE
             #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
-            if uiCommon.IsGUID(sAssetID):
+            if UI.IsGUID(sAssetID):
                 sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
                 db = catocommon.new_conn()
                 sAssetName = db.select_col_noexcep(sSQL)
                 if not sAssetName:
                     sAssetName = sAssetID
                     if db.error:
-                        uiCommon.log("Unable to look up Asset name." + db.error)
+                        UI.log("Unable to look up Asset name." + db.error)
                     else:
                         SetNodeValueinCommandXML(sStepID, "asset", "")
                 db.close()
@@ -2633,7 +2631,7 @@ def NewConnection_View(oStep):
     
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def If(oStep):
@@ -2739,7 +2737,7 @@ def If(oStep):
     
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def If_View(oStep):
@@ -2763,7 +2761,7 @@ def If_View(oStep):
                 sHTML += "Else If:<br />"
     
             if sEval is not None:
-                sHTML += "<div class=\"codebox\">" + uiCommon.SafeHTML(sEval) + "</div>"
+                sHTML += "<div class=\"codebox\">" + UI.SafeHTML(sEval) + "</div>"
             else:
                 sHTML += "ERROR: Malformed XML for Step ID [" + sStepID + "].  Missing 'eval' element."
     
@@ -2799,7 +2797,7 @@ def If_View(oStep):
     
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def Loop(oStep):
@@ -2861,7 +2859,7 @@ def Loop(oStep):
     
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def Loop_View(oStep):
@@ -2909,7 +2907,7 @@ def Loop_View(oStep):
     
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def While(oStep):
@@ -2923,7 +2921,7 @@ def While(oStep):
         sHTML += "While: \n"
         sHTML += "<td class=\"w75pct\" style=\"vertical-align: bottom;\"><textarea rows=\"10\" style=\"height: 18px;\" " + \
             CommonAttribs(oStep, False, "test", "") + " help=\"\"" \
-            ">" + uiCommon.SafeHTML(sTest) + "</textarea>\n"
+            ">" + UI.SafeHTML(sTest) + "</textarea>\n"
     
     
         # enable the dropzone for the Action
@@ -2937,7 +2935,7 @@ def While(oStep):
     
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def While_View(oStep):
@@ -2962,7 +2960,7 @@ def While_View(oStep):
     
         return sHTML
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def Exists(oStep):
@@ -3049,7 +3047,7 @@ def Exists(oStep):
         return sHTML
 
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def Exists_View(oStep):
@@ -3067,9 +3065,9 @@ def Exists_View(oStep):
             sIsTrue = xe.findtext("is_true", "")
     
             if sIsTrue == "1":
-                sHTML += "<span class=\"code\">" + uiCommon.SafeHTML(sKey) + " (IsTrue) </span>"
+                sHTML += "<span class=\"code\">" + UI.SafeHTML(sKey) + " (IsTrue) </span>"
             else:
-                sHTML += "<span class=\"code\">" + uiCommon.SafeHTML(sKey) + "</span>"
+                sHTML += "<span class=\"code\">" + UI.SafeHTML(sKey) + "</span>"
         sHTML += "</div>"
     
         #  Exists have a Positive and Negative action
@@ -3094,7 +3092,7 @@ def Exists_View(oStep):
         return sHTML
 
     except Exception:
-        uiCommon.log_nouser(traceback.format_exc(), 0)
+        UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
 
 def Codeblock(oStep):
@@ -3131,7 +3129,7 @@ def DrawCommandParameterSection(sParameterXML, bEditable, bSnipValues):
     if sParameterXML:
         xParams = ET.fromstring(sParameterXML)
         if xParams is None:
-            uiCommon.log("Parameter XML data is invalid.")
+            UI.log("Parameter XML data is invalid.")
 
         for xParameter in xParams.findall("parameter"):
             sPID = xParameter.get("id", "")
@@ -3165,9 +3163,9 @@ def DrawCommandParameterSection(sParameterXML, bEditable, bSnipValues):
 
             # if sDesc):
             #     if bSnipValues:
-            #         sDesc = uiCommon.GetSnip(sDesc, 75)
+            #         sDesc = UI.GetSnip(sDesc, 75)
             #     else
-            #         sDesc = uiCommon.FixBreaks(sDesc)
+            #         sDesc = UI.FixBreaks(sDesc)
             # sHTML += "<div class=\"parameter_desc hidden\">" + sDesc + "</div>"
 
 
@@ -3182,9 +3180,9 @@ def DrawCommandParameterSection(sParameterXML, bEditable, bSnipValues):
                         sValue = "********"
                     else:
                         if bSnipValues:
-                            sValue = uiCommon.GetSnip(sValue, 64)
+                            sValue = UI.GetSnip(sValue, 64)
                         else:
-                            sValue = uiCommon.FixBreaks(sValue, "")
+                            sValue = UI.FixBreaks(sValue, "")
 
                     sHTML += "<div class=\"ui-widget-content ui-corner-tl ui-corner-bl parameter_value\">" + sValue + "</div>"
 

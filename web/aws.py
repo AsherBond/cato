@@ -19,7 +19,7 @@ import hmac
 import hashlib
 import base64
 from catocloud import cloud
-from uiCommon import HTTPGet
+from catouicommon import uiCommon
 
 class awsInterface(object):
     def GetCloudObjectsAsXML(self, account_id, cloud_id, cloud_object_type, additional_args={}):
@@ -57,7 +57,7 @@ class awsInterface(object):
             if err:
                 return None, err
             
-            sXML, err = HTTPGet(sURL, 30)
+            sXML, err = uiCommon.HTTPGet(sURL, 30)
             if err:
                 return None, err
 

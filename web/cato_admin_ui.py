@@ -46,11 +46,10 @@ os.chdir(web_root)
 # they are used, just in the URL mapping for web.py down below.
 from catocommon import catocommon
 from catolicense import catolicense
+from catouiglobals import uiGlobals
+from catouicommon import uiCommon
 from wmHandler import wmHandler
 from taskMethods import taskMethods
-
-import uiCommon
-import uiGlobals
 
 
 def notfound():
@@ -497,16 +496,16 @@ if __name__ != "cato_admin_ui":
     if "version" in config:
         print("Cato UI - Version %s" % config["version"])
 
-    if "web_port" in config:
-        port = config["web_port"]
+    if "admin_ui_port" in config:
+        port = config["admin_ui_port"]
         sys.argv.append(port)
     
     dbglvl = 2
-    if "web_debug" in config:
+    if "admin_ui_debug" in config:
         try:
-            dbglvl = int(config["web_debug"])
+            dbglvl = int(config["admin_ui_debug"])
         except:
-            print("Warning: web_debug setting in cato.conf must be an integer between 0-4.")
+            print("Warning: admin_ui_debug setting in cato.conf must be an integer between 0-4.")
         print("Setting debug level to %d..." % dbglvl)
     else:
         print("Setting debug level to default (%d)..." % dbglvl)
@@ -545,7 +544,7 @@ if __name__ != "cato_admin_ui":
         '/settings', 'settings',
         '/temp/(.*)', 'temp',
         '/bypass', 'bypass',
-        '/(.*)', 'wmHandler',
+        '/(.*)', 'wmHandler'
     )
 
 

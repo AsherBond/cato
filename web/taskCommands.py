@@ -24,7 +24,7 @@ except AttributeError as ex:
     import catoxml.etree.ElementTree as ET
 
 
-from uiCommon import log_nouser
+from catouicommon import uiCommon as UI
 
 # FunctionCategories contains a list of all Category objects, 
 # as well as a dictionary of function objects.
@@ -54,7 +54,7 @@ class FunctionCategories(object):
     # append extension files to the class
     def Append(self, sFileName):
         try:
-            log_nouser("Parsing extension file " + sFileName, 4)
+            UI.log_nouser("Parsing extension file " + sFileName, 4)
             xRoot = ET.parse(sFileName)
             if xRoot == None:
                 #crash... we can't do anything if the XML is busted
@@ -64,13 +64,13 @@ class FunctionCategories(object):
                 for xCategory in xCategories:
                     cat = self.BuildCategory(xCategory)
                     if cat != None:
-                        log_nouser("Parsing extension category = " + cat.Name, 4)
+                        UI.log_nouser("Parsing extension category = " + cat.Name, 4)
                         self.Categories.append(cat)
                         
                 return True
         except Exception as ex:
             # appending does not throw an exception, just a warning in the log
-            log_nouser("WARNING: Error parsing extension command file [" + sFileName + "]. " + ex.__str__(), 0)
+            UI.log_nouser("WARNING: Error parsing extension command file [" + sFileName + "]. " + ex.__str__(), 0)
 
     def BuildCategory(self, xCategory):
         #not crashing... just skipping

@@ -31,8 +31,8 @@ except AttributeError as ex:
     import catoxml.etree.ElementTree as ET
 
 import json
-import uiGlobals
-import uiCommon
+from catouiglobals import uiGlobals
+from catouicommon import uiCommon
 from catocommon import catocommon
 from catoecosystem import ecosystem
 from catocloud import cloud

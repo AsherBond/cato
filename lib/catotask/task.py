@@ -31,7 +31,7 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 from catocommon import catocommon
-import uiCommon
+from catouicommon import uiCommon
 from datetime import datetime
 
 # Note: this is not a container for Task objects - it's just a rowset from the database

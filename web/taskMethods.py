@@ -28,8 +28,8 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 
-import uiGlobals
-import uiCommon
+from catouiglobals import uiGlobals
+from catouicommon import uiCommon
 from catocommon import catocommon
 from catotask import task
 import stepTemplates as ST

@@ -24,7 +24,7 @@ except AttributeError as ex:
     import catoxml.etree.ElementTree as ET
 
 from catocommon import catocommon
-import uiCommon
+from catouicommon import uiCommon
 
 class Registry(object):
     def __init__(self, object_id):
