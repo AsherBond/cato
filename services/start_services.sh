@@ -43,6 +43,8 @@ start_other_procs() {
     echo "Ending starting processes"
 }
 
+export LD_LIBRARY_PATH=${CATO_HOME}/lib:${LD_LIBRARY_PATH}
+
 start_other_procs
 
 CRONID=`pgrep -xn crond`
