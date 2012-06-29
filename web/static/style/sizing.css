@@ -26,21 +26,49 @@
 {
 	width: 90%;
 }
-.w50pct
+.w80pct
 {
-	width: 50%;
+	width: 80%;
 }
 .w75pct
 {
 	width: 75%;
 }
+.w70pct
+{
+	width: 70%;
+}
+.w60pct
+{
+	width: 60%;
+}
+.w50pct
+{
+	width: 50%;
+}
+.w40pct
+{
+	width: 40%;
+}
 .w33pct
 {
 	width: 33%;
 }
+.w30pct
+{
+	width: 30%;
+}
 .w25pct
 {
 	width: 25%;
+}
+.w20pct
+{
+	width: 20%;
+}
+.w10pct
+{
+	width: 10%;
 }
 .w1pct
 {
