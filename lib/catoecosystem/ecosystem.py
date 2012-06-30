@@ -18,7 +18,7 @@
     Why?  Because it isn't only used by the UI.
 """
 import json
-from catouicommon import uiCommon
+from catoui import uiCommon
 from catocommon import catocommon
 
 # Note: this is not a container for Ecotemplate objects - it's just a rowset from the database

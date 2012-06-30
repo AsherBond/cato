@@ -19,7 +19,7 @@ import hmac
 import hashlib
 import base64
 from catocloud import cloud
-from catouicommon import uiCommon
+from catoui import uiCommon
 
 class awsInterface(object):
     def GetCloudObjectsAsXML(self, account_id, cloud_id, cloud_object_type, additional_args={}):

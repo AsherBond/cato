@@ -14,7 +14,7 @@
 # limitations under the License.
  
 import traceback
-from catouicommon import uiCommon as UI
+from catoui import uiCommon as UI, uiGlobals
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -25,7 +25,6 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 
-from catouiglobals import uiGlobals
 from catotask import task
 from catocommon import catocommon
 from catocloud import cloud

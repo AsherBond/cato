@@ -24,7 +24,7 @@ except AttributeError as ex:
     import catoxml.etree.ElementTree as ET
 
 
-from catouicommon import uiCommon as UI
+from catoui import uiCommon as UI
 
 # FunctionCategories contains a list of all Category objects, 
 # as well as a dictionary of function objects.

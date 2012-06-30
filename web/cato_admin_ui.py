@@ -46,8 +46,7 @@ os.chdir(web_root)
 # they are used, just in the URL mapping for web.py down below.
 from catocommon import catocommon
 from catolicense import catolicense
-from catouiglobals import uiGlobals
-from catouicommon import uiCommon
+from catoui import uiCommon, uiGlobals
 from wmHandler import wmHandler
 from taskMethods import taskMethods
 
@@ -249,14 +248,14 @@ def auth_app_processor(handle):
     
     # requests that are allowed, no matter what
     if path in [
-        "/uiMethods/wmAttemptLogin", 
-        "/uiMethods/wmGetQuestion", 
-        "/logout", 
-        "/notAllowed", 
-        "/notfound", 
-        "/announcement", 
-        "/getlicense", 
-        "/uiMethods/wmLicenseAgree", 
+        "/uiMethods/wmAttemptLogin",
+        "/uiMethods/wmGetQuestion",
+        "/logout",
+        "/notAllowed",
+        "/notfound",
+        "/announcement",
+        "/getlicense",
+        "/uiMethods/wmLicenseAgree",
         "/uiMethods/wmUpdateHeartbeat"
         ]:
         return handle()

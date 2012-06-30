@@ -36,8 +36,7 @@ from catotask import task
 from catoregistry import registry
 from catosettings import settings
 
-from catouiglobals import uiGlobals
-from catouicommon import uiCommon
+from catoui import uiCommon, uiGlobals
 
 # these are generic ui web methods, and stuff that's not enough to need it's own file.
 
