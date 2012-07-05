@@ -355,7 +355,7 @@ def CacheTaskCommands():
                 for fn in cat.Functions:
                     sFunHTML += "<div class=\"ui-widget-content ui-corner-all command_item function\""
                     sFunHTML += " id=\"fn_" + fn.Name + "\""
-                    sFunHTML += " name=\"" + fn.Name + "\">"
+                    sFunHTML += " name=\"fn_" + fn.Name + "\">"
                     sFunHTML += "<img class=\"function_icon\" src=\"" + fn.Icon + "\" alt=\"\" />"
                     sFunHTML += "<span>" + fn.Label + "</span>"
                     sFunHTML += "<div id=\"help_text_" + fn.Name + "\" class=\"hidden\">"
