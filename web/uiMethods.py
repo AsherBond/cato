@@ -49,6 +49,10 @@ class uiMethods:
     def wmGetQuestion(self):
         return uiCommon.GetQuestion()
             
+    def wmUpdateHeartbeat(self):
+        uiCommon.UpdateHeartbeat()
+        return ""
+    
     def wmSetApplicationSetting(self):
         try:
             category = uiCommon.getAjaxArg("sCategory")
@@ -200,18 +204,6 @@ class uiMethods:
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
 
-    def wmUpdateHeartbeat(self):
-        #NOTE: this needs all the kick and warn stuff
-        uid = uiCommon.GetSessionUserID()
-        ip = uiCommon.GetSessionObject("user", "ip_address")
-        
-        if uid and ip:
-            sSQL = "update user_session set heartbeat = now() where user_id = '" + uid + "' \
-                and address = '" + ip + "'"
-            if not self.db.exec_db_noexcep(sSQL):
-                uiCommon.log_nouser(self.db.error, 0)
-        return ""
-    
     def wmGetMenu(self):
         try:
                 #NOTE: this needs all the kick and warn stuff

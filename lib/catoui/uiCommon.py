@@ -1031,4 +1031,21 @@ def GetQuestion():
         return "{\"result\" : \"%s\"}" % packJSON(u.SecurityQuestion)
     except Exception:
         log_nouser(traceback.format_exc(), 0)    
+
+def UpdateHeartbeat():
+    try:
+        #NOTE: this needs all the kick and warn stuff
+        uid = GetSessionUserID()
+        ip = GetSessionObject("user", "ip_address")
         
+        if uid and ip:
+            sSQL = "update user_session set heartbeat = now() where user_id = '%s' and address = '%s'" % (uid, ip)
+            db = catocommon.new_conn()
+            if not db.exec_db_noexcep(sSQL):
+                log_nouser(db.error, 0)
+        return ""
+    except Exception:
+        log_nouser(traceback.format_exc(), 0)
+    finally:
+        if db.conn.socket:
+            db.close()
