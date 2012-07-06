@@ -35,6 +35,7 @@ except AttributeError as ex:
 from catocommon import catocommon
 from catosettings import settings
 from catoui import uiGlobals
+from catouser import catouser
 
 
 """The following is needed when serializing objects that have datetime or other non-serializable
@@ -949,3 +950,85 @@ def RemoveNodeFromXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToRemove):
     finally:
         if db.conn.socket:
             db.close()
+
+def AttemptLogin(app_name):
+    try:
+        in_name = getAjaxArg("username")
+        in_pwd = getAjaxArg("password")
+        in_pwd = unpackJSON(in_pwd)
+        new_pwd = getAjaxArg("change_password")
+        new_pwd = unpackJSON(new_pwd)
+        answer = getAjaxArg("answer")
+        answer = unpackJSON(answer)
+
+        u = catouser.User()
+        
+        # Authenticate will return the codes so we will know
+        # how to respond to the login page
+        # (must change password, password expired, etc)
+        result, code = u.Authenticate(in_name, in_pwd, uiGlobals.web.ctx.ip, new_pwd, answer)
+        if not result:
+            if code == "disabled":
+                return "{\"info\" : \"Your account has been suspended.  Please contact an Adminstrator.\"}"
+            if code == "failures":
+                return "{\"info\" : \"Your account has been temporarily locked due to excessive password failures.\"}"
+            if code == "change":
+                return "{\"result\" : \"change\"}"
+            
+            # no codes matched, but there is a message in there...
+            if code:
+                return "{\"info\" : \"%s\"}" % code
+
+            # failed with no code returned
+            return "{\"info\" : \"Invalid Username or Password.\"}"
+
+        # So... they authenticated, but based on the users 'role' (Administrator, Developer, User) ...
+        # they may not be allowed to log in to certain "app_name"s.
+        # specifically, the User role cannot log in to the "Cato Admin UI" app.
+        if u.Role == "User" and "Admin" in app_name:
+            return "{\"info\" : \"Your account isn't authorized for this application.\"}"
+
+        
+        #all good, put a few key things in the session, not the whole object
+        # yes, I said SESSION not a cookie, otherwise it could be hacked client side
+        
+        current_user = {}
+        current_user["user_id"] = u.ID
+        current_user["user_name"] = u.LoginID
+        current_user["full_name"] = u.FullName
+        current_user["role"] = u.Role
+        current_user["tags"] = u.Tags
+        current_user["email"] = u.Email
+        current_user["ip_address"] = uiGlobals.web.ctx.ip
+        SetSessionObject("user", current_user)
+
+        log("Login granted for: ", 4)
+        log(uiGlobals.session.user, 4)
+
+        #update the security log
+        AddSecurityLog(uiGlobals.SecurityLogTypes.Security, 
+            uiGlobals.SecurityLogActions.UserLogin, uiGlobals.CatoObjectTypes.User, "", 
+            "Login to [%s] from [%s] granted." % (app_name, uiGlobals.web.ctx.ip))
+
+        return "{\"result\" : \"success\"}"
+    except Exception:
+        log_nouser(traceback.format_exc(), 0)    
+            
+def GetQuestion():
+    try:
+        in_name = getAjaxArg("username")
+
+        u = catouser.User()
+        u.FromName(in_name)
+
+        # again with the generic messages.
+        if not u.ID:
+            return "{\"info\" : \"Unable to reset password for user.\"}"
+        if not u.SecurityQuestion:
+            return "{\"info\" : \"Unable to reset password.  Contact an Administrator.\"}"
+
+
+        return "{\"result\" : \"%s\"}" % packJSON(u.SecurityQuestion)
+    except Exception:
+        log_nouser(traceback.format_exc(), 0)    
+        

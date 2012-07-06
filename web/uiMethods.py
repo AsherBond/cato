@@ -44,79 +44,10 @@ class uiMethods:
     db = None
     
     def wmAttemptLogin(self):
-        try:
-            in_name = uiCommon.getAjaxArg("username")
-            in_pwd = uiCommon.getAjaxArg("password")
-            in_pwd = uiCommon.unpackJSON(in_pwd)
-            new_pwd = uiCommon.getAjaxArg("change_password")
-            new_pwd = uiCommon.unpackJSON(new_pwd)
-            answer = uiCommon.getAjaxArg("answer")
-            answer = uiCommon.unpackJSON(answer)
-
-            u = catouser.User()
-            
-            # Authenticate will return the codes so we will know
-            # how to respond to the login page
-            # (must change password, password expired, etc)
-            result, code = u.Authenticate(in_name, in_pwd, uiGlobals.web.ctx.ip, new_pwd, answer)
-            if not result:
-                if code == "disabled":
-                    return "{\"info\" : \"Your account has been suspended.  Please contact an Adminstrator.\"}"
-                if code == "failures":
-                    return "{\"info\" : \"Your account has been temporarily locked due to excessive password failures.\"}"
-                if code == "change":
-                    return "{\"result\" : \"change\"}"
-                
-                # no codes matched, but there is a message in there...
-                if code:
-                    return "{\"info\" : \"%s\"}" % code
-
-                # failed with no code returned
-                return "{\"info\" : \"Invalid Username or Password.\"}"
-
-            
-            #all good, put a few key things in the session, not the whole object
-            # yes, I said SESSION not a cookie, otherwise it could be hacked client side
-            
-            current_user = {}
-            current_user["user_id"] = u.ID
-            current_user["user_name"] = u.LoginID
-            current_user["full_name"] = u.FullName
-            current_user["role"] = u.Role
-            current_user["tags"] = u.Tags
-            current_user["email"] = u.Email
-            current_user["ip_address"] = uiGlobals.web.ctx.ip
-            uiCommon.SetSessionObject("user", current_user)
-
-            uiCommon.log("Login granted for: ", 4)
-            uiCommon.log(uiGlobals.session.user, 4)
-    
-            #update the security log
-            uiCommon.AddSecurityLog(uiGlobals.SecurityLogTypes.Security, 
-                uiGlobals.SecurityLogActions.UserLogin, uiGlobals.CatoObjectTypes.User, "", 
-                "Login from [" + uiGlobals.web.ctx.ip + "] granted.")
-    
-            return "{\"result\" : \"success\"}"
-        except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)    
+        return uiCommon.AttemptLogin("Cato Admin UI")   
                 
     def wmGetQuestion(self):
-        try:
-            in_name = uiCommon.getAjaxArg("username")
-
-            u = catouser.User()
-            u.FromName(in_name)
-
-            # again with the generic messages.
-            if not u.ID:
-                return "{\"info\" : \"Unable to reset password for user.\"}"
-            if not u.SecurityQuestion:
-                return "{\"info\" : \"Unable to reset password.  Contact an Administrator.\"}"
-
-
-            return "{\"result\" : \"%s\"}" % uiCommon.packJSON(u.SecurityQuestion)
-        except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)    
+        return uiCommon.GetQuestion()
             
     def wmSetApplicationSetting(self):
         try:
