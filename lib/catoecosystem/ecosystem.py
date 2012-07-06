@@ -304,6 +304,38 @@ class Ecotemplate(object):
         finally:
             db.close()
 
+    def GetEcosystems(self, ecotemplate_id, account_id=""):
+        ecosystems = {}
+        
+        try:
+            account_clause = ""
+            if account_id:
+                account_clause = " and account_id = '%s'" % account_id
+            
+            sSQL = """select ecosystem_id, account_id, ecosystem_name, ecosystem_desc
+                from ecosystem
+                where ecotemplate_id = '%s' %s
+                order by ecosystem_name""" % (ecotemplate_id, account_clause)
+
+            db = catocommon.new_conn()
+            dt = db.select_all_dict(sSQL)
+            if db.error:
+                print(db.error)
+
+            if dt:
+                for dr in dt:
+                    e = Ecosystem()
+                    e.FromArgs(dr["ecosystem_name"], dr["ecosystem_desc"], ecotemplate_id, dr["account_id"])
+                    if e:
+                        ecosystems[dr["ecosystem_id"]] = e
+
+            return ecosystems
+        
+        except Exception as ex:
+            raise ex
+        finally:
+            db.close()
+
 
 class EcotemplateAction(object):
     def __init__(self):

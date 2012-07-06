@@ -243,22 +243,15 @@ class ecoMethods:
             sHTML = ""
 
             if sEcoTemplateID:
-                sSQL = "select ecosystem_id, ecosystem_name, ecosystem_desc" \
-                    " from ecosystem" \
-                    " where ecotemplate_id = '" + sEcoTemplateID + "'" \
-                    " and account_id = '" + uiCommon.GetCookie("selected_cloud_account") + "'" \
-                    " order by ecosystem_name"
-
-                dt = self.db.select_all_dict(sSQL)
-                if self.db.error:
-                    uiCommon.log_nouser(self.db.error, 0)
-
-                if dt:
+                et = ecosystem.Ecotemplate()
+                et.FromID(sEcoTemplateID)
+                if et:
+                    ecosystems = et.GetEcosystems(sEcoTemplateID)
                     sHTML += "<ul>"
-                    for dr in dt:
-                        sEcosystemID = dr["ecosystem_id"]
-                        sEcosystemName = dr["ecosystem_name"]
-                        sDesc = (dr["ecosystem_desc"] if dr["ecosystem_desc"] else "")
+                    for e in ecosystems.itervalues():
+                        sEcosystemID = e.ID
+                        sEcosystemName = e.Name
+                        sDesc = (e.Description if e.Description else "")
                         sDesc = sDesc.replace("\"", "").replace("'", "")
 
                         sHTML += "<li class=\"ui-widget-content ui-corner-all\"" \
