@@ -20,7 +20,7 @@ import json
 import time
 try:
     import xml.etree.cElementTree as ET
-except ImportError:
+except (AttributeError, ImportError):
     import xml.etree.ElementTree as ET
 try:
     ET.ElementTree.iterfind
