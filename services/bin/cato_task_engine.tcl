@@ -1769,6 +1769,10 @@ proc telnet_logon {address userid password top telnet_ssh attempt_num private_ke
 						}
 					}
 				}
+				-re "~ #" {
+					set system_flag "UNIX"
+					set do_password 0
+				}
 				-re "# $" {
 					set system_flag "UNIX"
 					set do_password 0
@@ -1908,6 +1912,10 @@ proc telnet_logon {address userid password top telnet_ssh attempt_num private_ke
 		#		}
 		#	}
 		#}
+        -re "~ #" {
+            set system_flag "UNIX"
+            set do_password 0
+        }
 		-re "# $" {
 			set system_flag "UNIX"
 			set do_password 0
@@ -1983,6 +1991,10 @@ proc telnet_logon {address userid password top telnet_ssh attempt_num private_ke
 						#output "Found the dos prompt" 3
 						set system_flag "DOS"
 					}
+                    -re "~ #" {
+                        set system_flag "UNIX"
+                        set do_password 0
+                    }
 					-re ">" {
 						#output "Found the prompt" 3
 						set system_flag "UNIX"
@@ -2021,6 +2033,10 @@ proc telnet_logon {address userid password top telnet_ssh attempt_num private_ke
 						append login_output $expect_out(buffer)
 						exp_send -s -- "\r"	
 						expect {
+                            -re "~ #" {
+                                set system_flag "UNIX"
+                                set do_password 0
+                            }
 							-re "\\\$ $" {
 								#output "Found the dollar prompt" 3
 								set system_flag "UNIX"
@@ -2048,6 +2064,10 @@ proc telnet_logon {address userid password top telnet_ssh attempt_num private_ke
 
 						}
 					}
+                    -re "~ #" {
+                        set system_flag "UNIX"
+                        set do_password 0
+                    }
 					-re "\\\$ $" {
 						#output "Found the dollar prompt" 3
 						set system_flag "UNIX"
@@ -2158,6 +2178,10 @@ proc telnet_logon {address userid password top telnet_ssh attempt_num private_ke
 				append login_output $expect_out(buffer)
 				exp_send -s -- "send brk\r"
 				expect {
+                    -re "~ #" {
+                        set system_flag "UNIX"
+                        set do_password 0
+                    }
 					-re "\\\$ $" {
 						#output "Found the dollar prompt" 3
 						set system_flag "UNIX"
@@ -2181,6 +2205,10 @@ proc telnet_logon {address userid password top telnet_ssh attempt_num private_ke
 				}
 			}
 				
+            -re "~ #" {
+                set system_flag "UNIX"
+                set do_password 0
+            }
 			-re "\\\$ $" {
 				#output "Found the dollar prompt" 3
 				set system_flag "UNIX"
