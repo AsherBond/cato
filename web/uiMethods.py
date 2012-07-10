@@ -1423,7 +1423,12 @@ class uiMethods:
             items = []
 
             # parse it as a validation, and to find out what's in it.
-            xd = ET.fromstring(sXML)
+            xd = None
+            try:
+                xd = ET.fromstring(sXML)
+            except ET.ParseError as ex:
+                return "{\"error\" : \"Data is not properly formatted XML.\"}"
+            
             if xd is not None:
                 # so, what's in here?  Tasks?  Ecotemplates?
                 
