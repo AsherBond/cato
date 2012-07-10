@@ -985,8 +985,10 @@ def AttemptLogin(app_name):
         # So... they authenticated, but based on the users 'role' (Administrator, Developer, User) ...
         # they may not be allowed to log in to certain "app_name"s.
         # specifically, the User role cannot log in to the "Cato Admin UI" app.
-        if u.Role == "User" and "Admin" in app_name:
-            return "{\"info\" : \"Your account isn't authorized for this application.\"}"
+        
+        # TODO: enable this when the Cato EE Portal is released.
+#        if u.Role == "User" and "Admin" in app_name:
+#            return "{\"info\" : \"Your account isn't authorized for this application.\"}"
 
         
         #all good, put a few key things in the session, not the whole object
