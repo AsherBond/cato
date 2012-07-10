@@ -647,7 +647,7 @@ function initSortable() {
             //if this is a new step... add
             //(add will reorder internally)
             var new_step = $(ui.item[0]);
-            var new_step_id = new_step.attr("id");
+            var new_step_id = new_step.attr("name");
             if (new_step_id.indexOf("fn_") == 0 || new_step_id.indexOf("clip_") == 0 || new_step_id.indexOf("cb_") == 0) {
                 doStepAdd(new_step);
             } else {
@@ -850,7 +850,7 @@ function doStepAdd(new_step) {
     //ok this works, but we need to know if it's a new item before we override the html
     var task_id = g_task_id;
     var codeblock_name = $("#hidCodeblockName").val();
-    var item = new_step.attr("id");
+    var item = new_step.attr("name");
 
     //it's a new drop!
     //do the add and get the HTML

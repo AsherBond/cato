@@ -50,20 +50,35 @@ function CreateNewVersion() {
         dataType: "text",
         success: function(response) {
             if (response.length == 36) {
-		    	//NOTE: this changes the g_task_id, and pushes a new URL into the address bar
-		    	g_task_id = response
-				history.replaceState({}, "", "taskEdit?task_id=" + g_task_id);
-				//refresh the versions toolbox, which will add the new one...
-				doGetVersions();
-				
-				//BUT WE must do this to set the "focus" of the page on the new version
-				
-		    	//get the details
-		    	doGetDetails();
-				//get the codeblocks
-				doGetCodeblocks();
-				//get the steps
-				doGetSteps();
+            	// this is a little convoluted...
+            	// if we're already on the taskEdit page, things are fine, and we'll just
+            	// reload specific elements.
+            	
+            	//BUT -- if we're on the taskView page, a lot of stuff is different...
+            	// therefore our best bet is to just redirect to taskEdit.
+            	
+                var pagename = window.location.pathname;
+        		pagename = pagename.substring(pagename.lastIndexOf('/') + 1);
+		    	// things are page specific
+				if (pagename == "taskView") {
+			    	location.href = "taskEdit?task_id=" + response;
+				} else {
+					// already on taskEdit, just reload some content.
+			    	//NOTE: this changes the g_task_id, and pushes a new URL into the address bar
+			    	g_task_id = response
+					history.replaceState({}, "", "taskEdit?task_id=" + g_task_id);
+					//refresh the versions toolbox, which will add the new one...
+					doGetVersions();
+					
+					//BUT WE must do this to set the "focus" of the page on the new version
+					
+			    	//get the details
+			    	doGetDetails();
+					//get the codeblocks
+					doGetCodeblocks();
+					//get the steps
+					doGetSteps();
+				}
             }
             else {
                 showAlert(response);

@@ -15,8 +15,6 @@
 
 $(document).ready(function () {
 
-    $("#codeblock_selector_btn").button({ icons: { primary: "ui-icon-circle-triangle-s"}, text: false });
-
     //the hover event of the codeblock picker activator
     $("#codeblock_selector_btn").hover(function () {
         $("#codeblock_selector").show();

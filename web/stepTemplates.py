@@ -1040,8 +1040,7 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
     # embedded commands don't have notes (it's the description of the command, which doesn't apply)
     if not bIsEmbedded:
         sHTML += "            <div id=\"step_common_detail_" + sStepID + "_notes\"" \
-            " class=\"step_common_detail " + ("" if sShowOnLoad == "notes" else "step_common_collapsed") + "\"" \
-            " style=\"height: 100px;\">"
+            " class=\"step_common_detail " + ("" if sShowOnLoad == "notes" else "step_common_collapsed") + "\">"
             
         sHTML += "                <textarea rows=\"4\" " + CommonAttribs(oStep, False, "step_desc", "") + \
             " help=\"Enter notes for this Command.\" reget_on_change=\"true\">" + oStep.Description + "</textarea>"
@@ -1050,8 +1049,7 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
         # embedded commands *could* show the help, but I don't like the look of it.
         # it's cluttered
         sHTML += "            <div id=\"step_common_detail_" + sStepID + "_help\"" \
-            " class=\"step_common_detail " + ("" if sShowOnLoad == "help" else "step_common_collapsed") + "\"" \
-            " style=\"height: 200px;\">"
+            " class=\"ui-widget-content step_common_detail " + ("" if sShowOnLoad == "help" else "step_common_collapsed") + "\">"
         sHTML += oStep.Function.Help
         sHTML += "            </div>"
     

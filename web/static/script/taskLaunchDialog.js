@@ -450,6 +450,7 @@ function ShowTaskLaunchDialog(jsonargs) {
         eco_id = args.ecosystem_id;
         $("#task_launch_dialog_ecosystem").html("<option>" + args.ecosystem_name + "</option>");
     } else {
+    	 $("#task_launch_dialog_ecosystem_id").val("")
         $.ajax({
             async: true,
             type: "POST",
