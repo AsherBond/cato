@@ -7,6 +7,8 @@
 /*@import url('menu/menu.css'); 
 @import url('ac_pro/css/ac_pro/jquery-ui-1.7.1.custom.css');*/
 
+/* These are custom overrides for the standard jQuery UI classes. */
+.ui-tabs .ui-tabs-nav li a { padding: 0; padding-right: 8px; }
 
 body
 {
