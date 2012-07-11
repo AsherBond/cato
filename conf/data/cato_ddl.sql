@@ -292,18 +292,6 @@ CREATE TABLE `login_security_settings` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `logserver_settings` (
-  `id` int(11) NOT NULL,
-  `mode_off_on` varchar(3) NOT NULL DEFAULT '',
-  `loop_delay_sec` int(11) NOT NULL,
-  `port` int(11) NOT NULL,
-  `log_file_days` int(11) NOT NULL,
-  `log_table_days` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `message` (
   `msg_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `date_time_entered` datetime DEFAULT NULL,
