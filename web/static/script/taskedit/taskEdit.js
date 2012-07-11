@@ -228,14 +228,22 @@ function doGetDetails() {
                  * -- if there is another approved task in this family, we show the checkbox
                  * -- allowing the user to decide whether or not to make this one the default
                  */
-                if (task.NumberOfApprovedVersions > "0")
-                    $("#chkMakeDefault").show();
-                else
-                    $("#chkMakeDefault").hide();
+                if (task.NumberOfApprovedVersions > "0") {
+                    $("#make_default_chk").show();
+                    // you can't make a development version default if there is an approved version
+                    $("#set_default_btn").hide();
+               	} else {
+                    $("#make_default_chk").hide();
+		       		if (task.IsDefaultVersion == "True") {
+		       			$("#set_default_btn").hide();
+		       		} else {
+		       			$("#set_default_btn").show();
+		       		}
+				}
 
                 //the header
                 $("#lblTaskNameHeader").text(task.Name);
-                $("#lblVersionHeader").text(task.Version + (task.IsDefaultVersion ? " (default)" : ""));
+                $("#lblVersionHeader").text(task.Version + (task.IsDefaultVersion == "True" ? " (default)" : ""));
 	       		
 			} catch (ex) {
 				showAlert(ex.message);

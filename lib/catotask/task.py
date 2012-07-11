@@ -329,9 +329,12 @@ class Task(object):
         try:
             db = catocommon.new_conn()
             
-            sSQL = """update task set default_version = 0
-                where original_task_id = 
-                (select original_task_id from task where task_id = '%s')""" % task_id
+            sSQL = "select original_task_id from task where task_id = '%s'" % task_id
+            otid = db.select_col_noexcep(sSQL)
+            if db.error:
+                raise Exception("Unable to get original task ID for [%s] %s" % (task_id, db.error))
+            
+            sSQL = "update task set default_version = 0 where original_task_id = '%s'" % otid
             if not db.tran_exec_noexcep(sSQL):
                 return False, db.error
             

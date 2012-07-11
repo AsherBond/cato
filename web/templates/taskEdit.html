@@ -64,7 +64,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             <span class="detail_label">Status: </span>
             <span id="lblStatus2" class="code"></span>
             <br />
-            <span id="approve_btn">Approve</span>
+            <span id="approve_btn">Approve</span><span id="set_default_btn">Set as Default</span>
             <hr />
             <span class="detail_label">All Versions:</span>
             <ul id="versions"></ul>
@@ -312,7 +312,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
     <p>
         Are you sure you wish to Approve this Version?
     </p>
-    <p style="text-align: center;">
+    <p id="make_default_chk" style="text-align: center;">
         <input type="checkbox" id="chkMakeDefault" />
         <label for="chkMakeDefault">Mark as the 'Default' Version?</label>
     </p>

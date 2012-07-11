@@ -207,7 +207,7 @@ class taskMethods:
 
             if not result:
                 uiCommon.log(err, 2)
-                return "{\"result\":\"fail\",\"error\":\"%s\"}" % err
+                return "{\"result\":\"fail\",\"error\":\"%s\"}" % err.replace('"','\"')
             
             return "{\"result\":\"success\"}"
         except Exception:
@@ -1507,8 +1507,7 @@ class taskMethods:
             sUserID = uiCommon.GetSessionUserID()
             sHTML = ""
             
-            sSQL = "select s.clip_dt, s.step_id, s.step_desc, s.function_name, s.function_xml," \
-                " s.output_parse_type, s.output_row_delimiter, s.output_column_delimiter, s.variable_xml" \
+            sSQL = "select s.clip_dt, s.step_id, s.step_desc, s.function_name, s.function_xml" \
                 " from task_step_clipboard s" \
                 " where s.user_id = '" + sUserID + "'" \
                 " and s.codeblock_name is null" \
@@ -1610,11 +1609,9 @@ class taskMethods:
                     uiCommon.log("Unable to clean clipboard." + self.db.error)
     
                 sSQL = " insert into task_step_clipboard" \
-                    " (user_id, clip_dt, src_step_id, root_step_id, step_id, function_name, function_xml, step_desc," \
-                        " output_parse_type, output_row_delimiter, output_column_delimiter, variable_xml)" \
+                    " (user_id, clip_dt, src_step_id, root_step_id, step_id, function_name, function_xml, step_desc)" \
                     " select '" + sUserID + "', now(), step_id, '" + sNewStepID + "', '" + sNewStepID + "'," \
-                        " function_name, function_xml, step_desc," \
-                        " output_parse_type, output_row_delimiter, output_column_delimiter, variable_xml" \
+                        " function_name, function_xml, step_desc" \
                     " from task_step" \
                     " where step_id = '" + sStepID + "'"
                 if not self.db.exec_db_noexcep(sSQL):

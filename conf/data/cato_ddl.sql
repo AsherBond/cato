@@ -240,48 +240,6 @@ CREATE TABLE `ecotemplate_action` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `import_task` (
-  `user_id` varchar(36) NOT NULL DEFAULT '',
-  `task_id` varchar(36) NOT NULL DEFAULT '',
-  `original_task_id` varchar(36) NOT NULL DEFAULT '',
-  `version` decimal(18,3) NOT NULL,
-  `task_name` varchar(255) NOT NULL DEFAULT '',
-  `task_code` varchar(32) DEFAULT NULL,
-  `task_desc` varchar(1024) DEFAULT '',
-  `task_status` varchar(32) NOT NULL DEFAULT 'Development',
-  `use_connector_system` int(11) NOT NULL DEFAULT '0',
-  `default_version` int(11) NOT NULL,
-  `concurrent_instances` int(11) DEFAULT NULL,
-  `queue_depth` int(11) DEFAULT NULL,
-  `created_dt` datetime NOT NULL,
-  `parameter_xml` text NOT NULL,
-  `import_mode` varchar(16) DEFAULT NULL,
-  `conflict` varchar(255) DEFAULT NULL,
-  `src_task_code` varchar(32) DEFAULT NULL,
-  `src_task_name` varchar(255) DEFAULT NULL,
-  `src_version` decimal(18,3) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `import_task_codeblock` (
-  `user_id` varchar(36) NOT NULL DEFAULT '',
-  `task_id` varchar(36) NOT NULL DEFAULT '',
-  `codeblock_name` varchar(32) NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `import_task_step` (
-  `user_id` varchar(36) NOT NULL DEFAULT '',
-  `step_id` varchar(36) NOT NULL DEFAULT '',
-  `task_id` varchar(36) NOT NULL DEFAULT '',
-  `codeblock_name` varchar(36) NOT NULL DEFAULT '',
-  `step_order` int(11) NOT NULL,
-  `commented` int(11) NOT NULL DEFAULT '0',
-  `locked` int(11) NOT NULL DEFAULT '0',
-  `function_name` varchar(64) NOT NULL,
-  `function_xml` text NOT NULL,
-  `step_desc` varchar(255) DEFAULT '',
-  `output_parse_type` int(11) NOT NULL,
-  `output_row_delimiter` int(11) NOT NULL DEFAULT '0',
-  `output_column_delimiter` int(11) NOT NULL DEFAULT '0',
-  `variable_xml` text
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `ecosystem_log` (
   `ecosystem_log_id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -329,18 +287,6 @@ CREATE TABLE `login_security_settings` (
   `allow_login` int(11) NOT NULL,
   `new_user_email_message` varchar(1024) DEFAULT NULL,
   `log_days` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `logserver_settings` (
-  `id` int(11) NOT NULL,
-  `mode_off_on` varchar(3) NOT NULL DEFAULT '',
-  `loop_delay_sec` int(11) NOT NULL,
-  `port` int(11) NOT NULL,
-  `log_file_days` int(11) NOT NULL,
-  `log_table_days` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -583,10 +529,6 @@ CREATE TABLE `task_step_clipboard` (
   `function_name` varchar(32) NOT NULL,
   `function_xml` text NOT NULL,
   `step_desc` varchar(255) DEFAULT '',
-  `output_parse_type` int(11) NOT NULL,
-  `output_row_delimiter` int(11) NOT NULL,
-  `output_column_delimiter` int(11) NOT NULL,
-  `variable_xml` text,
   `codeblock_name` varchar(36) DEFAULT NULL,
   KEY `user_id` (`user_id`,`clip_dt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

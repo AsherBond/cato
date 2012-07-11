@@ -23,8 +23,10 @@ $(document).ready(function () {
     });
 
 	$("#getting_started_items").load("uiMethods/wmGetGettingStarted", function(responseText) {
-		if (responseText) {
+		if (responseText.length > 0) {
 			$("#getting_started_message").show();
+		} else {
+			$("#getting_started_img").show();
 		}
 	});
 });
