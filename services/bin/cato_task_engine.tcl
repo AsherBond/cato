@@ -1567,9 +1567,9 @@ proc telnet_logon {address userid password top telnet_ssh attempt_num private_ke
 				puts $fp $private_key
 				close $fp
 				file attributes $::TMP/$key_file -permissions 0600
-				spawn /usr/bin/ssh -i $::TMP/$key_file  -o StrictHostKeyChecking=no $userid@$address
+				spawn ssh -i $::TMP/$key_file  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $userid@$address
 			} else {
-				spawn /usr/bin/ssh  -o StrictHostKeyChecking=no $userid@$address
+				spawn ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $userid@$address
 			}
 		}
 	} else {		;# We're already on some other machine
@@ -1678,6 +1678,12 @@ proc telnet_logon {address userid password top telnet_ssh attempt_num private_ke
 		-re "passphrase for key(.*):" {
 			set passphrase_required 1
 		}
+        -re "Please login as the user (.*) rather than the user" {
+				set error_msg "Telnet or ssh connection to $address error:"
+				append login_output $expect_out(buffer)
+				append error_msg "\n$login_output"
+				error_out $error_msg 1014
+        }
 		"assword: " {}
 		"assword:" {}
                 "yes/no" {
@@ -3789,24 +3795,6 @@ proc run_commands {task_name codeblock} {
 
 	#output "Entering $proc_name" 3
 
-#	global SYSTEMS
-#	global spawn_id
-#	global TASK_NAME
-#	global TASK_INSTANCE
-#	global DB_NAME
-#	global AUDIT_TRAIL_ON
-#	global TRAP_SQL_ERROR
-	#global FILTER_BUFFER
-#	global SUBMITTED_BY
-#	global TIMEOUT_VALUE
-#	global spawn_id_arr
-#	global connection_arr
-#	global exp_internal
-#	global response_arr
-#	global runtime_arr
-#	global at_conn_arr
-
-
 #	set send_slow {3 .00001}
 #	set subtasklist ""
 
@@ -5481,7 +5469,7 @@ proc launch_run_task {} {
 	} else {
 		set parameterXML ""
 	}
-	#output "XML = $parameterXML"
+	output "XML = $parameterXML"
 	#END PARAMETERS
 	
 	$newroot delete
