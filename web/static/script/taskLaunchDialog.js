@@ -904,6 +904,10 @@ function deleteSchedule(ctl) {
                 $("#update_success_msg").text("Delete Successful").fadeOut(2000);
 
                 $(ctl).parents(".action_schedule").remove();
+                //might be some on the Schedules tab too
+                $(".action_schedule[id='as_" + schedule_id + "']").remove();
+                //remove any action plans too, directly from the page.
+                $(".action_plan[schedule_id='" + schedule_id + "']").remove();
             },
             error: function (response) {
                 $("#update_success_msg").fadeOut(2000);
@@ -934,6 +938,8 @@ function deleteActionPlan(ctl) {
                 $("#update_success_msg").text("Delete Successful").fadeOut(2000);
 
                 $(ctl).parents(".action_plan").remove();
+                //might be some on the Schedules tab too
+                $(".action_plan[plan_id='" + plan_id + "']").remove();
             },
             error: function (response) {
                 $("#update_success_msg").fadeOut(2000);
