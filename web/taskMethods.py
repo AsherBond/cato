@@ -207,7 +207,7 @@ class taskMethods:
 
             if not result:
                 uiCommon.log(err, 2)
-                return "{\"result\":\"fail\",\"error\":\"%s\"}" % err
+                return "{\"result\":\"fail\",\"error\":\"%s\"}" % err.replace('"','\"')
             
             return "{\"result\":\"success\"}"
         except Exception:

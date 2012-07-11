@@ -43,36 +43,41 @@ $(document).ready(function () {
         openWindow(url, "TaskRunLog" + g_task_id, "location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700");
     });
     
+    $("#set_default_btn").button({ icons: { primary: "ui-icon-check"} });
+    $("#set_default_btn").click(function () {
+		$.ajax({
+	        type: "POST",
+	        async: true,
+	        url: "taskMethods/wmTaskSetDefault",
+	        data: '{"sTaskID":"' + g_task_id + '"}',
+	        contentType: "application/json; charset=utf-8",
+	        dataType: "json",
+	        success: function (response) {
+				if (response.result) {
+	                if (response.result == "success") {
+	                    $("#update_success_msg").text("Update Successful").fadeOut(2000);
+	                    
+						doGetVersions();
+						// add (default) to the page header label
+		                $("#lblVersionHeader").text($("#lblVersionHeader").text() + " (default)");
+
+	                } else {
+	                    $("#update_success_msg").text("Update Failed").fadeOut(2000);
+	                    showInfo(response.error);
+	                }
+               }
+	        },
+	        error: function (response) {
+	            showAlert(response.responseText);
+	        }
+	    });
+    });
+
 	// this code is shared by many pages, but a few things should happen only on the taskView page.
     var pagename = window.location.pathname;
 	pagename = pagename.substring(pagename.lastIndexOf('/') + 1);
 	if (pagename == "taskView")
     {
-	    $("#set_default_btn").button({ icons: { primary: "ui-icon-check"} });
-	    $("#set_default_btn").click(function () {
-			$.ajax({
-		        type: "POST",
-		        async: true,
-		        url: "taskMethods/wmTaskSetDefault",
-		        data: '{"sTaskID":"' + g_task_id + '"}',
-		        contentType: "application/json; charset=utf-8",
-		        dataType: "json",
-		        success: function (response) {
-					if (response.result) {
-		                if (response.result == "success") {
-		                    $("#update_success_msg").text("Update Successful").fadeOut(2000);
-		                } else {
-		                    $("#update_success_msg").text("Update Failed").fadeOut(2000);
-		                    showInfo(response.error);
-		                }
-	               }
-		        },
-		        error: function (response) {
-		            showAlert(response.responseText);
-		        }
-		    });
-	    });
-
 		doGetViewDetails();
 		doGetViewSteps();
 	}
