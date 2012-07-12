@@ -69,12 +69,15 @@ The automated install script has been tested and _does not_ work on the followin
 The following commands will download a bash script which will install Cato CE and all 
 non-optional dependencies listed above.  
 
-```curl -Lk --output /tmp/cato_ce_install.sh https://s3.amazonaws.com/downloads.cloudsidekick.com/install/cato_ce_install.sh```
+```
+curl -Lk --output /tmp/cato_ce_install.sh https://s3.amazonaws.com/downloads.cloudsidekick.com/install/cato_ce_install.sh
+```
 
 #### Optional:
 Edit the installation script to customize the Cato release number, database name, passwords, etc if desired. 
 
-```chmod +x /tmp/cato_ce_install.sh
+```
+chmod +x /tmp/cato_ce_install.sh
 sudo /tmp/cato_ce_install.sh
 ```
 
@@ -84,12 +87,14 @@ This script will start 5 server processes: Poller, Scheduler, Messenger, Ecosync
 
 Confirm all processes are running:
 
-```ps -eafl | grep cato_ | grep -v grep
+```
+ps -eafl | grep cato_ | grep -v grep
 ```
 
 If all five processes are not running, check the logfiles for errors. 
 
-```cd /var/cato/log
+```
+cd /var/cato/log
 ls -l *.log
 more <logfile_name>
 ```
@@ -99,13 +104,15 @@ the processes and also place monitors in cron.
 
 To stop the services:
 
-```sudo /opt/cato/services/stop_services.sh
+```
+sudo /opt/cato/services/stop_services.sh
 sudo /opt/cato/web/stop_web.sh
 ```
 
 To start the services:
 
-```sudo /opt/cato/services/start_services.sh
+```
+sudo /opt/cato/services/start_services.sh
 sudo /opt/cato/web/start_web.sh
 ```
 
@@ -113,7 +120,8 @@ sudo /opt/cato/web/start_web.sh
 
 To login to the Cato CE Administrator UI, point your browser to: 
 
-```http://<serveraddress>
+```
+http://<serveraddress>
 ```
 
 Username: __administrator__
