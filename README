@@ -1,42 +1,55 @@
-Cloud Sidekick Cato 
+# Cloud Sidekick Cato Community Edition (CE)
 
-------------------------------------------
+=============
 Description
-------------------------------------------
+=============
 
 The Cato automation toolkit consists of 3 major components: webserver, 
-database and task engine. Cato users can create automation routines
+database and the services. Cato users can create automation routines
 through the web interface which are stored in a MySQL database. The 
 automation routines are executed by the services component.  
 
-------------------------------------------
+=============
 Repository and Download
-------------------------------------------
+=============
 
 https://github.com/cloudsidekick/cato
 
 To download source:
 
-	wget -O cato.tar.gz https://github.com/cloudsidekick/cato/tarball/master
+```
+curl -Lk --output cato.tar.gz https://github.com/cloudsidekick/cato/tarball/master
+```
 
-------------------------------------------
+or 
+
+```
+git clone git://github.com/cloudsidekick/cato.git
+```
+
+=============
+Sample Tasks
+=============
+
+We are building a sample / tutorial library in the following github repo. 
+Instructions for using them are there.
+
+https://github.com/cloudsidekick/cato-tasks
+
+=============
 Bug and Feature Requests
-------------------------------------------
+=============
 
 https://github.com/cloudsidekick/cato/issues
 
-------------------------------------------
+=============
 Requirements
-------------------------------------------
+=============
 
-Cato requires the following major components to be installed and operational
-prior to installation. See the README files in the database, web and services
-directories for specific details and tips for configuration. 
+See the INSTALL file in this directory.
 
-Linux, MySQL 5.1+, Python 2.7, Tcl 8.5+
-
-------------------------------------------
+=============
 Installation
-------------------------------------------
+=============
 
 See the INSTALL file in this directory.
