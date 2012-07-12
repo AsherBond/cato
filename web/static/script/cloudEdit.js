@@ -120,10 +120,11 @@ function GetProviderAccounts() {
         success: function (accounts) {
             // all we want here is to loop the clouds
             $("#ddlTestAccount").empty();
-            $.each(accounts, function(index, account){
-            	$("#ddlTestAccount").append("<option value=\"" + account.account_id + "\">" + account.account_name + "</option>");
-			});
-			
+            if (accounts) {
+	            $.each(accounts, function(index, account){
+	            	$("#ddlTestAccount").append("<option value=\"" + account.account_id + "\">" + account.account_name + "</option>");
+				});
+			}
 			//we can't allow testing the connection if there are no clouds
 			if ($("#ddlTestAccount option").length == 0)
 				$("#test_connection_btn").hide();

@@ -325,6 +325,7 @@ class Ecotemplate(object):
             if dt:
                 for dr in dt:
                     e = Ecosystem()
+                    e.ID = dr["ecosystem_id"]
                     e.FromArgs(dr["ecosystem_name"], dr["ecosystem_desc"], ecotemplate_id, dr["account_id"])
                     if e:
                         ecosystems[dr["ecosystem_id"]] = e
