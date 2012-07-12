@@ -2,10 +2,10 @@
 
 ## Requirements
 
-Cato will run on other distros and versions, but the flavor that it has been test the most on is Ubuntu 10.04 - 12.04.
-See the Install portion below for the distros and versions the automated install supports.
+Cato CE will run on many different Linux distros and versions, but the most tested is Ubuntu 10.04 - 12.04.
+See the Install portion below for the distros and versions supported by the automated install.
 
-Third party open source packages required for install (these are installed by the automated install script referenced below):
+**Third party open source packages required for install (these are installed by the automated install script referenced below):**
 
 Python 2.7, MySQL 5.1+, Tcl 8.5+, Web.py, PyMySql, Boto 2.4.1+, Croniter, 
 Py-Dom-Xpath, MySQLtcl, Tcl TLS, Tdom, Tcllib, Expect, Tcllib, Tclcloud, Tclwinrm
@@ -26,7 +26,7 @@ Other installation options such as a multiple server install
 are possible and may be recommended under different circumstances and will 
 be covered in future revisions of this document. 
 
- The automated install script has been tested on the following variations of linux:
+ The automated install script has been tested on the following Linux distributions:
 
 #### Name and Version, Amazon AMI used, 32 or 64 bit, login user
 
@@ -55,10 +55,9 @@ be covered in future revisions of this document.
 - Ubuntu 12.04,ami-ac9943c5,32,ubuntu
 - Ubuntu 12.04,ami-a29943cb,64,ubuntu
 
-The automated install script has been confirmed not working on the following linuxes for various reasons, 
-mostly to do with unavailable packages. 
+The automated install script has been tested and _does not_ work on the following Linuxes for various reasons, mostly to do with unavailable packages. 
 
-#### Script confirmed does not work on: 
+#### Automated install script does not work on: 
 
 - CentOS 5.4
 - CentOS 5.5
@@ -70,47 +69,29 @@ mostly to do with unavailable packages.
 The following commands will download a bash script which will install Cato CE and all 
 non-optional dependencies listed above.  
 
-Edit the installation script to customize the Cato release number, database name, passwords, etc. 
+```curl -Lk --output /tmp/cato_ce_install.sh https://s3.amazonaws.com/downloads.cloudsidekick.com/install/cato_ce_install.sh```
 
-```
-curl -Lk --output /tmp/cato_ce_install.sh https://s3.amazonaws.com/downloads.cloudsidekick.com/install/cato_ce_install.sh
-
-```
 #### Optional:
-Edit file to customize here. Simply change the environment variables at the top of the script. Or take the defaults.
+Edit the installation script to customize the Cato release number, database name, passwords, etc if desired. 
 
-```
-chmod +x /tmp/cato_ce_install.sh
+```chmod +x /tmp/cato_ce_install.sh
 sudo /tmp/cato_ce_install.sh
 ```
 
-## Post-install
+## Post-Install
 
 This script will start 5 server processes: Poller, Scheduler, Messenger, Ecosync and Admin UI. 
 
-To login to the Cato CE Administrator UI, point your browser to 
+Confirm all processes are running:
 
-    http://<serveraddress>
-
-and login with the user id: _administrator_
-and the password of: _password_
-
-you will be required to change the password upon initial login.
-
-Verify services are running. 
-
-Now check to see that all processes are running:
-
-```
-ps -eafl|grep cato_ |grep -v grep
+```ps -eafl | grep cato_ | grep -v grep
 ```
 
 If all five processes are not running, check the logfiles for errors. 
 
-```
-cd /var/cato/log
+```cd /var/cato/log
 ls -l *.log
-more cato_poller.log
+more <logfile_name>
 ```
 
 NOTE: if at any time the services need to be shutdown, the following scripts will stop / start 
@@ -118,14 +99,31 @@ the processes and also place monitors in cron.
 
 To stop the services:
 
-```
-sudo /opt/cato/services/stop_services.sh
+```sudo /opt/cato/services/stop_services.sh
 sudo /opt/cato/web/stop_web.sh
 ```
 
-Then to start services:
+To start the services:
 
-```
-sudo /opt/cato/services/start_services.sh
+```sudo /opt/cato/services/start_services.sh
 sudo /opt/cato/web/start_web.sh
 ```
+
+## Administrator UI Login
+
+To login to the Cato CE Administrator UI, point your browser to: 
+
+```http://<serveraddress>
+```
+
+Username: __administrator__
+Password: __password__
+
+> You will be required to change the password upon initial login.
+
+##Note on the web server
+
+Cato Community Edition runs on a lightweight webserver that comes with Python web framework Web.py.
+This should be sufficient for most uses Cato CE, however Cato can also be configured to use Apache.
+
+> Click [here](http://projects.cloudsidekick.com/projects/cato/wiki/ConfigureApache?utm_source=cato_docs&utm_medium=installdoc&utm_campaign=app) for details about configuring Apache to serve the Cato UI.
