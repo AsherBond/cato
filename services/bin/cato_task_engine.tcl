@@ -1567,7 +1567,7 @@ proc telnet_logon {address userid password top telnet_ssh attempt_num private_ke
 				puts $fp $private_key
 				close $fp
 				file attributes $::TMP/$key_file -permissions 0600
-				spawn ssh -i $::TMP/$key_file  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $userid@$address
+				spawn ssh -i $::TMP/$key_file  -o ForwardAgent=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $userid@$address
 			} else {
 				spawn ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $userid@$address
 			}
