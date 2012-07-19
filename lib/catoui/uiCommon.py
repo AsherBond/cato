@@ -22,6 +22,7 @@ import cgi
 import re
 import pickle
 import copy
+import decimal
 try:
     import xml.etree.cElementTree as ET
 except (AttributeError, ImportError):
@@ -41,13 +42,19 @@ from catouser import catouser
 """The following is needed when serializing objects that have datetime or other non-serializable
 internal types"""
 def jsonSerializeHandler(obj):
+    # decimals
+    if isinstance(obj, decimal.Decimal):
+        return float(obj)
+    
+    # date time
     if hasattr(obj, 'isoformat'):
         return obj.isoformat()
+    else:
+        return str(obj)
 #    elif isinstance(obj, custom_object):
 #        tmp = some code to coerce your custom_object into something serializable
 #        return tmp
-    else:
-        raise TypeError, 'Object of type %s with value of %s is not JSON serializable' % (type(obj), repr(obj))
+    raise TypeError, 'Object of type %s with value of %s is not JSON serializable' % (type(obj), repr(obj))
 
 # writes to stdout using the catocommon.server output function
 # also prints to the console.
