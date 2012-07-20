@@ -212,7 +212,10 @@ def GetSnip(sString, iMaxLength):
     return SafeHTML(sReturn)
 
 def SafeHTML(sInput):
-    return cgi.escape(sInput)
+    if sInput is not None:
+        return cgi.escape(sInput)
+    else:
+        return ""
 
 def FixBreaks(sInput):
     if sInput:
@@ -960,6 +963,13 @@ def RemoveNodeFromXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToRemove):
 
 def AttemptLogin(app_name):
     try:
+        if not app_name:
+            return "{\"error\" : \"Missing Application Name.\"}"
+        if not uiGlobals.web.ctx.ip:
+            return "{\"error\" : \"Unable to determine client address.\"}"
+
+        address = "%s (%s)" % (uiGlobals.web.ctx.ip, app_name)
+        
         in_name = getAjaxArg("username")
         in_pwd = getAjaxArg("password")
         in_pwd = unpackJSON(in_pwd)
@@ -973,7 +983,7 @@ def AttemptLogin(app_name):
         # Authenticate will return the codes so we will know
         # how to respond to the login page
         # (must change password, password expired, etc)
-        result, code = u.Authenticate(in_name, in_pwd, uiGlobals.web.ctx.ip, new_pwd, answer)
+        result, code = u.Authenticate(in_name, in_pwd, address, new_pwd, answer)
         if not result:
             if code == "disabled":
                 return "{\"info\" : \"Your account has been suspended.  Please contact an Adminstrator.\"}"
@@ -1008,7 +1018,7 @@ def AttemptLogin(app_name):
         current_user["role"] = u.Role
         current_user["tags"] = u.Tags
         current_user["email"] = u.Email
-        current_user["ip_address"] = uiGlobals.web.ctx.ip
+        current_user["ip_address"] = address
         SetSessionObject("user", current_user)
 
         log("Login granted for: ", 4)
@@ -1017,7 +1027,7 @@ def AttemptLogin(app_name):
         #update the security log
         AddSecurityLog(uiGlobals.SecurityLogTypes.Security, 
             uiGlobals.SecurityLogActions.UserLogin, uiGlobals.CatoObjectTypes.User, "", 
-            "Login to [%s] from [%s] granted." % (app_name, uiGlobals.web.ctx.ip))
+            "Login to [%s] from [%s] granted." % (app_name, address))
 
         return "{\"result\" : \"success\"}"
     except Exception:

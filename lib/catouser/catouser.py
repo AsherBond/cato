@@ -288,7 +288,7 @@ class User(object):
                 print(db.error)
         
             # whack and add to the user_session table
-            if not db.exec_db_noexcep("delete from user_session where user_id = '" + self.ID + "'"):
+            if not db.exec_db_noexcep("delete from user_session where user_id = '%s' and address = '%s'" % (self.ID, client_ip)):
                 print(db.error)
                 return False, "Unable to update session table. (1)"
             

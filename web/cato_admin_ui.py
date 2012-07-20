@@ -23,6 +23,8 @@ import pickle
 import shelve
 from datetime import datetime
 
+app_name = "cato_admin_ui"
+
 web_root = os.path.abspath(os.path.dirname(__file__))
 base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 lib_path = os.path.join(base_path, "lib")
@@ -261,7 +263,7 @@ def auth_app_processor(handle):
         return handle()
 
     # any other request requires an active session ... kick it out if there's not one.
-    if not session.get('user', False):
+    if not uiGlobals.session.get('user', False):
         raise web.seeother('/static/login.html?msg=' + urllib.quote_plus("Session expired."))
     
     # check the role/method mappings to see if the requested page is allowed
@@ -484,10 +486,10 @@ def CacheMenu():
 """
 
 
-if __name__ != "cato_admin_ui":
+if __name__ != app_name:
     #this is a service, which has a db connection.
     # but we're not gonna use that for gui calls - we'll make our own when needed.
-    server = catocommon.CatoService("cato_admin_ui")
+    server = catocommon.CatoService(app_name)
     server.startup()
 
     config = catocommon.read_config()
@@ -552,6 +554,7 @@ if __name__ != "cato_admin_ui":
     render_plain = web.template.render('templates')
     
     app = web.application(urls, globals(), autoreload=True)
+    web.config.session_parameters["cookie_name"] = app_name
     session = web.session.Session(app, web.session.ShelfStore(shelve.open('%s/datacache/session.shelf' % web_root)))
     app.add_processor(auth_app_processor)
     app.notfound = notfound
