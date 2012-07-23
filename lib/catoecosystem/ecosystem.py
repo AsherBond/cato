@@ -374,8 +374,12 @@ class EcotemplateAction(object):
 # why? Because we don't need a full object for list pages and dropdowns.
 class Ecosystems(object):
     rows = {}
-    def __init__(self, sAccountID, sFilter=""):
+    def __init__(self, sAccountID = "", sFilter=""):
         try:
+            sAccountClause = ""
+            if sAccountID:
+                sAccountClause = "and e.account_id = '%s'" % sAccountID
+                
             sWhereString = ""
             if sFilter:
                 aSearchTerms = sFilter.split()
@@ -386,13 +390,13 @@ class Ecosystems(object):
                             "or et.ecotemplate_name like '%%" + term + "%%') "
     
             sSQL = """select e.ecosystem_id, e.ecosystem_name, e.ecosystem_desc, e.account_id, et.ecotemplate_name,
-                e.storm_status, e.created_dt, e.last_update_dt,
+                e.storm_status, e.created_dt, e.last_update_dt, e.request_id,
                 (select count(*) from ecosystem_object where ecosystem_id = e.ecosystem_id) as num_objects,
                 group_concat(ot.tag_name order by ot.tag_name separator ',') as tags
                 from ecosystem e
                 join ecotemplate et on e.ecotemplate_id = et.ecotemplate_id
                 left outer join object_tags ot on e.ecosystem_id = ot.object_id
-                where e.account_id = '%s' %s group by e.ecosystem_id order by e.ecosystem_name""" % (sAccountID, sWhereString)
+                where 1=1 %s %s group by e.ecosystem_id order by e.ecosystem_name""" % (sAccountClause, sWhereString)
             
             db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
