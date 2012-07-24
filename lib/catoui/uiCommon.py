@@ -385,7 +385,7 @@ def GenerateScheduleLabel(sMo, sDa, sHo, sMi, sDW):
     return sDesc, sTooltip
 
 
-def ForceLogout(sMsg):
+def ForceLogout(sMsg = ""):
     if not sMsg:
         sMsg = "Session Ended"
     
@@ -393,7 +393,7 @@ def ForceLogout(sMsg):
     uiGlobals.session.kill()
     
     log_nouser("Forcing logout with message: " + sMsg, 0)
-    raise uiGlobals.web.seeother('/static/login.html?msg=' + urllib.quote_plus(sMsg))
+    raise uiGlobals.web.seeother('/static/login.html')
 
 def GetSessionUserID():
     try:

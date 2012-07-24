@@ -225,20 +225,11 @@ class login:
     def GET(self):
         # visiting the login page kills the session
         uiGlobals.session.kill()
-        
-        qs = ""
-        i = uiGlobals.web.input(msg=None)
-        if i.msg:
-            qs = "?msg=" + urllib.quote_plus(i.msg)
-        raise uiGlobals.web.seeother('/static/login.html' + qs)
+        raise uiGlobals.web.seeother('/static/login.html')
 
 class logout:        
     def GET(self):
-        i = uiGlobals.web.input(msg=None)
-        msg = "User Logged out at %s" % datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-        if i.msg:
-            msg = i.msg
-        uiCommon.ForceLogout(msg)
+        uiCommon.ForceLogout("")
         
 
 #Authentication preprocessor
@@ -264,7 +255,8 @@ def auth_app_processor(handle):
 
     # any other request requires an active session ... kick it out if there's not one.
     if not uiGlobals.session.get('user', False):
-        raise web.seeother('/static/login.html?msg=' + urllib.quote_plus("Session expired."))
+        uiCommon.log_nouser("Session Expired", 3)
+        raise web.seeother('/static/login.html')
     
     # check the role/method mappings to see if the requested page is allowed
     # HERE's the rub! ... some of our requests are for "pages" and others (most) are ajax calls.
