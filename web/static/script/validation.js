@@ -59,8 +59,8 @@ $(document).ready(function() {
 });
 
 
-function checkFieldConstraints($ctl) {
-	var msg = "";
+function checkFieldConstraints($ctl, append_to_parent) {
+	var msgs = [];
 	
 	//test the regex pattern
 	if ($ctl.attr("constraint")) {
@@ -69,7 +69,7 @@ function checkFieldConstraints($ctl) {
 		var patt = new RegExp("^" + rx + "$", "g");
 		
 		if (!patt.test(val)) {
-			msg += "<li>" + $ctl.attr("constraint_msg") + "</li>";
+			msgs.push($ctl.attr("constraint_msg"));
 		}
 	}
 
@@ -78,7 +78,7 @@ function checkFieldConstraints($ctl) {
     	var val = $ctl.val();
     	var ml = $ctl.attr("minlength");
     	if (val.length < ml) {
-    		msg += "<li>Value must be at least " + ml + " characters long.</li>";
+    		msgs.push("Value must be at least " + ml + " characters long.");
 		}
 	}
     
@@ -89,7 +89,7 @@ function checkFieldConstraints($ctl) {
 	    	var max = $ctl.attr("maxvalue");
 	    	if (isFinite(max)) {
 		    	if (val > max) {
-	    			msg += "<li>Value cannot be greater than " + max + ".</li>";
+	    			msgs.push("Value cannot be greater than " + max + ".");
 				}
 			}
 		}
@@ -102,20 +102,13 @@ function checkFieldConstraints($ctl) {
 	    	var min = $ctl.attr("minvalue");
 	    	if (isFinite(min)) {
 		    	if (val < min) {
-	    			msg += "<li>Value cannot be less than " + min + ".</li>";
+	    			msgs.push("Value cannot be less than " + min + ".");
 				}
 			}
 		}
 	}
     
-	//whack old messages
-	$ctl.parent().find(".constraint_msg").remove();
-
-    if (msg.length > 0) {
-    	$ctl.parent().append("<ul class=\"constraint_msg ui-state-highlight\">" + msg + "</ul>");
-    }
-	
-	return msg;
+	return msgs;
 }
 //some validations are not on a keypress basis, rather should happen on the blur event.
 //these funcs are called based on field type from the onStepFieldChange function.

@@ -304,21 +304,32 @@ $(document).ready(function () {
 // in those cases we're checking our "required" flag... here we're more specific.
 function checkParamConstraints() {
 	//look over the parameters and do their constraint checking
-	var msg = "";
-	
 	if ($(".task_launch_parameter_value_input").length > 0) {
 		var warn = false;
-		$(".task_launch_parameter_value_input").each(function(){
-			msg += checkFieldConstraints($(this));
+		$(".task_launch_parameter_value_input").each(function() {
+			msgs = checkFieldConstraints($(this));
+
+			$(this).parent().find(".constraint_msg").remove();
+
+			if (msgs.length > 0) {
+				warn = true;
+				$ul = $("<ul class=\"constraint_msg ui-state-highlight\" />");
+				$.each(msgs, function(index, msg) {
+					$ul.append("<li>" + msg + "</li>");
+				});
+				$(this).parent().append($ul);
+			}
+
 		});
-	
-		if (msg.length > 0) {
+
+		if (warn) {
 			return false;
 		} else {
 			return true;
 		}
 	} else
-		return true; //there are no parameters
+		return true;
+	//there are no parameters
 }
 
 
