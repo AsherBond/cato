@@ -138,6 +138,10 @@ function doGetCodeblocks() {
         success: function (response) {
             $("#codeblocks").html(response);
             
+			// the MAIN codeblock can't be deleted or removed
+			$("#codeblock_rename_btn_MAIN").remove();
+			$("#codeblock_delete_btn_MAIN").remove(); 
+
         	//crazy... we can drag out of the codeblock selector!
 		    $("#codeblock_selector .codeblock").draggable("destroy");
 		    $("#codeblock_selector .codeblock").draggable({
