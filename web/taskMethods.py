@@ -30,8 +30,7 @@ except AttributeError as ex:
 
 from catoui import uiCommon, uiGlobals
 from catocommon import catocommon
-from catotask import task
-import stepTemplates as ST
+from catotask import task, stepTemplates as ST
 
 # task-centric web methods
 

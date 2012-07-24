@@ -627,6 +627,32 @@ def DrawField(xe, sXPath, oStep):
     sInputType = xe.get("input_type", "")
     sRequired = xe.get("required", "")
     bRequired = catocommon.is_true(sRequired)
+    
+    # CommonAttribs takes an options dictionary
+    opts = {}
+    sConstraint = xe.get("constraint", "")
+    if sConstraint:
+        opts["constraint"] = sConstraint
+    sConstraintMsg = xe.get("constraint_msg", "")
+    if sConstraintMsg:
+        opts["constraint_msg"] = sConstraintMsg
+    sMinLength = xe.get("minlength", "")
+    if sMinLength:
+        opts["minlength"] = sMinLength
+    sMaxLength = xe.get("maxlength", "")
+    if sMaxLength:
+        opts["maxlength"] = sMaxLength
+    sMinValue = xe.get("minvalue", "")
+    if sMinValue:
+        opts["minvalue"] = sMinValue
+    sMaxValue = xe.get("maxvalue", "")
+    if sMaxValue:
+        opts["maxvalue"] = sMaxValue
+        
+    if len(opts) > 0:
+        UI.log("---- Options :", 4)
+        UI.log(opts, 4)
+        
 
     UI.log("---- Input Type :" + sInputType, 4)
     UI.log("---- Break Before/After : %s/%s" % (sBreakBefore, sBreakAfter), 4)
@@ -644,7 +670,7 @@ def DrawField(xe, sXPath, oStep):
         sRows = xe.get("rows", "2")
         sTextareaID = catocommon.new_guid()
         sHTML += sNodeLabel + " <textarea rows=\"" + sRows + "\"" + \
-            CommonAttribsWithID(oStep, bRequired, sXPath, sTextareaID, sCSSClasses) + \
+            CommonAttribsWithID(oStep, bRequired, sXPath, sTextareaID, sCSSClasses, opts) + \
             " style=\"" + sStyle + "\"" \
             " help=\"" + sHelp + "\"" \
             ">" + sNodeValue + "</textarea>"
@@ -757,7 +783,7 @@ def DrawField(xe, sXPath, oStep):
     else: #input is the default
         sElementID = catocommon.new_guid() #some special cases below may need this.
         sHTML += sNodeLabel + " <input type=\"text\" " + \
-            CommonAttribsWithID(oStep, bRequired, sXPath, sElementID, sCSSClasses) + \
+            CommonAttribsWithID(oStep, bRequired, sXPath, sElementID, sCSSClasses, opts) + \
             " style=\"" + sStyle + "\"" \
             " help=\"" + sHelp + "\"" \
             " value=\"" + sNodeValue + "\" />"
@@ -826,10 +852,15 @@ def DrawStepOptions_View(sOptionHTML):
 
     return sHTML
 
-def CommonAttribsWithID(oStep, bRequired, sXPath, sElementID, sAdditionalClasses):
+def CommonAttribsWithID(oStep, bRequired, sXPath, sElementID, sAdditionalClasses, opts=None):
     # if it's embedded it will have a prefix
     sXPath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "") + sXPath
     
+    sOpts = ""
+    if opts:
+        for k, v in opts.iteritems():
+            sOpts += " %s=\"%s\"" % (k, v)
+
     # requires a guid ID passed in - this one will be referenced client side
     return " id=\"" + sElementID + "\"" \
         " step_id=\"" + oStep.ID + "\"" \
@@ -838,12 +869,18 @@ def CommonAttribsWithID(oStep, bRequired, sXPath, sElementID, sAdditionalClasses
         " te_group=\"step_fields\"" \
         " class=\"step_input code " + sAdditionalClasses + "\"" + \
         (" is_required=\"true\"" if bRequired else "") + \
+        sOpts + \
         " onchange=\"javascript:onStepFieldChange(this, '" + oStep.ID + "', '" + sXPath + "');\""
 
-def CommonAttribs(oStep, bRequired, sXPath, sAdditionalClasses):
+def CommonAttribs(oStep, bRequired, sXPath, sAdditionalClasses, opts=None):
     # if it's embedded it will have a prefix
     sXPath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "") + sXPath
     
+    sOpts = ""
+    if opts:
+        for k, v in opts:
+            sOpts += " %s=\"%s\"" % (k, v)
+
     # creates a new id
     return " id=\"x" + catocommon.new_guid() + "\"" \
         " step_id=\"" + oStep.ID + "\"" \
@@ -852,6 +889,7 @@ def CommonAttribs(oStep, bRequired, sXPath, sAdditionalClasses):
         " te_group=\"step_fields\"" \
         " class=\"step_input code " + sAdditionalClasses + "\"" + \
         (" is_required=\"true\"" if bRequired else "") + \
+        sOpts + \
         " onchange=\"javascript:onStepFieldChange(this, '" + oStep.ID + "', '" + sXPath + "');\""
 
 def DrawEmbeddedStep(oStep):
