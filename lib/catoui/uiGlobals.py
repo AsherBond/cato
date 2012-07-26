@@ -68,6 +68,7 @@ class CatoObjectTypes(object):
     Schedule = 4
     Registry = 6
     Tag = 7
+    Image = 8
     MessageTemplate = 18
     Parameter = 34
     Credential = 35
@@ -76,6 +77,7 @@ class CatoObjectTypes(object):
     Cloud = 41
     Ecosystem = 50
     EcoTemplate = 51
+    Request = 61
 
 RoleMethods = {
     "/cloudAccountEdit" : ["Developer"],

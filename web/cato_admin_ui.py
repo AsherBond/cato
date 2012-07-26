@@ -109,6 +109,10 @@ class tagEdit:
     def GET(self):
         return render.tagEdit()
 
+class imageEdit:        
+    def GET(self):
+        return render.imageEdit()
+
 class userEdit:        
     def GET(self):
         return render.userEdit()
@@ -530,6 +534,7 @@ if __name__ != app_name:
         '/userEdit', 'userEdit',
         '/assetEdit', 'assetEdit',
         '/tagEdit', 'tagEdit',
+        '/imageEdit', 'imageEdit',
         '/credentialEdit', 'credentialEdit',
         '/announcement', 'announcement',
         '/getlicense', 'getlicense',

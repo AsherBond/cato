@@ -97,3 +97,5 @@ web/static/script/stormRunDialog.js
 web/static/script/stormStopDialog.js
 
 web/static/_command_help.html
+
+web/site.master.xml.ce
