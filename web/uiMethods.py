@@ -894,10 +894,14 @@ class uiMethods:
         try:
             sHTML = ""
             sFilter = uiCommon.getAjaxArg("sSearch")
+            sPage = uiCommon.getAjaxArg("sPage")
+            maxrows = 25
 
             u = catouser.Users(sFilter)
             if u.rows:
-                for row in u.rows:
+                start, end, pager_html = uiCommon.GetPager(len(u.rows), maxrows, sPage)
+
+                for row in u.rows[start:end]:
                     sHTML += "<tr user_id=\"" + row["user_id"] + "\">"
                     sHTML += "<td class=\"chkboxcolumn\">"
                     sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
@@ -913,7 +917,7 @@ class uiMethods:
                     
                     sHTML += "</tr>"
     
-            return sHTML    
+            return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
             return traceback.format_exc()           
@@ -1127,10 +1131,14 @@ class uiMethods:
         try:
             sHTML = ""
             sFilter = uiCommon.getAjaxArg("sSearch")
+            sPage = uiCommon.getAjaxArg("sPage")
+            maxrows = 25
 
             a = asset.Assets(sFilter)
             if a.rows:
-                for row in a.rows:
+                start, end, pager_html = uiCommon.GetPager(len(a.rows), maxrows, sPage)
+
+                for row in a.rows[start:end]:
                     sHTML += "<tr asset_id=\"" + row["asset_id"] + "\">"
                     sHTML += "<td class=\"chkboxcolumn\">"
                     sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
@@ -1144,7 +1152,8 @@ class uiMethods:
                     sHTML += "<td class=\"selectable\">%s</td>" % (row["credentials"] if row["credentials"] else "")
                     
                     sHTML += "</tr>"
-            return sHTML    
+
+            return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
             return traceback.format_exc()           
@@ -1201,10 +1210,14 @@ class uiMethods:
         try:
             sHTML = ""
             sFilter = uiCommon.getAjaxArg("sSearch")
+            sPage = uiCommon.getAjaxArg("sPage")
+            maxrows = 25
 
             c = asset.Credentials(sFilter)
             if c.rows:
-                for row in c.rows:
+                start, end, pager_html = uiCommon.GetPager(len(c.rows), maxrows, sPage)
+
+                for row in c.rows[start:end]:
                     sHTML += "<tr credential_id=\"" + row["credential_id"] + "\">"
                     sHTML += "<td class=\"chkboxcolumn\">"
                     sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
@@ -1218,7 +1231,8 @@ class uiMethods:
                     sHTML += "<td class=\"selectable\">%s</td>" % (row["shared_cred_desc"] if row["shared_cred_desc"] else "")
                     
                     sHTML += "</tr>"
-            return sHTML    
+
+            return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
             return traceback.format_exc()           

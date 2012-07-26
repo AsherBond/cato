@@ -38,11 +38,14 @@ class cloudMethods:
         try:
             sHTML = ""
             sFilter = uiCommon.getAjaxArg("sSearch")
-            sHTML = ""
+            sPage = uiCommon.getAjaxArg("sPage")
+            maxrows = 25
             
-            ca = cloud.Clouds(sFilter)
-            if ca.rows:
-                for row in ca.rows:
+            c = cloud.Clouds(sFilter)
+            if c.rows:
+                start, end, pager_html = uiCommon.GetPager(len(c.rows), maxrows, sPage)
+
+                for row in c.rows[start:end]:
                     sHTML += "<tr cloud_id=\"" + row["cloud_id"] + "\">"
                     sHTML += "<td class=\"chkboxcolumn\">"
                     sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
@@ -57,7 +60,7 @@ class cloudMethods:
                     
                     sHTML += "</tr>"
     
-            return sHTML    
+            return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
             return traceback.format_exc()
@@ -184,11 +187,15 @@ class cloudMethods:
     def wmGetCloudAccountsTable(self):
         try:
             sFilter = uiCommon.getAjaxArg("sSearch")
+            sPage = uiCommon.getAjaxArg("sPage")
+            maxrows = 25
             sHTML = ""
             
             ca = cloud.CloudAccounts(sFilter)
             if ca.rows:
-                for row in ca.rows:
+                start, end, pager_html = uiCommon.GetPager(len(ca.rows), maxrows, sPage)
+
+                for row in ca.rows[start:end]:
                     sHTML += "<tr account_id=\"" + row["account_id"] + "\">"
                     
                     if not row["has_ecosystems"]:
@@ -211,7 +218,7 @@ class cloudMethods:
                     
                     sHTML += "</tr>"
 
-            return sHTML    
+            return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
             
             #should not get here if all is well
             return "{\"result\":\"fail\",\"error\":\"Failed to get Cloud Accounts using filter [" + sFilter + "].\"}"

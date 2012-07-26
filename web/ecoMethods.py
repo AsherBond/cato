@@ -58,9 +58,14 @@ class ecoMethods:
         try:
             sHTML = ""
             sFilter = uiCommon.getAjaxArg("sSearch")
+            sPage = uiCommon.getAjaxArg("sPage")
+            maxrows = 25
+
             ets = ecosystem.Ecotemplates(sFilter)
             if ets.rows:
-                for row in ets.rows:
+                start, end, pager_html = uiCommon.GetPager(len(ets.rows), maxrows, sPage)
+
+                for row in ets.rows[start:end]:
                     sHTML += "<tr ecotemplate_id=\"%s\">" % row["ecotemplate_id"]
                     sHTML += "<td class=\"chkboxcolumn\">"
                     sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
@@ -74,7 +79,7 @@ class ecoMethods:
                     
                     sHTML += "</tr>"
     
-            return sHTML    
+            return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
             
@@ -757,11 +762,15 @@ class ecoMethods:
         try:
             sFilter = uiCommon.getAjaxArg("sSearch")
             sAccountID = uiCommon.getAjaxArg("sAccountID")
+            sPage = uiCommon.getAjaxArg("sPage")
+            maxrows = 25
 
             sHTML = ""
             ets = ecosystem.Ecosystems(sAccountID, sFilter)
             if ets.rows:
-                for row in ets.rows:
+                start, end, pager_html = uiCommon.GetPager(len(ets.rows), maxrows, sPage)
+
+                for row in ets.rows[start:end]:
                     sHTML += "<tr ecosystem_id=\"%s\">" % row["ecosystem_id"]
                     sHTML += "<td class=\"chkboxcolumn\">"
                     sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
@@ -780,7 +789,7 @@ class ecoMethods:
                     
                     sHTML += "</tr>"
     
-            return sHTML    
+            return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
 

@@ -86,16 +86,26 @@ $(document).ready(function () {
 	GetItems();
 });
 
-function GetItems() {
+function GetItems(page) {
+	if (!page)
+		page = "1"
     $.ajax({
         type: "POST",
         async: true,
         url: "ecoMethods/wmGetEcotemplatesTable",
-        data: '{"sSearch":"' + $("#txtSearch").val() + '"}',
+        data: '{"sSearch":"' + $("#txtSearch").val() + '", "sPage":"' + page + '"}',
         contentType: "application/json; charset=utf-8",
-        dataType: "html",
+        dataType: "json",
         success: function (response) {
-            $("#ecotemplates").html(response);
+        	pager = unpackJSON(response.pager);
+        	html = unpackJSON(response.rows);
+        	
+            $("#pager").html(pager);
+        	$("#pager .pager_button").click(function () {
+        		GetItems($(this).text());
+        	});
+
+            $("#ecotemplates").html(html);
             //gotta restripe the table
             initJtable(true, true);
 

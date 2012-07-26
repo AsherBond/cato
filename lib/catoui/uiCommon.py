@@ -58,7 +58,7 @@ def jsonSerializeHandler(obj):
 
 # writes to stdout using the catocommon.server output function
 # also prints to the console.
-def log(msg, debuglevel = 2):
+def log(msg, debuglevel=2):
     if msg:
         if debuglevel <= uiGlobals.debuglevel:
             user_id = ""
@@ -70,7 +70,7 @@ def log(msg, debuglevel = 2):
                 
             log_nouser(msg, debuglevel)
 
-def log_nouser(msg, debuglevel = 2):
+def log_nouser(msg, debuglevel=2):
     if msg:
         if debuglevel <= uiGlobals.debuglevel:
             try:
@@ -129,7 +129,7 @@ def getAjaxArg(sArg, sDefault=""):
         raise Exception("getAjaxArg - no JSON arguments to decode. This method required a POST with JSON arguments.")
     
 def GetCookie(sCookie):
-    cookie=uiGlobals.web.cookies().get(sCookie)
+    cookie = uiGlobals.web.cookies().get(sCookie)
     if cookie:
         return cookie
     else:
@@ -233,7 +233,7 @@ def AddSecurityLog(LogType, Action, ObjectType, ObjectID, LogMessage):
         log_nouser(db.error, 0)
     db.close()
 
-def WriteObjectAddLog(oType, sObjectID, sObjectName, sLog = ""):
+def WriteObjectAddLog(oType, sObjectID, sObjectName, sLog=""):
     if sObjectID and sObjectName:
         if not sLog:
             sLog = "Created: [" + catocommon.tick_slash(sObjectName) + "]."
@@ -242,7 +242,7 @@ def WriteObjectAddLog(oType, sObjectID, sObjectName, sLog = ""):
 
         AddSecurityLog(uiGlobals.SecurityLogTypes.Object, uiGlobals.SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
 
-def WriteObjectDeleteLog(oType, sObjectID, sObjectName, sLog = ""):
+def WriteObjectDeleteLog(oType, sObjectID, sObjectName, sLog=""):
     if sObjectID and sObjectName:
         if not sLog:
             sLog = "Deleted: [" + catocommon.tick_slash(sObjectName) + "]."
@@ -251,7 +251,7 @@ def WriteObjectDeleteLog(oType, sObjectID, sObjectName, sLog = ""):
 
         AddSecurityLog(uiGlobals.SecurityLogTypes.Object, uiGlobals.SecurityLogActions.ObjectDelete, oType, sObjectID, sLog)
 
-def WriteObjectChangeLog(oType, sObjectID, sObjectName, sLog = ""):
+def WriteObjectChangeLog(oType, sObjectID, sObjectName, sLog=""):
     if sObjectID and sObjectName:
         if not sObjectName:
             sObjectName = "[" + catocommon.tick_slash(sObjectName) + "]."
@@ -385,7 +385,7 @@ def GenerateScheduleLabel(sMo, sDa, sHo, sMi, sDW):
     return sDesc, sTooltip
 
 
-def ForceLogout(sMsg = ""):
+def ForceLogout(sMsg=""):
     if not sMsg:
         sMsg = "Session Ended"
     
@@ -582,7 +582,7 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
         c = cloud.Cloud()
         c.FromID(sCloudID)
         if c is None:
-            return None,  "Unable to get Cloud for ID [" + sCloudID + "]"
+            return None, "Unable to get Cloud for ID [" + sCloudID + "]"
         
         cot = c.Provider.GetObjectTypeByName(sObjectType)
         if cot is not None:
@@ -600,7 +600,7 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
         
         import aws
         
-        if c.Provider.Name.lower() =="openstack":
+        if c.Provider.Name.lower() == "openstack":
             """not yet implemented"""
             #ACWebMethods.openstackMethods acOS = new ACWebMethods.openstackMethods()
             #sXML = acOS.GetCloudObjectsAsXML(c.ID, cot, 0000BYREF_ARG0000sErr, null)
@@ -1025,8 +1025,8 @@ def AttemptLogin(app_name):
         log(uiGlobals.session.user, 4)
 
         #update the security log
-        AddSecurityLog(uiGlobals.SecurityLogTypes.Security, 
-            uiGlobals.SecurityLogActions.UserLogin, uiGlobals.CatoObjectTypes.User, "", 
+        AddSecurityLog(uiGlobals.SecurityLogTypes.Security,
+            uiGlobals.SecurityLogActions.UserLogin, uiGlobals.CatoObjectTypes.User, "",
             "Login to [%s] from [%s] granted." % (app_name, address))
 
         return "{\"result\" : \"success\"}"
@@ -1068,3 +1068,36 @@ def UpdateHeartbeat():
     finally:
         if db.conn.socket:
             db.close()
+
+def GetPager(rowcount, maxrows, page):
+    try:
+        # no pager if there's not enough rows
+        if rowcount <= maxrows:
+            return 0, None, ""
+        
+        maxrows = maxrows if maxrows else 25
+        try:
+            page = int(page)
+        except:
+            page = 1
+        
+        mod = rowcount % maxrows
+        numpages = (rowcount / maxrows) + 1 if mod else (rowcount / maxrows)
+        start = (maxrows * page) - maxrows
+        end = start + maxrows
+        
+        pager_html = ""
+        if numpages:
+            pager = []
+            for i in range(numpages):
+                i+=1
+                selected = "pager_button_selected" if i==page else ""
+                pager.append("<span class=\"pager_button %s\">%d</span>" % (selected, i))
+            
+            pager_html = "".join(pager)
+        
+        # log("showing page %d items %d to %d" % (page, start, end), 3)
+          
+        return start, end, pager_html      
+    except Exception:
+        log_nouser(traceback.format_exc(), 0)

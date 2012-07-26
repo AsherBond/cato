@@ -51,18 +51,28 @@ $(document).ready(function () {
 	FillEcotemplatesDropdown();
 });
 
-function GetItems() {
+function GetItems(page) {
+	if (!page)
+		page = "1"
 	var account_id = $("#header_cloud_accounts").val();
 	var search = $("#txtSearch").val();
     $.ajax({
         type: "POST",
         async: true,
         url: "ecoMethods/wmGetEcosystemsTable",
-        data: '{"sSearch":"' + search + '", "sAccountID":"' + account_id + '"}',
+        data: '{"sSearch":"' + search + '", "sPage":"' + page + '", "sAccountID":"' + account_id + '"}',
         contentType: "application/json; charset=utf-8",
-        dataType: "text",
+        dataType: "json",
         success: function (response) {
-            $("#ecosystems").html(response);
+        	pager = unpackJSON(response.pager);
+        	html = unpackJSON(response.rows);
+        	
+            $("#pager").html(pager);
+        	$("#pager .pager_button").click(function () {
+        		GetItems($(this).text());
+        	});
+
+            $("#ecosystems").html(html);
             //gotta restripe the table
             initJtable(true, true);
 

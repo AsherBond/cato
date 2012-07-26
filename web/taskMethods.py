@@ -41,9 +41,13 @@ class taskMethods:
         try:
             sHTML = ""
             sFilter = uiCommon.getAjaxArg("sSearch")
+            sPage = uiCommon.getAjaxArg("sPage")
+            maxrows = 25
             tasks = task.Tasks(sFilter)
             if tasks.rows:
-                for row in tasks.rows:
+                start, end, pager_html = uiCommon.GetPager(len(tasks.rows), maxrows, sPage)
+
+                for row in tasks.rows[start:end]:
                     sHTML += "<tr task_id=\"" + row["task_id"] + "\" status=\"" + row["task_status"] + "\">"
                     sHTML += "<td class=\"chkboxcolumn\">"
                     sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
@@ -61,7 +65,7 @@ class taskMethods:
                     
                     sHTML += "</tr>"
     
-            return sHTML    
+            return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
 

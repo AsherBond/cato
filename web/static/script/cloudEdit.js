@@ -188,16 +188,26 @@ function TestConnection() {
 	}
 }
 
-function GetItems() {
+function GetItems(page) {
+	if (!page)
+		page = "1"
     $.ajax({
         type: "POST",
         async: false,
         url: "cloudMethods/wmGetCloudsTable",
-        data: '{"sSearch":"' + $("#txtSearch").val() + '"}',
+        data: '{"sSearch":"' + $("#txtSearch").val() + '", "sPage":"' + page + '"}',
         contentType: "application/json; charset=utf-8",
-        dataType: "html",
+        dataType: "json",
         success: function (response) {
-            $("#clouds").html(response);
+        	pager = unpackJSON(response.pager);
+        	html = unpackJSON(response.rows);
+        	
+            $("#pager").html(pager);
+        	$("#pager .pager_button").click(function () {
+        		GetItems($(this).text());
+        	});
+
+            $("#clouds").html(html);
             //gotta restripe the table
             initJtable(true, true);
 		    $("#clouds .selectable").click(function () {

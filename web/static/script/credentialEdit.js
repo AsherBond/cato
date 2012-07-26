@@ -52,16 +52,26 @@ $(document).ready(function () {
     GetItems();
 });
 
-function GetItems() {
+function GetItems(page) {
+	if (!page)
+		page = "1"
     $.ajax({
         type: "POST",
         async: false,
         url: "uiMethods/wmGetCredentialsTable",
-        data: '{"sSearch":"' + $("#txtSearch").val() + '"}',
+        data: '{"sSearch":"' + $("#txtSearch").val() + '", "sPage":"' + page + '"}',
         contentType: "application/json; charset=utf-8",
-        dataType: "html",
+        dataType: "json",
         success: function (response) {
-            $("#credentials").html(response);
+        	pager = unpackJSON(response.pager);
+        	html = unpackJSON(response.rows);
+        	
+            $("#pager").html(pager);
+        	$("#pager .pager_button").click(function () {
+        		GetItems($(this).text());
+        	});
+
+            $("#credentials").html(html);
             //gotta restripe the table
             initJtable(true, true);
 		    $("#credentials .selectable").click(function () {
