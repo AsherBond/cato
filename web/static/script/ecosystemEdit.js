@@ -21,6 +21,10 @@ var g_ecotemplate_id;
 $(document).ready(function () {
 	"use strict";
 
+	getScript("storm.js");
+	getScript("stormRunDialog.js");
+	getScript("stormStopDialog.js");
+
     //used a lot
     g_eco_id = getQuerystringVariable("ecosystem_id");
 

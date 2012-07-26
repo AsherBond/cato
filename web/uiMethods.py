@@ -110,9 +110,9 @@ class uiMethods:
             if user_role == "Administrator":
                 items = []
                 regstatus = sset.get_application_setting("general/register_cato")
-                if regstatus not in ["skipped","registered"]:
+                if regstatus not in ["skipped", "registered"]:
                     items.append("Register Cato to receive updates about the latest versions, plus the latest news and Community support.")
-                    sHTML += self.DrawGettingStartedItem("registercato", "Register Cato", items, 
+                    sHTML += self.DrawGettingStartedItem("registercato", "Register Cato", items,
                          "<a href=\"#\" onclick=\"registerCato();\">Click here</a> to register Cato.<br /><a href=\"#\" id=\"skip_registration_btn\">Click here</a> to skip registering and hide this message.")
 
 
@@ -195,7 +195,7 @@ class uiMethods:
                     else:
                         sSelectClause = ("selected=\"selected\"" if sSelected == row["account_id"] else "")
                         
-                    sHTML +=  "<option value=\"%s\" provider=\"%s\" %s>%s (%s)</option>" % (row["account_id"], row["provider"], sSelectClause, row["account_name"], row["provider"])
+                    sHTML += "<option value=\"%s\" provider=\"%s\" %s>%s (%s)</option>" % (row["account_id"], row["provider"], sSelectClause, row["account_name"], row["provider"])
 
                 return sHTML
             
@@ -303,7 +303,7 @@ class uiMethods:
                     with open(logfile, 'r') as f:
                         f.seek (0, 2)           # Seek @ EOF
                         fsize = f.tell()        # Get Size
-                        f.seek (max (fsize-102400, 0), 0) # Set pos @ last n chars
+                        f.seek (max (fsize - 102400, 0), 0) # Set pos @ last n chars
                         tail = f.readlines()       # Read to end
 
                         return uiCommon.packJSON("".join(tail))
@@ -373,7 +373,7 @@ class uiMethods:
                         
                     i += 1
     
-                sLog =  "".join(sb)
+                sLog = "".join(sb)
 
             return "{ \"log\" : [ %s ] }" % (sLog)
 
@@ -464,7 +464,7 @@ class uiMethods:
                 " left outer join ecotemplate_action a on s.action_id = a.action_id" \
                 " left outer join ecosystem e on s.ecosystem_id = e.ecosystem_id" \
                 " where s.task_id = '" + sTaskID + "'" + \
-                (" and e.ecosystem_id = '" +sEcosystemID + "'" if sEcosystemID else "")
+                (" and e.ecosystem_id = '" + sEcosystemID + "'" if sEcosystemID else "")
             dt = self.db.select_all_dict(sSQL)
             if self.db.error:
                 uiCommon.log_nouser(self.db.error, 0)
@@ -800,8 +800,8 @@ class uiMethods:
                 result, msg = obj.DBSave()
                 
                 if result:
-                    uiCommon.AddSecurityLog(uiGlobals.SecurityLogTypes.Security, 
-                        uiGlobals.SecurityLogActions.ConfigChange, uiGlobals.CatoObjectTypes.NA, "", 
+                    uiCommon.AddSecurityLog(uiGlobals.SecurityLogTypes.Security,
+                        uiGlobals.SecurityLogActions.ConfigChange, uiGlobals.CatoObjectTypes.NA, "",
                         "%s settings changed." % sType.capitalize())
                     
                     return "{\"result\":\"success\"}"
@@ -853,7 +853,7 @@ class uiMethods:
             for pair in sValues:
                 # but to prevent sql injection, only build a sql from values we accept
                 if pair["name"] == "my_email":
-                    sql_bits.append("email = '%s'" %  catocommon.tick_slash(pair["value"]))
+                    sql_bits.append("email = '%s'" % catocommon.tick_slash(pair["value"]))
                 if pair["name"] == "my_question":
                     sql_bits.append("security_question = '%s'" % catocommon.tick_slash(pair["value"]))
                 if pair["name"] == "my_answer":
@@ -909,11 +909,11 @@ class uiMethods:
                     " tag=\"chk\" />"
                     sHTML += "</td>"
                     
-                    sHTML += "<td class=\"selectable\">" + row["status"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["full_name"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["username"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["role"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + str(row["last_login_dt"]) +  "</td>"
+                    sHTML += "<td class=\"selectable\">" + row["status"] + "</td>"
+                    sHTML += "<td class=\"selectable\">" + row["full_name"] + "</td>"
+                    sHTML += "<td class=\"selectable\">" + row["username"] + "</td>"
+                    sHTML += "<td class=\"selectable\">" + row["role"] + "</td>"
+                    sHTML += "<td class=\"selectable\">" + str(row["last_login_dt"]) + "</td>"
                     
                     sHTML += "</tr>"
     
@@ -970,7 +970,7 @@ class uiMethods:
             for key, val in args.iteritems():
                 # but to prevent sql injection, only build a sql from values we accept
                 if key == "LoginID":
-                    sql_bits.append("username='%s'" %  val)
+                    sql_bits.append("username='%s'" % val)
                 if key == "FullName":
                     sql_bits.append("full_name='%s'" % val)
                 if key == "Status":
@@ -1071,7 +1071,7 @@ class uiMethods:
         try:
             args = uiCommon.getAjaxArgs()
 
-            u, msg = catouser.User.DBCreateNew(args["LoginID"], args["FullName"], args["AuthenticationType"], uiCommon.unpackJSON(args["Password"]), 
+            u, msg = catouser.User.DBCreateNew(args["LoginID"], args["FullName"], args["AuthenticationType"], uiCommon.unpackJSON(args["Password"]),
                                             args["GeneratePW"], args["ForceChange"], args["Role"], args["Email"], args["Status"], args["Groups"])
             if msg:
                 return "{\"error\" : \"" + msg + "\"}"
@@ -1269,7 +1269,7 @@ class uiMethods:
         try:
             args = uiCommon.getAjaxArgs()
 
-            a, sErr = asset.Asset.DBCreateNew(args["Name"], args["Status"], args["DBName"], args["Port"], 
+            a, sErr = asset.Asset.DBCreateNew(args["Name"], args["Status"], args["DBName"], args["Port"],
               args["Address"], args["ConnString"], args["Tags"], args["CredentialMode"], args["Credential"])
             if sErr:
                 return "{\"error\" : \"" + sErr + "\"}"
@@ -1365,7 +1365,7 @@ class uiMethods:
             # before calling DBCreateNew
             # sName, sDesc, sUsername, sPassword, sShared, sDomain, sPrivPassword
             c = asset.Credential()
-            c.FromArgs(args["Name"], args["Description"], args["Username"], args["Password"], 
+            c.FromArgs(args["Name"], args["Description"], args["Username"], args["Password"],
                      args["SharedOrLocal"], args["Domain"], args["PrivilegedPassword"])
             result, err = c.DBCreateNew()
             if err:
@@ -1592,3 +1592,21 @@ class uiMethods:
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
    
+    """
+    Some Enterprise features require additional script files.  A CE install would show 
+    404 errors if we include them on the client files, so we'll get and eval them this way.
+    """
+    def wmGetScript(self):
+        try:
+            sScriptName = uiCommon.getAjaxArg("sScriptName")
+            if sScriptName:
+                sScriptName = "static/script/%s" % sScriptName
+                if os.path.exists(sScriptName):
+                    with open(sScriptName, 'r') as f:
+                        if f:
+                            return f.read()
+            
+            return ""
+        except Exception as ex:
+            return ex.__str__()
+            

@@ -14,6 +14,8 @@
 //
 
 $(document).ready(function () {
+	getScript("storm.js");
+
     // clear the edit array
     $("#hidSelectedArray").val("");
 

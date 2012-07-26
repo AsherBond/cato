@@ -15,6 +15,9 @@
 
 //This is all the functions to support the ecoTemplateEdit page.
 $(document).ready(function() {
+	getScript("storm.js");
+	getScript("stormRunDialog.js");
+
 	//used a lot
 	g_id = getQuerystringVariable("ecotemplate_id");
 
