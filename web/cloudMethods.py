@@ -69,7 +69,7 @@ class cloudMethods:
         try:
             sUserDefinedOnly = uiCommon.getAjaxArg("sUserDefinedOnly")
             sHTML = ""
-            cp = cloud.CloudProviders()
+            cp = cloud.CloudProviders(include_clouds = False, include_products = False)
             if cp:
                 for name, p in cp.iteritems():
                     if catocommon.is_true(sUserDefinedOnly):
@@ -281,7 +281,7 @@ class cloudMethods:
         try:
             sProvider = uiCommon.getAjaxArg("sProvider")
             
-            cp = cloud.CloudProviders()
+            cp = cloud.CloudProviders(include_clouds = False)
             if cp is None:
                 return "{\"result\":\"fail\",\"error\":\"Failed to get Providers.\"}"
             else:
@@ -396,7 +396,7 @@ class cloudMethods:
 #        try:
 #            sProvider = uiCommon.getAjaxArg("sProvider")
 #            sHTML = ""
-#            cp = providers.CloudProviders()
+#            cp = providers.CloudProviders(include_clouds = False)
 #            if cp:
 #                p = cp[sProvider]
 #                for i in p.GetAllObjectTypes.items():

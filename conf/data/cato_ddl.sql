@@ -13,6 +13,13 @@ CREATE TABLE `clouds` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+CREATE  TABLE `cato`.`clouds_accounts` (
+  `cloud_id` VARCHAR(36) NOT NULL ,
+  `account_id` VARCHAR(36) NOT NULL ,
+  `is_default` INT NOT NULL ,
+  PRIMARY KEY (`cloud_id`, `account_id`) );
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
   `user_id` varchar(36) NOT NULL DEFAULT '',
   `username` varchar(128) NOT NULL,
