@@ -119,7 +119,7 @@ class ecoMethods:
 
             if uiCommon.IsGUID(sEcoTemplateID) and uiCommon.IsGUID(sUserID):
                 et = ecosystem.Ecotemplate()
-                et.FromID(sEcoTemplateID)
+                et.FromID(sEcoTemplateID, bIncludeActions=False, bIncludeRunlist=False)
                 
                 if et:
                     # we encoded this in javascript before the ajax call.
@@ -162,7 +162,7 @@ class ecoMethods:
 
             if uiCommon.IsGUID(sEcoTemplateID) and uiCommon.IsGUID(sUserID):
                 et = ecosystem.Ecotemplate()
-                et.FromID(sEcoTemplateID)
+                et.FromID(sEcoTemplateID, bIncludeActions=False, bIncludeRunlist=False)
                 
                 if et:
                     et.StormFileType = uiCommon.unpackJSON(sStormFileSource)
@@ -225,7 +225,7 @@ class ecoMethods:
     
                 # have to instantiate one to copy it
                 et = ecosystem.Ecotemplate()
-                et.FromID(sEcoTemplateID)
+                et.FromID(sEcoTemplateID, bIncludeRunlist=False)
                 if et is not None:
                     result, msg = et.DBCopy(sNewName)
                     if not result:
@@ -249,7 +249,7 @@ class ecoMethods:
 
             if sEcoTemplateID:
                 et = ecosystem.Ecotemplate()
-                et.FromID(sEcoTemplateID)
+                et.FromID(sEcoTemplateID, bIncludeActions=False, bIncludeRunlist=False)
                 if et:
                     ecosystems = et.GetEcosystems(sEcoTemplateID)
                     sHTML += "<ul>"
@@ -386,7 +386,7 @@ class ecoMethods:
             sCategory = (dr["category"] if dr["category"] else "")
             sDesc = (dr["action_desc"] if dr["action_desc"] else "")
             sIcon = ("action_default_48.png" if not dr["action_icon"] else dr["action_icon"])
-            sOriginalTaskID =(dr["original_task_id"] if dr["original_task_id"] else "")
+            sOriginalTaskID = (dr["original_task_id"] if dr["original_task_id"] else "")
             sTaskID = (dr["task_id"] if dr["task_id"] else "")
             sTaskCode = (dr["task_code"] if dr["task_code"] else "Error")
             sTaskName = (dr["task_name"] if dr["task_name"] else "Task no longer exists.")
@@ -618,7 +618,7 @@ class ecoMethods:
             # the icons are in the icons/actions directory
             # get a list of them all, and draw them on the picker dialog
             sIconHTML = ""
-            dirList=os.listdir("static/images/actions")
+            dirList = os.listdir("static/images/actions")
             for fname in dirList:
                 sIconHTML += "<img class='action_picker_icon' icon_name='" + fname + "' src='static/images/actions/" + fname + "' />"
         
@@ -645,7 +645,7 @@ class ecoMethods:
             sb.append("\"%s\" : \"%s\"," % ("IsValid", bIsValid))
             sb.append("\"%s\" : \"%s\"," % ("Error", uiCommon.packJSON(sErr)))
             sb.append("\"%s\" : \"%s\"," % ("FileType", sFileType))
-            sb.append("\"%s\" : \"%s\"," % ("URL",  uiCommon.packJSON(sURL)))
+            sb.append("\"%s\" : \"%s\"," % ("URL", uiCommon.packJSON(sURL)))
             sb.append("\"%s\" : \"%s\"," % ("Description", uiCommon.packJSON(sFileDesc)))
             sb.append("\"%s\" : \"%s\"," % ("Text", uiCommon.packJSON(sStormFileJSON)))
             sb.append("\"%s\" : \"%s\"," % ("HTMLDescription", uiCommon.packJSON(uiCommon.FixBreaks(uiCommon.SafeHTML(sFileDesc)))))
@@ -1086,14 +1086,14 @@ class ecoMethods:
             if dtLog:
                 sblog = []
                 for drLog in dtLog:
-                    sblog.append("[ \"{0}\", \"{1}\", \"{2}\", \"{3}\", \"{4}\", \"{5}\", \"{6}\", \"{7}\" ]".format( 
-                        drLog[0], 
-                        drLog[1], 
-                        drLog[2], 
-                        drLog[3], 
-                        drLog[4], 
-                        uiCommon.packJSON(drLog[5]), 
-                        (uiCommon.packJSON(uiCommon.FixBreaks(drLog[6])) if drLog[6] else ""), 
+                    sblog.append("[ \"{0}\", \"{1}\", \"{2}\", \"{3}\", \"{4}\", \"{5}\", \"{6}\", \"{7}\" ]".format(
+                        drLog[0],
+                        drLog[1],
+                        drLog[2],
+                        drLog[3],
+                        drLog[4],
+                        uiCommon.packJSON(drLog[5]),
+                        (uiCommon.packJSON(uiCommon.FixBreaks(drLog[6])) if drLog[6] else ""),
                         drLog[7]))
                     
                 sb.append(",".join(sblog))
@@ -1106,9 +1106,9 @@ class ecoMethods:
             if dtOut:
                 sbout = []
                 for drOut in dtOut:
-                    sbout.append("[ \"{0}\", \"{1}\", \"{2}\" ]".format( 
-                        drOut[0], 
-                        uiCommon.packJSON(drOut[1]), 
+                    sbout.append("[ \"{0}\", \"{1}\", \"{2}\" ]".format(
+                        drOut[0],
+                        uiCommon.packJSON(drOut[1]),
                         uiCommon.packJSON(drOut[2])))
                     
                 sb.append(",".join(sbout))
@@ -1490,7 +1490,7 @@ class ecoMethods:
                     i = 0
                     for drTag in dtStormTags:
                         if drTag["ecosystem_object_id"] == sObjectID:
-                            if i==0:
+                            if i == 0:
                                 sHTML += "<div class=\"ui-widget-header\">Storm Tags</div>"
                             
                             sHTML += "<div class=\"ecosystem_item_property\">" + drTag["key_name"] + \
@@ -1668,7 +1668,7 @@ class ecoMethods:
                                 
                             sb.append("<parameter id=\"p_" + catocommon.new_guid() + \
                                 "\" required=\"true\" prompt=\"true\" encrypt=\"" + bEncrypt + \
-                                "\" value_type=\"" + sValueType  + \
+                                "\" value_type=\"" + sValueType + \
                                 "\" minvalue=\"" + sMinValue + "\" maxvalue=\"" + sMaxValue + \
                                 "\" minlength=\"" + sMinLength + "\" maxlength=\"" + sMaxLength + \
                                 "\" constraint=\"" + sConstraintPattern + "\" constraint_msg=\"" + sConstraintMsg + "\">")
@@ -1735,7 +1735,7 @@ class ecoMethods:
             
             # 2:
             sTS = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
-            sTS = sTS.replace(":","%3A")
+            sTS = sTS.replace(":", "%3A")
             
             # 3:
             # we use the same functions we do for building the aws signature

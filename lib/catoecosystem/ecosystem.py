@@ -20,6 +20,8 @@
 import json
 from catoui import uiCommon
 from catocommon import catocommon
+from catocloud import cloud
+from catoimage import image
 
 # Note: this is not a container for Ecotemplate objects - it's just a rowset from the database
 # with an AsJSON method.
@@ -67,6 +69,7 @@ class Ecotemplate(object):
         self.DBExists = None
         self.OnConflict = "cancel" #the default behavior for all conflicts is to cancel the operation
         self.Actions = {}
+        self.Runlist = []
         
     #the default constructor (manual creation)
     def FromArgs(self, sName, sDescription):
@@ -77,16 +80,16 @@ class Ecotemplate(object):
         self.Description = sDescription
         self.DBExists = self.dbExists()
 
-    def FromID(self, sEcotemplateID, bIncludeActions = True):
+    def FromID(self, sEcotemplateID, bIncludeActions=True, bIncludeRunlist=True):
         try:
-            sSQL = "select ecotemplate_id, ecotemplate_name, ecotemplate_desc, storm_file_type, storm_file" \
-                " from ecotemplate" \
-                " where ecotemplate_id = '" + sEcotemplateID + "'"
+            sSQL = """select ecotemplate_id, ecotemplate_name, ecotemplate_desc, storm_file_type, storm_file
+                from ecotemplate
+                where ecotemplate_id = '%s'""" % sEcotemplateID
 
             db = catocommon.new_conn()
             dr = db.select_row_dict(sSQL)
             if db.error:
-                raise Exception("Ecotemplate Object: Unable to get Ecotemplate from database. " + db.error)
+                raise Exception("Ecotemplate Object: Unable to get Ecotemplate from database. %s" % db.error)
 
             if dr is not None:
                 self.DBExists = True
@@ -97,11 +100,10 @@ class Ecotemplate(object):
                 self.StormFile = ("" if not dr["storm_file"] else dr["storm_file"])
                 
                 if bIncludeActions:
-                    # get a table of actions and loop the rows
-                    sSQL = "select action_id, ecotemplate_id, action_name, action_desc, category, original_task_id, task_version, parameter_defaults, action_icon" \
-                        " from ecotemplate_action" \
-                        " where ecotemplate_id = '" + sEcotemplateID + "'"
-    
+                    sSQL = """select action_id, ecotemplate_id, action_name, action_desc, category, original_task_id, task_version, parameter_defaults, action_icon
+                        from ecotemplate_action
+                        where ecotemplate_id = '%s'""" % sEcotemplateID
+
                     dtActions = db.select_all_dict(sSQL)
                     if dtActions:
                         for drAction in dtActions:
@@ -109,6 +111,22 @@ class Ecotemplate(object):
                             ea.FromRow(drAction, self)
                             if ea is not None:
                                 self.Actions[ea.ID] = ea
+
+                if bIncludeRunlist:
+                    sSQL = """select item_id, item_type, item_order, item_notes, account_id, cloud_id, image_id, source, data
+                        from ecotemplate_runlist
+                        where ecotemplate_id = '%s' order by item_order""" % sEcotemplateID
+    
+                    dtRunlist = db.select_all_dict(sSQL)
+                    if dtRunlist:
+                        for drItem in dtRunlist:
+                            ri = EcotemplateRunlistItem()
+                            ri.FromRow(drItem, self)
+                            if ri is not None:
+                                self.Runlist.append(ri)
+                                
+#                    print self.Runlist[0].__dict__
+#                    print self.Runlist[0].Image.__dict__
             else: 
                 raise Exception("Error building Ecotemplate object: " + db.error)
         except Exception as ex:
@@ -199,7 +217,7 @@ class Ecotemplate(object):
                 # doesn't exist, we'll add it                
                 sSQL = "insert into ecotemplate (ecotemplate_id, ecotemplate_name, ecotemplate_desc, storm_file_type, storm_file)" \
                     " values ('" + self.ID + "'," \
-                        " '" + self.Name + "',"  + \
+                        " '" + self.Name + "'," + \
                         (" null" if not self.Description else " '" + catocommon.tick_slash(self.Description) + "'") + "," + \
                         (" null" if not self.StormFileType else " '" + self.StormFileType + "'") + "," + \
                         (" null" if not self.StormFile else " '" + catocommon.tick_slash(self.StormFile) + "'") + \
@@ -338,7 +356,6 @@ class Ecotemplate(object):
         finally:
             db.close()
 
-
 class EcotemplateAction(object):
     def __init__(self):
         self.ID = None
@@ -369,13 +386,70 @@ class EcotemplateAction(object):
             self.ParameterDefaultsXML = dr["parameter_defaults"]
         except Exception as ex:
             raise ex
+
+# Ecotemplates have a runlist, which is a simple list of these objects.
+class EcotemplateRunlistItem(object):
+    def __init__(self):
+        self.ID = None
+        self.Type = None
+        self.Order = None
+        self.Notes = None
+        self.Account = None
+        self.Cloud = None
+        self.Image = None
+        self.Source = None
+        self.Data = None
+        self.Ecotemplate = None
         
+    def FromRow(self, dr, et):
+        try:
+            self.Ecotemplate = et
+            self.ID = dr["item_id"]
+            self.Type = dr["item_type"]
+            self.Order = dr["item_order"]
+            self.Notes = dr["item_notes"]
+            self.Source = dr["source"]
+            self.Data = dr["data"]
+
+            if dr["account_id"]:
+                ca = cloud.CloudAccount()
+                ca.FromID(dr["account_id"])
+                if ca:
+                    self.Account = ca
+                    
+            if dr["cloud_id"]:
+                c = cloud.Cloud()
+                c.FromID(dr["cloud_id"])
+                if c:
+                    self.Cloud = c
+
+            if dr["image_id"]:
+                i = image.Image()
+                i.FromID(dr["image_id"])
+                if i:
+                    self.Image = i
+            
+            # OK, all the following has some rules:
+            # The runlist item may or may not just be a pointer to an image.  If so, 
+            # we'll want to pull some properties up from the image and populate them here.
+            # HOWEVER, if the main value here isn't empty, don't pull up from the image.
+            if self.Image:
+                self.Source = i.Source if not self.Source else self.Source
+                self.Data = i.Data if not self.Data else self.Data
+                if not self.Account:
+                    self.Account = i.Account
+                if not self.Cloud:
+                    self.Cloud = i.Cloud
+       
+        except Exception as ex:
+            raise ex
+
 # Note: this is not a container for Ecotemplate objects - it's just a rowset from the database
 # with an AsJSON method.
 # why? Because we don't need a full object for list pages and dropdowns.
 class Ecosystems(object):
     rows = {}
-    def __init__(self, sAccountID = "", sFilter=""):
+    def __init__(self, sAccountID="", sFilter=""):
         try:
             db = catocommon.new_conn()
             sAccountClause = ""
@@ -548,5 +622,3 @@ class Ecosystem(object):
 #            return "".join(sb)
         except Exception as ex:
             raise ex
-
-            
