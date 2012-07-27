@@ -40,6 +40,7 @@ class Clouds(object):
         
     def __init__(self, sFilter=""):
         try:
+            db = catocommon.new_conn()
             sWhereString = ""
             if sFilter:
                 aSearchTerms = sFilter.split()
@@ -53,7 +54,6 @@ class Clouds(object):
                 from clouds
                 where 1=1 %s order by provider, cloud_name""" % sWhereString
             
-            db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
         except Exception as ex:
             raise Exception(ex)
@@ -145,11 +145,11 @@ class Cloud(object):
     @staticmethod
     def DBCreateNew(sCloudName, sProvider, sAPIUrl, sAPIProtocol):
         try:
+            db = catocommon.new_conn()
             sSQL = ""
             sNewID = catocommon.new_guid()
             sSQL = "insert into clouds (cloud_id, cloud_name, provider, api_url, api_protocol)" \
                 " values ('" + sNewID + "'," + "'" + sCloudName + "'," + "'" + sProvider + "'," + "'" + sAPIUrl + "'," + "'" + sAPIProtocol + "')"
-            db = catocommon.new_conn()
             if not db.exec_db_noexcep(sSQL):
                 if db.error == "key_violation":
                     return None, "A Cloud with that name already exists.  Please select another name."
@@ -209,6 +209,7 @@ class CloudAccounts(object):
         
     def __init__(self, sFilter="", sProvider=""):
         try:
+            db = catocommon.new_conn()
             sWhereString = ""
             if sFilter:
                 aSearchTerms = sFilter.split()
@@ -229,7 +230,6 @@ class CloudAccounts(object):
                 from cloud_account
                 where 1=1 %s order by is_default desc, account_name""" % sWhereString
             
-            db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
         except Exception as ex:
             raise Exception(ex)
@@ -254,6 +254,7 @@ class CloudAccount(object):
 
     def FromID(self, sAccountID):
         try:
+            db = catocommon.new_conn()
             if not sAccountID:
                 raise Exception("Error building Cloud Account object: Cloud Account ID is required.");    
             
@@ -261,7 +262,6 @@ class CloudAccount(object):
                 " from cloud_account" \
                 " where account_id = '" + sAccountID + "'"
 
-            db = catocommon.new_conn()
             dr = db.select_row_dict(sSQL)
             
             if dr is not None:
@@ -432,6 +432,7 @@ class CloudProviders(dict):
     #the constructor requires an ET Document
     def __init__(self):
         try:
+            db = catocommon.new_conn()
             base_path = catocommon._get_base_path()
             filename = os.path.join(base_path, "conf/cloud_providers.xml")
             if not os.path.isfile(filename):
@@ -475,7 +476,6 @@ class CloudProviders(dict):
                     #IF the "user_defined_clouds" flag is set.
                     if pv.UserDefinedClouds:
                         sSQL = "select cloud_id, cloud_name, api_url, api_protocol from clouds where provider = '" + pv.Name + "' order by cloud_name"
-                        db = catocommon.new_conn()
                         dt = db.select_all_dict(sSQL)
                         if dt:
                             for dr in dt:

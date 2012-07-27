@@ -80,6 +80,7 @@ class settings(object):
             
         def DBSave(self):
             try:
+                db = catocommon.new_conn()
                 sSQL = "update login_security_settings set" \
                     " pass_max_age='" + self.PassMaxAge + "'," \
                     " pass_max_attempts='" + self.PassMaxAttempts + "'," \
@@ -98,7 +99,6 @@ class settings(object):
                     " allow_login='" + ("1" if self.AllowLogin else "0") + "'" \
                     " where id = 1"
 
-                db = catocommon.new_conn()
                 if not db.exec_db_noexcep(sSQL):
                     return False, db.error
             

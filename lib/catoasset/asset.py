@@ -25,6 +25,7 @@ class Assets(object):
         
     def __init__(self, sFilter=""):
         try:
+            db = catocommon.new_conn()
             sWhereString = ""
             if sFilter:
                 aSearchTerms = sFilter.split()
@@ -46,7 +47,6 @@ class Assets(object):
                 left outer join asset_credential ac on ac.credential_id = a.credential_id
                 where 1=1 %s group by a.asset_id order by a.asset_name""" % sWhereString
 
-            db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
         except Exception as ex:
             raise Exception(ex)
@@ -88,6 +88,7 @@ class Asset(object):
             We don't store passwords, even encrypted, in the object.
         """
         try:
+            db = catocommon.new_conn()
             if not asset_id and not asset_name:
                 raise Exception("Error building Asset object: ID or Name is required.");    
             
@@ -104,8 +105,6 @@ class Asset(object):
             elif asset_name:
                 sSQL += " where a.asset_name = '%s'""" % asset_name
 
-
-            db = catocommon.new_conn()
             dr = db.select_row_dict(sSQL)
             
             if dr is not None:
@@ -321,6 +320,7 @@ class Credentials(object):
         
     def __init__(self, sFilter=""):
         try:
+            db = catocommon.new_conn()
             sWhereString = ""
             if sFilter:
                 aSearchTerms = sFilter.split()
@@ -335,7 +335,6 @@ class Credentials(object):
                 from asset_credential
                 where shared_or_local = 0 %s order by credential_name""" % sWhereString
 
-            db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
         except Exception as ex:
             raise Exception(ex)
@@ -381,6 +380,7 @@ class Credential(object):
             We don't store passwords, even encrypted, in the object.
         """
         try:
+            db = catocommon.new_conn()
             if not credential_id:
                 raise Exception("Error building Credential object: ID is required.");    
             
@@ -388,7 +388,6 @@ class Credential(object):
                 from asset_credential
                 where credential_id = '%s'""" % credential_id
 
-            db = catocommon.new_conn()
             dr = db.select_row_dict(sSQL)
             
             if dr is not None:

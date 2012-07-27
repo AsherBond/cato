@@ -27,6 +27,7 @@ class Users(object):
         
     def __init__(self, sFilter=""):
         try:
+            db = catocommon.new_conn()
             sWhereString = ""
             if sFilter:
                 aSearchTerms = sFilter.split()
@@ -45,7 +46,6 @@ class Users(object):
                 from users u
                 where u.status <> 86 %s order by u.full_name""" % sWhereString
             
-            db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
         except Exception as ex:
             raise Exception(ex)
@@ -130,6 +130,8 @@ class User(object):
             if not user_id and not login_id:
                 raise Exception("Error building User object: User ID or Login is required.");    
             
+            db = catocommon.new_conn()
+
             sSQL = """select u.user_id, u.username, u.full_name, u.status, u.last_login_dt,
                 u.failed_login_attempts, u.email ,u.authentication_type,
                 u.security_question, u.force_change, u.settings_xml,
@@ -141,8 +143,6 @@ class User(object):
             elif login_id:
                 sSQL += " where u.username = '%s'""" % login_id
 
-
-            db = catocommon.new_conn()
             dr = db.select_row_dict(sSQL)
             
             if dr is not None:
@@ -209,8 +209,6 @@ class User(object):
             # use the forgot password feature. 
             # that's why this happens after that.
             
-            db = catocommon.new_conn()
-
             # forgot password
             # if an 'answer' was provided, it can serve as an alternate authentication
             # but it will force a password change.

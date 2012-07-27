@@ -28,6 +28,7 @@ class Ecotemplates(object):
     rows = {}
     def __init__(self, sFilter=""):
         try:
+            db = catocommon.new_conn()
             sWhereString = ""
             if sFilter:
                 aSearchTerms = sFilter.split()
@@ -43,7 +44,6 @@ class Ecotemplates(object):
                 left outer join object_tags ot on et.ecotemplate_id = ot.object_id
                 where 1=1 %s group by et.ecotemplate_id order by et.ecotemplate_name""" % sWhereString
             
-            db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
         except Exception as ex:
             raise Exception(ex)
@@ -280,6 +280,8 @@ class Ecotemplate(object):
 
     def DBUpdate(self):
         try:
+            db = catocommon.new_conn()
+
             if not self.Name:
                 return False, "Name is required."
 
@@ -290,7 +292,6 @@ class Ecotemplate(object):
                 " storm_file = " + (" null" if not self.StormFile else " '" + catocommon.tick_slash(self.StormFile) + "'") + \
                 " where ecotemplate_id = '" + self.ID + "'"
 
-            db = catocommon.new_conn()
             if not db.exec_db_noexcep(sSQL):
                 print(db.error)
                 if db.error == "key_violation":
@@ -308,6 +309,7 @@ class Ecotemplate(object):
         ecosystems = {}
         
         try:
+            db = catocommon.new_conn()
             account_clause = ""
             if account_id:
                 account_clause = " and account_id = '%s'" % account_id
@@ -317,7 +319,6 @@ class Ecotemplate(object):
                 where ecotemplate_id = '%s' %s
                 order by ecosystem_name""" % (ecotemplate_id, account_clause)
 
-            db = catocommon.new_conn()
             dt = db.select_all_dict(sSQL)
             if db.error:
                 print(db.error)
@@ -376,6 +377,7 @@ class Ecosystems(object):
     rows = {}
     def __init__(self, sAccountID = "", sFilter=""):
         try:
+            db = catocommon.new_conn()
             sAccountClause = ""
             if sAccountID:
                 sAccountClause = "and e.account_id = '%s'" % sAccountID
@@ -398,7 +400,6 @@ class Ecosystems(object):
                 left outer join object_tags ot on e.ecosystem_id = ot.object_id
                 where 1=1 %s %s group by e.ecosystem_id order by e.ecosystem_name""" % (sAccountClause, sWhereString)
             
-            db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
         except Exception as ex:
             raise Exception(ex)
@@ -478,6 +479,7 @@ class Ecosystem(object):
 
     def DBUpdate(self):
         try:
+            db = catocommon.new_conn()
             if not self.Name or not self.EcotemplateID or not self.AccountID:
                 return False, "Name, EcotemplateID and Account ID are required Ecosystem properties."
 
@@ -490,7 +492,6 @@ class Ecosystem(object):
                 " storm_file = " + (" null" if not self.StormFile else " '" + catocommon.tick_slash(self.StormFile) + "'") + \
                 " where ecosystem_id = '" + self.ID + "'"
             
-            db = catocommon.new_conn()
             if not db.exec_db_noexcep(sSQL):
                 return False, db.error
             
@@ -502,6 +503,7 @@ class Ecosystem(object):
 
     def FromID(self, sEcosystemID):
         try:
+            db = catocommon.new_conn()
             sSQL = "select e.ecosystem_id, e.ecosystem_name, e.ecosystem_desc, e.storm_file, e.storm_status," \
                 " e.account_id, e.ecotemplate_id, et.ecotemplate_name, e.created_dt, e.last_update_dt," \
                 " (select count(*) from ecosystem_object where ecosystem_id = e.ecosystem_id) as num_objects" \
@@ -509,7 +511,6 @@ class Ecosystem(object):
                 " join ecotemplate et on e.ecotemplate_id = et.ecotemplate_id" \
                 " where e.ecosystem_id = '" + sEcosystemID + "'"
             
-            db = catocommon.new_conn()
             dr = db.select_row_dict(sSQL)
             if db.error:
                 raise Exception("Ecosystem Object: Unable to get Ecosystem from database. " + db.error)

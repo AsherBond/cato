@@ -41,6 +41,7 @@ class Tasks(object):
     rows = {}
     def __init__(self, sFilter=""):
         try:
+            db = catocommon.new_conn()
             sWhereString = ""
             if sFilter:
                 aSearchTerms = sFilter.split()
@@ -58,7 +59,6 @@ class Tasks(object):
                 left outer join object_tags ot on t.original_task_id = ot.object_id
                 where t.default_version = 1 %s group by t.original_task_id order by t.task_code""" % sWhereString
             
-            db = catocommon.new_conn()
             self.rows = db.select_all_dict(sSQL)
         except Exception as ex:
             raise Exception(ex)
@@ -518,6 +518,9 @@ class Task(object):
     def Copy(self, iMode, sNewTaskName, sNewTaskCode):
         #iMode 0=new task, 1=new major version, 2=new minor version
         try:
+            #do it all in a transaction
+            db = catocommon.new_conn()
+
             #NOTE: this routine is not very object-aware.  It works and was copied in here
             #so it can live with other relevant code.
             #may update it later to be more object friendly
@@ -526,9 +529,6 @@ class Task(object):
             iIsDefault = 0
             sTaskName = ""
             sOTID = ""
-
-            #do it all in a transaction
-            db = catocommon.new_conn()
 
             #figure out the new name and selected version
             sTaskName = self.Name
@@ -910,10 +910,10 @@ class Step(object):
         the associated task object.
         """
         try:
+            db = catocommon.new_conn()
             sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, s.codeblock_name
                 from task_step s
                 where s.step_id = '%s' limit 1""" %sStepID
-            db = catocommon.new_conn()
             row = db.select_row_dict(sSQL)
             if row:
                 oStep = Step.FromRow(row, None)
@@ -936,12 +936,12 @@ class Step(object):
         the associated task object
         """
         try:
+            db = catocommon.new_conn()
             sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, s.codeblock_name,
                 us.visible, us.breakpoint, us.skip, us.button
                 from task_step s
                 left outer join task_step_user_settings us on us.user_id = '%s' and s.step_id = us.step_id
                 where s.step_id = '%s' limit 1""" % (sUserID, sStepID)
-            db = catocommon.new_conn()
             row = db.select_row_dict(sSQL)
             if row:
                 oStep = Step.FromRow(row, None)

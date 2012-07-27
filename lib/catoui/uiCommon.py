@@ -1062,12 +1062,10 @@ def UpdateHeartbeat():
             db = catocommon.new_conn()
             if not db.exec_db_noexcep(sSQL):
                 log_nouser(db.error, 0)
+            db.close()
         return ""
     except Exception:
         log_nouser(traceback.format_exc(), 0)
-    finally:
-        if db.conn.socket:
-            db.close()
 
 def GetPager(rowcount, maxrows, page):
     try:
