@@ -53,10 +53,11 @@ class cloudMethods:
                     " tag=\"chk\" />"
                     sHTML += "</td>"
                     
-                    sHTML += "<td class=\"selectable\">" + row["cloud_name"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["provider"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["api_url"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["api_protocol"] +  "</td>"
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["cloud_name"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["provider"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["api_url"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["api_protocol"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["account_name"] if row["account_name"] else "&nbsp;")
                     
                     sHTML += "</tr>"
     
@@ -119,11 +120,12 @@ class cloudMethods:
         sProvider = uiCommon.getAjaxArg("sProvider")
         sAPIUrl = uiCommon.getAjaxArg("sAPIUrl")
         sAPIProtocol = uiCommon.getAjaxArg("sAPIProtocol")
+        sDefaultAccountID = uiCommon.getAjaxArg("sDefaultAccountID")
 
         c = None
         try:
             if sMode == "add":
-                c, sErr = cloud.Cloud.DBCreateNew(sCloudName, sProvider, sAPIUrl, sAPIProtocol)
+                c, sErr = cloud.Cloud.DBCreateNew(sCloudName, sProvider, sAPIUrl, sAPIProtocol, "", sDefaultAccountID)
                 if sErr:
                     return "{\"error\" : \"" + sErr + "\"}"
                 if c == None:
@@ -138,6 +140,10 @@ class cloudMethods:
                 c.Name = sCloudName
                 c.APIProtocol = sAPIProtocol
                 c.APIUrl = sAPIUrl
+                
+                # no need to build a complete object, as the update is just updating the ID
+                c.DefaultAccount = cloud.CloudAccount()
+                c.DefaultAccount.ID = sDefaultAccountID
 
                 #get a new provider by name
                 c.Provider = cloud.Provider.FromName(sProvider)
@@ -210,11 +216,12 @@ class cloudMethods:
                             " title=\"This account has associated Ecosystems and cannot be deleted.\"></span>"
                         sHTML += "</td>"
                     
-                    sHTML += "<td class=\"selectable\">" + row["account_name"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["account_number"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["provider"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["login_id"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["is_default"] +  "</td>"
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["account_name"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["account_number"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["provider"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["login_id"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["cloud_name"] if row["cloud_name"] else "&nbsp;")
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["is_default"]
                     
                     sHTML += "</tr>"
 
@@ -281,7 +288,7 @@ class cloudMethods:
         try:
             sProvider = uiCommon.getAjaxArg("sProvider")
             
-            cp = cloud.CloudProviders(include_clouds = False)
+            cp = cloud.CloudProviders()
             if cp is None:
                 return "{\"result\":\"fail\",\"error\":\"Failed to get Providers.\"}"
             else:
@@ -301,6 +308,7 @@ class cloudMethods:
             sAccountName = uiCommon.getAjaxArg("sAccountName")
             sAccountNumber = uiCommon.getAjaxArg("sAccountNumber")
             sProvider = uiCommon.getAjaxArg("sProvider")
+            sDefaultCloudID = uiCommon.getAjaxArg("sDefaultCloudID")
             sLoginID = uiCommon.getAjaxArg("sLoginID")
             sLoginPassword = uiCommon.getAjaxArg("sLoginPassword")
             sLoginPasswordConfirm = uiCommon.getAjaxArg("sLoginPasswordConfirm")
@@ -311,7 +319,7 @@ class cloudMethods:
                 return "{\"info\" : \"Passwords must match.\"}"
 
             if sMode == "add":
-                ca, sErr = cloud.CloudAccount.DBCreateNew(sAccountName, sAccountNumber, sProvider, sLoginID, sLoginPassword, sIsDefault)
+                ca, sErr = cloud.CloudAccount.DBCreateNew(sAccountName, sAccountNumber, sProvider, sLoginID, sLoginPassword, sIsDefault, sDefaultCloudID)
                 if sErr:
                     return "{\"error\" : \"" + sErr + "\"}"
                     
@@ -324,7 +332,7 @@ class cloudMethods:
                 ca = cloud.CloudAccount()
                 ca.FromID(sAccountID)
                 if ca is None:
-                    return "{\"error\" : \"Unable to get Cloud Account using ID [" + sAccountID + "].\"}"
+                    return "{\"error\" : \"Unable to get Cloud Account using ID [%s].\"}" % sAccountID
                 else:
                     ca.ID = sAccountID
                     ca.Name = sAccountName
@@ -332,6 +340,13 @@ class cloudMethods:
                     ca.LoginID = sLoginID
                     ca.LoginPassword = sLoginPassword
                     ca.IsDefault = (True if sIsDefault == "1" else False)
+                    
+                    # get the cloud
+                    c = cloud.Cloud()
+                    c.FromID(sDefaultCloudID)
+                    if not c:
+                        return "{\"error\" : \"Unable to reconcile default Cloud from ID [%s].\"}" % sDefaultCloudID
+                    ca.DefaultCloud = c
                     
                     # note: we must reassign the whole provider
                     # changing the name screws up the CloudProviders object in the session, which is writable! (oops)
@@ -353,7 +368,7 @@ class cloudMethods:
             if ca:
                 return ca.AsJSON()
             else:
-                return "{\"error\" : \"Unable to save Cloud Account using mode [" + sMode + "].\"}"
+                return "{\"error\" : \"Unable to save Cloud Account using mode [%s].\"}" % sMode
 
         except Exception:
             uiCommon.log("Error: General Exception: " + traceback.format_exc())

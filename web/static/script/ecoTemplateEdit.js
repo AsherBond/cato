@@ -236,7 +236,7 @@ function GetDetails() {
 				$("#hidEcoTemplateID").val(template.ID);
 				$("#txtEcoTemplateName").val(template.Name);
 			 	$("#lblEcoTemplateHeader").html(template.Name);
-			 	$("#txtDescription").val(unpackJSON(template.Description));
+			 	$("#txtDescription").val(template.Description);
 			 	
 		 		getActions();
 	

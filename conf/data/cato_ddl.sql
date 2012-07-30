@@ -9,15 +9,10 @@ CREATE TABLE `clouds` (
   `cloud_name` varchar(32) NOT NULL,
   `api_url` varchar(512) NOT NULL,
   `api_protocol` varchar(8) NOT NULL,
+  `default_account_id` varchar(36) NULL,
+  `region` VARCHAR(128) NULL,
   PRIMARY KEY (`cloud_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE  TABLE `cato`.`clouds_accounts` (
-  `cloud_id` VARCHAR(36) NOT NULL ,
-  `account_id` VARCHAR(36) NOT NULL ,
-  `is_default` INT NOT NULL ,
-  PRIMARY KEY (`cloud_id`, `account_id`) );
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
@@ -158,6 +153,7 @@ CREATE TABLE `cloud_account` (
   `login_password` varchar(512) NOT NULL,
   `is_default` int(11) NOT NULL,
   `auto_manage_security` int(11) DEFAULT '1',
+  `default_cloud_id` VARCHAR(36) NOT NULL,
   PRIMARY KEY (`account_id`),
   UNIQUE KEY `account_name_UNIQUE` (`account_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

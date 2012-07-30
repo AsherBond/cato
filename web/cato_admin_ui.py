@@ -458,9 +458,6 @@ def CacheMenu():
             if "user" in sRoles:
                 sUserMenu += sMenu.format(sUserItems)
 
-            
-            
-    
     with open("%s/static/_amenu.html" % web_root, 'w') as f_out:
         if not f_out:
             print("ERROR: unable to create static/_amenu.html.")
@@ -477,6 +474,62 @@ def CacheMenu():
         f_out.write(sUserMenu)
 
 
+def Housekeeping():
+    # first, if they don't exist, move any hardcoded clouds from the cloud_providers.xml file
+    # into the clouds table.
+    try:
+        db = catocommon.new_conn()
+
+        uiCommon.log_nouser("Doing a little housekeeping...", 0)
+        
+        base_path = catocommon._get_base_path()
+        filename = os.path.join(base_path, "conf/cloud_providers.xml")
+        if not os.path.isfile(filename):
+            raise Exception("conf/cloud_providers.xml file does not exist.")
+        xRoot = ET.parse(filename)
+        if not xRoot:
+            raise Exception("Error: Invalid or missing Cloud Providers XML.")
+        else:
+            xProviders = xRoot.findall("providers/provider")
+            for xProvider in xProviders:
+                p_name = xProvider.get("name", None)
+                user_defined_clouds = xProvider.get("user_defined_clouds", True)
+                user_defined_clouds = (False if user_defined_clouds == "false" else True)
+                 
+                if not user_defined_clouds:
+                    # clouds are NOT user defined, check the database for these records.
+                    xClouds = xProvider.findall("clouds/cloud")
+                    for xCloud in xClouds:
+                        if xCloud.get("name", None) == None:
+                            raise Exception("Cloud Providers XML: All Clouds must have the 'name' attribute.")
+                        
+                        cloud_name = xCloud.get("name", "")
+
+                        sql = "select count(*) from clouds where cloud_name = '%s'" % xCloud.get("name", "")
+                        cnt = db.select_col_noexcep(sql)
+                        
+                        if not cnt:
+                            uiCommon.log_nouser("Info: Creating Cloud [%s] on Provider [%s]..." % (cloud_name, p_name))
+
+                            if xCloud.get("api_url", None) == None:
+                                raise Exception("Cloud Providers XML: All Clouds must have the 'api_url' attribute.")
+                            if xCloud.get("api_protocol", None) == None:
+                                raise Exception("Cloud Providers XML: All Clouds must have the 'api_protocol' attribute.")
+                            
+                            from catocloud import cloud
+                            c, err = cloud.Cloud.DBCreateNew(cloud_name, p_name, xCloud.get("api_url", ""), xCloud.get("api_protocol", ""), xCloud.get("region", ""))
+                            
+                            if not c:
+                                uiCommon.log_nouser("Warning: Could not create Cloud from cloud_providers.xml definition.\n%s" % err, 2)
+                        
+
+    except Exception as ex:
+        uiCommon.log_nouser("Warning: Unable to create Cloud from cloud_providers.xml definition.", 2)
+        uiCommon.log_nouser(ex.__str__(), 0)
+    finally:
+        db.close()
+    
+    
 """
     Main Startup
 """
@@ -576,7 +629,9 @@ if __name__ != app_name:
     SetTaskCommands()
     CacheMenu()
 
-    
+    # Occasionally, for specific updates and other general reasons,
+    # we do a little housekeeping when the service is started.
+    Housekeeping() 
     
     # Uncomment the following - it will print out all the core methods in the app
     # this will be handy during the conversion, as we add functions to uiGlobals.RoleMethods.

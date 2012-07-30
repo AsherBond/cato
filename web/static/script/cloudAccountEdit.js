@@ -59,33 +59,38 @@ $(document).ready(function () {
 	$('#ddlProvider').change(function () {
 		setLabels();
 		GetProviderClouds();
+		ClearTestResult();
+	});
+
+	$('#ddlDefaultCloud').change(function () {
+		ClearTestResult();
 	});
 
     $("#jumpto_cloud_btn").button({ icons: { primary: "ui-icon-pencil"}, text: false });
 	$("#jumpto_cloud_btn").click(function () {
-        var cld_id = $("#ddlTestCloud").val();
+        var cld_id = $("#ddlDefaultCloud").val();
         var prv = $("#ddlProvider option:selected").text();
 
-	    if (prv != "Amazon AWS") {
-	    	var saved = SaveItem(0);
-	    	if (saved) {
-			    if (cld_id) {
-					location.href="/cloudEdit?cloud_id=" + cld_id;
-				} else {
-					location.href="/cloudEdit";
-				}
+	    //if (prv != "Amazon AWS") {
+    	var saved = SaveItem(0);
+    	if (saved) {
+		    if (cld_id) {
+				location.href="/cloudEdit?cloud_id=" + cld_id;
+			} else {
+				location.href="/cloudEdit";
 			}
 		}
+		//}
     });
     $("#add_cloud_btn").button({ icons: { primary: "ui-icon-plus"}, text: false });
 	$("#add_cloud_btn").click(function () {
         var prv = $("#ddlProvider option:selected").text();
-	    if (prv != "Amazon AWS") {
-	    	var saved = SaveItem(0);
-	    	if (saved) {
-				location.href="/cloudEdit?add=true&provider=" + prv;
-			}
+	    //if (prv != "Amazon AWS") {
+    	var saved = SaveItem(0);
+    	if (saved) {
+			location.href="/cloudEdit?add=true&provider=" + prv;
 		}
+		//}
     });
 
     //keypair add button
@@ -153,7 +158,7 @@ $(document).ready(function () {
 
 
     //the test connection buttton
-    $("#test_connection_btn").button({ icons: { primary: "ui-icon-link"} });
+    $("#test_connection_btn").button({ icons: { primary: "ui-icon-signal-diag"}, text: false });
 	$("#test_connection_btn").live("click", function () {
         TestConnection();
     });
@@ -187,6 +192,7 @@ function GetProvidersList() {
         dataType: "html",
         success: function (response) {
 			$("#ddlProvider").html(response);
+			ClearTestResult();
        },
         error: function (response) {
             showAlert(response.responseText);
@@ -207,14 +213,15 @@ function GetProviderClouds() {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (provider) {
+        	ClearTestResult();
             // all we want here is to loop the clouds
-            $("#ddlTestCloud").empty();
+            $("#ddlDefaultCloud").empty();
             $.each(provider.Clouds, function(id, cloud){
-            	$("#ddlTestCloud").append("<option value=\"" + id + "\">" + cloud.Name + "</option>");
+            	$("#ddlDefaultCloud").append("<option value=\"" + id + "\">" + cloud.Name + "</option>");
 			});
 			
 			//we can't allow testing the connection if there are no clouds
-			if ($("#ddlTestCloud option").length == 0)
+			if ($("#ddlDefaultCloud option").length == 0)
 				$("#test_connection_btn").hide();
             else
 				$("#test_connection_btn").show();
@@ -229,7 +236,7 @@ function TestConnection() {
 	SaveItem(0);
 
     var account_id = $("#hidCurrentEditID").val();
-    var cloud_id = $("#ddlTestCloud").val();
+    var cloud_id = $("#ddlDefaultCloud").val();
 
     if (cloud_id.length == 36 && account_id.length == 36)
     {    
@@ -361,13 +368,17 @@ function LoadEditDialog(sEditID) {
                 //if (account.AutoManage == "1") $("#chkAutoManageSecurity").attr('checked', true);
                 
                 //the account result will have a list of all the clouds on this account.
-                $("#ddlTestCloud").empty();
-                $.each(account.Clouds, function(id, cloud){
-                	$("#ddlTestCloud").append("<option value=\"" + id + "\">" + cloud.Name + "</option>");
+                $("#ddlDefaultCloud").empty();
+                $.each(account.ProviderClouds, function(id, cloud) {
+                	// the 'default' one is selected here
+                	if (id == account.DefaultCloud.ID)
+                		$("#ddlDefaultCloud").append("<option value=\"" + id + "\" selected=\"selected\">" + cloud.Name + "</option>");
+                	else
+                		$("#ddlDefaultCloud").append("<option value=\"" + id + "\">" + cloud.Name + "</option>");
    				});	
 			
 				//we can't allow testing the connection if there are no clouds
-				if ($("#ddlTestCloud option").length == 0)
+				if ($("#ddlDefaultCloud option").length == 0)
 					$("#test_connection_btn").hide();
 	            else
 					$("#test_connection_btn").show();
@@ -427,9 +438,15 @@ function SaveItem(close_after_save) {
     var sAccountID = $("#hidCurrentEditID").val();
 
     var sAccountName = $("#txtAccountName").val();
-    if (sAccountName == '') {
+    if (!sAccountName) {
         bSave = false;
         strValidationError += 'Account Name required.<br />';
+    };
+
+    var sDefaultCloudID = $("#ddlDefaultCloud").val();
+    if (!sDefaultCloudID) {
+        bSave = false;
+        strValidationError += 'Default Cloud required.<br />';
     };
 
     if ($("#txtLoginPassword").val() != $("#txtLoginPasswordConfirm").val()) {
@@ -438,7 +455,10 @@ function SaveItem(close_after_save) {
     };
 
     if (bSave != true) {
-        showInfo(strValidationError);
+        var prv = $("#ddlProvider option:selected").text();
+		url="/cloudEdit?add=true&provider=" + prv;
+
+        showInfo(strValidationError, "<a href='" + url + "'>Click here</a> to create a new Cloud.", true);
         return false;
     }
 
@@ -447,6 +467,7 @@ function SaveItem(close_after_save) {
         "sAccountName":"' + sAccountName + '", \
         "sAccountNumber":"' + $("#txtAccountNumber").val() + '", \
         "sProvider":"' + $("#ddlProvider").val() + '", \
+        "sDefaultCloudID":"' + sDefaultCloudID + '", \
         "sLoginID":"' + $("#txtLoginID").val() + '", \
         "sLoginPassword":"' + $("#txtLoginPassword").val() + '", \
         "sLoginPasswordConfirm":"' + $("#txtLoginPasswordConfirm").val() + '", \

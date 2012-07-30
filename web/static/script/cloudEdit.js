@@ -39,14 +39,14 @@ $(document).ready(function () {
     $("#edit_dialog_tabs").tabs();
 
     //the test connection buttton
-    $("#test_connection_btn").button({ icons: { primary: "ui-icon-link"} });
-	$("#test_connection_btn").live("click", function () {
+    $(".test_connection_btn").button({ icons: { primary: "ui-icon-signal-diag"}, text: false });
+	$(".test_connection_btn").live("click", function () {
         TestConnection();
     });
 
     $("#jumpto_account_btn").button({ icons: { primary: "ui-icon-pencil"}, text: false });
 	$("#jumpto_account_btn").click(function () {
-        var acct_id = $("#ddlTestAccount").val();
+        var acct_id = $("#ddlDefaultAccount").val();
     	var saved = SaveItem(0);
     	if (saved) {
 		    if (acct_id) {
@@ -95,11 +95,12 @@ function GetProvidersList() {
         type: "POST",
         async: false,
         url: "cloudMethods/wmGetProvidersList",
-        data: '{"sUserDefinedOnly":"True"}',
+        data: '{"sUserDefinedOnly":"False"}',
         contentType: "application/json; charset=utf-8",
         dataType: "html",
         success: function (response) {
 			$("#ddlProvider").html(response);
+			ClearTestResult();
        },
         error: function (response) {
             showAlert(response.responseText);
@@ -119,14 +120,15 @@ function GetProviderAccounts() {
         dataType: "json",
         success: function (accounts) {
             // all we want here is to loop the clouds
-            $("#ddlTestAccount").empty();
+            $("#ddlDefaultAccount").empty();
             if (accounts) {
 	            $.each(accounts, function(index, account){
-	            	$("#ddlTestAccount").append("<option value=\"" + account.account_id + "\">" + account.account_name + "</option>");
+	            	$("#ddlDefaultAccount").append("<option value=\"" + account.account_id + "\">" + account.account_name + "</option>");
 				});
 			}
+			
 			//we can't allow testing the connection if there are no clouds
-			if ($("#ddlTestAccount option").length == 0)
+			if ($("#ddlDefaultAccount option").length == 0)
 				$("#test_connection_btn").hide();
             else
 				$("#test_connection_btn").show();
@@ -141,7 +143,7 @@ function TestConnection() {
 	SaveItem(0);
 
     var cloud_id = $("#hidCurrentEditID").val();
-    var account_id = $("#ddlTestAccount").val();
+    var account_id = $("#ddlDefaultAccount").val();
 
     if (cloud_id.length == 36 && account_id.length == 36)
     {    
@@ -244,11 +246,13 @@ function LoadEditDialog(editID) {
                 // do we close the dialog, leave it open to allow adding more? what?
             } else {
                 $("#txtCloudName").val(cloud.Name);
-                $("#ddlProvider").val(cloud.Provider);
+                $("#ddlProvider").val(cloud.Provider.Name);
                 $("#txtAPIUrl").val(cloud.APIUrl);
                 $("#ddlAPIProtocol").val(cloud.APIProtocol);
     
 			    GetProviderAccounts();
+                $("#ddlDefaultAccount").val(cloud.DefaultAccount.ID);
+			    
 				ClearTestResult();
 				
 			    $("#edit_dialog").dialog("option", "title", "Modify Cloud");
@@ -296,6 +300,7 @@ function SaveItem(close_after_save) {
     	"sCloudID":"' + sCloudID + '", \
         "sCloudName":"' + sCloudName + '", \
         "sProvider":"' + $("#ddlProvider").val() + '", \
+        "sDefaultAccountID":"' + $("#ddlDefaultAccount").val() + '", \
         "sAPIProtocol":"' + $("#ddlAPIProtocol").val() + '", \
         "sAPIUrl":"' + sAPIUrl + '" \
         }';
