@@ -153,7 +153,7 @@ CREATE TABLE `cloud_account` (
   `login_password` varchar(512) NOT NULL,
   `is_default` int(11) NOT NULL,
   `auto_manage_security` int(11) DEFAULT '1',
-  `default_cloud_id` VARCHAR(36) NOT NULL,
+  `default_cloud_id` VARCHAR(36) NULL,
   PRIMARY KEY (`account_id`),
   UNIQUE KEY `account_name_UNIQUE` (`account_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
