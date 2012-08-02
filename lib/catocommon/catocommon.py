@@ -41,6 +41,7 @@ def cato_encrypt(s):
         return catocryptpy.encrypt_string(s,config["key"])
     else:
         return ""
+
 def _get_base_path():
     # this library file will always be in basepath/lib/catocommon
     # so we will take off two directories and that will be the base_path
@@ -145,6 +146,58 @@ def tick_slash(s):
     
     return ""
 
+def add_security_log(UserID, LogType, Action, ObjectType, ObjectID, LogMessage):
+    """
+    Creates a row in the user_security_log table.  Called from many places.
+    
+    Note: the calling method is responsible for figuring out the user, as 
+    doing so may differ between processes.
+    """
+    UserID = UserID if UserID else "Unknown"
+    sTrimmedLog = tick_slash(LogMessage).strip()
+    if sTrimmedLog:
+        if len(sTrimmedLog) > 7999:
+            sTrimmedLog = sTrimmedLog[:7998]
+    sSQL = """insert into user_security_log (log_type, action, user_id, log_dt, object_type, object_id, log_msg)
+        values ('%s', '%s', '%s', now(), %d, '%s', '%s')""" % (LogType, Action, UserID, ObjectType, ObjectID, sTrimmedLog)
+    db = new_conn()
+    if not db.exec_db_noexcep(sSQL):
+        print db.error
+    db.close()
+
+def write_add_log(UserID, oType, sObjectID, sObjectName, sLog=""):
+    if sObjectID and sObjectName:
+        if not sLog:
+            sLog = "Created: [" + tick_slash(sObjectName) + "]."
+        else:
+            sLog = "Created: [" + tick_slash(sObjectName) + "] - [" + sLog + "]"
+
+        add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
+
+def write_delete_log(UserID, oType, sObjectID, sObjectName, sLog=""):
+    if not sLog:
+        sLog = "Deleted: [" + tick_slash(sObjectName) + "]."
+    else:
+        sLog = "Deleted: [" + tick_slash(sObjectName) + "] - [" + sLog + "]"
+
+    add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectDelete, oType, sObjectID, sLog)
+
+def write_change_log(UserID, oType, sObjectID, sObjectName, sLog=""):
+    if sObjectID and sObjectName:
+        if not sObjectName:
+            sObjectName = "[" + tick_slash(sObjectName) + "]."
+        else:
+            sLog = "Changed: [" + tick_slash(sObjectName) + "] - [" + sLog + "]"
+
+        add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
+
+def write_property_change_log(UserID, oType, sObjectID, sLabel, sFrom, sTo):
+    if sFrom and sTo:
+        if sFrom != sTo:
+            sLog = "Changed: " + sLabel + " from [" + tick_slash(sFrom) + "] to [" + tick_slash(sTo) + "]."
+            add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
+    
+    
 #this file has a global 'config' that gets populated automatically.
 config = read_config()
 
@@ -290,3 +343,49 @@ class CatoService(CatoProcess):
             time.sleep(self.loop)
 
 
+class SecurityLogTypes(object):
+    Object = "Object"
+    Security = "Security"
+    Usage = "Usage"
+    Other = "Other"
+    
+class SecurityLogActions(object):
+    UserLogin = "UserLogin"
+    UserLogout = "UserLogout"
+    UserLoginAttempt = "UserLoginAttempt"
+    UserPasswordChange = "UserPasswordChange"
+    UserSessionDrop = "UserSessionDrop"
+    SystemLicenseException = "SystemLicenseException"
+    
+    ObjectAdd = "ObjectAdd"
+    ObjectModify = "ObjectModify"
+    ObjectDelete = "ObjectDelete"
+    ObjectView = "ObjectView"
+    ObjectCopy = "ObjectCopy"
+    
+    PageView = "PageView"
+    ReportView = "ReportView"
+    
+    APIInterface = "APIInterface"
+    
+    Other = "Other"
+    ConfigChange = "ConfigChange"
+
+class CatoObjectTypes(object):
+    NA = 0
+    User = 1
+    Asset = 2
+    Task = 3
+    Schedule = 4
+    Registry = 6
+    Tag = 7
+    Image = 8
+    MessageTemplate = 18
+    Parameter = 34
+    Credential = 35
+    Domain = 36
+    CloudAccount = 40
+    Cloud = 41
+    Ecosystem = 50
+    EcoTemplate = 51
+    Request = 61

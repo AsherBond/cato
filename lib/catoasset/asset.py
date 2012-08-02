@@ -445,9 +445,6 @@ class Credential(object):
                 else: 
                     return False, db.error
             
-            #  add security log
-            # need to move this function to catocommon
-            # uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Credential, sCredentialID, sCredentialName, "")
             return True, None
         except Exception as ex:
             raise ex
@@ -461,9 +458,6 @@ class Credential(object):
             sSQL = "delete from asset_credential where credential_id = '%s'" % self.ID
             if not db.exec_db_noexcep(sSQL):
                 return False, db.error
-
-            #  add security log
-            #uiCommon.WriteObjectDeleteLog(uiGlobals.CatoObjectTypes.Asset, sAssetID, sAssetName.strip().replace("'", "''"), "Credential deleted" + sOriginalCredentialID + " " + sOriginalUserName)
 
             return True, None
         except Exception as ex:
@@ -499,9 +493,6 @@ class Credential(object):
                 "where credential_id = '" + self.ID + "'"
             if not db.exec_db_noexcep(sSQL):
                 return False, db.error
-
-#                #  add security log
-#                uiCommon.WriteObjectPropertyChangeLog(uiGlobals.CatoObjectTypes.Asset, sAssetID, sAssetName.strip().replace("'", "''") + "Changed credential", sOriginalUserName, sCredUsername)
 
             return True, None
         except Exception as ex:

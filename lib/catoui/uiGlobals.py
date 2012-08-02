@@ -31,53 +31,6 @@ web_root = None
 debuglevel = 2 #defaults to 2
 
 ConnectionTypes = ["ssh - ec2", "ssh", "telnet", "mysql", "oracle", "sqlserver", "sybase", "informix"]
-   
-class SecurityLogTypes(object):
-    Object = "Object"
-    Security = "Security"
-    Usage = "Usage"
-    Other = "Other"
-    
-class SecurityLogActions(object):
-    UserLogin = "UserLogin"
-    UserLogout = "UserLogout"
-    UserLoginAttempt = "UserLoginAttempt"
-    UserPasswordChange = "UserPasswordChange"
-    UserSessionDrop = "UserSessionDrop"
-    SystemLicenseException = "SystemLicenseException"
-    
-    ObjectAdd = "ObjectAdd"
-    ObjectModify = "ObjectModify"
-    ObjectDelete = "ObjectDelete"
-    ObjectView = "ObjectView"
-    ObjectCopy = "ObjectCopy"
-    
-    PageView = "PageView"
-    ReportView = "ReportView"
-    
-    APIInterface = "APIInterface"
-    
-    Other = "Other"
-    ConfigChange = "ConfigChange"
-
-class CatoObjectTypes(object):
-    NA = 0
-    User = 1
-    Asset = 2
-    Task = 3
-    Schedule = 4
-    Registry = 6
-    Tag = 7
-    Image = 8
-    MessageTemplate = 18
-    Parameter = 34
-    Credential = 35
-    Domain = 36
-    CloudAccount = 40
-    Cloud = 41
-    Ecosystem = 50
-    EcoTemplate = 51
-    Request = 61
 
 RoleMethods = {
     "/cloudAccountEdit" : ["Developer"],

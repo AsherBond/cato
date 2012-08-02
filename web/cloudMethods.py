@@ -129,7 +129,7 @@ class cloudMethods:
                 if c == None:
                     return "{\"error\" : \"Unable to create Cloud.\"}"
 
-                uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Cloud, c.ID, c.Name, "Cloud Created")
+                uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Cloud, c.ID, c.Name, "Cloud Created")
             elif sMode == "edit":
                 c = cloud.Cloud()
                 c.FromID(sCloudID)
@@ -146,7 +146,7 @@ class cloudMethods:
                     uiCommon.log(msg, 2)
                     return "{\"info\" : \"%s\"}" % msg
                 
-                uiCommon.WriteObjectPropertyChangeLog(uiGlobals.CatoObjectTypes.Cloud, c.ID, c.Name, sCloudName, c.Name)
+                uiCommon.WriteObjectPropertyChangeLog(catocommon.CatoObjectTypes.Cloud, c.ID, c.Name, sCloudName, c.Name)
 
             if c:
                 return c.AsJSON()
@@ -174,7 +174,7 @@ class cloudMethods:
             
             #if we made it here, save the logs
             for dr in rows:
-                uiCommon.WriteObjectDeleteLog(uiGlobals.CatoObjectTypes.Cloud, dr["cloud_id"], dr["cloud_name"], dr["provider"] + " Cloud Deleted.")
+                uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Cloud, dr["cloud_id"], dr["cloud_name"], dr["provider"] + " Cloud Deleted.")
     
             return "{\"result\" : \"success\"}"
             
@@ -318,7 +318,7 @@ class cloudMethods:
                 if ca is None:
                     return "{\"error\" : \"Unable to create Cloud Account.\"}"
                 else:
-                    uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.CloudAccount, ca.ID, ca.Name, "Account Created")
+                    uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.CloudAccount, ca.ID, ca.Name, "Account Created")
         
             elif sMode == "edit":
                 ca = cloud.CloudAccount()
@@ -347,7 +347,7 @@ class cloudMethods:
 #            if db.error:
 #                return None, "Error getting original Cloud Account Name:" + db.error
   
-                    uiCommon.WriteObjectPropertyChangeLog(uiGlobals.CatoObjectTypes.CloudAccount, ca.ID, ca.Name, "", ca.Name)
+                    uiCommon.WriteObjectPropertyChangeLog(catocommon.CatoObjectTypes.CloudAccount, ca.ID, ca.Name, "", ca.Name)
 
 
             if ca:
@@ -386,7 +386,7 @@ class cloudMethods:
 
             #  if we made it here, so save the logs
             for dr in rows:
-                uiCommon.WriteObjectDeleteLog(uiGlobals.CatoObjectTypes.CloudAccount, dr["account_id"], dr["account_name"], dr["provider"] + " Account for LoginID [" + dr["login_id"] + "] Deleted")
+                uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.CloudAccount, dr["account_id"], dr["account_name"], dr["provider"] + " Account for LoginID [" + dr["login_id"] + "] Deleted")
 
             return "{\"result\" : \"success\"}"
         except Exception:
