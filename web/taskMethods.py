@@ -330,7 +330,7 @@ class taskMethods:
                     return "{\"error\" : \"Unable to save Task.\"}"
             
                 # add security log
-                uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Task, t.ID, t.Name, "");
+                uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "");
 
             return "{\"id\" : \"%s\"}" % (t.ID)
         except Exception:
@@ -351,7 +351,7 @@ class taskMethods:
             if not sNewTaskID:
                 return "Unable to create Task."
             
-            uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Task, t.ID, t.Name, "Copied from " + sCopyTaskID);
+            uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Copied from " + sCopyTaskID);
             return "{\"id\" : \"%s\"}" % (sNewTaskID)
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
@@ -401,7 +401,7 @@ class taskMethods:
     
                 self.db.tran_commit()
     
-                uiCommon.WriteObjectDeleteLog(uiGlobals.CatoObjectTypes.Task, "Multiple", "Original Task IDs", sDeleteArray)
+                uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Task, "Multiple", "Original Task IDs", sDeleteArray)
             
             if len(sTaskNames) > 0:
                 return "{\"info\" : \"Task(s) (" + sTaskNames + ") have history rows or are referenced by Ecotemplate Actions and could not be deleted.\"}"
@@ -470,7 +470,7 @@ class taskMethods:
                 if not self.db.exec_db_noexcep(sSQL):
                     uiCommon.log("Unable to update task [" + sTaskID + "]." + self.db.error)
 
-                uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Task, sTaskID, sColumn, sValue)
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sColumn, sValue)
 
             else:
                 uiCommon.log("Unable to update task. Missing or invalid task [" + sTaskID + "] id.")
@@ -550,7 +550,7 @@ class taskMethods:
                 if not self.db.exec_db_noexcep(sSQL):
                     uiCommon.log("Unable to add Codeblock [" + sNewCodeblockName + "]. " + self.db.error)
 
-                uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Task, sTaskID, sNewCodeblockName, "Added Codeblock.")
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sNewCodeblockName, "Added Codeblock.")
             else:
                 uiCommon.log("Unable to add Codeblock. Invalid or missing Codeblock Name.")
         except Exception:
@@ -583,7 +583,7 @@ class taskMethods:
 
             self.db.tran_commit()
 
-            uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Task, sTaskID, sCodeblockID, "Deleted Codeblock.")
+            uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sCodeblockID, "Deleted Codeblock.")
 
         except Exception:
             uiCommon.log("Exception: " + traceback.format_exc())
@@ -637,7 +637,7 @@ class taskMethods:
                 # all done
                 self.db.tran_commit()
                 
-                uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Task, sTaskID, sOldCodeblockName, "Renamed Codeblock [%s -> %s]" % (sOldCodeblockName, sNewCodeblockName))
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sOldCodeblockName, "Renamed Codeblock [%s -> %s]" % (sOldCodeblockName, sNewCodeblockName))
 
             else:
                 uiCommon.log("Unable to get codeblocks for task. Missing or invalid task_id.")
@@ -846,7 +846,7 @@ class taskMethods:
                 if not self.db.exec_db_noexcep(sSQL):
                     uiCommon.log("Unable to add step." + self.db.error)
 
-                uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Task, sTaskID, sItem,
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sItem,
                     "Added Command from Clipboard to Codeblock:" + sCodeblockName)
 
             else:
@@ -900,7 +900,7 @@ class taskMethods:
                     if not self.db.exec_db_noexcep(sSQL):
                         uiCommon.log("Unable to add step." + self.db.error)
     
-                    uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Task, sTaskID, sItem,
+                    uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sItem,
                         "Added Command Type:" + sItem + " to Codeblock:" + sCodeblockName)
                 else:
                     uiCommon.log("Unable to add step.  No template xml.")
@@ -988,7 +988,7 @@ class taskMethods:
 
                     ST.AddToCommandXML(sStepID, sDropXPath, ET.tostring(xe))
 
-                    uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Task, sTaskID, sItem,
+                    uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sItem,
                         "Added Command from Clipboard to Step: " + sStepID)
                     
                 else:
@@ -1015,7 +1015,7 @@ class taskMethods:
                     # Add it!
                     ST.AddToCommandXML(sStepID, sDropXPath, ET.tostring(xe))
     
-                    uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Task, sTaskID, sItem,
+                    uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sItem,
                         "Added Command Type: " + sItem + " to Step: " + sStepID)
 
                 else:
@@ -1081,7 +1081,7 @@ class taskMethods:
 
                 # for logging, we'll stick the whole command XML into the log
                 # so we have a complete record of the step that was just deleted.
-                uiCommon.WriteObjectDeleteLog(uiGlobals.CatoObjectTypes.Task, "Multiple", "Original Task IDs",
+                uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Task, "Multiple", "Original Task IDs",
                     "Codeblock:" + sCodeblock +
                     " Step Order:" + sDeletedStepOrder +
                     " Command Type:" + sFunction +
@@ -1232,7 +1232,7 @@ class taskMethods:
                 uiCommon.log_nouser(self.db.error, 0)
     
             if dr is not None:
-                uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Task, dr["task_id"], sFunction,
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, dr["task_id"], sFunction,
                     "Codeblock:" + dr["codeblock_name"] + \
                     " Step Order:" + str(dr["step_order"]) + \
                     " Command Type:" + sFunction + \
@@ -2146,7 +2146,7 @@ class taskMethods:
                     if not self.db.exec_db_noexcep(sSQL):
                         uiCommon.log("Unable to update Action [" + sID + "]." + self.db.error)
     
-                    uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.EcoTemplate, sID, sID, "Default parameters updated: [" + sOverrideXML + "]")
+                    uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.EcoTemplate, sID, sID, "Default parameters updated: [" + sOverrideXML + "]")
                 elif sType == "runtask":
                     # WICKED!!!!
                     # I can use my super awesome xml functions!
@@ -2390,12 +2390,12 @@ class taskMethods:
                     sValues = xd.findtext("parameter[@id='" + sParamID + "']/values", "")
     
                     #  add security log
-                    uiCommon.WriteObjectDeleteLog(uiGlobals.CatoObjectTypes.Parameter, "", sID, "")
+                    uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Parameter, "", sID, "")
     
                     if sType == "task":
-                        uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Task, sID, "Deleted Parameter:[" + sName + "]", sValues)
+                        uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sID, "Deleted Parameter:[" + sName + "]", sValues)
                     if sType == "ecosystem":
-                        uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Ecosystem, sID, "Deleted Parameter:[" + sName + "]", sValues)
+                        uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Ecosystem, sID, "Deleted Parameter:[" + sName + "]", sValues)
     
     
                 # Here's the real work ... do the whack
@@ -2514,16 +2514,16 @@ class taskMethods:
             #  not clean at all handling both tasks and ecosystems in the same method, but whatever.
             if bParamAdd:
                 if sType == "task":
-                    uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Task, sID, "Parameter", "Added Parameter [%s]" % sName )
+                    uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, sID, "Parameter", "Added Parameter [%s]" % sName )
                 if sType == "ecosystem":
-                    uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Ecosystem, sID, "Parameter", "Added Parameter [%s]" % sName )
+                    uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Ecosystem, sID, "Parameter", "Added Parameter [%s]" % sName )
             else:
                 #  would be a lot of trouble to add the from to, why is it needed you have each value in the log, just scroll back
                 #  so just add a changed message to the log
                 if sType == "task":
-                    uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Task, sID, "Parameter", "Modified Parameter [%s]" % sName )
+                    uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sID, "Parameter", "Modified Parameter [%s]" % sName )
                 if sType == "ecosystem":
-                    uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Ecosystem, sID, "Parameter", "Modified Parameter [%s]" % sName )
+                    uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Ecosystem, sID, "Parameter", "Modified Parameter [%s]" % sName )
 
             # update the values
             aValues = sValues.split("|")
@@ -3218,9 +3218,9 @@ class taskMethods:
 
                 self.db.tran_commit()
 
-                uiCommon.WriteObjectPropertyChangeLog(uiGlobals.CatoObjectTypes.Task, sTaskID, "Status", "Development", "Approved")
+                uiCommon.WriteObjectPropertyChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, "Status", "Development", "Approved")
                 if sMakeDefault == "1":
-                    uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Task, sTaskID, "Default", "Set as Default Version.")
+                    uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, "Default", "Set as Default Version.")
 
             else:
                 uiCommon.log("Unable to update task. Missing or invalid task id. [" + sTaskID + "]")

@@ -63,7 +63,7 @@ def check_roles(method):
     # if you wanna enable verbose page view logging, this is the place to do it.
     s_set = settings.settings.security()
     if s_set.PageViewLogging:
-        AddSecurityLog(uiGlobals.SecurityLogTypes.Usage, uiGlobals.SecurityLogActions.PageView, 0, method, method)
+        catocommon.add_security_log(GetSessionUserID(), catocommon.SecurityLogTypes.Usage, catocommon.SecurityLogActions.PageView, 0, method, method)
 
     user_role = GetSessionUserRole()
     if user_role == "Administrator":
@@ -202,50 +202,17 @@ def FixBreaks(sInput):
     if sInput:
         return sInput.replace("\r\n", "<br />").replace("\r", "<br />").replace("\n", "<br />").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;")
 
-def AddSecurityLog(LogType, Action, ObjectType, ObjectID, LogMessage):
-    sTrimmedLog = catocommon.tick_slash(LogMessage).strip()
-    if sTrimmedLog:
-        if len(sTrimmedLog) > 7999:
-            sTrimmedLog = sTrimmedLog[:7998]
-    sSQL = """insert into user_security_log (log_type, action, user_id, log_dt, object_type, object_id, log_msg)
-        values ('%s', '%s', '%s', now(), %d, '%s', '%s')""" % (LogType, Action, GetSessionUserID(), ObjectType, ObjectID, sTrimmedLog)
-    db = catocommon.new_conn()
-    if not db.exec_db_noexcep(sSQL):
-        log_nouser(db.error, 0)
-    db.close()
-
 def WriteObjectAddLog(oType, sObjectID, sObjectName, sLog=""):
-    if sObjectID and sObjectName:
-        if not sLog:
-            sLog = "Created: [" + catocommon.tick_slash(sObjectName) + "]."
-        else:
-            sLog = "Created: [" + catocommon.tick_slash(sObjectName) + "] - [" + sLog + "]"
-
-        AddSecurityLog(uiGlobals.SecurityLogTypes.Object, uiGlobals.SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
+    catocommon.write_add_log(GetSessionUserID(), oType, sObjectID, sObjectName, sLog)
 
 def WriteObjectDeleteLog(oType, sObjectID, sObjectName, sLog=""):
-    if sObjectID and sObjectName:
-        if not sLog:
-            sLog = "Deleted: [" + catocommon.tick_slash(sObjectName) + "]."
-        else:
-            sLog = "Deleted: [" + catocommon.tick_slash(sObjectName) + "] - [" + sLog + "]"
-
-        AddSecurityLog(uiGlobals.SecurityLogTypes.Object, uiGlobals.SecurityLogActions.ObjectDelete, oType, sObjectID, sLog)
+    catocommon.write_delete_log(GetSessionUserID(), oType, sObjectID, sObjectName, sLog)
 
 def WriteObjectChangeLog(oType, sObjectID, sObjectName, sLog=""):
-    if sObjectID and sObjectName:
-        if not sObjectName:
-            sObjectName = "[" + catocommon.tick_slash(sObjectName) + "]."
-        else:
-            sLog = "Changed: [" + catocommon.tick_slash(sObjectName) + "] - [" + sLog + "]"
-
-        AddSecurityLog(uiGlobals.SecurityLogTypes.Object, uiGlobals.SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
+    catocommon.write_change_log(GetSessionUserID(), oType, sObjectID, sObjectName, sLog)
 
 def WriteObjectPropertyChangeLog(oType, sObjectID, sLabel, sFrom, sTo):
-    if sFrom and sTo:
-        if sFrom != sTo:
-            sLog = "Changed: " + sLabel + " from [" + catocommon.tick_slash(sFrom) + "] to [" + catocommon.tick_slash(sTo) + "]."
-            AddSecurityLog(uiGlobals.SecurityLogTypes.Object, uiGlobals.SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
+    catocommon.write_property_change_log(GetSessionUserID(), oType, sObjectID, sLabel, sFrom, sTo)
 
 def PrepareAndEncryptParameterXML(sParameterXML):
     try:
@@ -1006,8 +973,8 @@ def AttemptLogin(app_name):
         log(uiGlobals.session.user, 4)
 
         #update the security log
-        AddSecurityLog(uiGlobals.SecurityLogTypes.Security,
-            uiGlobals.SecurityLogActions.UserLogin, uiGlobals.CatoObjectTypes.User, "",
+        catocommon.add_security_log(u.ID, catocommon.SecurityLogTypes.Security,
+            catocommon.SecurityLogActions.UserLogin, catocommon.CatoObjectTypes.User, "",
             "Login to [%s] from [%s] granted." % (app_name, address))
 
         return "{\"result\" : \"success\"}"
