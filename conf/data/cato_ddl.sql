@@ -243,6 +243,19 @@ CREATE TABLE `ecotemplate_action` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ecotemplate_runlist` (
+  `item_id` varchar(36) NOT NULL,
+  `ecotemplate_id` varchar(36) NOT NULL,
+  `item_type` varchar(32) NOT NULL,
+  `item_order` int(11) NOT NULL,
+  `item_notes` varchar(2048) DEFAULT NULL,
+  `account_id` varchar(36) DEFAULT NULL,
+  `cloud_id` varchar(36) DEFAULT NULL,
+  `image_id` varchar(36) DEFAULT NULL,
+  `source` varchar(1024) DEFAULT NULL,
+  `data` text,
+  PRIMARY KEY (`item_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `ecosystem_log` (
   `ecosystem_log_id` bigint(20) NOT NULL AUTO_INCREMENT,
