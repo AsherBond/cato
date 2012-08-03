@@ -38,15 +38,96 @@ $(document).ready(function () {
 
     $("#edit_dialog_tabs").tabs();
 
+    $("#keypair_dialog").dialog({
+        autoOpen: false,
+        modal: true,
+        height: 400,
+        width: 400,
+        bgiframe: true,
+        buttons: {
+            "Save": function () {
+                SaveKeyPair();
+            },
+            Cancel: function () {
+                $("#keypair_dialog").dialog("close");
+            }
+        }
+    });
+
+
+    //keypair add button
+    $("#keypair_add_btn").button({ icons: { primary: "ui-icon-plus"} });
+    $("#keypair_add_btn").click(function () {
+        //wipe the fields
+        $("#keypair_id").val("");
+        $("#keypair_name").val("");
+        $("#keypair_private_key").val("");
+        $("#keypair_passphrase").val("");
+
+        $("#keypair_dialog").dialog("open");
+    });
+
+    //keypair delete button
+    $(".keypair_delete_btn").live("click", function () {
+        if (confirm("Are you sure?")) {
+            $("#update_success_msg").text("Deleting...").show().fadeOut(2000);
+
+            var kpid = $(this).parents(".keypair").attr("id").replace(/kp_/, "");
+
+            $.ajax({
+                type: "POST",
+                url: "cloudMethods/wmDeleteKeyPair",
+                data: '{"sKeypairID":"' + kpid + '"}',
+                contentType: "application/json; charset=utf-8",
+                dataType: "text",
+                success: function (response) {
+                    $("#kp_" + kpid).remove();
+                    $("#update_success_msg").text("Delete Successful").fadeOut(2000);
+                },
+                error: function (response) {
+                    showAlert(response.responseText);
+                }
+            });
+        }
+    });
+
+    //edit a keypair
+    $(".keypair_label").live("click", function () {
+        //clear the optional fields
+        $("#keypair_private_key").val("");
+        $("#keypair_passphrase").val("");
+
+        //fill them
+        $("#keypair_id").val($(this).parents(".keypair").attr("id"));
+        $("#keypair_name").val($(this).html());
+
+        //show stars for the private key and passphrase if they were populated
+        //the server sent back a flag denoting that
+        var pk = "";
+
+        if ($(this).parents(".keypair").attr("has_pk") == "true")
+            pk += "**********\n";
+
+        $("#keypair_private_key").val(pk);
+
+
+        if ($(this).parents(".keypair").attr("has_pp") == "true")
+            $("#keypair_passphrase").val("!2E4S6789O");
+
+
+        $("#keypair_dialog").dialog("open");
+    });
+
+
     //the test connection buttton
-    $("#test_connection_btn").button({ icons: { primary: "ui-icon-link"} });
-	$("#test_connection_btn").live("click", function () {
+    $(".test_connection_btn").button({ icons: { primary: "ui-icon-signal-diag"}, text: false });
+	$(".test_connection_btn").live("click", function () {
         TestConnection();
     });
 
     $("#jumpto_account_btn").button({ icons: { primary: "ui-icon-pencil"}, text: false });
 	$("#jumpto_account_btn").click(function () {
-        var acct_id = $("#ddlTestAccount").val();
+        var acct_id = $("#ddlDefaultAccount").val();
     	var saved = SaveItem(0);
     	if (saved) {
 		    if (acct_id) {
@@ -95,11 +176,12 @@ function GetProvidersList() {
         type: "POST",
         async: false,
         url: "cloudMethods/wmGetProvidersList",
-        data: '{"sUserDefinedOnly":"True"}',
+        data: '{"sUserDefinedOnly":"False"}',
         contentType: "application/json; charset=utf-8",
         dataType: "html",
         success: function (response) {
 			$("#ddlProvider").html(response);
+			ClearTestResult();
        },
         error: function (response) {
             showAlert(response.responseText);
@@ -119,14 +201,15 @@ function GetProviderAccounts() {
         dataType: "json",
         success: function (accounts) {
             // all we want here is to loop the clouds
-            $("#ddlTestAccount").empty();
+            $("#ddlDefaultAccount").empty();
             if (accounts) {
 	            $.each(accounts, function(index, account){
-	            	$("#ddlTestAccount").append("<option value=\"" + account.account_id + "\">" + account.account_name + "</option>");
+	            	$("#ddlDefaultAccount").append("<option value=\"" + account.account_id + "\">" + account.account_name + "</option>");
 				});
 			}
+			
 			//we can't allow testing the connection if there are no clouds
-			if ($("#ddlTestAccount option").length == 0)
+			if ($("#ddlDefaultAccount option").length == 0)
 				$("#test_connection_btn").hide();
             else
 				$("#test_connection_btn").show();
@@ -141,7 +224,7 @@ function TestConnection() {
 	SaveItem(0);
 
     var cloud_id = $("#hidCurrentEditID").val();
-    var account_id = $("#ddlTestAccount").val();
+    var account_id = $("#ddlDefaultAccount").val();
 
     if (cloud_id.length == 36 && account_id.length == 36)
     {    
@@ -244,11 +327,13 @@ function LoadEditDialog(editID) {
                 // do we close the dialog, leave it open to allow adding more? what?
             } else {
                 $("#txtCloudName").val(cloud.Name);
-                $("#ddlProvider").val(cloud.Provider);
+                $("#ddlProvider").val(cloud.Provider.Name);
                 $("#txtAPIUrl").val(cloud.APIUrl);
                 $("#ddlAPIProtocol").val(cloud.APIProtocol);
     
 			    GetProviderAccounts();
+                $("#ddlDefaultAccount").val(cloud.DefaultAccount.ID);
+			    
 				ClearTestResult();
 				
 			    $("#edit_dialog").dialog("option", "title", "Modify Cloud");
@@ -259,6 +344,9 @@ function LoadEditDialog(editID) {
             showAlert(response.responseText);
         }
     });
+
+    //get the keypairs
+    GetKeyPairs(editID);
 }
 
 function ClearTestResult() {
@@ -296,6 +384,7 @@ function SaveItem(close_after_save) {
     	"sCloudID":"' + sCloudID + '", \
         "sCloudName":"' + sCloudName + '", \
         "sProvider":"' + $("#ddlProvider").val() + '", \
+        "sDefaultAccountID":"' + $("#ddlDefaultAccount").val() + '", \
         "sAPIProtocol":"' + $("#ddlAPIProtocol").val() + '", \
         "sAPIUrl":"' + sAPIUrl + '" \
         }';
@@ -380,6 +469,71 @@ function DeleteItems() {
 
                 $("#update_success_msg").text("Delete Successful").show().fadeOut(2000);
             } else {
+                showAlert(response);
+            }
+        },
+        error: function (response) {
+            showAlert(response.responseText);
+        }
+    });
+}
+
+function GetKeyPairs(sEditID) {
+    $.ajax({
+        type: "POST",
+        async: false,
+        url: "cloudMethods/wmGetKeyPairs",
+        data: '{"sID":"' + sEditID + '"}',
+        contentType: "application/json; charset=utf-8",
+        dataType: "html",
+        success: function (response) {
+            $('#keypairs').html(response);
+        },
+        error: function (response) {
+            showAlert(response.responseText);
+        }
+    });
+}
+
+function SaveKeyPair() {
+    var kpid = $("#keypair_id").val().replace(/kp_/, "");
+    var name = $("#keypair_name").val();
+	//pack up the PK field, JSON doesn't like it
+    var pk = packJSON($("#keypair_private_key").val());
+    var pp = $("#keypair_passphrase").val();
+    var cloud_id = $("#hidCurrentEditID").val();
+
+    //some client side validation before we attempt to save
+    if (name == '') {
+        showInfo("KeyPair Name is required.");
+        return false;
+    };
+    if ($("#keypair_private_key").val() == '') {
+        showInfo("Private Key is required.");
+        return false;
+    };
+
+    $("#update_success_msg").text("Saving...").show().fadeOut(2000);
+
+    $.ajax({
+        type: "POST",
+        url: "cloudMethods/wmSaveKeyPair",
+        data: '{"sKeypairID" : "' + kpid + '","sCloudID" : "' + cloud_id + '","sName" : "' + name + '","sPK" : "' + pk + '","sPP" : "' + pp + '"}',
+        contentType: "application/json; charset=utf-8",
+        dataType: "text",
+        success: function (response) {
+            if (response == "") {
+                if (kpid) {
+                    //find the label and update it
+                    $("#kp_" + kpid + " .keypair_label").html(name);
+                } else {
+                    //re-get the list
+                    GetKeyPairs(cloud_id);
+                }
+                $("#update_success_msg").text("Save Successful").show().fadeOut(2000);
+                $("#keypair_dialog").dialog("close");
+            }
+            else {
                 showAlert(response);
             }
         },

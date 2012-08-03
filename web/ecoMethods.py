@@ -99,7 +99,7 @@ class ecoMethods:
                 
                 result, msg = et.DBSave()
                 if result:
-                    uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Ecosystem, et.ID, et.Name, "Ecotemplate created.")
+                    uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Ecosystem, et.ID, et.Name, "Ecotemplate created.")
                     return "{\"ecotemplate_id\" : \"%s\"}" % et.ID
                 else:
                     uiCommon.log(msg, 2)
@@ -139,7 +139,7 @@ class ecoMethods:
                     
                     bSuccess, msg = et.DBUpdate()
                     if bSuccess:
-                        uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Ecosystem, sEcoTemplateID, sColumn, sValue)
+                        uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Ecosystem, sEcoTemplateID, sColumn, sValue)
                         return "{\"result\" : \"success\"}"
                     else:
                         uiCommon.log(msg, 2)
@@ -170,8 +170,8 @@ class ecoMethods:
                     
                     bSuccess, msg = et.DBUpdate()
                     if bSuccess:
-                        uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Ecosystem, sEcoTemplateID, "StormFileType", sStormFileSource)
-                        uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Ecosystem, sEcoTemplateID, "StormFile", sStormFile)
+                        uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Ecosystem, sEcoTemplateID, "StormFileType", sStormFileSource)
+                        uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Ecosystem, sEcoTemplateID, "StormFile", sStormFile)
                         return "{\"result\" : \"success\"}"
                     else:
                         uiCommon.log(msg, 2)
@@ -206,7 +206,7 @@ class ecoMethods:
                     uiCommon.log_nouser(self.db.error, 0)
                 
                 #if we made it here, save the logs
-                uiCommon.WriteObjectDeleteLog(uiGlobals.CatoObjectTypes.EcoTemplate, "", "", "Ecosystem Templates(s) Deleted [" + sDeleteArray + "]")
+                uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.EcoTemplate, "", "", "Ecosystem Templates(s) Deleted [" + sDeleteArray + "]")
             else:
                 return "{\"info\" : \"Unable to delete - %d Ecosystems are referenced by these templates.\"}" % iResults
                 
@@ -307,7 +307,7 @@ class ecoMethods:
                 if "Duplicate entry:" not in self.db.error:
                     uiCommon.log_nouser(self.db.error, 0)
     
-            uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.EcoTemplate, sEcoTemplateID, "", "Action Added : [" + sActionName + "]")
+            uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.EcoTemplate, sEcoTemplateID, "", "Action Added : [" + sActionName + "]")
     
             return ""
         except Exception:
@@ -339,7 +339,7 @@ class ecoMethods:
             self.db.tran_commit()
 
             #  if we made it here, so save the logs
-            uiCommon.WriteObjectDeleteLog(uiGlobals.CatoObjectTypes.EcoTemplate, "", "", "Action [" + sActionID + "] removed from Ecotemplate.")
+            uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.EcoTemplate, "", "", "Action [" + sActionID + "] removed from Ecotemplate.")
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
 
@@ -605,7 +605,7 @@ class ecoMethods:
                 if not self.db.exec_db_noexcep(sSQL):
                     uiCommon.log("Unable to update Ecotemplate Action [" + sActionID + "]." + self.db.error)
 
-                uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.EcoTemplate, sEcoTemplateID, sActionID, "Action updated: [" + sSetClause + "]")
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.EcoTemplate, sEcoTemplateID, sActionID, "Action updated: [" + sSetClause + "]")
             else:
                 uiCommon.log("Unable to update Ecotemplate Action. Missing or invalid Ecotemplate/Action ID.")
 
@@ -841,7 +841,7 @@ class ecoMethods:
             if e == None:
                 return "{\"error\" : \"Unable to create Ecosystem.\"}"
 
-            uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Ecosystem, e.ID, e.Name, "Ecosystem created.")
+            uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Ecosystem, e.ID, e.Name, "Ecosystem created.")
             
             return "{\"id\" : \"%s\"}" % e.ID
 
@@ -883,7 +883,7 @@ class ecoMethods:
             
             self.db.tran_commit()
                 
-            uiCommon.WriteObjectDeleteLog(uiGlobals.CatoObjectTypes.Ecosystem, "", "", "Ecosystem(s) Deleted [" + sDeleteArray + "]")
+            uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Ecosystem, "", "", "Ecosystem(s) Deleted [" + sDeleteArray + "]")
 
             return "{\"result\" : \"success\"}"
             
@@ -1558,7 +1558,7 @@ class ecoMethods:
                     bSuccess, msg = e.DBUpdate()
                     
                     if bSuccess:
-                        uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Ecosystem, sEcosystemID, sColumn, sValue)
+                        uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Ecosystem, sEcosystemID, sColumn, sValue)
                     else: 
                         uiCommon.log("Error updating Ecosystem. " + msg)
                         return "Error updating Ecosystem. " + msg
@@ -1599,7 +1599,7 @@ class ecoMethods:
             self.db.tran_commit()
     
             #  if we made it here, so save the logs
-            uiCommon.WriteObjectDeleteLog(uiGlobals.CatoObjectTypes.Ecosystem, "", "", "Object [" + sObjectID + "] removed from Ecosystem [" + sEcosystemID + "]")
+            uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Ecosystem, "", "", "Object [" + sObjectID + "] removed from Ecosystem [" + sEcosystemID + "]")
     
             return ""
         except Exception:
@@ -1803,7 +1803,7 @@ class ecoMethods:
                     else:
                         uiCommon.log_nouser(self.db.error, 0)
 
-            uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.Ecosystem, sEcosystemID, "", "Objects Added : {" + sObjectIDs + "}")
+            uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Ecosystem, sEcosystemID, "", "Objects Added : {" + sObjectIDs + "}")
 
             return ""
         except Exception:

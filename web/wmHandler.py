@@ -32,50 +32,7 @@ class wmHandler:
     #the GET and POST methods here are hooked by web.py.
     #whatever method is requested, that function is called.
     def GET(self, method):
-        return self.FindAndCall(method)
+        return catocommon.FindAndCall(method)
 
     def POST(self, method):
-        return self.FindAndCall(method)
-
-    def FindAndCall(self, method):
-        """
-        Several rules here:
-        1) First, we look in this class for the method.  This shouldn't really happen,
-            but if we decided at some point to put a few functions here... fine.
-        """
-        try:
-            self.db = catocommon.new_conn()
-            # does it have a / ?  if so let's look for another class.
-            # NOTE: this isn't recursive... only the first value before a / is the class
-            modname = ""
-            methodname = method
-            
-            if "/" in method:
-                modname, methodname = method.split('/', 1)
-            
-            if modname:    
-                try:
-                    mod = __import__(modname, None, None, modname)
-                    cls = getattr(mod, modname, None)
-                    if cls:
-                        cls.db = self.db
-                        methodToCall = getattr(cls(), methodname, None)
-                    else:
-                        return "Class [%s] does not exist or could not be loaded." % modname
-                except ImportError as ex:
-                    print(ex.__str__())
-                    return "Module [%s] does not exist." % modname
-            else:
-                methodToCall = getattr(self, methodname, None)
-
-            if methodToCall:
-                if callable(methodToCall):
-                    return methodToCall()
-
-            return "Method [%s] does not exist or could not be called." % method
-            
-        except Exception as ex:
-            raise ex
-        finally:
-            if self.db.conn.socket:
-                self.db.close()
+        return catocommon.FindAndCall(method)

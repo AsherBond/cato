@@ -1636,7 +1636,7 @@ def GetEcosystemObjects(oStep):
 
         # this builds a unique list of all object types, provider agnostic
         otypes = {}
-        cp = cloud.CloudProviders()
+        cp = cloud.CloudProviders(include_clouds = False)
         if cp is not None:
             for p in cp.itervalues():
                 cots = p.GetAllObjectTypes()

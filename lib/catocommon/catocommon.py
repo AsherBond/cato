@@ -20,6 +20,7 @@ from catocryptpy import catocryptpy
 import time
 import threading
 import uuid
+import decimal
 from catodb import catodb
 
 # anything including catocommon can get new connections using the settings in 'config'
@@ -41,6 +42,7 @@ def cato_encrypt(s):
         return catocryptpy.encrypt_string(s,config["key"])
     else:
         return ""
+
 def _get_base_path():
     # this library file will always be in basepath/lib/catocommon
     # so we will take off two directories and that will be the base_path
@@ -116,6 +118,23 @@ def generate_password():
     length = 12
     return "".join(choice(chars) for _ in range(length))
 
+"""The following is needed when serializing objects that have datetime or other non-serializable
+internal types"""
+def jsonSerializeHandler(obj):
+    # decimals
+    if isinstance(obj, decimal.Decimal):
+        return float(obj)
+    
+    # date time
+    if hasattr(obj, 'isoformat'):
+        return obj.isoformat()
+    else:
+        return str(obj)
+#    elif isinstance(obj, custom_object):
+#        tmp = some code to coerce your custom_object into something serializable
+#        return tmp
+    raise TypeError, 'Object of type %s with value of %s is not JSON serializable' % (type(obj), repr(obj))
+
 def is_true(var):
     # not just regular python truth testing - certain string values are also "true"
     # but false if the string has length but isn't a "true" statement
@@ -145,6 +164,100 @@ def tick_slash(s):
     
     return ""
 
+def add_security_log(UserID, LogType, Action, ObjectType, ObjectID, LogMessage):
+    """
+    Creates a row in the user_security_log table.  Called from many places.
+    
+    Note: the calling method is responsible for figuring out the user, as 
+    doing so may differ between processes.
+    """
+    UserID = UserID if UserID else "Unknown"
+    sTrimmedLog = tick_slash(LogMessage).strip()
+    if sTrimmedLog:
+        if len(sTrimmedLog) > 7999:
+            sTrimmedLog = sTrimmedLog[:7998]
+    sSQL = """insert into user_security_log (log_type, action, user_id, log_dt, object_type, object_id, log_msg)
+        values ('%s', '%s', '%s', now(), %d, '%s', '%s')""" % (LogType, Action, UserID, ObjectType, ObjectID, sTrimmedLog)
+    db = new_conn()
+    if not db.exec_db_noexcep(sSQL):
+        print db.error
+    db.close()
+
+def write_add_log(UserID, oType, sObjectID, sObjectName, sLog=""):
+    if sObjectID and sObjectName:
+        if not sLog:
+            sLog = "Created: [" + tick_slash(sObjectName) + "]."
+        else:
+            sLog = "Created: [" + tick_slash(sObjectName) + "] - [" + sLog + "]"
+
+        add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
+
+def write_delete_log(UserID, oType, sObjectID, sObjectName, sLog=""):
+    if not sLog:
+        sLog = "Deleted: [" + tick_slash(sObjectName) + "]."
+    else:
+        sLog = "Deleted: [" + tick_slash(sObjectName) + "] - [" + sLog + "]"
+
+    add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectDelete, oType, sObjectID, sLog)
+
+def write_change_log(UserID, oType, sObjectID, sObjectName, sLog=""):
+    if sObjectID and sObjectName:
+        if not sObjectName:
+            sObjectName = "[" + tick_slash(sObjectName) + "]."
+        else:
+            sLog = "Changed: [" + tick_slash(sObjectName) + "] - [" + sLog + "]"
+
+        add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
+
+def write_property_change_log(UserID, oType, sObjectID, sLabel, sFrom, sTo):
+    if sFrom and sTo:
+        if sFrom != sTo:
+            sLog = "Changed: " + sLabel + " from [" + tick_slash(sFrom) + "] to [" + tick_slash(sTo) + "]."
+            add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
+
+def FindAndCall(method):
+    """
+    Several rules here:
+    1) First, we look in this class for the method.  This shouldn't really happen,
+        but if we decided at some point to put a few functions here... fine.
+    """
+    try:
+        db = new_conn()
+        # does it have a / ?  if so let's look for another class.
+        # NOTE: this isn't recursive... only the first value before a / is the class
+        modname = ""
+        methodname = method
+        
+        if "/" in method:
+            modname, methodname = method.split('/', 1)
+        
+        if modname:    
+            try:
+                mod = __import__(modname, None, None, modname)
+                cls = getattr(mod, modname, None)
+                if cls:
+                    cls.db = db
+                    methodToCall = getattr(cls(), methodname, None)
+                else:
+                    return "Class [%s] does not exist or could not be loaded." % modname
+            except ImportError as ex:
+                print(ex.__str__())
+                return "Module [%s] does not exist." % modname
+        else:
+            methodToCall = getattr(globals, methodname, None)
+
+        if methodToCall:
+            if callable(methodToCall):
+                return methodToCall()
+
+        return "Method [%s] does not exist or could not be called." % method
+        
+    except Exception as ex:
+        raise ex
+    finally:
+        if db:
+            db.close()    
+    
 #this file has a global 'config' that gets populated automatically.
 config = read_config()
 
@@ -290,3 +403,49 @@ class CatoService(CatoProcess):
             time.sleep(self.loop)
 
 
+class SecurityLogTypes(object):
+    Object = "Object"
+    Security = "Security"
+    Usage = "Usage"
+    Other = "Other"
+    
+class SecurityLogActions(object):
+    UserLogin = "UserLogin"
+    UserLogout = "UserLogout"
+    UserLoginAttempt = "UserLoginAttempt"
+    UserPasswordChange = "UserPasswordChange"
+    UserSessionDrop = "UserSessionDrop"
+    SystemLicenseException = "SystemLicenseException"
+    
+    ObjectAdd = "ObjectAdd"
+    ObjectModify = "ObjectModify"
+    ObjectDelete = "ObjectDelete"
+    ObjectView = "ObjectView"
+    ObjectCopy = "ObjectCopy"
+    
+    PageView = "PageView"
+    ReportView = "ReportView"
+    
+    APIInterface = "APIInterface"
+    
+    Other = "Other"
+    ConfigChange = "ConfigChange"
+
+class CatoObjectTypes(object):
+    NA = 0
+    User = 1
+    Asset = 2
+    Task = 3
+    Schedule = 4
+    Registry = 6
+    Tag = 7
+    Image = 8
+    MessageTemplate = 18
+    Parameter = 34
+    Credential = 35
+    Domain = 36
+    CloudAccount = 40
+    Cloud = 41
+    Ecosystem = 50
+    EcoTemplate = 51
+    Request = 61

@@ -18,7 +18,6 @@
     Why?  Because it isn't only used by the UI.
 """
 import json
-from catoui import uiCommon
 from catocommon import catocommon
 from catocloud import cloud
 from catoimage import image
@@ -136,13 +135,7 @@ class Ecotemplate(object):
 
     def AsJSON(self):
         try:
-            sb = []
-            sb.append("{")
-            sb.append("\"%s\" : \"%s\"," % ("ID", self.ID))
-            sb.append("\"%s\" : \"%s\"," % ("Name", self.Name))
-            sb.append("\"%s\" : \"%s\"" % ("Description", uiCommon.packJSON(self.Description)))
-            sb.append("}")
-            return "".join(sb)
+            return json.dumps(self.__dict__, default=catocommon.jsonSerializeHandler)
         except Exception as ex:
             raise ex
 
@@ -482,7 +475,7 @@ class Ecosystems(object):
 
     def AsJSON(self):
         try:
-            return json.dumps(self.rows, default=uiCommon.jsonSerializeHandler)
+            return json.dumps(self.rows, default=catocommon.jsonSerializeHandler)
         except Exception as ex:
             raise ex
         
@@ -610,15 +603,6 @@ class Ecosystem(object):
 
     def AsJSON(self):
         try:
-            return json.dumps(self.__dict__, default=uiCommon.jsonSerializeHandler)
-#            sb = []
-#            sb.append("{")
-#            sb.append("\"%s\" : \"%s\"," % ("ID", self.ID))
-#            sb.append("\"%s\" : \"%s\"," % ("Name", self.Name))
-#            sb.append("\"%s\" : \"%s\"," % ("EcotemplateID", self.EcotemplateID))
-#            sb.append("\"%s\" : \"%s\"," % ("CreatedDate", self.CreatedDate))
-#            sb.append("\"%s\" : \"%s\"" % ("Description", uiCommon.packJSON(self.Description)))
-#            sb.append("}")
-#            return "".join(sb)
+            return json.dumps(self.__dict__, default=catocommon.jsonSerializeHandler)
         except Exception as ex:
             raise ex

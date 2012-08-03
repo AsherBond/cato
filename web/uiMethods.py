@@ -561,7 +561,7 @@ class uiMethods:
                 uiCommon.log_nouser(self.db.error, 0)
     
             #  if we made it here, so save the logs
-            uiCommon.WriteObjectDeleteLog(uiGlobals.CatoObjectTypes.EcoTemplate, "", "", "Schedule [" + sScheduleID + "] deleted.")
+            uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.EcoTemplate, "", "", "Schedule [" + sScheduleID + "] deleted.")
     
             return ""
         except Exception:
@@ -581,7 +581,7 @@ class uiMethods:
                 uiCommon.log_nouser(self.db.error, 0)
 
             #  if we made it here, so save the logs
-            uiCommon.WriteObjectDeleteLog(uiGlobals.CatoObjectTypes.EcoTemplate, "", "", "Action Plan [" + iPlanID + "] deleted.")
+            uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.EcoTemplate, "", "", "Action Plan [" + iPlanID + "] deleted.")
     
             return ""
         except Exception:
@@ -800,8 +800,8 @@ class uiMethods:
                 result, msg = obj.DBSave()
                 
                 if result:
-                    uiCommon.AddSecurityLog(uiGlobals.SecurityLogTypes.Security,
-                        uiGlobals.SecurityLogActions.ConfigChange, uiGlobals.CatoObjectTypes.NA, "",
+                    catocommon.add_security_log(GetSessionUserID(), catocommon.SecurityLogTypes.Security,
+                        catocommon.SecurityLogActions.ConfigChange, catocommon.CatoObjectTypes.NA, "",
                         "%s settings changed." % sType.capitalize())
                     
                     return "{\"result\":\"success\"}"
@@ -883,7 +883,7 @@ class uiMethods:
                 uiCommon.log_nouser(self.db.error, 0)
                 return self.db.error
 
-            uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.User, user_id, user_id, "My Account settings updated.")
+            uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, user_id, user_id, "My Account settings updated.")
                 
             return "{\"result\":\"success\"}"
         except Exception:
@@ -1017,7 +1017,7 @@ class uiMethods:
                             sql_bits.append("user_password='%s'" % sNewPassword)
                               
                             # an additional log entry
-                            uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.User, user_id, user_id, "Password reset.")
+                            uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, user_id, user_id, "Password reset.")
 
                             # TODO: 
                             # would get the URL of the application, construct an email message
@@ -1046,7 +1046,7 @@ class uiMethods:
                 uiCommon.log_nouser(self.db.error, 0)
                 "{\"error\":\"%s\"}" % self.db.error
 
-            uiCommon.WriteObjectChangeLog(uiGlobals.CatoObjectTypes.User, user_id, user_id, "User updated.")
+            uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, user_id, user_id, "User updated.")
                
                
             if args.has_key("Groups"):
@@ -1078,7 +1078,7 @@ class uiMethods:
             if u == None:
                 return "{\"error\" : \"Unable to create User.\"}"
 
-            uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.User, u.ID, u.FullName, "User Created")
+            uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "User Created")
 
             return u.AsJSON()
         
@@ -1276,7 +1276,7 @@ class uiMethods:
             if a == None:
                 return "{\"error\" : \"Unable to create Asset.\"}"
 
-            uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Asset, a.ID, a.Name, "Asset Created")
+            uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Asset, a.ID, a.Name, "Asset Created")
 
             return a.AsJSON()
         
@@ -1373,7 +1373,7 @@ class uiMethods:
             if not result:
                 return "{\"error\" : \"Unable to create Credential.\"}"
 
-            uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Credential, c.ID, c.Name, "Credential Created")
+            uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Credential, c.ID, c.Name, "Credential Created")
 
             return c.AsJSON()
         
@@ -1460,7 +1460,7 @@ class uiMethods:
                     result, err = t.DBSave()
                     if result:
                         # add security log
-                        uiCommon.WriteObjectAddLog(uiGlobals.CatoObjectTypes.Task, t.ID, t.Name, "Created by import.")
+                        uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Created by import.")
 
                         items.append({"type" : "task", "id" : t.ID, "name" : t.Name}) 
                     else:
