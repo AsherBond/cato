@@ -47,10 +47,8 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             Test Asset:<br />
             <input type="text" id="txtTestAsset" Enabled="false" asset_id="" class="code"
             Width="80%" />
-            <img class="asset_picker_btn pointer" src="static/images/icons/search.png" link_to="txtTestAsset"
-            alt="" />
-            <img id="debug_asset_clear_btn" class="pointer" src="static/images/icons/fileclose.png"
-            alt="" />
+            <span class="asset_picker_btn ui-icon ui-icon-search forceinline pointer" link_to="txtTestAsset" title="Select"></span>
+            <span id="debug_asset_clear_btn" class="ui-icon ui-icon-close forceinline pointer" title="Clear"></span>
             </p>-->
             <div id="debug_last_run" class="hidden">
                 <h4>Last Run</h4>
@@ -165,8 +163,8 @@ $var cssfiles: registry.css taskEdit.css taskView.css
 criteria:</span> <span style="padding-left: 15px; padding-top: 5px;">
 <input id="asset_search_text" class="search_text" /></span> <span style="padding-left: 15px;
 padding-top: 5px;">
-<img src="static/images/icons/btnSearch.png" alt="" style="border: none; vertical-align: top;"
-id="asset_search_btn" class="pointer" /></span>
+<span style="border: none; vertical-align: top;"
+id="asset_search_btn" class=" ui-icon ui-icon-search forceinline pointer"></span></span>
 <div id="asset_picker_results">
 </div>
 <input type="hidden" id="asset_picker_target_field" value="" />

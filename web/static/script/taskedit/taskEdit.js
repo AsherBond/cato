@@ -97,7 +97,7 @@ $(document).ready(function () {
     });
 
     //clear just one clip
-    $("#btn_clear_clip").live("click", function () {
+    $(".btn_clear_clip").live("click", function () {
         doClearClipboard($(this).attr("remove_id"));
     });
 
@@ -108,7 +108,7 @@ $(document).ready(function () {
         width: 800
     });
     //pop up the clip to view it
-    $("#btn_view_clip").live("click", function () {
+    $(".btn_view_clip").live("click", function () {
         var clip_id = $(this).attr("view_id");
 
         var html = $("#" + clip_id).html();

@@ -1542,7 +1542,7 @@ class taskMethods:
                     sHTML += "<table width=\"99%\" border=\"0\"><tr>"
                     sHTML += "<td width=\"1px\"><img alt=\"\" src=\"" + sIcon + "\" /></td>"
                     sHTML += "<td style=\"vertical-align: middle; padding-left: 5px;\">" + sLabel + "</td>"
-                    sHTML += "<td width=\"1px\" style=\"vertical-align: middle;\">"
+                    sHTML += "<td style=\"vertical-align: middle;\">"
                     
                     # view icon
                     # due to the complexity of telling the core routines to look in the clipboard table, it 
@@ -1555,16 +1555,13 @@ class taskMethods:
                     sFunction = fn.Name
                     
                     if not sFunction in "loop,exists,if,while":
-                        sHTML += "<span id=\"btn_view_clip\" view_id=\"v_" + sStepID + "\">" \
-                            "<img src=\"static/images/icons/search.png\" style=\"width: 16px; height: 16px;\" alt=\"\" />" \
-                                "</span>"
+                        sHTML += "<span view_id=\"v_" + sStepID + "\" class=\"btn_view_clip ui-icon ui-icon-search forceinline pointer\"></span>"
+                    # delete icon
+                    sHTML += "<span class=\"btn_clear_clip ui-icon ui-icon-close forceinline\" remove_id=\"" + sStepID + "\"></span>"
                     sHTML += "</td></tr>"
                     
                     sHTML += "<tr><td>&nbsp;</td><td><span class=\"code\">" + sClipDT + "</span></td>"
-                    sHTML += "<td>"
-                    # delete icon
-                    sHTML += "<span id=\"ui-icon ui-icon-close forceinline btn_clear_clip\" remove_id=\"" + sStepID + "\"></span>"
-                    sHTML += "</td></tr></table>"
+                    sHTML += "<td>&nbsp;</td></tr></table>"
                     
                     
                     sHTML += "<div class=\"hidden\" id=\"help_text_clip_" + sStepID + "\">" + sDesc + "</div>"
