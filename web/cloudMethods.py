@@ -254,8 +254,8 @@ class cloudMethods:
             sHTML = ""
     
             sSQL = "select keypair_id, keypair_name, private_key, passphrase" \
-                " from cloud_account_keypair" \
-                " where account_id = '" + sID + "'"
+                " from clouds_keypair" \
+                " where cloud_id = '" + sID + "'"
     
             dt = self.db.select_all_dict(sSQL)
             if self.db.error:
@@ -273,7 +273,7 @@ class cloudMethods:
     
                     sHTML += "<li class=\"ui-widget-content ui-corner-all keypair\" id=\"kp_" + dr["keypair_id"] + "\" has_pk=\"" + sPK + "\" has_pp=\"" + sPP + "\">"
                     sHTML += "<span class=\"keypair_label pointer\">" + sName + "</span>"
-                    sHTML += "<span class=\"keypair_icons pointer\"><img src=\"static/images/icons/fileclose.png\" class=\"keypair_delete_btn\" /></span>"
+                    sHTML += "<span class=\"keypair_icons pointer\"><span class=\"keypair_delete_btn ui-icon ui-icon-close forceinline\" /></span></span>"
                     sHTML += "</li>"
                 sHTML += "</ul>"
             else:
@@ -595,7 +595,7 @@ class cloudMethods:
     def wmSaveKeyPair(self):
         try:
             sKeypairID = uiCommon.getAjaxArg("sKeypairID")
-            sAccountID = uiCommon.getAjaxArg("sAccountID")
+            sCloudID = uiCommon.getAjaxArg("sCloudID")
             sName = uiCommon.getAjaxArg("sName")
             sPK = uiCommon.getAjaxArg("sPK")
             sPP = uiCommon.getAjaxArg("sPP")
@@ -624,9 +624,9 @@ class cloudMethods:
                 if bUpdatePP:
                     sPPClause = "'" + catocommon.cato_encrypt(sPP) + "'"
 
-                sSQL = "insert into cloud_account_keypair (keypair_id, account_id, keypair_name, private_key, passphrase)" \
+                sSQL = "insert into clouds_keypair (keypair_id, cloud_id, keypair_name, private_key, passphrase)" \
                     " values ('" + catocommon.new_guid() + "'," \
-                    "'" + sAccountID + "'," \
+                    "'" + sCloudID + "'," \
                     "'" + sName.replace("'", "''") + "'," \
                     + sPKClause + "," \
                     + sPPClause + \
@@ -640,7 +640,7 @@ class cloudMethods:
                 if bUpdatePP:
                     sPPClause = ", passphrase = '" + catocommon.cato_encrypt(sPP) + "'"
 
-                sSQL = "update cloud_account_keypair set" \
+                sSQL = "update clouds_keypair set" \
                     " keypair_name = '" + sName.replace("'", "''") + "'" \
                     + sPKClause + sPPClause + \
                     " where keypair_id = '" + sKeypairID + "'"
@@ -659,7 +659,7 @@ class cloudMethods:
         try:
             sKeypairID = uiCommon.getAjaxArg("sKeypairID")
             
-            sSQL = "delete from cloud_account_keypair where keypair_id = '" + sKeypairID + "'"
+            sSQL = "delete from clouds_keypair where keypair_id = '" + sKeypairID + "'"
             if not self.db.exec_db_noexcep(sSQL):
                 uiCommon.log(self.db.error)
                 return self.db.error

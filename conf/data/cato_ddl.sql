@@ -160,13 +160,13 @@ CREATE TABLE `cloud_account` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `cloud_account_keypair` (
+CREATE TABLE `clouds_keypair` (
   `keypair_id` varchar(36) NOT NULL,
-  `account_id` varchar(36) NOT NULL,
+  `cloud_id` varchar(36) NOT NULL,
   `keypair_name` varchar(64) NOT NULL,
   `private_key` varchar(4096) NOT NULL,
   `passphrase` varchar(128) DEFAULT NULL,
-  PRIMARY KEY (`account_id`,`keypair_name`),
+  PRIMARY KEY (`cloud_id`,`keypair_name`),
   UNIQUE KEY `keypair_id_UNIQUE` (`keypair_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
