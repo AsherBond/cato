@@ -138,7 +138,6 @@ class Db(object):
 
     def select_csv(self, sql, quoted=False):
         """Selects a set of rows, and returns the first column as a comma delimited string."""
-        s = ""
         rows = self.select_all(sql)
         lst = []
         if rows:

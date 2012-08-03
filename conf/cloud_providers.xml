@@ -2,13 +2,13 @@
 	<providers>
 		<provider name="Amazon AWS" test_product="ec2" test_object="aws_ec2_security_group" user_defined_clouds="false">
 			<clouds>
-				<cloud id="4d6f35fc-faa7-11e0-b2ec-12313d0024c3" name="us-east-1" region="us-east-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
-				<cloud id="96e7d2c0-faa7-11e0-b2ec-12313d0024c3" name="us-west-1" region="us-west-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
-				<cloud id="d05446c8-1231-11e1-beeb-12313b07caa6" name="us-west-2" region="us-west-2" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
-				<cloud id="a9f303bc-faa7-11e0-b2ec-12313d0024c3" name="eu-west-1" region="eu-west-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
-				<cloud id="a9fe9bdc-faa7-11e0-b2ec-12313d0024c3" name="ap-southeast-1" region="ap-southeast-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
-				<cloud id="aa09974e-faa7-11e0-b2ec-12313d0024c3" name="ap-northeast-1" region="ap-northeast-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
-				<cloud id="54d17fl3-fhs8-9xj4-dj6h-2j678vh572h5" name="sa-east-1" region="sa-east-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
+				<cloud name="us-east-1" region="us-east-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
+				<cloud name="us-west-1" region="us-west-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
+				<cloud name="us-west-2" region="us-west-2" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
+				<cloud name="eu-west-1" region="eu-west-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
+				<cloud name="ap-southeast-1" region="ap-southeast-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
+				<cloud name="ap-northeast-1" region="ap-northeast-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
+				<cloud name="sa-east-1" region="sa-east-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
 			</clouds>
 			<products>
 				<product name="ec2" label="EC2" type="compute" api_version="2011-12-01" api_url_prefix="ec2.">

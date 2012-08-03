@@ -2,97 +2,163 @@ $def with ()
 $var jsfiles: managePageCommon.js cloudEdit.js
 $var cssfiles:
 
+<style type="text/css">
+	.keypair {
+		clear: both;
+		height: 18px;
+		margin: 1px 2px 1px 4px;
+		padding: 1px;
+	}
+	.keypair_label {
+		float: left;
+	}
+	.keypair_icons {
+		float: right;
+	}
+</style>
+
 <div style="display: none;">
-    <input id="hidMode" type="hidden" />
-    <input id="hidCurrentEditID" type="hidden" />
-    <input id="hidSelectedArray" type="hidden" />
-    <!-- Start visible elements -->
+	<input id="hidMode" type="hidden" />
+	<input id="hidCurrentEditID" type="hidden" />
+	<input id="hidSelectedArray" type="hidden" />
+	<!-- Start visible elements -->
 </div>
 <div id="left_panel">
-    <div id="left_tooltip_img">
-        <img src="static/images/icons/clouds_192.png" alt="" />
-    </div>
-    <div class="left_tooltip">
-        <div id="left_tooltip_box_outer">
-            <div id="left_tooltip_box_inner">
-                <h2>Clouds</h2>
-                <p>
-                    The Clouds screen allows administrators
-                    to modify, add and delete Clouds.
-                </p>
-                <p>
-                    Select a Cloud from the list or select an action to edit or delete the Clouds
-                    you've selected.
-                </p>
-                <p>
-                    <a href="http://projects.cloudsidekick.com/projects/cato/wiki/Clouds?utm_source=cato_app&amp;utm_medium=helplink&amp;utm_campaign=app" target="_blank"><img src="static/images/icons/info.png" alt="" />Click here</a>
-                    for a more detailed introduction on Clouds.
-                </p>
-            </div>
-        </div>
-    </div>
+	<div id="left_tooltip_img">
+		<img src="static/images/icons/clouds_192.png" alt="" />
+	</div>
+	<div class="left_tooltip">
+		<div id="left_tooltip_box_outer">
+			<div id="left_tooltip_box_inner">
+				<h2>Clouds</h2>
+				<p>
+					The Clouds screen allows administrators
+					to modify, add and delete Clouds.
+				</p>
+				<p>
+					Select a Cloud from the list or select an action to edit or delete the Clouds
+					you've selected.
+				</p>
+				<p>
+					<i>Clouds should have a 'default' Account selected.</i>
+				</p>
+				<p>
+					<a href="http://projects.cloudsidekick.com/projects/cato/wiki/Clouds?utm_source=cato_app&amp;utm_medium=helplink&amp;utm_campaign=app" target="_blank"><img src="static/images/icons/info.png" alt="" />Click here</a>
+					for a more detailed introduction on Clouds.
+				</p>
+			</div>
+		</div>
+	</div>
 </div>
 <div id="content">
-    <span id="lblItemsSelected">0</span> Items Selected <span id="clear_selected_btn">&nbsp;</span><span
-    id="item_create_btn">Create</span><span id="item_delete_btn">Delete</span>
-    <input type="text" id="txtSearch" class="search_text" />
-    <span id="item_search_btn">Search</span>
-    <table class="jtable" cellspacing="1" cellpadding="1" width="99%">
-        <thead>
-            <tr>
-                <th class="chkboxcolumn">
-                <input type="checkbox" class="chkbox" id="chkAll" />
-                </th>
-                <th sortcolumn="cloud_name">Cloud Name</th>
-                <th sortcolumn="provider">Type</th>
-                <th sortcolumn="api_protocol">Protocol</th>
-                <th sortcolumn="api_url">URL</th>
-            </tr>
-        </thead>
-        <tbody id="clouds"></tbody>
-    </table>
+	<span id="lblItemsSelected">0</span> Items Selected <span id="clear_selected_btn">&nbsp;</span><span
+	id="item_create_btn">Create</span><span id="item_delete_btn">Delete</span>
+	<input type="text" id="txtSearch" class="search_text" />
+	<span id="item_search_btn">Search</span>
+	<table class="jtable" cellspacing="1" cellpadding="1" width="99%">
+		<thead>
+			<tr>
+				<th class="chkboxcolumn">
+				<input type="checkbox" class="chkbox" id="chkAll" />
+				</th>
+				<th sortcolumn="cloud_name">Cloud Name</th>
+				<th sortcolumn="provider">Type</th>
+				<th sortcolumn="api_protocol">Protocol</th>
+				<th sortcolumn="api_url">URL</th>
+				<th sortcolumn="account_name">Default Account</th>
+			</tr>
+		</thead>
+		<tbody id="clouds"></tbody>
+	</table>
 	<div id="pager"></div>
 </div>
 <div id="edit_dialog" class="hidden" title="Create Cloud">
-    <table width="100%">
-        <tr>
-            <td> Cloud Name: </td>
-            <td>
-            <input id="txtCloudName" class="usertextbox" name="txtCloudName" />
-            </td>
-        </tr>
-        <tr>
-            <td> Provider: </td>
-            <td><select id="ddlProvider"></select></td>
-        </tr>
-        <tr>
-            <td> API Protocol: </td>
-            <td>
-            <select id="ddlAPIProtocol">
-                <option value="HTTPS">HTTPS</option>
-                <option value="HTTP">HTTP</option>
-            </select></td>
-        </tr>
-        <tr>
-            <td> API URL: </td>
-            <td>
-            <input id="txtAPIUrl" class="usertextbox" name="txtAPIUrl" />
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-            <hr />
-            </td>
-        </tr>
-        <tr>
-            <td> Account: <span id="add_account_btn" title="Add an Account"></span><span id="jumpto_account_btn" title="Edit Account"></span></td>
-            <td><select id="ddlTestAccount"></select><span id="test_connection_btn">Test Connection</span></td>
-        </tr>
-        <tr>
-            <td colspan="2"><div id="conn_test_result" style="margin-top: 10px;"></div><div id="conn_test_error" style="font-size: 0.8em; font-style: italic; margin-top: 10px;"></div></td>
-        </tr>
-    </table>
+	<div id="edit_dialog_tabs">
+		<ul>
+			<li>
+				<a href="#DetailTab"><span>Cloud</span></a>
+			</li>
+			<li>
+				<a href="#KeyPairTab"><span>Key Pairs</span></a>
+			</li>
+		</ul>
+		<div id="DetailTab" style="height: 340px;">
+			<table width="100%">
+				<tr>
+					<td> Cloud Name: </td>
+					<td>
+					<input id="txtCloudName" class="usertextbox" name="txtCloudName" />
+					</td>
+				</tr>
+				<tr>
+					<td> Provider: </td>
+					<td><select id="ddlProvider"></select></td>
+				</tr>
+				<tr>
+					<td> API Protocol: </td>
+					<td>
+					<select id="ddlAPIProtocol">
+						<option value="HTTPS">HTTPS</option>
+						<option value="HTTP">HTTP</option>
+					</select></td>
+				</tr>
+				<tr>
+					<td> API URL: </td>
+					<td>
+					<input id="txtAPIUrl" class="usertextbox" name="txtAPIUrl" />
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+					<hr />
+					</td>
+				</tr>
+				<tr>
+					<td> Default Account: </td>
+					<td><select id="ddlDefaultAccount"></select><span id="jumpto_account_btn" title="Edit Account">&nbsp;</span><span class="test_connection_btn" title="Test Connection">&nbsp;</span><span id="add_account_btn" title="Add an Account">&nbsp;</span></td>
+				</tr>
+				<tr>
+					<td colspan="2"><div id="conn_test_result" style="margin-top: 10px;"></div><div id="conn_test_error" style="font-size: 0.8em; font-style: italic; margin-top: 10px;"></div></td>
+				</tr>
+			</table>
+		</div>
+		<div id="KeyPairTab">
+			<span style="font-style: italic;">(Changes to Key Pairs are saved automatically, and
+				cannot be undone.)</span>
+			<hr />
+			<span id="keypair_add_btn">Add</span>
+			<hr />
+			<div id="keypairs"></div>
+		</div>
+	</div>
 </div>
 <div id="delete_dialog" class="hidden" title="Delete Clouds">
-    Are you sure you want to delete these Clouds?
+	Are you sure you want to delete these Clouds?
+</div>
+<div id="keypair_dialog" class="hidden" title="Key Pair">
+	<table width="100%">
+		<tr>
+			<td> Name: </td>
+		</tr>
+		<tr>
+			<td>
+			<input id="keypair_name" name="keypair_name" class="usertextbox" type="text" />
+			</td>
+		</tr>
+		<tr>
+			<td> Private Key: </td>
+		</tr>
+		<tr>
+			<td>			<textarea id="keypair_private_key" name="keypair_private_key" rows="3" cols="40"></textarea></td>
+		</tr>
+		<tr>
+			<td> Passphrase: </td>
+		</tr>
+		<tr>
+			<td>
+			<input id="keypair_passphrase" name="keypair_passphrase" class="usertextbox" type="password" />
+			</td>
+		</tr>
+	</table>
+	<input type="hidden" id="keypair_id" />
 </div>
