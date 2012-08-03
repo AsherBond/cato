@@ -164,6 +164,69 @@ def tick_slash(s):
     
     return ""
 
+def add_task_instance(task_id, user_id, debug_level, parameter_xml, ecosystem_id, account_id, schedule_instance, submitted_by_instance):
+    """This *should* be the only place where rows are added to task_instance."""
+    try:
+        user_id = "'%s'" % user_id if user_id else "null"
+        account_id = "'%s'" % account_id if account_id else "null"
+        ecosystem_id = "'%s'" % ecosystem_id if ecosystem_id else "null"
+        schedule_instance = "'%s'" % schedule_instance if schedule_instance else "null"
+        submitted_by_instance = "'%s'" % submitted_by_instance if submitted_by_instance else "null"
+        # just in case
+        debug_level = str(debug_level)
+        
+        db = new_conn()
+        sql = """insert into task_instance (
+                task_status,
+                submitted_dt,
+                task_id,
+                debug_level,
+                submitted_by,
+                schedule_instance,
+                submitted_by_instance,
+                ecosystem_id,
+                account_id
+            ) values (
+                'Submitted',
+                now(),
+                '%s',
+                '%s',
+                %s,
+                %s,
+                %s,
+                %s,
+                %s
+            )
+            """ % (task_id, debug_level, user_id, schedule_instance, submitted_by_instance, ecosystem_id, account_id) 
+        
+        if not db.tran_exec_noexcep(sql):
+            print "Unable to run task [%s]." % task_id
+            raise Exception(db.error)
+        
+        task_instance = db.conn.insert_id()
+        
+        if not task_instance:
+            print "An error occured - unable to get the task_instance id."
+            return None
+        
+        # do the parameters
+        if parameter_xml:
+            sql = """insert into task_instance_parameter (task_instance, parameter_xml) 
+                values ('%s', '%s')""" % (task_instance, tick_slash(parameter_xml))
+        if not db.tran_exec_noexcep(sql):
+            print "Unable to run task [%s]." % task_id
+            raise Exception(db.error)
+
+        db.tran_commit()
+        
+        return task_instance
+    
+    except Exception as ex:
+        raise ex
+    finally:
+        if db:
+            db.close()    
+    
 def add_security_log(UserID, LogType, Action, ObjectType, ObjectID, LogMessage):
     """
     Creates a row in the user_security_log table.  Called from many places.

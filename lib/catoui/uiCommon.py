@@ -686,23 +686,12 @@ def AddTaskInstance(sUserID, sTaskID, sEcosystemID, sAccountID, sAssetID, sParam
         sParameterXML = PrepareAndEncryptParameterXML(sParameterXML);                
     
         if IsGUID(sTaskID) and IsGUID(sUserID):
-            sSQL = "call addTaskInstance ('" + sTaskID + "','" + \
-                sUserID + "',NULL," + \
-                sDebugLevel + ",NULL,'" + \
-                catocommon.tick_slash(sParameterXML) + "','" + \
-                sEcosystemID + "','" + \
-                sAccountID + "')"
-            
-            db = catocommon.new_conn()
-            row = db.exec_proc(sSQL)
-            if db.error:
-                log("Unable to run task [" + sTaskID + "]." + db.error)
-            db.close()
-            
+            ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, sEcosystemID, sAccountID, "", "")
+
             # this needs fixing, this whole weird result set.
-            log("Starting Task [%s] ... Instance is [%s]" % (sTaskID, row[0]["_task_instance"]), 3)
+            log("Starting Task [%s] ... Instance is [%s]" % (sTaskID, ti), 3)
             
-            return row[0]["_task_instance"]
+            return ti
         else:
             log("Unable to run task. Missing or invalid task [" + sTaskID + "] or user [" + sUserID + "] id.")
 
@@ -1036,8 +1025,8 @@ def GetPager(rowcount, maxrows, page):
         if numpages:
             pager = []
             for i in range(numpages):
-                i+=1
-                selected = "pager_button_selected" if i==page else ""
+                i += 1
+                selected = "pager_button_selected" if i == page else ""
                 pager.append("<span class=\"pager_button %s\">%d</span>" % (selected, i))
             
             pager_html = "".join(pager)
