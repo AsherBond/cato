@@ -1090,7 +1090,7 @@ proc refresh_handles {} {
 			set sql "select ti.task_status, ti.started_dt, ti.completed_dt, ti.ce_node, ti.pid, 
 				a.asset_id, a.asset_name, ti.task_id, t.task_name, ti.submitted_by, t.version, 
 				t.default_version, ti.submitted_dt
-				from tv_task_instance ti 
+				from task_instance ti 
 				join task t on ti.task_id = t.task_id 
 				left outer join asset a on a.asset_id = ti.asset_id 
 				where ti.task_instance = $handle_instance"
@@ -4712,7 +4712,7 @@ proc process_task {} {
              C.asset_name, A.submitted_by, 
              B.task_id, B.version, A.debug_level, A.schedule_instance,
 			 A.ecosystem_id, A.account_id
-             from tv_task_instance A 
+             from task_instance A 
 		join task B on A.task_id = B.task_id
 		left outer join asset C on A.asset_id = C.asset_id
              where  A.task_instance = $::TASK_INSTANCE"
@@ -5556,7 +5556,7 @@ proc launch_run_task {} {
 
 proc get_task_status {task_instance} {
 	set proc_name get_task_status
-	set sql "select task_status from tv_task_instance where task_instance = $task_instance"
+	set sql "select task_status from task_instance where task_instance = $task_instance"
 	$::db_query $::CONN $sql
 	set status [$::db_fetch $::CONN]
 	return $status	

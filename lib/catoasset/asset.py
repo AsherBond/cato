@@ -140,7 +140,7 @@ class Asset(object):
         try:
             db = catocommon.new_conn()
             #  history in user_session.
-            sql = "select count(*) from tv_task_instance where asset_id = '" + asset_id + "'"
+            sql = "select count(*) from task_instance where asset_id = '" + asset_id + "'"
             iResults = db.select_col_noexcep(sql)
             if db.error:
                 raise Exception(db.error)

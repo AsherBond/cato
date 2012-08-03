@@ -335,7 +335,7 @@ class CatoService(CatoProcess):
     def check_registration(self):
 
         # Get the node number
-        sql = "select id from tv_application_registry where app_name = '"+self.process_name+ \
+        sql = "select id from application_registry where app_name = '"+self.process_name+ \
             "' and app_instance = '"+self.host_domain+"'"
 
         result = self.db.select_col(sql)

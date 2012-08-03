@@ -146,7 +146,7 @@ class taskMethods:
                     " convert(ti.submitted_dt, CHAR(20)) as submitted_dt," \
                     " convert(ti.started_dt, CHAR(20)) as started_dt," \
                     " convert(ti.completed_dt, CHAR(20)) as completed_dt" \
-                    " from tv_task_instance ti" \
+                    " from task_instance ti" \
                     " left join task t on t.task_id = ti.task_id" + \
                     sTagString + \
                     " left outer join application_registry ar on ti.ce_node = ar.id" \
@@ -370,7 +370,7 @@ class taskMethods:
             # first we need a list of tasks that will not be deleted
             sSQL = """select task_name from task t
                     where t.original_task_id in (%s)
-                    and (t.task_id in (select ti.task_id from tv_task_instance ti where ti.task_id = t.task_id)
+                    and (t.task_id in (select ti.task_id from task_instance ti where ti.task_id = t.task_id)
                     or t.original_task_id in (select original_task_id from ecotemplate_action))""" % sDeleteArray 
             sTaskNames = self.db.select_csv(sSQL, True)
 
@@ -378,7 +378,7 @@ class taskMethods:
             # we have an array of 'original_task_id' - we need an array of task_id
             sSQL = "select t.task_id from task t " \
                 " where t.original_task_id in (" + sDeleteArray + ")" \
-                " and t.task_id not in (select ti.task_id from tv_task_instance ti where ti.task_id = t.task_id)"
+                " and t.task_id not in (select ti.task_id from task_instance ti where ti.task_id = t.task_id)"
             sTaskIDs = self.db.select_csv(sSQL, True)
             if len(sTaskIDs) > 1:
                 sSQL = "delete from task_step_user_settings" \
@@ -2568,7 +2568,7 @@ class taskMethods:
             # otherwise we need to figure out which instance we want
             if sTaskInstance == "":
                 if uiCommon.IsGUID(sTaskID):
-                    sSQL = "select max(task_instance) from tv_task_instance where task_id = '" + sTaskID + "'"
+                    sSQL = "select max(task_instance) from task_instance where task_id = '" + sTaskID + "'"
 
                     if uiCommon.IsGUID(sAssetID):
                         sSQL += " and asset_id = '" + sAssetID + "'"
@@ -2594,7 +2594,7 @@ class taskMethods:
                 # a group association to this task
                 sOTID = ""
                 stiSQL = "select t.original_task_id" \
-                   " from tv_task_instance ti join task t on ti.task_id = t.task_id" \
+                   " from task_instance ti join task t on ti.task_id = t.task_id" \
                    " where ti.task_instance = '" + sTaskInstance + "'"
 
                 sOTID = self.db.select_col_noexcep(sSQL)
@@ -2616,10 +2616,10 @@ class taskMethods:
                     " ar.app_instance, ar.platform, ar.hostname," \
                     " t.concurrent_instances, t.queue_depth," \
                     " ti.ecosystem_id, d.ecosystem_name, ti.account_id, ca.account_name" \
-                    " from tv_task_instance ti" \
+                    " from task_instance ti" \
                     " join task t on ti.task_id = t.task_id" \
                     " left outer join users u on ti.submitted_by = u.user_id" \
-                    " left outer join tv_application_registry ar on ti.ce_node = ar.id" \
+                    " left outer join application_registry ar on ti.ce_node = ar.id" \
                     " left outer join cloud_account ca on ti.account_id = ca.account_id" \
                     " left outer join ecosystem d on ti.ecosystem_id = d.ecosystem_id" \
                     " where task_instance = " + sTaskInstance
@@ -2674,7 +2674,7 @@ class taskMethods:
 
 
                     # check for OTHER active instances
-                    sSQL = "select count(*) from tv_task_instance where task_id = '" + dr["task_id"] + "'" \
+                    sSQL = "select count(*) from task_instance where task_id = '" + dr["task_id"] + "'" \
                         " and task_instance <> '" + sTaskInstance + "'" \
                         " and task_status in ('processing','submitted','pending','aborting','queued','staged')"
                     iActiveCount = self.db.select_col_noexcep(sSQL)
@@ -2705,7 +2705,7 @@ class taskMethods:
                                 output["allow_resubmit"] = "false"
 
                         # neato... show the user a list of all the other instances!
-                        sSQL = "select task_instance, task_status from tv_task_instance" \
+                        sSQL = "select task_instance, task_status from task_instance" \
                             " where task_id = '" + dr["task_id"] + "'" \
                             " and task_instance <> '" + sTaskInstance + "'" \
                             " and task_status in ('processing','submitted','pending','aborting','queued','staged')" \
@@ -2968,7 +2968,7 @@ class taskMethods:
                     "count(case when task_status = 'Staged' then 1 end) as Staged," \
                     "count(case when task_status = 'Error' then 1 end) as Errored, " \
                     "count(*) as AllStatuses " \
-                    "from tv_task_instance) foo"
+                    "from task_instance) foo"
 
             dr = self.db.select_row_dict(sSQL)
             if self.db.error:

@@ -609,29 +609,6 @@ CREATE TABLE `user_session` (
   CONSTRAINT `FK_user_session_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER= CURRENT_USER SQL SECURITY DEFINER */
-/*!50001 VIEW `tv_application_registry` AS select `application_registry`.`id` AS `id`,`application_registry`.`app_name` AS `app_name`,`application_registry`.`app_instance` AS `app_instance`,`application_registry`.`master` AS `master`,`application_registry`.`heartbeat` AS `heartbeat`,`application_registry`.`last_processed_dt` AS `last_processed_dt`,`application_registry`.`logfile_name` AS `logfile_name`,`application_registry`.`load_value` AS `load_value`,`application_registry`.`hostname` AS `hostname`,`application_registry`.`userid` AS `userid`,`application_registry`.`pid` AS `pid`,`application_registry`.`executible_path` AS `executible_path`,`application_registry`.`command_line` AS `command_line`,`application_registry`.`platform` AS `platform` from `application_registry` */;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER= CURRENT_USER SQL SECURITY DEFINER */
-/*!50001 VIEW `tv_task_instance` AS select `task_instance`.`task_instance` AS `task_instance`,`task_instance`.`task_id` AS `task_id`,`task_instance`.`task_status` AS `task_status`,`task_instance`.`debug_level` AS `debug_level`,`task_instance`.`asset_id` AS `asset_id`,`task_instance`.`submitted_by` AS `submitted_by`,`task_instance`.`submitted_dt` AS `submitted_dt`,`task_instance`.`started_dt` AS `started_dt`,`task_instance`.`completed_dt` AS `completed_dt`,`task_instance`.`schedule_instance` AS `schedule_instance`,`task_instance`.`ce_node` AS `ce_node`,`task_instance`.`pid` AS `pid`,`task_instance`.`group_name` AS `group_name`,`task_instance`.`submitted_by_instance` AS `submitted_by_instance`,`task_instance`.`ecosystem_id` AS `ecosystem_id`,`task_instance`.`account_id` AS `account_id` from `task_instance` */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;

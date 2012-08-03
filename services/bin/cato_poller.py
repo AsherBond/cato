@@ -37,7 +37,7 @@ class Poller(catocommon.CatoService):
         task_list = []
         sql = """select ti.task_instance, ti.asset_id, 
             ti.schedule_instance 
-            from tv_task_instance ti
+            from task_instance ti
             join task t on t.task_id = ti.task_id
             where ti.task_status = 'Submitted'
             order by task_instance asc limit %s"""
@@ -91,7 +91,7 @@ class Poller(catocommon.CatoService):
 
         db_pids = []
         os_pids = []
-        sql = """select distinct pid from tv_task_instance 
+        sql = """select distinct pid from task_instance 
             where ce_node = %s and task_status = 'Processing' 
             and pid is not null"""
         rows = self.db.select_all(sql, (self.instance_id))
@@ -136,7 +136,7 @@ class Poller(catocommon.CatoService):
 
     def get_aborting(self): 
 
-        sql = """select task_instance, pid from tv_task_instance 
+        sql = """select task_instance, pid from task_instance 
             where task_status = 'Aborting' 
             order by task_instance asc"""
 
