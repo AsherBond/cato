@@ -20,7 +20,11 @@
 import json
 from catocommon import catocommon
 from catocloud import cloud
-from catoimage import image
+
+try:
+    from catoimage import image
+except (AttributeError, ImportError):
+    pass
 
 # Note: this is not a container for Ecotemplate objects - it's just a rowset from the database
 # with an AsJSON method.
