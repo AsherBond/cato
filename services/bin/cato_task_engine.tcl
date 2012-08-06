@@ -976,7 +976,6 @@ proc get_steps {task_id} {
 			, ExtractValue(function_xml, 'function/@parse_method') as parse_method
 			, ExtractValue(function_xml, 'function/@row_delimiter') as row_delimiter
 			, ExtractValue(function_xml, 'function/@col_delimiter') as col_delimiter
-			, [sql_cast variable_xml]
 		from task_step 
 		where task_id = '$task_id'
 			and commented = 0
@@ -5492,14 +5491,48 @@ proc launch_run_task {} {
 	output "run task $task_id"
 					
 	regsub -all "(')" $parameterXML "''" parameterXML
-	#set sql "addTaskInstance '$task_id','$asset_id','$::SUBMITTED_BY', null, '', $::DEBUG_LEVEL, null, $::TASK_INSTANCE, '$parameterXML'"
-	set sql "call addTaskInstance ('$task_id',NULL,'$::SUBMITTED_BY','$::DEBUG_LEVEL','','$parameterXML','$::ECOSYSTEM_ID','$::CLOUD_ACCOUNT')"
-	#output $sql
-	set task_instance_id [::mysql::sel $::CONN $sql -list]
+
+#	set sql "call addTaskInstance ('$task_id',NULL,'$::SUBMITTED_BY','$::DEBUG_LEVEL','','$parameterXML','$::ECOSYSTEM_ID','$::CLOUD_ACCOUNT')"
+#	set task_instance_id [::mysql::sel $::CONN $sql -list]
+
+    set sql "insert into task_instance (
+	        task_status,
+	        submitted_dt,
+	        task_id,
+	        debug_level,
+	        submitted_by,
+	        schedule_instance,
+	        submitted_by_instance,
+	        ecosystem_id,
+	        account_id
+	    ) values (
+	        'Submitted',
+	        now(),
+	        '$task_id',
+	        '$::DEBUG_LEVEL',
+	        null,
+	        null,
+	        '$::SUBMITTED_BY',
+	        '$::ECOSYSTEM_ID',
+	        '$::CLOUD_ACCOUNT'
+	    )"
+	    
+	$::db_exec $::CONN $sql
+
+	set sql "select last_insert_id()"
+	$::db_query $::CONN $sql
+	set task_instance_id [lindex [$::db_fetch $::CONN] 0]
 	if {"$task_instance_id" == ""} {
 		# must be queued, no task created
-		insert_audit $::STEP_ID  "" "Task instance not created, maximum queue depth reached" ""
+		insert_audit $::STEP_ID  "" "Task instance not created. Possible max queue depth." ""
 		return
+	}
+	
+	# do the parameters
+	if {[string length $parameterXML] > 0} {
+		regsub -all "(')" $parameterXML "''" parameterXML
+		set sql "insert into task_instance_parameter (task_instance, parameter_xml) 
+		                values ('$task_instance_id', '$parameterXML')"
 	}
 
 	#put this handle in the handle_names array
