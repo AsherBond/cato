@@ -18,6 +18,7 @@
 
 import os
 import sys
+from Tkinter import Tcl
 
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 lib_path = os.path.join(base_path, "lib")
@@ -29,7 +30,7 @@ class Ecosync(catocommon.CatoService):
 
     ecosync_mode = ""
 
-    def check_instance(self, conn, iid):
+    def check_instance(self, conn, id):
         res = conn.get_all_instances([id])
         if res:
             instance = res[0][0]
@@ -120,7 +121,17 @@ class Ecosync(catocommon.CatoService):
     def main_process(self):
         """main process loop, parent class will call this"""
 
-        self.get_cloud_objects()
+        self.tcl.eval
+        self.tcl.eval('main_process')
+
+
+    def startup(self):
+
+        self.tcl = Tcl(useTk=False)
+        catocommon.CatoService.startup()
+        self.tcl.setvar(name='::HOME', value=self.home)
+        self.tcl.eval('source cato_ecosync.tcl')
+        self.tcl.eval('initialize_process')
 
 if __name__ == "__main__":
 

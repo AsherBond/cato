@@ -54,7 +54,7 @@ class Poller(catocommon.CatoService):
                     error_flag = 0
                     self.output("Starting process ...")
 
-                    cmd_line = "nohup %s/services/bin/cato_task_engine.tcl %d >> %s/ce/%d.log 2>&1 &" % (self.home, task_instance, self.logfiles_path, task_instance)
+                    cmd_line = "nohup %s/services/bin/cato_task_engine.py %d >> %s/ce/%d.log 2>&1 &" % (self.home, task_instance, self.logfiles_path, task_instance)
 
                     ret = os.system(cmd_line)
                     self.output("Task instance %d started with return code of %d" % (task_instance, ret))
@@ -99,7 +99,7 @@ class Poller(catocommon.CatoService):
             for row in rows:
                 db_pids.append(row[0])
 
-        cmd_line = """ps U%s -opid | grep "%s/services/bin/cato_task_engine.tcl" | grep -v grep""" % (self.user, self.home)
+        cmd_line = """ps U%s -opid | grep "%s/services/bin/cato_task_engine.py" | grep -v grep""" % (self.user, self.home)
 
         #os_pids = os.system(cmd_line)
         #print cmd_line
@@ -168,7 +168,6 @@ class Poller(catocommon.CatoService):
 if __name__ == "__main__":
 
     poller = Poller("cato_poller")
-    #print dir(poller)
     poller.startup()
     poller.service_loop()
 

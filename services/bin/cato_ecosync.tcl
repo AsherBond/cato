@@ -16,11 +16,6 @@
 # limitations under the License.
 #########################################################################
 
-set PROCESS_NAME cato_ecosync
-set ::CATO_HOME [file dirname [file dirname [file dirname [file normalize $argv0]]]]
-source $::CATO_HOME/services/bin/common.tcl
-read_config
-
 ### the following code is depricated. Need to change to read from the cloud_providers.xml file. Workaround below
 #proc get_object_types {} {
 
@@ -69,10 +64,10 @@ proc get_clouds {} {
 
 	unset -nocomplain ::cloud_arr
 
-        set clouds [get_clouds_provider {Amazon AWS}]
-        foreach cloud $clouds {
+    set clouds [get_clouds_provider {Amazon AWS}]
+    foreach cloud $clouds {
 		lappend ::cloud_arr([lindex $cloud 0]) {Amazon AWS} [lindex $cloud 1] [lindex $cloud 2]
-        }
+    }
 
 	set sql "select cloud_id, provider, cloud_name, api_url from clouds"
 	set  clouds [::mysql::sel $::CONN $sql -list]
@@ -84,7 +79,7 @@ proc get_clouds {} {
 proc get_cloud_objects {cloud_id account_id} {
 
 	set sql "select distinct do.ecosystem_object_id, do.ecosystem_object_type from ecosystem_object do join ecosystem e where do.cloud_id = '$cloud_id'  and e.account_id = '$account_id' order by do.ecosystem_object_type"
-	set  objects [::mysql::sel $::CONN $sql -list]
+	set  object [::mysql::sel $::CONN $sql -list]
 	foreach object $objects {
 		lappend obj_arr([lindex $object 1]) [lindex $object 0]
 	}	
@@ -230,9 +225,57 @@ proc get_account_creds {account_id} {
 	}
 
 }
-proc get_settings {} {
+
+
+proc get_cloud_uri {provider} {
+
+    set fp [open $::HOME/conf/cloud_providers.xml r]
+    set xml [read $fp]
+    close $fp
+
+    regsub -all "&" $xml "&amp;" $xml
+    set xmldoc [dom parse $xml]
+    set root [$xmldoc documentElement]
+    set query "//provider\[@name='$provider'\]/products/product\[@type='compute'\]"
+    set node [$root selectNodes $query]
+    if {"$node" ne ""} {
+        set uri [$node getAttribute api_uri]
+    } else {
+        set uri ""
+    }
+    $root delete
+    $xmldoc delete
+    unset xml
+    return $uri
 }
+
+proc get_clouds_provider {provider} {
+
+        set fp [open $::HOME/conf/cloud_providers.xml r]
+        set xml [read $fp]
+        close $fp
+
+        regsub -all "&" $xml "&amp;" $xml
+        set xmldoc [dom parse $xml]
+        set root [$xmldoc documentElement]
+        set query "//provider\[@name='$provider'\]/clouds/cloud"
+        set nodes [$root selectNodes $query]
+        set list_a ""
+        foreach node $nodes {
+                lappend list_b [$node getAttribute id]
+                lappend list_b [$node getAttribute name]
+                lappend list_b [$node getAttribute api_url]
+                lappend list_a $list_b
+                unset list_b
+        }
+    $root delete
+    $xmldoc delete
+    unset xml
+        return $list_a
+}
+
 proc initialize_process {} {
+    lappend ::auto_path [file join $::HOME lib]
 	package require tclcloud
 	package require tdom
 	get_object_types
@@ -245,7 +288,3 @@ proc main_process {} {
 	get_clouds
 	check_cloud_objects
 }	
-main 
-#if {[catch {main [lindex $argv 1]} errMsg]} {
-#	output "Poller Error -> $errMsg"
-#}
