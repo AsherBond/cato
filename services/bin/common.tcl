@@ -107,7 +107,7 @@ proc startup {} {
 }
 proc get_email_settings {} {
 	
-        set sql "select admin_email from messenger_settings where id = 1"
+    set sql "select admin_email from messenger_settings where id = 1"
 	::mysql::sel $::CONN $sql
 	set row [lindex [::mysql::fetch $::CONN] 0]
 	set ::ADMIN_EMAIL [lindex $row 0]
@@ -247,27 +247,18 @@ proc get_cloud_uri {provider} {
 
 proc get_clouds_provider {provider} {
 
-        set fp [open $::HOME/conf/cloud_providers.xml r]
-        set xml [read $fp]
-        close $fp
-
-        regsub -all "&" $xml "&amp;" $xml
-        set xmldoc [dom parse $xml]
-        set root [$xmldoc documentElement]
-        set query "//provider\[@name='$provider'\]/clouds/cloud"
-        set nodes [$root selectNodes $query]
-        set list_a ""
-        foreach node $nodes {
-                lappend list_b [$node getAttribute id]
-                lappend list_b [$node getAttribute name]
-                lappend list_b [$node getAttribute api_url]
-                lappend list_a $list_b
-                unset list_b
-        }
-	$root delete
-	$xmldoc delete
-	unset xml
-        return $list_a
+    set sql "select cloud_id, cloud_name, api_url from clouds where provider = '$provider'"
+	::mysql::sel $::CONN $sql
+	
+	while {[string length [set row [::mysql::fetch $::CONN]]] > 0} {
+        lappend list_b [lindex $row 0]
+        lappend list_b [lindex $row 1]
+        lappend list_b [lindex $row 2]
+        lappend list_a $list_b
+        unset list_b
+	}
+	
+    return $list_a
 }
 
 proc main {} {
