@@ -49,8 +49,25 @@ os.chdir(web_root)
 from catocommon import catocommon
 from catolicense import catolicense
 from catoui import uiCommon, uiGlobals
-from wmHandler import wmHandler
 from taskMethods import taskMethods
+
+"""
+ wmHandler is the default handler for any urls not defined in the urls mapping below.
+ (web.py required explicit url mapping)
+ 
+ web.py will instantiate this class, and invoke either the GET or POST method.
+ 
+ We take it from there (in catocommon), parse the URI, and try to load the right module 
+ and find the proper function to handle the request.
+"""
+class wmHandler:
+    #the GET and POST methods here are hooked by web.py.
+    #whatever method is requested, that function is called.
+    def GET(self, method):
+        return catocommon.FindAndCall(method)
+
+    def POST(self, method):
+        return catocommon.FindAndCall(method)
 
 
 def notfound():
