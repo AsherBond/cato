@@ -1316,6 +1316,33 @@ def DrawKeyValueSection(oStep, bShowPicker, bShowMaskOption, sKeyLabel, sValueLa
 
     return sHTML
 
+def DrawReadOnlyKeyValueSection(oStep, bShowPicker, bShowMaskOption, sKeyLabel, sValueLabel):
+    sStepID = oStep.ID
+    xd = oStep.FunctionXDoc
+
+    sHTML = ""
+
+    sHTML += "<div id=\"" + sStepID + "_pairs\">"
+
+    xPairs = xd.findall("pairs/pair")
+    i = 1
+    for xe in xPairs:
+        sKey = xe.findtext("key")
+        sVal = xe.findtext("value", "")
+
+        sHTML += "<table border=\"0\" class=\"w99pct\" cellpadding=\"0\" cellspacing=\"0\"><tr>"
+        sHTML += "<td class=\"w1pct\">&nbsp;" + sKeyLabel + ":&nbsp;</td>"
+        sHTML += "<td class=\"w1pct\"><span class=\"code\">" + UI.SafeHTML(sKey) + "</span></td>"
+        sHTML += "<td class=\"w1pct\">&nbsp;" + sValueLabel + ":&nbsp;</td>"
+        sHTML += "<td class=\"w75pct\"><span class=\"code\">" + UI.SafeHTML(sVal) + "</span></td>"
+        sHTML += "</tr></table>"
+
+        i += 1
+
+    sHTML += "</div>"
+
+    return sHTML
+
 def RemoveStepVars(sStepID):
     RemoveFromCommandXML(sStepID, "variables")
 

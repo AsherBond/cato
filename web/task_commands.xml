@@ -126,6 +126,12 @@
 					<mode input_type="select">SQL</mode>
 					<sql input_type="text" />
 					<handle input_type="text" />
+					<pairs label="Bind Variables">
+						<pair>
+							<key input_type="text" label="Bind" />
+							<value input_type="text" label="Value" />
+						</pair>
+					</pairs>
 				</function>
 			</command>
 			<command name="cmd_line" label="Command Line" description="A command issued to the Asset via a Command Line." help="Used to communicate with a remote system over ssh or telnet connection types.&lt;br&gt;First select the connection name that will be used. Next enter the command that should be sent to the remote system. Prior to the command being sent, variable substitution will occur. After the command is sent, the Command Engine will wait for the command line prompt to appear.&lt;br&gt;&lt;br&gt;Options: The options button has three options overrides. &lt;br&gt;Timeout value in seconds, this is the number of seconds the command engine will wait for the command line prompt to return until it timeouts out the process. &lt;br&gt;Positive Response overrides the set of characters that the Command Engine waits for to determine that the command is finished running. Accepts regular expressions .&lt;br&gt;Negative Response is a set of characters that the Command Engine looks for and will error out if it sees them respond from the remote system.&lt;br&gt;&lt;br&gt;Variables can be populated via the Command Line Interface command. Click the icon next to the word Variables to name the variables and configure how they are set." icon="static/images/icons/konsole_32.png">

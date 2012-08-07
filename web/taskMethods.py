@@ -3235,12 +3235,14 @@ class taskMethods:
             func = uiCommon.GetTaskFunction(sFunctionName)
             if not func:
                 uiCommon.log("Unable to get a Function definition for name [%s]" % sFunctionName)
+                return ""
             
             # validate it
             # parse the doc from the table
             xd = func.TemplateXDoc
             if xd is None:
                 uiCommon.log("Unable to get Function Template.")
+                return ""
             
             # get the original "group" node from the xml_template
             # here's the rub ... the "sGroupNode" from the actual command instance might have xpath indexes > 1... 
@@ -3256,9 +3258,19 @@ class taskMethods:
                 xGroupNode = xd
             else:
                 xGroupNode = xd.find(sTemplateNode)
+
+            if xGroupNode is None:
+                # well, let's try to add it, we might get lucky if it's a single node :-)
+                try:
+                    xd.append(ET.Element(sTemplateNode))
+                    xGroupNode = xd.find(sTemplateNode)
+                except:
+                    uiCommon.log("Error: Source node not found in Template XML, and cannot create it. [" + sTemplateNode + "].")
+                    return ""
             
             if xGroupNode is None:
-                uiCommon.log("Error: Unable to add.  Source node not found in Template XML. [" + sTemplateNode + "]")
+                uiCommon.log("Error: Unable to add.  Template XML does not contain [" + sTemplateNode + "].")
+                return ""
             
             # yeah, this wicked single line aggregates the value of each node
             sNewXML = "".join(ET.tostring(x) for x in list(xGroupNode))
