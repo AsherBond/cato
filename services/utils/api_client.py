@@ -25,14 +25,27 @@ parser.add_argument('--secretkey', '-s', help='The secret key for the request.')
 parser.add_argument('--file', '-f', type=argparse.FileType('r'), help='Method and arguments.')
 
 cmdlineargs = parser.parse_args()
-methodargs = json.loads(cmdlineargs.file.read())
+methodargs = None
+
+if cmdlineargs.file:
+    methodargs = json.loads(cmdlineargs.file.read())
 
 # the command line overrides any similar values from the json file.
-host = cmdlineargs.host if cmdlineargs.host else methodargs["host"]
-access_key = cmdlineargs.accesskey if cmdlineargs.accesskey else methodargs["accesskey"]
-secret_key = cmdlineargs.secretkey if cmdlineargs.secretkey else methodargs["secretkey"]
-method = methodargs["method"]
-args = methodargs["args"]
+# but the json file isn't actually required
+host = cmdlineargs.host
+method = cmdlineargs.method
+access_key = cmdlineargs.accesskey
+secret_key = cmdlineargs.secretkey
+args = None
+files = None
+
+if methodargs:
+    host = methodargs["host"] if not cmdlineargs.host else cmdlineargs.host
+    method = methodargs["method"] if not cmdlineargs.method else cmdlineargs.method
+    access_key = methodargs["accesskey"] if not cmdlineargs.accesskey else cmdlineargs.accesskey
+    secret_key = methodargs["secretkey"] if not cmdlineargs.secretkey else cmdlineargs.secretkey
+    args = methodargs["args"]
+    files = methodargs["files"]
 
 # Some API calls require one or more big arguments, too much to pass in
 # the method file.  So, anything in the 'files' section of the method file is opened
@@ -40,8 +53,8 @@ args = methodargs["args"]
 # NOTE: file contents are always base64 encoded for HTTP...
 # ... the receiving methods know which arguments to decode.
 
-if methodargs["files"]:
-    for k, v in methodargs["files"].items():
+if files:
+    for k, v in files.items():
         with open(v, 'r') as f_in:
             if not f_in:
                 print("Unable to open file [%s]." % v)
@@ -92,8 +105,11 @@ def call_api(host, method, key, pw, args):
         if host.endswith('/'):
             host = host[:-1]
 
-        arglst = ["&%s=%s" % (k, v) for k, v in args.items()]
-        argstr = "".join(arglst)
+        if args:
+            arglst = ["&%s=%s" % (k, v) for k, v in args.items()]
+            argstr = "".join(arglst)
+        else:
+            argstr = ""
         
         #timestamp
         ts = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
