@@ -156,9 +156,6 @@ class Cloud(object):
     def AsJSON(self):
         try:
             # convert the Provider object to a dictionary for serialization
-            # and until we need it, the provider clouds and products are stripped
-            self.Provider.Clouds = None
-            self.Provider.Products = None
             self.Provider = self.Provider.__dict__
             self.GetDefaultAccount()
             if self.DefaultAccount:
@@ -557,7 +554,7 @@ class CloudProviders(dict):
                         xProducts = xProvider.findall("products/product")
                         for xProduct in xProducts:
                             p_name = xProduct.get("name", None)
-    
+
                             if p_name == None:
                                 raise Exception("Cloud Providers XML: All Products must have the 'name' attribute.")
         
@@ -607,7 +604,7 @@ class CloudProviders(dict):
                                     cot.Properties.append(cotp)
                                 p.CloudObjectTypes[cot.ID] = cot
                             pv.Products[p.Name] = p
-                    
+
                     self[pv.Name] = pv
         except Exception as ex:
             raise ex
@@ -675,6 +672,7 @@ class Provider(object):
 
     def AsJSON(self):
         try:
+            print self.Products
             # this is built manually, because clouds have a provider object, which would be recursive.
             sb = []
             sb.append("{")
@@ -693,12 +691,16 @@ class Provider(object):
                 sb.append(",".join(lst))
             sb.append("}, ")
 
+            print 2
+            print self.Products
+
             
             # the products and object types
             sb.append("\"Products\" : {")
             if self.Products:
                 lst = []
-                for prod in self.Products:
+                for prod in self.Products.itervalues():
+                    print prod.Name
                     s = "\"%s\" : %s" % (prod.Name, prod.AsJSON())
                     lst.append(s)
                 sb.append(",".join(lst))

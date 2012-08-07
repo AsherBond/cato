@@ -288,15 +288,11 @@ class cloudMethods:
         try:
             sProvider = uiCommon.getAjaxArg("sProvider")
             
-            cp = cloud.CloudProviders()
-            if cp is None:
-                return "{\"result\":\"fail\",\"error\":\"Failed to get Providers.\"}"
+            p = cloud.Provider.FromName(sProvider)
+            if p is not None:
+                return p.AsJSON()
             else:
-                p = cp[sProvider]
-                if p is not None:
-                    return p.AsJSON()
-                else:
-                    return "{\"result\":\"fail\",\"error\":\"Failed to get Provider details for [" + sProvider + "].\"}"
+                return "{\"result\":\"fail\",\"error\":\"Failed to get Provider details for [" + sProvider + "].\"}"
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
             return traceback.format_exc()
@@ -439,7 +435,7 @@ class cloudMethods:
                 sHTML += "<div class=\"ui-widget\" style=\"margin-top: 10px;\">"
                 sHTML += "<div style=\"padding: 10px;\" class=\"ui-state-highlight ui-corner-all\">"
                 sHTML += "<span style=\"float: left; margin-right: .3em;\" class=\"ui-icon ui-icon-info\"></span>"
-                sHTML += "<p>" + err + "</p>"
+                sHTML += "<p>%s</p>" % err
                 sHTML += "</div>"
                 sHTML += "</div>"
 
