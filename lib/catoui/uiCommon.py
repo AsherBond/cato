@@ -12,11 +12,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
- 
+
+import web
 import urllib2
 import traceback
 import json
-import base64
 import cgi
 import re
 import pickle
@@ -91,13 +91,13 @@ def CatoDecrypt(s):
 
 def getAjaxArgs():
     """Just returns the whole posted json as a json dictionary"""
-    data = uiGlobals.web.data()
+    data = web.data()
     return json.loads(data)
 
 def getAjaxArg(sArg, sDefault=""):
     """Picks out and returns a single value."""
     try:
-        data = uiGlobals.web.data()
+        data = web.data()
         dic = json.loads(data)
         if dic.has_key(sArg):
             if dic[sArg]:
@@ -110,7 +110,7 @@ def getAjaxArg(sArg, sDefault=""):
         raise Exception("getAjaxArg - no JSON arguments to decode. This method required a POST with JSON arguments.")
     
 def GetCookie(sCookie):
-    cookie = uiGlobals.web.cookies().get(sCookie)
+    cookie = web.cookies().get(sCookie)
     if cookie:
         return cookie
     else:
@@ -119,7 +119,7 @@ def GetCookie(sCookie):
 
 def SetCookie(sCookie, sValue):
     try:
-        uiGlobals.web.setcookie(sCookie, sValue)
+        web.setcookie(sCookie, sValue)
     except Exception:
         log_nouser("Warning: Attempt to set cookie [%s] failed." % sCookie, 2)
         log_nouser(traceback.format_exc(), 0)
@@ -334,7 +334,7 @@ def ForceLogout(sMsg=""):
     uiGlobals.session.kill()
     
     log_nouser("Forcing logout with message: " + sMsg, 0)
-    raise uiGlobals.web.seeother('/static/login.html')
+    raise web.seeother('/static/login.html')
 
 def GetSessionUserID():
     try:
@@ -539,7 +539,7 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
         # All good, let's hit the API
         sXML = ""
         
-        import aws
+        from catocloud import aws
         
         if c.Provider.Name.lower() == "openstack":
             """not yet implemented"""
@@ -895,10 +895,10 @@ def AttemptLogin(app_name):
     try:
         if not app_name:
             return "{\"error\" : \"Missing Application Name.\"}"
-        if not uiGlobals.web.ctx.ip:
+        if not web.ctx.ip:
             return "{\"error\" : \"Unable to determine client address.\"}"
 
-        address = "%s (%s)" % (uiGlobals.web.ctx.ip, app_name)
+        address = "%s (%s)" % (web.ctx.ip, app_name)
         
         in_name = getAjaxArg("username")
         in_pwd = getAjaxArg("password")

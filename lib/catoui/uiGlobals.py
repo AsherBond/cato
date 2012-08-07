@@ -15,15 +15,20 @@
  
 #these globals are set on init, and anything that imports this file
 # has access to these objects
+import web
+from catocommon import catocommon
 
-# the web.py "web" object
-web = None
 # web.py "session"
-session = None
+class session(web.session.Session):
+    pass
+
 # Cato Service "server" is the running Cato service
-server = None
+class server(catocommon.CatoProcess):
+    pass
+
 # config is the configuration loaded from cato.conf (via catocommon) when the service started
 config = None
+
 # this is the root path for the web files
 web_root = None
 

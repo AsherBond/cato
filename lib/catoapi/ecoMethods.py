@@ -18,6 +18,7 @@
 Ecosystem/Ecotemplate endpoint methods.
 """
 
+import web
 import sys
 from catoapi import api
 from catocommon import catocommon
@@ -37,8 +38,8 @@ class ecoMethods:
             this_function_name = sys._getframe().f_code.co_name
             method_name = "%s/%s" % (self.__class__.__name__, this_function_name)
 
-            args = uiGlobals.web.input()
-            uiGlobals.web.header('Content-Type', 'text/xml')
+            args = web.input()
+            web.header('Content-Type', 'text/xml')
 
             # Authenticate the request and validate the arguments...
             user_id, resp = api.authentivalidate(method_name, uiGlobals.server, args, required_params)
@@ -82,8 +83,8 @@ class ecoMethods:
             this_function_name = sys._getframe().f_code.co_name
             method_name = "%s/%s" % (self.__class__.__name__, this_function_name)
 
-            args = uiGlobals.web.input()
-            uiGlobals.web.header('Content-Type', 'text/xml')
+            args = web.input()
+            web.header('Content-Type', 'text/xml')
 
             # Authenticate the request and validate the arguments...
             user_id, resp = api.authentivalidate(method_name, uiGlobals.server, args, required_params)
@@ -123,8 +124,8 @@ class ecoMethods:
             this_function_name = sys._getframe().f_code.co_name
             method_name = "%s/%s" % (self.__class__.__name__, this_function_name)
 
-            args = uiGlobals.web.input()
-            uiGlobals.web.header('Content-Type', 'text/xml')
+            args = web.input()
+            web.header('Content-Type', 'text/xml')
 
             # Authenticate the request and validate the arguments...
             user_id, resp = api.authentivalidate(method_name, uiGlobals.server, args)
@@ -134,9 +135,9 @@ class ecoMethods:
 
             # this is the call-specific code
 
-            filter = args["filter"] if args.has_key("filter") else ""
+            fltr = args["filter"] if args.has_key("filter") else ""
 
-            obj = ecosystem.Ecosystems(sFilter=filter)
+            obj = ecosystem.Ecosystems(sFilter=fltr)
             if obj:
                 return_string = obj.AsJSON()
                 resp = api.response.fromargs(method=method_name, response=return_string)
@@ -160,8 +161,8 @@ class ecoMethods:
             this_function_name = sys._getframe().f_code.co_name
             method_name = "%s/%s" % (self.__class__.__name__, this_function_name)
 
-            args = uiGlobals.web.input()
-            uiGlobals.web.header('Content-Type', 'text/xml')
+            args = web.input()
+            web.header('Content-Type', 'text/xml')
 
             # Authenticate the request and validate the arguments...
             user_id, resp = api.authentivalidate(method_name, uiGlobals.server, args)
@@ -171,10 +172,10 @@ class ecoMethods:
 
             # this is the call-specific code
 
-            filter = args["filter"] if args.has_key("filter") else ""
+            fltr = args["filter"] if args.has_key("filter") else ""
             print catocommon.unpackData(args["stormfile"])
             
-            obj = ecosystem.Ecotemplates(sFilter=filter)
+            obj = ecosystem.Ecotemplates(sFilter=fltr)
             if obj:
                 return_string = obj.AsJSON()
                 resp = api.response.fromargs(method=method_name, response=return_string)
@@ -201,8 +202,8 @@ class ecoMethods:
             this_function_name = sys._getframe().f_code.co_name
             method_name = "%s/%s" % (self.__class__.__name__, this_function_name)
 
-            args = uiGlobals.web.input()
-            uiGlobals.web.header('Content-Type', 'text/xml')
+            args = web.input()
+            web.header('Content-Type', 'text/xml')
 
             # Authenticate the request and validate the arguments...
             user_id, resp = api.authentivalidate(method_name, uiGlobals.server, args, required_params)

@@ -143,7 +143,7 @@ class taskEdit:
         # NOTE: Getting the task edit page has a safety check.
         # An "Approved" task cannot be opened in the editor... so...
         # we check the status here before doing anything, and redirect accordingly.
-        i = uiGlobals.web.input(task_id=None)
+        i = web.input(task_id=None)
         if i.task_id:
             task_status = taskMethods.GetTaskStatus(i.task_id)
             if task_status == "Approved":
@@ -246,7 +246,7 @@ class login:
     def GET(self):
         # visiting the login page kills the session
         uiGlobals.session.kill()
-        raise uiGlobals.web.seeother('/static/login.html')
+        raise web.seeother('/static/login.html')
 
 class logout:        
     def GET(self):
@@ -626,7 +626,6 @@ if __name__ != app_name:
     app.add_processor(auth_app_processor)
     app.notfound = notfound
     
-    uiGlobals.web = web
     uiGlobals.session = session
     uiGlobals.server = server
     uiGlobals.config = config
