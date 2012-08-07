@@ -516,33 +516,40 @@ class Ecosystem(object):
               
             db = catocommon.new_conn()
             
-            sID = catocommon.new_guid()
-
-            sSQL = "insert into ecosystem (ecosystem_id, ecosystem_name, ecosystem_desc, account_id, ecotemplate_id," \
-                " storm_file, storm_status, storm_parameter_xml, storm_cloud_id, created_dt, last_update_dt)" \
-                " select '" + sID + "'," \
-                " '" + sName + "'," \
-                + (" null" if not sDescription else " '" + catocommon.tick_slash(sDescription) + "'") + "," \
-                " '" + sAccountID + "'," \
-                " ecotemplate_id," \
-                " storm_file," \
-                + (" null" if not sStormStatus else " '" + catocommon.tick_slash(sStormStatus) + "'") + "," \
-                + (" null" if not sParameterXML else " '" + catocommon.tick_slash(sParameterXML) + "'") + "," \
-                + (" null" if not sCloudID else " '" + sCloudID + "'") + "," \
-                " now(), now()" \
-                " from ecotemplate where ecotemplate_id = '" + sEcotemplateID + "'"
+            # check the template
+            sSQL = "select ecotemplate_id from ecotemplate where ecotemplate_id = '%s'" % sEcotemplateID
+            etid = db.select_col_noexcep(sSQL)
+            if etid:
+                sID = catocommon.new_guid()
+    
+                sSQL = "insert into ecosystem (ecosystem_id, ecosystem_name, ecosystem_desc, account_id, ecotemplate_id," \
+                    " storm_file, storm_status, storm_parameter_xml, storm_cloud_id, created_dt, last_update_dt)" \
+                    " select '" + sID + "'," \
+                    " '" + sName + "'," \
+                    + (" null" if not sDescription else " '" + catocommon.tick_slash(sDescription) + "'") + "," \
+                    " '" + sAccountID + "'," \
+                    " ecotemplate_id," \
+                    " storm_file," \
+                    + (" null" if not sStormStatus else " '" + catocommon.tick_slash(sStormStatus) + "'") + "," \
+                    + (" null" if not sParameterXML else " '" + catocommon.tick_slash(sParameterXML) + "'") + "," \
+                    + (" null" if not sCloudID else " '" + sCloudID + "'") + "," \
+                    " now(), now()" \
+                    " from ecotemplate where ecotemplate_id = '" + sEcotemplateID + "'"
+                
+                if not db.exec_db_noexcep(sSQL):
+                    if db.error == "key_violation":
+                        return None, "An Ecosystem with that name already exists.  Please select another name."
+                    else:
+                        return None, db.error
+    
+                #now it's inserted and in the session... lets get it back from the db as a complete object for confirmation.
+                e = Ecosystem()
+                e.FromID(sID)
+                #yay!
+                return e, None
+            else:
+                return None, "Unable to create Ecosystem, Ecotemplate for ID [%s] not found." % sEcotemplateID
             
-            if not db.exec_db_noexcep(sSQL):
-                if db.error == "key_violation":
-                    return None, "An Ecosystem with that name already exists.  Please select another name."
-                else:
-                    return None, db.error
-
-            #now it's inserted and in the session... lets get it back from the db as a complete object for confirmation.
-            e = Ecosystem()
-            e.FromID(sID)
-            #yay!
-            return e, None
         except Exception as ex:
             raise Exception(ex)
         finally:
@@ -599,7 +606,7 @@ class Ecosystem(object):
                 self.LastUpdate = (str(dr["last_update_dt"]) if dr["storm_status"] else "")
                 self.NumObjects = str(dr["num_objects"])
             else: 
-                raise Exception("Error building Ecosystem object: " + db.error)
+                raise Exception("Error building Ecosystem object for ID [%s] - no record found. %s" % (self.ID, db.error))
         except Exception as ex:
             raise ex
         finally:

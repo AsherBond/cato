@@ -47,13 +47,13 @@ class ecoMethods:
             # end consistent
 
             # this is the call-specific code
-            et = ecosystem.Ecotemplate()
-            et.FromArgs(args["name"], args["description"])
-            if et is not None:
-                result, msg = et.DBSave()
+            obj = ecosystem.Ecotemplate()
+            obj.FromArgs(args["name"], args["description"])
+            if obj is not None:
+                result, msg = obj.DBSave()
                 if result:
-                    catocommon.write_add_log(user_id, catocommon.CatoObjectTypes.EcoTemplate, et.ID, et.Name, "Ecotemplate created.")
-                    return_string = "<EcotemplateId>%s</EcotemplateId>" % et.ID
+                    catocommon.write_add_log(user_id, catocommon.CatoObjectTypes.EcoTemplate, obj.ID, obj.Name, "Ecotemplate created.")
+                    return_string = "<EcotemplateId>%s</EcotemplateId>" % obj.ID
                     resp = api.response.fromargs(method=method_name, response=return_string)
                 else:
                     # uiCommon.log(msg, 2)
@@ -93,29 +93,19 @@ class ecoMethods:
 
             # this is the call-specific code
 
-            desc = args["description"] if args["description"] else ""
-            # these three will change with the 'stack' feature
-#            parameter_xml = args["parameter_xml"] if args["parameter_xml"] else ""
-#            cloud_id = args["cloud_id"] if args["cloud_id"] else ""
+            desc = args["description"] if args.has_key("description") else ""
 
-            if not args["account_id"]:
-                resp = api.response.fromargs(method=method_name,
-                    error_code="CreateError", error_detail="account_id is required.")
-            if not args["ecotemplate_id"]:
-                resp = api.response.fromargs(method=method_name,
-                    error_code="CreateError", error_detail="ecotemplate_id is required.")
-
-            e, msg = ecosystem.Ecosystem.DBCreateNew(args["name"],
+            obj, msg = ecosystem.Ecosystem.DBCreateNew(args["name"],
                  args["ecotemplate_id"], 
                  args["account_id"], 
                  desc)
-            if e:
-                catocommon.write_add_log(user_id, catocommon.CatoObjectTypes.Ecosystem, e.ID, e.Name, "Ecosystem created.")
-                return_string = "<Ecosystem>%s</Ecosystem>" % e.ID
+            if obj:
+                catocommon.write_add_log(user_id, catocommon.CatoObjectTypes.Ecosystem, obj.ID, obj.Name, "Ecosystem created.")
+                return_string = "<Ecosystem>%s</Ecosystem>" % obj.ID
                 resp = api.response.fromargs(method=method_name, response=return_string)
             else:
                 resp = api.response.fromargs(method=method_name,
-                    error_code="CreateError", error_detail="Unable to create Ecosystem.")
+                    error_code="CreateError", error_detail=msg)
             
             # is this a JSONP request?        
             if "callback" in args:
@@ -200,3 +190,43 @@ class ecoMethods:
             return resp.asXMLString()
         except Exception as ex:
             raise ex
+        
+    def get_ecosystem(self):        
+        """Create a new Ecosystem."""
+        try:
+            # define the required parameters for this call
+            required_params = ["ecosystem_id"]
+                
+            # this section should be consistent across most API calls
+            this_function_name = sys._getframe().f_code.co_name
+            method_name = "%s/%s" % (self.__class__.__name__, this_function_name)
+
+            args = uiGlobals.web.input()
+            uiGlobals.web.header('Content-Type', 'text/xml')
+
+            # Authenticate the request and validate the arguments...
+            user_id, resp = api.authentivalidate(method_name, uiGlobals.server, args, required_params)
+            if not user_id:
+                return resp
+            # end consistent
+
+            # this is the call-specific code
+            obj = ecosystem.Ecosystem()
+            obj.FromID(args["ecosystem_id"])
+            if obj:
+                return_string = obj.AsJSON()
+                resp = api.response.fromargs(method=method_name, response=return_string)
+            else:
+                resp = api.response.fromargs(method=method_name,
+                    error_code="GetError", error_detail="Unable to get Ecosystem for ID [%s]." % args["ecosystem_id"])
+            
+            # is this a JSONP request?        
+            if "callback" in args:
+                return api.perform_callback(uiGlobals.web, args["callback"], resp)
+            
+            #if we made it all the way here, just return the raw xml
+            return resp.asXMLString()
+        except Exception as ex:
+            raise ex
+
+        

@@ -22,11 +22,14 @@ parser.add_argument('--host', help='The host url of the API service.')
 parser.add_argument('--method', '-m', help='The method to call.')
 parser.add_argument('--accesskey', '-k', help='The access key for the request.')
 parser.add_argument('--secretkey', '-s', help='The secret key for the request.')
+parser.add_argument('--querystring', '-q', help='Direct entry of querystring arguments.')
 parser.add_argument('--file', '-f', type=argparse.FileType('r'), help='Method and arguments.')
 
-cmdlineargs = parser.parse_args()
+# if we wanna get additional items from argparse, try "parser.parse_known_args()" instead
+cmdlineargs, randomargs = parser.parse_known_args()
 methodargs = None
 
+# load the specified definition file if provided...
 if cmdlineargs.file:
     methodargs = json.loads(cmdlineargs.file.read())
 
@@ -36,16 +39,17 @@ host = cmdlineargs.host
 method = cmdlineargs.method
 access_key = cmdlineargs.accesskey
 secret_key = cmdlineargs.secretkey
-args = None
-files = None
+querystring = cmdlineargs.querystring
+args = {}
+files = {}
 
 if methodargs:
-    host = methodargs["host"] if not cmdlineargs.host else cmdlineargs.host
-    method = methodargs["method"] if not cmdlineargs.method else cmdlineargs.method
-    access_key = methodargs["accesskey"] if not cmdlineargs.accesskey else cmdlineargs.accesskey
-    secret_key = methodargs["secretkey"] if not cmdlineargs.secretkey else cmdlineargs.secretkey
-    args = methodargs["args"]
-    files = methodargs["files"]
+    host = methodargs["host"] if methodargs.has_key("host") and not cmdlineargs.host else cmdlineargs.host
+    method = methodargs["method"] if methodargs.has_key("method") and not cmdlineargs.method else cmdlineargs.method
+    access_key = methodargs["accesskey"] if methodargs.has_key("accesskey") and not cmdlineargs.accesskey else cmdlineargs.accesskey
+    secret_key = methodargs["secretkey"] if methodargs.has_key("secretkey") and not cmdlineargs.secretkey else cmdlineargs.secretkey
+    args = methodargs["args"] if methodargs.has_key("args") else {}
+    files = methodargs["files"] if methodargs.has_key("files") else {}
 
 # Some API calls require one or more big arguments, too much to pass in
 # the method file.  So, anything in the 'files' section of the method file is opened
@@ -61,6 +65,19 @@ if files:
             data = f_in.read()
             if data:
                 args[k] = catocommon.packData(data)
+
+# Finally, a little magic here... if any unexpected args are passed, they'll be in the randomargs list.
+# there's no formatting there, so we're expecting the user to be smart enough to 
+# put them in the key=value format
+# we will append them to our global 'args' dictionary
+# NOTE: if any values have the same key as something defined in the json file, 
+# these will take precedence, which is what we want.
+print randomargs
+if randomargs:
+    for pair in randomargs:
+        k, v = pair.split("=")
+        args[k] = v
+
 
 
 def http_get(url, timeout=10):
@@ -100,7 +117,9 @@ def call_api(host, method, key, pw, args):
         if not method:
             return "METHOD not provided."
         if not key:
-            return "KEY not provided."
+            return "ACCESSKEY not provided."
+        if not pw:
+            return "SECRETKEY not provided."
 
         if host.endswith('/'):
             host = host[:-1]
@@ -114,15 +133,18 @@ def call_api(host, method, key, pw, args):
         #timestamp
         ts = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
         ts = ts.replace(":", "%3A")
-        
+
         string_to_sign = "{0}?key={1}&timestamp={2}".format(method, key, ts)
         
-        sig = base64.b64encode(hmac.new(pw, msg=string_to_sign, digestmod=hashlib.sha256).digest())
+        sig = base64.b64encode(hmac.new(str(pw), msg=string_to_sign, digestmod=hashlib.sha256).digest())
         sig = "&signature=" + urllib.quote_plus(sig)
         
         url = "%s/%s%s%s" % (host, string_to_sign, sig, argstr)
-        print url
-
+        
+        #NOTE: if a --querystring was passed on the command line, we just use it, no questions asked
+        if querystring:
+            url += "&%s" % querystring
+            
         return http_get(url)
     except Exception as ex:
         raise ex

@@ -65,13 +65,13 @@ urls = (
 
 if __name__ == "__main__":
 
-	server = catocommon.CatoService("storm_front")
+	server = catocommon.CatoService("cato_rest_api")
 	server.startup()
 
 	if len(sys.argv) < 2:
 		config = catocommon.read_config()
-		if "stormapiport" in config:
-			port = config["stormapiport"]
+		if "rest_api_port" in config:
+			port = config["rest_api_port"]
 			sys.argv.append(port)
 
 	app = web.application(urls, globals(), autoreload=True)

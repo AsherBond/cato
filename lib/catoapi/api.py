@@ -29,6 +29,7 @@ from catocryptpy import catocryptpy
 def authentivalidate(method_name, server, args, required_params=[]):
 	print("Request: %s" % method_name)
 	print("Args: %s" % args)
+	print("\n\n")
 
 	is_authenticated, user_id = authenticate(server, method_name, args)
 	if not is_authenticated:
