@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+import os
+import sys
+import json
 import urllib
 import urllib2
 from datetime import datetime
@@ -8,22 +11,43 @@ import base64
 import hmac
 import argparse
 
+base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
+lib_path = os.path.join(base_path, "lib")
+sys.path.insert(0, lib_path)
+
+from catocommon import catocommon
+
 parser = argparse.ArgumentParser(description='Connect to the Cato API.')
-parser.add_argument('--host', required=True, help='The host url of the API service.')
-parser.add_argument('--method', '-m', required=True, help='The method to call.')
-parser.add_argument('--accesskey', '-k', required=True, help='The access key for the request.')
-parser.add_argument('--secretkey', '-s', required=True, help='The secret key for the request.')
-#parser.add_argument('--args', '-a', required=True, help='Arguments.')
+parser.add_argument('--host', help='The host url of the API service.')
+parser.add_argument('--method', '-m', help='The method to call.')
+parser.add_argument('--accesskey', '-k', help='The access key for the request.')
+parser.add_argument('--secretkey', '-s', help='The secret key for the request.')
+parser.add_argument('--file', '-f', type=argparse.FileType('r'), help='Method and arguments.')
 
 cmdlineargs = parser.parse_args()
-#print args
+methodargs = json.loads(cmdlineargs.file.read())
 
+# the command line overrides any similar values from the json file.
+host = cmdlineargs.host if cmdlineargs.host else methodargs["host"]
+access_key = cmdlineargs.accesskey if cmdlineargs.accesskey else methodargs["accesskey"]
+secret_key = cmdlineargs.secretkey if cmdlineargs.secretkey else methodargs["secretkey"]
+method = methodargs["method"]
+args = methodargs["args"]
 
-#provide the args
-args = {}
-args["filter"] = "qwer"
-args["foo"] = "bar"
+# Some API calls require one or more big arguments, too much to pass in
+# the method file.  So, anything in the 'files' section of the method file is opened
+# and added to the args dictionary using the key name provided.
+# NOTE: file contents are always base64 encoded for HTTP...
+# ... the receiving methods know which arguments to decode.
 
+if methodargs["files"]:
+    for k, v in methodargs["files"].items():
+        with open(v, 'r') as f_in:
+            if not f_in:
+                print("Unable to open file [%s]." % v)
+            data = f_in.read()
+            if data:
+                args[k] = catocommon.packData(data)
 
 
 def http_get(url, timeout=10):
@@ -89,15 +113,7 @@ def call_api(host, method, key, pw, args):
 
 
 
-# set the key
-access_key=cmdlineargs.accesskey
-secret_key=cmdlineargs.secretkey
-    
 # make the call
-result = call_api("http://localhost:8080/", "ecoMethods/list_ecosystems", access_key, secret_key, args)
-
-
-#result = http_get("http://localhost:8080/ecoMethods/create_ecosystem?key=12:34:56:78:90&name=textes&description=bar&ecotemplate_id=1bad276d-c832-4b42-b895-18681166c238&account_id=856fa6f4-e36e-4029-b436-65dfeb06a36d")
-#result = http_get("http://localhost:8080/ecoMethods/list_ecosystems?key=12:34:56:78:90&filter=qwer")
+result = call_api(host, method, access_key, secret_key, args)
 
 print result
