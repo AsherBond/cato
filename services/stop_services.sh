@@ -1,14 +1,15 @@
 #!/bin/bash
 date
-OS=`uname`
-if [ "$OS" == "Darwin" ]; then
-    ### this script does not work on the Mac yet. 
-    echo "this script does not work on the Mac yet. Like to help?"
-    exit 
-fi
+#OS=`uname`
+#if [ "$OS" == "Darwin" ]; then
+#    ### this script does not work on the Mac yet. 
+#    echo "this script does not work on the Mac yet. Like to help?"
+#    exit 
+#fi
 if [ -z "$CATO_HOME" ]; then
 
-    EX_FILE=`readlink -f $0`
+    #EX_FILE=`readlink -f $0`
+    EX_FILE=`python -c "import os; print os.path.realpath('$0')"`
     EX_HOME=${EX_FILE%/*}
     CATO_HOME=${EX_HOME%/*}
     echo "CATO_HOME not set, assuming $CATO_HOME"
@@ -23,13 +24,17 @@ FULL_PROCS[3]="$CATO_HOME/services/bin/cato_ecosync.tcl"
 
 count=0
 while [[ $count -lt ${#FULL_PROCS[*]} ]]; do
-    PIDS=`ps -eafl | grep "${FULL_PROCS[$count]}" | grep -v "grep" | awk '{ print \$4 }'`
+    if [[ "`uname`" == "Darwin" ]]; then
+        PIDS=`ps -A | grep "${FULL_PROCS[$count]}" | grep -v "grep" | awk '{ print \$1 }'`
+    else
+        PIDS=`ps -eafl | grep "${FULL_PROCS[$count]}" | grep -v "grep" | awk '{ print \$4 }'`
+    fi
 
     if [ -z "$PIDS" ]; then
         echo "${FULL_PROCS[$count]} is not running"
     else
         for PID in $PIDS; do
-            echo "Shutting down $i ($PID)"
+            echo "Shutting down ${FULL_PROCS[$count]} ($PID)"
             kill -9 $PID
         done
     fi 

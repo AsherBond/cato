@@ -2,7 +2,8 @@
 date
 if [ -z "$CATO_HOME" ]; then
     
-    EX_FILE=`readlink -f $0`
+    #EX_FILE=`readlink -f $0`
+    EX_FILE=`python -c "import os; print os.path.realpath('$0')"`
     EX_HOME=${EX_FILE%/*}
     CATO_HOME=${EX_HOME%/*}
     echo "CATO_HOME not set, assuming $CATO_HOME"
@@ -19,7 +20,7 @@ export CATO_LOGS
 FULL_PROCS[0]="$CATO_HOME/services/bin/cato_poller.py"
 FULL_PROCS[1]="$CATO_HOME/services/bin/cato_scheduler.py"
 FULL_PROCS[2]="$CATO_HOME/services/bin/cato_messenger.py"
-FULL_PROCS[3]="$CATO_HOME/services/bin/cato_ecosync.tcl"
+FULL_PROCS[3]="$CATO_HOME/services/bin/cato_ecosync.py"
 
 FULL_LOGFILES[0]="$CATO_LOGS/cato_poller.log"
 FULL_LOGFILES[1]="$CATO_LOGS/cato_scheduler.log"
@@ -30,7 +31,11 @@ start_other_procs() {
     count=0
     echo "Looking for processes to start"
     while [[ $count -lt ${#FULL_PROCS[*]} ]]; do
-        PID=`ps -eafl | grep "${FULL_PROCS[$count]}$" | grep -v "grep"`
+        if [[ "`uname`" == "Darwin" ]]; then
+            PID=`ps -A | grep "${FULL_PROCS[$count]}$" | grep -v "grep"`
+        else
+            PID=`ps -eafl | grep "${FULL_PROCS[$count]}$" | grep -v "grep"`
+        fi
         if [ ! "$PID" ]; then
             echo "Starting ${FULL_PROCS[$count]}"
             nohup ${FULL_PROCS[$count]} >> ${FULL_LOGFILES[$count]} 2>&1 &

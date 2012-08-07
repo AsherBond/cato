@@ -17,7 +17,7 @@
 date
 if [ -z "$CATO_HOME" ]; then
     
-    EX_FILE=`readlink -f $0`
+    EX_FILE=`python -c "import os; print os.path.realpath('$0')"`
     EX_HOME=${EX_FILE%/*}
     CATO_HOME=${EX_HOME%/*}
     echo "CATO_HOME not set, assuming $CATO_HOME"
@@ -39,7 +39,11 @@ start_other_procs() {
     count=0
     echo "Looking for processes to start"
     while [[ $count -lt ${#FULL_PROCS[*]} ]]; do
-        PID=`ps -eafl | grep "${FULL_PROCS[$count]}$" | grep -v "grep"`
+        if [[ "`uname`" == "Darwin" ]]; then
+            PID=`ps -A | grep "${FULL_PROCS[$count]}$" | grep -v "grep"`
+        else
+            PID=`ps -eafl | grep "${FULL_PROCS[$count]}$" | grep -v "grep"`
+        fi
         if [ ! "$PID" ]; then
             if [ "$(ls -A ${CATO_HOME}/web/sessions)" ]; then
                 echo "Removing sessions..."
