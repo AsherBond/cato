@@ -293,8 +293,14 @@ def write_property_change_log(UserID, oType, sObjectID, sLabel, sFrom, sTo):
 def FindAndCall(method):
     """
     Several rules here:
-    1) First, we look in this class for the method.  This shouldn't really happen,
-        but if we decided at some point to put a few functions here... fine.
+    1) a / in the "method" denotes class/function.  This works if the source file
+        is in the same directory as the executable.  All methods *should* have a /.
+        If they don't, it's ok, it'll just look in the local namespace for the function.
+    2) a . in the "method" is for a package.module.class/function type lookup.
+        (This is when the class is in a lib somewhere in the path.)
+        In this case, *we have hardcoded that the class and module names must match*.
+        So, if the "method" argument is foo.bar/baz, it will do "from foo import bar"
+        and then the function being hooked would be "bar.baz()"
     """
     try:
         db = new_conn()
@@ -302,14 +308,20 @@ def FindAndCall(method):
         # NOTE: this isn't recursive... only the first value before a / is the class
         modname = ""
         methodname = method
+        classname = ""
         
         if "/" in method:
             modname, methodname = method.split('/', 1)
-        
-        if modname:    
+            classname = modname
+        if "." in modname:
+            modname, classname = modname.split('.', 1)
+            modname = "%s.%s" % (modname, classname)
+            
+        if modname and classname and methodname:    
             try:
-                mod = __import__(modname, None, None, modname)
-                cls = getattr(mod, modname, None)
+                mod = __import__(modname, globals(), locals(), classname)
+                cls = getattr(mod, classname, None)
+
                 if cls:
                     cls.db = db
                     methodToCall = getattr(cls(), methodname, None)
