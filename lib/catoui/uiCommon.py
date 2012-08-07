@@ -136,17 +136,10 @@ def IsGUID(s):
         return False
 
 def packJSON(sIn):
-    if not sIn:
-        return sIn
-    sOut = base64.b64encode(str(sIn))
-    return sOut.replace("/", "%2F").replace("+", "%2B")
+    return catocommon.packData(sIn)
 
 def unpackJSON(sIn):
-    if not sIn:
-        return sIn
-    
-    sOut = sIn.replace("%2F", "/").replace("%2B", "+")
-    return base64.b64decode(sOut)
+    return catocommon.unpackData(sIn)
 
 def QuoteUp(sString):
     retval = ""

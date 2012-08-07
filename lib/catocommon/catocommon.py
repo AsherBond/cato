@@ -21,6 +21,7 @@ import time
 import threading
 import uuid
 import decimal
+import base64
 from catodb import catodb
 
 # anything including catocommon can get new connections using the settings in 'config'
@@ -104,9 +105,20 @@ def read_config():
     else:
         print("Info: VERSION file does not exist.")
     
-    
-    
     return key_vals
+
+def packData(sIn):
+    if not sIn:
+        return sIn
+    sOut = base64.b64encode(str(sIn))
+    return sOut.replace("/", "%2F").replace("+", "%2B")
+
+def unpackData(sIn):
+    if not sIn:
+        return sIn
+    
+    sOut = sIn.replace("%2F", "/").replace("%2B", "+")
+    return base64.b64decode(sOut)
 
 def new_guid():
     return str(uuid.uuid1())
