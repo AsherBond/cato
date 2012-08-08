@@ -23,7 +23,7 @@
 function getScript(script_name) {
 	if (script_name) {
 		$.ajax({
-			async : true,
+			async : false,
 			type : "POST",
 			url : "uiMethods/wmGetScript",
 			data : '{"sScriptName":"' + script_name + '"}',
