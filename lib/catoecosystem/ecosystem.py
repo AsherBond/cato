@@ -508,6 +508,63 @@ class Ecosystem(object):
         self.EcotemplateID = sEcotemplateID
         self.AccountID = sAccountID
 
+    def GetObjects(self, sFilter=""):
+        try:
+            db = catocommon.new_conn()
+                
+            sWhereString = ""
+            if sFilter:
+                aSearchTerms = sFilter.split()
+                for term in aSearchTerms:
+                    if term:
+                        sWhereString += " and (eo.ecosystem_object_id like '%%" + term + "%%' " \
+                            "or eo.ecosystem_object_type like '%%" + term + "%%' " \
+                            "or c.cloud_name like '%%" + term + "%%') "
+    
+            sSQL = """select eo.ecosystem_object_id, eo.ecosystem_object_type, eo.added_dt, c.cloud_id, c.cloud_name
+                from ecosystem_object eo
+                join clouds c on c.cloud_id = eo.cloud_id
+                where 1=1 %s order by eo.ecosystem_object_id""" % sWhereString
+            
+            rows = db.select_all_dict(sSQL)
+            if rows:
+                return json.dumps(rows, default=catocommon.jsonSerializeHandler)
+            else:
+                return "No results found."
+        except Exception as ex:
+            raise Exception(ex)
+        finally:
+            db.close()
+        
+    def GetLog(self, sFilter=""):
+        try:
+            db = catocommon.new_conn()
+                
+            sWhereString = ""
+            if sFilter:
+                aSearchTerms = sFilter.split()
+                for term in aSearchTerms:
+                    if term:
+                        sWhereString += " and (ecosystem_object_id like '%%" + term + "%%' " \
+                            "or ecosystem_object_type like '%%" + term + "%%' " \
+                            "or logical_id like '%%" + term + "%%' " \
+                            "or status like '%%" + term + "%%' " \
+                            "or log like '%%" + term + "%%') "
+    
+            sSQL = """select ecosystem_object_id, ecosystem_object_type, logical_id, status, log
+                from ecosystem_log
+                where 1=1 %s order by ecosystem_log_id""" % sWhereString
+            
+            rows = db.select_all_dict(sSQL)
+            if rows:
+                return json.dumps(rows, default=catocommon.jsonSerializeHandler)
+            else:
+                return "No results found."
+        except Exception as ex:
+            raise Exception(ex)
+        finally:
+            db.close()
+        
     @staticmethod
     def DBCreateNew(sName, sEcotemplateID, sAccountID, sDescription="", sStormStatus="", sParameterXML="", sCloudID=""):
         try:
@@ -576,6 +633,25 @@ class Ecosystem(object):
             return True, ""
         except Exception as ex:
             raise Exception(ex)
+        finally:
+            db.close()
+
+    def FromName(self, sEcosystemName):
+        """Will get an Ecosystem given either a name OR an id."""
+        try:
+            db = catocommon.new_conn()
+            sSQL = "select ecosystem_id from ecosystem where ecosystem_name = '{0}' or ecosystem_id = '{0}'".format(sEcosystemName)
+            
+            eid = db.select_col_noexcep(sSQL)
+            if db.error:
+                raise Exception("Ecosystem Object: Unable to get Ecosystem from database. " + db.error)
+
+            if eid:
+                self.FromID(eid)
+            else: 
+                raise Exception("Error getting Ecosystem ID for Name [%s] - no record found. %s" % (sEcosystemName, db.error))
+        except Exception as ex:
+            raise ex
         finally:
             db.close()
 
