@@ -1752,11 +1752,11 @@ class ecoMethods:
             else:
                 uiCommon.log("Warning: stormApiUrl setting not defined in cato.conf... using http://localhost", 2)
 
-            sPort = "8080"
-            if uiGlobals.config.has_key("stormapiport"):
-                sPort = (uiGlobals.config["stormapiport"] if uiGlobals.config["stormapiport"] else "8080")
+            sPort = "4001"
+            if uiGlobals.config.has_key("rest_api_port"):
+                sPort = (uiGlobals.config["rest_api_port"] if uiGlobals.config["rest_api_port"] else "4001")
             else:
-                uiCommon.log("Warning: stormApiPort setting not defined in cato.conf... using 8080", 2)
+                uiCommon.log("Warning: rest_api_port setting not defined in cato.conf... using 4001", 2)
             
             sURL = "{0}:{1}/{2}{3}{4}".format(sHost, sPort, sStringToSign, sSignature, sQS)
                     

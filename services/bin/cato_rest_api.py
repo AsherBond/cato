@@ -55,8 +55,45 @@ def notfound():
 		
 # the default page if no URI is given, just an information message
 class index:        
-	def GET(self):
-		return 'Cloud Sidekick REST API.'
+    def GET(self):
+        out = []
+        out.append("Cloud Sidekick REST API.\n\n")
+        
+        try:
+            from catoapi import ecoMethods
+            
+#            if ecoMethods.ecoMethods.__doc__:
+#                out.append(ecoMethods.ecoMethods.__doc__)
+            
+            for attname in dir(ecoMethods.ecoMethods):
+                att = getattr(ecoMethods.ecoMethods, attname, None)
+                if att:
+                    if hasattr(att, "__name__"):
+                        out.append("Method: ecoMethods/%s" % att.__name__)
+                        if att.__doc__:
+                            out.append("%s" % att.__doc__)
+                        
+                        out.append("----------")
+
+
+            from catoapi import stormMethods
+            
+            for attname in dir(stormMethods.stormMethods):
+                att = getattr(stormMethods.stormMethods, attname, None)
+                if att:
+                    if hasattr(att, "__name__"):
+                        out.append("Method: stormMethods/%s" % att.__name__)
+                        if att.__doc__:
+                            out.append("%s" % att.__doc__)
+                        
+                        out.append("----------")
+                    
+                    
+                    
+        except Exception as ex:
+            out.append(ex.__str__())
+        finally:
+            return "\n".join(out)
 
 urls = (
     '/', 'index',
@@ -70,9 +107,10 @@ if __name__ == "__main__":
 
 	if len(sys.argv) < 2:
 		config = catocommon.read_config()
-		if "rest_api_port" in config:
+        port = "4001"
+        if "rest_api_port" in config:
 			port = config["rest_api_port"]
-			sys.argv.append(port)
+        sys.argv.append(port)
 
 	app = web.application(urls, globals(), autoreload=True)
 

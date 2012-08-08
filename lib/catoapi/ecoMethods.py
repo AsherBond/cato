@@ -26,10 +26,17 @@ from catoui import uiGlobals
 from catoecosystem import ecosystem
 
 class ecoMethods:
-    db = None
+    """These are methods for Ecosystems, Ecotemplates and other related items."""
 
     def create_ecotemplate(self):        
-        """Create a new Ecotemplate."""
+        """
+        Create a new Ecotemplate.
+        
+        Required Arguments: name
+        Optional Arguments: description
+        
+        Returns: A JSON Ecotemplate object.
+        """
         try:
             # define the required parameters for this call
             required_params = ["name"]
@@ -59,7 +66,7 @@ class ecoMethods:
                 result, msg = obj.DBSave()
                 if result:
                     catocommon.write_add_log(user_id, catocommon.CatoObjectTypes.EcoTemplate, obj.ID, obj.Name, "Ecotemplate created.")
-                    return_string = "<EcotemplateId>%s</EcotemplateId>" % obj.ID
+                    return_string = obj.AsJSON()
                     resp = api.response(method=method_name, response=return_string)
                 else:
                     # uiCommon.log(msg, 2)
@@ -81,7 +88,14 @@ class ecoMethods:
             return resp.Write()
 
     def create_ecosystem(self):        
-        """Create a new Ecosystem."""
+        """
+        Create a new Ecosystem.
+        
+        Required Arguments: ecotemplate_id, account_id, name
+        Optional Arguments: description
+        
+        Returns: A JSON Ecosystem object.
+        """
         try:
             # define the required parameters for this call
             required_params = ["ecotemplate_id", "account_id", "name"]
@@ -114,7 +128,7 @@ class ecoMethods:
                  desc)
             if obj:
                 catocommon.write_add_log(user_id, catocommon.CatoObjectTypes.Ecosystem, obj.ID, obj.Name, "Ecosystem created.")
-                return_string = "<Ecosystem>%s</Ecosystem>" % obj.ID
+                return_string = obj.AsJSON()
                 resp = api.response(method=method_name, response=return_string)
             else:
                 resp = api.response(method=method_name,
@@ -132,7 +146,13 @@ class ecoMethods:
             return resp.Write()
 
     def list_ecosystems(self):        
-        """List all ecosystems."""
+        """
+        Lists all Ecosystems.
+        
+        Optional Arguments: filter
+        
+        Returns: A JSON array of all Ecosystems with basic attributes.
+        """
         try:
             # this section should be consistent across most API calls
             this_function_name = sys._getframe().f_code.co_name
@@ -176,7 +196,13 @@ class ecoMethods:
             return resp.Write()
 
     def list_ecotemplates(self):        
-        """List all ecotemplates."""
+        """
+        Lists all Ecotemplates.
+        
+        Optional Arguments: filter
+        
+        Returns: A JSON array of all Ecotemplates with basic attributes.
+        """
         try:
             # this section should be consistent across most API calls
             this_function_name = sys._getframe().f_code.co_name
@@ -221,7 +247,14 @@ class ecoMethods:
             return resp.Write()
         
     def get_ecosystem(self):        
-        """Create a new Ecosystem."""
+        """
+        Gets an Ecosystem object.
+        
+        Required Arguments: ecosystem_id
+        (ecosystem_id value can be either an id, or the Ecosystem name.)
+        
+        Returns: A JSON Ecosystem object.
+        """
         try:
             # define the required parameters for this call
             required_params = ["ecosystem_id"]
@@ -265,7 +298,17 @@ class ecoMethods:
             return resp.Write()
 
     def get_ecosystem_objects(self):        
-        """Gets a list of all cloud objects associated with an Ecosystem."""
+        """
+        Gets a list of all cloud objects associated with an Ecosystem.
+        
+        Required Arguments: ecosystem_id
+        (ecosystem_id value can be either an id, or the Ecosystem name.)
+
+        Optional Arguments: filter
+        
+        Returns: A JSON array of Ecosystem objects.
+        """
+
         try:
             # define the required parameters for this call
             required_params = ["ecosystem_id"]
@@ -292,7 +335,7 @@ class ecoMethods:
             fltr = args["filter"] if args.has_key("filter") else ""
 
             obj = ecosystem.Ecosystem()
-            obj.FromID(args["ecosystem_id"])
+            obj.FromName(args["ecosystem_id"])
             if obj:
                 return_string = obj.GetObjects(fltr)
                 resp = api.response(method=method_name, response=return_string)
@@ -312,7 +355,16 @@ class ecoMethods:
             return resp.Write()
 
     def get_ecosystem_log(self):        
-        """Gets the run log for an Ecosystem."""
+        """
+        Gets the run log for an Ecosystem.
+        
+        Required Arguments: ecosystem_id
+        (ecosystem_id value can be either an id, or the Ecosystem name.)
+
+        Optional Arguments: filter
+        
+        Returns: A JSON array of log entries.
+        """
         try:
             # define the required parameters for this call
             required_params = ["ecosystem_id"]
