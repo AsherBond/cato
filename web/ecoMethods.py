@@ -1404,43 +1404,46 @@ class ecoMethods:
                             # look up the cloud and get the name
                             c = cloud.Cloud()
                             c.FromID(sCloudID)
+                            # giving each section a guid so we can delete it on the client side after the ajax call.
+                            # not 100% the ecosystem_object_id will always be suitable as a javascript ID.
+                            sGroupID = catocommon.new_guid()
+        
+                            sHTML += "<div class=\"ui-widget-content ui-corner-all ecosystem_item\" id=\"%s\">" % sGroupID
+        
+        
+                            sObjectID = drObject["ecosystem_object_id"]
+        
+        
                             if c.ID is not None:
-                                # giving each section a guid so we can delete it on the client side after the ajax call.
-                                # not 100% the ecosystem_object_id will always be suitable as a javascript ID.
-                                sGroupID = catocommon.new_guid()
+                                sLabel = "Cloud: %s = %s " % (c.Name, sObjectID)
+                            else:
+                                sLabel = "Unable to find Cloud [%s]" % sCloudID
         
-                                sHTML += "<div class=\"ui-widget-content ui-corner-all ecosystem_item\" id=\"" + sGroupID + "\">"
+                            sHTML += "<div class=\"ui-widget-header ecosystem_item_header\">"
+                            sHTML += "<div class=\"ecosystem_item_header_title\"><span>" + sLabel + "</span></div>"
         
+                            sHTML += "<div class=\"ecosystem_item_header_icons\">"
+    
+                            sHTML += "<span class=\"ui-icon ui-icon-close ecosystem_item_remove_btn pointer\"" \
+                                " id_to_delete=\"" + drObject["ecosystem_object_id"] + "\"" \
+                                " id_to_remove=\"" + sGroupID + "\">"
+                            sHTML += "</span>"
+    
+                            sHTML += "</div>"
+    
+                            sHTML += "</div>"
+    
+                            # the details section
+                            sHTML += "<div class=\"ecosystem_item_detail\">"
         
-                                sObjectID = drObject["ecosystem_object_id"]
-        
-                                sLabel = "Cloud: " + c.Name + " - " + sObjectID
-        
-                                sHTML += "<div class=\"ui-widget-header ecosystem_item_header\">"
-                                sHTML += "<div class=\"ecosystem_item_header_title\"><span>" + sLabel + "</span></div>"
-        
-                                sHTML += "<div class=\"ecosystem_item_header_icons\">"
-        
-                                sHTML += "<span class=\"ui-icon ui-icon-close ecosystem_item_remove_btn pointer\"" \
-                                    " id_to_delete=\"" + drObject["ecosystem_object_id"] + "\"" \
-                                    " id_to_remove=\"" + sGroupID + "\">"
-                                sHTML += "</span>"
-        
-                                sHTML += "</div>"
-        
-                                sHTML += "</div>"
-        
-                                # the details section
-                                sHTML += "<div class=\"ecosystem_item_detail\">"
-        
-                                if dtAPIResults:
-                                    sHTML += self.DrawAllEcosystemObjectProperties(dtAPIResults, dtTags, sObjectID)
+                            if dtAPIResults:
+                                sHTML += self.DrawAllEcosystemObjectProperties(dtAPIResults, dtTags, sObjectID)
         
         
-                                # end detail section
-                                sHTML += "</div>"
-                                # end block
-                                sHTML += "</div>"
+                            # end detail section
+                            sHTML += "</div>"
+                            # end block
+                            sHTML += "</div>"
                     else:
                         sHTML += "<span>This ecosystem does not contain any Cloud Objects.</span>"
 

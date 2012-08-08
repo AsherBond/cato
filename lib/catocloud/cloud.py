@@ -142,7 +142,8 @@ class Cloud(object):
             
             #well, if we got here we have a problem... the ID provided wasn't found anywhere.
             #this should never happen, so bark about it.
-            raise Exception("Warning - Unable to find a Cloud with id [%s] on any Providers." % sCloudID)   
+            print("Warning - Unable to find a Cloud with id [%s] on any Providers." % sCloudID)   
+            return
         except Exception as ex:
             raise ex
         finally:
