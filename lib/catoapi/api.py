@@ -45,7 +45,7 @@ def authentivalidate(method_name, server, args, required_params=[]):
 
 	is_authenticated, user_id = authenticate(server, method_name, args)
 	if not is_authenticated:
-		resp = response.fromargs(method=method_name,
+		resp = response(method=method_name,
 			error_code="AuthenticationFailure", error_detail="")
 		return None, resp.Write()
 	
@@ -135,14 +135,14 @@ def check_required_params(meth, required_params, args):
 		for param in required_params:
 			if param:
 				if not args.has_key(param):
-					resp = response.fromargs(method=meth,
+					resp = response(method=meth,
 						error_code="MissingParameter", error_detail="Required parameter '%s' missing." % param)
 					x = resp.Write()
 					print x
 					return False, x
 				elif len(args[param]) == 0:
 					print "4"
-					resp = response.fromargs(method=meth,
+					resp = response(method=meth,
 						error_code="EmptyParameter", error_detail="Required parameter '%s' empty." % param)
 					x = resp.Write()
 					print x
