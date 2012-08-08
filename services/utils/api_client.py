@@ -125,7 +125,7 @@ def call_api(host, method, key, pw, args):
             host = host[:-1]
 
         if args:
-            arglst = ["&%s=%s" % (k, v) for k, v in args.items()]
+            arglst = ["&%s=%s" % (k, urllib.quote_plus(v)) for k, v in args.items()]
             argstr = "".join(arglst)
         else:
             argstr = ""
@@ -134,11 +134,14 @@ def call_api(host, method, key, pw, args):
         ts = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
         ts = ts.replace(":", "%3A")
 
+        #string to sign
         string_to_sign = "{0}?key={1}&timestamp={2}".format(method, key, ts)
         
+        #encoded signature
         sig = base64.b64encode(hmac.new(str(pw), msg=string_to_sign, digestmod=hashlib.sha256).digest())
         sig = "&signature=" + urllib.quote_plus(sig)
         
+
         url = "%s/%s%s%s" % (host, string_to_sign, sig, argstr)
         
         #NOTE: if a --querystring was passed on the command line, we just use it, no questions asked
