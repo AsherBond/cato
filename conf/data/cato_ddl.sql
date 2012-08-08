@@ -81,7 +81,8 @@ CREATE TABLE `application_registry` (
   `executible_path` varchar(1024) DEFAULT '',
   `command_line` varchar(255) DEFAULT '',
   `platform` varchar(255) DEFAULT '',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `app_name` (`app_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -221,7 +222,7 @@ CREATE TABLE `ecosystem_object_tag` (
   `key_name` varchar(128) NOT NULL,
   `value` varchar(256) NOT NULL,
   PRIMARY KEY (`ecosystem_id`,`ecosystem_object_id`,`key_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -230,7 +231,7 @@ CREATE TABLE `ecosystem_output` (
   `output_key` varchar(32) NOT NULL,
   `output_desc` varchar(256) DEFAULT NULL,
   `output_value` varchar(1024) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
