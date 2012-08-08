@@ -19,12 +19,24 @@
 
 """Common API functions."""
 
+import json
 import base64
 import hmac
 import hashlib
 from datetime import datetime, timedelta
 import time
 from catocryptpy import catocryptpy
+from catocommon import catocommon
+
+try:
+	import xml.etree.cElementTree as ET
+except (AttributeError, ImportError):
+	import xml.etree.ElementTree as ET
+try:
+	ET.ElementTree.iterfind
+except AttributeError as ex:
+	del(ET)
+	import catoxml.etree.ElementTree as ET
 
 def authentivalidate(method_name, server, args, required_params=[]):
 	print("Request: %s" % method_name)
@@ -35,7 +47,7 @@ def authentivalidate(method_name, server, args, required_params=[]):
 	if not is_authenticated:
 		resp = response.fromargs(method=method_name,
 			error_code="AuthenticationFailure", error_detail="")
-		return None, resp.asXMLString()
+		return None, resp.Write()
 	
 	
 	has_required, resp = check_required_params(method_name, required_params, args)
@@ -105,7 +117,7 @@ def perform_callback(web, callback, response):
 		(of course, if we wanna eventually support both XML and JSON result types that's fine...
 		it just means the payload *inside* the jsonp callback will be xml or json as requested.)
 	"""
-	payload = response.asXMLString()
+	payload = response.Write()
 	#base64 encode it (don't forget the three special chars)
 	payload = base64.b64encode(payload)
 	payload = payload.replace("=", "%3D").replace("+", "%2B").replace("/", "%2F")
@@ -125,14 +137,14 @@ def check_required_params(meth, required_params, args):
 				if not args.has_key(param):
 					resp = response.fromargs(method=meth,
 						error_code="MissingParameter", error_detail="Required parameter '%s' missing." % param)
-					x = resp.asXMLString()
+					x = resp.Write()
 					print x
 					return False, x
 				elif len(args[param]) == 0:
 					print "4"
 					resp = response.fromargs(method=meth,
 						error_code="EmptyParameter", error_detail="Required parameter '%s' empty." % param)
-					x = resp.asXMLString()
+					x = resp.Write()
 					print x
 					return False, x
 
@@ -143,33 +155,17 @@ def check_required_params(meth, required_params, args):
 
 class response:
 	"""The apiResponse class is used for all API calls.  It's the standard response for everything."""
-	#the attributes of the apiResponse class
-	Method = ""
-	Response = ""
-	ErrorCode = ""
-	ErrorMessage = ""
-	ErrorDetail = ""
-
-	@classmethod
-	def fromargs(self, method="", response="", error_code="", error_message="", error_detail=""):
-		"""Initializes a response from arguments"""
-
+	def __init__(self, method="", response="", error_code="", error_message="", error_detail=""):
 		self.Method = method
 		self.Response = response
 		self.ErrorCode = error_code
 		self.ErrorMessage = error_message
 		self.ErrorDetail = error_detail
-		
-		return self()
 
 	def asXMLString(self):
 		"""Returns the response as an XML string"""
-		try:
-			import xml.etree.cElementTree as ET
-		except ImportError:
-			import xml.etree.ElementTree as ET
-		dom = ET.fromstring('<apiResponse />')
 		
+		dom = ET.fromstring('<apiResponse />')
 		ET.SubElement(dom, "method").text = self.Method
 		
 		#try to parse it and catch ... if it's xml add it, else add it as text
@@ -192,3 +188,43 @@ class response:
 			ET.SubElement(e, "detail").text = self.ErrorDetail
 		
 		return ET.tostring(dom)
+
+	def asJSON(self):
+		"""Returns the response as a JSON string"""
+		try:
+			print "@@@"
+			print self.Method
+			print self.__dict__
+			return json.dumps(self.__dict__, default=catocommon.jsonSerializeHandler)
+		except Exception as ex:
+			return ex.__str__()
+
+	def asText(self):
+		"""
+		Returns ONY THE RESPONSE as plain text.
+		If there's no response, it'll cascade across the error fields,
+		ultimately returning a generic message if nothing is available.
+		"""
+		try:
+			if self.Response:
+				return self.Response
+			elif self.ErrorMessage:
+				return self.ErrorMessage
+			elif self.ErrorDetail:
+				return self.ErrorDetail
+			elif self.ErrorCode:
+				return self.ErrorCode
+			else:
+				return "The response is empty."
+		except Exception as ex:
+			return ex.__str__()
+
+	def Write(self, output_format=""):
+		"""Returns the response in whatever format is specified here."""
+		if output_format == "text":
+			return self.asText()
+		elif output_format == "json":
+			return self.asJSON()
+		else:
+			return self.asXMLString()
+		

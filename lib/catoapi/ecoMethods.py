@@ -45,23 +45,28 @@ class ecoMethods:
             user_id, resp = api.authentivalidate(method_name, uiGlobals.server, args, required_params)
             if not user_id:
                 return resp
+            
+            output_format = ""
+            if args.has_key("output_format"):
+                output_format = args["output_format"]
             # end consistent
+
 
             # this is the call-specific code
             obj = ecosystem.Ecotemplate()
-            obj.FromArgs(args["name"], args["description"])
+            obj(args["name"], args["description"])
             if obj is not None:
                 result, msg = obj.DBSave()
                 if result:
                     catocommon.write_add_log(user_id, catocommon.CatoObjectTypes.EcoTemplate, obj.ID, obj.Name, "Ecotemplate created.")
                     return_string = "<EcotemplateId>%s</EcotemplateId>" % obj.ID
-                    resp = api.response.fromargs(method=method_name, response=return_string)
+                    resp = api.response(method=method_name, response=return_string)
                 else:
                     # uiCommon.log(msg, 2)
-                    resp = api.response.fromargs(method=method_name,
+                    resp = api.response(method=method_name,
                         error_code="CreateError", error_detail=msg)
             else:
-                    resp = api.response.fromargs(method=method_name,
+                    resp = api.response(method=method_name,
                         error_code="CreateError", error_detail="Unable to create Ecotemplate.")
             
             # is this a JSONP request?        
@@ -69,9 +74,11 @@ class ecoMethods:
                 return api.perform_callback(uiGlobals.web, args["callback"], resp)
             
             #if we made it all the way here, just return the raw xml
-            return resp.asXMLString()
+            return resp.Write(output_format)
         except Exception as ex:
-            raise ex
+            resp = api.response(method=method_name,
+                error_code="Exception", error_detail=ex.__str__())
+            return resp.Write()
 
     def create_ecosystem(self):        
         """Create a new Ecosystem."""
@@ -90,7 +97,12 @@ class ecoMethods:
             user_id, resp = api.authentivalidate(method_name, uiGlobals.server, args, required_params)
             if not user_id:
                 return resp
+            
+            output_format = ""
+            if args.has_key("output_format"):
+                output_format = args["output_format"]
             # end consistent
+
 
             # this is the call-specific code
 
@@ -103,9 +115,9 @@ class ecoMethods:
             if obj:
                 catocommon.write_add_log(user_id, catocommon.CatoObjectTypes.Ecosystem, obj.ID, obj.Name, "Ecosystem created.")
                 return_string = "<Ecosystem>%s</Ecosystem>" % obj.ID
-                resp = api.response.fromargs(method=method_name, response=return_string)
+                resp = api.response(method=method_name, response=return_string)
             else:
-                resp = api.response.fromargs(method=method_name,
+                resp = api.response(method=method_name,
                     error_code="CreateError", error_detail=msg)
             
             # is this a JSONP request?        
@@ -113,9 +125,11 @@ class ecoMethods:
                 return api.perform_callback(uiGlobals.web, args["callback"], resp)
             
             #if we made it all the way here, just return the raw xml
-            return resp.asXMLString()
+            return resp.Write(output_format)
         except Exception as ex:
-            raise ex
+            resp = api.response(method=method_name,
+                error_code="Exception", error_detail=ex.__str__())
+            return resp.Write()
 
     def list_ecosystems(self):        
         """List all ecosystems."""
@@ -131,7 +145,12 @@ class ecoMethods:
             user_id, resp = api.authentivalidate(method_name, uiGlobals.server, args)
             if not user_id:
                 return resp
+            
+            output_format = ""
+            if args.has_key("output_format"):
+                output_format = args["output_format"]
             # end consistent
+
 
             # this is the call-specific code
 
@@ -140,9 +159,9 @@ class ecoMethods:
             obj = ecosystem.Ecosystems(sFilter=fltr)
             if obj:
                 return_string = obj.AsJSON()
-                resp = api.response.fromargs(method=method_name, response=return_string)
+                resp = api.response(method=method_name, response=return_string)
             else:
-                resp = api.response.fromargs(method=method_name,
+                resp = api.response(method=method_name,
                     error_code="ListError", error_detail="Unable to list Ecosystems.")
             
             # is this a JSONP request?        
@@ -150,9 +169,11 @@ class ecoMethods:
                 return api.perform_callback(uiGlobals.web, args["callback"], resp)
             
             #if we made it all the way here, just return the raw xml
-            return resp.asXMLString()
+            return resp.Write(output_format)
         except Exception as ex:
-            raise ex
+            resp = api.response(method=method_name,
+                error_code="Exception", error_detail=ex.__str__())
+            return resp.Write()
 
     def list_ecotemplates(self):        
         """List all ecotemplates."""
@@ -168,7 +189,12 @@ class ecoMethods:
             user_id, resp = api.authentivalidate(method_name, uiGlobals.server, args)
             if not user_id:
                 return resp
+            
+            output_format = ""
+            if args.has_key("output_format"):
+                output_format = args["output_format"]
             # end consistent
+
 
             # this is the call-specific code
 
@@ -178,9 +204,9 @@ class ecoMethods:
             obj = ecosystem.Ecotemplates(sFilter=fltr)
             if obj:
                 return_string = obj.AsJSON()
-                resp = api.response.fromargs(method=method_name, response=return_string)
+                resp = api.response(method=method_name, response=return_string)
             else:
-                resp = api.response.fromargs(method=method_name,
+                resp = api.response(method=method_name,
                     error_code="ListError", error_detail="Unable to list Ecotemplates.")
             
             # is this a JSONP request?        
@@ -188,9 +214,11 @@ class ecoMethods:
                 return api.perform_callback(uiGlobals.web, args["callback"], resp)
             
             #if we made it all the way here, just return the raw xml
-            return resp.asXMLString()
+            return resp.Write(output_format)
         except Exception as ex:
-            raise ex
+            resp = api.response(method=method_name,
+                error_code="Exception", error_detail=ex.__str__())
+            return resp.Write()
         
     def get_ecosystem(self):        
         """Create a new Ecosystem."""
@@ -209,16 +237,20 @@ class ecoMethods:
             user_id, resp = api.authentivalidate(method_name, uiGlobals.server, args, required_params)
             if not user_id:
                 return resp
+
+            output_format = ""
+            if args.has_key("output_format"):
+                output_format = args["output_format"]
             # end consistent
 
             # this is the call-specific code
             obj = ecosystem.Ecosystem()
-            obj.FromID(args["ecosystem_id"])
+            obj.FromName(args["ecosystem_id"])
             if obj:
                 return_string = obj.AsJSON()
-                resp = api.response.fromargs(method=method_name, response=return_string)
+                resp = api.response(method=method_name, response=return_string)
             else:
-                resp = api.response.fromargs(method=method_name,
+                resp = api.response(method=method_name,
                     error_code="GetError", error_detail="Unable to get Ecosystem for ID [%s]." % args["ecosystem_id"])
             
             # is this a JSONP request?        
@@ -226,8 +258,104 @@ class ecoMethods:
                 return api.perform_callback(uiGlobals.web, args["callback"], resp)
             
             #if we made it all the way here, just return the raw xml
-            return resp.asXMLString()
+            return resp.Write(output_format)
         except Exception as ex:
-            raise ex
+            resp = api.response(method=method_name,
+                error_code="Exception", error_detail=ex.__str__())
+            return resp.Write()
+
+    def get_ecosystem_objects(self):        
+        """Gets a list of all cloud objects associated with an Ecosystem."""
+        try:
+            # define the required parameters for this call
+            required_params = ["ecosystem_id"]
+                
+            # this section should be consistent across most API calls
+            this_function_name = sys._getframe().f_code.co_name
+            method_name = "%s/%s" % (self.__class__.__name__, this_function_name)
+
+            args = web.input()
+            web.header('Content-Type', 'text/xml')
+
+            # Authenticate the request and validate the arguments...
+            user_id, resp = api.authentivalidate(method_name, uiGlobals.server, args, required_params)
+            if not user_id:
+                return resp
+            
+            output_format = ""
+            if args.has_key("output_format"):
+                output_format = args["output_format"]
+            # end consistent
+
+
+            # this is the call-specific code
+            fltr = args["filter"] if args.has_key("filter") else ""
+
+            obj = ecosystem.Ecosystem()
+            obj.FromID(args["ecosystem_id"])
+            if obj:
+                return_string = obj.GetObjects(fltr)
+                resp = api.response(method=method_name, response=return_string)
+            else:
+                resp = api.response(method=method_name,
+                    error_code="GetError", error_detail="Unable to get Ecosystem for ID [%s]." % args["ecosystem_id"])
+            
+            # is this a JSONP request?        
+            if "callback" in args:
+                return api.perform_callback(uiGlobals.web, args["callback"], resp)
+            
+            #if we made it all the way here, just return the raw xml
+            return resp.Write(output_format)
+        except Exception as ex:
+            resp = api.response(method=method_name,
+                error_code="Exception", error_detail=ex.__str__())
+            return resp.Write()
+
+    def get_ecosystem_log(self):        
+        """Gets the run log for an Ecosystem."""
+        try:
+            # define the required parameters for this call
+            required_params = ["ecosystem_id"]
+                
+            # this section should be consistent across most API calls
+            this_function_name = sys._getframe().f_code.co_name
+            method_name = "%s/%s" % (self.__class__.__name__, this_function_name)
+
+            args = web.input()
+            web.header('Content-Type', 'text/xml')
+
+            # Authenticate the request and validate the arguments...
+            user_id, resp = api.authentivalidate(method_name, uiGlobals.server, args, required_params)
+            if not user_id:
+                return resp
+            
+            output_format = ""
+            if args.has_key("output_format"):
+                output_format = args["output_format"]
+            # end consistent
+
+
+            # this is the call-specific code
+            fltr = args["filter"] if args.has_key("filter") else ""
+
+            obj = ecosystem.Ecosystem()
+            obj.FromName(args["ecosystem_id"])
+            if obj:
+                return_string = obj.GetLog(fltr)
+                resp = api.response(method=method_name, response=return_string)
+            else:
+                resp = api.response(method=method_name,
+                    error_code="GetError", error_detail="Unable to get Ecosystem for ID [%s]." % args["ecosystem_id"])
+            
+            # is this a JSONP request?        
+            if "callback" in args:
+                return api.perform_callback(uiGlobals.web, args["callback"], resp)
+            
+            #if we made it all the way here, just return the raw xml
+            return resp.Write(output_format)
+        except Exception as ex:
+            resp = api.response(method=method_name,
+                error_code="Exception", error_detail=ex.__str__())
+            return resp.Write()
 
         
