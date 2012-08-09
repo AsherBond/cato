@@ -574,38 +574,53 @@ class Ecosystem(object):
             db = catocommon.new_conn()
             
             # check the template
-            sSQL = "select ecotemplate_id from ecotemplate where ecotemplate_id = '%s'" % sEcotemplateID
+            sSQL = "select ecotemplate_id from ecotemplate where ecotemplate_id = '{0}' or ecotemplate_name = '{0}'".format(sEcotemplateID)
             etid = db.select_col_noexcep(sSQL)
-            if etid:
-                sID = catocommon.new_guid()
-    
-                sSQL = "insert into ecosystem (ecosystem_id, ecosystem_name, ecosystem_desc, account_id, ecotemplate_id," \
-                    " storm_file, storm_status, storm_parameter_xml, storm_cloud_id, created_dt, last_update_dt)" \
-                    " select '" + sID + "'," \
-                    " '" + sName + "'," \
-                    + (" null" if not sDescription else " '" + catocommon.tick_slash(sDescription) + "'") + "," \
-                    " '" + sAccountID + "'," \
-                    " ecotemplate_id," \
-                    " storm_file," \
-                    + (" null" if not sStormStatus else " '" + catocommon.tick_slash(sStormStatus) + "'") + "," \
-                    + (" null" if not sParameterXML else " '" + catocommon.tick_slash(sParameterXML) + "'") + "," \
-                    + (" null" if not sCloudID else " '" + sCloudID + "'") + "," \
-                    " now(), now()" \
-                    " from ecotemplate where ecotemplate_id = '" + sEcotemplateID + "'"
-                
-                if not db.exec_db_noexcep(sSQL):
-                    if db.error == "key_violation":
-                        return None, "An Ecosystem with that name already exists.  Please select another name."
-                    else:
-                        return None, db.error
-    
-                #now it's inserted and in the session... lets get it back from the db as a complete object for confirmation.
-                e = Ecosystem()
-                e.FromID(sID)
-                #yay!
-                return e, None
-            else:
-                return None, "Unable to create Ecosystem, Ecotemplate for ID [%s] not found." % sEcotemplateID
+            if not etid:
+                return None, "Unable to create Ecosystem, Ecotemplate for identifier [%s] not found." % sEcotemplateID
+            
+            # check the account
+            sSQL = "select account_id from cloud_account where account_id = '{0}' or account_name = '{0}'".format(sAccountID)
+            caid = db.select_col_noexcep(sSQL)
+            if not caid:
+                return None, "Unable to create Ecosystem, Account for identifier [%s] not found." % sAccountID
+
+            # if provided, check the cloud
+            cid = ""
+            if sCloudID:
+                sSQL = "select cloud_id from clouds where cloud_id = '{0}' or cloud_name = '{0}'".format(sCloudID)
+                cid = db.select_col_noexcep(sSQL)
+                if not cid:
+                    return None, "Unable to create Ecosystem, Cloud for identifier [%s] not found." % sCloudID
+            
+            
+            sID = catocommon.new_guid()
+
+            sSQL = "insert into ecosystem (ecosystem_id, ecosystem_name, ecosystem_desc, account_id, ecotemplate_id," \
+                " storm_file, storm_status, storm_parameter_xml, storm_cloud_id, created_dt, last_update_dt)" \
+                " select '" + sID + "'," \
+                " '" + sName + "'," \
+                + (" null" if not sDescription else " '" + catocommon.tick_slash(sDescription) + "'") + "," \
+                " '" + caid + "'," \
+                " ecotemplate_id," \
+                " storm_file," \
+                + (" null" if not sStormStatus else " '" + catocommon.tick_slash(sStormStatus) + "'") + "," \
+                + (" null" if not sParameterXML else " '" + catocommon.tick_slash(sParameterXML) + "'") + "," \
+                + (" null" if not cid else " '" + cid + "'") + "," \
+                " now(), now()" \
+                " from ecotemplate where ecotemplate_id = '" + etid + "'"
+            
+            if not db.exec_db_noexcep(sSQL):
+                if db.error == "key_violation":
+                    return None, "An Ecosystem with that name already exists.  Please select another name."
+                else:
+                    return None, db.error
+
+            #now it's inserted and in the session... lets get it back from the db as a complete object for confirmation.
+            e = Ecosystem()
+            e.FromID(sID)
+            #yay!
+            return e, None
             
         except Exception as ex:
             raise Exception(ex)

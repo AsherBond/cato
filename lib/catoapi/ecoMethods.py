@@ -91,14 +91,18 @@ class ecoMethods:
         """
         Create a new Ecosystem.
         
-        Required Arguments: ecotemplate_id, account_id, name
+        Required Arguments: 
+            ecotemplate - the ID or Name of the Ecotemplate
+            account - the ID or Name of a Cloud Account
+            name - a name for the new Ecosystem
+            
         Optional Arguments: description
         
         Returns: A JSON Ecosystem object.
         """
         try:
             # define the required parameters for this call
-            required_params = ["ecotemplate_id", "account_id", "name"]
+            required_params = ["ecotemplate", "account", "name"]
                 
             # this section should be consistent across most API calls
             this_function_name = sys._getframe().f_code.co_name
@@ -123,8 +127,8 @@ class ecoMethods:
             desc = args["description"] if args.has_key("description") else ""
 
             obj, msg = ecosystem.Ecosystem.DBCreateNew(args["name"],
-                 args["ecotemplate_id"], 
-                 args["account_id"], 
+                 args["ecotemplate"], 
+                 args["account"], 
                  desc)
             if obj:
                 catocommon.write_add_log(user_id, catocommon.CatoObjectTypes.Ecosystem, obj.ID, obj.Name, "Ecosystem created.")
@@ -251,7 +255,7 @@ class ecoMethods:
         Gets an Ecosystem object.
         
         Required Arguments: ecosystem
-        (Value can be either an id or name.)
+            (Value can be either an id or name.)
         
         Returns: A JSON Ecosystem object.
         """
@@ -302,7 +306,7 @@ class ecoMethods:
         Gets a list of all cloud objects associated with an Ecosystem.
         
         Required Arguments: ecosystem
-        (Value can be either an id or name.)
+            (Value can be either an id or name.)
 
         Optional Arguments: filter
         
@@ -359,7 +363,7 @@ class ecoMethods:
         Gets the run log for an Ecosystem.
         
         Required Arguments: ecosystem
-        (Value can be either an id or name.)
+            (Value can be either an id or name.)
 
         Optional Arguments: filter
         
