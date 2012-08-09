@@ -1750,10 +1750,10 @@ class ecoMethods:
             sSignature = "&signature=" + urllib.quote_plus(sSignature)
             
             sHost = "http://localhost"
-            if uiGlobals.config.has_key("stormapiurl"):
-                sHost = (uiGlobals.config["stormapiurl"] if uiGlobals.config["stormapiurl"] else "http://localhost")
+            if uiGlobals.config.has_key("rest_api_url"):
+                sHost = (uiGlobals.config["rest_api_url"] if uiGlobals.config["rest_api_url"] else "http://localhost")
             else:
-                uiCommon.log("Warning: stormApiUrl setting not defined in cato.conf... using http://localhost", 2)
+                uiCommon.log("Warning: rest_api_url setting not defined in cato.conf... using http://localhost", 2)
 
             sPort = "4001"
             if uiGlobals.config.has_key("rest_api_port"):
