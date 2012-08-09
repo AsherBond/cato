@@ -25,7 +25,6 @@ import hmac
 import hashlib
 from datetime import datetime, timedelta
 import time
-from catocryptpy import catocryptpy
 from catocommon import catocommon
 
 try:
@@ -38,79 +37,68 @@ except AttributeError as ex:
 	del(ET)
 	import catoxml.etree.ElementTree as ET
 
-def authentivalidate(method_name, server, args, required_params=[]):
-	print("Request: %s" % method_name)
-	print("Args: %s" % args)
-	print("\n\n")
 
-	is_authenticated, user_id = authenticate(server, method_name, args)
-	if not is_authenticated:
-		resp = response(method=method_name,
-			error_code="AuthenticationFailure", error_detail="")
-		return None, resp.Write()
-	
-	
-	has_required, resp = check_required_params(method_name, required_params, args)
-	if not has_required:
-		return None, resp
+def authenticate(action, args):
+	try:
+		db = catocommon.new_conn()
+		#if it fails anywhere along the way just return false ...
+		# we're not returning error messages that would help a hacker.
+		
+		#here's how it works - we need the "action", the "key", the "timestamp" and the signed string
+		
+		#using the action, key and timestamp, we will:
+		# a) build our own string to sign
+		# b) sign it
+		# c) compare it to what was sent.
+		key = getattr(args, 'key', '')
+		ts = getattr(args, 'timestamp', '')
+		sig = getattr(args, 'signature', '')
+		
+		#ALERT: for internal testing purposes, a hardcoded key will always pass
+		if key == "12:34:56:78:90":
+			return True, "0002bdaf-bfd5-4b9d-82d1-fd39c2947d19"
+		#REMOVE BEFORE RELEASE
+		
+		#Not enough arguments for the authentication? Fail.
+		if action == '' or key == '' or ts == '' or sig == '':
+			return False, None
+		
+		#test the timestamp for er, timeliness
+		fmt = "%Y-%m-%dT%H:%M:%S"
+		arg_ts = datetime.fromtimestamp(time.mktime(time.strptime(ts, fmt)))
+		now_ts = datetime.utcnow()
+		
+		if (now_ts - arg_ts) > timedelta (seconds=15):
+			return False, None
+		
+		#the timestamp used for the signature was URLencoded.  reencode before building our signature.
+		ts = ts.replace(":", "%3A")
+		string_to_sign = "%s?key=%s&timestamp=%s" % (action, key, ts)
+		
+		db.ping_db()
+		#we need the password for the provided key (user_id)... that's what we use to build the signature.
+		sql = """select user_password from users where user_id = %s""" 
+		encpwd = db.select_col(sql, key)
+		
+		if not encpwd:
+			return False, None
+		
+		#decrypt the password so we can use it to generate the signature
+		pwd = catocommon.cato_decrypt(encpwd)
+		
+		signed = base64.b64encode(hmac.new(pwd, msg=string_to_sign, digestmod=hashlib.sha256).digest())
+		
+		if signed != sig:
+			return False, None
+		
+		#made it here... we're authenticated!
+		return True, key
+	except Exception as ex:
+		raise Exception(ex)
+	finally:
+		db.close()
 
-	return user_id, None
-
-def authenticate(server, action, args):
-	#if it fails anywhere along the way just return false ...
-	# we're not returning error messages that would help a hacker.
-	
-	#here's how it works - we need the "action", the "key", the "timestamp" and the signed string
-	
-	#using the action, key and timestamp, we will:
-	# a) build our own string to sign
-	# b) sign it
-	# c) compare it to what was sent.
-	key = getattr(args, 'key', '')
-	ts = getattr(args, 'timestamp', '')
-	sig = getattr(args, 'signature', '')
-	
-	#ALERT: for internal testing purposes, a hardcoded key will always pass
-	if key == "12:34:56:78:90":
-		return True, "0002bdaf-bfd5-4b9d-82d1-fd39c2947d19"
-	#REMOVE BEFORE RELEASE
-	
-	#Not enough arguments for the authentication? Fail.
-	if action == '' or key == '' or ts == '' or sig == '':
-		return False, None
-	
-	#test the timestamp for er, timeliness
-	fmt = "%Y-%m-%dT%H:%M:%S"
-	arg_ts = datetime.fromtimestamp(time.mktime(time.strptime(ts, fmt)))
-	now_ts = datetime.utcnow()
-	
-	if (now_ts - arg_ts) > timedelta (seconds=15):
-		return False, None
-	
-	#the timestamp used for the signature was URLencoded.  reencode before building our signature.
-	ts = ts.replace(":", "%3A")
-	string_to_sign = "%s?key=%s&timestamp=%s" % (action, key, ts)
-	
-	server.db.ping_db()
-	#we need the password for the provided key (user_id)... that's what we use to build the signature.
-	sql = """select user_password from users where user_id = %s""" 
-	encpwd = server.db.select_col(sql, key)
-	
-	if not encpwd:
-		return False, None
-	
-	#decrypt the password so we can use it to generate the signature
-	pwd = catocryptpy.decrypt_string(encpwd, server.config["key"])
-	
-	signed = base64.b64encode(hmac.new(pwd, msg=string_to_sign, digestmod=hashlib.sha256).digest())
-	
-	if signed != sig:
-		return False, None
-	
-	#made it here... we're authenticated!
-	return True, key
-
-def perform_callback(web, callback, response):
+def perform_callback(callback, response):
 	"""
 		IF there is an arg called "callback", that means we want the results formatted as a javascript function call.
 		
@@ -122,10 +110,9 @@ def perform_callback(web, callback, response):
 	payload = base64.b64encode(payload)
 	payload = payload.replace("=", "%3D").replace("+", "%2B").replace("/", "%2F")
 	
-	web.header('Content-Type', 'application/json')
 	return "%s('%s')" % (callback, payload)
 
-def check_required_params(meth, required_params, args):
+def check_required_params(required_params, args):
 	"""
 		Ensure required argument(s) are provided and not empty.
 		
@@ -135,18 +122,11 @@ def check_required_params(meth, required_params, args):
 		for param in required_params:
 			if param:
 				if not args.has_key(param):
-					resp = response(method=meth,
-						error_code="MissingParameter", error_detail="Required parameter '%s' missing." % param)
-					x = resp.Write()
-					print x
-					return False, x
+					resp = response(err_code="MissingParameter", err_detail="Required parameter '%s' missing." % param)
+					return False, resp
 				elif len(args[param]) == 0:
-					print "4"
-					resp = response(method=meth,
-						error_code="EmptyParameter", error_detail="Required parameter '%s' empty." % param)
-					x = resp.Write()
-					print x
-					return False, x
+					resp = response(err_code="EmptyParameter", err_detail="Required parameter '%s' empty." % param)
+					return False, resp
 
 		# all good
 		return True, None
@@ -155,12 +135,21 @@ def check_required_params(meth, required_params, args):
 
 class response:
 	"""The apiResponse class is used for all API calls.  It's the standard response for everything."""
-	def __init__(self, method="", response="", error_code="", error_message="", error_detail=""):
+	class Codes():
+		Exception = "Exception"
+		CreateError = "CreateError"
+		GetError = "GetError"
+		ListError = "ListError"
+		ProcessError = "ProcessError"
+		StartFailure = "StartFailure"
+		StopFailure = "StopFailure"	
+
+	def __init__(self, method="", response="", err_code="", err_msg="", err_detail=""):
 		self.Method = method
 		self.Response = response
-		self.ErrorCode = error_code
-		self.ErrorMessage = error_message
-		self.ErrorDetail = error_detail
+		self.ErrorCode = err_code
+		self.ErrorMessage = err_msg
+		self.ErrorDetail = err_detail
 
 	def asXMLString(self):
 		"""Returns the response as an XML string"""

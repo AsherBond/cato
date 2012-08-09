@@ -27,20 +27,20 @@ from catodb import catodb
 # anything including catocommon can get new connections using the settings in 'config'
 def new_conn():
     newdb = catodb.Db()
-    newdb.connect_db(server=config["server"], port=config["port"], 
+    newdb.connect_db(server=config["server"], port=config["port"],
         user=config["user"], password=config["password"], database=config["database"])
     return newdb
 
 # this common function will use the encryption key in the config, and DECRYPT the input
 def cato_decrypt(encrypted):
     if encrypted:
-        return catocryptpy.decrypt_string(encrypted,config["key"])
+        return catocryptpy.decrypt_string(encrypted, config["key"])
     else:
         return encrypted
 # this common function will use the encryption key in the config, and ENCRYPT the input
 def cato_encrypt(s):
     if s:
-        return catocryptpy.encrypt_string(s,config["key"])
+        return catocryptpy.encrypt_string(s, config["key"])
     else:
         return ""
 
@@ -56,12 +56,12 @@ def read_config():
 
     filename = os.path.join(base_path, "conf/cato.conf")        
     if not os.path.isfile(filename):
-        msg = "The configuration file "+ filename +" does not exist."
+        msg = "The configuration file " + filename + " does not exist."
         raise Exception(msg)
     try:
         fp = open(filename, 'r')
     except IOError as (errno, strerror):
-        msg = "Error opening file " + filename +" "+ format(errno, strerror)
+        msg = "Error opening file " + filename + " " + format(errno, strerror)
         raise IOError(msg)
     
     key_vals = {}
@@ -89,9 +89,9 @@ def read_config():
                 enc_pass = value
             else:
                 key_vals[key] = value
-    un_key = catocryptpy.decrypt_string(enc_key,"")
+    un_key = catocryptpy.decrypt_string(enc_key, "")
     key_vals["key"] = un_key
-    un_pass = catocryptpy.decrypt_string(enc_pass,un_key)
+    un_pass = catocryptpy.decrypt_string(enc_pass, un_key)
     key_vals["password"] = un_pass
     
     # something else here... 
@@ -290,7 +290,7 @@ def write_property_change_log(UserID, oType, sObjectID, sLabel, sFrom, sTo):
             sLog = "Changed: " + sLabel + " from [" + tick_slash(sFrom) + "] to [" + tick_slash(sTo) + "]."
             add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
 
-def FindAndCall(method):
+def FindAndCall(method, args=None):
     """
     Several rules here:
     1) a / in the "method" denotes class/function.  This works if the source file
@@ -335,7 +335,10 @@ def FindAndCall(method):
 
         if methodToCall:
             if callable(methodToCall):
-                return methodToCall()
+                if args:
+                    return methodToCall(args)
+                else:
+                    return methodToCall()
 
         return "Method [%s] does not exist or could not be called." % method
         
@@ -353,7 +356,7 @@ class CatoProcess():
         # the following line does not work for a service started in the 
         # background. Hardcoding to root until a fix is found
         #self.host_domain = os.getlogin() +'@'+ os.uname()[1]
-        self.host_domain = 'root@'+ os.uname()[1]
+        self.host_domain = 'root@' + os.uname()[1]
         self.host = os.uname()[1]
         self.platform = os.uname()[0]
         # the following line does not work for a service started in the 
@@ -367,7 +370,7 @@ class CatoProcess():
         self.home = _get_base_path()
 
     def set_logfile_name(self):
-        self.logfile_name = os.path.join(self.logfiles_path,  self.process_name.lower()+".log")
+        self.logfile_name = os.path.join(self.logfiles_path, self.process_name.lower() + ".log")
 
     def initialize_logfile(self):
         base_path = _get_base_path()
@@ -384,7 +387,7 @@ class CatoProcess():
         sys.stderr = open(self.logfile_name, 'a', 1)
         sys.stdout = open(self.logfile_name, 'a', 1)
 
-    def output(self,*args):
+    def output(self, *args):
         output_string = time.strftime("%Y-%m-%d %H:%M:%S ") + "".join(str(s) for s in args) + "\n\n"
 
         #if we're not redirecting stdout, all messages that come through here get sent there too
@@ -398,12 +401,12 @@ class CatoProcess():
         fp.close
 
     def startup(self):
-        self.output("####################################### Starting up ", 
-            self.process_name, 
+        self.output("####################################### Starting up ",
+            self.process_name,
             " #######################################")
         self.db = catodb.Db()
-        conn = self.db.connect_db(server=config["server"], port=config["port"], 
-            user=config["user"], 
+        conn = self.db.connect_db(server=config["server"], port=config["port"],
+            user=config["user"],
             password=config["password"], database=config["database"])
         self.config = config
 
@@ -425,21 +428,21 @@ class CatoService(CatoProcess):
     def check_registration(self):
 
         # Get the node number
-        sql = "select id from application_registry where app_name = '"+self.process_name+ \
-            "' and app_instance = '"+self.host_domain+"'"
+        sql = "select id from application_registry where app_name = '" + self.process_name + \
+            "' and app_instance = '" + self.host_domain + "'"
 
         result = self.db.select_col(sql)
         if not result:
-            self.output(self.process_name +" has not been registered, registering...")
+            self.output(self.process_name + " has not been registered, registering...")
             self.register_app()
             result = self.db.select_col(sql)
             self.instance_id = result
         else:
-            self.output(self.process_name +" has already been registered, updating...")
+            self.output(self.process_name + " has already been registered, updating...")
             self.instance_id = result
             self.output("application instance = %d" % self.instance_id)
             self.db.exec_db("""update application_registry set hostname = %s, userid = %s,
-                 pid = %s, platform = %s where id = %s""", 
+                 pid = %s, platform = %s where id = %s""",
                 (self.host_domain, self.user, str(self.my_pid), self.platform,
                  self.instance_id))
 
@@ -447,9 +450,9 @@ class CatoService(CatoProcess):
         self.output("Registering application...")
 
         sql = "insert into application_registry (app_name, app_instance, master, logfile_name, " \
-            "hostname, userid, pid, platform) values ('"+self.process_name+ \
-            "', '"+self.host_domain+"',1, '"+self.process_name.lower()+".log', \
-            '"+self.host+"', '"+self.user+"',"+str(self.my_pid)+",'"+self.platform+"')"
+            "hostname, userid, pid, platform) values ('" + self.process_name + \
+            "', '" + self.host_domain + "',1, '" + self.process_name.lower() + ".log', \
+            '" + self.host + "', '" + self.user + "'," + str(self.my_pid) + ",'" + self.platform + "')"
         self.db.exec_db(sql)
         self.output("Application registered.")
 
@@ -462,7 +465,7 @@ class CatoService(CatoProcess):
 
     def update_heartbeat(self):
         sql = "update application_registry set heartbeat = now() where id = %s"
-        self.db_heart.exec_db(sql,(self.instance_id))
+        self.db_heart.exec_db(sql, (self.instance_id))
 
     def get_settings(self):
         pass
@@ -472,8 +475,8 @@ class CatoService(CatoProcess):
         self.check_registration()
         self.get_settings
         self.db_heart = catodb.Db()
-        conn_heart = self.db_heart.connect_db(server=self.config["server"], port=self.config["port"], 
-            user=self.config["user"], 
+        conn_heart = self.db_heart.connect_db(server=self.config["server"], port=self.config["port"],
+            user=self.config["user"],
             password=self.config["password"], database=self.config["database"])
         self.update_heartbeat()
         self.heartbeat_event = threading.Event()
