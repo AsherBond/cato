@@ -89,6 +89,19 @@ class index:
                         out.append("----------")
                     
                     
+            from catoapi import taskMethods
+            
+            for attname in dir(taskMethods.taskMethods):
+                att = getattr(taskMethods.taskMethods, attname, None)
+                if att:
+                    if hasattr(att, "__name__"):
+                        out.append("Method: taskMethods/%s" % att.__name__)
+                        if att.__doc__:
+                            out.append("%s" % att.__doc__)
+                        
+                        out.append("----------")
+                    
+                    
                     
         except Exception as ex:
             out.append(ex.__str__())
