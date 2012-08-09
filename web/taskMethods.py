@@ -56,12 +56,12 @@ class taskMethods:
                     " tag=\"chk\" />"
                     sHTML += "</td>"
                     
-                    sHTML += "<td class=\"selectable\">" + row["task_code"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["task_name"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + str(row["version"]) +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["task_desc"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["task_status"] +  "</td>"
-                    sHTML += "<td class=\"selectable\">" + str(row["versions"]) +  "</td>"
+                    sHTML += "<td class=\"selectable\">" + row["task_code"] + "</td>"
+                    sHTML += "<td class=\"selectable\">" + row["task_name"] + "</td>"
+                    sHTML += "<td class=\"selectable\">" + str(row["version"]) + "</td>"
+                    sHTML += "<td class=\"selectable\">" + row["task_desc"] + "</td>"
+                    sHTML += "<td class=\"selectable\">" + row["task_status"] + "</td>"
+                    sHTML += "<td class=\"selectable\">" + str(row["versions"]) + "</td>"
                     
                     sHTML += "</tr>"
     
@@ -174,8 +174,8 @@ class taskMethods:
                     sHTML += "<td class=\"selectable\">%s</td>" % str((row["process_id"] if row["process_id"] else ""))
                     sHTML += "<td class=\"selectable\">%s</td>" % (row["ecosystem_name"] if row["ecosystem_name"] else "")
                     sHTML += "<td class=\"selectable\">%s<br />%s</td>" % (
-                        ("(s)&nbsp;%s" % row["submitted_dt"].replace(" ","&nbsp;") if row["submitted_dt"] else ""), 
-                        ("(c)&nbsp;%s" % row["completed_dt"].replace(" ","&nbsp;") if row["completed_dt"] else "")
+                        ("(s)&nbsp;%s" % row["submitted_dt"].replace(" ", "&nbsp;") if row["submitted_dt"] else ""),
+                        ("(c)&nbsp;%s" % row["completed_dt"].replace(" ", "&nbsp;") if row["completed_dt"] else "")
                         )
                     sHTML += "<td class=\"selectable\"><span onclick=\"location.href='taskEdit?task_id=%s'\" class=\"ui-icon ui-icon-pencil pointer\"></span></td>" % row["task_id"]
                     
@@ -210,7 +210,7 @@ class taskMethods:
 
             if not result:
                 uiCommon.log(err, 2)
-                return "{\"result\":\"fail\",\"error\":\"%s\"}" % err.replace('"','\"')
+                return "{\"result\":\"fail\",\"error\":\"%s\"}" % err.replace('"', '\"')
             
             return "{\"result\":\"success\"}"
         except Exception:
@@ -340,7 +340,7 @@ class taskMethods:
         try:
             sCopyTaskID = uiCommon.getAjaxArg("sCopyTaskID")
             sTaskName = uiCommon.getAjaxArg("sTaskName")
-            sTaskCode =uiCommon.getAjaxArg("sTaskCode")
+            sTaskCode = uiCommon.getAjaxArg("sTaskCode")
 
             t = task.Task()
             sErr = t.FromID(sCopyTaskID)
@@ -683,7 +683,7 @@ class taskMethods:
             if not sCodeblockName:
                 return "Unable to get Steps - No Codeblock specified."
 
-            sAddHelpMsg =  "No Commands have been defined in this Codeblock. Drag a Command here to add it."
+            sAddHelpMsg = "No Commands have been defined in this Codeblock. Drag a Command here to add it."
             sErr = ""
             #instantiate the new Task object
             oTask = task.Task()
@@ -1082,9 +1082,9 @@ class taskMethods:
                 # for logging, we'll stick the whole command XML into the log
                 # so we have a complete record of the step that was just deleted.
                 uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Task, "Multiple", "Original Task IDs",
-                    "Codeblock:" + sCodeblock +
-                    " Step Order:" + sDeletedStepOrder +
-                    " Command Type:" + sFunction +
+                    "Codeblock:" + sCodeblock + 
+                    " Step Order:" + sDeletedStepOrder + 
+                    " Command Type:" + sFunction + 
                     " Details:" + sFunctionXML)
 
             # "embedded" steps have a codeblock name referencing their "parent" step.
@@ -2511,16 +2511,16 @@ class taskMethods:
             #  not clean at all handling both tasks and ecosystems in the same method, but whatever.
             if bParamAdd:
                 if sType == "task":
-                    uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, sID, "Parameter", "Added Parameter [%s]" % sName )
+                    uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, sID, "Parameter", "Added Parameter [%s]" % sName)
                 if sType == "ecosystem":
-                    uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Ecosystem, sID, "Parameter", "Added Parameter [%s]" % sName )
+                    uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Ecosystem, sID, "Parameter", "Added Parameter [%s]" % sName)
             else:
                 #  would be a lot of trouble to add the from to, why is it needed you have each value in the log, just scroll back
                 #  so just add a changed message to the log
                 if sType == "task":
-                    uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sID, "Parameter", "Modified Parameter [%s]" % sName )
+                    uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sID, "Parameter", "Modified Parameter [%s]" % sName)
                 if sType == "ecosystem":
-                    uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Ecosystem, sID, "Parameter", "Modified Parameter [%s]" % sName )
+                    uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Ecosystem, sID, "Parameter", "Modified Parameter [%s]" % sName)
 
             # update the values
             aValues = sValues.split("|")
@@ -2559,180 +2559,60 @@ class taskMethods:
             sTaskID = uiCommon.getAjaxArg("sTaskID")
             sAssetID = uiCommon.getAjaxArg("sAssetID")
             
-            # we're building a json object to be returned, so we'll start with a dictionary
-            output = {}
+            # not doing the permission check yet
+            """
+            # PERMISSION CHECK
+            # now... kick out if the user isn't allowed to see this page
 
-            # different things happen depending on the page args
+            # it's a little backwards... IsPageAllowed will kick out this page for users...
+            # so don't bother to check that if we can determine the user has permission by 
+            # a group association to this task
+            sOTID = ""
+            stiSQL = "select t.original_task_id" \
+               " from task_instance ti join task t on ti.task_id = t.task_id" \
+               " where ti.task_instance = '" + sTaskInstance + "'"
 
-            # if an instance was provided... it overrides all other args 
-            # otherwise we need to figure out which instance we want
-            if sTaskInstance == "":
-                if uiCommon.IsGUID(sTaskID):
-                    sSQL = "select max(task_instance) from task_instance where task_id = '" + sTaskID + "'"
+            sOTID = self.db.select_col_noexcep(sSQL)
+            if self.db.error:
+                uiCommon.log("Unable to get original_task_id for task instance.  " + self.db.error)
 
-                    if uiCommon.IsGUID(sAssetID):
-                        sSQL += " and asset_id = '" + sAssetID + "'"
+            # now we know the ID, see if we are grouped with it
+            # this will kick out if they DONT match tags and they AREN'T in a role with sufficient privileges
+            if !uiCommon.UserAndObjectTagsMatch(sOTID, 3)) uiCommon.IsPageAllowed("You do not have permission to view this Task.":
+            # END PERMISSION CHECK
+            """
 
-                    sTaskInstance = str(self.db.select_col_noexcep(sSQL))
-                    if self.db.error:
-                        uiCommon.log("Unable to get task_instance from task/asset id.  " + self.db.error)
+            # we should return some indication of whether or not the user can do
+            # certain functions.
+            """
+            # superusers AND those tagged with this Task can see the stop and resubmit button
+            if uiCommon.UserIsInRole("Developer") or uiCommon.UserIsInRole("Administrator") or uiCommon.UserAndObjectTagsMatch(dr["original_task_id"], 3):
+                phResubmit.Visible = true
+                phCancel.Visible = true
+            else:
+                phResubmit.Visible = false
+                phCancel.Visible = false
+            """
+
+            # so, it's simple.  We get the object (a dictionary) from the task class
+            # do any adjustments we need, then return it as json.
             
-            if sTaskInstance:
-                # the task instance must be a number, die if it isn't
-                try:
-                    int(sTaskInstance)
-                except:
-                    return "Task Instance must be an integer. [%s]." % (sTaskInstance)
+            ti = task.TaskInstance(sTaskInstance, sTaskID, sAssetID)
+            if ti:
+                if ti.Error:
+                    return "{\"error\":\"%s\"}" % ti.Error
                 
-                # not doing the permission check yet
-                """
-                # PERMISSION CHECK
-                # now... kick out if the user isn't allowed to see this page
+                # one last thing... does the logfile for this run exist on this server?
+                if uiGlobals.config.has_key("logfiles"):
+                    logdir = uiGlobals.config["logfiles"]
+                    if os.path.exists(r"%s/ce/%s.log" % (logdir, sTaskInstance)):
+                        ti.Instance["logfile_name"] = "%s/ce/%s.log" % (logdir, sTaskInstance)
 
-                # it's a little backwards... IsPageAllowed will kick out this page for users...
-                # so don't bother to check that if we can determine the user has permission by 
-                # a group association to this task
-                sOTID = ""
-                stiSQL = "select t.original_task_id" \
-                   " from task_instance ti join task t on ti.task_id = t.task_id" \
-                   " where ti.task_instance = '" + sTaskInstance + "'"
-
-                sOTID = self.db.select_col_noexcep(sSQL)
-                if self.db.error:
-                    uiCommon.log("Unable to get original_task_id for task instance.  " + self.db.error)
-
-                # now we know the ID, see if we are grouped with it
-                # this will kick out if they DONT match tags and they AREN'T in a role with sufficient privileges
-                if !uiCommon.UserAndObjectTagsMatch(sOTID, 3)) uiCommon.IsPageAllowed("You do not have permission to view this Task.":
-                # END PERMISSION CHECK
-                """
-
-                # all good... continue...
-                output["task_instance"] = sTaskInstance
-                
-                sSQL = "select ti.task_instance, ti.task_id, '' as asset_id, ti.task_status, ti.submitted_by_instance, " \
-                    " ti.submitted_dt, ti.started_dt, ti.completed_dt, ti.ce_node, ti.pid, ti.debug_level," \
-                    " t.task_name, t.version, '' as asset_name, u.full_name," \
-                    " ar.app_instance, ar.platform, ar.hostname," \
-                    " t.concurrent_instances, t.queue_depth," \
-                    " ti.ecosystem_id, d.ecosystem_name, ti.account_id, ca.account_name" \
-                    " from task_instance ti" \
-                    " join task t on ti.task_id = t.task_id" \
-                    " left outer join users u on ti.submitted_by = u.user_id" \
-                    " left outer join application_registry ar on ti.ce_node = ar.id" \
-                    " left outer join cloud_account ca on ti.account_id = ca.account_id" \
-                    " left outer join ecosystem d on ti.ecosystem_id = d.ecosystem_id" \
-                    " where task_instance = " + sTaskInstance
-
-                dr = self.db.select_row_dict(sSQL)
-                if self.db.error:
-                    uiCommon.log("Unable to get instance details for task instance.  " + self.db.error)
-
-                if dr is not None:
-                    output["task_id"] = dr["task_id"]
-                    output["asset_id"] = (dr["asset_id"] if dr["asset_id"] else "")
-                    output["debug_level"] = (dr["debug_level"] if dr["debug_level"] else "")
-
-                    output["task_name_label"] = dr["task_name"] + " - Version " + str(dr["version"])
-                    output["task_status"] = dr["task_status"]
-                    output["asset_name"] = ("N/A" if not dr["asset_name"] else dr["asset_name"])
-                    output["submitted_dt"] = ("" if not dr["submitted_dt"] else str(dr["submitted_dt"]))
-                    output["started_dt"] = ("" if not dr["started_dt"] else str(dr["started_dt"]))
-                    output["completed_dt"] = ("" if not dr["completed_dt"] else str(dr["completed_dt"]))
-                    output["ce_node"] = ("" if not dr["ce_node"] else str(dr["app_instance"]) + " (" + dr["platform"] + ")")
-                    output["pid"] = ("" if not dr["pid"] else str(dr["pid"]))
-
-                    output["submitted_by_instance"] = ("" if not dr["submitted_by_instance"] else dr["submitted_by_instance"])
-
-                    output["ecosystem_id"] = (dr["ecosystem_id"] if dr["ecosystem_id"] else "")
-                    output["ecosystem_name"] = (dr["ecosystem_name"] if dr["ecosystem_name"] else "")
-                    output["account_id"] = (dr["account_id"] if dr["account_id"] else "")
-                    output["account_name"] = (dr["account_name"] if dr["account_name"] else "")
-
-                    output["submitted_by"] = (dr["full_name"] if dr["full_name"] else "Scheduler")
-
-                    # we should return some indication of whether or not the user can do
-                    # certain functions.
-                    """
-                    # superusers AND those tagged with this Task can see the stop and resubmit button
-                    if uiCommon.UserIsInRole("Developer") or uiCommon.UserIsInRole("Administrator") or uiCommon.UserAndObjectTagsMatch(dr["original_task_id"], 3):
-                        phResubmit.Visible = true
-                        phCancel.Visible = true
-                    else:
-                        phResubmit.Visible = false
-                        phCancel.Visible = false
-                    """
-
-
-
-                    # if THIS instance is 'active', show additional warning info on the resubmit confirmation.
-                    # and if it's not, don't show the "cancel" button
-                    if dr["task_status"].lower() in ["processing","queued","submitted","pending","aborting","queued","staged"]:
-                        output["resubmit_message"] = "This Task is currently active.  You have requested to start another instance."
-                    else:
-                        output["allow_cancel"] = "false"
-
-
-                    # check for OTHER active instances
-                    sSQL = "select count(*) from task_instance where task_id = '" + dr["task_id"] + "'" \
-                        " and task_instance <> '" + sTaskInstance + "'" \
-                        " and task_status in ('processing','submitted','pending','aborting','queued','staged')"
-                    iActiveCount = self.db.select_col_noexcep(sSQL)
-                    if self.db.error:
-                        uiCommon.log("Unable to get active instance count.  " + self.db.error)
-
-
-                    # and hide the resubmit button if we're over the limit
-                    # if active < concurrent do nothing
-                    # if active >= concurrent but there's room in the queue, change the message
-                    # if this one would pop the queue, hide the button
-                    aOtherInstances = []
-                    if iActiveCount > 0:
-                        try:
-                            iConcurrent = int(dr["concurrent_instances"])
-                        except:
-                            iConcurrent = 0
-    
-                        try:
-                            iQueueDepth = int(dr["queue_depth"])
-                        except:
-                            iQueueDepth = 0
-    
-                        if iConcurrent + iQueueDepth > 0:
-                            if iActiveCount >= iConcurrent and (iActiveCount + 1) <= iQueueDepth:
-                                output["resubmit_message"] = "The maximum concurrent instances for this Task are running.  This request will be queued."
-                            else:
-                                output["allow_resubmit"] = "false"
-
-                        # neato... show the user a list of all the other instances!
-                        sSQL = "select task_instance, task_status from task_instance" \
-                            " where task_id = '" + dr["task_id"] + "'" \
-                            " and task_instance <> '" + sTaskInstance + "'" \
-                            " and task_status in ('processing','submitted','pending','aborting','queued','staged')" \
-                            " order by task_status"
-
-                        dt = self.db.select_all_dict(sSQL)
-                        if self.db.error:
-                            uiCommon.log_nouser(self.db.error, 0)
-
-                        # build a list of the other instances
-                        for dr in dt:
-                            aOtherInstances.append((dr["task_instance"], dr["task_status"]))
-
-                        output["other_instances"] = aOtherInstances
-                    
-                    # one last thing... does the logfile for this run exist on this server?
-                    if uiGlobals.config.has_key("logfiles"):
-                        logdir = uiGlobals.config["logfiles"]
-                        if os.path.exists( r"%s/ce/%s.log" % (logdir, sTaskInstance) ):
-                            output["logfile_name"] = "%s/ce/%s.log" % (logdir, sTaskInstance)
-                    
-                    # all done, serialize our output dictionary
-                    return json.dumps(output)
-
-                else:
-                    return "{\"error\":\"Did not find any data for Instance [%s].\"}" % (sTaskInstance)
-                
+                # all done, serialize our output dictionary
+                return ti.AsJSON()
+            else:
+                return "{\"error\":\"Unable to get Task Instance.  Check log for details.\"}"
+                        
             #if we get here, there is just no data... maybe it never ran.
             return ""
         except Exception:
@@ -2742,43 +2622,19 @@ class taskMethods:
         sTaskInstance = uiCommon.getAjaxArg("sTaskInstance")
         sRows = uiCommon.getAjaxArg("sRows")
 
-        sLog = ""
-        sSummary = ""
-
         try:
             if not sTaskInstance:
                 return "{\"log\" : \"Unable to get log - no Instance passed to wmGetTaskRunLog.\"}"
             
-            sLimitClause = " limit 200"
-
-            if sRows:
-                if sRows == "all":
-                    sLimitClause = ""
-                else:
-                    try:
-                        sRows = int(sRows)
-                    except:
-                        sRows = 200
-                        
-                    sLimitClause = " limit " + str(sRows)
-                    
-            # how many log rows are there?
-            sSQL = "select count(*) from task_instance_log where task_instance = %s" % sTaskInstance
-            numrows = self.db.select_col_noexcep(sSQL)
-            
-            # RESULT SUMMARY - there may be rows that are "result summary" rows.
-            # check if this rows 'command_text' contains 'result_summary'
-            sSQL = """select log from task_instance_log 
-                where task_instance = %s 
-                and command_text = 'result_summary'
-                order by id""" % sTaskInstance
-
-            dt = self.db.select_all_dict(sSQL)
-            if self.db.error:
-                uiCommon.log_nouser(self.db.error, 0)
-
-            if dt:
-                for dr in dt:
+            runlog = task.TaskRunLog(sTaskInstance, sRows)
+            if not runlog:
+                return "{\"log\" : \"Unable to get log.\"}"
+                
+            sLog = ""
+            sSummary = ""
+        
+            if runlog.summary_rows:
+                for dr in runlog.summary_rows:
                     try:                         
                         # almost done... if there is a Result Summary ... display that.
                         if dr["log"]:
@@ -2792,28 +2648,13 @@ class taskMethods:
                     except Exception:
                         uiCommon.log_nouser(traceback.format_exc(), 0)
 
-
-            # NOW carry on with the regular rows
-            sSQL = "select til.task_instance, til.entered_dt, til.connection_name, til.log," \
-                " til.step_id, s.step_order, s.function_name, s.function_name as function_label, s.codeblock_name, " \
-                " til.command_text," \
-                " '' as variable_name,  '' as variable_value, " \
-                " case when length(til.log) > 256 then 1 else 0 end as large_text" \
-                " from task_instance_log til" \
-                " left outer join task_step s on til.step_id = s.step_id" \
-                " where til.task_instance = " + sTaskInstance + \
-                " order by til.id" + sLimitClause
-
-            dt = self.db.select_all_dict(sSQL)
-            if self.db.error:
-                uiCommon.log_nouser(self.db.error, 0)
-
-            if dt:
+            # log rows
+            if runlog.log_rows:
                 sLog += "<ul class=\"log\">\n"
                 sThisStepID = ""
                 sPrevStepID = ""
 
-                for dr in dt:
+                for dr in runlog.log_rows:
                     sThisStepID = dr["step_id"]
 
                     # start a new list item and header only if we are moving on to a different step.
@@ -2896,8 +2737,8 @@ class taskMethods:
                 sLog += "</li>\n"
                 sLog += "</ul>\n"
 
-            
-            return "{\"log\" : \"%s\", \"summary\" : \"%s\", \"totalrows\" : \"%s\"}" % (uiCommon.packJSON(sLog), uiCommon.packJSON(sSummary), str(numrows))
+            sNumRows = str(runlog.numrows) if runlog.numrows else "0"
+            return "{\"log\" : \"%s\", \"summary\" : \"%s\", \"totalrows\" : \"%s\"}" % (uiCommon.packJSON(sLog), uiCommon.packJSON(sSummary), sNumRows)
 
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
@@ -2941,7 +2782,7 @@ class taskMethods:
 
             # what are we gonna call this file?
             seconds = str(int(time.time()))
-            filename = "%s_%s.csk" % (t.Name.replace(" ","").replace("/",""), seconds)
+            filename = "%s_%s.csk" % (t.Name.replace(" ", "").replace("/", ""), seconds)
             with open("%s/temp/%s" % (uiGlobals.web_root, filename), 'w') as f_out:
                 if not f_out:
                     uiCommon.log("ERROR: unable to write task export file.", 2)
@@ -3074,7 +2915,7 @@ class taskMethods:
                 sHTML += "<div target=\"var_picker_group_globals\" class=\"ui-widget-content ui-corner-all value_picker_group\"><img alt=\"\" src=\"static/images/icons/expand.png\" style=\"width:12px;height:12px;\" /> Globals</div>"
                 sHTML += "<div id=\"var_picker_group_globals\" class=\"hidden\">"
 
-                lItems = ["_ASSET","_SUBMITTED_BY","_SUBMITTED_BY_EMAIL","_TASK_INSTANCE","_TASK_NAME","_TASK_VERSION","_DATE"]
+                lItems = ["_ASSET", "_SUBMITTED_BY", "_SUBMITTED_BY_EMAIL", "_TASK_INSTANCE", "_TASK_NAME", "_TASK_VERSION", "_DATE"]
                 for gvar in lItems:
                     sHTML += "<div class=\"ui-widget-content ui-corner-all value_picker_value\">%s</div>" % gvar
 
