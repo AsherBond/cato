@@ -250,14 +250,14 @@ class ecoMethods:
         """
         Gets an Ecosystem object.
         
-        Required Arguments: ecosystem_id
-        (ecosystem_id value can be either an id, or the Ecosystem name.)
+        Required Arguments: ecosystem
+        (Value can be either an id or name.)
         
         Returns: A JSON Ecosystem object.
         """
         try:
             # define the required parameters for this call
-            required_params = ["ecosystem_id"]
+            required_params = ["ecosystem"]
                 
             # this section should be consistent across most API calls
             this_function_name = sys._getframe().f_code.co_name
@@ -278,13 +278,13 @@ class ecoMethods:
 
             # this is the call-specific code
             obj = ecosystem.Ecosystem()
-            obj.FromName(args["ecosystem_id"])
+            obj.FromName(args["ecosystem"])
             if obj:
                 return_string = obj.AsJSON()
                 resp = api.response(method=method_name, response=return_string)
             else:
                 resp = api.response(method=method_name,
-                    error_code="GetError", error_detail="Unable to get Ecosystem for ID [%s]." % args["ecosystem_id"])
+                    error_code="GetError", error_detail="Unable to get Ecosystem for identifier [%s]." % args["ecosystem"])
             
             # is this a JSONP request?        
             if "callback" in args:
@@ -301,8 +301,8 @@ class ecoMethods:
         """
         Gets a list of all cloud objects associated with an Ecosystem.
         
-        Required Arguments: ecosystem_id
-        (ecosystem_id value can be either an id, or the Ecosystem name.)
+        Required Arguments: ecosystem
+        (Value can be either an id or name.)
 
         Optional Arguments: filter
         
@@ -311,7 +311,7 @@ class ecoMethods:
 
         try:
             # define the required parameters for this call
-            required_params = ["ecosystem_id"]
+            required_params = ["ecosystem"]
                 
             # this section should be consistent across most API calls
             this_function_name = sys._getframe().f_code.co_name
@@ -335,13 +335,13 @@ class ecoMethods:
             fltr = args["filter"] if args.has_key("filter") else ""
 
             obj = ecosystem.Ecosystem()
-            obj.FromName(args["ecosystem_id"])
+            obj.FromName(args["ecosystem"])
             if obj:
                 return_string = obj.GetObjects(fltr)
                 resp = api.response(method=method_name, response=return_string)
             else:
                 resp = api.response(method=method_name,
-                    error_code="GetError", error_detail="Unable to get Ecosystem for ID [%s]." % args["ecosystem_id"])
+                    error_code="GetError", error_detail="Unable to get Ecosystem for identifier [%s]." % args["ecosystem"])
             
             # is this a JSONP request?        
             if "callback" in args:
@@ -358,8 +358,8 @@ class ecoMethods:
         """
         Gets the run log for an Ecosystem.
         
-        Required Arguments: ecosystem_id
-        (ecosystem_id value can be either an id, or the Ecosystem name.)
+        Required Arguments: ecosystem
+        (Value can be either an id or name.)
 
         Optional Arguments: filter
         
@@ -367,7 +367,7 @@ class ecoMethods:
         """
         try:
             # define the required parameters for this call
-            required_params = ["ecosystem_id"]
+            required_params = ["ecosystem"]
                 
             # this section should be consistent across most API calls
             this_function_name = sys._getframe().f_code.co_name
@@ -391,13 +391,13 @@ class ecoMethods:
             fltr = args["filter"] if args.has_key("filter") else ""
 
             obj = ecosystem.Ecosystem()
-            obj.FromName(args["ecosystem_id"])
+            obj.FromName(args["ecosystem"])
             if obj:
                 return_string = obj.GetLog(fltr)
                 resp = api.response(method=method_name, response=return_string)
             else:
                 resp = api.response(method=method_name,
-                    error_code="GetError", error_detail="Unable to get Ecosystem for ID [%s]." % args["ecosystem_id"])
+                    error_code="GetError", error_detail="Unable to get Ecosystem for identifier [%s]." % args["ecosystem"])
             
             # is this a JSONP request?        
             if "callback" in args:
