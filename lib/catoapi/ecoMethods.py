@@ -153,7 +153,8 @@ class ecoMethods:
         """
         Lists all Ecosystems.
         
-        Optional Arguments: filter
+        Optional Arguments: 
+            filter - will filter a value match in Ecosystem Name, Description or Ecotemplate Name.
         
         Returns: A JSON array of all Ecosystems with basic attributes.
         """
@@ -203,7 +204,8 @@ class ecoMethods:
         """
         Lists all Ecotemplates.
         
-        Optional Arguments: filter
+        Optional Arguments: 
+            filter - will filter a value match in Ecotemplate Name or Description.
         
         Returns: A JSON array of all Ecotemplates with basic attributes.
         """
@@ -308,7 +310,8 @@ class ecoMethods:
         Required Arguments: ecosystem
             (Value can be either an id or name.)
 
-        Optional Arguments: filter
+        Optional Arguments: 
+            filter - will filter a value match in Object ID, Object Type, or Cloud Name.
         
         Returns: A JSON array of Ecosystem objects.
         """
@@ -365,7 +368,8 @@ class ecoMethods:
         Required Arguments: ecosystem
             (Value can be either an id or name.)
 
-        Optional Arguments: filter
+        Optional Arguments: 
+            filter - will filter a value match in Object ID, Object Type, or Logical ID, Status or Log.
         
         Returns: A JSON array of log entries.
         """
