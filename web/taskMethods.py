@@ -40,6 +40,7 @@ class taskMethods:
     def wmGetTasksTable(self):
         try:
             sHTML = ""
+            pager_html = ""
             sFilter = uiCommon.getAjaxArg("sSearch")
             sPage = uiCommon.getAjaxArg("sPage")
             maxrows = 25

@@ -893,6 +893,7 @@ class uiMethods:
     def wmGetUsersTable(self):
         try:
             sHTML = ""
+            pager_html = ""
             sFilter = uiCommon.getAjaxArg("sSearch")
             sPage = uiCommon.getAjaxArg("sPage")
             maxrows = 25
@@ -1130,6 +1131,7 @@ class uiMethods:
     def wmGetAssetsTable(self):
         try:
             sHTML = ""
+            pager_html = ""
             sFilter = uiCommon.getAjaxArg("sSearch")
             sPage = uiCommon.getAjaxArg("sPage")
             maxrows = 25
@@ -1209,6 +1211,7 @@ class uiMethods:
     def wmGetCredentialsTable(self):
         try:
             sHTML = ""
+            pager_html = ""
             sFilter = uiCommon.getAjaxArg("sSearch")
             sPage = uiCommon.getAjaxArg("sPage")
             maxrows = 25

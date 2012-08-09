@@ -37,6 +37,7 @@ class cloudMethods:
     def wmGetCloudsTable(self):
         try:
             sHTML = ""
+            pager_html = ""
             sFilter = uiCommon.getAjaxArg("sSearch")
             sPage = uiCommon.getAjaxArg("sPage")
             maxrows = 25
@@ -196,6 +197,7 @@ class cloudMethods:
             sPage = uiCommon.getAjaxArg("sPage")
             maxrows = 25
             sHTML = ""
+            pager_html = ""
             
             ca = cloud.CloudAccounts(sFilter)
             if ca.rows:

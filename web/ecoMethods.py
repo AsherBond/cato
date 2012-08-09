@@ -57,6 +57,7 @@ class ecoMethods:
     def wmGetEcotemplatesTable(self):
         try:
             sHTML = ""
+            pager_html = ""
             sFilter = uiCommon.getAjaxArg("sSearch")
             sPage = uiCommon.getAjaxArg("sPage")
             maxrows = 25
@@ -766,6 +767,7 @@ class ecoMethods:
             maxrows = 25
 
             sHTML = ""
+            pager_html = ""
             ets = ecosystem.Ecosystems(sAccountID, sFilter)
             if ets.rows:
                 start, end, pager_html = uiCommon.GetPager(len(ets.rows), maxrows, sPage)
