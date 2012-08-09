@@ -64,7 +64,7 @@ class Clouds(object):
 
     def AsJSON(self):
         try:
-            return json.dumps(self.rows)
+            return json.dumps(self.rows, default=catocommon.jsonSerializeHandler)
         except Exception as ex:
             raise ex
 
@@ -282,7 +282,7 @@ class CloudAccounts(object):
 
     def AsJSON(self):
         try:
-            return json.dumps(self.rows)
+            return json.dumps(self.rows, default=catocommon.jsonSerializeHandler)
         except Exception as ex:
             raise ex
 
