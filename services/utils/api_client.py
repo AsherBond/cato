@@ -75,8 +75,10 @@ if files:
 print randomargs
 if randomargs:
     for pair in randomargs:
-        k, v = pair.split("=")
-        args[k] = v
+        print pair
+        if "=" in pair:
+            k, v = pair.split("=", 1)
+            args[k] = v
 
 
 
