@@ -680,10 +680,7 @@ def AddTaskInstance(sUserID, sTaskID, sEcosystemID, sAccountID, sAssetID, sParam
     
         if IsGUID(sTaskID) and IsGUID(sUserID):
             ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, sEcosystemID, sAccountID, "", "")
-
-            # this needs fixing, this whole weird result set.
             log("Starting Task [%s] ... Instance is [%s]" % (sTaskID, ti), 3)
-            
             return ti
         else:
             log("Unable to run task. Missing or invalid task [" + sTaskID + "] or user [" + sUserID + "] id.")

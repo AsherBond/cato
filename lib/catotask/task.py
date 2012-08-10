@@ -131,6 +131,35 @@ class Task(object):
         finally:
             db.close()
 
+    def FromNameVersion(self, name, version=None):
+        sErr = ""
+        try:
+            db = catocommon.new_conn()
+            version_clause = ""
+            if version:
+                version_clause = " and version = %s" % version
+            else:
+                version_clause = " and default_version = 1"
+                
+            sSQL = """select task_id, original_task_id, task_name, task_code, task_status, version, default_version,
+                    task_desc, use_connector_system, concurrent_instances, queue_depth, parameter_xml
+                    from task
+                    where task_name = '%s' %s""" % (name, version_clause)
+            dr = db.select_row_dict(sSQL)
+
+            if dr:
+                sErr = self.PopulateTask(db, dr, False)
+
+            if self.ID:
+                return ""
+            else:
+                return sErr
+            
+        except Exception as ex:
+            raise ex
+        finally:
+            db.close()
+
     def FromOriginalIDVersion(self, otid, version=None):
         sErr = ""
         try:
@@ -1092,10 +1121,13 @@ class TaskRunLog(object):
             raise ex
 
 class TaskInstance(object):
-    Instance = {}
+    """
+    """
     Error = None
     def __init__(self, sTaskInstance, sTaskID="", sAssetID=""):
         try:
+            self.Instance = sTaskInstance
+            
             db = catocommon.new_conn()
             # we could define a whole model here, but it's not necessary... all we want is the data
             # since this won't be acted on as an object.
@@ -1106,10 +1138,10 @@ class TaskInstance(object):
             # otherwise we need to figure out which instance we want
             if not sTaskInstance:
                 if uiCommon.IsGUID(sTaskID):
-                    sSQL = "select max(task_instance) from task_instance where task_id = '" + sTaskID + "'"
+                    sSQL = "select max(task_instance) from task_instance where task_id = '%s'" % sTaskID
     
                     if uiCommon.IsGUID(sAssetID):
-                        sSQL += " and asset_id = '" + sAssetID + "'"
+                        sSQL += " and asset_id = '%s'" % sAssetID
     
                     sTaskInstance = str(db.select_col_noexcep(sSQL))
                     if db.error:
@@ -1125,7 +1157,7 @@ class TaskInstance(object):
                     return
                 
                 # all good... continue...
-                self.Instance["task_instance"] = sTaskInstance
+                self.task_instance = sTaskInstance
 
                 sSQL = """select ti.task_instance, ti.task_id, '' as asset_id, ti.task_status, ti.submitted_by_instance,
                     ti.submitted_dt, ti.started_dt, ti.completed_dt, ti.ce_node, ti.pid, ti.debug_level,
@@ -1147,41 +1179,41 @@ class TaskInstance(object):
                     return
 
                 if dr is not None:
-                    self.Instance["task_id"] = dr["task_id"]
-                    self.Instance["asset_id"] = (dr["asset_id"] if dr["asset_id"] else "")
-                    self.Instance["debug_level"] = (dr["debug_level"] if dr["debug_level"] else "")
+                    self.task_id = dr["task_id"]
+                    self.asset_id = (dr["asset_id"] if dr["asset_id"] else "")
+                    self.debug_level = (dr["debug_level"] if dr["debug_level"] else "")
     
-                    self.Instance["task_name_label"] = dr["task_name"] + " - Version " + str(dr["version"])
-                    self.Instance["task_status"] = dr["task_status"]
-                    self.Instance["asset_name"] = ("N/A" if not dr["asset_name"] else dr["asset_name"])
-                    self.Instance["submitted_dt"] = ("" if not dr["submitted_dt"] else str(dr["submitted_dt"]))
-                    self.Instance["started_dt"] = ("" if not dr["started_dt"] else str(dr["started_dt"]))
-                    self.Instance["completed_dt"] = ("" if not dr["completed_dt"] else str(dr["completed_dt"]))
-                    self.Instance["ce_node"] = ("" if not dr["ce_node"] else str(dr["app_instance"]) + " (" + dr["platform"] + ")")
-                    self.Instance["pid"] = ("" if not dr["pid"] else str(dr["pid"]))
+                    self.task_name_label = "%s - Version %s" % (dr["task_name"], str(dr["version"]))
+                    self.task_status = dr["task_status"]
+                    self.asset_name = ("N/A" if not dr["asset_name"] else dr["asset_name"])
+                    self.submitted_dt = ("" if not dr["submitted_dt"] else str(dr["submitted_dt"]))
+                    self.started_dt = ("" if not dr["started_dt"] else str(dr["started_dt"]))
+                    self.completed_dt = ("" if not dr["completed_dt"] else str(dr["completed_dt"]))
+                    self.ce_node = ("" if not dr["ce_node"] else "%s - (%s)" % (str(dr["app_instance"]), dr["platform"]))
+                    self.pid = ("" if not dr["pid"] else str(dr["pid"]))
     
-                    self.Instance["submitted_by_instance"] = ("" if not dr["submitted_by_instance"] else dr["submitted_by_instance"])
+                    self.submitted_by_instance = ("" if not dr["submitted_by_instance"] else dr["submitted_by_instance"])
     
-                    self.Instance["ecosystem_id"] = (dr["ecosystem_id"] if dr["ecosystem_id"] else "")
-                    self.Instance["ecosystem_name"] = (dr["ecosystem_name"] if dr["ecosystem_name"] else "")
-                    self.Instance["account_id"] = (dr["account_id"] if dr["account_id"] else "")
-                    self.Instance["account_name"] = (dr["account_name"] if dr["account_name"] else "")
+                    self.ecosystem_id = (dr["ecosystem_id"] if dr["ecosystem_id"] else "")
+                    self.ecosystem_name = (dr["ecosystem_name"] if dr["ecosystem_name"] else "")
+                    self.account_id = (dr["account_id"] if dr["account_id"] else "")
+                    self.account_name = (dr["account_name"] if dr["account_name"] else "")
     
-                    self.Instance["submitted_by"] = (dr["full_name"] if dr["full_name"] else "Scheduler")
+                    self.submitted_by = (dr["full_name"] if dr["full_name"] else "Scheduler")
 
     
                     # if THIS instance is 'active', show additional warning info on the resubmit confirmation.
                     # and if it's not, don't show the "cancel" button
                     if dr["task_status"].lower() in ["processing", "queued", "submitted", "pending", "aborting", "queued", "staged"]:
-                        self.Instance["resubmit_message"] = "This Task is currently active.  You have requested to start another instance."
+                        self.resubmit_message = "This Task is currently active.  You have requested to start another instance."
                     else:
-                        self.Instance["allow_cancel"] = "false"
+                        self.allow_cancel = "false"
     
     
                     # check for OTHER active instances
-                    sSQL = "select count(*) from task_instance where task_id = '" + dr["task_id"] + "'" \
-                        " and task_instance <> '" + sTaskInstance + "'" \
-                        " and task_status in ('processing','submitted','pending','aborting','queued','staged')"
+                    sSQL = """select count(*) from task_instance where task_id = '%s'
+                        and task_instance <> '%s'
+                        and task_status in ('processing','submitted','pending','aborting','queued','staged')""" % (dr["task_id"], sTaskInstance)
                     iActiveCount = db.select_col_noexcep(sSQL)
                     if db.error:
                         self.Error = "Unable to get active instance count. %s" % db.error
@@ -1205,12 +1237,12 @@ class TaskInstance(object):
     
                         if iConcurrent + iQueueDepth > 0:
                             if iActiveCount >= iConcurrent and (iActiveCount + 1) <= iQueueDepth:
-                                self.Instance["resubmit_message"] = "The maximum concurrent instances for this Task are running.  This request will be queued."
+                                self.resubmit_message = "The maximum concurrent instances for this Task are running.  This request will be queued."
                             else:
-                                self.Instance["allow_resubmit"] = "false"
+                                self.allow_resubmit = "false"
     
                         # neato... show the user a list of all the other instances!
-                        sSQL = """"select task_instance, task_status from task_instance
+                        sSQL = """select task_instance, task_status from task_instance
                             where task_id = '%s'
                             and task_instance <> '%s'
                             and task_status in ('processing','submitted','pending','aborting','queued','staged')
@@ -1225,7 +1257,7 @@ class TaskInstance(object):
                         for dr in dt:
                             aOtherInstances.append((dr["task_instance"], dr["task_status"]))
     
-                        self.Instance["other_instances"] = aOtherInstances
+                        self.other_instances = aOtherInstances
                     
                     
                     # all done, serialize our output dictionary
@@ -1244,7 +1276,33 @@ class TaskInstance(object):
         
     def AsJSON(self):
         try:
-            return json.dumps(self.Instance, default=catocommon.jsonSerializeHandler)
+            return json.dumps(self.__dict__, default=catocommon.jsonSerializeHandler)
         except Exception as ex:
             raise ex
+
+    def Stop(self):
+        try:
+            db = catocommon.new_conn()
+            if self.Instance:
+                sSQL = """update task_instance set task_status = 'Aborting'
+                    where task_instance = '%s'
+                    and task_status in ('Processing')""" % self.Instance
+
+                if not db.exec_db_noexcep(sSQL):
+                    print("Unable to stop task instance [%s]. %s" % (self.Instance, db.error))
+
+                sSQL = """update task_instance set task_status = 'Cancelled'
+                    where task_instance = '%s'
+                    and task_status in ('Submitted','Queued','Staged')""" % self.Instance
+
+                if not db.exec_db_noexcep(sSQL):
+                    print("Unable to stop task instance [%s]. %s" % (self.Instance, db.error))
+
+                return ""
+            else:
+                print("Unable to stop task. Missing or invalid task_instance.")
+        except Exception as ex:
+            raise Exception(ex)
+        finally:
+            db.close()
 

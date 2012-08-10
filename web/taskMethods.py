@@ -2607,7 +2607,7 @@ class taskMethods:
                 if uiGlobals.config.has_key("logfiles"):
                     logdir = uiGlobals.config["logfiles"]
                     if os.path.exists(r"%s/ce/%s.log" % (logdir, sTaskInstance)):
-                        ti.Instance["logfile_name"] = "%s/ce/%s.log" % (logdir, sTaskInstance)
+                        ti.logfile_name = "%s/ce/%s.log" % (logdir, sTaskInstance)
 
                 # all done, serialize our output dictionary
                 return ti.AsJSON()
@@ -2990,22 +2990,12 @@ class taskMethods:
     def wmStopTask(self):
         try:
             sInstance = uiCommon.getAjaxArg("sInstance")
-
-            if sInstance != "":
-                sSQL = "update task_instance set task_status = 'Aborting'" \
-                    " where task_instance = '" + sInstance + "'" \
-                    " and task_status in ('Processing');"
-
-                if not self.db.exec_db_noexcep(sSQL):
-                    uiCommon.log("Unable to stop task instance [" + sInstance + "]." + self.db.error)
-
-                sSQL = "update task_instance set task_status = 'Cancelled'" \
-                    " where task_instance = '" + sInstance + "'" \
-                    " and task_status in ('Submitted','Queued','Staged')"
-
-                if not self.db.exec_db_noexcep(sSQL):
-                    uiCommon.log("Unable to stop task instance [" + sInstance + "]." + self.db.error)
-
+            if not sInstance:
+                uiCommon.log("Unable to stop task. Missing or invalid task_instance.")
+            
+            ti = task.TaskInstance(sInstance)
+            if ti:
+                ti.Stop()
                 return ""
             else:
                 uiCommon.log("Unable to stop task. Missing or invalid task_instance.")
