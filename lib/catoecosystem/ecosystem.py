@@ -524,7 +524,7 @@ class Ecosystem(object):
             sSQL = """select eo.ecosystem_object_id, eo.ecosystem_object_type, eo.added_dt, c.cloud_id, c.cloud_name
                 from ecosystem_object eo
                 join clouds c on c.cloud_id = eo.cloud_id
-                where 1=1 %s order by eo.ecosystem_object_id""" % sWhereString
+                where ecosystem_id='%s' %s order by eo.ecosystem_object_id""" % (self.ID, sWhereString)
             
             rows = db.select_all_dict(sSQL)
             if rows:
@@ -553,7 +553,7 @@ class Ecosystem(object):
     
             sSQL = """select ecosystem_object_id, ecosystem_object_type, logical_id, status, log
                 from ecosystem_log
-                where 1=1 %s order by ecosystem_log_id""" % sWhereString
+                where ecosystem_id='%s' %s order by ecosystem_log_id""" % (self.ID, sWhereString)
             
             rows = db.select_all_dict(sSQL)
             if rows:

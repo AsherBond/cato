@@ -224,9 +224,9 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, ecosystem_id
         # do the parameters
         if parameter_xml:
             sql = """insert into task_instance_parameter (task_instance, parameter_xml) 
-                values ('%s', '%s')""" % (task_instance, tick_slash(parameter_xml))
+                values ('%s', '%s')""" % (str(task_instance), tick_slash(parameter_xml))
         if not db.tran_exec_noexcep(sql):
-            print "Unable to run task [%s]." % task_id
+            print "Unable to save parameter_xml for instance [%s]." % str(task_instance)
             raise Exception(db.error)
 
         db.tran_commit()

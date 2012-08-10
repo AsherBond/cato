@@ -66,6 +66,7 @@ class wmHandler:
         # we wanna stick a few things in there we might need.
         # (using an _ prefix to avoid conflicts)
         args["_user_id"] = user_id
+        args["output_format"] = output_format
 
         response = catocommon.FindAndCall("catoapi." + method, args)
         # FindAndCall can have all sorts of return values.

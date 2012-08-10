@@ -142,7 +142,7 @@ class ecoMethods:
         Gets an Ecosystem object.
         
         Required Arguments: ecosystem
-            (Value can be either an id or name.)
+            (Value can be either an Ecosystem ID or Name.)
         
         Returns: A JSON Ecosystem object.
         """
@@ -169,7 +169,7 @@ class ecoMethods:
         Gets a list of all cloud objects associated with an Ecosystem.
         
         Required Arguments: ecosystem
-            (Value can be either an id or name.)
+            (Value can be either an Ecosystem ID or Name.)
 
         Optional Arguments: 
             filter - will filter a value match in Object ID, Object Type, or Cloud Name.
@@ -202,7 +202,7 @@ class ecoMethods:
         Gets the run log for an Ecosystem.
         
         Required Arguments: ecosystem
-            (Value can be either an id or name.)
+            (Value can be either an Ecosystem ID or Name.)
 
         Optional Arguments: 
             filter - will filter a value match in Object ID, Object Type, or Logical ID, Status or Log.
