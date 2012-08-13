@@ -209,7 +209,10 @@ class ecoMethods:
             obj = ecosystem.Ecosystem()
             obj.FromName(args["ecosystem"])
             if obj:
-                return R(response=obj.GetObjects(fltr))
+                if args["output_format"] == "json":
+                    return R(response=obj.ObjectsAsJSON(fltr))
+                else:
+                    return R(response=obj.ObjectsAsXML(fltr))
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Ecosystem for identifier [%s]." % args["ecosystem"])
             
@@ -241,7 +244,10 @@ class ecoMethods:
             obj = ecosystem.Ecosystem()
             obj.FromName(args["ecosystem"])
             if obj:
-                return R(response=obj.GetLog(fltr))
+                if args["output_format"] == "json":
+                    return R(response=obj.LogAsJSON(fltr))
+                else:
+                    return R(response=obj.LogAsXML(fltr))
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Ecosystem for identifier [%s]." % args["ecosystem"])
             

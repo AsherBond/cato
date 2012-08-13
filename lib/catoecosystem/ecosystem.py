@@ -578,7 +578,7 @@ class Ecosystem(object):
         self.EcotemplateID = sEcotemplateID
         self.AccountID = sAccountID
 
-    def GetObjects(self, sFilter=""):
+    def Objects(self, sFilter=""):
         try:
             db = catocommon.new_conn()
                 
@@ -603,15 +603,39 @@ class Ecosystem(object):
             
             rows = db.select_all_dict(sSQL)
             if rows:
-                return json.dumps(rows, default=catocommon.jsonSerializeHandler)
-            else:
-                return "No results found."
+                return rows
         except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
         
-    def GetLog(self, sFilter=""):
+    def ObjectsAsJSON(self, sFilter=""):
+        try:
+            objects = self.Objects(sFilter)
+            if objects:
+                return json.dumps(objects, default=catocommon.jsonSerializeHandler)
+            else:
+                return "No results found."
+        except Exception as ex:
+            raise ex
+
+    def ObjectsAsXML(self, sFilter=""):
+        try:
+            objects = self.Objects(sFilter)
+            if objects:
+                dom = ET.fromstring('<EcosystemLog />')
+                for row in objects:
+                    xml = catocommon.dict2xml(row, "Item")
+                    node = ET.fromstring(xml.tostring())
+                    dom.append(node)
+                
+                return ET.tostring(dom)
+            else:
+                return "No results found."
+        except Exception as ex:
+            raise ex
+
+    def Log(self, sFilter=""):
         try:
             db = catocommon.new_conn()
                 
@@ -637,14 +661,39 @@ class Ecosystem(object):
             
             rows = db.select_all_dict(sSQL)
             if rows:
-                return json.dumps(rows, default=catocommon.jsonSerializeHandler)
-            else:
-                return "No results found."
+                return rows
         except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
-        
+
+    def LogAsJSON(self, sFilter=""):
+        try:
+            log = self.Log(sFilter)
+            if log:
+                return json.dumps(log, default=catocommon.jsonSerializeHandler)
+            else:
+                return "No results found."
+        except Exception as ex:
+            raise ex
+
+    def LogAsXML(self, sFilter=""):
+        try:
+            log = self.Log(sFilter)
+            if log:
+                dom = ET.fromstring('<EcosystemLog />')
+                for row in log:
+                    xml = catocommon.dict2xml(row, "Item")
+                    node = ET.fromstring(xml.tostring())
+                    dom.append(node)
+                
+                return ET.tostring(dom)
+            else:
+                return "No results found."
+        except Exception as ex:
+            raise ex
+
+                
     @staticmethod
     def DBCreateNew(sName, sEcotemplateID, sAccountID, sDescription="", sStormStatus="", sParameterXML="", sCloudID=""):
         try:
