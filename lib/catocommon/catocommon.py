@@ -498,6 +498,8 @@ class CatoService(CatoProcess):
 ## This object to xml converter inspired from the following code snippet
 ## http://code.activestate.com/recipes/577739/
 
+## It's not a full featured XML object serializer ... simply turns a python dict into an XML document.
+
 class dict2xml(object):
     def __init__(self, structure, rootname):
         from xml.dom.minidom import Document
@@ -511,7 +513,6 @@ class dict2xml(object):
 
             self.doc.appendChild(self.root)
             
-#            firstitem    = str(structure.keys()[0])
             self.build(self.root, structure)
 
     def build(self, father, structure):
@@ -522,7 +523,7 @@ class dict2xml(object):
                 father.appendChild(tag)
                 self.build(tag, structure[k])
         
-        elif type(structure) == list:
+        elif type(structure) == list or type(structure) == tuple:
             grandFather = father.parentNode
             tagName = father.tagName
             grandFather.removeChild(father)
@@ -540,7 +541,7 @@ class dict2xml(object):
         print self.doc.toprettyxml(indent="  ")
 
     def tostring(self):
-        return self.doc.toxml()
+        return self.doc.toxml(encoding="utf-8")
 
 
 class SecurityLogTypes(object):

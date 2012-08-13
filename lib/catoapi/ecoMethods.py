@@ -49,7 +49,12 @@ class ecoMethods:
                 result, msg = obj.DBSave()
                 if result:
                     catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.EcoTemplate, obj.ID, obj.Name, "Ecotemplate created.")
-                    return R(response=obj.AsJSON())
+                    if args["output_format"] == "json":
+                        return R(response=obj.AsJSON())
+                    elif args["output_format"] == "text":
+                        return R(response=obj.ID)
+                    else:
+                        return R(response=obj.AsXML())
                 else:
                     return R(err_code=R.Codes.CreateError, err_detail=msg)
             else:
@@ -69,7 +74,8 @@ class ecoMethods:
             
         Optional Arguments: description
         
-        Returns: A JSON Ecosystem object.
+        Returns: An Ecosystem object.
+            If 'output_format' is set to 'text', returns only an Ecosystem ID.
         """
         try:
             # define the required parameters for this call
@@ -87,7 +93,12 @@ class ecoMethods:
                  desc)
             if obj:
                 catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Ecosystem, obj.ID, obj.Name, "Ecosystem created.")
-                return R(response=obj.AsJSON())
+                if args["output_format"] == "json":
+                    return R(response=obj.AsJSON())
+                elif args["output_format"] == "text":
+                    return R(response=obj.ID)
+                else:
+                    return R(response=obj.AsXML())
             else:
                 return R(err_code=R.Codes.CreateError, err_detail=msg)
             
@@ -101,14 +112,17 @@ class ecoMethods:
         Optional Arguments: 
             filter - will filter a value match in Ecosystem Name, Description or Ecotemplate Name.
         
-        Returns: A JSON array of all Ecosystems with basic attributes.
+        Returns: An array of all Ecosystems with basic attributes.
         """
         try:
             fltr = args["filter"] if args.has_key("filter") else ""
 
             obj = ecosystem.Ecosystems(sFilter=fltr)
             if obj:
-                return R(response=obj.AsJSON())
+                if args["output_format"] == "json":
+                    return R(response=obj.AsJSON())
+                else:
+                    return R(response=obj.AsXML())
             else:
                 return R(err_code=R.Codes.ListError, err_detail="Unable to list Ecosystems.")
             
@@ -122,14 +136,17 @@ class ecoMethods:
         Optional Arguments: 
             filter - will filter a value match in Ecotemplate Name or Description.
         
-        Returns: A JSON array of all Ecotemplates with basic attributes.
+        Returns: An array of all Ecotemplates with basic attributes.
         """
         try:
             fltr = args["filter"] if args.has_key("filter") else ""
             
             obj = ecosystem.Ecotemplates(sFilter=fltr)
             if obj:
-                return R(response=obj.AsJSON())
+                if args["output_format"] == "json":
+                    return R(response=obj.AsJSON())
+                else:
+                    return R(response=obj.AsXML())
             else:
                 return R(err_code=R.Codes.ListError, err_detail="Unable to list Ecotemplates.")
             
@@ -143,7 +160,7 @@ class ecoMethods:
         Required Arguments: ecosystem
             (Value can be either an Ecosystem ID or Name.)
         
-        Returns: A JSON Ecosystem object.
+        Returns: An Ecosystem object.
         """
         try:
             # define the required parameters for this call
@@ -231,4 +248,33 @@ class ecoMethods:
         except Exception as ex:
             return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
 
+    def get_ecotemplate(self, args):        
+        """
+        Gets an Ecotemplate object.
         
+        Required Arguments: ecotemplate
+            (Value can be either an Ecotemplate ID or Name.)
+        
+        Returns: An Ecotemplate object.
+        """
+        try:
+            # define the required parameters for this call
+            required_params = ["ecotemplate"]
+            has_required, resp = api.check_required_params(required_params, args)
+            if not has_required:
+                return resp
+
+
+            obj = ecosystem.Ecotemplate()
+            obj.FromName(args["ecotemplate"])
+            if obj:
+                if args["output_format"] == "json":
+                    return R(response=obj.AsJSON())
+                else:
+                    return R(response=obj.AsXML())
+            else:
+                return R(err_code=R.Codes.GetError, err_detail="Unable to get Ecotemplate for identifier [%s]." % args["ecotemplate"])
+            
+        except Exception as ex:
+            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+

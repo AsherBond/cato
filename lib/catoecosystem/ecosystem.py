@@ -26,6 +26,16 @@ try:
 except (AttributeError, ImportError):
     pass
 
+try:
+    import xml.etree.cElementTree as ET
+except (AttributeError, ImportError):
+    import xml.etree.ElementTree as ET
+try:
+    ET.ElementTree.iterfind
+except AttributeError as ex:
+    del(ET)
+    import catoxml.etree.ElementTree as ET
+
 # Note: this is not a container for Ecotemplate objects - it's just a rowset from the database
 # with an AsJSON method.
 # why? Because we don't need a full object for list pages and dropdowns.
@@ -63,6 +73,18 @@ class Ecotemplates(object):
         except Exception as ex:
             raise ex
         
+    def AsXML(self):
+        try:
+            dom = ET.fromstring('<Ecotemplates />')
+            for row in self.rows:
+                xml = catocommon.dict2xml(row, "Ecotemplate")
+                node = ET.fromstring(xml.tostring())
+                dom.append(node)
+            
+            return ET.tostring(dom)
+        except Exception as ex:
+            raise ex
+
 class Ecotemplate(object):
     def __init__(self):
         self.ID = catocommon.new_guid()
@@ -84,6 +106,25 @@ class Ecotemplate(object):
         self.Name = sName
         self.Description = sDescription
         self.DBExists = self.dbExists()
+
+    def FromName(self, sEcotemplateName):
+        """Will get an Ecotemplate given either a name OR an id."""
+        try:
+            db = catocommon.new_conn()
+            sSQL = "select ecotemplate_id from ecotemplate where ecotemplate_name = '{0}' or ecotemplate_id = '{0}'".format(sEcotemplateName)
+            
+            eid = db.select_col_noexcep(sSQL)
+            if db.error:
+                raise Exception("Ecotemplate Object: Unable to get Ecotemplate from database. " + db.error)
+
+            if eid:
+                self.FromID(eid)
+            else: 
+                raise Exception("Error getting Ecotemplate ID for Name [%s] - no record found. %s" % (sEcotemplateName, db.error))
+        except Exception as ex:
+            raise ex
+        finally:
+            db.close()
 
     def FromID(self, sEcotemplateID, bIncludeActions=True, bIncludeRunlist=True):
         try:
@@ -145,6 +186,12 @@ class Ecotemplate(object):
         except Exception as ex:
             raise ex
 
+    def AsXML(self):
+        try:
+            xml = catocommon.dict2xml(self.__dict__, "Ecotemplate")
+            return xml.tostring()
+        except Exception as ex:
+            raise ex
 
     def dbExists(self):
         try:
@@ -494,6 +541,18 @@ class Ecosystems(object):
         except Exception as ex:
             raise ex
         
+    def AsXML(self):
+        try:
+            dom = ET.fromstring('<Ecosystems />')
+            for row in self.rows:
+                xml = catocommon.dict2xml(row, "Ecosystem")
+                node = ET.fromstring(xml.tostring())
+                dom.append(node)
+            
+            return ET.tostring(dom)
+        except Exception as ex:
+            raise ex
+
 class Ecosystem(object):
     def __init__(self):
         self.ID = catocommon.new_guid()
@@ -729,3 +788,11 @@ class Ecosystem(object):
             return json.dumps(self.__dict__, default=catocommon.jsonSerializeHandler)
         except Exception as ex:
             raise ex
+
+    def AsXML(self):
+        try:
+            xml = catocommon.dict2xml(self.__dict__, "Ecosystem")
+            return xml.tostring()
+        except Exception as ex:
+            raise ex
+
