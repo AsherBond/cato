@@ -181,9 +181,6 @@ class response:
 	def asJSON(self):
 		"""Returns the response as a JSON string"""
 		try:
-			print "@@@"
-			print self.Method
-			print self.__dict__
 			return json.dumps(self.__dict__, default=catocommon.jsonSerializeHandler)
 		except Exception as ex:
 			return ex.__str__()

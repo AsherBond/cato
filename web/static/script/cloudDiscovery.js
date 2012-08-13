@@ -195,7 +195,7 @@ function FillEcosystemsDropdown() {
         dataType: "json",
         success: function (ecosystems) {
             $.each(ecosystems, function(index, ecosystem){
-            	$("#ddlEcosystems").append("<option value=\"" + ecosystem.ecosystem_id + "\">" + ecosystem.ecosystem_name + "</option>");
+            	$("#ddlEcosystems").append("<option value=\"" + ecosystem.ID + "\">" + ecosystem.Name + "</option>");
 			});
 
 			//if an ecosystem_id was provided, select it from the dropdown

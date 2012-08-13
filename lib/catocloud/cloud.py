@@ -673,7 +673,6 @@ class Provider(object):
 
     def AsJSON(self):
         try:
-            print self.Products
             # this is built manually, because clouds have a provider object, which would be recursive.
             sb = []
             sb.append("{")
@@ -692,16 +691,12 @@ class Provider(object):
                 sb.append(",".join(lst))
             sb.append("}, ")
 
-            print 2
-            print self.Products
-
             
             # the products and object types
             sb.append("\"Products\" : {")
             if self.Products:
                 lst = []
                 for prod in self.Products.itervalues():
-                    print prod.Name
                     s = "\"%s\" : %s" % (prod.Name, prod.AsJSON())
                     lst.append(s)
                 sb.append(",".join(lst))

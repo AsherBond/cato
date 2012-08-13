@@ -773,21 +773,21 @@ class ecoMethods:
                 start, end, pager_html = uiCommon.GetPager(len(ets.rows), maxrows, sPage)
 
                 for row in ets.rows[start:end]:
-                    sHTML += "<tr ecosystem_id=\"%s\">" % row["ecosystem_id"]
+                    sHTML += "<tr ecosystem_id=\"%s\">" % row["ID"]
                     sHTML += "<td class=\"chkboxcolumn\">"
                     sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
                     " id=\"chk_%s\"" \
                     " object_id=\"%s\"" \
-                    " tag=\"chk\" />" % (row["ecosystem_id"], row["ecosystem_id"])
+                    " tag=\"chk\" />" % (row["ID"], row["ID"])
                     sHTML += "</td>"
                     
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["ecosystem_name"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["ecotemplate_name"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % (row["ecosystem_desc"] if row["ecosystem_desc"] else "")
-                    sHTML += "<td class=\"selectable stormstatus\">%s</td>" % (row["storm_status"] if row["storm_status"] else "")
-                    sHTML += "<td class=\"selectable\">%s</td>" % (str(row["created_dt"]) if row["created_dt"] else "")
-                    sHTML += "<td class=\"selectable\">%s</td>" % (str(row["last_update_dt"]) if row["last_update_dt"] else "")
-                    sHTML += "<td class=\"selectable itemcount\">%s</td>" % str(row["num_objects"])
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["Name"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["EcotemplateName"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["Description"] if row["Description"] else "")
+                    sHTML += "<td class=\"selectable stormstatus\">%s</td>" % (row["StormStatus"] if row["StormStatus"] else "")
+                    sHTML += "<td class=\"selectable\">%s</td>" % (str(row["CreatedDate"]) if row["CreatedDate"] else "")
+                    sHTML += "<td class=\"selectable\">%s</td>" % (str(row["LastUpdate"]) if row["LastUpdate"] else "")
+                    sHTML += "<td class=\"selectable itemcount\">%s</td>" % str(row["NumObjects"])
                     
                     sHTML += "</tr>"
     

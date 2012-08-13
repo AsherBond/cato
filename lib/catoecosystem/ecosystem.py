@@ -462,10 +462,19 @@ class Ecosystems(object):
                             "or e.ecosystem_desc like '%%" + term + "%%' " \
                             "or et.ecotemplate_name like '%%" + term + "%%') "
     
-            sSQL = """select e.ecosystem_id, e.ecosystem_name, e.ecosystem_desc, e.account_id, et.ecotemplate_name,
-                e.storm_status, e.created_dt, e.last_update_dt, e.request_id,
-                (select count(*) from ecosystem_object where ecosystem_id = e.ecosystem_id) as num_objects,
-                group_concat(ot.tag_name order by ot.tag_name separator ',') as tags
+            sSQL = """select 
+                e.ecosystem_id as ID, 
+                e.ecosystem_name as Name, 
+                e.ecosystem_desc as Description, 
+                e.account_id as AccountID, 
+                et.ecotemplate_id as EcotemplateID,
+                et.ecotemplate_name as EcotemplateName,
+                e.storm_status as StormStatus, 
+                e.created_dt as CreatedDate, 
+                e.last_update_dt as LastUpdate, 
+                e.request_id as RequestID,
+                (select count(*) from ecosystem_object where ecosystem_id = e.ecosystem_id) as NumObjects,
+                group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
                 from ecosystem e
                 join ecotemplate et on e.ecotemplate_id = et.ecotemplate_id
                 left outer join object_tags ot on e.ecosystem_id = ot.object_id
@@ -521,7 +530,12 @@ class Ecosystem(object):
                             "or eo.ecosystem_object_type like '%%" + term + "%%' " \
                             "or c.cloud_name like '%%" + term + "%%') "
     
-            sSQL = """select eo.ecosystem_object_id, eo.ecosystem_object_type, eo.added_dt, c.cloud_id, c.cloud_name
+            sSQL = """select 
+                eo.ecosystem_object_id as EcosystemObjectID, 
+                eo.ecosystem_object_type as EcosystemObjectType,
+                eo.added_dt as AddedDate, 
+                c.cloud_id as CloudID, 
+                c.cloud_name as CloudName
                 from ecosystem_object eo
                 join clouds c on c.cloud_id = eo.cloud_id
                 where ecosystem_id='%s' %s order by eo.ecosystem_object_id""" % (self.ID, sWhereString)
@@ -551,7 +565,12 @@ class Ecosystem(object):
                             "or status like '%%" + term + "%%' " \
                             "or log like '%%" + term + "%%') "
     
-            sSQL = """select ecosystem_object_id, ecosystem_object_type, logical_id, status, log
+            sSQL = """select 
+                ecosystem_object_id as EcosystemObjectID, 
+                ecosystem_object_type as EcosystemObjectType, 
+                logical_id as LogicalID, 
+                status as Status, 
+                log as Log
                 from ecosystem_log
                 where ecosystem_id='%s' %s order by ecosystem_log_id""" % (self.ID, sWhereString)
             
