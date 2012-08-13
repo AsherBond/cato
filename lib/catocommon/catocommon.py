@@ -495,6 +495,53 @@ class CatoService(CatoProcess):
             self.main_process()
             time.sleep(self.loop)
 
+## This object to xml converter inspired from the following code snippet
+## http://code.activestate.com/recipes/577739/
+
+class dict2xml(object):
+    def __init__(self, structure, rootname):
+        from xml.dom.minidom import Document
+
+        self.doc = Document()
+        if structure:
+            if rootname:
+                self.root = self.doc.createElement(rootname)
+            else:
+                self.root = self.doc.createElement("root")
+
+            self.doc.appendChild(self.root)
+            
+#            firstitem    = str(structure.keys()[0])
+            self.build(self.root, structure)
+
+    def build(self, father, structure):
+        # print type(structure)
+        if type(structure) == dict:
+            for k in structure:
+                tag = self.doc.createElement(k)
+                father.appendChild(tag)
+                self.build(tag, structure[k])
+        
+        elif type(structure) == list:
+            grandFather = father.parentNode
+            tagName = father.tagName
+            grandFather.removeChild(father)
+            for l in structure:
+                tag = self.doc.createElement(tagName)
+                self.build(tag, l)
+                grandFather.appendChild(tag)
+            
+        else:
+            data = str(structure)
+            tag = self.doc.createTextNode(data)
+            father.appendChild(tag)
+    
+    def display(self):
+        print self.doc.toprettyxml(indent="  ")
+
+    def tostring(self):
+        return self.doc.toxml()
+
 
 class SecurityLogTypes(object):
     Object = "Object"

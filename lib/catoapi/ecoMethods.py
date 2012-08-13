@@ -157,7 +157,10 @@ class ecoMethods:
             obj = ecosystem.Ecosystem()
             obj.FromName(args["ecosystem"])
             if obj:
-                return R(response=obj.AsJSON())
+                if args["output_format"] == "json":
+                    return R(response=obj.AsJSON())
+                else:
+                    return R(response=obj.AsXML())
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Ecosystem for identifier [%s]." % args["ecosystem"])
             
