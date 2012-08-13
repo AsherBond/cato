@@ -42,9 +42,11 @@ class Ecotemplates(object):
                         sWhereString += " and (et.ecotemplate_name like '%%" + term + "%%' " \
                             "or et.ecotemplate_desc like '%%" + term + "%%') "
     
-            sSQL = """select et.ecotemplate_id, et.ecotemplate_name, et.ecotemplate_desc,
-                (select count(*) from ecosystem where ecotemplate_id = et.ecotemplate_id) as in_use,
-                group_concat(ot.tag_name order by ot.tag_name separator ',') as tags
+            sSQL = """select et.ecotemplate_id as ID, 
+                et.ecotemplate_name as Name, 
+                et.ecotemplate_desc as Description,
+                (select count(*) from ecosystem where ecotemplate_id = et.ecotemplate_id) as InUse,
+                group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
                 from ecotemplate et
                 left outer join object_tags ot on et.ecotemplate_id = ot.object_id
                 where 1=1 %s group by et.ecotemplate_id order by et.ecotemplate_name""" % sWhereString

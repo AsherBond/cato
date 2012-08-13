@@ -126,7 +126,6 @@ class ecoMethods:
         """
         try:
             fltr = args["filter"] if args.has_key("filter") else ""
-            print catocommon.unpackData(args["stormfile"])
             
             obj = ecosystem.Ecotemplates(sFilter=fltr)
             if obj:

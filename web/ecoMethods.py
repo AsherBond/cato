@@ -67,16 +67,16 @@ class ecoMethods:
                 start, end, pager_html = uiCommon.GetPager(len(ets.rows), maxrows, sPage)
 
                 for row in ets.rows[start:end]:
-                    sHTML += "<tr ecotemplate_id=\"%s\">" % row["ecotemplate_id"]
+                    sHTML += "<tr ecotemplate_id=\"%s\">" % row["ID"]
                     sHTML += "<td class=\"chkboxcolumn\">"
                     sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
                     " id=\"chk_%s\"" \
                     " object_id=\"%s\"" \
-                    " tag=\"chk\" />" % (row["ecotemplate_id"], row["ecotemplate_id"])
+                    " tag=\"chk\" />" % (row["ID"], row["ID"])
                     sHTML += "</td>"
                     
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["ecotemplate_name"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % (row["ecotemplate_desc"] if row["ecotemplate_desc"] else "")
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["Name"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["Description"] if row["Description"] else "")
                     
                     sHTML += "</tr>"
     
