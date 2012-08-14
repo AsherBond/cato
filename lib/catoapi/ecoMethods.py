@@ -42,9 +42,12 @@ class ecoMethods:
             if not has_required:
                 return resp
 
+            desc = args["description"] if args.has_key("description") else ""
+            sftype = args["storm_file_type"] if args.has_key("storm_file_type") else ""
+            sftext = args["storm_file_text"] if args.has_key("storm_file_text") else ""
 
             obj = ecosystem.Ecotemplate()
-            obj(args["name"], args["description"])
+            obj.FromArgs(args["name"], desc, sftype, sftext)
             if obj is not None:
                 result, msg = obj.DBSave()
                 if result:
@@ -52,7 +55,7 @@ class ecoMethods:
                     if args["output_format"] == "json":
                         return R(response=obj.AsJSON())
                     elif args["output_format"] == "text":
-                        return R(response=obj.ID)
+                        return R(response=obj.AsText())
                     else:
                         return R(response=obj.AsXML())
                 else:
@@ -96,7 +99,7 @@ class ecoMethods:
                 if args["output_format"] == "json":
                     return R(response=obj.AsJSON())
                 elif args["output_format"] == "text":
-                    return R(response=obj.ID)
+                    return R(response=obj.AsText())
                 else:
                     return R(response=obj.AsXML())
             else:
@@ -121,6 +124,8 @@ class ecoMethods:
             if obj:
                 if args["output_format"] == "json":
                     return R(response=obj.AsJSON())
+                elif args["output_format"] == "text":
+                    return R(response=obj.AsText())
                 else:
                     return R(response=obj.AsXML())
             else:
@@ -145,6 +150,8 @@ class ecoMethods:
             if obj:
                 if args["output_format"] == "json":
                     return R(response=obj.AsJSON())
+                elif args["output_format"] == "text":
+                    return R(response=obj.AsText())
                 else:
                     return R(response=obj.AsXML())
             else:
@@ -175,6 +182,8 @@ class ecoMethods:
             if obj:
                 if args["output_format"] == "json":
                     return R(response=obj.AsJSON())
+                elif args["output_format"] == "text":
+                    return R(response=obj.AsText())
                 else:
                     return R(response=obj.AsXML())
             else:
@@ -211,6 +220,8 @@ class ecoMethods:
             if obj:
                 if args["output_format"] == "json":
                     return R(response=obj.ObjectsAsJSON(fltr))
+                elif args["output_format"] == "text":
+                    return R(response=obj.ObjectsAsText())
                 else:
                     return R(response=obj.ObjectsAsXML(fltr))
             else:
@@ -246,6 +257,8 @@ class ecoMethods:
             if obj:
                 if args["output_format"] == "json":
                     return R(response=obj.LogAsJSON(fltr))
+                elif args["output_format"] == "text":
+                    return R(response=obj.LogAsText())
                 else:
                     return R(response=obj.LogAsXML(fltr))
             else:
@@ -276,6 +289,8 @@ class ecoMethods:
             if obj:
                 if args["output_format"] == "json":
                     return R(response=obj.AsJSON())
+                elif args["output_format"] == "text":
+                    return R(response=obj.AsText())
                 else:
                     return R(response=obj.AsXML())
             else:

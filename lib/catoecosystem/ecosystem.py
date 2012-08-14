@@ -69,7 +69,7 @@ class Ecotemplates(object):
 
     def AsJSON(self):
         try:
-            return json.dumps(self.rows)
+            return json.dumps(self.rows, default=catocommon.jsonSerializeHandler)
         except Exception as ex:
             raise ex
         
@@ -82,6 +82,20 @@ class Ecotemplates(object):
                 dom.append(node)
             
             return ET.tostring(dom)
+        except Exception as ex:
+            raise ex
+
+    def AsText(self):
+        try:
+            keys = ['ID', 'Name']
+            outrows = []
+            for row in self.rows:
+                cols = []
+                for key in keys:
+                    cols.append(str(row[key]))
+                outrows.append("\t".join(cols))
+              
+            return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
         except Exception as ex:
             raise ex
 
@@ -99,12 +113,14 @@ class Ecotemplate(object):
         self.Runlist = []
         
     #the default constructor (manual creation)
-    def FromArgs(self, sName, sDescription):
+    def FromArgs(self, sName, sDescription, sStormFileType=None, sStormFileText=None):
         if not sName:
             raise Exception("Error building Ecotemplate: Name is required.")
 
         self.Name = sName
         self.Description = sDescription
+        self.StormFileType = sStormFileType
+        self.StormFile = sStormFileText
         self.DBExists = self.dbExists()
 
     def FromName(self, sEcotemplateName):
@@ -190,6 +206,17 @@ class Ecotemplate(object):
         try:
             xml = catocommon.dict2xml(self.__dict__, "Ecotemplate")
             return xml.tostring()
+        except Exception as ex:
+            raise ex
+
+    def AsText(self):
+        try:
+            keys = ["Name", "Description"]
+            vals = []
+            for key in keys:
+                vals.append(str(getattr(self, key)))
+              
+            return "%s\n%s" % ("\t".join(keys), "\t".join(vals))
         except Exception as ex:
             raise ex
 
@@ -553,6 +580,20 @@ class Ecosystems(object):
         except Exception as ex:
             raise ex
 
+    def AsText(self):
+        try:
+            keys = ['ID', 'Name', 'StormStatus']
+            outrows = []
+            for row in self.rows:
+                cols = []
+                for key in keys:
+                    cols.append(str(row[key]))
+                outrows.append("\t".join(cols))
+              
+            return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
+        except Exception as ex:
+            raise ex
+
 class Ecosystem(object):
     def __init__(self):
         self.ID = catocommon.new_guid()
@@ -614,8 +655,6 @@ class Ecosystem(object):
             objects = self.Objects(sFilter)
             if objects:
                 return json.dumps(objects, default=catocommon.jsonSerializeHandler)
-            else:
-                return "No results found."
         except Exception as ex:
             raise ex
 
@@ -630,8 +669,22 @@ class Ecosystem(object):
                     dom.append(node)
                 
                 return ET.tostring(dom)
-            else:
-                return "No results found."
+        except Exception as ex:
+            raise ex
+
+    def ObjectsAsText(self, sFilter=""):
+        try:
+            log = self.Objects(sFilter)
+            if log:
+                keys = ['EcosystemObjectType', 'EcosystemObjectID', 'CloudName', 'AddedDate']
+                rows = []
+                for row in log:
+                    cols = []
+                    for key in keys:
+                        cols.append(str(row[key]))
+                    rows.append("\t".join(cols))
+                  
+                return "%s\n%s" % ("\t".join(keys), "\n".join(rows))
         except Exception as ex:
             raise ex
 
@@ -672,8 +725,6 @@ class Ecosystem(object):
             log = self.Log(sFilter)
             if log:
                 return json.dumps(log, default=catocommon.jsonSerializeHandler)
-            else:
-                return "No results found."
         except Exception as ex:
             raise ex
 
@@ -688,8 +739,22 @@ class Ecosystem(object):
                     dom.append(node)
                 
                 return ET.tostring(dom)
-            else:
-                return "No results found."
+        except Exception as ex:
+            raise ex
+
+    def LogAsText(self, sFilter=""):
+        try:
+            log = self.Log(sFilter)
+            if log:
+                keys = ['EcosystemObjectType', 'LogicalID', 'EcosystemObjectID', 'Status', 'Log']
+                rows = []
+                for row in log:
+                    cols = []
+                    for key in keys:
+                        cols.append(str(row[key]))
+                    rows.append("\t".join(cols))
+                  
+                return "%s\n%s" % ("\t".join(keys), "\n".join(rows))
         except Exception as ex:
             raise ex
 
@@ -842,6 +907,17 @@ class Ecosystem(object):
         try:
             xml = catocommon.dict2xml(self.__dict__, "Ecosystem")
             return xml.tostring()
+        except Exception as ex:
+            raise ex
+
+    def AsText(self):
+        try:
+            keys = ["Name", "EcotemplateName", "StormStatus", "CreatedDate", "NumObjects"]
+            vals = []
+            for key in keys:
+                vals.append(str(getattr(self, key)))
+              
+            return "%s\n%s" % ("\t".join(keys), "\t".join(vals))
         except Exception as ex:
             raise ex
 
