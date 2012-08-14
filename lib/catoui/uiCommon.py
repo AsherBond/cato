@@ -194,6 +194,8 @@ def SafeHTML(sInput):
 def FixBreaks(sInput):
     if sInput:
         return sInput.replace("\r\n", "<br />").replace("\r", "<br />").replace("\n", "<br />").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;")
+    else:
+        return ""
 
 def WriteObjectAddLog(oType, sObjectID, sObjectName, sLog=""):
     catocommon.write_add_log(GetSessionUserID(), oType, sObjectID, sObjectName, sLog)
