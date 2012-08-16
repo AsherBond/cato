@@ -99,3 +99,25 @@ web/static/script/stormStopDialog.js
 web/static/_command_help.html
 
 web/site.master.xml.ce
+
+lib/catoapi/stormMethods.py
+
+lib/catoimage
+
+web/templates/tagEdit.html
+
+web/templates/imageEdit.html
+
+web/tagMethods.py
+
+web/tag.py
+
+web/static/script/tagEdit.js
+
+web/static/script/objectTag.js
+
+web/static/script/imageEdit.js
+
+web/imageMethods.py
+
+lib/stormlaunch
