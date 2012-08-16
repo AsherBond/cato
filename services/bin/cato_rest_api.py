@@ -48,9 +48,8 @@ class wmHandler:
         args = web.input()
         # web.header('Content-Type', 'text/xml')
 
-        print("Request: %s" % method)
+        print("\nRequest: %s" % method)
         print("Args: %s" % args)
-        print("\n\n")
 
         output_format = ""
         if args.has_key("output_format"):
@@ -58,8 +57,7 @@ class wmHandler:
         
         is_authenticated, user_id = api.authenticate(method, args)
         if not is_authenticated:
-            response = api.response(method=method,
-                error_code="AuthenticationFailure", error_detail="")
+            response = api.response(err_code="AuthenticationFailure")
             return response.Write(output_format)
         
         # the args collection is passed to the target function, BUT
