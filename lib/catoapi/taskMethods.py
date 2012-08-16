@@ -201,3 +201,30 @@ class taskMethods:
         except Exception as ex:
             return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
 
+    def list_tasks(self, args):        
+        """
+        Lists all Tasks.
+            Only 'Default' versions are shown.
+        
+        Optional Arguments: 
+            filter - will filter a value match in Task Name, Code or Description.
+        
+        Returns: An array of all Tasks with basic attributes.
+        """
+        try:
+            fltr = args["filter"] if args.has_key("filter") else ""
+
+            obj = task.Tasks(sFilter=fltr)
+            if obj:
+                if args["output_format"] == "json":
+                    return R(response=obj.AsJSON())
+                elif args["output_format"] == "text":
+                    return R(response=obj.AsText())
+                else:
+                    return R(response=obj.AsXML())
+            else:
+                return R(err_code=R.Codes.ListError, err_detail="Unable to list Tasks.")
+            
+        except Exception as ex:
+            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+
