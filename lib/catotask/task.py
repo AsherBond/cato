@@ -52,9 +52,16 @@ class Tasks(object):
                             "or t.task_desc like '%%" + term + "%%' " \
                             "or t.task_status like '%%" + term + "%%') "
     
-            sSQL = """select t.task_id, t.original_task_id, t.task_name, t.task_code, t.task_desc, t.version, t.task_status,
-                (select count(*) from task where original_task_id = t.original_task_id) as versions,
-                group_concat(ot.tag_name order by ot.tag_name separator ',') as tags
+            sSQL = """select 
+                t.task_id as ID, 
+                t.original_task_id as OriginalTaskID, 
+                t.task_name as Name, 
+                t.task_code as Code, 
+                t.task_desc as Description, 
+                t.version as Version, 
+                t.task_status as Status,
+                (select count(*) from task where original_task_id = t.original_task_id) as Versions,
+                group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
                 from task t
                 left outer join object_tags ot on t.original_task_id = ot.object_id
                 where t.default_version = 1 %s group by t.original_task_id order by t.task_code""" % sWhereString
@@ -68,6 +75,32 @@ class Tasks(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows, default=catocommon.jsonSerializeHandler)
+        except Exception as ex:
+            raise ex
+
+    def AsXML(self):
+        try:
+            dom = ET.fromstring('<Tasks />')
+            for row in self.rows:
+                xml = catocommon.dict2xml(row, "Task")
+                node = ET.fromstring(xml.tostring())
+                dom.append(node)
+            
+            return ET.tostring(dom)
+        except Exception as ex:
+            raise ex
+
+    def AsText(self):
+        try:
+            keys = ['ID', 'OriginalTaskID', 'Name', 'Code', 'Version', 'Status']
+            outrows = []
+            for row in self.rows:
+                cols = []
+                for key in keys:
+                    cols.append(str(row[key]))
+                outrows.append("\t".join(cols))
+              
+            return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
         except Exception as ex:
             raise ex
 

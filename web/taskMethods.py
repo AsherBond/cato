@@ -49,20 +49,20 @@ class taskMethods:
                 start, end, pager_html = uiCommon.GetPager(len(tasks.rows), maxrows, sPage)
 
                 for row in tasks.rows[start:end]:
-                    sHTML += "<tr task_id=\"" + row["task_id"] + "\" status=\"" + row["task_status"] + "\">"
+                    sHTML += "<tr task_id=\"" + row["ID"] + "\" status=\"" + row["Status"] + "\">"
                     sHTML += "<td class=\"chkboxcolumn\">"
                     sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
-                    " id=\"chk_" + row["original_task_id"] + "\"" \
-                    " object_id=\"" + row["task_id"] + "\"" \
+                    " id=\"chk_" + row["OriginalTaskID"] + "\"" \
+                    " object_id=\"" + row["ID"] + "\"" \
                     " tag=\"chk\" />"
                     sHTML += "</td>"
                     
-                    sHTML += "<td class=\"selectable\">" + row["task_code"] + "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["task_name"] + "</td>"
-                    sHTML += "<td class=\"selectable\">" + str(row["version"]) + "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["task_desc"] + "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["task_status"] + "</td>"
-                    sHTML += "<td class=\"selectable\">" + str(row["versions"]) + "</td>"
+                    sHTML += "<td class=\"selectable\">" + row["Code"] + "</td>"
+                    sHTML += "<td class=\"selectable\">" + row["Name"] + "</td>"
+                    sHTML += "<td class=\"selectable\">" + str(row["Version"]) + "</td>"
+                    sHTML += "<td class=\"selectable\">" + row["Description"] + "</td>"
+                    sHTML += "<td class=\"selectable\">" + row["Status"] + "</td>"
+                    sHTML += "<td class=\"selectable\">" + str(row["Versions"]) + "</td>"
                     
                     sHTML += "</tr>"
     
@@ -1361,13 +1361,13 @@ class taskMethods:
                         if i > iRowsToGet:
                             break
                         
-                        sTaskName = row["task_name"].replace("\"", "\\\"")
-                        sLabel = row["task_code"] + " : " + sTaskName
-                        sDesc = (row["task_desc"] if row["task_desc"] else "")
+                        sTaskName = row["Name"].replace("\"", "\\\"")
+                        sLabel = row["Code"] + " : " + sTaskName
+                        sDesc = (row["Description"] if row["Description"] else "")
                         sDesc = sDesc.replace("\"", "").replace("'", "")
     
                         sHTML += "<li class=\"ui-widget-content ui-corner-all search_dialog_value\" tag=\"task_picker_row\"" \
-                            " original_task_id=\"" + row["original_task_id"] + "\"" \
+                            " original_task_id=\"" + row["OriginalTaskID"] + "\"" \
                             " task_label=\"" + sLabel + "\"" \
                             "\">"
                         sHTML += "<div class=\"step_header_title search_dialog_value_name\">" + sLabel + "</div>"
