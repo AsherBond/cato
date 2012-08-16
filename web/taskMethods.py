@@ -178,7 +178,7 @@ class taskMethods:
                         ("(s)&nbsp;%s" % row["submitted_dt"].replace(" ", "&nbsp;") if row["submitted_dt"] else ""),
                         ("(c)&nbsp;%s" % row["completed_dt"].replace(" ", "&nbsp;") if row["completed_dt"] else "")
                         )
-                    sHTML += "<td class=\"selectable\"><span onclick=\"location.href='taskEdit?task_id=%s'\" class=\"ui-icon ui-icon-pencil pointer\"></span></td>" % row["task_id"]
+                    sHTML += "<td class=\"selectable\"><span task_id=\"%s\" class=\"ui-icon ui-icon-pencil pointer task_edit_btn\"></span></td>" % row["task_id"]
                     
                     sHTML += "</tr>"
     
