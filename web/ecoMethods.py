@@ -939,93 +939,50 @@ class ecoMethods:
             sHTML = ""
     
             if sEcoTemplateID:
-                # get the action from the table, then look at the task_version.
-                # if it's null or empty we get the default,
-                # otherwise we use the version specified.
-                
-                # but, rather than do queries inside the loop, we'll do it with a union of two exclusive queries.
-                sSQL = "select * from (" \
-                    "select ea.action_id, ea.action_name, ea.category, ea.action_desc, ea.original_task_id, ea.action_icon," \
-                    " t.task_id, t.task_name, t.version" \
-                    " from ecotemplate_action ea" \
-                    " join task t on ea.original_task_id = t.original_task_id" \
-                        " and t.default_version = 1" \
-                    " where ea.ecotemplate_id = '" + sEcoTemplateID + "'" \
-                    " and ea.task_version IS null" \
-                    " UNION" \
-                    " select ea.action_id, ea.action_name, ea.category, ea.action_desc, ea.original_task_id, ea.action_icon," \
-                    " t.task_id, t.task_name, t.version" \
-                    " from ecotemplate_action ea" \
-                    " join task t on ea.original_task_id = t.original_task_id" \
-                        " and ea.task_version = t.version" \
-                    " where ea.ecotemplate_id = '" + sEcoTemplateID + "'" \
-                    " and ea.task_version IS NOT null" \
-                    " ) foo" \
-                    " order by action_name"
-
-                dt = self.db.select_all_dict(sSQL)
-                if self.db.error:
-                    uiCommon.log_nouser(self.db.error, 0)
-
-                if dt:
-                    # i = 0
-                    # sHTML += "<table id=\"actions_table\">"
-
-                    for dr in dt:
-                        sActionID = dr["action_id"]
-                        sActionName = dr["action_name"]
-                        sTaskID = dr["task_id"]
-                        sTaskName = dr["task_name"]
-                        sVersion = str(dr["version"])
-                        sCategory = str(dr["category"])
-                        sIcon = ("action_default_48.png" if not dr["action_icon"] else dr["action_icon"])
-
-                        # sDesc is the tooltip
-                        sDesc = "<p>" + (dr["action_desc"].replace("\"", "").replace("'", "") if dr["action_desc"] else "") + \
-                            "</p><p>" + sTaskName + "</p>"
-
-
-                        # sAction = ""
-
-                        sHTML += " <div class=\"action\"" \
-                           " id=\"" + sActionID + "\"" \
-                           " action=\"" + sActionName + "\"" \
-                           " task_id=\"" + sTaskID + "\"" \
-                           " task_name=\"" + sTaskName + "\"" \
-                           " task_version=\"" + sVersion + "\"" \
-                           " category=\"" + sCategory + "\"" \
-                           ">"
-
-                        sHTML += "<div class=\"ui-widget-content ui-corner-all action_btn action_inner\">" # outer div with no styling at all
-
-                        sHTML += "<div class=\"step_header_title\">"
-                        sHTML += "</div>"
-
-                        sHTML += "<div class=\"step_header_icons\">"
-                        sHTML += "<img class=\"action_help_btn\"" \
-                            " src=\"static/images/icons/info.png\" alt=\"\" style=\"width: 12px; height: 12px;\"" \
-                            " title=\"" + sDesc + "\" />"
-                        sHTML += "</div>"
-
-                        # gotta clear the floats
-                        sHTML += "<div class=\"clearfloat\">"
-
-                        sHTML += "<img class=\"action_icon\" src=\"static/images/actions/" + sIcon + "\" alt=\"\" />"
-
-
-                        sHTML += " </div>"
-                        sHTML += " </div>" # end inner div
-
-                        sHTML += "<span class=\"action_name\">"
-                        sHTML += sActionName
-                        sHTML += "</span>"
-
-
-                        sHTML += " </div>" # end outer div
-
-                    # need a clearfloat div here, as javascript flow logic will be 
-                    # dynamically adding and removing floats
-                    sHTML += "<div class=\"clearfloat\"></div>"
+                et = ecosystem.Ecotemplate()
+                if et:
+                    et.FromID(sEcoTemplateID)
+                    if et.ID:
+                        for action in et.Actions.itervalues():
+                            sDesc = action.Description.replace("\"", "").replace("'", "") if action.Description else "%s" % action.TaskName
+    
+                            sHTML += " <div class=\"action\"" \
+                               " id=\"" + action.ID + "\"" \
+                               " action=\"" + action.Name + "\"" \
+                               " task_id=\"" + action.TaskID + "\"" \
+                               " task_name=\"" + action.TaskName + "\"" \
+                               " task_version=\"" + action.TaskVersion + "\"" \
+                               " category=\"" + (action.Category if action.Category else "") + "\"" \
+                               ">"
+    
+                            sHTML += "<div class=\"ui-widget-content ui-corner-all action_btn action_inner\">" # outer div with no styling at all
+    
+                            sHTML += "<div class=\"step_header_title\">"
+                            sHTML += "</div>"
+    
+                            sHTML += "<div class=\"step_header_icons\">"
+                            sHTML += "<img class=\"action_help_btn\" src=\"static/images/icons/info.png\" alt=\"\" style=\"width: 12px; height: 12px;\" title=\"" + sDesc + "\" />"
+                            sHTML += "</div>"
+    
+                            # gotta clear the floats
+                            sHTML += "<div class=\"clearfloat\">"
+    
+                            sHTML += "<img class=\"action_icon\" src=\"static/images/actions/" + ("action_default_48.png" if not action.Icon else action.Icon) + "\" alt=\"\" />"
+    
+    
+                            sHTML += " </div>"
+                            sHTML += " </div>" # end inner div
+    
+                            sHTML += "<span class=\"action_name\">"
+                            sHTML += action.Name
+                            sHTML += "</span>"
+    
+    
+                            sHTML += " </div>" # end outer div
+    
+                        # need a clearfloat div here, as javascript flow logic will be 
+                        # dynamically adding and removing floats
+                        sHTML += "<div class=\"clearfloat\"></div>"
 
             else:
                 uiCommon.log("Unable to get Actions - Missing Ecotemplate ID")
