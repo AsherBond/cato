@@ -96,7 +96,9 @@ def notfound():
 class index:        
     def GET(self):
         out = []
-        out.append("Cloud Sidekick REST API.\n\n")
+        out.append("---------------------------")
+        out.append("- Cloud Sidekick REST API -")
+        out.append("---------------------------\n\n")
         
         try:
             from catoapi import ecoMethods
@@ -108,11 +110,11 @@ class index:
                 att = getattr(ecoMethods.ecoMethods, attname, None)
                 if att:
                     if hasattr(att, "__name__"):
+                        out.append("----------\n")
                         out.append("Method: ecoMethods/%s" % att.__name__)
                         if att.__doc__:
                             out.append("%s" % att.__doc__)
                         
-                        out.append("----------")
 
 
             from catoapi import stormMethods
@@ -121,11 +123,11 @@ class index:
                 att = getattr(stormMethods.stormMethods, attname, None)
                 if att:
                     if hasattr(att, "__name__"):
+                        out.append("----------\n")
                         out.append("Method: stormMethods/%s" % att.__name__)
                         if att.__doc__:
                             out.append("%s" % att.__doc__)
                         
-                        out.append("----------")
                     
                     
             from catoapi import taskMethods
@@ -134,12 +136,23 @@ class index:
                 att = getattr(taskMethods.taskMethods, attname, None)
                 if att:
                     if hasattr(att, "__name__"):
+                        out.append("----------\n")
                         out.append("Method: taskMethods/%s" % att.__name__)
                         if att.__doc__:
                             out.append("%s" % att.__doc__)
                         
-                        out.append("----------")
-                    
+
+            from catoapi import sysMethods
+            
+            for attname in dir(sysMethods.sysMethods):
+                att = getattr(sysMethods.sysMethods, attname, None)
+                if att:
+                    if hasattr(att, "__name__"):
+                        out.append("----------\n")
+                        out.append("Method: sysMethods/%s" % att.__name__)
+                        if att.__doc__:
+                            out.append("%s" % att.__doc__)
+                        
                     
                     
         except Exception as ex:
