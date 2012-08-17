@@ -81,10 +81,11 @@ class Tasks(object):
     def AsXML(self):
         try:
             dom = ET.fromstring('<Tasks />')
-            for row in self.rows:
-                xml = catocommon.dict2xml(row, "Task")
-                node = ET.fromstring(xml.tostring())
-                dom.append(node)
+            if self.rows:
+                for row in self.rows:
+                    xml = catocommon.dict2xml(row, "Task")
+                    node = ET.fromstring(xml.tostring())
+                    dom.append(node)
             
             return ET.tostring(dom)
         except Exception as ex:
@@ -94,11 +95,12 @@ class Tasks(object):
         try:
             keys = ['ID', 'OriginalTaskID', 'Name', 'Code', 'Version', 'Status']
             outrows = []
-            for row in self.rows:
-                cols = []
-                for key in keys:
-                    cols.append(str(row[key]))
-                outrows.append("\t".join(cols))
+            if self.rows:
+                for row in self.rows:
+                    cols = []
+                    for key in keys:
+                        cols.append(str(row[key]))
+                    outrows.append("\t".join(cols))
               
             return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
         except Exception as ex:
@@ -1153,6 +1155,34 @@ class TaskRunLog(object):
         except Exception as ex:
             raise ex
 
+    def AsXML(self):
+        try:
+            dom = ET.fromstring('<TaskLog />')
+            if self.rows:
+                for row in self.log_rows:
+                    xml = catocommon.dict2xml(row, "Item")
+                    node = ET.fromstring(xml.tostring())
+                    dom.append(node)
+            
+            return ET.tostring(dom)
+        except Exception as ex:
+            raise ex
+
+    def AsText(self):
+        try:
+            keys = ['codeblock_name', 'step_order', 'function_name', 'log']
+            outrows = []
+            if self.rows:
+                for row in self.log_rows:
+                    cols = []
+                    for key in keys:
+                        cols.append(str(row[key]))
+                    outrows.append("\t".join(cols))
+              
+            return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
+        except Exception as ex:
+            raise ex
+
 class TaskInstance(object):
     """
     """
@@ -1288,7 +1318,10 @@ class TaskInstance(object):
     
                         # build a list of the other instances
                         for dr in dt:
-                            aOtherInstances.append((dr["task_instance"], dr["task_status"]))
+                            d = {}
+                            d["task_instance"] = str(dr["task_instance"])
+                            d["task_status"] = dr["task_status"]
+                            aOtherInstances.append(d)
     
                         self.other_instances = aOtherInstances
                     
@@ -1310,6 +1343,24 @@ class TaskInstance(object):
     def AsJSON(self):
         try:
             return json.dumps(self.__dict__, default=catocommon.jsonSerializeHandler)
+        except Exception as ex:
+            raise ex
+
+    def AsXML(self):
+        try:
+            xml = catocommon.dict2xml(self.__dict__, "TaskInstance")
+            return xml.tostring()
+        except Exception as ex:
+            raise ex
+
+    def AsText(self):
+        try:
+            keys = ["task_instance", "task_status", "task_name_label", "submitted_dt", "completed_dt"]
+            vals = []
+            for key in keys:
+                vals.append(str(getattr(self, key)))
+              
+            return "%s\n%s" % ("\t".join(keys), "\t".join(vals))
         except Exception as ex:
             raise ex
 
@@ -1338,4 +1389,131 @@ class TaskInstance(object):
             raise Exception(ex)
         finally:
             db.close()
+
+class TaskInstances(object):
+    rows = {}
+    def __init__(self, sFilter="", sStatus="", sFrom="", sTo="", sRecords=""):
+        try:
+            db = catocommon.new_conn()
+            
+            # # of records must be numeric
+            if sRecords:
+                try:
+                    sRecords = str(int(sRecords))
+                except TypeError:
+                    sRecords = "200"
+            else:
+                sRecords = "200"
+                
+            sWhereString = " where (1=1) "
+
+            if sFilter:
+                aSearchTerms = sFilter.split(",")
+                for term in aSearchTerms:
+                    if term:
+                        sWhereString += " and (ti.task_instance like '%%" + term + "%%' " \
+                            "or ti.task_id like '%%" + term + "%%' " \
+                            "or ti.asset_id like '%%" + term + "%%' " \
+                            "or ti.pid like '%%" + term + "%%' " \
+                            "or ti.task_status like '%%" + term + "%%' " \
+                            "or ar.hostname like '%%" + term + "%%' " \
+                            "or a.asset_name like '%%" + term + "%%' " \
+                            "or t.task_code like '%%" + term + "%%' " \
+                            "or t.task_name like '%%" + term + "%%' " \
+                            "or t.version like '%%" + term + "%%' " \
+                            "or u.username like '%%" + term + "%%' " \
+                            "or u.full_name like '%%" + term + "%%' " \
+                            "or d.ecosystem_name like '%%" + term + "%%') "
+    
+            sDateSearchString = ""
+
+            if sFrom:
+                sDateSearchString += " and (submitted_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')" \
+                " or started_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')" \
+                " or completed_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')) "
+            if sTo:
+                sDateSearchString += " and (submitted_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')" \
+                " or started_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')" \
+                " or completed_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')) "
+
+
+
+            # there may be a list of statuses passed in, if so, build out the where clause for them too
+            if sStatus:
+                l = []
+                # status might be a comma delimited list.  but to prevent sql injection, parse it.
+                for s in sStatus.split(","):
+                    l.append("'%s'" % s)
+                # I love python!
+                if l:
+                    sWhereString += " and ti.task_status in (%s)" % ",".join(map(str, l)) 
+                
+            # NOT CURRENTLY CHECKING PERMISSIONS
+            sTagString = ""
+            """
+            if !uiCommon.UserIsInRole("Developer") and !uiCommon.UserIsInRole("Administrator"):
+                sTagString+= " join object_tags tt on t.original_task_id = tt.object_id" \
+                    " join object_tags ut on ut.tag_name = tt.tag_name" \
+                    " and ut.object_type = 1 and tt.object_type = 3" \
+                    " and ut.object_id = '" + uiCommon.GetSessionUserID() + "'"
+            """
+            
+            sSQL = "select ti.task_instance, t.task_id, t.task_code, a.asset_name," \
+                    " ti.pid as process_id, ti.task_status, t.task_name," \
+                    " ifnull(u.full_name, '') as started_by," \
+                    " t.version, u.full_name, ar.hostname as ce_name, ar.platform as ce_type," \
+                    " d.ecosystem_name, d.ecosystem_id," \
+                    " convert(ti.submitted_dt, CHAR(20)) as submitted_dt," \
+                    " convert(ti.started_dt, CHAR(20)) as started_dt," \
+                    " convert(ti.completed_dt, CHAR(20)) as completed_dt" \
+                    " from task_instance ti" \
+                    " left join task t on t.task_id = ti.task_id" + \
+                    sTagString + \
+                    " left outer join application_registry ar on ti.ce_node = ar.id" \
+                    " left outer join ecosystem d on ti.ecosystem_id = d.ecosystem_id" \
+                    " left join users u on u.user_id = ti.submitted_by" \
+                    " left join asset a on a.asset_id = ti.asset_id" + \
+                    sWhereString + sDateSearchString + \
+                    " order by ti.task_instance desc" \
+                    " limit " + sRecords
+            
+            self.rows = db.select_all_dict(sSQL)
+        except Exception as ex:
+            raise Exception(ex)
+        finally:
+            db.close()
+
+    def AsJSON(self):
+        try:
+            return json.dumps(self.rows, default=catocommon.jsonSerializeHandler)
+        except Exception as ex:
+            raise ex
+
+    def AsXML(self):
+        try:
+            dom = ET.fromstring('<TaskInstances />')
+            if self.rows:
+                for row in self.rows:
+                    xml = catocommon.dict2xml(row, "Instance")
+                    node = ET.fromstring(xml.tostring())
+                    dom.append(node)
+            
+            return ET.tostring(dom)
+        except Exception as ex:
+            raise ex
+
+    def AsText(self):
+        try:
+            keys = ['task_instance', 'task_name', 'version', 'task_status', 'started_by', 'submitted_dt', 'completed_dt']
+            outrows = []
+            if self.rows:
+                for row in self.rows:
+                    cols = []
+                    for key in keys:
+                        cols.append(str(row[key]))
+                    outrows.append("\t".join(cols))
+                  
+            return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
+        except Exception as ex:
+            raise ex
 

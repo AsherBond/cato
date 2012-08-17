@@ -245,7 +245,7 @@ function doGetDetails() {
 				if (instance.other_instances.length) {
 					html = ""
 					$(instance.other_instances).each(function(idx, row) {
-						html += '<tr task_instance="' + row[0] + '">' + '<td tag="selectable">' + row[0] + '</td>' + '<td tag="selectable">' + row[1] + '</td>' + '</tr>';
+						html += '<tr task_instance="' + row.task_instance + '">' + '<td tag="selectable" class="pointer">' + row.task_instance + '</td>' + '<td tag="selectable" class="pointer">' + row.task_status + '</td>' + '</tr>';
 					});
 					$("#other_instances").empty().append(html);
 					initJtable();

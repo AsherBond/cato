@@ -78,90 +78,10 @@ class taskMethods:
             sTo = uiCommon.getAjaxArg("sTo", "")
             sRecords = uiCommon.getAjaxArg("sRecords", "200")
             
-            # # of records must be numeric
-            try:
-                sRecords = str(int(sRecords))
-            except TypeError:
-                sRecords = "200"
-                
-
             sHTML = ""
-            sWhereString = " where (1=1) "
-
-            if sFilter:
-                aSearchTerms = sFilter.split(",")
-                for term in aSearchTerms:
-                    if term:
-                        sWhereString += " and (ti.task_instance like '%%" + term + "%%' " \
-                            "or ti.task_id like '%%" + term + "%%' " \
-                            "or ti.asset_id like '%%" + term + "%%' " \
-                            "or ti.pid like '%%" + term + "%%' " \
-                            "or ti.task_status like '%%" + term + "%%' " \
-                            "or ar.hostname like '%%" + term + "%%' " \
-                            "or a.asset_name like '%%" + term + "%%' " \
-                            "or t.task_code like '%%" + term + "%%' " \
-                            "or t.task_name like '%%" + term + "%%' " \
-                            "or t.version like '%%" + term + "%%' " \
-                            "or u.username like '%%" + term + "%%' " \
-                            "or u.full_name like '%%" + term + "%%' " \
-                            "or d.ecosystem_name like '%%" + term + "%%') "
-    
-            sDateSearchString = ""
-
-            if sFrom:
-                sDateSearchString += " and (submitted_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')" \
-                " or started_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')" \
-                " or completed_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')) "
-            if sTo:
-                sDateSearchString += " and (submitted_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')" \
-                " or started_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')" \
-                " or completed_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')) "
-
-
-
-            # there may be a list of statuses passed in, if so, build out the where clause for them too
-            if sStatus:
-                l = []
-                # status might be a comma delimited list.  but to prevent sql injection, parse it.
-                for s in sStatus.split(","):
-                    l.append("'%s'" % s)
-                # I love python!
-                if l:
-                    sWhereString += " and ti.task_status in (%s)" % ",".join(map(str, l)) 
-                
-            # NOT CURRENTLY CHECKING PERMISSIONS
-            sTagString = ""
-            """
-            if !uiCommon.UserIsInRole("Developer") and !uiCommon.UserIsInRole("Administrator"):
-                sTagString+= " join object_tags tt on t.original_task_id = tt.object_id" \
-                    " join object_tags ut on ut.tag_name = tt.tag_name" \
-                    " and ut.object_type = 1 and tt.object_type = 3" \
-                    " and ut.object_id = '" + uiCommon.GetSessionUserID() + "'"
-            """
-            
-            sSQL = "select ti.task_instance, t.task_id, t.task_code, a.asset_name," \
-                    " ti.pid as process_id, ti.task_status, t.task_name," \
-                    " ifnull(u.full_name, '') as started_by," \
-                    " t.version, u.full_name, ar.hostname as ce_name, ar.platform as ce_type," \
-                    " d.ecosystem_name, d.ecosystem_id," \
-                    " convert(ti.submitted_dt, CHAR(20)) as submitted_dt," \
-                    " convert(ti.started_dt, CHAR(20)) as started_dt," \
-                    " convert(ti.completed_dt, CHAR(20)) as completed_dt" \
-                    " from task_instance ti" \
-                    " left join task t on t.task_id = ti.task_id" + \
-                    sTagString + \
-                    " left outer join application_registry ar on ti.ce_node = ar.id" \
-                    " left outer join ecosystem d on ti.ecosystem_id = d.ecosystem_id" \
-                    " left join users u on u.user_id = ti.submitted_by" \
-                    " left join asset a on a.asset_id = ti.asset_id" + \
-                    sWhereString + sDateSearchString + \
-                    " order by ti.task_instance desc" \
-                    " limit " + sRecords
-
-            rows = self.db.select_all_dict(sSQL)
-    
-            if rows:
-                for row in rows:
+            tasks = task.TaskInstances(sFilter, sStatus, sFrom, sTo, sRecords)
+            if tasks.rows:
+                for row in tasks.rows:
                     task_label = "%s (%s)" % (row["task_name"], str(row["version"]))
                     sHTML += "<tr style=\"font-size: .8em;\" task_instance=\"%s\">" % row["task_instance"]
                     
