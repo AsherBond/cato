@@ -1458,24 +1458,33 @@ class TaskInstances(object):
                     " and ut.object_id = '" + uiCommon.GetSessionUserID() + "'"
             """
             
-            sSQL = "select ti.task_instance, t.task_id, t.task_code, a.asset_name," \
-                    " ti.pid as process_id, ti.task_status, t.task_name," \
-                    " ifnull(u.full_name, '') as started_by," \
-                    " t.version, u.full_name, ar.hostname as ce_name, ar.platform as ce_type," \
-                    " d.ecosystem_name, d.ecosystem_id," \
-                    " convert(ti.submitted_dt, CHAR(20)) as submitted_dt," \
-                    " convert(ti.started_dt, CHAR(20)) as started_dt," \
-                    " convert(ti.completed_dt, CHAR(20)) as completed_dt" \
-                    " from task_instance ti" \
-                    " left join task t on t.task_id = ti.task_id" + \
-                    sTagString + \
-                    " left outer join application_registry ar on ti.ce_node = ar.id" \
-                    " left outer join ecosystem d on ti.ecosystem_id = d.ecosystem_id" \
-                    " left join users u on u.user_id = ti.submitted_by" \
-                    " left join asset a on a.asset_id = ti.asset_id" + \
-                    sWhereString + sDateSearchString + \
-                    " order by ti.task_instance desc" \
-                    " limit " + sRecords
+            sSQL = """select 
+                ti.task_instance as Instance, 
+                t.task_id as TaskID, 
+                t.task_code as TaskCode, 
+                a.asset_name as AssetName,
+                ti.pid as ProcessID, 
+                ti.task_status as Status, 
+                t.task_name as TaskName,
+                ifnull(u.full_name, '') as StartedBy,
+                t.version as Version, 
+                ar.hostname as CEName, 
+                ar.platform as CEType,
+                d.ecosystem_name as EcosystemName, 
+                d.ecosystem_id as EcosystemID,
+                convert(ti.submitted_dt, CHAR(20)) as SubmittedDate,
+                convert(ti.started_dt, CHAR(20)) as StartedDate,
+                convert(ti.completed_dt, CHAR(20)) as CompletedDate
+                from task_instance ti
+                left join task t on t.task_id = ti.task_id
+                %s
+                left outer join application_registry ar on ti.ce_node = ar.id
+                left outer join ecosystem d on ti.ecosystem_id = d.ecosystem_id
+                left join users u on u.user_id = ti.submitted_by
+                left join asset a on a.asset_id = ti.asset_id
+                %s %s
+                order by ti.task_instance desc
+                limit %s""" % (sTagString, sWhereString, sDateSearchString, sRecords)
             
             self.rows = db.select_all_dict(sSQL)
         except Exception as ex:
@@ -1504,7 +1513,7 @@ class TaskInstances(object):
 
     def AsText(self):
         try:
-            keys = ['task_instance', 'task_name', 'version', 'task_status', 'started_by', 'submitted_dt', 'completed_dt']
+            keys = ['Instance', 'TaskName', 'Version', 'Status', 'StartedBy', 'SubmittedDate', 'CompletedDate']
             outrows = []
             if self.rows:
                 for row in self.rows:

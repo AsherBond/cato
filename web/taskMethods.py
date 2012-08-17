@@ -82,23 +82,23 @@ class taskMethods:
             tasks = task.TaskInstances(sFilter, sStatus, sFrom, sTo, sRecords)
             if tasks.rows:
                 for row in tasks.rows:
-                    task_label = "%s (%s)" % (row["task_name"], str(row["version"]))
-                    sHTML += "<tr style=\"font-size: .8em;\" task_instance=\"%s\">" % row["task_instance"]
+                    task_label = "%s (%s)" % (row["TaskName"], str(row["Version"]))
+                    sHTML += "<tr style=\"font-size: .8em;\" task_instance=\"%s\">" % row["Instance"]
                     
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["task_instance"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["task_code"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["Instance"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["TaskCode"]
                     sHTML += "<td class=\"selectable\">%s</td>" % task_label
-                    sHTML += "<td class=\"selectable\">%s</td>" % (row["asset_name"] if row["asset_name"] else "")
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["task_status"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["started_by"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % (row["ce_name"] if row["ce_name"] else "")
-                    sHTML += "<td class=\"selectable\">%s</td>" % str((row["process_id"] if row["process_id"] else ""))
-                    sHTML += "<td class=\"selectable\">%s</td>" % (row["ecosystem_name"] if row["ecosystem_name"] else "")
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["AssetName"] if row["AssetName"] else "")
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["Status"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["StartedBy"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["CEName"] if row["CEName"] else "")
+                    sHTML += "<td class=\"selectable\">%s</td>" % str((row["ProcessID"] if row["ProcessID"] else ""))
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["EcosystemName"] if row["EcosystemName"] else "")
                     sHTML += "<td class=\"selectable\">%s<br />%s</td>" % (
-                        ("(s)&nbsp;%s" % row["submitted_dt"].replace(" ", "&nbsp;") if row["submitted_dt"] else ""),
-                        ("(c)&nbsp;%s" % row["completed_dt"].replace(" ", "&nbsp;") if row["completed_dt"] else "")
+                        ("(s)&nbsp;%s" % row["SubmittedDate"].replace(" ", "&nbsp;") if row["SubmittedDate"] else ""),
+                        ("(c)&nbsp;%s" % row["CompletedDate"].replace(" ", "&nbsp;") if row["CompletedDate"] else "")
                         )
-                    sHTML += "<td class=\"selectable\"><span task_id=\"%s\" class=\"ui-icon ui-icon-pencil pointer task_edit_btn\"></span></td>" % row["task_id"]
+                    sHTML += "<td class=\"selectable\"><span task_id=\"%s\" class=\"ui-icon ui-icon-pencil pointer task_edit_btn\"></span></td>" % row["TaskID"]
                     
                     sHTML += "</tr>"
     
@@ -119,7 +119,7 @@ class taskMethods:
                     return t.AsJSON()
             
             #should not get here if all is well
-            return "{\"result\":\"fail\",\"error\":\"Failed to get Task details for Task ID [" + sID + "].\"}"
+            return "{\"result\":\"fail\",\"error\":\"Failed to get Task details for Task ID [%s].\"}" % sTaskID
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
 
