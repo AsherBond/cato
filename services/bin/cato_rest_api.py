@@ -92,6 +92,16 @@ class wmHandler:
 def notfound():
 	return web.notfound("Sorry, the page you were looking for was not found.")
 		
+class version:        
+    def GET(self):
+        try:
+            if uiGlobals.config.has_key("version"):
+                return uiGlobals.config["version"]
+            else:
+                return "Unknown"
+        except Exception as ex:
+            print(ex.__str__())
+            
 # the default page if no URI is given, just an information message
 class index:        
     def GET(self):
@@ -162,6 +172,7 @@ class index:
 
 urls = (
     '/', 'index',
+    '/version', 'version',
     '/(.*)', 'wmHandler'
 )
 
