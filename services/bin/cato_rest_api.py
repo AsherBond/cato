@@ -57,6 +57,8 @@ class wmHandler:
         
         is_authenticated, user_id = api.authenticate(method, args)
         if not is_authenticated:
+            if getattr(args, 'key', ''):
+                print("Authentication Failure [%s]" % getattr(args, 'key', ''))
             response = api.response(err_code="AuthenticationFailure")
             return response.Write(output_format)
         
@@ -75,8 +77,19 @@ class wmHandler:
 
             # is this a JSONP request?        
             if "callback" in args:
+                """
+                    IF there is an arg called "callback", that means we want the results formatted as a javascript function call.
+                    
+                    (of course, if we wanna eventually support both XML and JSON result types that's fine...
+                    it just means the payload *inside* the jsonp callback will be xml or json as requested.)
+                """
+                payload = response.Write(output_format)
+                #base64 encode it (don't forget the three special chars)
+                #payload = base64.b64encode(payload)
+                #payload = payload.replace("=", "%3D").replace("+", "%2B").replace("/", "%2F")
+                
                 web.header('Content-Type', 'application/json')
-                return api.perform_callback(web, args["callback"], resp)
+                return "%s('%s')" % (args["callback"], payload)
             else:
                 return response.Write(output_format)
         else:
