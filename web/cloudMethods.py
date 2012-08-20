@@ -47,18 +47,18 @@ class cloudMethods:
                 start, end, pager_html = uiCommon.GetPager(len(c.rows), maxrows, sPage)
 
                 for row in c.rows[start:end]:
-                    sHTML += "<tr cloud_id=\"" + row["cloud_id"] + "\">"
+                    sHTML += "<tr cloud_id=\"" + row["ID"] + "\">"
                     sHTML += "<td class=\"chkboxcolumn\">"
                     sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
-                    " id=\"chk_" + row["cloud_id"] + "\"" \
+                    " id=\"chk_" + row["ID"] + "\"" \
                     " tag=\"chk\" />"
                     sHTML += "</td>"
                     
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["cloud_name"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["provider"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["api_url"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["api_protocol"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % (row["account_name"] if row["account_name"] else "&nbsp;")
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["Name"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["Provider"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["APIUrl"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["APIProtocol"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["DefaultAccount"] if row["DefaultAccount"] else "&nbsp;")
                     
                     sHTML += "</tr>"
     
@@ -204,12 +204,12 @@ class cloudMethods:
                 start, end, pager_html = uiCommon.GetPager(len(ca.rows), maxrows, sPage)
 
                 for row in ca.rows[start:end]:
-                    sHTML += "<tr account_id=\"" + row["account_id"] + "\">"
+                    sHTML += "<tr account_id=\"" + row["ID"] + "\">"
                     
                     if not row["has_ecosystems"]:
                         sHTML += "<td class=\"chkboxcolumn\">"
                         sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
-                        " id=\"chk_" + row["account_id"] + "\"" \
+                        " id=\"chk_" + row["ID"] + "\"" \
                         " tag=\"chk\" />"
                         sHTML += "</td>"
                     else:
@@ -218,12 +218,12 @@ class cloudMethods:
                             " title=\"This account has associated Ecosystems and cannot be deleted.\"></span>"
                         sHTML += "</td>"
                     
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["account_name"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["account_number"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["provider"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["login_id"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % (row["cloud_name"] if row["cloud_name"] else "&nbsp;")
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["is_default"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["Name"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["AccountNumber"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["Provider"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["LoginID"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["DefaultCloud"] if row["DefaultCloud"] else "&nbsp;")
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["IsDefault"]
                     
                     sHTML += "</tr>"
 

@@ -204,7 +204,7 @@ function GetProviderAccounts() {
             $("#ddlDefaultAccount").empty();
             if (accounts) {
 	            $.each(accounts, function(index, account){
-	            	$("#ddlDefaultAccount").append("<option value=\"" + account.account_id + "\">" + account.account_name + "</option>");
+	            	$("#ddlDefaultAccount").append("<option value=\"" + account.ID + "\">" + account.Name + "</option>");
 				});
 			}
 			
