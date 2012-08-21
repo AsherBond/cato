@@ -9,8 +9,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `action_plan` (
   `plan_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `task_id` varchar(36) NOT NULL,
@@ -24,9 +22,6 @@ CREATE TABLE `action_plan` (
   `schedule_id` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`plan_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `action_plan_history` (
   `plan_id` bigint(20) NOT NULL,
   `task_id` varchar(36) NOT NULL,
@@ -41,9 +36,6 @@ CREATE TABLE `action_plan_history` (
   `task_instance` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`plan_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `action_schedule` (
   `schedule_id` varchar(36) NOT NULL DEFAULT '',
   `task_id` varchar(36) NOT NULL DEFAULT '',
@@ -63,9 +55,6 @@ CREATE TABLE `action_schedule` (
   `modified` int(11) DEFAULT '1',
   PRIMARY KEY (`schedule_id`,`last_modified`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `application_registry` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `app_name` varchar(255) NOT NULL DEFAULT '',
@@ -81,20 +70,13 @@ CREATE TABLE `application_registry` (
   `executible_path` varchar(1024) DEFAULT '',
   `command_line` varchar(255) DEFAULT '',
   `platform` varchar(255) DEFAULT '',
-  PRIMARY KEY (`id`),
-  KEY `app_name` (`app_name`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `application_settings` (
   `id` int(11) NOT NULL,
   `setting_xml` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `asset` (
   `asset_id` varchar(36) NOT NULL DEFAULT '',
   `asset_name` varchar(255) NOT NULL DEFAULT '',
@@ -109,9 +91,6 @@ CREATE TABLE `asset` (
   PRIMARY KEY (`asset_id`),
   UNIQUE KEY `asset_IX_asset` (`asset_name`(64))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `asset_credential` (
   `credential_id` varchar(36) NOT NULL,
   `username` varchar(128) NOT NULL,
@@ -124,9 +103,6 @@ CREATE TABLE `asset_credential` (
   PRIMARY KEY (`credential_id`),
   UNIQUE KEY `credential_name_UNIQUE` (`credential_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `cloud_account` (
   `account_id` varchar(36) NOT NULL,
   `account_name` varchar(64) NOT NULL,
@@ -140,9 +116,6 @@ CREATE TABLE `cloud_account` (
   PRIMARY KEY (`account_id`),
   UNIQUE KEY `account_name_UNIQUE` (`account_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `clouds` (
   `cloud_id` varchar(36) NOT NULL,
   `provider` varchar(32) NOT NULL,
@@ -151,11 +124,9 @@ CREATE TABLE `clouds` (
   `api_protocol` varchar(8) NOT NULL,
   `default_account_id` varchar(36) DEFAULT NULL,
   `region` varchar(128) DEFAULT NULL,
-  PRIMARY KEY (`cloud_id`)
+  PRIMARY KEY (`cloud_id`),
+  UNIQUE KEY `cloud_id_provider_UNIQUE` (`cloud_id`,`provider`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `clouds_keypair` (
   `keypair_id` varchar(36) NOT NULL,
   `cloud_id` varchar(36) NOT NULL,
@@ -165,9 +136,6 @@ CREATE TABLE `clouds_keypair` (
   PRIMARY KEY (`cloud_id`,`keypair_name`),
   UNIQUE KEY `keypair_id_UNIQUE` (`keypair_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ecosystem` (
   `ecosystem_id` varchar(36) NOT NULL,
   `ecosystem_name` varchar(64) NOT NULL,
@@ -187,9 +155,6 @@ CREATE TABLE `ecosystem` (
   KEY `fk_cloud_account` (`account_id`),
   KEY `FK_ecotemplate_id` (`ecotemplate_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ecosystem_log` (
   `ecosystem_log_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `ecosystem_id` varchar(36) NOT NULL,
@@ -202,9 +167,6 @@ CREATE TABLE `ecosystem_log` (
   `event_id` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`ecosystem_log_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ecosystem_object` (
   `ecosystem_id` varchar(36) NOT NULL,
   `cloud_id` varchar(36) NOT NULL,
@@ -213,9 +175,6 @@ CREATE TABLE `ecosystem_object` (
   `added_dt` datetime DEFAULT NULL,
   PRIMARY KEY (`ecosystem_id`,`ecosystem_object_id`,`ecosystem_object_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ecosystem_object_tag` (
   `ecosystem_id` varchar(36) NOT NULL,
   `ecosystem_object_id` varchar(64) NOT NULL,
@@ -223,18 +182,12 @@ CREATE TABLE `ecosystem_object_tag` (
   `value` varchar(256) NOT NULL,
   PRIMARY KEY (`ecosystem_id`,`ecosystem_object_id`,`key_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ecosystem_output` (
   `ecosystem_id` varchar(36) NOT NULL,
   `output_key` varchar(32) NOT NULL,
   `output_desc` varchar(256) DEFAULT NULL,
   `output_value` varchar(1024) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ecotemplate` (
   `ecotemplate_id` varchar(36) NOT NULL,
   `ecotemplate_name` varchar(64) DEFAULT NULL,
@@ -244,9 +197,6 @@ CREATE TABLE `ecotemplate` (
   PRIMARY KEY (`ecotemplate_id`),
   UNIQUE KEY `ecotemplate_name` (`ecotemplate_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ecotemplate_action` (
   `action_id` varchar(36) NOT NULL,
   `ecotemplate_id` varchar(36) NOT NULL,
@@ -260,9 +210,6 @@ CREATE TABLE `ecotemplate_action` (
   PRIMARY KEY (`action_id`),
   UNIQUE KEY `template_action` (`ecotemplate_id`,`action_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ecotemplate_runlist` (
   `item_id` varchar(36) NOT NULL,
   `ecotemplate_id` varchar(36) NOT NULL,
@@ -276,9 +223,6 @@ CREATE TABLE `ecotemplate_runlist` (
   `data` text,
   PRIMARY KEY (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `image` (
   `image_id` varchar(36) NOT NULL,
   `image_type` varchar(32) NOT NULL,
@@ -291,17 +235,11 @@ CREATE TABLE `image` (
   `data` text,
   PRIMARY KEY (`image_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ldap_domain` (
   `ldap_domain` varchar(255) NOT NULL DEFAULT '',
   `address` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`ldap_domain`(64))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `login_security_settings` (
   `id` int(11) NOT NULL,
   `pass_max_age` int(11) NOT NULL,
@@ -322,9 +260,6 @@ CREATE TABLE `login_security_settings` (
   `log_days` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `message` (
   `msg_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `date_time_entered` datetime DEFAULT NULL,
@@ -344,9 +279,6 @@ CREATE TABLE `message` (
   PRIMARY KEY (`msg_id`),
   KEY `message_IX_message` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `message_data_file` (
   `msg_file_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `msg_id` bigint(20) DEFAULT NULL,
@@ -357,17 +289,11 @@ CREATE TABLE `message_data_file` (
   KEY `FK_message_data_file_message` (`msg_id`),
   CONSTRAINT `FK_message_data_file_message` FOREIGN KEY (`msg_id`) REFERENCES `message` (`msg_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `message_file_lookup` (
   `file_type` int(11) NOT NULL AUTO_INCREMENT,
   `file_description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`file_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `messenger_settings` (
   `id` int(11) NOT NULL,
   `mode_off_on` varchar(3) NOT NULL,
@@ -383,26 +309,17 @@ CREATE TABLE `messenger_settings` (
   `admin_email` varchar(255) DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `object_registry` (
   `object_id` varchar(36) NOT NULL,
   `registry_xml` text NOT NULL,
   PRIMARY KEY (`object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `object_tags` (
   `object_id` varchar(36) NOT NULL,
   `object_type` int(11) NOT NULL,
   `tag_name` varchar(32) NOT NULL,
   PRIMARY KEY (`object_id`,`tag_name`,`object_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `poller_settings` (
   `id` int(11) NOT NULL,
   `mode_off_on` varchar(3) NOT NULL,
@@ -411,9 +328,6 @@ CREATE TABLE `poller_settings` (
   `app_instance` varchar(1024) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `request` (
   `request_id` varchar(36) NOT NULL,
   `request_status` varchar(32) NOT NULL,
@@ -428,9 +342,6 @@ CREATE TABLE `request` (
   `approval_notes` text,
   PRIMARY KEY (`request_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `request_item` (
   `item_id` varchar(36) NOT NULL,
   `request_id` varchar(36) NOT NULL,
@@ -439,9 +350,6 @@ CREATE TABLE `request_item` (
   `item_notes` varchar(2048) DEFAULT NULL,
   PRIMARY KEY (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `scheduler_settings` (
   `id` int(11) NOT NULL,
   `mode_off_on` varchar(3) NOT NULL,
@@ -451,17 +359,11 @@ CREATE TABLE `scheduler_settings` (
   `clean_app_registry` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tags` (
   `tag_name` varchar(32) NOT NULL,
   `tag_desc` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`tag_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `task` (
   `task_id` varchar(36) NOT NULL DEFAULT '',
   `original_task_id` varchar(36) NOT NULL DEFAULT '',
@@ -480,9 +382,6 @@ CREATE TABLE `task` (
   UNIQUE KEY `IX_task_version` (`original_task_id`,`version`),
   UNIQUE KEY `IX_task_name_version` (`task_name`(64),`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `task_codeblock` (
   `task_id` varchar(36) NOT NULL DEFAULT '',
   `codeblock_name` varchar(32) NOT NULL DEFAULT '',
@@ -490,9 +389,6 @@ CREATE TABLE `task_codeblock` (
   KEY `FK_task_codeblock_task` (`task_id`),
   CONSTRAINT `FK_task_codeblock_task` FOREIGN KEY (`task_id`) REFERENCES `task` (`task_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `task_conn_log` (
   `task_instance` bigint(20) NOT NULL,
   `address` varchar(128) NOT NULL,
@@ -504,9 +400,6 @@ CREATE TABLE `task_conn_log` (
   KEY `IX_task_conn_log_ti` (`task_instance`),
   KEY `IX_task_conn_log_userid` (`userid`(32))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `task_instance` (
   `task_instance` bigint(20) NOT NULL AUTO_INCREMENT,
   `task_id` varchar(36) NOT NULL DEFAULT '',
@@ -534,9 +427,6 @@ CREATE TABLE `task_instance` (
   KEY `IX_task_instance_task_status` (`task_status`),
   KEY `IX_task_instance_schedule_instance` (`schedule_instance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `task_instance_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `task_instance` bigint(20) NOT NULL,
@@ -550,17 +440,11 @@ CREATE TABLE `task_instance_log` (
   KEY `IX_task_instance_log_connection_name` (`connection_name`),
   CONSTRAINT `FK_task_instance_log_task_instance` FOREIGN KEY (`task_instance`) REFERENCES `task_instance` (`task_instance`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `task_instance_parameter` (
   `task_instance` bigint(20) NOT NULL,
   `parameter_xml` text NOT NULL,
   PRIMARY KEY (`task_instance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `task_step` (
   `step_id` varchar(36) NOT NULL DEFAULT '',
   `task_id` varchar(36) NOT NULL DEFAULT '',
@@ -577,9 +461,6 @@ CREATE TABLE `task_step` (
   KEY `IX_task_step_function_name` (`function_name`),
   CONSTRAINT `FK_task_step_task` FOREIGN KEY (`task_id`) REFERENCES `task` (`task_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `task_step_clipboard` (
   `user_id` varchar(36) NOT NULL DEFAULT '',
   `clip_dt` datetime NOT NULL,
@@ -592,9 +473,6 @@ CREATE TABLE `task_step_clipboard` (
   `codeblock_name` varchar(36) DEFAULT NULL,
   KEY `user_id` (`user_id`,`clip_dt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `task_step_user_settings` (
   `user_id` varchar(36) NOT NULL DEFAULT '',
   `step_id` varchar(36) NOT NULL DEFAULT '',
@@ -608,9 +486,6 @@ CREATE TABLE `task_step_user_settings` (
   CONSTRAINT `FK_task_step_user_settings_task_step` FOREIGN KEY (`step_id`) REFERENCES `task_step` (`step_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `FK_task_step_user_settings_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user_password_history` (
   `user_id` varchar(36) NOT NULL DEFAULT '',
   `change_time` datetime NOT NULL DEFAULT '1753-01-01 00:00:00',
@@ -619,9 +494,6 @@ CREATE TABLE `user_password_history` (
   KEY `FK_user_password_history_users` (`user_id`),
   CONSTRAINT `FK_user_password_history_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user_security_log` (
   `log_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `log_type` varchar(16) NOT NULL,
@@ -639,9 +511,6 @@ CREATE TABLE `user_security_log` (
   KEY `FK_user_security_log_users` (`user_id`),
   CONSTRAINT `FK_user_security_log_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user_session` (
   `user_id` varchar(36) NOT NULL DEFAULT '',
   `address` varchar(255) NOT NULL DEFAULT '',
@@ -652,9 +521,6 @@ CREATE TABLE `user_session` (
   KEY `FK_user_session_users` (`user_id`),
   CONSTRAINT `FK_user_session_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
   `user_id` varchar(36) NOT NULL DEFAULT '',
   `username` varchar(128) NOT NULL,
@@ -674,7 +540,6 @@ CREATE TABLE `users` (
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `users_IX_users` (`username`(64))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

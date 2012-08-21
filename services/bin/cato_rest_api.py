@@ -108,20 +108,31 @@ def notfound():
 class version:        
     def GET(self):
         try:
-            if uiGlobals.config.has_key("version"):
-                return uiGlobals.config["version"]
+            args = web.input()
+            output_format = args["output_format"] if args.has_key("output_format") else ""
+            version = uiGlobals.config["version"] if uiGlobals.config.has_key("version") else "Unknown"
+
+            if output_format == "json":
+                response = api.response(response='{"Version" : "%s"}' % version)
+            elif output_format == "text":
+                response = api.response(response=version)
             else:
-                return "Unknown"
+                response = api.response(response="<Version>%s</Version>" % version)
+                
+            return response.Write(output_format)
         except Exception as ex:
             print(ex.__str__())
             
 # the default page if no URI is given, just an information message
 class index:        
     def GET(self):
+        args = web.input()
+        listonly = True if args.has_key("listonly") else False
+        
         out = []
         out.append("---------------------------")
         out.append("- Cloud Sidekick REST API -")
-        out.append("---------------------------\n\n")
+        out.append("---------------------------\n")
         
         try:
             from catoapi import ecoMethods
@@ -133,36 +144,29 @@ class index:
                 att = getattr(ecoMethods.ecoMethods, attname, None)
                 if att:
                     if hasattr(att, "__name__"):
-                        out.append("----------\n")
-                        out.append("Method: ecoMethods/%s" % att.__name__)
-                        if att.__doc__:
-                            out.append("%s" % att.__doc__)
+                        if listonly:
+                            out.append("ecoMethods/%s" % att.__name__)
+                        else:
+                            out.append("----------\n")
+                            out.append("Method: ecoMethods/%s" % att.__name__)
+                            if att.__doc__:
+                                out.append("%s" % att.__doc__)
                         
 
 
-            from catoapi import stormMethods
-            
-            for attname in dir(stormMethods.stormMethods):
-                att = getattr(stormMethods.stormMethods, attname, None)
-                if att:
-                    if hasattr(att, "__name__"):
-                        out.append("----------\n")
-                        out.append("Method: stormMethods/%s" % att.__name__)
-                        if att.__doc__:
-                            out.append("%s" % att.__doc__)
-                        
-                    
-                    
             from catoapi import taskMethods
             
             for attname in dir(taskMethods.taskMethods):
                 att = getattr(taskMethods.taskMethods, attname, None)
                 if att:
                     if hasattr(att, "__name__"):
-                        out.append("----------\n")
-                        out.append("Method: taskMethods/%s" % att.__name__)
-                        if att.__doc__:
-                            out.append("%s" % att.__doc__)
+                        if listonly:
+                            out.append("taskMethods/%s" % att.__name__)
+                        else:
+                            out.append("----------\n")
+                            out.append("Method: taskMethods/%s" % att.__name__)
+                            if att.__doc__:
+                                out.append("%s" % att.__doc__)
                         
 
             from catoapi import sysMethods
@@ -171,11 +175,35 @@ class index:
                 att = getattr(sysMethods.sysMethods, attname, None)
                 if att:
                     if hasattr(att, "__name__"):
-                        out.append("----------\n")
-                        out.append("Method: sysMethods/%s" % att.__name__)
-                        if att.__doc__:
-                            out.append("%s" % att.__doc__)
+                        if listonly:
+                            out.append("sysMethods/%s" % att.__name__)
+                        else:
+                            out.append("----------\n")
+                            out.append("Method: sysMethods/%s" % att.__name__)
+                            if att.__doc__:
+                                out.append("%s" % att.__doc__)
                         
+                    
+            try:      
+                from catoapi import stormMethods
+                
+                for attname in dir(stormMethods.stormMethods):
+                    att = getattr(stormMethods.stormMethods, attname, None)
+                    if att:
+                        if hasattr(att, "__name__"):
+                            if listonly:
+                                out.append("stormMethods/%s" % att.__name__)
+                            else:
+                                out.append("----------\n")
+                                out.append("Method: stormMethods/%s" % att.__name__)
+                                if att.__doc__:
+                                    out.append("%s" % att.__doc__)
+            except ImportError:
+                # stormMethods is an EE module, don't error if it's missing.
+                pass
+
+            
+            out.append("\n")
                     
                     
         except Exception as ex:

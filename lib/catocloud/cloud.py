@@ -51,7 +51,13 @@ class Clouds(object):
                             "or c.provider like '%%" + term + "%%' " \
                             "or c.api_url like '%%" + term + "%%') "
     
-            sSQL = """select c.cloud_id, c.cloud_name, c.provider, c.api_url, c.api_protocol, ca.account_name
+            sSQL = """select 
+                c.cloud_id as ID, 
+                c.cloud_name as Name, 
+                c.provider as Provider, 
+                c.api_url as APIUrl, 
+                c.api_protocol as APIProtocol, 
+                ca.account_name as DefaultAccount
                 from clouds c
                 left outer join cloud_account ca on c.default_account_id = ca.account_id
                 where 1=1 %s order by c.provider, c.cloud_name""" % sWhereString
@@ -68,6 +74,33 @@ class Clouds(object):
         except Exception as ex:
             raise ex
 
+    def AsXML(self):
+        try:
+            dom = ET.fromstring('<Clouds />')
+            if self.rows:
+                for row in self.rows:
+                    xml = catocommon.dict2xml(row, "Cloud")
+                    node = ET.fromstring(xml.tostring())
+                    dom.append(node)
+            
+            return ET.tostring(dom)
+        except Exception as ex:
+            raise ex
+
+    def AsText(self):
+        try:
+            keys = ['ID', 'Name', 'Provider', 'APIUrl', 'APIProtocol', 'DefaultAccount']
+            outrows = []
+            if self.rows:
+                for row in self.rows:
+                    cols = []
+                    for key in keys:
+                        cols.append(str(row[key]))
+                    outrows.append("\t".join(cols))
+              
+            return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
+        except Exception as ex:
+            raise ex
 
 class Cloud(object):
     def __init__(self):
@@ -266,9 +299,14 @@ class CloudAccounts(object):
             if sProvider:
                 sWhereString += " and ca.provider = '%s'" % sProvider
                 
-            sSQL = """select ca.account_id, ca.account_name, ca.account_number, ca.provider, ca.login_id, ca.auto_manage_security,
-                c.cloud_name,
-                case is_default when 1 then 'Yes' else 'No' end as is_default,
+            sSQL = """select 
+                ca.account_id as ID, 
+                ca.account_name as Name, 
+                ca.account_number as AccountNumber, 
+                ca.provider as Provider, 
+                ca.login_id as LoginID, 
+                c.cloud_name as DefaultCloud,
+                case is_default when 1 then 'Yes' else 'No' end as IsDefault,
                 (select count(*) from ecosystem where account_id = ca.account_id) as has_ecosystems
                 from cloud_account ca
                 left outer join clouds c on ca.default_cloud_id = c.cloud_id
@@ -283,6 +321,34 @@ class CloudAccounts(object):
     def AsJSON(self):
         try:
             return json.dumps(self.rows, default=catocommon.jsonSerializeHandler)
+        except Exception as ex:
+            raise ex
+
+    def AsXML(self):
+        try:
+            dom = ET.fromstring('<Accounts />')
+            if self.rows:
+                for row in self.rows:
+                    xml = catocommon.dict2xml(row, "Account")
+                    node = ET.fromstring(xml.tostring())
+                    dom.append(node)
+            
+            return ET.tostring(dom)
+        except Exception as ex:
+            raise ex
+
+    def AsText(self):
+        try:
+            keys = ['ID', 'Name', 'Provider', 'AccountNumber', 'LoginID', 'DefaultCloud']
+            outrows = []
+            if self.rows:
+                for row in self.rows:
+                    cols = []
+                    for key in keys:
+                        cols.append(str(row[key]))
+                    outrows.append("\t".join(cols))
+              
+            return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
         except Exception as ex:
             raise ex
 

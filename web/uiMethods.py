@@ -190,12 +190,12 @@ class uiMethods:
                     # if sSelected is empty, set the default in the cookie.
                     sSelectClause = ""
                     if not sSelected:
-                        if row["is_default"] == "Yes":
-                            uiCommon.SetCookie("selected_cloud_account", row["account_id"])
+                        if row["IsDefault"] == "Yes":
+                            uiCommon.SetCookie("selected_cloud_account", row["ID"])
                     else:
-                        sSelectClause = ("selected=\"selected\"" if sSelected == row["account_id"] else "")
+                        sSelectClause = ("selected=\"selected\"" if sSelected == row["ID"] else "")
                         
-                    sHTML += "<option value=\"%s\" provider=\"%s\" %s>%s (%s)</option>" % (row["account_id"], row["provider"], sSelectClause, row["account_name"], row["provider"])
+                    sHTML += "<option value=\"%s\" provider=\"%s\" %s>%s (%s)</option>" % (row["ID"], row["Provider"], sSelectClause, row["Name"], row["Provider"])
 
                 return sHTML
             
