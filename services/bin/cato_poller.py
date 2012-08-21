@@ -82,7 +82,8 @@ class Poller(catocommon.CatoService):
 
         self.output("Killing process %s" % (pid))
         try:
-            os.kill(int(pid), signal.SIGHUP)
+            os.kill(int(pid), signal.SIGKILL)
+            #os.wait()
         except Exception, e:
             self.output("Attempt to kill process %s failed: %s"% (pid, str(e)))
             
