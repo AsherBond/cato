@@ -197,7 +197,8 @@ class taskMethods:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to run Task [%s %s].  Check the log for details." % (args["task"], ver))
                 
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s/%s]." % (args["task"], ver))
+                identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
+                return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
 
         except Exception as ex:
             return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
@@ -328,7 +329,8 @@ class taskMethods:
                 else:
                     return R(response=obj.AsXML(include_code=ic))
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Task for Name/Version [%s %s]." % (args["task"], ver))
+                identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
+                return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
             
         except Exception as ex:
             return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
@@ -402,7 +404,8 @@ class taskMethods:
                                         
                 return R(response="\n".join(out))
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Task for Name/Version [%s %s]." % (args["task"], ver))
+                identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
+                return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
             
         except Exception as ex:
             return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
@@ -459,7 +462,8 @@ class taskMethods:
                                         
                 return R(response=xmlstr)
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Task for Name/Version [%s %s]." % (args["task"], ver))
+                identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
+                return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
             
         except Exception as ex:
             return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
