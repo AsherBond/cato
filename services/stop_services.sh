@@ -17,10 +17,10 @@ if [ -z "$CATO_HOME" ]; then
 fi
 
 # All other processes go here.  No process should be in both sections though.
-FULL_PROCS[0]="$CATO_HOME/services/bin/cato_poller.py"
-FULL_PROCS[1]="$CATO_HOME/services/bin/cato_scheduler.py"
-FULL_PROCS[2]="$CATO_HOME/services/bin/cato_messenger.py"
-FULL_PROCS[3]="$CATO_HOME/services/bin/cato_ecosync.tcl"
+FULL_PROCS[0]="$CATO_HOME/services/bin/cato_poller"
+FULL_PROCS[1]="$CATO_HOME/services/bin/cato_scheduler"
+FULL_PROCS[2]="$CATO_HOME/services/bin/cato_messenger"
+FULL_PROCS[3]="$CATO_HOME/services/bin/cato_ecosync"
 
 count=0
 while [[ $count -lt ${#FULL_PROCS[*]} ]]; do
