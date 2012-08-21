@@ -30,32 +30,24 @@ if [ -z "$CATO_LOGS" ]; then
 fi
 export CATO_LOGS
 
-# All other processes go here.  No process should be in both sections though.
-FULL_PROCS[0]="$CATO_HOME/web/cato_admin_ui.py"
-
-FULL_LOGFILES[0]="$CATO_LOGS/cato_admin_ui.log"
-
 start_other_procs() {
-    count=0
     echo "Looking for processes to start"
-    while [[ $count -lt ${#FULL_PROCS[*]} ]]; do
+    while read line
+    do
+        CATO_EXE="$CATO_HOME/web/$line"
+        CATO_LOG="$CATO_LOGS/$line"
         if [[ "`uname`" == "Darwin" ]]; then
-            PID=`ps -A | grep "${FULL_PROCS[$count]}$" | grep -v "grep"`
+            PID=`ps -A | grep "${CATO_EXE}" | grep -v "grep"`
         else
-            PID=`ps -eafl | grep "${FULL_PROCS[$count]}$" | grep -v "grep"`
+            PID=`ps -eafl | grep "${CATO_EXE}" | grep -v "grep"`
         fi
         if [ ! "$PID" ]; then
-            if [ "$(ls -A ${CATO_HOME}/web/sessions)" ]; then
-                echo "Removing sessions..."
-                rm -r ${CATO_HOME}/web/sessions/*
-            fi
-            echo "Starting ${FULL_PROCS[$count]}"
-            nohup ${FULL_PROCS[$count]} >> ${FULL_LOGFILES[$count]} 2>&1 &
+            echo "Starting ${CATO_EXE}"
+            nohup ${CATO_EXE} >> ${CATO_LOG} 2>&1 &
         else
-            echo "${FULL_PROCS[$count]} is already running"
+            echo "${CATO_EXE} is already running"
         fi
-        (( count += 1 ))
-    done
+    done < cato_ui_services
 
     echo "Ending starting processes"
 }

@@ -24,27 +24,24 @@ if [ -z "$CATO_HOME" ]; then
     export CATO_HOME
 fi
 
-# All other processes go here.  No process should be in both sections though.
-FULL_PROCS[0]="$CATO_HOME/web/cato_admin_ui.py"
-
-count=0
-while [[ $count -lt ${#FULL_PROCS[*]} ]]; do
+while read line
+do
+    CATO_EXE="$CATO_HOME/web/$line"
     if [[ "`uname`" == "Darwin" ]]; then
-        PIDS=`ps -A | grep "${FULL_PROCS[$count]}" | grep -v "grep" | awk '{ print \$1 }'`
+        PIDS=`ps -A | grep "${CATO_EXE}" | grep -v "grep" | awk '{ print \$1 }'`
     else
-        PIDS=`ps -eafl | grep "${FULL_PROCS[$count]}" | grep -v "grep" | awk '{ print \$4 }'`
+        PIDS=`ps -eafl | grep "${CATO_EXE}" | grep -v "grep" | awk '{ print \$4 }'`
     fi
 
     if [ -z "$PIDS" ]; then
-        echo "${FULL_PROCS[$count]} is not running"
+        echo "${CATO_EXE} is not running"
     else
         for PID in $PIDS; do
             echo "Shutting down $i ($PID)"
             kill -9 $PID
         done
     fi 
-        (( count += 1 ))
-done
+done < $CATO_HOME/web/cato_ui_services
 if [ "$1" = "leavecron" ]; then
 	echo "Removing start_web.sh from crontab"
 		crontab -l | grep -v start_web.sh > $CATO_HOME/conf/crontab.backup 2>/dev/null
