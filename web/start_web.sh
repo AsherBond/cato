@@ -47,7 +47,7 @@ start_other_procs() {
         else
             echo "${CATO_EXE} is already running"
         fi
-    done < cato_ui_services
+    done < $CATO_HOME/web/cato_ui_services
 
     echo "Ending starting processes"
 }
