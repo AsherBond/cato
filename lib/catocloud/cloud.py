@@ -363,6 +363,25 @@ class CloudAccount(object):
         self.Provider = None
         self.DefaultCloud = None
 
+    def FromName(self, sAccountName):
+        """Will get a Cloud Account given either a name OR an id."""
+        try:
+            db = catocommon.new_conn()
+            sSQL = "select account_id from cloud_account where account_name = '{0}' or account_id = '{0}'".format(sAccountName)
+            
+            caid = db.select_col_noexcep(sSQL)
+            if db.error:
+                raise Exception("Cloud Account Object: Unable to get Cloud Account from database. " + db.error)
+
+            if caid:
+                self.FromID(caid)
+            else: 
+                raise Exception("Error getting Cloud Account ID for Name [%s] - no record found. %s" % (sAccountName, db.error))
+        except Exception as ex:
+            raise ex
+        finally:
+            db.close()
+
     def FromID(self, sAccountID):
         try:
             db = catocommon.new_conn()
