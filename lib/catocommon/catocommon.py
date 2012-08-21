@@ -361,6 +361,7 @@ class CatoProcess():
         self.process_name = process_name
         self.initialize_logfile()
         self.home = _get_base_path()
+        self.tmpdir = config["tmpdir"]
 
     def set_logfile_name(self):
         self.logfile_name = os.path.join(self.logfiles_path, self.process_name.lower() + ".log")
