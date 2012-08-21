@@ -1919,6 +1919,7 @@ class taskMethods:
             sType = uiCommon.getAjaxArg("sType")
             sID = uiCommon.getAjaxArg("sID")
             sTaskID = uiCommon.getAjaxArg("sTaskID") # sometimes this may be here
+            sBaseXPath = uiCommon.getAjaxArg("sBaseXPath", "")
             sXML = uiCommon.getAjaxArg("sXML")
             sUserID = uiCommon.GetSessionUserID()
     
@@ -2068,8 +2069,8 @@ class taskMethods:
                 elif sType == "runtask":
                     # WICKED!!!!
                     # I can use my super awesome xml functions!
-                    ST.RemoveFromCommandXML(sID, "parameters")
-                    ST.AddToCommandXML(sID, "", sOverrideXML)
+                    ST.RemoveFromCommandXML(sID, "%s/parameters" % sBaseXPath)
+                    ST.AddToCommandXML(sID, sBaseXPath, sOverrideXML)
             else:
                 uiCommon.log("Unable to update Eco Template Action. Missing or invalid Action ID.")
     

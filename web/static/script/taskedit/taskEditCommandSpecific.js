@@ -40,6 +40,7 @@ $(document).ready(function () {
         //trying globals!!!  Maybe we'll do this using AmplifyJS one day.
         rt_task_id = $(this).attr("task_id");
         rt_step_id = $(this).attr("step_id");
+        rt_base_xpath = $(this).attr("base_xpath");
                 
         ShowRunTaskParameterEdit();
     });
@@ -270,15 +271,18 @@ function CloseRunTaskParameterEdit() {
 function SaveRunTaskParameters() {
     $("#update_success_msg").text("Saving Defaults...");
 
-    //build the XML from the dialog
-    var parameter_xml = packJSON(buildXMLToSubmit());
-    //alert(parameter_xml);
+    var args = {};
+    args.sType = "runtask";
+	args.sID = rt_step_id;
+	args.sTaskID = rt_task_id;
+	args.sBaseXPath = rt_base_xpath;
+	args.sXML = packJSON(buildXMLToSubmit());
 
     $.ajax({
         async: false,
         type: "POST",
         url: "taskMethods/wmSaveDefaultParameterXML",
-        data: '{"sType":"runtask","sID":"' + rt_step_id + '","sTaskID":"' + rt_task_id + '","sXML":"' + parameter_xml + '"}',
+		data : JSON.stringify(args),
         contentType: "application/json; charset=utf-8",
         dataType: "text",
         success: function (response) {
