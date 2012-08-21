@@ -128,6 +128,7 @@ class TaskEngine(catocommon.CatoProcess):
 
         self.tcl = Tcl(useTk=False)
         self.tcl.setvar(name='::HOME', value=self.home)
+        self.tcl.setvar(name='::TMP', value=self.tmpdir)
 
         # put any Python function registrations that need to be exposed to Tcl here
         # example:
@@ -139,9 +140,10 @@ class TaskEngine(catocommon.CatoProcess):
         self.register_function(self.tcl, self.tcl_select_all)
         self.register_function(self.tcl, self.tcl_exec_db)
         self.register_function(self.tcl, self.tcl_decrypt_string)
+        self.register_function(self.tcl, self.tcl_encrypt_string)
         self.register_function(self.tcl, self.tcl_output)
 
-        self.tcl.eval('source cato_task_engine.tcl')
+        self.tcl.eval('source $::HOME/services/bin/cato_task_engine.tcl')
         try:
             tcl_str = self.tcl.eval('main_ce %s' % self.task_instance)
         except Exception as ex:
