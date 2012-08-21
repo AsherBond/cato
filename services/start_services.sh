@@ -22,7 +22,7 @@ start_other_procs() {
     while read line
     do
         CATO_EXE="$CATO_HOME/services/bin/$line"
-        CATO_LOG="$CATO_LOGS/$line"
+        CATO_LOG="$CATO_LOGS/$line.log"
         if [[ "`uname`" == "Darwin" ]]; then
             PID=`ps -A | grep "${CATO_EXE}" | grep -v "grep"`
         else
