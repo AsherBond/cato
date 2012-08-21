@@ -26,7 +26,6 @@
 
 #include "base64.h"
 #include "blowfish.h"
-#include "tcl.h"
 #include "ctype.h"
 
 using namespace std;
@@ -659,7 +658,7 @@ bool CBlowfish::Decrypt(const unsigned char* in, unsigned char* out, size_t n, i
 
 //******************************************************
 //
-//  Functions added for using this library from TCL
+//  Functions added for using this library from Cato
 //  to encode and decode various pieces of sensetive
 //  centivia data.
 //
