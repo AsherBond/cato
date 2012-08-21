@@ -16,34 +16,25 @@ if [ -z "$CATO_LOGS" ]; then
 fi
 export CATO_LOGS
 
-# All other processes go here.  No process should be in both sections though.
-FULL_PROCS[0]="$CATO_HOME/services/bin/cato_poller"
-FULL_PROCS[1]="$CATO_HOME/services/bin/cato_scheduler"
-FULL_PROCS[2]="$CATO_HOME/services/bin/cato_messenger"
-FULL_PROCS[3]="$CATO_HOME/services/bin/cato_ecosync"
-
-FULL_LOGFILES[0]="$CATO_LOGS/cato_poller.log"
-FULL_LOGFILES[1]="$CATO_LOGS/cato_scheduler.log"
-FULL_LOGFILES[2]="$CATO_LOGS/cato_messenger.log"
-FULL_LOGFILES[3]="$CATO_LOGS/cato_ecosync.log"
-
 start_other_procs() {
     count=0
     echo "Looking for processes to start"
-    while [[ $count -lt ${#FULL_PROCS[*]} ]]; do
+    while read line
+    do
+        CATO_EXE="$CATO_HOME/services/bin/$line"
+        CATO_LOG="$CATO_LOGS/$line"
         if [[ "`uname`" == "Darwin" ]]; then
-            PID=`ps -A | grep "${FULL_PROCS[$count]}$" | grep -v "grep"`
+            PID=`ps -A | grep "${CATO_EXE}" | grep -v "grep"`
         else
-            PID=`ps -eafl | grep "${FULL_PROCS[$count]}$" | grep -v "grep"`
+            PID=`ps -eafl | grep "${CATO_EXE}" | grep -v "grep"`
         fi
         if [ ! "$PID" ]; then
-            echo "Starting ${FULL_PROCS[$count]}"
-            nohup ${FULL_PROCS[$count]} >> ${FULL_LOGFILES[$count]} 2>&1 &
+            echo "Starting ${CATO_EXE}"
+            nohup ${CATO_EXE} >> ${CATO_LOG} 2>&1 &
         else
-            echo "${FULL_PROCS[$count]} is already running"
+            echo "${CATO_EXE} is already running"
         fi
-        (( count += 1 ))
-    done
+    done < $CATO_HOME/services/cato_services
 
     echo "Ending starting processes"
 }
