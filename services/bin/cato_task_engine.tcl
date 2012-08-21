@@ -4302,11 +4302,11 @@ proc process_function {task_name function_name command} {
 			}
 			#$::db_query $::CONN $sql
 			#set subtask_id [$::db_fetch $::CONN]
-            set subtask_id [select_row $sql]
+            set subtask_id [lindex [select_row $sql] 0]
 
 			if {[llength [array names ::codeblock_arr $subtask_id,*]] == 0} {
 
-				output "New subtask" 1
+				output "New subtask $subtask_id" 1
 				get_steps $subtask_id
 			
 			}
@@ -5558,7 +5558,7 @@ proc launch_run_task {} {
 	        '$::DEBUG_LEVEL',
 	        null,
 	        null,
-	        '$::SUBMITTED_BY',
+	        '$::TASK_INSTANCE',
 	        '$::ECOSYSTEM_ID',
 	        '$::CLOUD_ACCOUNT'
 	    )"
