@@ -43,6 +43,11 @@ function GetItems() {
 		        openDialogWindow('taskRunLog?task_instance=' + id, 'TaskRunLog' + id, 950, 750, 'true');
 		    });
 
+		    $(".task_edit_btn").click(function (event) {
+			    event.stopPropagation()
+		        location.href='taskEdit?task_id=' + $(this).attr("task_id");
+		    });
+
         },
         error: function (response) {
             showAlert(response.responseText);

@@ -573,7 +573,7 @@ class cloudMethods:
                 #ACWebMethods.openstackMethods acOS = new ACWebMethods.openstackMethods()
                 #sXML = acOS.GetCloudObjectsAsXML(c.ID, cot, 0000BYREF_ARG0000sErr, null)
             else: #Amazon aws, Eucalyptus, and OpenStackAws
-                import aws
+                from catocloud import aws
                 awsi = aws.awsInterface()
                 url, err = awsi.BuildURL(ca, c, cot);            
                 if err:

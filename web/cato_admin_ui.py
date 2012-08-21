@@ -77,6 +77,16 @@ class bypass:
     def GET(self):
         return "This page isn't subject to the auth processor"
 
+class version:        
+    def GET(self):
+        try:
+            if uiGlobals.config.has_key("version"):
+                return uiGlobals.config["version"]
+            else:
+                return "Unknown"
+        except Exception as ex:
+            print(ex.__str__())
+            
 # the login announcement hits the Cloud Sidekick web site for a news snip
 class announcement:        
     def GET(self):
@@ -264,6 +274,7 @@ def auth_app_processor(handle):
     if path in [
         "/uiMethods/wmAttemptLogin",
         "/uiMethods/wmGetQuestion",
+        "/version",
         "/logout",
         "/notAllowed",
         "/notfound",
@@ -612,6 +623,7 @@ if __name__ != app_name:
         '/settings', 'settings',
         '/temp/(.*)', 'temp',
         '/bypass', 'bypass',
+        '/version', 'version',
         '/(.*)', 'wmHandler'
     )
 

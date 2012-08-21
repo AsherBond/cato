@@ -76,10 +76,11 @@ class Ecotemplates(object):
     def AsXML(self):
         try:
             dom = ET.fromstring('<Ecotemplates />')
-            for row in self.rows:
-                xml = catocommon.dict2xml(row, "Ecotemplate")
-                node = ET.fromstring(xml.tostring())
-                dom.append(node)
+            if self.rows:
+                for row in self.rows:
+                    xml = catocommon.dict2xml(row, "Ecotemplate")
+                    node = ET.fromstring(xml.tostring())
+                    dom.append(node)
             
             return ET.tostring(dom)
         except Exception as ex:
@@ -162,9 +163,31 @@ class Ecotemplate(object):
                 self.StormFile = ("" if not dr["storm_file"] else dr["storm_file"])
                 
                 if bIncludeActions:
-                    sSQL = """select action_id, ecotemplate_id, action_name, action_desc, category, original_task_id, task_version, parameter_defaults, action_icon
-                        from ecotemplate_action
-                        where ecotemplate_id = '%s'""" % sEcotemplateID
+                    # get the action from the table, then look at the task_version.
+                    # if it's null or empty we get the default,
+                    # otherwise we use the version specified.
+                    
+                    # but, rather than do queries inside the loop, we'll do it with a union of two exclusive queries.
+                    sSQL = """select * from (
+                        select ea.action_id, ea.action_name, ea.category, ea.action_desc, ea.original_task_id, ea.action_icon,
+                        t.task_id, t.task_name, t.version, t.task_desc,
+                        ea.ecotemplate_id, ea.parameter_defaults
+                        from ecotemplate_action ea
+                        join task t on ea.original_task_id = t.original_task_id
+                            and t.default_version = 1
+                        where ea.ecotemplate_id = '{0}'
+                        and ea.task_version IS null
+                        UNION
+                        select ea.action_id, ea.action_name, ea.category, ea.action_desc, ea.original_task_id, ea.action_icon,
+                        t.task_id, t.task_name, t.version, t.task_desc,
+                        ea.ecotemplate_id, ea.parameter_defaults
+                        from ecotemplate_action ea
+                        join task t on ea.original_task_id = t.original_task_id
+                            and ea.task_version = t.version
+                        where ea.ecotemplate_id = '{0}'
+                        and ea.task_version IS NOT null
+                        ) foo
+                        order by action_name""".format(sEcotemplateID)
 
                     dtActions = db.select_all_dict(sSQL)
                     if dtActions:
@@ -436,6 +459,8 @@ class EcotemplateAction(object):
         self.Description = None
         self.Category = None
         self.OriginalTaskID = None
+        self.TaskID = None
+        self.TaskName = None
         self.TaskVersion = None
         self.Icon = None
         self.ParameterDefaultsXML = None
@@ -454,9 +479,16 @@ class EcotemplateAction(object):
             self.Description = dr["action_desc"]
             self.Category = dr["category"]
             self.OriginalTaskID = dr["original_task_id"]
-            self.TaskVersion = (str(dr["task_version"]) if dr["task_version"] else "")
+            self.TaskID = dr["task_id"]
+            self.TaskName = dr["task_name"]
+            self.TaskVersion = (str(dr["version"]) if dr["version"] else "")
             self.Icon = dr["action_icon"]
             self.ParameterDefaultsXML = dr["parameter_defaults"]
+            
+            # let's try to get a description
+            if not self.Description:
+                self.Description = (dr["task_desc"] if dr["task_desc"] else (dr["task_name"] if dr["task_name"] else ""))
+
         except Exception as ex:
             raise ex
 
@@ -571,10 +603,11 @@ class Ecosystems(object):
     def AsXML(self):
         try:
             dom = ET.fromstring('<Ecosystems />')
-            for row in self.rows:
-                xml = catocommon.dict2xml(row, "Ecosystem")
-                node = ET.fromstring(xml.tostring())
-                dom.append(node)
+            if self.rows:
+                for row in self.rows:
+                    xml = catocommon.dict2xml(row, "Ecosystem")
+                    node = ET.fromstring(xml.tostring())
+                    dom.append(node)
             
             return ET.tostring(dom)
         except Exception as ex:
@@ -584,11 +617,12 @@ class Ecosystems(object):
         try:
             keys = ['ID', 'Name', 'StormStatus']
             outrows = []
-            for row in self.rows:
-                cols = []
-                for key in keys:
-                    cols.append(str(row[key]))
-                outrows.append("\t".join(cols))
+            if self.rows:
+                for row in self.rows:
+                    cols = []
+                    for key in keys:
+                        cols.append(str(row[key]))
+                    outrows.append("\t".join(cols))
               
             return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
         except Exception as ex:
@@ -618,6 +652,70 @@ class Ecosystem(object):
         self.Description = sDescription
         self.EcotemplateID = sEcotemplateID
         self.AccountID = sAccountID
+
+    def GetAction(self, sAction):
+        try:
+            actions = self.Actions()
+            if actions:
+                for action in actions.itervalues():
+                    if action.ID == sAction or action.Name == sAction:
+                        return action
+        except Exception as ex:
+            raise ex
+        
+    def Actions(self):
+        try:
+            et = Ecotemplate()
+            if et:
+                et.FromID(self.EcotemplateID)
+                if et.ID:
+                    return et.Actions
+        except Exception as ex:
+            raise Exception(ex)
+        
+    def ActionsAsJSON(self):
+        try:
+            actions = self.Actions()
+            if actions:
+                rows = []
+                for action in actions.itervalues():
+                    del action.Ecotemplate
+                    rows.append(action.__dict__)
+                  
+                return json.dumps(rows, default=catocommon.jsonSerializeHandler)
+        except Exception as ex:
+            raise ex
+
+    def ActionsAsXML(self):
+        try:
+            actions = self.Actions()
+            if actions:
+                dom = ET.fromstring('<Actions />')
+                for action in actions.itervalues():
+                    xml = catocommon.dict2xml(action.__dict__, "Action")
+                    node = ET.fromstring(xml.tostring())
+                    dom.append(node)
+                
+                return ET.tostring(dom)
+        except Exception as ex:
+            raise ex
+
+    def ActionsAsText(self):
+        try:
+            actions = self.Actions()
+            if actions:
+                keys = ['Category', 'Name', 'Description']
+                rows = []
+                for action in actions.itervalues():
+                    del action.Ecotemplate
+                    cols = []
+                    for key in keys:
+                        cols.append(str(getattr(action, key)))
+                    rows.append("\t".join(cols))
+                  
+                return "%s\n%s" % ("\t".join(keys), "\n".join(rows))
+        except Exception as ex:
+            raise ex
 
     def Objects(self, sFilter=""):
         try:

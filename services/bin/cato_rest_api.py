@@ -57,6 +57,8 @@ class wmHandler:
         
         is_authenticated, user_id = api.authenticate(method, args)
         if not is_authenticated:
+            if getattr(args, 'key', ''):
+                print("Authentication Failure [%s]" % getattr(args, 'key', ''))
             response = api.response(err_code="AuthenticationFailure")
             return response.Write(output_format)
         
@@ -75,8 +77,19 @@ class wmHandler:
 
             # is this a JSONP request?        
             if "callback" in args:
+                """
+                    IF there is an arg called "callback", that means we want the results formatted as a javascript function call.
+                    
+                    (of course, if we wanna eventually support both XML and JSON result types that's fine...
+                    it just means the payload *inside* the jsonp callback will be xml or json as requested.)
+                """
+                payload = response.Write(output_format)
+                #base64 encode it (don't forget the three special chars)
+                #payload = base64.b64encode(payload)
+                #payload = payload.replace("=", "%3D").replace("+", "%2B").replace("/", "%2F")
+                
                 web.header('Content-Type', 'application/json')
-                return api.perform_callback(web, args["callback"], resp)
+                return "%s('%s')" % (args["callback"], payload)
             else:
                 return response.Write(output_format)
         else:
@@ -92,11 +105,23 @@ class wmHandler:
 def notfound():
 	return web.notfound("Sorry, the page you were looking for was not found.")
 		
+class version:        
+    def GET(self):
+        try:
+            if uiGlobals.config.has_key("version"):
+                return uiGlobals.config["version"]
+            else:
+                return "Unknown"
+        except Exception as ex:
+            print(ex.__str__())
+            
 # the default page if no URI is given, just an information message
 class index:        
     def GET(self):
         out = []
-        out.append("Cloud Sidekick REST API.\n\n")
+        out.append("---------------------------")
+        out.append("- Cloud Sidekick REST API -")
+        out.append("---------------------------\n\n")
         
         try:
             from catoapi import ecoMethods
@@ -108,11 +133,11 @@ class index:
                 att = getattr(ecoMethods.ecoMethods, attname, None)
                 if att:
                     if hasattr(att, "__name__"):
+                        out.append("----------\n")
                         out.append("Method: ecoMethods/%s" % att.__name__)
                         if att.__doc__:
                             out.append("%s" % att.__doc__)
                         
-                        out.append("----------")
 
 
             from catoapi import stormMethods
@@ -121,11 +146,11 @@ class index:
                 att = getattr(stormMethods.stormMethods, attname, None)
                 if att:
                     if hasattr(att, "__name__"):
+                        out.append("----------\n")
                         out.append("Method: stormMethods/%s" % att.__name__)
                         if att.__doc__:
                             out.append("%s" % att.__doc__)
                         
-                        out.append("----------")
                     
                     
             from catoapi import taskMethods
@@ -134,12 +159,23 @@ class index:
                 att = getattr(taskMethods.taskMethods, attname, None)
                 if att:
                     if hasattr(att, "__name__"):
+                        out.append("----------\n")
                         out.append("Method: taskMethods/%s" % att.__name__)
                         if att.__doc__:
                             out.append("%s" % att.__doc__)
                         
-                        out.append("----------")
-                    
+
+            from catoapi import sysMethods
+            
+            for attname in dir(sysMethods.sysMethods):
+                att = getattr(sysMethods.sysMethods, attname, None)
+                if att:
+                    if hasattr(att, "__name__"):
+                        out.append("----------\n")
+                        out.append("Method: sysMethods/%s" % att.__name__)
+                        if att.__doc__:
+                            out.append("%s" % att.__doc__)
+                        
                     
                     
         except Exception as ex:
@@ -149,6 +185,7 @@ class index:
 
 urls = (
     '/', 'index',
+    '/version', 'version',
     '/(.*)', 'wmHandler'
 )
 

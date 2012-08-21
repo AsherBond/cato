@@ -1,34 +1,5 @@
 
-web_old/Web.pidb
-
-web_old/CloudSidekick.userprefs
-
-web_old/bin/Web.dll
-
-web_old/bin/Web.dll.mdb
-
 conf/cato.conf
-
-web_old/conf
-
-web_old/config.log
-
-web_old/obj/Debug/Web.dll.mdb
-
-web_old/obj/Debug/Web.dll
-
-web_old/obj/Debug/Web.csproj.FilesWrittenAbsolute.txt
-
-web_old/Web.userprefs
-
-web_old/bin/mysql.data.dll
-
-web_old/bin/ICSharpCode.SharpZipLib.dll
-
-
-web_old/obj/*
-
-services/python/*
 
 *.pyc
 
@@ -44,16 +15,6 @@ logfiles/*
 
 services/mystart
 
-services/web/convert.in
-
-services/web/convert.out
-
-services/web/test.py
-
-logfiles/admin_ui.log
-
-web_old/bin/Newtonsoft.Json.dll
-
 web/convert.in
 
 web/convert.out
@@ -65,8 +26,6 @@ web/static/_amenu.html
 web/static/_dmenu.html
 
 web/static/_umenu.html
-
-web/convert.in
 
 logfiles/cato_poller.log
 
@@ -81,10 +40,6 @@ lib/tclcloud/README
 lib/tclcloud/pkgIndex.tcl
 
 lib/tclcloud/tclcloud.tcl
-
-web_old/Web.pidb
-
-web_old/CloudSidekick.userprefs
 
 web/static/_functions.html
 

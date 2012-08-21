@@ -78,107 +78,27 @@ class taskMethods:
             sTo = uiCommon.getAjaxArg("sTo", "")
             sRecords = uiCommon.getAjaxArg("sRecords", "200")
             
-            # # of records must be numeric
-            try:
-                sRecords = str(int(sRecords))
-            except TypeError:
-                sRecords = "200"
-                
-
             sHTML = ""
-            sWhereString = " where (1=1) "
-
-            if sFilter:
-                aSearchTerms = sFilter.split(",")
-                for term in aSearchTerms:
-                    if term:
-                        sWhereString += " and (ti.task_instance like '%%" + term + "%%' " \
-                            "or ti.task_id like '%%" + term + "%%' " \
-                            "or ti.asset_id like '%%" + term + "%%' " \
-                            "or ti.pid like '%%" + term + "%%' " \
-                            "or ti.task_status like '%%" + term + "%%' " \
-                            "or ar.hostname like '%%" + term + "%%' " \
-                            "or a.asset_name like '%%" + term + "%%' " \
-                            "or t.task_code like '%%" + term + "%%' " \
-                            "or t.task_name like '%%" + term + "%%' " \
-                            "or t.version like '%%" + term + "%%' " \
-                            "or u.username like '%%" + term + "%%' " \
-                            "or u.full_name like '%%" + term + "%%' " \
-                            "or d.ecosystem_name like '%%" + term + "%%') "
-    
-            sDateSearchString = ""
-
-            if sFrom:
-                sDateSearchString += " and (submitted_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')" \
-                " or started_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')" \
-                " or completed_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')) "
-            if sTo:
-                sDateSearchString += " and (submitted_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')" \
-                " or started_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')" \
-                " or completed_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')) "
-
-
-
-            # there may be a list of statuses passed in, if so, build out the where clause for them too
-            if sStatus:
-                l = []
-                # status might be a comma delimited list.  but to prevent sql injection, parse it.
-                for s in sStatus.split(","):
-                    l.append("'%s'" % s)
-                # I love python!
-                if l:
-                    sWhereString += " and ti.task_status in (%s)" % ",".join(map(str, l)) 
-                
-            # NOT CURRENTLY CHECKING PERMISSIONS
-            sTagString = ""
-            """
-            if !uiCommon.UserIsInRole("Developer") and !uiCommon.UserIsInRole("Administrator"):
-                sTagString+= " join object_tags tt on t.original_task_id = tt.object_id" \
-                    " join object_tags ut on ut.tag_name = tt.tag_name" \
-                    " and ut.object_type = 1 and tt.object_type = 3" \
-                    " and ut.object_id = '" + uiCommon.GetSessionUserID() + "'"
-            """
-            
-            sSQL = "select ti.task_instance, t.task_id, t.task_code, a.asset_name," \
-                    " ti.pid as process_id, ti.task_status, t.task_name," \
-                    " ifnull(u.full_name, '') as started_by," \
-                    " t.version, u.full_name, ar.hostname as ce_name, ar.platform as ce_type," \
-                    " d.ecosystem_name, d.ecosystem_id," \
-                    " convert(ti.submitted_dt, CHAR(20)) as submitted_dt," \
-                    " convert(ti.started_dt, CHAR(20)) as started_dt," \
-                    " convert(ti.completed_dt, CHAR(20)) as completed_dt" \
-                    " from task_instance ti" \
-                    " left join task t on t.task_id = ti.task_id" + \
-                    sTagString + \
-                    " left outer join application_registry ar on ti.ce_node = ar.id" \
-                    " left outer join ecosystem d on ti.ecosystem_id = d.ecosystem_id" \
-                    " left join users u on u.user_id = ti.submitted_by" \
-                    " left join asset a on a.asset_id = ti.asset_id" + \
-                    sWhereString + sDateSearchString + \
-                    " order by ti.task_instance desc" \
-                    " limit " + sRecords
-
-            rows = self.db.select_all_dict(sSQL)
-    
-            if rows:
-                for row in rows:
-                    task_label = "%s (%s)" % (row["task_name"], str(row["version"]))
-                    sHTML += "<tr style=\"font-size: .8em;\" task_instance=\"%s\">" % row["task_instance"]
+            tasks = task.TaskInstances(sFilter, sStatus, sFrom, sTo, sRecords)
+            if tasks.rows:
+                for row in tasks.rows:
+                    task_label = "%s (%s)" % (row["TaskName"], str(row["Version"]))
+                    sHTML += "<tr style=\"font-size: .8em;\" task_instance=\"%s\">" % row["Instance"]
                     
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["task_instance"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["task_code"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["Instance"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["TaskCode"]
                     sHTML += "<td class=\"selectable\">%s</td>" % task_label
-                    sHTML += "<td class=\"selectable\">%s</td>" % (row["asset_name"] if row["asset_name"] else "")
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["task_status"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["started_by"]
-                    sHTML += "<td class=\"selectable\">%s</td>" % (row["ce_name"] if row["ce_name"] else "")
-                    sHTML += "<td class=\"selectable\">%s</td>" % str((row["process_id"] if row["process_id"] else ""))
-                    sHTML += "<td class=\"selectable\">%s</td>" % (row["ecosystem_name"] if row["ecosystem_name"] else "")
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["AssetName"] if row["AssetName"] else "")
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["Status"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % row["StartedBy"]
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["CEName"] if row["CEName"] else "")
+                    sHTML += "<td class=\"selectable\">%s</td>" % str((row["ProcessID"] if row["ProcessID"] else ""))
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["EcosystemName"] if row["EcosystemName"] else "")
                     sHTML += "<td class=\"selectable\">%s<br />%s</td>" % (
-                        ("(s)&nbsp;%s" % row["submitted_dt"].replace(" ", "&nbsp;") if row["submitted_dt"] else ""),
-                        ("(c)&nbsp;%s" % row["completed_dt"].replace(" ", "&nbsp;") if row["completed_dt"] else "")
+                        ("(s)&nbsp;%s" % row["SubmittedDate"].replace(" ", "&nbsp;") if row["SubmittedDate"] else ""),
+                        ("(c)&nbsp;%s" % row["CompletedDate"].replace(" ", "&nbsp;") if row["CompletedDate"] else "")
                         )
-                    sHTML += "<td class=\"selectable\"><span onclick=\"location.href='taskEdit?task_id=%s'\" class=\"ui-icon ui-icon-pencil pointer\"></span></td>" % row["task_id"]
+                    sHTML += "<td class=\"selectable\"><span task_id=\"%s\" class=\"ui-icon ui-icon-pencil pointer task_edit_btn\"></span></td>" % row["TaskID"]
                     
                     sHTML += "</tr>"
     
@@ -199,7 +119,7 @@ class taskMethods:
                     return t.AsJSON()
             
             #should not get here if all is well
-            return "{\"result\":\"fail\",\"error\":\"Failed to get Task details for Task ID [" + sID + "].\"}"
+            return "{\"result\":\"fail\",\"error\":\"Failed to get Task details for Task ID [%s].\"}" % sTaskID
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
 

@@ -22,6 +22,7 @@ from catoapi import api
 from catoapi.api import response as R
 from catocommon import catocommon
 from catoecosystem import ecosystem
+from catotask import task
 
 class ecoMethods:
     """These are methods for Ecosystems, Ecotemplates and other related items."""
@@ -192,6 +193,38 @@ class ecoMethods:
         except Exception as ex:
             return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
 
+    def get_ecosystem_actions(self, args):        
+        """
+        Gets an list of all Ecosystem Actions.
+        
+        Required Arguments: ecosystem
+            (Value can be either an Ecosystem ID or Name.)
+        
+        Returns: A list of Actions.
+        """
+        try:
+            # define the required parameters for this call
+            required_params = ["ecosystem"]
+            has_required, resp = api.check_required_params(required_params, args)
+            if not has_required:
+                return resp
+
+
+            obj = ecosystem.Ecosystem()
+            obj.FromName(args["ecosystem"])
+            if obj:
+                if args["output_format"] == "json":
+                    return R(response=obj.ActionsAsJSON())
+                elif args["output_format"] == "text":
+                    return R(response=obj.ActionsAsText())
+                else:
+                    return R(response=obj.ActionsAsXML())
+            else:
+                return R(err_code=R.Codes.GetError, err_detail="Unable to get Ecosystem for identifier [%s]." % args["ecosystem"])
+            
+        except Exception as ex:
+            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+
     def get_ecosystem_objects(self, args):        
         """
         Gets a list of all cloud objects associated with an Ecosystem.
@@ -296,6 +329,63 @@ class ecoMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Ecotemplate for identifier [%s]." % args["ecotemplate"])
             
+        except Exception as ex:
+            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+
+    def run_ecosystem_action(self, args):
+        """
+        Runs an Ecosystem Action.
+        
+        Required Arguments: 
+            ecosystem - Either the Ecosystem ID or Name.
+            action - The Action name.
+            
+        Optional Arguments:
+            log_level - an integer (0-4) where 0 is none, 2 is normal and 4 is verbose.  Default is 2.
+            parameter_xml - An XML document defining parameters for the Task.
+
+        Returns: A JSON object, the Task Instance.
+            If 'output_format' is set to 'text', returns only a Task Instance ID.
+        """
+        try:
+            required_params = ["ecosystem", "action"]
+            has_required, resp = api.check_required_params(required_params, args)
+            if not has_required:
+                return resp
+            
+            # get the ecosystem
+            e = ecosystem.Ecosystem()
+            e.FromName(args["ecosystem"])
+            if e.ID:
+                # find the action
+                a = e.GetAction(args["action"])
+                if a:
+                    # cool so far...
+                    debug = args["log_level"] if args.has_key("log_level") else "2"
+                    parameter_xml = args["parameter_xml"] if args.has_key("parameter_xml") else ""
+    
+                    # try to launch it
+                    ti = catocommon.add_task_instance(a.TaskID, args["_user_id"], debug, parameter_xml, e.ID, e.AccountID, "", "")
+                    
+                    if ti:
+                        if args["output_format"] == "text":
+                            return ti
+                        else:
+                            instance = task.TaskInstance(ti)
+                            if instance:
+                                if args["output_format"] == "json":
+                                    return R(response=instance.AsJSON())
+                                elif args["output_format"] == "xml":
+                                    return R(response=instance.AsXML())
+    
+                    # uh oh, something went wrong but we don't know what.
+                    return R(err_code=R.Codes.GetError, err_detail="Unable to run Action [%s].  Check the log for details." % args["action"])
+                
+                else:
+                    return R(err_code=R.Codes.GetError, err_detail="Unable to find Action for ID/Name [%s]." % args["action"])
+            else:
+                return R(err_code=R.Codes.GetError, err_detail="Unable to find Ecosystem for ID or Name %[s]." % args["ecosystem"])
+
         except Exception as ex:
             return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
 

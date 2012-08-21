@@ -98,20 +98,6 @@ def authenticate(action, args):
 	finally:
 		db.close()
 
-def perform_callback(callback, response):
-	"""
-		IF there is an arg called "callback", that means we want the results formatted as a javascript function call.
-		
-		(of course, if we wanna eventually support both XML and JSON result types that's fine...
-		it just means the payload *inside* the jsonp callback will be xml or json as requested.)
-	"""
-	payload = response.Write()
-	#base64 encode it (don't forget the three special chars)
-	payload = base64.b64encode(payload)
-	payload = payload.replace("=", "%3D").replace("+", "%2B").replace("/", "%2F")
-	
-	return "%s('%s')" % (callback, payload)
-
 def check_required_params(required_params, args):
 	"""
 		Ensure required argument(s) are provided and not empty.

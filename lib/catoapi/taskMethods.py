@@ -44,7 +44,12 @@ class taskMethods:
                 if obj.Error:
                     return R(err_code=R.Codes.GetError, err_detail=obj.Error)
 
-                return R(response=obj.Instance["task_status"])
+                if args["output_format"] == "json":
+                    return R(response='{"task_status":"%s"}' % obj.task_status)
+                elif args["output_format"] == "xml":
+                    return R(response='<task_status>%s</task_status>' % obj.task_status)
+                else:
+                    return R(response=obj.task_status)
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Status for Task Instance [%s]." % args["instance"])
             
@@ -58,7 +63,7 @@ class taskMethods:
         Required Arguments: instance
             The Task Instance identifier.
 
-        Returns: A JSON object.
+        Returns: A Task Instance object.
         """
         try:
             required_params = ["instance"]
@@ -71,7 +76,12 @@ class taskMethods:
                 if obj.Error:
                     return R(err_code=R.Codes.GetError, err_detail=obj.Error)
 
-                return R(response=obj.AsJSON())
+                if args["output_format"] == "json":
+                    return R(response=obj.AsJSON())
+                elif args["output_format"] == "text":
+                    return R(response=obj.AsText())
+                else:
+                    return R(response=obj.AsXML())
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Task Instance [%s]." % args["instance"])
             
@@ -96,7 +106,12 @@ class taskMethods:
 
             obj = task.TaskRunLog(args["instance"])
             if obj:
-                return R(response=obj.AsJSON())
+                if args["output_format"] == "json":
+                    return R(response=obj.AsJSON())
+                elif args["output_format"] == "text":
+                    return R(response=obj.AsText())
+                else:
+                    return R(response=obj.AsXML())
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Run Log for Task Instance [%s]." % args["instance"])
             
@@ -105,14 +120,14 @@ class taskMethods:
 
     def run_task(self, args):
         """
-        Gets the run log for a Task Instance.
+        Runs a Cato Task.
         
         Required Arguments: 
             task - Either the Task ID or Name.
             version - The Task Version.  (Unnecessary if 'task' is an ID.)
             
         Optional Arguments:
-            debug - an integer (0-4) where 0 is none, 2 is normal and 4 is verbose.  Default is 2.
+            log_level - an integer (0-4) where 0 is none, 2 is normal and 4 is verbose.  Default is 2.
             ecosystem - the ID or Name of an Ecosystem.  Certain Task commands are scoped to this Ecosystem.
             account - the ID or Name of a Cloud Account.  Certain Task commands require a Cloud Account.
             parameter_xml - An XML document defining parameters for the Task.
@@ -131,9 +146,9 @@ class taskMethods:
             # find the task
             obj = task.Task()
             obj.FromNameVersion(args["task"], ver)
-            if obj:
+            if obj.ID:
                 task_id = obj.ID
-                debug = args["debug"] if args.has_key("debug") else "2"
+                debug = args["log_level"] if args.has_key("log_level") else "2"
                 
                 # annoying, but we need to reconcile the ecosystem arg to an ID
                 ecosystem = args["ecosystem"] if args.has_key("ecosystem") else ""
@@ -164,7 +179,10 @@ class taskMethods:
                     else:
                         instance = task.TaskInstance(ti)
                         if instance:
-                            return R(response=instance.AsJSON())
+                            if args["output_format"] == "json":
+                                return R(response=instance.AsJSON())
+                            elif args["output_format"] == "xml":
+                                return R(response=instance.AsXML())
 
                 # uh oh, something went wrong but we don't know what.
                 return R(err_code=R.Codes.GetError, err_detail="Unable to run Task [%s %s].  Check the log for details." % (args["task"], ver))
@@ -194,7 +212,7 @@ class taskMethods:
             ti = task.TaskInstance(args["instance"])
             if ti:
                 ti.Stop()
-                return R(response="Task successfully stopped.")
+                return R(response="Instance %s successfully stopped." % args["instance"])
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Run Log for Task Instance [%s]." % args["instance"])
             
@@ -224,6 +242,44 @@ class taskMethods:
                     return R(response=obj.AsXML())
             else:
                 return R(err_code=R.Codes.ListError, err_detail="Unable to list Tasks.")
+            
+        except Exception as ex:
+            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+
+    def get_task_instances(self, args):
+        """
+        Gets a list of Task Instances.
+        
+        Optional Arguments:
+            filter - A filter to limit the results.
+            status - A comma separated list of statuses to filter the results.
+            from - a date string to set as the "from" marker. (mm/dd/yyyy format)
+            to - a date string to set as the "to" marker. (mm/dd/yyyy format)
+            records - a maximum number of results to get.
+            
+        Returns: A list of Task Instances.
+        """
+        try:
+            fltr = args["filter"] if args.has_key("filter") else ""
+            status = args["status"] if args.has_key("status") else ""
+            frm = args["from"] if args.has_key("from") else ""
+            to = args["to"] if args.has_key("to") else ""
+            records = args["records"] if args.has_key("records") else ""
+
+            obj = task.TaskInstances(sFilter=fltr,
+                                     sStatus=status,
+                                     sFrom=frm,
+                                     sTo=to,
+                                     sRecords=records)
+            if obj:
+                if args["output_format"] == "json":
+                    return R(response=obj.AsJSON())
+                elif args["output_format"] == "text":
+                    return R(response=obj.AsText())
+                else:
+                    return R(response=obj.AsXML())
+            else:
+                return R(err_code=R.Codes.GetError, err_detail="Unable to get Task Instances.")
             
         except Exception as ex:
             return R(err_code=R.Codes.Exception, err_detail=ex.__str__())

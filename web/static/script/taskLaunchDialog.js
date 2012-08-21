@@ -52,6 +52,7 @@ $(document).ready(function () {
                 '   <div id="RunNowTab">' +
                 '       <div>Will be started immediately and run only once, using the Parameters selected on the left.</div>' +
                 '       <hr />' +
+                '       <label for="new_runlog_window" class="hidden new_runlog_window">New Window?</label><input type="checkbox" id="new_runlog_window" class="hidden new_runlog_window"/>' +
                 '       <span id="run_now_btn" class="floatright">Run Now</span>' +
                 '   </div>' +
                 '   <div id="RunLaterTab">' +
@@ -585,8 +586,17 @@ function RunNow() {
         dataType: "text",
         success: function (response) {
 			if (response.length > 0) {
-			    openDialogWindow('taskRunLog?task_instance=' + response, 'TaskRunLog' + response, 950, 750, 'true');
-			
+				// if the 'new window' box is checked...
+				if ($("#new_runlog_window").is(':visible')) {
+					if ($("#new_runlog_window").is(':checked')) {
+				    	openDialogWindow('taskRunLog?task_instance=' + response, 'TaskRunLog' + response, 950, 750, 'true');
+				  	} else {
+				    	location.href='taskRunLog?task_instance=' + response;				  	
+				  	}
+				} else {
+				    openDialogWindow('taskRunLog?task_instance=' + response, 'TaskRunLog' + response, 950, 750, 'true');
+				}
+						
 			    $("#update_success_msg").text("Start Successful").fadeOut(2000);
 			
 			    //hate sticking it here, but this is only for the task edit/view pages...

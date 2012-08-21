@@ -186,7 +186,7 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, ecosystem_id
         submitted_by_instance = "'%s'" % submitted_by_instance if submitted_by_instance else "null"
         # just in case
         debug_level = str(debug_level)
-        
+
         db = new_conn()
         sql = """insert into task_instance (
                 task_status,
@@ -225,9 +225,9 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, ecosystem_id
         if parameter_xml:
             sql = """insert into task_instance_parameter (task_instance, parameter_xml) 
                 values ('%s', '%s')""" % (str(task_instance), tick_slash(parameter_xml))
-        if not db.tran_exec_noexcep(sql):
-            print "Unable to save parameter_xml for instance [%s]." % str(task_instance)
-            raise Exception(db.error)
+            if not db.tran_exec_noexcep(sql):
+                print "Unable to save parameter_xml for instance [%s]." % str(task_instance)
+                raise Exception(db.error)
 
         db.tran_commit()
         
@@ -516,7 +516,7 @@ class dict2xml(object):
                 father.appendChild(tag)
                 self.build(tag, structure[k])
         
-        elif type(structure) == list or type(structure) == tuple:
+        elif type(structure) == list:
             grandFather = father.parentNode
             tagName = father.tagName
             grandFather.removeChild(father)

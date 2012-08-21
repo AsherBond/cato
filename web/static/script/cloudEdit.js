@@ -262,6 +262,7 @@ function TestConnection() {
 	        },
 	        error: function (response) {
 	            showAlert(response.responseText);
+	            ClearTestResult();
 	        }
 	    });
 	} else {
