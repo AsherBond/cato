@@ -20,6 +20,15 @@ from catotask import task
 from catoecosystem import ecosystem
 from catocloud import cloud
 from catocommon import catocommon
+try:
+    import xml.etree.cElementTree as ET
+except (AttributeError, ImportError):
+    import xml.etree.ElementTree as ET
+try:
+    ET.ElementTree.iterfind
+except AttributeError as ex:
+    del(ET)
+    import catoxml.etree.ElementTree as ET
 
 class taskMethods:
     """"""
@@ -226,13 +235,15 @@ class taskMethods:
         
         Optional Arguments: 
             filter - will filter a value match in Task Name, Code or Description.
+            show_all_versions - if provided, will display all versions. ('False' if omitted.)
         
         Returns: An array of all Tasks with basic attributes.
         """
         try:
             fltr = args["filter"] if args.has_key("filter") else ""
+            showall = True if args.has_key("show_all_versions") else False
 
-            obj = task.Tasks(sFilter=fltr)
+            obj = task.Tasks(sFilter=fltr, show_all_versions=showall)
             if obj:
                 if args["output_format"] == "json":
                     return R(response=obj.AsJSON())
@@ -280,6 +291,175 @@ class taskMethods:
                     return R(response=obj.AsXML())
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Task Instances.")
+            
+        except Exception as ex:
+            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+
+    def get_task(self, args):        
+        """
+        Gets a Task object.
+        
+        Required Arguments: 
+            task - Value can be either a Task ID or Name.
+        
+        Optional Arguments:
+            version - A specific version.  ('Default' if omitted.)
+            include_code - Whether to include Codeblocks and Steps.  ('False' if omitted.)
+            
+        Returns: A Task object.
+        """
+        try:
+            # define the required parameters for this call
+            required_params = ["task"]
+            has_required, resp = api.check_required_params(required_params, args)
+            if not has_required:
+                return resp
+
+            ver = args["version"] if args.has_key("version") else ""
+            ic = True if args.has_key("include_code") else False
+
+            obj = task.Task()
+            obj.FromNameVersion(args["task"], ver)
+            if obj.ID:
+                if args["output_format"] == "json":
+                    return R(response=obj.AsJSON(include_code=ic))
+                elif args["output_format"] == "text":
+                    return R(response=obj.AsText())
+                else:
+                    return R(response=obj.AsXML(include_code=ic))
+            else:
+                return R(err_code=R.Codes.GetError, err_detail="Unable to get Task for Name/Version [%s %s]." % (args["task"], ver))
+            
+        except Exception as ex:
+            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+
+    def describe_task_parameters(self, args):        
+        """
+        Describes the Parameters for a Task.
+        
+        Required Arguments: 
+            task - Value can be either a Task ID or Name.
+        
+        Optional Arguments:
+            version - A specific version.  ('Default' if omitted.)
+            
+        Returns: A help document describing the Task Parameters.
+        """
+        try:
+            # define the required parameters for this call
+            required_params = ["task"]
+            has_required, resp = api.check_required_params(required_params, args)
+            if not has_required:
+                return resp
+
+            ver = args["version"] if args.has_key("version") else ""
+
+            obj = task.Task()
+            obj.FromNameVersion(args["task"], ver)
+            if obj.ParameterXDoc:
+                """
+                    Describe the parameters for the Task in a text (help) format.
+                    Used for the command line tools and API.
+                    The UI has it's own more complex logic for presentation and interaction.
+                """
+                out = []
+                
+                xParams = obj.ParameterXDoc.findall("parameter")
+                out.append("Number of Parameters: " + str(len(xParams)))
+                for xParam in xParams:
+                    out.append("Parameter: %s" % xParam.findtext("name"))
+                    if xParam.findtext("desc"):
+                        out.append("%s" % xParam.findtext("desc"))
+                    if xParam.get("required", ""):
+                        out.append("\tRequired: %s" % xParam.get("required", ""))
+                    if xParam.get("constraint", ""):
+                        out.append("\tConstraint: %s" % xParam.get("constraint", ""))
+                    if xParam.get("constraint_msg", ""):
+                        out.append("\tConstraint Message: %s" % xParam.get("constraint_msg", ""))
+                    if xParam.get("minlength", ""):
+                        out.append("\tMin Length: %s" % xParam.get("minlength", ""))
+                    if xParam.get("maxlength", ""):
+                        out.append("\tMax Length: %s" % xParam.get("maxlength", ""))
+                    if xParam.get("minvalue", ""):
+                        out.append("\tMin Value: %s" % xParam.get("minvalue", ""))
+                    if xParam.get("maxvalue", ""):
+                        out.append("\tMax Value: %s" % xParam.get("maxvalue", ""))
+                    
+                    # analyze the value definitions
+                    xValues = xParam.find("values")
+                    if xValues is not None:
+                        if xValues.get("present_as", ""):
+                            if xValues.get("present_as", "") == "list":
+                                # if it's a list type, say so
+                                out.append("\tType: List (Can have more than one value.)")
+                            elif xValues.get("present_as", "") == "dropdown":
+                                # if it's a dropdown type, show the allowed values.
+                                xValue = xValues.findall("value")
+                                if xValue is not None:
+                                    out.append("\tAllowed Values:")
+                                    for val in xValue:
+                                        out.append("\t\t%s" % val.text)
+                                        
+                return R(response="\n".join(out))
+            else:
+                return R(err_code=R.Codes.GetError, err_detail="Unable to get Task for Name/Version [%s %s]." % (args["task"], ver))
+            
+        except Exception as ex:
+            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+
+    def get_task_parameters_template(self, args):        
+        """
+        Gets a Parameters template for a Task.
+        
+        Required Arguments: 
+            task - Value can be either a Task ID or Name.
+        
+        Optional Arguments:
+            version - A specific version.  ('Default' if omitted.)
+            
+        Returns: An XML template defining the Parameters for a Task.
+            (Used for calling run_task or run_ecosystem_action.)
+        """
+        try:
+            # define the required parameters for this call
+            required_params = ["task"]
+            has_required, resp = api.check_required_params(required_params, args)
+            if not has_required:
+                return resp
+
+            ver = args["version"] if args.has_key("version") else ""
+
+            obj = task.Task()
+            obj.FromNameVersion(args["task"], ver)
+            if obj.ParameterXDoc:
+                """
+                    Build a template for a parameter xml document, suitable for editing and submission.
+                    Used for the command line tools and API.
+                    The UI has it's own more complex logic for presentation and interaction.
+                """
+                
+                # the xml document is *almost* suitable for this purpose.
+                # we just wanna strip out the presentation metadata
+                xdoc = obj.ParameterXDoc
+                # all we need to do is remove the additional dropdown values.
+                # they're "allowed values", NOT an array.
+                xParamValues = xdoc.findall("parameter/values")
+                if xParamValues is not None:
+                    for xValues in xParamValues: 
+                        if xValues.get("present_as", ""):
+                            if xValues.get("present_as", "") == "dropdown":
+                                # if it's a dropdown type, show the allowed values.
+                                xValue = xValues.findall("value")
+                                if xValue is not None:
+                                    if len(xValue) > 1:
+                                        for val in xValue[1:]:
+                                            xValues.remove(val)
+                                        
+                xmlstr = catocommon.pretty_print_xml(ET.tostring(xdoc))
+                                        
+                return R(response=xmlstr)
+            else:
+                return R(err_code=R.Codes.GetError, err_detail="Unable to get Task for Name/Version [%s %s]." % (args["task"], ver))
             
         except Exception as ex:
             return R(err_code=R.Codes.Exception, err_detail=ex.__str__())

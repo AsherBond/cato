@@ -107,6 +107,14 @@ def read_config():
     
     return key_vals
 
+def pretty_print_xml(xml_string):
+    """
+        Takes an xml *string* and returns a pretty version.
+    """
+    import xml.dom.minidom
+    xdoc = xml.dom.minidom.parseString(xml_string)
+    return xdoc.toprettyxml()
+
 def packData(sIn):
     if not sIn:
         return sIn

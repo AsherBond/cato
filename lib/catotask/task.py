@@ -39,7 +39,7 @@ from datetime import datetime
 # why? Because we don't need a full object for list pages and dropdowns.
 class Tasks(object):
     rows = {}
-    def __init__(self, sFilter=""):
+    def __init__(self, sFilter="", show_all_versions=False):
         try:
             db = catocommon.new_conn()
             sWhereString = ""
@@ -52,19 +52,34 @@ class Tasks(object):
                             "or t.task_desc like '%%" + term + "%%' " \
                             "or t.task_status like '%%" + term + "%%') "
     
-            sSQL = """select 
-                t.task_id as ID, 
-                t.original_task_id as OriginalTaskID, 
-                t.task_name as Name, 
-                t.task_code as Code, 
-                t.task_desc as Description, 
-                t.version as Version, 
-                t.task_status as Status,
-                (select count(*) from task where original_task_id = t.original_task_id) as Versions,
-                group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
-                from task t
-                left outer join object_tags ot on t.original_task_id = ot.object_id
-                where t.default_version = 1 %s group by t.original_task_id order by t.task_code""" % sWhereString
+            if show_all_versions:
+                sSQL = """select 
+                    t.task_id as ID, 
+                    t.original_task_id as OriginalTaskID, 
+                    t.task_name as Name, 
+                    t.task_code as Code, 
+                    t.task_desc as Description, 
+                    t.version as Version, 
+                    t.task_status as Status,
+                    (select count(*) from task where original_task_id = t.original_task_id) as Versions,
+                    group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
+                    from task t
+                    left outer join object_tags ot on t.original_task_id = ot.object_id
+                    where 1=1 %s group by t.task_id, t.version order by t.task_code, t.version""" % sWhereString
+            else:
+                sSQL = """select 
+                    t.task_id as ID, 
+                    t.original_task_id as OriginalTaskID, 
+                    t.task_name as Name, 
+                    t.task_code as Code, 
+                    t.task_desc as Description, 
+                    t.version as Version, 
+                    t.task_status as Status,
+                    (select count(*) from task where original_task_id = t.original_task_id) as Versions,
+                    group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
+                    from task t
+                    left outer join object_tags ot on t.original_task_id = ot.object_id
+                    where t.default_version = 1 %s group by t.original_task_id order by t.task_code""" % sWhereString
             
             self.rows = db.select_all_dict(sSQL)
         except Exception as ex:
@@ -129,7 +144,6 @@ class Task(object):
         #a task has a dictionary of codeblocks
         self.Codeblocks = {}
 
-    #the default constructor (manual creation)
     def FromArgs(self, sName, sCode, sDesc):
         if not sName:
             raise Exception("Error building Task object: Name is required.")
@@ -141,7 +155,6 @@ class Task(object):
         self.Description = sDesc
         self.CheckDBExists()
 
-    #constructor - from the database by ID
     def FromID(self, sTaskID, bIncludeUserSettings=False):
         sErr = ""
         try:
@@ -280,9 +293,19 @@ class Task(object):
         except Exception as ex:
             raise ex
 
+    def AsText(self):
+        try:
+            keys = ["Code", "Name", "Version", "Description", "Status", "IsDefaultVersion"]
+            vals = []
+            for key in keys:
+                vals.append(str(getattr(self, key)))
+              
+            return "%s\n%s" % ("\t".join(keys), "\t".join(vals))
+        except Exception as ex:
+            raise ex
 
-    def AsXML(self):
-        # NOTE!!! this was just a hand coded test... it needs to be pulled in from the C# version
+
+    def AsXML(self, include_code=False):
         root = ET.fromstring('<task />')
         
         root.set("original_task_id", self.OriginalTaskID)
@@ -303,29 +326,26 @@ class Task(object):
         #CODEBLOCKS
         xCodeblocks = ET.SubElement(root, "codeblocks") #add the codeblocks section
         
-        #TODO!!! fix this to be for name, cb in self.Codeblocks!!!!
-        for k in self.Codeblocks:
-            #the dict can't unpack the object?
-            #try it by reference
-            cb = self.Codeblocks[k]
-            xCB = ET.SubElement(xCodeblocks, "codeblock") #add the codeblock
-            xCB.set("name", cb.Name)
-            
-            #STEPS
-            xSteps = ET.SubElement(xCB, "steps") #add the steps section
-            
-            for s in cb.Steps:
-                stp = cb.Steps[s]
-                xStep = ET.SubElement(xSteps, "step") #add the step
-                xStep.set("codeblock", str(stp.Codeblock))
-                xStep.set("output_parse_type", str(stp.OutputParseType))
-                xStep.set("output_column_delimiter", str(stp.OutputColumnDelimiter))
-                xStep.set("output_row_delimiter", str(stp.OutputRowDelimiter))
-                xStep.set("commented", str(stp.Commented).lower())
-
-                ET.SubElement(xStep, "description").text = stp.Description
+        if include_code:
+            for name, cb in self.Codeblocks.items():
+                xCB = ET.SubElement(xCodeblocks, "codeblock") #add the codeblock
+                xCB.set("name", name)
                 
-                xStep.append(stp.FunctionXDoc)
+                #STEPS
+                xSteps = ET.SubElement(xCB, "steps") #add the steps section
+                
+                for s in cb.Steps:
+                    stp = cb.Steps[s]
+                    xStep = ET.SubElement(xSteps, "step") #add the step
+                    xStep.set("codeblock", str(stp.Codeblock))
+                    xStep.set("output_parse_type", str(stp.OutputParseType))
+                    xStep.set("output_column_delimiter", str(stp.OutputColumnDelimiter))
+                    xStep.set("output_row_delimiter", str(stp.OutputRowDelimiter))
+                    xStep.set("commented", str(stp.Commented).lower())
+    
+                    ET.SubElement(xStep, "description").text = stp.Description
+                    
+                    xStep.append(stp.FunctionXDoc)
         
         return ET.tostring(root)
 
@@ -351,16 +371,15 @@ class Task(object):
             
             if include_code:
                 #codeblocks
-                sb.append("\", Codeblocks\" : {")
-                for name, cb in self.Codeblocks.iteritems():
-                    sb.append(" \"%s\" : {\"Steps\" : {" % name)
-    
+                sb.append(", \"Codeblocks\" : {")
+                codeblocks = []
+                for name, cb in self.Codeblocks.items():
                     steps = []
                     for order, st in cb.Steps.iteritems():
                         steps.append(" \"%s\" : %s" % (order, st.AsJSON()))
-                    sb.append(",".join(steps))
-                    sb.append("}")
-                sb.append("}")
+                    codeblocks.append(" \"%s\" : {\"Steps\" : {%s} }" % (name, ",".join(steps)))
+
+                sb.append(",".join(codeblocks))
                 sb.append("}")
 
             sb.append("}")
