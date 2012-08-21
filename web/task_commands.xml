@@ -257,6 +257,7 @@
 			<command name="store_private_key" label="Store Private Key" description="Stores the private portion of a keypair for later use.." help="" icon="static/images/icons/set_asset_registry_32.png">
 				<function name="store_private_key">
 					<name label="Keypair Name" input_type="text" />
+					<cloud_name label="Cloud Name" input_type="text" />
 					<private_key label="Private Key" input_type="textarea" rows="1" class="w50pct" style="height:18px;vertical-align:bottom;" />
 				</function>
 			</command>
