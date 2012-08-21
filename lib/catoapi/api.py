@@ -54,11 +54,6 @@ def authenticate(action, args):
 		ts = getattr(args, 'timestamp', '')
 		sig = getattr(args, 'signature', '')
 		
-		#ALERT: for internal testing purposes, a hardcoded key will always pass
-		if key == "12:34:56:78:90":
-			return True, "0002bdaf-bfd5-4b9d-82d1-fd39c2947d19"
-		#REMOVE BEFORE RELEASE
-		
 		#Not enough arguments for the authentication? Fail.
 		if action == '' or key == '' or ts == '' or sig == '':
 			return False, None
@@ -77,14 +72,16 @@ def authenticate(action, args):
 		
 		db.ping_db()
 		#we need the password for the provided key (user_id)... that's what we use to build the signature.
-		sql = """select user_password from users where user_id = %s""" 
-		encpwd = db.select_col(sql, key)
+		sql = """select user_id, user_password from users where user_id = '{0}' or username = '{0}'""".format(key) 
+		row = db.select_row_dict(sql)
 		
-		if not encpwd:
+		if not row:
 			return False, None
 		
+		# from here on down, 'key' is the user_id
+		key = row["user_id"]
 		#decrypt the password so we can use it to generate the signature
-		pwd = catocommon.cato_decrypt(encpwd)
+		pwd = catocommon.cato_decrypt(row["user_password"])
 		
 		signed = base64.b64encode(hmac.new(pwd, msg=string_to_sign, digestmod=hashlib.sha256).digest())
 		

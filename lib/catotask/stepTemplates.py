@@ -2055,9 +2055,13 @@ def RunTask(oStep):
             x = sParameterXML.count("</parameter>")
             r = sParameterXML.count("required=\"true\"")
             if x:
+                # we need to make sure the parameters are saved on the run_task command,
+                # even if it's embedded in another command.
+                sBaseXPath = (oStep.XPathPrefix if oStep.XPathPrefix else "")
                 icon = ("alert" if r else "pencil")
                 sHTML += "<hr />"
                 sHTML += "<div class=\"fn_runtask_edit_parameters_btn pointer\"" \
+                    " base_xpath=\"" + sBaseXPath + "\"" \
                     " task_id=\"" + sActualTaskID + "\"" \
                     " step_id=\"" + sStepID + "\">" \
                     "<span class=\"ui-icon ui-icon-%s forceinline \"></span> Edit Parameters (%s)</div>" % (icon, str(x))
