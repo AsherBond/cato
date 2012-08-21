@@ -14,16 +14,9 @@
 # limitations under the License.
 #########################################################################
 
-#set ::CATO_HOME [file dirname [file dirname [file dirname [file normalize $argv0]]]]
-#source $::CATO_HOME/services/bin/common.tcl
-
-#read_config
-
 proc get_ecosystem_name {} {
 	set proc_name get_ecosystem_name
 	set sql "select ecosystem_name from ecosystem where ecosystem_id = '$::ECOSYSTEM_ID'"
-	#$::db_query $::CONN $sql
-	#set row [$::db_fetch $::CONN]
     set row [select_row $sql]
 	set ::ECOSYSTEM_NAME [lindex $row 0]
 	return $::ECOSYSTEM_NAME
@@ -33,6 +26,7 @@ proc store_private_key {command} {
 
 	get_xml_root $command
 	set key_name [replace_variables_all [$::ROOT selectNodes string(name)]]
+	set cloud_name [replace_variables_all [$::ROOT selectNodes string(cloud_name)]]
 	set private_key [replace_variables_all [$::ROOT selectNodes string(private_key)]]
 	del_xml_root
 	if {"$key_name" == ""} {
@@ -41,10 +35,20 @@ proc store_private_key {command} {
 	if {"$private_key" == ""} {
 		error_out "Private Key value is required" 9999
 	} 
-        #set sql "insert into cloud_account_keypair (keypair_id, account_id, keypair_name, private_key) values (uuid(),'$::CLOUD_ACCOUNT','$key_name','[encrypt_string $private_key $::SITE_KEY]')"
-        set sql "insert into cloud_account_keypair (keypair_id, account_id, keypair_name, private_key) values (uuid(),'$::CLOUD_ACCOUNT','$key_name','[encrypt_string $private_key]')"
-	#$::db_exec $::CONN $sql
+    if {"$cloud_name" eq ""} {
+        set cloud_name "us-east-1"
+    }
+    set sql "select cloud_id from clouds where cloud_name = '$cloud_name'"
+    set row [select_row $sql]
+    if {"$row" eq ""} {
+        error_out "Cloud definition with name $cloud_name does not exist in the database" 9999
+    }
+    set cloud_id [lindex $row 0]
+
+    set enc_key [encrypt_string $private_key]
+    set sql "insert into clouds_keypair (keypair_id, cloud_id, keypair_name, private_key) values (uuid(),'$cloud_id','$key_name','$enc_key') ON DUPLICATE KEY UPDATE private_key = '$enc_key'"
     exec_db $sql
+	insert_audit $::STEP_ID  "" "Stored private key named $key_name with cloud named $cloud_name" ""
 }
 proc get_ecosystem_objects {command} {
 	set proc_name get_ecosystem_tasks
@@ -139,52 +143,26 @@ proc get_ip {pub_or_priv} {
 		
 }
 proc register_security_group {apply_to_group port region} {
-        set proc_name register_security_group
-        package require tclcloud
-        #if {"$::CLOUD_LOGIN_ID" == "" || "$::CLOUD_LOGIN_PASS" == ""} {
-        #       error_out "Cloud account id or password is required" 9999
-        #}
-        #if {![info exists ::CSK_ACCOUNT]} {
-        #       set sql "select value from customer_info where keyname = 'csk_account_num'"
-        #       $::db_query $::CONN $sql
-        #       set ::CSK_ACCOUNT [lindex [$::db_fetch $::CONN] 0]
-        #}
-        #if {![info exists ::CSK_SECURITY_GROUP]} {
-        #       set sql "select value from customer_info where keyname = 'csk_security_group'"
-        #       $::db_query $::CONN $sql
-        #       set ::CSK_SECURITY_GROUP [lindex [$::db_fetch $::CONN] 0]
-        #}
+    set proc_name register_security_group
 
-        tclcloud::configure aws $::CLOUD_LOGIN_ID $::CLOUD_LOGIN_PASS
+    package require tclcloud
+    tclcloud::configure aws $::CLOUD_LOGIN_ID $::CLOUD_LOGIN_PASS
 	if {"$region" > ""} {
 		set ip [get_ip public-ipv4]
 	} else {
 		set ip [get_ip local-ipv4]
 	}
-        #set params "GroupId $apply_to_group IpPermissions.1.Groups.1.UserId $::CSK_ACCOUNT IpPermissions.1.Groups.1.GroupId $::CSK_SECURITY_GROUP IpPermissions.1.IpProtocol tcp IpPermissions.1.FromPort $port IpPermissions.1.ToPort $port"
-        set params "GroupId $apply_to_group IpPermissions.1.IpRanges.1.CidrIp $ip/32 IpPermissions.1.IpProtocol tcp IpPermissions.1.FromPort $port IpPermissions.1.ToPort $port"
-        set cmd "tclcloud::call ec2 \"$region\" AuthorizeSecurityGroupIngress"
-        lappend cmd $params
-        catch {set  result [eval $cmd]} result
-        output $result
-}
-proc get_clouds_provider {provider} {
-
-    set sql "select cloud_id, cloud_name, api_url from clouds where provider = '$provider'"
-    ::mysql::sel $::CONN $sql
-   
-    while {[string length [set row [::mysql::fetch $::CONN]]] > 0} {
-        lappend list_b [lindex $row 0]
-        lappend list_b [lindex $row 1]
-        lappend list_b [lindex $row 2]
-        lappend list_a $list_b
-        unset list_b
-    }
-   
-    return $list_a
+    set params "GroupId $apply_to_group IpPermissions.1.IpRanges.1.CidrIp $ip/32 IpPermissions.1.IpProtocol tcp IpPermissions.1.FromPort $port IpPermissions.1.ToPort $port"
+    set cmd "tclcloud::call ec2 \"$region\" AuthorizeSecurityGroupIngress"
+    lappend cmd $params
+    catch {set  result [eval $cmd]} result
+    output $result
 }
 proc get_cloud_uri {provider} {
 
+    if {"$provider" eq "Amazon AWS"} {
+        return ""
+    }
     set fp [open $::HOME/conf/cloud_providers.xml r]
     set xml [read $fp]
     close $fp
@@ -195,7 +173,7 @@ proc get_cloud_uri {provider} {
     set query "//provider\[@name='$provider'\]/products/product\[@type='compute'\]"
     set node [$root selectNodes $query]
     if {"$node" ne ""} {
-        set uri [$node getAttribute api_uri]
+        set uri [string trimright [$node getAttribute api_uri] "/"]
     } else {
         set uri ""
     }
@@ -204,16 +182,42 @@ proc get_cloud_uri {provider} {
     unset xml
     return $uri
 }
-
-
+proc get_default_cloud_for_account {account} {
+	set proc_name get_default_cloud_for_account
+    if {[info exists ::CLOUD_DEFAULTS($account)]} {
+        set cloud_name $::CLOUD_DEFAULTS($account)
+    } else {
+        set sql "select c.cloud_name from clouds c, cloud_account ca where ca.account_id = '$account' and ca.default_cloud_id = c.cloud_id"
+        set row [select_all $sql]
+        set cloud_name [lindex [lindex $row 0] 0]
+        set ::CLOUD_DEFAULTS($account) $cloud_name
+    }
+    return $cloud_name
+}
+proc get_cloud_info {provider cloud_name} {
+	set proc_name get_cloud_info
+	set sql "select api_url, cloud_id, api_protocol from clouds where provider = '$provider' and cloud_name = '$cloud_name'"
+    set row [lindex [select_all $sql] 0]
+    output "get_cloud_info select returned $row"
+    if {[llength $row] > 0} {
+        set api_url [lindex $row 0]
+        set cloud_id [lindex $row 1]
+        set api_protocol [lindex $row 2]
+        set uri [get_cloud_uri $provider]
+        set ::CLOUD_ENDPOINTS($::CLOUD_TYPE,$cloud_name) [list "$api_url$uri" $api_protocol $api_url]
+        output "::CLOUD_ENDPOINTS($::CLOUD_TYPE,$cloud_name) [list $api_url$uri $api_protocol $api_url]"
+        set ::CLOUD_IDS($provider,$cloud_name) $cloud_id
+        return 1
+    } else {
+        return 0
+    }
+}
 
 proc gather_account_info {account_id} {
 	set proc_name gather_account_info
 
     if {![is_guid $account_id]} {
         set sql "select account_id from cloud_account where account_name = '$account_id'"
-        #$::db_query $::CONN $sql
-        #set row [$::db_fetch $::CONN]
         set row [select_row $sql]
         set ::CLOUD_ACCOUNT [lindex $row 0]
         if {"$::CLOUD_ACCOUNT" eq ""} {
@@ -222,8 +226,6 @@ proc gather_account_info {account_id} {
         set account_id $::CLOUD_ACCOUNT
     }
     set sql "select ca.account_name, ca.provider, ca.login_id, ca.login_password from cloud_account ca where ca.account_id= '$account_id'"
-	#$::db_query $::CONN $sql
-	#set row [$::db_fetch $::CONN]
     set row [select_row $sql]
 	set ::CLOUD_NAME [lindex $row 0]
 	set ::CLOUD_TYPE [lindex $row 1]
@@ -233,32 +235,6 @@ proc gather_account_info {account_id} {
 		set ::CLOUD_LOGIN_PASS [decrypt_string [lindex $row 3]]
 	} else {
 		set ::CLOUD_LOGIN_PASS ""
-	}
-
-        set clouds [get_clouds_provider $::CLOUD_TYPE]
-        foreach cloud $clouds {
-                set ::CLOUD_ENDPOINTS($::CLOUD_TYPE,[lindex $cloud 1]) "[lindex $cloud 2]"
-                set ::CLOUD_IDS($::CLOUD_TYPE,[lindex $cloud 1]) [lindex $cloud 0]
-        }
-
-	set sql "select cloud_name, api_url,cloud_id, api_protocol from clouds where provider = '$::CLOUD_TYPE'"
-	#$::db_query $::CONN $sql
-    set rows [select_all $sql]
-	set ii 0
-	#while {[string length [set row [$::db_fetch $::CONN]]] > 0} 
-    foreach row $rows {
-		if {"$::CLOUD_TYPE" ne "Amazon AWS"} {
-			set uri [get_cloud_uri $::CLOUD_TYPE]
-			set ::CLOUD_ENDPOINTS($::CLOUD_TYPE,[lindex $row 0]) [list "[lindex $row 1]$uri" [lindex $row 3] [lindex $row 1]]
-			if {$ii == 0} {
-				set ::CLOUD_ENDPOINTS($::CLOUD_TYPE,default) [list "[lindex $row 1]$uri" [lindex $row 3] [lindex $row 1]]
-				set ::CLOUD_IDS($::CLOUD_TYPE,default) [lindex $row 2]
-				incr ii
-			}
-		} else {
-			set ::CLOUD_ENDPOINTS($::CLOUD_TYPE,[lindex $row 0]) [list [lindex $row 1] [lindex $row 3]]
-		}
-		set ::CLOUD_IDS($::CLOUD_TYPE,[lindex $row 0]) [lindex $row 2]
 	}
 }
 proc get_eco_tags {var_name params} {
@@ -488,48 +464,32 @@ proc aws_Generic {product operation path command} {
     if {"$::CLOUD_TYPE" eq ""} {
 		error_out "No cloud accounts are defined in this environment. Create a cloud account before reattempting" 9999
     }
-	if {"$::CLOUD_TYPE" ne "Amazon AWS"} {
-		### Remove the following when Eucalyptus supports tagging
-		if {"$operation" == "DescribeTags"} {
-			get_eco_tags $var_name $params
-			return
+    ### Remove the following when Eucalyptus supports tagging
+    if {"$operation" == "DescribeTags" && "$::CLOUD_TYPE" ne "Amazon AWS"} {
+        get_eco_tags $var_name $params
+        return
 
-		} elseif {"$operation" == "DeleteTags"} {
-			delete_eco_tags $params
-			return
-		} elseif {"$operation" == "CreateTags"} {
-			set_eco_tags $params
-			return
-        }
+    } elseif {"$operation" == "DeleteTags" && "$::CLOUD_TYPE" ne "Amazon AWS"} {
+        delete_eco_tags $params
+        return
+    } elseif {"$operation" == "CreateTags" && "$::CLOUD_TYPE" ne "Amazon AWS"} {
+        set_eco_tags $params
+        return
+    }
 
-		if {"$aws_region" > ""} {
-			if {[array names ::CLOUD_ENDPOINTS "$::CLOUD_TYPE,$aws_region"] == ""} {
-				error_out "Cloud region $aws_region does not exist. Either create a $::CLOUD_TYPE Cloud definition or enter an existing cloud name in the region field" 9999
-			}
-			set endpoint [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,$aws_region) 0]
-                        set ::_CLOUD_ENDPOINT [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,$aws_region) 2]
-			set protocol [string tolower [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,$aws_region) 1]]
-			if {"$endpoint" == ""} {
-				error_out "$::CLOUD_TYPE error: Region $aws_region for $::CLOUD_TYPE cloud not defined. Region name must match a valid cloud name." 9999
-			}
-		} else {
-			if {![info exist ::CLOUD_ENDPOINTS($::CLOUD_TYPE,default)]} {
-				error_out "$::CLOUD_TYPE error: A default cloud for $::CLOUD_TYPE not defined. Create a valid cloud with endpoint url for $::CLOUD_TYPE." 9999
-			}
-			set endpoint [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,default) 0]
-                        set ::_CLOUD_ENDPOINT [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,default) 2]
-			set protocol [string tolower [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,default) 1]]
-			if {"$endpoint" == ""} {
-				error_out "$::CLOUD_TYPE error: A default cloud for $::CLOUD_TYPE not defined. Create a valid cloud with endpoint url for $::CLOUD_TYPE." 9999
-			}
-			set aws_region default
-		}
-		lappend region_endpoint $aws_region "$endpoint" $protocol
-	} else {
-		lappend region_endpoint ""
-	}
-        tclcloud::configure aws $::CLOUD_LOGIN_ID $::CLOUD_LOGIN_PASS $region_endpoint
-        set cmd "tclcloud::call $product \"$aws_region\" $operation"
+    set aws_region [get_cloud_endpoint $::CLOUD_TYPE $aws_region]
+
+    set endpoint [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,$aws_region) 0]
+    set protocol [string tolower [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,$aws_region) 1]]
+    set ::_CLOUD_ENDPOINT [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,$aws_region) 2]
+    if {"$::CLOUD_TYPE" ne "Amazon AWS"} {
+        lappend region_endpoint $aws_region "$endpoint" $protocol
+    } else {
+        set region_endpoint ""
+    }
+
+    tclcloud::configure aws $::CLOUD_LOGIN_ID $::CLOUD_LOGIN_PASS $region_endpoint
+    set cmd "tclcloud::call $product \"$aws_region\" $operation"
     output $cmd
 	lappend cmd $params
 	lappend cmd $version
@@ -672,74 +632,66 @@ proc aws_drill_in {node name params} {
         return $params
 }
 
-proc get_aws_private_key {keyname} {
-        set proc_name get_aws_private_key
-	set sql "select private_key, passphrase from cloud_account_keypair cak where cak.account_id = '$::CLOUD_ACCOUNT' and cak.keypair_name = '$keyname'"
-	#$::db_query $::CONN $sql
-	#return [$::db_fetch $::CONN]
+proc get_aws_private_key {keyname cloud_name} {
+    set proc_name get_aws_private_key
+	set sql "select private_key, passphrase from clouds_keypair ck, clouds c where c.cloud_name = '$cloud_name' and ck.keypair_name = '$keyname' and c.cloud_id = ck.cloud_id"
     set row [select_row $sql]
-    return row
+    return $row
 }
-proc gather_aws_system_info {instance_id user_id region} {
-        set proc_name gather_aws_system_info
-        package require tclcloud
-        if {"$::CLOUD_TYPE" ne "Amazon AWS"} {
-                if {"$region" > ""} {
-                        if {[array names ::CLOUD_ENDPOINTS "$::CLOUD_TYPE,$region"] == ""} {
-                                error_out "Cloud region $region does not exist. Either create a $::CLOUD_TYPE Cloud definition or enter an existing cloud name in the region field" 9999
-                        }
-                        set endpoint [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,$region) 0]
-                        set ::_CLOUD_ENDPOINT [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,$region) 2]
-                        set protocol [string tolower [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,$region) 1]]
-                        if {"$endpoint" == ""} {
-                                error_out "Region $region for $::CLOUD_TYPE cloud not defined. Region name must match a valid cloud name." 9999
-                        }
-                } else {
-			if {![info exist ::CLOUD_ENDPOINTS($::CLOUD_TYPE,default)]} {
-				error_out "$::CLOUD_TYPE error: A default cloud for $::CLOUD_TYPE not defined. Create a valid cloud with endpoint url for $::CLOUD_TYPE." 9999
-			}
-			set endpoint [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,default) 0]
-                        set ::_CLOUD_ENDPOINT [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,default) 2]
-                        set protocol [string tolower [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,default) 1]]
-			if {"$endpoint" == ""} {
-				error_out "$::CLOUD_TYPE error: A default cloud for $::CLOUD_TYPE not defined. Create a valid cloud with endpoint url for $::CLOUD_TYPE." 9999
-			}
-			set region default
-                }
-		lappend region_endpoint $region $endpoint $protocol
-        } else {
-                set region_endpoint ""
+proc get_cloud_endpoint {provider cloud_name} {
+    set proc_name get_cloud_endpoint
+
+    if {"$cloud_name" eq ""} {
+        ### Let's lookup the default cloud
+        set cloud_name [get_default_cloud_for_account $::CLOUD_ACCOUNT]
+        if {"$cloud_name" eq ""} {
+                error_out "A default cloud endpoint is not defined for this cloud account" 9999
         }
+    }
+    if {[array names ::CLOUD_ENDPOINTS "$provider,$cloud_name"] == ""} {
+        ### Let's look up the endpoint info for this cloud
+        if {![get_cloud_info $provider $cloud_name]} {
+            error_out "Cloud region $cloud_name does not exist. Either create a $provider Cloud definition or enter an existing cloud name in the region field" 9999
+        }
+    }
+    return $cloud_name
+}
 
-        tclcloud::configure aws $::CLOUD_LOGIN_ID $::CLOUD_LOGIN_PASS $region_endpoint
+proc gather_aws_system_info {instance_id user_id region} {
+    set proc_name gather_aws_system_info
+    package require tclcloud
 
-        set cmd "tclcloud::call ec2 \"$region\" DescribeInstances "
-        set params "InstanceId $instance_id"
-        lappend cmd $params
-        lappend cmd {}
+    set region [get_cloud_endpoint $::CLOUD_TYPE $region]
+    set endpoint [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,$region) 0]
+    set protocol [string tolower [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,$region) 1]]
+    set ::_CLOUD_ENDPOINT [lindex $::CLOUD_ENDPOINTS($::CLOUD_TYPE,$region) 2]
+
+    if {"$::CLOUD_TYPE" ne "Amazon AWS"} {
+        lappend region_endpoint $region "$endpoint" $protocol
+    } else {
+        set region_endpoint ""
+    }
+
+    tclcloud::configure aws $::CLOUD_LOGIN_ID $::CLOUD_LOGIN_PASS $region_endpoint
+
+    set cmd "tclcloud::call ec2 \"$region\" DescribeInstances "
+    set params "InstanceId $instance_id"
+    lappend cmd $params
+    lappend cmd {}
 	if [catch {set  result [eval $cmd]} result] {
 		error_out "AWS error: DescribeInstances $params\012\012$result" 9999
 	}
-output $result
-	#if {[string match "*does not exist*" $err_msg]} {
-	#	# maybe the instance has been submitted to start
-	#	# we'll take a nap and try again once
-	#	sleep 5
-	#	set result [eval $cmd]
-    #    output $result
-	#}
-        set xmldoc [dom parse -simple $result]
-        set root [$xmldoc documentElement]
-        set xml_no_ns [[$root removeAttribute xmlns] asXML]
-        $root delete
-        $xmldoc delete
-        set xmldoc [dom parse -simple $xml_no_ns]
-        unset xml_no_ns
-        set root [$xmldoc documentElement]
-        #if {!$root} {
-        #       return ""
-        #}
-        set instanceState [$root selectNodes {//instancesSet/item/instanceState/name}]
+    output $result
+
+    set xmldoc [dom parse -simple $result]
+    set root [$xmldoc documentElement]
+    set xml_no_ns [[$root removeAttribute xmlns] asXML]
+    $root delete
+    $xmldoc delete
+    set xmldoc [dom parse -simple $xml_no_ns]
+    unset xml_no_ns
+    set root [$xmldoc documentElement]
+    set instanceState [$root selectNodes {//instancesSet/item/instanceState/name}]
 	if {"$instanceState" eq ""} {
 		if {"$region" eq ""} {
 			set region "default"
@@ -751,19 +703,19 @@ output $result
 		return $state
 	}
 	
-        set keyname [[[$root selectNodes {//instancesSet/item/keyName}] childNode] data]
-        #catch {set security_group_id [[[$root selectNodes {//instancesSet/item/groupSet/item/groupId[1]}] childNode] data]}
-        set platform_node [$root selectNodes {//instancesSet/item/platform}]
-        if {"$platform_node"> ""} {
-                set platform [[[$root selectNodes {//instancesSet/item/platform}]  childNode] data]
-        } else {
-                set platform "linux"
-        }
+    set keyname [[[$root selectNodes {//instancesSet/item/keyName}] childNode] data]
+    #catch {set security_group_id [[[$root selectNodes {//instancesSet/item/groupSet/item/groupId[1]}] childNode] data]}
+    set platform_node [$root selectNodes {//instancesSet/item/platform}]
+    if {"$platform_node"> ""} {
+            set platform [[[$root selectNodes {//instancesSet/item/platform}]  childNode] data]
+    } else {
+            set platform "linux"
+    }
 	set address [[[$root selectNodes {//instancesSet/item/dnsName}]  childNode] data]
-        output "$instance_id state = $state, keyname = $keyname, platform = $platform, address = $address" 3
-        $root delete
-        $xmldoc delete
-	set pk_pass [get_aws_private_key $keyname]
+    output "$instance_id state = $state, keyname = $keyname, platform = $platform, address = $address" 3
+    $root delete
+    $xmldoc delete
+	set pk_pass [get_aws_private_key $keyname $region]
 
 	set ::system_arr($instance_id,name) $instance_id
 	set ::system_arr($instance_id,address) $address
@@ -780,13 +732,16 @@ output $result
 	set ::system_arr($instance_id,priv_password) ""
 	set ::system_arr($instance_id,domain) ""
 	set ::system_arr($instance_id,conn_string) ""
-        set ::system_arr($instance_id,private_key_name) $keyname
-        if {"$pk_pass" > ""} {
-                #set ::system_arr($instance_id,private_key) [decrypt_string [lindex $pk_pass 0] $::SITE_KEY]
-                set ::system_arr($instance_id,private_key) [decrypt_string [lindex $pk_pass 0]]
-        } else {
-                set ::system_arr($instance_id,private_key) ""
-        }
+	set ::system_arr($instance_id,cloud_name) $region
+    set ::system_arr($instance_id,private_key_name) $keyname
+    if {"$pk_pass" > ""} {
+            #set ::system_arr($instance_id,private_key) [decrypt_string [lindex $pk_pass 0] $::SITE_KEY]
+            output $pk_pass
+            output [lindex $pk_pass 0]
+            set ::system_arr($instance_id,private_key) [decrypt_string [lindex $pk_pass 0]]
+    } else {
+            set ::system_arr($instance_id,private_key) ""
+    }
 	#set ::system_arr($instance_id,security_group) $security_group_id
 	unset pk_pass
 	return $state
@@ -967,11 +922,6 @@ proc initialize {} {
 	###
 	package require Expect
 	package require tdom
-	#package require mysqltcl
-	#set ::db_query ::mysql::sel
-	#set ::db_exec ::mysql::exec
-	#set ::db_fetch ::mysql::fetch
-	#set ::db_disconnect ::mysql::close
 	set ::getdate "now()"
 	exp_internal 0 ;# Keep this at 0 unless you want to debug further
 
@@ -997,6 +947,7 @@ proc initialize {} {
 	set ::INLOOP 0
 	set ::SENSITIVE ""
 	set ::CLOUD_ENDPOINTS() ""
+	set ::CLOUD_DEFAULTS() ""
 	set ::CLOUD_IDS() ""
 	set ::runtime_arr(_AWS_REGION,1) ""
 	set ::_CLOUD_ENDPOINT ""
@@ -1759,10 +1710,10 @@ proc telnet_logon {address userid password top telnet_ssh attempt_num private_ke
         }
 		"assword: " {}
 		"assword:" {}
-                "yes/no" {
+        "yes/no" {
 			append login_output $expect_out(buffer)
 			send "yes\r"
-                        expect {
+            expect {
 				"password will expire" {
 					insert_audit $::STEP_ID "$telnet_ssh password for userid {$userid} set to expire." ""
 				}
@@ -2022,7 +1973,6 @@ proc telnet_logon {address userid password top telnet_ssh attempt_num private_ke
 			}
 		}
 	}
-	append login_output $expect_out(buffer)
 	if {$passphrase_required == 1 && "$password" == ""} {
 		error_out "ssh passphrase is required but no passphrase was supplied. Check the passphrase for ssh private key." 9999
 	}
@@ -2408,20 +2358,20 @@ proc telnet_logon {address userid password top telnet_ssh attempt_num private_ke
 		expect {
 			"export: Command not found." {
 				append login_output $expect_out(buffer)
-                                exp_send -s -- "set prompt=PROMPT\\>\r"
-                                expect {
-                                        -re "PROMPT>$" {
-                                        }
-                                        timeout {
-                                                if {$attempt_num == 1} {
-                                                        close;wait
-                                                        return 1
-                                                } else {
-                                                        set error_msg "Time out resetting command line prompt"
+                exp_send -s -- "set prompt=PROMPT\\>\r"
+                expect {
+                    -re "PROMPT>$" {
+                    }
+                    timeout {
+                        if {$attempt_num == 1} {
+                            close;wait
+                            return 1
+                        } else {
+                            set error_msg "Time out resetting command line prompt"
 							append login_output $expect_out(buffer)
 							append error_msg "\n$login_output"
-                                                        error_out $error_msg 1029
-                                                }
+                            error_out $error_msg 1029
+                        }
 
 					}
 				}
@@ -4703,7 +4653,7 @@ proc connect_system {system conn_type namespace} {
 		}
 		"ssh - ec2" {
                         if {"$::system_arr($system,private_key)" == ""} {
-                                error_out "The private key \"$::system_arr($system,private_key_name)\" was not found. Add the private key for key name \"$::system_arr($system,private_key_name)\" to the cloud account \"$::CLOUD_NAME\"" 3000
+                                error_out "The private key \"$::system_arr($system,private_key_name)\" was not found. Add the private key for key name \"$::system_arr($system,private_key_name)\" to the cloud \"$::system_arr($system,cloud_name)\"" 3000
                         }
 			for {set ii 1} {$ii < 11} {incr ii} {
 				if {$ii == 10} {
