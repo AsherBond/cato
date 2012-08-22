@@ -16,10 +16,8 @@
 import web
 import os
 import sys
-import urllib
 import pickle
 import shelve
-from datetime import datetime
 
 app_name = "cato_admin_ui"
 
@@ -28,7 +26,7 @@ web_root = os.path.join(base_path, "web")
 lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 sys.path.append(web_root)
-print web_root
+
 try:
     import xml.etree.cElementTree as ET
 except (AttributeError, ImportError):
