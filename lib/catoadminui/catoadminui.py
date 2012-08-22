@@ -39,15 +39,13 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 
-# to avoid any path issues, "cd" to the web root.
-os.chdir(web_root)
-
-# DON'T REMOVE these that Aptana shows as "unused".
-# they are used, just in the URL mapping for web.py down below.
 from catocommon import catocommon
 from catolicense import catolicense
 from catoui import uiCommon, uiGlobals
 from taskMethods import taskMethods
+
+# to avoid any path issues, "cd" to the web root.
+os.chdir(web_root)
 
 """
  wmHandler is the default handler for any urls not defined in the urls mapping below.
@@ -62,10 +60,10 @@ class wmHandler:
     #the GET and POST methods here are hooked by web.py.
     #whatever method is requested, that function is called.
     def GET(self, method):
-        return catocommon.FindAndCall(method)
+        return catocommon.FindAndCall("catoadminui." + method)
 
     def POST(self, method):
-        return catocommon.FindAndCall(method)
+        return catocommon.FindAndCall("catoadminui." + method)
 
 
 def notfound():
