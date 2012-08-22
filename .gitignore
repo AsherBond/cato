@@ -76,3 +76,9 @@ web/static/script/imageEdit.js
 web/imageMethods.py
 
 lib/stormlaunch
+
+lib/catoadminui/imageMethods.py
+
+lib/catoadminui/tag.py
+
+lib/catoadminui/tagMethods.py
