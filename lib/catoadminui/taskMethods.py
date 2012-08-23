@@ -2606,6 +2606,10 @@ class taskMethods:
                         if dr["connection_name"]:
                             sLog += "On Connection: [" + dr["connection_name"] + "]\n"
 
+                        # if this is a RUN TASK command, show a link to the other instance in the header
+                        if "run_task" in dr["command_text"]:
+                            sInstance = dr["command_text"].replace("run_task ", "")
+                            sLog += " - <span class=\"link\" onclick=\"location.href='taskRunLog?task_instance=" + sInstance + "';\">Jump to Task</span>"
 
                         sLog += "    </div>\n"
 
@@ -2614,15 +2618,11 @@ class taskMethods:
 
                     # it might have a command
                     if dr["command_text"].strip():
-                        sLog += "<div class=\"log_command ui-widget-content ui-corner-all hidden\">\n"
-
-                        # the command text might hold special information we want to display differently
-                        if "run_task" in dr["command_text"]:
-                            sInstance = dr["command_text"].replace("run_task ", "")
-                            sLog += "<span class=\"link\" onclick=\"location.href='taskRunLog?task_instance=" + sInstance + "';\">Jump to Task</span>"
-                        else:
+                        # down here we skip it if we handled it above.
+                        if not "run_task" in dr["command_text"]:
+                            sLog += "<div class=\"log_command ui-widget-content ui-corner-all hidden\">\n"
                             sLog += uiCommon.FixBreaks(uiCommon.SafeHTML(dr["command_text"]))
-                        sLog += "</div>\n"
+                            sLog += "</div>\n"
 
 
                     # it might be a log entry:
