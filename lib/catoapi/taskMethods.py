@@ -132,7 +132,7 @@ class taskMethods:
         Runs a Cato Task.
         
         Required Arguments: 
-            task - Either the Task ID or Name.
+            task - Either the Task ID, Code or Name.
             version - The Task Version.  (Unnecessary if 'task' is an ID.)
             
         Optional Arguments:
@@ -301,7 +301,7 @@ class taskMethods:
         Gets a Task object.
         
         Required Arguments: 
-            task - Value can be either a Task ID or Name.
+            task - Value can be either a Task ID, Code or Name.
         
         Optional Arguments:
             version - A specific version.  ('Default' if omitted.)
@@ -340,7 +340,7 @@ class taskMethods:
         Describes the Parameters for a Task.
         
         Required Arguments: 
-            task - Value can be either a Task ID or Name.
+            task - Value can be either a Task ID, Code or Name.
         
         Optional Arguments:
             version - A specific version.  ('Default' if omitted.)
@@ -415,7 +415,7 @@ class taskMethods:
         Gets a Parameters template for a Task.
         
         Required Arguments: 
-            task - Value can be either a Task ID or Name.
+            task - Value can be either a Task ID, Code or Name.
         
         Optional Arguments:
             version - A specific version.  ('Default' if omitted.)
