@@ -101,8 +101,10 @@ def DrawFullStep(oStep):
             sSnip = "<img src=\"static/images/icons/flag_yellow.png\" />" + sSnip.replace("TODO", "")
         elif "NOTE" in sSnip or "INFO" in sSnip:
             sSnip = "<img src=\"static/images/icons/flag_blue.png\" />" + sSnip.replace("NOTE", "").replace("INFO", "")
-    #else:
-    #    sSnip = UI.GetSnip(GetValueSnip(oStep), 75)
+    else:
+        # SOME commands are defined to show a value snip 
+        if oStep.ValueSnip:
+            sSnip = oStep.ValueSnip
 
     
     sLabel += ("" if sSnip == "" else "<span style=\"padding-left:15px; font-style:italic; font-weight:normal\">[" + sSnip + "]</span>")

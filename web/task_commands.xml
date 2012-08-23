@@ -2,7 +2,7 @@
 	<category name="connect" label="Connect" description="Commands for connecting to and disconnecting from Assets." icon="static/images/icons/connect_no_32.png">
 		<commands>
 			<command name="new_connection" label="New Connection" description="Creates a new connection to an Asset." help="New Connection will create a named connection to an Asset.&lt;br /&gt; Select the connection type, pick the Asset and Name the connection to be used in the task." icon="static/images/icons/connect_creating_32.png">
-				<function name="new_connection">
+				<function name="new_connection" snip="conn_name">
 					<conn_type input_type="select">ssh</conn_type>
 					<cloud_name input_type="dropdown" style="combo" />
 					<asset input_type="text" />
@@ -10,7 +10,7 @@
 				</function>
 			</command>
 			<command name="drop_connection" label="Drop Connection" description="Drops the connection to an Asset." help="Drop Connection will close the a named connection made earlier in the execution of the task. Select the connection name either by clicking the icon to the right of the Connection Name box or typing the name in." icon="static/images/icons/connect_no_32.png">
-				<function name="drop_connection">
+				<function name="drop_connection" snip="conn_name">
 					<conn_name input_type="text" label="Connection" connection_picker="true" />
 				</function>
 			</command>
@@ -19,7 +19,7 @@
 	<category name="control" label="Control" description="Commands for controlling the a Task." icon="static/images/icons/configure_32.png">
 		<commands>
 			<command name="end" label="End" description="End Task execution." help="The End command halts the execution of the task. Use the 'End with Status' drop down selector to choose the status that the task should be set to when it exits. The Log Message box can be used to specify a reason for the ending of the task." icon="static/images/icons/player_stop_32.png">
-				<function name="end">
+				<function name="end" snip="status">
 					<status input_type="dropdown" label="Status" datasource="local" dataset="Completed|Error|Cancelled">Completed</status>
 					<message input_type="textarea" rows="3" label="Message" class="w95pct" label_style="display: block;" />
 				</function>
@@ -37,12 +37,12 @@
 				</function>
 			</command>
 			<command name="sleep" label="Sleep" description="Sleeps for a selected number of seconds." help="Sleep is used to pause task execution for the number of seconds entered." icon="static/images/icons/player_pause_32.png">
-				<function name="sleep">
+				<function name="sleep" snip="seconds">
 					<seconds input_type="text" label="Sleep"/>
 				</function>
 			</command>
 			<command name="cancel_task" label="Cancel Task" description="Cancels one or more running Tasks." help="Cancel Task is used to force task execution to stop on one or more running Tasks." icon="static/images/icons/stop_32.png">
-				<function name="cancel_task">
+				<function name="cancel_task" snip="task_instance">
 					<task_instance input_type="text" label="Task Instance ID(s)" class="w95pct" />
 				</function>
 			</command>
@@ -56,7 +56,7 @@
 				</function>
 			</command>
 			<command name="get_instance_handle" label="Get Task Instance" description="Gets a handle on a running Task Instance." help="&lt;p&gt;Get a handle on a running Task Instance.  Enter a Task Instance number, and the command will return variable handle exposing all the properties of the running Task.&lt;/p&gt;&lt;p&gt;Note: Enter Handle names as text, such as MYHANDLE, not in variable reference syntax [[MYHANDLE]].&lt;/p&gt;" icon="static/images/icons/get_instance_32.png">
-				<function name="get_instance_handle">
+				<function name="get_instance_handle" snip="handle">
 					<instance input_type="text" label="Task Instance" />
 					<handle input_type="text" label="Handle" />
 				</function>
@@ -92,7 +92,7 @@
 				</function>
 			</command>
 			<command name="codeblock" label="Codeblock" description="Branches to the specified Codeblock." help="Codeblocks are sections of a task that can be created to encapsulate one or more steps into a logical flow of execution. Codeblocks are usually created to run in a loop or conditionally with the if command. They can also be used to simplify viewing of the task by seperating the logic into sections.&lt;br&gt;&lt;br&gt;When a codeblock is called during the execution of the task all variables and arrays created before the codeblock is executed are available for reference inside of the codeblock. Also all variables created inside the codeblock are available after the codeblock exits. &lt;br&gt;&lt;br&gt;Select a codeblock from the drop down list or type in the name. " icon="static/images/icons/news_subscribe_32.png">
-				<function name="codeblock">
+				<function name="codeblock" snip="codeblock">
 					<codeblock input_type="text" />
 				</function>
 			</command>
@@ -106,7 +106,7 @@
 				<function name="break_loop" />
 			</command>
 			<command name="while" label="While" description="Performs a while loop until condition is not true." help="The While command is similar to a while loop in programming languages. The Test condition is evaluated at the top of each iteration.&lt;br&gt;&lt;br&gt;In the following example the while loop will continue iterating until the runtime variable my_variable evaluates to something other than yes.&lt;br&gt;'[[my_variable]]' == 'yes'" icon="static/images/icons/quick_restart_32.png">
-				<function name="while">
+				<function name="while" snip="test">
 					<test input_type="text" />
 					<action />
 				</function>
@@ -121,7 +121,7 @@
 	<category name="interact" label="Interact" description="Commands for interacting with any connected Asset." icon="static/images/icons/exec_32.png">
 		<commands>
 			<command name="sql_exec" label="Execute SQL" description="Executes SQL on a remote database." help="&lt;p&gt;Execute SQL is used to run a sql command against a remote database. A valid connection to the target database must first be established with the New Connection command and the name of the connection be used in the Connection: entry field.&lt;/p&gt;&lt;br /&gt;&lt;p&gt;Certain database engines such as Oracle regcognize different types of SQL commands (PL/SQL or prepared statements for example.)&lt;/p&gt;&lt;br /&gt;&lt;p&gt;Select an execution mode using the Mode: dropdown.  (The SQL mode is the most commonly used mode.)&lt;/p&gt;&lt;br /&gt;&lt;p&gt;Enter the SQL command to be executed in the text entry field. This should be the native SQL to be used against the target database, besides variable substitution no translation will occur.&lt;/p&gt;&lt;br /&gt;&lt;p&gt;If performing a select operation set variables by clicking on the Variables icon below." icon="static/images/icons/database_32.png">
-				<function name="sql_exec" variables="true" parse_method="1">
+				<function name="sql_exec" variables="true" parse_method="1" snip="sql">
 					<conn_name input_type="text" connection_picker="true" />
 					<mode input_type="select">SQL</mode>
 					<sql input_type="text" />
@@ -135,7 +135,7 @@
 				</function>
 			</command>
 			<command name="cmd_line" label="Command Line" description="A command issued to the Asset via a Command Line." help="Used to communicate with a remote system over ssh or telnet connection types.&lt;br&gt;First select the connection name that will be used. Next enter the command that should be sent to the remote system. Prior to the command being sent, variable substitution will occur. After the command is sent, the Command Engine will wait for the command line prompt to appear.&lt;br&gt;&lt;br&gt;Options: The options button has three options overrides. &lt;br&gt;Timeout value in seconds, this is the number of seconds the command engine will wait for the command line prompt to return until it timeouts out the process. &lt;br&gt;Positive Response overrides the set of characters that the Command Engine waits for to determine that the command is finished running. Accepts regular expressions .&lt;br&gt;Negative Response is a set of characters that the Command Engine looks for and will error out if it sees them respond from the remote system.&lt;br&gt;&lt;br&gt;Variables can be populated via the Command Line Interface command. Click the icon next to the word Variables to name the variables and configure how they are set." icon="static/images/icons/konsole_32.png">
-				<function name="cmd_line" variables="true" parse_method="2">
+				<function name="cmd_line" variables="true" parse_method="2" snip="command">
 					<conn_name input_type="text" connection_picker="true" label="Connection" break_after="true" required="true" />
 					<command input_type="textarea" rows="3" label="Command" class="w95pct" required="true" label_style="display: block;" />
 					<timeout input_type="text" option_tab="Options" label="Timeout" break_after="true" />
@@ -144,31 +144,31 @@
 				</function>
 			</command>
 			<command name="winrm_cmd" label="Windows Remote Management" description="A command issued via the WinRM tool for interaction with Windows hosts." help="Can connect to an instance of the WinRM service running on a Windows host and issue commands. Enter the command that should be executed. Prior to the command being executed, variable substitution will occur. &lt;br&gt;&lt;br&gt;Options:&lt;br&gt;Timeout value in seconds, this is the number of seconds the command engine will wait for the command prompt to return until it timeouts out the process." icon="static/images/icons/konsole_32.png">
-				<function name="winrm_cmd" variables="true" parse_method="2">
+				<function name="winrm_cmd" variables="true" parse_method="2" snip="command">
 					<command input_type="textarea" rows="3" label="Command" class="w95pct" style="display: block;" />
 					<timeout input_type="text" option_tab="Options" label="Timeout" break_after="true" />
 				</function>
 			</command>
 			<command name="send_email" label="Send Email" description="Sends an email to the specified list of recipients." help="Send Email is used to send email messages. Enter the email addresses in the To: field, comma seperated. The Subject field takes the subject and the Message field accepts the body of the message. Html formatting is allowed in the message field only." icon="static/images/icons/mail_send_32.png">
-				<function name="send_email">
+				<function name="send_email" snip="subject">
 					<to input_type="text" label="To" class="w95pct" label_style="display: block;" />
 					<subject input_type="text" label="Subject" class="w95pct" label_style="display: block;" />
 					<body input_type="textarea" rows="3" label="Body" class="w95pct" label_style="display: block;" />
 				</function>
 			</command>
 			<command name="add_summary_item" label="Add Summary Item" description="Adds an item to the Task 'Results Summary' dialog that appears when a Task is completed." help="When a Task is complete, a detailed log is available but often it's too detailed.  The 'Results Summary' is a more concise output dialog that will appear instead of the log if any Summary items are defined. This will typically be useful output data from the task. Variable substitution occurs prior to the message insertion into the database." icon="static/images/icons/add_summary_item_32.png">
-				<function name="add_summary_item">
+				<function name="add_summary_item" snip="name">
 					<name label="Item Name" input_type="text" break_after="true" style="display: block;" />
 					<detail input_type="textarea" rows="3" label="Detail" class="w95pct" style="display: block;" />
 				</function>
 			</command>
 			<command name="log_msg" label="Log Message" description="Places a message in the logging table." help="Use Log Message to place a message in the logging table. This can be informational, for debugging purposes, or for saving error messages. Variable substitution occurs prior to the message insertion into the database." icon="static/images/icons/signature_32.png">
-				<function name="log_msg">
+				<function name="log_msg" snip="message">
 					<message input_type="textarea" rows="2" label="Log" class="w95pct" required="true" label_style="display: block;" />
 				</function>
 			</command>
 			<command name="http" label="HTTP" description="Http get to retrieve html data." help="The HTTP command can either issue an http get remote url. It will retrieve the resulting html or xml and place that data in the output buffer to be processed into variables.&lt;br&gt;&lt;br&gt;Select either http get or post from the Request Type drop down. Next type in the url text box that is to be issued. Make sure to include the http:// or https:// prefix to the url. &lt;br&gt;&lt;br&gt;Parameters can be added to the Post request type. Click the + icon below the Parameters section to add Key Value pairs that will be sent to the target url. &lt;br&gt;&lt;br&gt;Variables can be populated from the resulting html or xml that is returned from the target webserver. Click the Variables icon to popup the variables management page." icon="static/images/icons/internet_32.png">
-				<function name="http" variables="true" parse_method="2">
+				<function name="http" variables="true" parse_method="2" snip="url">
 					<type input_type="dropdown" label="Request Type" datasource="local" dataset="GET|POST">GET</type>
 					<url input_type="textarea" rows="1" label="URL" class="w95pct" required="true" label_style="display: block;" />
 					<pairs label="Parameters" is_array="true">
@@ -205,12 +205,12 @@
 				</function>
 			</command>
 			<command name="parse_text" label="Parse Text" description="Variables to be extracted from text data." help="Parse Text is used when there there are data or variables that need to be further processed into variables or arrays of variables. For instance suppose there is a variable populated with text that needs to be parsed using row and column delimiters. Enter the variable (or multiple variables if required) in the Text to Process: input box and click the Variables icon below. Enter set the row and column delmiters and identify the variables to be populated. " icon="static/images/icons/bookmark_toolbar_32.png">
-				<function name="parse_text" variables="true" parse_method="2">
+				<function name="parse_text" variables="true" parse_method="2" snip="text">
 					<text input_type="textarea" rows="3" label="Text" class="w95pct" required="true" label_style="display: block;" />
 				</function>
 			</command>
 			<command name="substring" label="Substring" description="Sets a variable to a portion of the specified text." help="Substring is used to populate a variable with part of a string. Enter the name of the variable to be set in the Variable: entry field. The start index is the position in the Source String to start. 0 is the first position. End Index will contain the last position to be part of the value extracted. This can be an integer, a plus sign and number of characters past the start index (+5 to get the start index plus five more characters) or the word 'end' to make the end position the last character in the string.&lt;br&gt;&lt;br&gt;Source String is the set of characters to be extracted from." icon="static/images/icons/editcut_32.png">
-				<function name="substring">
+				<function name="substring" snip="variable_name">
 					<variable_name input_type="text" label="Variable" required="true" />
 					<start input_type="text" label="Start" />
 					<end input_type="text" label="End" />
@@ -247,7 +247,7 @@
 	<category name="cloud" label="Cloud" description="Commands for deployment management" icon="static/images/icons/bookmark_add_32.png">
 		<commands>
 			<command name="get_ecosystem_objects" label="Get Ecosystem Objects" description="Retrieves all of the objects for a ecosystem of a given object type. " help="" icon="static/images/icons/database_32.png">
-				<function name="get_ecosystem_objects">
+				<function name="get_ecosystem_objects" snip="object_type">
 					<object_type input_type="select" label="Object Type"></object_type>
 					<cloud_filter label="Cloud Filter" input_type="text" />
 					<result_name label="Result Variable" input_type="text" />
@@ -255,7 +255,7 @@
 				</function>
 			</command>
 			<command name="store_private_key" label="Store Private Key" description="Stores the private portion of a keypair for later use.." help="" icon="static/images/icons/set_asset_registry_32.png">
-				<function name="store_private_key">
+				<function name="store_private_key" snip="name">
 					<name label="Keypair Name" input_type="text" />
 					<cloud_name label="Cloud Name" input_type="text" />
 					<private_key label="Private Key" input_type="textarea" rows="1" class="w50pct" style="height:18px;vertical-align:bottom;" />

@@ -917,6 +917,7 @@ class Step(object):
         self.OutputColumnDelimiter = 0
         self.FunctionXDoc = None
         self.FunctionName = ""
+        self.ValueSnip = None
         self.UserSettings = StepUserSettings()
         # this property isn't added by the "Populate" methods - but can be added manually.
         # this is because of xml import/export - where the function details aren't required.
@@ -1069,6 +1070,17 @@ class Step(object):
                     self.IsValid = False
                     print(traceback.format_exc())  
                     print("CRITICAL: Exception in processing step [%s]." % self.ID)
+                    
+                # if there's no description, and the function_xml says so, we can snip
+                # a bit of a value as the description
+                if self.FunctionXDoc.get("snip"):
+                    xpath = self.FunctionXDoc.get("snip")
+                    val = self.FunctionXDoc.findtext(xpath)
+                    if val:
+                        if len(val) > 75:
+                            self.ValueSnip = val[:75]
+                        else:
+                            self.ValueSnip = val
 
             #this.Function = Function.GetFunctionByName(dr["function_name"]);
             self.FunctionName = dr["function_name"]
