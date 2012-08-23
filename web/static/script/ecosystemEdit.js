@@ -67,6 +67,11 @@ $(document).ready(function () {
     //enabling the 'change' event for the Details tab
     $("#div_details :input[te_group='detail_fields']").change(function () { doDetailFieldUpdate(this); });
 
+	// the schedule section has a refresh button
+    $(".refresh_plans_btn").click(function () {
+    	GetEcosystemSchedules();
+    });
+
 
     
     

@@ -151,12 +151,13 @@ $(document).ready(function () {
                 var mode = $("#plan_edit_mode").html();
 
                 if (mode == "Plan")
-                    SavePlan(); //only saves params (may eventually prompt to update the timetable?)
+                    x = SavePlan(); //only saves params (may eventually prompt to update the timetable?)
 
                 if (mode == "Schedule")
-                    SaveRecurringPlan();  //does timetable and params
+                    x = SaveRecurringPlan();  //does timetable and params
 
-                ClosePlanEditDialog();
+                if (x)
+                	ClosePlanEditDialog();
             },
             "Cancel": function () {
                 ClosePlanEditDialog();
@@ -260,7 +261,9 @@ $(document).ready(function () {
     $("#liDaysWeek").click(function () {
         $("#liDaysAll").removeClass("plan_datepoint_active");
         $("#liDates").removeClass("plan_datepoint_active");
+        $("#olWeek li").removeClass("plan_datepoint_active");
         $("#olWeek").show();
+        $("#olDates li").removeClass("plan_datepoint_active");
         $("#olDates").hide();
     });
     $("#liDates").click(function () {
@@ -684,13 +687,18 @@ function ReadTimetable() {
         }
     });
 
-    var ttarr = '{' +
-        '"months":"' + months + '",' +
-        '"days":"' + days + '",' +
-        '"hrs":"' + hrs + '",' +
-        '"mins":"' + mins + '",' +
-        '"dorw":"' + dorw + '"' +
-        '}';
+    if (months == "" || days == "" || hrs == "" || mins == "" || dorw == "")
+    {
+        showInfo("Please select a complete schedule - at least one item from each section.");
+		return null;
+	}
+	
+    var ttarr = {};
+    ttarr.months = months;
+    ttarr.days = days;
+    ttarr.hrs = hrs;
+    ttarr.mins = mins;
+    ttarr.dorw = dorw;
 
     return ttarr;
 }
@@ -702,49 +710,43 @@ function RunRepeatedly() {
     var debug_level = $("#task_launch_dialog_debug_level").val();
 
     //timetable comes back as json
-    var ttarr = ReadTimetable();
-    var tt = jQuery.parseJSON(ttarr);
-
-    if (tt.months == "" || tt.days == "" || tt.hrs == "" || tt.mins == "" || tt.dorw == "")
-    {
-        showInfo("Please select a complete schedule - at least one item from each section.");
-		return;
-	}
+    var tt = ReadTimetable();
+	if (tt) {
+	    //build the XML from the dialog
+	    var parameter_xml = packJSON(buildXMLToSubmit());
 	
-    //build the XML from the dialog
-    var parameter_xml = packJSON(buildXMLToSubmit());
-
-    var args = '{"sTaskID":"' + task_id + '",' +
-        '"sActionID":"' + action_id + '",' +
-        '"sAccountID":"' + account_id + '",' +
-        '"sEcosystemID":"' + ecosystem_id + '",' +
-        '"sMonths":"' + tt.months + '",' +
-        '"sDays":"' + tt.days + '",' +
-        '"sHours":"' + tt.hrs + '",' +
-        '"sMinutes":"' + tt.mins + '",' +
-        '"sDaysOrWeeks":"' + tt.dorw + '",' +
-        '"sParameterXML":"' + parameter_xml + '",' +
-        '"iDebugLevel":"' + debug_level + '"}';
-
-    $.ajax({
-        async: false,
-        type: "POST",
-        url: "uiMethods/wmRunRepeatedly",
-        data: args,
-        contentType: "application/json; charset=utf-8",
-        dataType: "text",
-        success: function (response) {
-            $("#update_success_msg").text("Schedule Successful").fadeOut(2000);
-
-            //refresh and change to the "Plan" tab so the user knows something happened
-            getPlans();
-            $('#task_launch_dialog_schedule').tabs('select', 3);
-        },
-        error: function (response) {
-            $("#update_success_msg").fadeOut(2000);
-            showAlert(response.responseText);
-        }
-    });
+	    var args = '{"sTaskID":"' + task_id + '",' +
+	        '"sActionID":"' + action_id + '",' +
+	        '"sAccountID":"' + account_id + '",' +
+	        '"sEcosystemID":"' + ecosystem_id + '",' +
+	        '"sMonths":"' + tt.months + '",' +
+	        '"sDays":"' + tt.days + '",' +
+	        '"sHours":"' + tt.hrs + '",' +
+	        '"sMinutes":"' + tt.mins + '",' +
+	        '"sDaysOrWeeks":"' + tt.dorw + '",' +
+	        '"sParameterXML":"' + parameter_xml + '",' +
+	        '"iDebugLevel":"' + debug_level + '"}';
+	
+	    $.ajax({
+	        async: false,
+	        type: "POST",
+	        url: "uiMethods/wmRunRepeatedly",
+	        data: args,
+	        contentType: "application/json; charset=utf-8",
+	        dataType: "text",
+	        success: function (response) {
+	            $("#update_success_msg").text("Schedule Successful").fadeOut(2000);
+	
+	            //refresh and change to the "Plan" tab so the user knows something happened
+	            getPlans();
+	            $('#task_launch_dialog_schedule').tabs('select', 3);
+	        },
+	        error: function (response) {
+	            $("#update_success_msg").fadeOut(2000);
+	            showAlert(response.responseText);
+	        }
+	    });
+	}
 }
 
 function RunLater() {
@@ -792,45 +794,49 @@ function SaveRecurringPlan() {
     var debug_level = $("#task_launch_dialog_debug_level").val();
 
     //timetable comes back as json
-    var ttarr = ReadTimetable();
-    var tt = jQuery.parseJSON(ttarr);
-
-    //build the XML from the dialog
-    var parameter_xml = packJSON(buildXMLToSubmit());
-
-    var args = '{"sScheduleID":"' + schedule_id + '",' +
-        '"sMonths":"' + tt.months + '",' +
-        '"sDays":"' + tt.days + '",' +
-        '"sHours":"' + tt.hrs + '",' +
-        '"sMinutes":"' + tt.mins + '",' +
-        '"sDaysOrWeeks":"' + tt.dorw + '",' +
-        '"sParameterXML":"' + parameter_xml + '",' +
-        '"iDebugLevel":"' + debug_level + '"}';
-
-    $.ajax({
-        async: false,
-        type: "POST",
-        url: "uiMethods/wmSaveSchedule",
-        data: args,
-        contentType: "application/json; charset=utf-8",
-        dataType: "text",
-        success: function (response) {
-            $("#update_success_msg").text("Update Successful").fadeOut(2000);
-
-            //change to the "Plan" tab so the user knows something happened
-            getPlans();  //this refreshes the plans tabs because labels have changed.
-            $('#task_launch_dialog_schedule').tabs('select', 3);
-
-		    //will refresh the parent page, if it has an appropriate function
-            if (typeof doGetPlans == 'function') {
-			    doGetPlans();
-		    }
-        },
-        error: function (response) {
-            $("#update_success_msg").fadeOut(2000);
-            showAlert(response.responseText);
-        }
-    });
+    var tt = ReadTimetable();
+	if (tt) {
+	
+	    //build the XML from the dialog
+	    var parameter_xml = packJSON(buildXMLToSubmit());
+	
+	    var args = '{"sScheduleID":"' + schedule_id + '",' +
+	        '"sMonths":"' + tt.months + '",' +
+	        '"sDays":"' + tt.days + '",' +
+	        '"sHours":"' + tt.hrs + '",' +
+	        '"sMinutes":"' + tt.mins + '",' +
+	        '"sDaysOrWeeks":"' + tt.dorw + '",' +
+	        '"sParameterXML":"' + parameter_xml + '",' +
+	        '"iDebugLevel":"' + debug_level + '"}';
+	
+	    $.ajax({
+	        async: false,
+	        type: "POST",
+	        url: "uiMethods/wmSaveSchedule",
+	        data: args,
+	        contentType: "application/json; charset=utf-8",
+	        dataType: "text",
+	        success: function (response) {
+	            $("#update_success_msg").text("Update Successful").fadeOut(2000);
+	
+	            //change to the "Plan" tab so the user knows something happened
+	            getPlans();  //this refreshes the plans tabs because labels have changed.
+	            $('#task_launch_dialog_schedule').tabs('select', 3);
+	
+			    //will refresh the parent page, if it has an appropriate function
+	            if (typeof doGetPlans == 'function') {
+				    doGetPlans();
+			    }
+	        },
+	        error: function (response) {
+	            $("#update_success_msg").fadeOut(2000);
+	            showAlert(response.responseText);
+	        }
+	    });
+	    
+	    return true;
+	}
+	return false;
 }
 
 function SavePlan() {
@@ -864,6 +870,8 @@ function SavePlan() {
             showAlert(response.responseText);
         }
     });
+    
+    return true;
 }
 
 function getPlans() {
@@ -1073,6 +1081,8 @@ function populateTimetable(timetable) {
     switch (dorw) {
         case '0': //days
             $("#olWeek").hide();
+        	//hide and clear the "weekdays"
+            $("#olWeek li").removeClass("plan_datepoint_active");
             $("#olDates").show();
 
             if (days == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,") {
@@ -1086,7 +1096,9 @@ function populateTimetable(timetable) {
             }
             break;
         case '1': //days of week 
+        	//hide and clear the "days"
             $("#olDates").hide();
+            $("#olDates li").removeClass("plan_datepoint_active");
             $("#olWeek").show();
 
             for (var i = 0; i < valueArray.length; i++) {

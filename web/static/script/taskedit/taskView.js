@@ -73,6 +73,11 @@ $(document).ready(function () {
 	    });
     });
 
+	// the schedule tab has refresh buttons
+    $(".refresh_plans_btn").click(function () {
+    	doGetPlans();
+    });
+
 	// this code is shared by many pages, but a few things should happen only on the taskView page.
     var pagename = window.location.pathname;
 	pagename = pagename.substring(pagename.lastIndexOf('/') + 1);

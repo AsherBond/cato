@@ -3,203 +3,206 @@ $var jsfiles: toolbox.js ecosystemEdit.js parametersOnDialog.js taskLaunchDialog
 $var cssfiles: taskEdit.css taskView.css ecosystemEdit.css registry.css
 
 <div id="left_panel_te">
-    <div id="toolbox">
-        <div id="toolbox_tabs" class="toolbox_tabs_1row">
-            <span id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top toolbox_tab">Details</span><span
-            id="tab_objects" linkto="div_objects" class="ui-state-default ui-corner-top toolbox_tab">Objects</span><span
-            id="tab_actions" linkto="div_actions" class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active toolbox_tab">Actions</span>
-        </div>
-        <div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel hidden">
-            <div style="padding: 0 0 0 5px;">
-                <span class="detail_label">Template:</span>
-                <br />
-                <span id="lblEcotemplateName" class="code"></span><span
-                id="view_ecotemplate_btn" class="pointer"> <span id="goto_ecotemplate_btn"></span> </span>
-                <br />
-                <span class="detail_label">Name:</span>
-                <br />
-                <input type="text" id="txtEcosystemName" class="task_details code" te_group="detail_fields" column="Name" validate_as="identifier" />
-                <br />
-                <span class="detail_label">Description:</span>
-                <br />
-                <textarea id="txtDescription" rows="10" te_group="detail_fields" column="Description" class="task_details code"></textarea>
-                <span class="detail_label">Created:</span>
-                <br />
-                <span id="lblCreated" class="code"></span>
-                <hr />
-                <center>
-                    <span id="show_log_link">View Change Log</span>
-                </center>
-            </div>
-        </div>
-        <div id="div_objects" class="ui-widget-content ui-corner-top toolbox_panel hidden">
-            <!-- I imagine the actions for a specific object would go here. -->
-            <div id="discovery_btn" class="ui-widget-content ui-corner-all ui-state-focus action_btn pointer">
-                <img alt="" src="static/images/icons/cloud_discovery_24.png" height="48" width="48" />
-                <span>Cloud Discovery</span>
-            </div>
-        </div>
-        <div id="div_actions" class="ui-widget-content ui-corner-top toolbox_panel">
-            <span class="detail_label">Select a Category:</span>
-            <div id="action_categories"></div>
-        </div>
-    </div>
+	<div id="toolbox">
+		<div id="toolbox_tabs" class="toolbox_tabs_1row">
+			<span id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top toolbox_tab">Details</span><span
+			id="tab_objects" linkto="div_objects" class="ui-state-default ui-corner-top toolbox_tab">Objects</span><span
+			id="tab_actions" linkto="div_actions" class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active toolbox_tab">Actions</span>
+		</div>
+		<div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+			<div style="padding: 0 0 0 5px;">
+				<span class="detail_label">Template:</span>
+				<br />
+				<span id="lblEcotemplateName" class="code"></span><span
+				id="view_ecotemplate_btn" class="pointer"> <span id="goto_ecotemplate_btn"></span> </span>
+				<br />
+				<span class="detail_label">Name:</span>
+				<br />
+				<input type="text" id="txtEcosystemName" class="task_details code" te_group="detail_fields" column="Name" validate_as="identifier" />
+				<br />
+				<span class="detail_label">Description:</span>
+				<br />
+				<textarea id="txtDescription" rows="10" te_group="detail_fields" column="Description" class="task_details code"></textarea>
+				<span class="detail_label">Created:</span>
+				<br />
+				<span id="lblCreated" class="code"></span>
+				<hr />
+				<center>
+					<span id="show_log_link">View Change Log</span>
+				</center>
+			</div>
+		</div>
+		<div id="div_objects" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+			<!-- I imagine the actions for a specific object would go here. -->
+			<div id="discovery_btn" class="ui-widget-content ui-corner-all ui-state-focus action_btn pointer">
+				<img alt="" src="static/images/icons/cloud_discovery_24.png" height="48" width="48" />
+				<span>Cloud Discovery</span>
+			</div>
+		</div>
+		<div id="div_actions" class="ui-widget-content ui-corner-top toolbox_panel">
+			<span class="detail_label">Select a Category:</span>
+			<div id="action_categories"></div>
+		</div>
+	</div>
 </div>
 <div id="content_te">
-    <center>
-        <h3><span id="lblEcosystemNameHeader"></span></h3>
-    </center>
-    <div id="div_objects_detail" class="detail_panel hidden">
-        <div class="ui-state-default te_header">
-            <div class="step_section_title">
-                <span class="step_title" id="breadcrumbs"><span class="breadcrumb" id="top"><span
-                        class="ui-icon ui-icon-arrowreturnthick-1-w floatleft"></span>Ecosystem Objects</span></span>
-            </div>
-            <div class="step_section_icons"></div>
-        </div>
-        <div id="random_content"></div>
-    </div>
-    <div id="div_actions_detail" class="detail_panel">
-        <table id="action_flow"></table>
-        <div class="category_actions hidden" id="category_actions"></div>
-    </div>
-    <div id="div_details_detail" class="detail_panel hidden">
-        <!-- temporarily hidden until enabled in the CE
-        also see line 120is of ecosystemEdit.js
+	<center>
+		<h3><span id="lblEcosystemNameHeader"></span></h3>
+	</center>
+	<div id="div_objects_detail" class="detail_panel hidden">
+		<div class="ui-state-default te_header">
+			<div class="step_section_title">
+				<span class="step_title" id="breadcrumbs"><span class="breadcrumb" id="top"><span
+						class="ui-icon ui-icon-arrowreturnthick-1-w floatleft"></span>Ecosystem Objects</span></span>
+			</div>
+			<div class="step_section_icons"></div>
+		</div>
+		<div id="random_content"></div>
+	</div>
+	<div id="div_actions_detail" class="detail_panel">
+		<table id="action_flow"></table>
+		<div class="category_actions hidden" id="category_actions"></div>
+	</div>
+	<div id="div_details_detail" class="detail_panel hidden">
+		<!-- temporarily hidden until enabled in the CE
+		also see line 120is of ecosystemEdit.js
 
-        <div id="div_parameters" class="ui-widget-content ui-corner-bottom">
-        <div class="ui-state-default h18px">
-        <div class="floatleft">
-        <span class="detail_label">Parameters</span>
-        </div>
-        <div class="floatright">
-        <span id="parameter_add_btn">Add New</span>
-        </div>
-        </div>
-        <div id="parameters">
-        </div>
-        </div>
-        <hr />
-        -->
-        <div id="registry_content"></div>
-        <hr />
-        <div class="ui-widget-content ui-corner-all">
-            <div class="ui-widget-header">
-                <span>Scheduling</span>
-            </div>
-            <div style="padding: 5px;">
-                <div id="ecosystem_schedules">
-                    There are no Actions scheduled to run on this Ecosystem.
-                </div>
-            </div>
-        </div>
-        <hr />
-        <div class="ui-widget-content ui-corner-all">
-            <div class="ui-widget-header">
-                <span>Upcoming Actions</span>
-            </div>
-            <div style="padding: 5px;">
-                <div id="ecosystem_plans">
-                    There are no pending Actions on this Ecosystem.
-                </div>
-            </div>
-        </div>
-        <hr />
-        <div id="storm_detail_tabs" class="storm" style="height: 400px;">
-            <ul>
-                <li>
-                    <a class="storm_tab" href="#storm_status_tab"><span><img src="static/images/icons/storm_32.png" alt="" style="height: 16px; width: 16px; vertical-align: middle; padding-right: 6px;"/>Storm</span></a>
-                </li>
-                <li>
-                    <a class="storm_tab" href="#storm_file_tab"><span>Template</span></a>
-                </li>
-                <li>
-                    <a class="storm_tab" href="#storm_events_tab"><span>Events</span></a>
-                </li>
-                <li>
-                    <a class="storm_tab" href="#storm_output_tab"><span>Output</span></a>
-                </li>
-                <li>
-                    <a class="storm_tab" href="#storm_params_tab"><span>Parameters</span></a>
-                </li>
-            </ul>
-            <div id="storm_status_tab">
-                <div>
-                    <span class="detail_label">Status: </span><span id="storm_status"></span>
-                </div>
-                <div>
-                    <span class="detail_label">Last Update: </span><span id="last_update_dt"></span>
-                </div>
-                <br />
-                <br />
-                <br />
-                <span id="show_stopstorm_btn">Stop Storm</span>
-            </div>
-            <div id="storm_file_tab">
-                <textarea id="txtStormFile" rows="18" class="w100pct code" ReadOnly="True"></textarea>
-            </div>
-            <div id="storm_events_tab">
-                <div class="ui-widget-header">
-                    <span>Storm Events</span>
-                </div>
-                <div style="height: 330px; overflow: auto;">
-                    <table id="ecosystem_log"  class="jtable" cellspacing="1" cellpadding="1" width="100%">
-                        <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>ID</th>
-                                <th>Logical ID</th>
-                                <th>Status</th>
-                                <th>Log</th>
-                                <th>Last Update</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-            <div id="storm_output_tab">
-                <div class="ui-widget-header">
-                    <span>Storm Output</span>
-                </div>
-                <div>
-                    <table id="storm_output"  class="jtable" cellspacing="1" cellpadding="1" width="100%">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Value</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-            <div id="storm_params_tab">
-                <div>
-                    <table id="storm_parameters"  class="jtable" cellspacing="1" cellpadding="1" width="100%">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Value</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+		<div id="div_parameters" class="ui-widget-content ui-corner-bottom">
+		<div class="ui-state-default h18px">
+		<div class="floatleft">
+		<span class="detail_label">Parameters</span>
+		</div>
+		<div class="floatright">
+		<span id="parameter_add_btn">Add New</span>
+		</div>
+		</div>
+		<div id="parameters">
+		</div>
+		</div>
+		<hr />
+		-->
+		<div id="registry_content"></div>
+		<hr />
+		<div class="ui-widget-content ui-corner-all">
+			<div class="ui-widget-header">
+				<span>Scheduling</span>
+				<div class="floatright">
+					<span class="refresh_plans_btn ui-icon ui-icon-refresh pointer"></span>
+				</div>
+			</div>
+			<div style="padding: 5px;">
+				<div id="ecosystem_schedules">
+					There are no Actions scheduled to run on this Ecosystem.
+				</div>
+			</div>
+		</div>
+		<hr />
+		<div class="ui-widget-content ui-corner-all">
+			<div class="ui-widget-header">
+				<span>Upcoming Actions</span>
+			</div>
+			<div style="padding: 5px;">
+				<div id="ecosystem_plans">
+					There are no pending Actions on this Ecosystem.
+				</div>
+			</div>
+		</div>
+		<hr />
+		<div id="storm_detail_tabs" class="storm" style="height: 400px;">
+			<ul>
+				<li>
+					<a class="storm_tab" href="#storm_status_tab"><span><img src="static/images/icons/storm_32.png" alt="" style="height: 16px; width: 16px; vertical-align: middle; padding-right: 6px;"/>Storm</span></a>
+				</li>
+				<li>
+					<a class="storm_tab" href="#storm_file_tab"><span>Template</span></a>
+				</li>
+				<li>
+					<a class="storm_tab" href="#storm_events_tab"><span>Events</span></a>
+				</li>
+				<li>
+					<a class="storm_tab" href="#storm_output_tab"><span>Output</span></a>
+				</li>
+				<li>
+					<a class="storm_tab" href="#storm_params_tab"><span>Parameters</span></a>
+				</li>
+			</ul>
+			<div id="storm_status_tab">
+				<div>
+					<span class="detail_label">Status: </span><span id="storm_status"></span>
+				</div>
+				<div>
+					<span class="detail_label">Last Update: </span><span id="last_update_dt"></span>
+				</div>
+				<br />
+				<br />
+				<br />
+				<span id="show_stopstorm_btn">Stop Storm</span>
+			</div>
+			<div id="storm_file_tab">
+				<textarea id="txtStormFile" rows="18" class="w100pct code" ReadOnly="True"></textarea>
+			</div>
+			<div id="storm_events_tab">
+				<div class="ui-widget-header">
+					<span>Storm Events</span>
+				</div>
+				<div style="height: 330px; overflow: auto;">
+					<table id="ecosystem_log"  class="jtable" cellspacing="1" cellpadding="1" width="100%">
+						<thead>
+							<tr>
+								<th>Type</th>
+								<th>ID</th>
+								<th>Logical ID</th>
+								<th>Status</th>
+								<th>Log</th>
+								<th>Last Update</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+			</div>
+			<div id="storm_output_tab">
+				<div class="ui-widget-header">
+					<span>Storm Output</span>
+				</div>
+				<div>
+					<table id="storm_output"  class="jtable" cellspacing="1" cellpadding="1" width="100%">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Description</th>
+								<th>Value</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+			</div>
+			<div id="storm_params_tab">
+				<div>
+					<table id="storm_parameters"  class="jtable" cellspacing="1" cellpadding="1" width="100%">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Value</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 <div class="te_container_footer">
-    <!--The footer has to be here so some element can contain the 'clear:both;' style.-->
+	<!--The footer has to be here so some element can contain the 'clear:both;' style.-->
 </div>
 <div class="hidden">
-    <input type="hidden" id="hidEcosystemID" />
-    <input type="hidden" id="hidEcoTemplateID" />
-    <input type="hidden" id="hidParamDelete" />
-    <input type="hidden" id="hidParamType" value="ecosystem" />
-    <input type="hidden" id="selected_object_type" value="" />
+	<input type="hidden" id="hidEcosystemID" />
+	<input type="hidden" id="hidEcoTemplateID" />
+	<input type="hidden" id="hidParamDelete" />
+	<input type="hidden" id="hidParamType" value="ecosystem" />
+	<input type="hidden" id="selected_object_type" value="" />
 </div>
 <div id="task_launch_dialog" title="Perform Action">
-    <div id="plan_edit_dialog" title="Edit Plan"></div>
+	<div id="plan_edit_dialog" title="Edit Plan"></div>
 </div>
 <div id="param_edit_dialog" title="Parameter"></div>
 <div id="param_delete_confirm_dialog" title="Remove Parameter"></div>
