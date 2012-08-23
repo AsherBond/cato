@@ -2069,7 +2069,8 @@ class taskMethods:
                 elif sType == "runtask":
                     # WICKED!!!!
                     # I can use my super awesome xml functions!
-                    ST.RemoveFromCommandXML(sID, "%s/parameters" % sBaseXPath)
+                    xpath = "%s/parameters" % sBaseXPath if sBaseXPath else "parameters"
+                    ST.RemoveFromCommandXML(sID, xpath)
                     ST.AddToCommandXML(sID, sBaseXPath, sOverrideXML)
             else:
                 uiCommon.log("Unable to update Eco Template Action. Missing or invalid Action ID.")
