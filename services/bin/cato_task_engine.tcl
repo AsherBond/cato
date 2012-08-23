@@ -40,10 +40,10 @@ proc store_private_key {command} {
     }
     set sql "select cloud_id from clouds where cloud_name = '$cloud_name'"
     set row [select_row $sql]
-    if {"$row" eq ""} {
+    set cloud_id [lindex $row 0]
+    if {"$cloud_id" eq ""} {
         error_out "Cloud definition with name $cloud_name does not exist in the database" 9999
     }
-    set cloud_id [lindex $row 0]
 
     set enc_key [encrypt_string $private_key]
     set sql "insert into clouds_keypair (keypair_id, cloud_id, keypair_name, private_key) values (uuid(),'$cloud_id','$key_name','$enc_key') ON DUPLICATE KEY UPDATE private_key = '$enc_key'"
@@ -65,12 +65,11 @@ proc get_ecosystem_objects {command} {
 	} 
 	array unset ::runtime_arr $result_name,*
     set sql "select do.ecosystem_object_id from ecosystem_object do where do.ecosystem_id = '$::ECOSYSTEM_ID' and do.ecosystem_object_type = '$object_type'"
-    #set  objects [$::db_query $::CONN $sql -list]
     set objects [select_all $sql]
 	set ii 0
     foreach object $objects {
 		incr ii
-		set_variable $result_name,$ii $object
+		set_variable $result_name,$ii [lindex $object 0]
     }
 }
 
@@ -188,8 +187,8 @@ proc get_default_cloud_for_account {account} {
         set cloud_name $::CLOUD_DEFAULTS($account)
     } else {
         set sql "select c.cloud_name from clouds c, cloud_account ca where ca.account_id = '$account' and ca.default_cloud_id = c.cloud_id"
-        set row [select_all $sql]
-        set cloud_name [lindex [lindex $row 0] 0]
+        set row [select_row $sql]
+        set cloud_name [lindex $row 0]
         set ::CLOUD_DEFAULTS($account) $cloud_name
     }
     return $cloud_name
@@ -197,7 +196,7 @@ proc get_default_cloud_for_account {account} {
 proc get_cloud_info {provider cloud_name} {
 	set proc_name get_cloud_info
 	set sql "select api_url, cloud_id, api_protocol from clouds where provider = '$provider' and cloud_name = '$cloud_name'"
-    set row [lindex [select_all $sql] 0]
+    set row [select_row $sql]
     output "get_cloud_info select returned $row"
     if {[llength $row] > 0} {
         set api_url [lindex $row 0]
@@ -231,7 +230,6 @@ proc gather_account_info {account_id} {
 	set ::CLOUD_TYPE [lindex $row 1]
 	set ::CLOUD_LOGIN_ID [lindex $row 2]
 	if {[lindex $row 3] > ""} {
-		#set ::CLOUD_LOGIN_PASS [decrypt_string [lindex $row 3] $::SITE_KEY]
 		set ::CLOUD_LOGIN_PASS [decrypt_string [lindex $row 3]]
 	} else {
 		set ::CLOUD_LOGIN_PASS ""
@@ -310,8 +308,6 @@ proc get_eco_tags {var_name params} {
     if {[llength $sql_parts] > 0} {
         append sql ")"
     }
-	#$::db_query $::CONN $sql
-    #set  objects [$::db_query $::CONN $sql -list]
     set objects [select_all $sql]
 	set ii 0
     set items ""
@@ -377,12 +373,10 @@ proc delete_eco_tags {params} {
             if {![info exists values($index)]} {
                 insert_audit $::STEP_ID  "" "Deleting tag for resource $resource, key $keys($index)" ""
                 set sql "delete from ecosystem_object_tag where ecosystem_id = '$::ECOSYSTEM_ID' and ecosystem_object_id = '$resource' and key_name = '$keys($index)'"
-                #$::db_exec $::CONN $sql
                 exec_db $sql
             } else {
                 insert_audit $::STEP_ID  "" "Deleting tag for resource $resource, key $keys($index), value $values($index)" ""
                 set sql "delete from ecosystem_object_tag where ecosystem_id = '$::ECOSYSTEM_ID' and ecosystem_object_id = '$resource' and key_name = '$keys($index)' and value = '$values($index)'"
-                #$::db_exec $::CONN $sql
                 exec_db $sql
             }
         }
@@ -420,12 +414,9 @@ proc set_eco_tags {params} {
         return
     }
     foreach resource $resource_list {
-        set sql "select ecosystem_object_id from ecosystem_object where ecosystem_id = '$::ECOSYSTEM_ID' and ecosystem_object_id = '$resource'"
-        #$::db_query $::CONN $sql
-        #set row [$::db_fetch $::CONN]
-        set row [select_row $sql]
-        if {"$row" > ""} {
-            insert_audit $::STEP_ID  "" "$row" ""
+        set sql "select 1 from ecosystem_object where ecosystem_id = '$::ECOSYSTEM_ID' and ecosystem_object_id = '$resource'"
+        set test [lindex [select_row $sql] 0]
+        if {"$test" > ""} {
             foreach index [array names keys] {
                 if {![info exists values($index)]} {
                     insert_audit $::STEP_ID  "" "CreateTags value for key $index named $keys($index) is empty. Skipping" ""
@@ -433,7 +424,6 @@ proc set_eco_tags {params} {
                 }
                 insert_audit $::STEP_ID  "" "Tagging $resource with key $keys($index), value $values($index)" ""
                 set sql "replace into ecosystem_object_tag (ecosystem_id, ecosystem_object_id, key_name, value) values ('$::ECOSYSTEM_ID','$resource', '$keys($index)', '$values($index)')"
-                #$::db_exec $::CONN $sql
                 exec_db $sql
             }
         }
@@ -569,26 +559,8 @@ proc register_ecosystem_object {result ecosystem_id object_type path role api_co
 	set instances [$root selectNodes $path]
 	output "instances is $instances"
 	foreach instance $instances {
-		set sql "insert into ecosystem_object (ecosystem_id, cloud_id, ecosystem_object_id, ecosystem_object_type, added_dt) values ('$ecosystem_id', '$cloud_id', '[$instance asText]','$object_type',$::getdate)"
-		#$::db_exec $::CONN $sql
+		set sql "insert into ecosystem_object (ecosystem_id, cloud_id, ecosystem_object_id, ecosystem_object_type, added_dt) values ('$ecosystem_id', '$cloud_id', '[$instance asText]','$object_type',now())"
         exec_db $sql
-        ### 2012-06-08 pmd - the following is deprecated
-		#if {"$role" > ""} {
-		#	set the_arg ""
-		#	lappend the_arg ResourceId.1 [$instance asText] Tag.1.Key cato.role Tag.1.Value $role
-		#	for {set counter 0} {$counter < 4} {incr counter} {
-		#		if {[catch {tclcloud::call ec2 \"$region\" CreateTags $the_arg} errMsg]} {
-		#			if {[string match "*does not exist*" $errMsg]} {
-		#				output "Waiting five seconds to reattempt tagging"
-		#				sleep 5
-		#			} else {
-		#				break
-		#			}
-		#		} else {
-		#			break
-		#		}
-		#	}
-		#}
 	}
         $root delete
         $xmldoc delete
@@ -749,13 +721,6 @@ proc gather_aws_system_info {instance_id user_id region} {
 
 ### END OF SITE SPECIFIC CODE
 
-proc sql_cast {column} {
-	if {"$::tcl_platform(platform)" == "windows"} {
-		return "cast($column as varchar(max))"
-	} else {
-		return "$column"
-	}
-}
 proc insert_audit {step_id command log connection} {
     set proc_name insert_audit
 
@@ -777,12 +742,11 @@ proc insert_audit {step_id command log connection} {
     regsub -all "(')" $command "''" command
 
         if {"$step_id" != ""} {
-            set sql "insert into task_instance_log (task_instance, step_id, entered_dt, connection_name, log, command_text) values ($::TASK_INSTANCE,'$step_id', $::getdate,'$connection','$log','$command')"
+            set sql "insert into task_instance_log (task_instance, step_id, entered_dt, connection_name, log, command_text) values ($::TASK_INSTANCE,'$step_id', now(),'$connection','$log','$command')"
         } else {
-            set sql "insert into task_instance_log (task_instance, step_id, entered_dt, connection_name, log, command_text) values ($::TASK_INSTANCE,NULL, $::getdate,'$connection','$log','$command')"
+            set sql "insert into task_instance_log (task_instance, step_id, entered_dt, connection_name, log, command_text) values ($::TASK_INSTANCE,NULL, now(),'$connection','$log','$command')"
         }
 
-        #if { [catch {$::db_exec $::CONN $sql} return_code ]} 
         if { [catch {exec_db $sql} return_code ]} {
 			error_out "ERROR: Unable to insert log entry. Return Code: $return_code" 9999
         }
@@ -880,21 +844,17 @@ proc send_email_2 {command} {
 	### This section needs fixing up - 2011-06-30, PMD
 	if {"$attachment" > ""} {
 		set sql "insert into message (date_time_entered,process_type,status,msg_to,msg_from,msg_subject,msg_body) values (getdate(),1,-1,'$to','$::CE_NAME','$subject','$body')"
-		#$::db_exec $::CONN $sql
         exec_db $sql
 		set sql "select @@IDENTITY"
-		#$::db_exec $::CONN $sql
         exec_db $sql
 		if {"$attachment" > ""} {
 			set msg_id [tdbc_fetchrow $::CONN]
 			email_attach_file $attachment $attachment_data $msg_id
 		}
 		set sql "update message set status = 0 where msg_id = $msg_id"
-		#$::db_exec $::CONN $sql
         exec_db $sql
 	} else {
 		set sql "insert into message (date_time_entered,process_type,status,msg_to,msg_from,msg_subject,msg_body) values (getdate(),1,0,'$to','$::CE_NAME','$subject','$body')"
-		#$::db_exec $::CONN $sql
         exec_db $sql
 	}
 }
@@ -905,14 +865,9 @@ proc send_email_2 {command} {
 
 proc pre_initialize {} {
 	set proc_name pre_initialize
-#!/usr/bin/env tclsh
 	lappend ::auto_path [file join $::HOME lib]
-	#set ::BIN_DIR [file join $::CATO_HOME services bin]
 	set ::BIN_DIR [file join $::HOME services bin]
-	#package require cato_common
 	
-	#read_config
-	#set ::LOGFILES [file join $::LOGFILES ce]
 	set ::DEBUG_LEVEL 2
 }
 proc initialize {} {
@@ -922,7 +877,6 @@ proc initialize {} {
 	###
 	package require Expect
 	package require tdom
-	set ::getdate "now()"
 	exp_internal 0 ;# Keep this at 0 unless you want to debug further
 
 
@@ -986,7 +940,7 @@ proc get_steps {task_id} {
 	# NSC 5-2-2012
 	# parse type and delimiters were moved off the table and into the function_xml in the python version.
 	set sql "select step_id, upper(codeblock_name), step_order, function_name
-			, [sql_cast function_xml]
+			, function_xml
 			, ExtractValue(function_xml, 'function/@parse_method') as parse_method
 			, ExtractValue(function_xml, 'function/@row_delimiter') as row_delimiter
 			, ExtractValue(function_xml, 'function/@col_delimiter') as col_delimiter
@@ -996,9 +950,7 @@ proc get_steps {task_id} {
 		order by codeblock_name, step_order asc"
 
 	output $sql 4
-	#$::db_query $::CONN $sql
     set rows [select_all $sql]
-	#while {[string length [set row [$::db_fetch $::CONN]]] > 0} 
 	foreach row $rows {
 
 		output "DEBUG: $row" 4
@@ -1014,7 +966,7 @@ proc get_steps {task_id} {
 		}
 		lappend ::codeblock_arr($task_id,[lindex $row 1]) [string tolower [lindex $row 0]]
 	}
-#	output "checking for output producing steps" 2
+    #output "checking for output producing steps" 2
 
 	#output "out of get_steps" 4
 		
@@ -1025,10 +977,10 @@ proc get_task_params {} {
 	
 	set proc_name get_task_params
 
-	set sql "select [sql_cast parameter_xml] from task where task_id = '$::TASK_ID'"
+	set sql "select parameter_xml from task where task_id = '$::TASK_ID'"
 	retrieve_params	$sql
 
-	set sql "select [sql_cast parameter_xml] from task_instance_parameter where task_instance = '$::TASK_INSTANCE'"
+	set sql "select parameter_xml from task_instance_parameter where task_instance = '$::TASK_INSTANCE'"
 	retrieve_params	$sql
 }
 proc parse_input_params {params} {
@@ -1065,8 +1017,6 @@ proc parse_input_params {params} {
 proc retrieve_params {sql} {
 	set proc_name retrieve_params
 
-	#$::db_query $::CONN $sql
-	#set params [lindex [$::db_fetch $::CONN] 0]
     set params [lindex [select_row $sql] 0]
 	output "Task parameters >$params<." 2
 	if {"$params" > ""} {
@@ -1111,8 +1061,6 @@ proc refresh_handles {} {
 				join task t on ti.task_id = t.task_id 
 				left outer join asset a on a.asset_id = ti.asset_id 
 				where ti.task_instance = $handle_instance"
-			#$::db_query $::CONN $sql
-			#set row [$::db_fetch $::CONN]
             set row [select_row $sql]
 
 			# set some variables ...
@@ -1240,12 +1188,11 @@ proc update_status {task_status} {
 			set additional ""
 		}
 		default {
-			set additional ", completed_dt = $::getdate"
+			set additional ", completed_dt = now()"
 		}
 	}
 	set sql "update task_instance set task_status = '$task_status' $additional where task_instance = $::TASK_INSTANCE"
 
-	#$::db_exec $::CONN $sql
     exec_db $sql
 }
 proc gather_system_info {asset_id} {
@@ -1263,8 +1210,6 @@ proc gather_system_info {asset_id} {
 
 	#output "DEBUG: $sql" 0
 
-	#$::db_query $::CONN $sql
-	#set row [$::db_fetch $::CONN]
 	set row [select_row $sql]
 
 	#output "DEBUG: $row" 0
@@ -2674,8 +2619,6 @@ proc lookup_asset_id {asset_name} {
 	set proc_name lookup_asset_id
 
 	set sql "select asset_id from asset where asset_name = '$asset_name'"
-	#$::db_query $::CONN $sql
-	#set row [$::db_fetch $::CONN]
 	set row [select_row $sql]
 	set asset_id [lindex $row 0]
 	if {"$asset_id" == ""} {
@@ -2703,8 +2646,6 @@ proc get_asset_attribute {var_name index} {
 				join lu_asset_attribute laa on laa.attribute_id = laav.attribute_id
 					and aa.asset_id = '$asset'
 					and laa.attribute_name = '$attribute'"
-			#$::db_query $::CONN $sql
-			#set row [$::db_fetch $::CONN]
 			set row [select_row $sql]
 			set var_value [lindex $row 0]
 			if {"$var_value" == ""} {
@@ -2724,8 +2665,6 @@ proc get_asset_attribute {var_name index} {
 			if {$index > 0} {
 				set index [expr $index - 1]
 			}
-			#$::db_query $::CONN $sql
-			#set row [$::db_fetch $::CONN]
 			set row [select_row $sql]
 			set var_value [lindex [lindex $row $index] 0]
 		}
@@ -2898,8 +2837,6 @@ proc replace_variables {the_string} {
 							set subst_var $::SUBMITTED_BY_EMAIL
 						} else {
 							set sql "select username from users where user_id = '$::SUBMITTED_BY'"
-							#$::db_query $::CONN $sql
-							#set row [$::db_fetch $::CONN]
                             set row [select_row $sql]
 							set subst_var [lindex $row 0]
 							set ::SUBMITTED_BY_EMAIL $subst_var
@@ -2910,8 +2847,6 @@ proc replace_variables {the_string} {
 							set subst_var $::SUBMITTED_BY_NAME
 						} else {
 							set sql "select username from users where user_id = '$::SUBMITTED_BY'"
-							#$::db_query $::CONN $sql
-							#set row [$::db_fetch $::CONN]
                             set row [select_row $sql]
 							set subst_var [lindex $row 0]
 							set ::SUBMITTED_BY_NAME $subst_var
@@ -3306,10 +3241,8 @@ proc get_ecosystem_registry {key} {
 	set return_string ""
 	if {![info exists ::ECO_REG]} {
 		set sql "select registry_xml from object_registry where object_id = '$::ECOSYSTEM_ID'"
-		#$::db_query $::CONN $sql
-		#set ::ECO_REG [lindex [$::db_fetch $::CONN] 0]
         set row [select_row $sql]
-        set ::ECO_REG [lindex row]
+        set ::ECO_REG [lindex row 0]
 	}
 	if {"$::ECO_REG" > ""} {
 		set dataset_doc [dom parse $::ECO_REG]
@@ -3334,8 +3267,6 @@ proc set_ecosystem_registry {command} {
 	set proc_name set_ecosystem_registry
 
 	set sql "select registry_xml from object_registry where object_id = '$::ECOSYSTEM_ID'"
-	#$::db_query $::CONN $sql
-	#set registry_xml [lindex [$::db_fetch $::CONN] 0]
     set row [select_row $sql]
 	set registry_xml [lindex $row 0]
 	if {"$registry_xml" == ""} {
@@ -3381,12 +3312,10 @@ proc set_ecosystem_registry {command} {
 		if {$new_flag == 0} {
 			set sql "update object_registry set registry_xml = '$new_xml' where object_id = '$::ECOSYSTEM_ID'"
 			#output "Update using: >$sql<" 4
-			#$::db_exec $::CONN $sql
             exec_db $sql
 		} else {
 			set sql "insert into object_registry (object_id, registry_xml) values ('$::ECOSYSTEM_ID','$new_xml')"
 			#output "Insert using: >$sql<" 4
-			#$::db_exec $::CONN $sql
             exec_db $sql
 		}
 	}
@@ -3428,11 +3357,9 @@ proc store_dataset {} {
 
 	if {[info exists ::DATASET]} {
 		set sql "delete from task_instance_dataset where task_instance = $::TASK_INSTANCE"
-		#$::db_exec $::CONN $sql
         exec_db $sql
 		regsub -all "(')" [$::DATASET asXML] "''" dataset
 		set sql "insert into task_instance_dataset (task_instance,dataset) values ($::TASK_INSTANCE,'$dataset')"
-		#$::db_exec $::CONN $sql
         exec_db $sql
 		insert_audit $::STEP_ID "dataset" "Storing dataset:\n$dataset" ""
 	}
@@ -3449,8 +3376,6 @@ proc lookup_shared_cred {shared_cred} {
 	set proc_name lookup_shared_cred
 
 	set sql "select username, password from asset_credential where credential_name = '$shared_cred'"
-	#$::db_query $::CONN $sql
-	#set row [$::db_fetch $::CONN]
     set row [select_row $sql]
 	return $row
 }
@@ -3551,10 +3476,7 @@ proc new_connection {connection_system conn_name conn_type {cloud_name ""}} {
 			gather_system_info $connection_system
 		} elseif {![is_guid $connection_system]} { 
 			set sql "select asset_id from asset where asset_name = '$connection_system'"
-			#output $sql
-			#$::db_query $::CONN $sql
-			#set connection_system_2 [$::db_fetch $::CONN]
-            set connection_system_2 [select_row $sql]
+            set connection_system_2 [lindex [select_row $sql] 0]
 			if {"$connection_system_2" > ""} {
 				gather_system_info $connection_system_2
 			} else {
@@ -3633,10 +3555,7 @@ proc transfer {command} {
 	}
 	if {![is_guid $to_asset]} { 
 		set sql "select asset_id from asset where asset_name = '$to_asset'"
-		#output $sql
-		#$::db_query $::CONN $sql
-		#set to_asset_2 [$::db_fetch $::CONN]
-        set to_asset_2 [select_row $sql]
+        set to_asset_2 [lindex [select_row $sql] 0]
 		if {"$to_asset_2" == ""} {
 			error_out "$mode Connection error:\nThe asset ($to_asset) is not a valid Asset defined in the database. The asset definition must exist before a new connection can be established." 2010
 		}
@@ -4300,8 +4219,6 @@ proc process_function {task_name function_name command} {
 			} else {
 				set sql "select task_id from task where original_task_id = '$orig_subtask_id' and default_version = 1"
 			}
-			#$::db_query $::CONN $sql
-			#set subtask_id [$::db_fetch $::CONN]
             set subtask_id [lindex [select_row $sql] 0]
 
 			if {[llength [array names ::codeblock_arr $subtask_id,*]] == 0} {
@@ -4759,8 +4676,6 @@ proc process_task {} {
 		left outer join asset C on A.asset_id = C.asset_id
              where  A.task_instance = $::TASK_INSTANCE"
 
-	#$::db_query $::CONN $sql
-	#set row [$::db_fetch $::CONN]
 	set row [select_row $sql]
 	if {[string length $row] == 0} {
 		error_out "Task instance number not found in the task instance table." 3002
@@ -5431,8 +5346,8 @@ proc wait_for_tasks {} {
 
 	lappend finished_status Completed Error Cancelled
     insert_audit $::STEP_ID  "" "Waiting for the following task handles to complete: $handle_set, will check every $wait_loop seconds." ""
-	refresh_handles
 	while {[llength $handle_set] > 0} {
+        refresh_handles
 		foreach handle $handle_set {
 			if [info exists ::HANDLE_ARR($handle.INSTANCE)] {
 				set ti_status [get_task_status $::HANDLE_ARR($handle.INSTANCE)]
@@ -5526,8 +5441,6 @@ proc launch_run_task {} {
 	} else {
 		set sql "select task_id, task_name, version, default_version, now() from task where original_task_id = '$original_task_id' and default_version = 1"
 	}
-	#$::db_query $::CONN $sql
-	#set row [$::db_fetch $::CONN]
 	set row [select_row $sql]
 	set task_id [lindex $row 0]
 	set task_name [lindex $row 1]
@@ -5563,11 +5476,8 @@ proc launch_run_task {} {
 	        '$::CLOUD_ACCOUNT'
 	    )"
 	    
-	#$::db_exec $::CONN $sql
     exec_db $sql
 	set sql "select last_insert_id()"
-	#$::db_query $::CONN $sql
-	#set task_instance_id [lindex [$::db_fetch $::CONN] 0]
     set task_instance_id [lindex [select_row $sql] 0]
 	if {"$task_instance_id" == ""} {
 		# must be queued, no task created
@@ -5602,8 +5512,6 @@ proc launch_run_task {} {
 	if {"$asset_id" > ""} {
 		set_handle_var "#${handle}.ASSET" $asset_id
 		set sql "select asset_name from asset where asset_id = '$asset_id'"
-		#$::db_query $::CONN $sql
-		#set asset_name [lindex [$::db_fetch $::CONN] 0]
         set asset_name [lindex [select_row $sql] 0]
 		set_handle_var "#${handle}.ASSET_NAME" $asset_name
 
@@ -5638,9 +5546,7 @@ proc launch_run_task {} {
 proc get_task_status {task_instance} {
 	set proc_name get_task_status
 	set sql "select task_status from task_instance where task_instance = $task_instance"
-	#$::db_query $::CONN $sql
-	#set status [$::db_fetch $::CONN]
-    set status [select_row $sql]
+    set status [lindex [select_row $sql] 0]
 	return $status	
 }
 
@@ -5794,11 +5700,9 @@ proc cancel_tasks {command} {
 		if {[string is integer $task_instance]} {
 			insert_audit $::STEP_ID "" "Cancelling task instance $task_instance" ""
 			set sql "update task_instance set task_status = 'Aborting' where task_instance = $task_instance and task_status in ('Submitted','Staged','Processing')"
-			#$::db_exec $::CONN $sql
             exec_db $sql
 			set log "Cancelling task instance $task_instance by other task instance number $::TASK_INSTANCE"
-			set sql "insert into task_instance_log (task_instance, step_id, entered_dt, connection_name, log, command_text) values ($task_instance,'', $::getdate,'','$log','')"
-			catch {$::db_exec $::CONN $sql}
+			set sql "insert into task_instance_log (task_instance, step_id, entered_dt, connection_name, log, command_text) values ($task_instance,'', now(),'','$log','')"
             catch {exec_db $sql}
 		} else {
 			error_out "Cancel Task error: invalid task instance: $task_instance. Value must be an integer." 9999
@@ -5808,10 +5712,8 @@ proc cancel_tasks {command} {
 proc notify_error {out_message} {
 	set proc_name notify_error
 	set sql "select admin_email from messenger_settings where id = 1"
-	#$::db_query $::CONN $sql
-	#set row [lindex [$::db_fetch $::CONN] 0]
     set row [select_row $sql]
-	set email_to $row
+	set email_to [lindex $row 0]
 	if {[info exists ::runtime_arr(_NOTIFY_ON_ERROR,1)]} {
 		set email_to "$email_to,$::runtime_arr(_NOTIFY_ON_ERROR,1)"
 	}
@@ -5820,16 +5722,14 @@ proc notify_error {out_message} {
 		set subject "Task Error - $::TASK_NAME, error code $::errorCode at [clock format [clock seconds] -format "%Y-%m-%d %H:%M:%S"], node $::CE_NAME"
 		insert_audit $::STEP_ID "" "Inserting into message queue : TO:{$email_to} SUBJECT:{$subject} BODY:{$out_message}" ""
 
-		set sql "insert into message (date_time_entered,process_type,status,msg_to,msg_from,msg_subject,msg_body) values ($::getdate,1,0,'$email_to','$::CE_NAME','$subject','$out_message')"
-		#$::db_exec $::CONN $sql
+		set sql "insert into message (date_time_entered,process_type,status,msg_to,msg_from,msg_subject,msg_body) values (now(),1,0,'$email_to','$::CE_NAME','$subject','$out_message')"
         exec_db $sql
 	}
 }
 proc run_task_instance {} {
 	set proc_name run_task_instance
 
-	set sql "update task_instance set pid = [pid], task_status = 'Processing', started_dt = $::getdate where task_instance = $::TASK_INSTANCE"
-	#$::db_exec $::CONN $sql
+	set sql "update task_instance set pid = [pid], task_status = 'Processing', started_dt = now() where task_instance = $::TASK_INSTANCE"
     exec_db $sql
 
 	if {[catch {process_task} errMsg]} {
@@ -5865,25 +5765,13 @@ proc task_conn_log {address userid conn_type} {
         set proc_name task_conn_log
 
         set sql "insert into task_conn_log (task_instance, address, userid, conn_type, conn_dt) values ($::TASK_INSTANCE,'$address','$userid','
-$conn_type', $::getdate)"
-        #if { [catch {$::db_exec $::CONN $sql} return_code ]}
+$conn_type', now())"
         if { [catch {exec_db $sql} return_code ]} {
             output "Error: Unable to write conn log: --$return_code--"
             output "$sql"
         }
 }
 
-#proc connect_db {} {
-#        set proc_name connect_db
-#
-#        output "Connecting to $::CONNECT_SERVER $::CONNECT_DB $::CONNECT_PORT, user $::CONNECT_USER" 5
-#	if {[catch {set ::CONN [::mysql::connect -user $::CONNECT_USER -password $::CONNECT_PASSWORD -host $::CONNECT_SERVER -db $::CONNECT_DB -port $::CONNECT_PORT -multiresult 1 -multistatement 1]} errMsg]} {
-#                output "Could not connect to the database. Error message -> $errMsg"
-#                output "Exiting..."
-#                exit
-#	}
-#    	output "Connected" 6
-#}
 ##################################################
 #
 #       MAIN LOGIC ROUTINE
@@ -5892,28 +5780,10 @@ $conn_type', $::getdate)"
 proc main_ce {ti} {
 	set proc_name main
 
-	#set ::CE_NAME [lindex $::argv 0]
-	#set ::TASK_INSTANCE [lindex [split [lindex $::argv 0]] 0]
 	set ::TASK_INSTANCE $ti
 	pre_initialize
-
-	#initialize_logfile_ce
-	#output "argv(1) is ->[lindex $::argv 1]<-"
-
-
 	initialize
 	output "Task Instance: {$::TASK_INSTANCE} PID: {$::MY_PID}" -99
-
-
-	###
-	### Next let's reconnect to the db
-	###
-
-	#connect_db
-
-	###
-	### Now let's process the task instance
-	###
 	set return_code [run_task_instance]
 
 	### and any additional task instances ...
@@ -5934,5 +5804,4 @@ proc main_ce {ti} {
 
 
 	#close_logfile
-	#catch {$::db_disconnect $::CONN}
 }
