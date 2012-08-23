@@ -195,7 +195,7 @@ function doGetDetails() {
 		dataType : "json",
 		success : function(instance) {
 			if (instance.error)
-				showAlert(instance.error);
+				showInfo(instance.error);
 
 			$("#hidInstanceID").val(instance.task_instance);
 			$("#hidTaskID").val(instance.task_id);

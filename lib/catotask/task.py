@@ -1177,7 +1177,7 @@ class TaskRunLog(object):
     def AsXML(self):
         try:
             dom = ET.fromstring('<TaskLog />')
-            if self.rows:
+            if self.log_rows:
                 for row in self.log_rows:
                     xml = catocommon.dict2xml(row, "Item")
                     node = ET.fromstring(xml.tostring())
@@ -1191,7 +1191,7 @@ class TaskRunLog(object):
         try:
             keys = ['codeblock_name', 'step_order', 'function_name', 'log']
             outrows = []
-            if self.rows:
+            if self.log_rows:
                 for row in self.log_rows:
                     cols = []
                     for key in keys:
@@ -1351,7 +1351,7 @@ class TaskInstance(object):
                 else:
                     self.Error = "Did not find any data for Instance [%s]." % (sTaskInstance)
 
-            self.Error = "Unable to get task_instance from any provided arguments."
+            self.Error = "Unable to find any Instances for this Task.  Possibly it has never executed."
             return
         
         except Exception as ex:
