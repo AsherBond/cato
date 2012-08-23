@@ -5490,6 +5490,7 @@ proc launch_run_task {} {
 		regsub -all "(')" $parameterXML "''" parameterXML
 		set sql "insert into task_instance_parameter (task_instance, parameter_xml) 
 		                values ('$task_instance_id', '$parameterXML')"
+	    exec_db $sql
 	}
 
 	#put this handle in the handle_names array
