@@ -726,70 +726,32 @@ proc insert_audit {step_id command log connection} {
 
     global TASK_INSTANCE
     global AUDIT_TRAIL_ON
-    output "$log" 1
     if {$AUDIT_TRAIL_ON > 0} {
 	foreach sensitive $::SENSITIVE {
 		set log [string map "$sensitive **********" $log]
 		set command [string map "$sensitive **********" $command]
-		#regsub -all ($sensitive) $log {*********} log
-		#regsub -all ($sensitive) $command {*********} command
 	}
-    #set log [::mysql::escape $log]
-    #set command [::mysql::escape $command]
+    output "$log" 2
+    package require mysqltcl
+    set log [::mysql::escape $log]
+    set command [::mysql::escape $command]
     regsub -all "(%)" $log "%%" log
     regsub -all "(%)" $command "%%" command
-    regsub -all "(')" $log "''" log
-    regsub -all "(')" $command "''" command
 
-        if {"$step_id" != ""} {
-            set sql "insert into task_instance_log (task_instance, step_id, entered_dt, connection_name, log, command_text) values ($::TASK_INSTANCE,'$step_id', now(),'$connection','$log','$command')"
-        } else {
-            set sql "insert into task_instance_log (task_instance, step_id, entered_dt, connection_name, log, command_text) values ($::TASK_INSTANCE,NULL, now(),'$connection','$log','$command')"
-        }
+    if {"$step_id" != ""} {
+        set sql "insert into task_instance_log (task_instance, step_id, entered_dt, connection_name, log, command_text) values ($::TASK_INSTANCE,'$step_id', now(),'$connection','$log','$command')"
+    } else {
+        set sql "insert into task_instance_log (task_instance, step_id, entered_dt, connection_name, log, command_text) values ($::TASK_INSTANCE,NULL, now(),'$connection','$log','$command')"
+    }
 
-        if { [catch {exec_db $sql} return_code ]} {
-			error_out "ERROR: Unable to insert log entry. Return Code: $return_code" 9999
-        }
+    if { [catch {exec_db $sql} return_code ]} {
+        error_out "ERROR: Unable to insert log entry. Return Code: $return_code" 9999
+    }
     }
     if {$AUDIT_TRAIL_ON == 1} {
         set AUDIT_TRAIL_ON 0
     }
 }
-
-##################################################
-#       end of insert_audit
-##################################################
-
-##################################################
-#       procedure: output
-#
-#       This proc will send puts statements
-#       to the appropriate logfile
-#
-##################################################
-
-#proc output {args} {
-#    set output_string [lindex $args 0]
-#    set debug_level [lindex $args 1]
-#
-#    if {[string length $debug_level] == 0} {
-#        set debug_level 0
-#    }
-#
-#    upvar proc_name proc_name
-#
-#    if {$::DEBUG_LEVEL >= $debug_level} {
-#	foreach sensitive $::SENSITIVE {
-#		set output_string [string map "$sensitive **********" $output_string]
-#	}
-#        puts "\n[clock format [clock seconds] -format "%Y-%m-%d %H:%M:%S"] ($proc_name):: $output_string"
-#	flush stdout
-#    }
-#}
-
-##################################################
-#       end of output
-##################################################
 
 proc email_attach_file {filename file_data msg_id} {
 	set proc_name email_attach_file
@@ -934,7 +896,6 @@ proc tochar { value } {
 proc get_steps {task_id} {
 	
 	set proc_name get_steps
-
 	#output "into get_steps" 4
 
 	# NSC 5-2-2012
@@ -5674,7 +5635,7 @@ proc while_loop {command task_name} {
 		error_out "WHILE LOOP - unable to determine function type." 1657
 	}
 
-	set loop_cmd [replace_variables_all [$action asXML]]
+	set orig_loop_cmd [$action asXML]
 
 	del_xml_root
 
@@ -5683,8 +5644,8 @@ proc while_loop {command task_name} {
 	regsub -all "&amp;" $test_cond {\&} test_cond
 	regsub -all "&gt;" $test_cond ">" test_cond
 	regsub -all "&lt;" $test_cond "<" test_cond
-	output $test_cond
 	while {[expr $test_cond]} {
+        set loop_cmd [replace_variables_all $orig_loop_cmd]
 		set ::INLOOP 1
 		process_function $task_name $function_name $loop_cmd
 		if {$::BREAK == 1} {
@@ -5782,10 +5743,18 @@ proc run_task_instance {} {
 		set out_message "ERROR -> Error Code: $::errorCode, $errMsg"
 		output $out_message 0
 		output $::errorInfo 0
-		insert_audit $::STEP_ID "" $out_message ""
+		catch {insert_audit $::STEP_ID "" $out_message ""} new_err
+        if {"$new_err" ne ""} {
+            output $new_err 0
+        }
 		catch {notify_error $out_message} new_err
-		output $new_err 0
-		update_status Error
+        if {"$new_err" ne ""} {
+            output $new_err 0
+        }
+		catch {update_status Error} new_err
+        if {"$new_err" ne ""} {
+            output $new_err 0
+        }
 		set return_code $::errorCode	
 
 	} else {
