@@ -2698,7 +2698,7 @@ class taskMethods:
                 t = task.Task()
                 t.FromOriginalIDVersion(otid)
                 if t:
-                    xml += t.AsXML()
+                    xml += t.AsXML(include_code=True)
             
             xml = "<tasks>%s</tasks>" % xml
 
