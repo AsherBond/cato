@@ -726,12 +726,12 @@ proc insert_audit {step_id command log connection} {
 
     global TASK_INSTANCE
     global AUDIT_TRAIL_ON
-    output "$log" 1
     if {$AUDIT_TRAIL_ON > 0} {
 	foreach sensitive $::SENSITIVE {
 		set log [string map "$sensitive **********" $log]
 		set command [string map "$sensitive **********" $command]
 	}
+    output "$log" 2
     package require mysqltcl
     set log [::mysql::escape $log]
     set command [::mysql::escape $command]
@@ -896,7 +896,6 @@ proc tochar { value } {
 proc get_steps {task_id} {
 	
 	set proc_name get_steps
-
 	#output "into get_steps" 4
 
 	# NSC 5-2-2012
@@ -5704,10 +5703,18 @@ proc run_task_instance {} {
 		set out_message "ERROR -> Error Code: $::errorCode, $errMsg"
 		output $out_message 0
 		output $::errorInfo 0
-		insert_audit $::STEP_ID "" $out_message ""
+		catch {insert_audit $::STEP_ID "" $out_message ""} new_err
+        if {"$new_err" ne ""} {
+            output $new_err 0
+        }
 		catch {notify_error $out_message} new_err
-		output $new_err 0
-		update_status Error
+        if {"$new_err" ne ""} {
+            output $new_err 0
+        }
+		catch {update_status Error} new_err
+        if {"$new_err" ne ""} {
+            output $new_err 0
+        }
 		set return_code $::errorCode	
 
 	} else {
