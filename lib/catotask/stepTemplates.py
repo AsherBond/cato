@@ -2554,6 +2554,11 @@ def NewConnection(oStep):
             sHTML += "<option " + SetOption(ct, sConnType) + " value=\"" + ct + "\">" + ct + "</option>\n"
     
         sHTML += "</select>\n"
+
+        # nothing special here, just draw the field.
+        sHTML += DrawField(xConnName, "conn_name", oStep)
+
+        sHTML += "<br />\n"
     
         # now, based on the type, we might show or hide certain things
         if sConnType == "ssh - ec2":
@@ -2617,20 +2622,7 @@ def NewConnection(oStep):
     
             sElementID = catocommon.new_guid()
     
-            sHTML += " to Asset \n"
-            sHTML += "<input type=\"text\" " + \
-                CommonAttribsWithID(oStep, False, "asset", sElementID, "hidden") + \
-                " value=\"" + sAssetID + "\"" + " />\n"
-            sHTML += "<input type=\"text\"" \
-                " help=\"Select an Asset or enter a variable.\"" \
-                " step_id=\"" + sStepID + "\"" \
-                " class=\"code w400px\"" \
-                " is_required=\"true\"" \
-                " id=\"fn_new_connection_assetname_" + sStepID + "\"" \
-                " onchange=\"javascript:pushStepFieldChangeVia(this, '" + sElementID + "');\"" \
-                " value=\"" + sAssetName + "\" />\n"
-    
-            
+            sHTML += " to Asset: \n"
             sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_field_clear_btn pointer\" clear_id=\"fn_new_connection_assetname_" + sStepID + "\"" \
                 " title=\"Clear\"></span>"
     
@@ -2638,9 +2630,21 @@ def NewConnection(oStep):
                 " link_to=\"" + sElementID + "\"" \
                 " target_field_id=\"fn_new_connection_assetname_" + sStepID + "\"" \
                 " step_id=\"" + sStepID + "\"></span>\n"
+
+            sHTML += "<br />\n"
+
+            sHTML += "<input type=\"text\" " + \
+                CommonAttribsWithID(oStep, False, "asset", sElementID, "hidden") + \
+                " value=\"" + sAssetID + "\"" + " />\n"
+            sHTML += "<textarea" \
+                " help=\"Select an Asset or enter a variable.\"" \
+                " step_id=\"" + sStepID + "\"" \
+                " class=\"code\"" \
+                " is_required=\"true\"" \
+                " id=\"fn_new_connection_assetname_" + sStepID + "\"" \
+                " onchange=\"javascript:pushStepFieldChangeVia(this, '" + sElementID + "');\"" \
+                " >" + sAssetName + "</textarea>\n"
             
-        # nothing special here, just draw the field.
-        sHTML += DrawField(xConnName, "conn_name", oStep)
     
         return sHTML
     except Exception:

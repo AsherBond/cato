@@ -1237,7 +1237,7 @@ proc gather_system_info {asset_id} {
 	set ::system_arr($asset_id,domain) [lindex $row 7]
 	set ::system_arr($asset_id,conn_string) [lindex $row 9]
 	set ::system_arr($asset_id,private_key) ""
-        set ::system_arr($asset_id,private_key_name) ""
+    set ::system_arr($asset_id,private_key_name) ""
 
 	#output "out of gather_system_info" 4
 
@@ -3475,15 +3475,54 @@ proc new_connection {connection_system conn_name conn_type {cloud_name ""}} {
 			output "getting a new system's info" 1
 			gather_system_info $connection_system
 		} elseif {![is_guid $connection_system]} { 
-			set sql "select asset_id from asset where asset_name = '$connection_system'"
-            set connection_system_2 [lindex [select_row $sql] 0]
-			if {"$connection_system_2" > ""} {
-				gather_system_info $connection_system_2
+			# it's not a guid, so it's either a name we can resolve to an asset,
+			# or it's literal connection properties
+
+			# if it has spaces, it's specific values			
+			if {"[string first { } $connection_system]" > 0} {
+
+				set ::system_arr($conn_name,name) $conn_name
+				set ::system_arr($conn_name,conn_type) $conn_type
+
+				# defaults to avoid errors down the line if one isn't required.
+				set ::system_arr($conn_name,address) ""
+				set ::system_arr($conn_name,userid) ""
+				set ::system_arr($conn_name,password) ""
+				set ::system_arr($conn_name,port) ""
+				set ::system_arr($conn_name,db_name) ""
+				set ::system_arr($conn_name,priv_password) ""
+				set ::system_arr($conn_name,domain) ""
+				set ::system_arr($conn_name,conn_string) ""
+				set ::system_arr($conn_name,private_key) ""
+			    set ::system_arr($conn_name,private_key_name) ""
+			
+				set pairs [split $connection_system { }]
+				foreach pair $pairs {
+					# if it's got no = we ignore it
+					if {"[string first = $pair]" > 0} {
+						
+						set key [string tolower [lindex [split $pair =] 0]]
+						set val [lindex [split $pair =] 1]
+						
+						# only a set list of keys are allowed
+						if {[string first $key {address userid password db_name port}] > -1} {
+							set ::system_arr($conn_name,$key) $val
+						}
+					}
+				}
+							
+				set connection_system $conn_name
 			} else {
-				error_out "New Connection error:\nThe asset ($connection_system) is not a valid Asset defined in the database. The asset definition must exist before a new connection can be established." 2010
+				set sql "select asset_id from asset where asset_name = '$connection_system'"
+	            set connection_system_2 [lindex [select_row $sql] 0]
+				if {"$connection_system_2" > ""} {
+					gather_system_info $connection_system_2
+				} else {
+					error_out "New Connection error:\nThe asset ($connection_system) is not a valid Asset defined in the database. The asset definition must exist before a new connection can be established." 2010
+				}
+				set connection_system $connection_system_2
+				unset connection_system_2
 			}
-			set connection_system $connection_system_2
-			unset connection_system_2
 		}
 	} else {	
 		set user_id ""
