@@ -206,7 +206,7 @@ class uiMethods:
 
     def wmGetMenu(self):
         try:
-                #NOTE: this needs all the kick and warn stuff
+            #NOTE: this needs all the kick and warn stuff
             role = uiCommon.GetSessionUserRole()
             
             if not role:
