@@ -129,6 +129,6 @@ class Ecosync(catocommon.CatoService):
         self.tcl = Tcl(useTk=False)
         #catocommon.CatoService.startup()
         self.tcl.setvar(name='::HOME', value=self.home)
-        self.tcl.eval('source cato_ecosync.tcl')
+        self.tcl.eval('source $::HOME/services/bin/cato_ecosync.tcl')
         self.tcl.eval('initialize_process')
 
