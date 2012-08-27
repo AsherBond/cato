@@ -125,7 +125,7 @@ CREATE TABLE `clouds` (
   `default_account_id` varchar(36) DEFAULT NULL,
   `region` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`cloud_id`),
-  UNIQUE KEY `cloud_id_provider_UNIQUE` (`cloud_id`,`provider`)
+  UNIQUE KEY `cloud_provider_UNIQUE` (`cloud_name`,`provider`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `clouds_keypair` (
   `keypair_id` varchar(36) NOT NULL,
