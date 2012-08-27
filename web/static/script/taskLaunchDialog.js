@@ -18,7 +18,7 @@
 $(document).ready(function () {
     //any page that includes this script will get the following dialog inner code
     //but the page requires a placeholder div... called "task_launch_dialog"
-    var d = '<span id="task_launch_dialog_task_name"></span><hr />' +
+    var d = '<div id="task_launch_dialog_task_name" class="floatleft"></div><div class="floatright">Server Time: <span class="current_time"></span></div><hr />' +
                 'Cloud Account: <span id="task_launch_dialog_account_name"></span>' +
                 '&nbsp;&nbsp;Ecosystem:&nbsp;&nbsp;' +
                 '<select id="task_launch_dialog_ecosystem"></select>' +
@@ -56,8 +56,6 @@ $(document).ready(function () {
                 '       <span id="run_now_btn" class="floatright">Run Now</span>' +
                 '   </div>' +
                 '   <div id="RunLaterTab">' +
-            	'   	Current Server Time: <span class="current_time"></span>' +
-                '       <hr />' +
                 '       <div>Will be started in the future, and run only once, using the Parameters selected on the left.</div>' +
                 '       <hr />' +
                 '       Run On: <input type="text" id="run_on_date" class="datetimepicker" />' +
@@ -65,8 +63,6 @@ $(document).ready(function () {
                 '       <span id="run_later_btn" class="floatright">Plan</span>' +
                 '   </div>' +
                 '   <div id="RunRepeatedlyTab">' +
-            	'   	Current Server Time: <span class="current_time"></span>' +
-                '       <hr />' +
                 '       <div id="run_repeatedly_content">' +
                 '           <div>Will be scheduled to run on a repeating basis, using the criteria selected below, and the Parameters selected on the left.</div>' +
                 '           <hr />' +
