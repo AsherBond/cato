@@ -117,7 +117,7 @@ class uiMethods:
 
 
                 items = []
-                if not sset.Messenger["SMTPServerAddress"]:
+                if not sset.Messenger.has_key("SMTPServerAddress") or not sset.Messenger["SMTPServerAddress"]:
                     items.append("Define an SMTP server.")
                     sHTML += self.DrawGettingStartedItem("messengersettings", "Messenger Settings", items, "<a href=\"/settings?module=messenger\">Click here</a> to update Messenger settings.")
     
