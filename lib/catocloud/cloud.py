@@ -125,7 +125,7 @@ class Cloud(object):
                 if row["default_account_id"]:
                     ca = CloudAccount()
                     ca.FromID(row["default_account_id"])
-                    if ca:
+                    if ca.ID:
                         self.DefaultAccount = ca
                         return ca
 

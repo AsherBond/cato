@@ -381,11 +381,13 @@ function SaveItem(close_after_save) {
         return false;
     }
 
+	var acct_id = ($("#ddlDefaultAccount").val() !== null) ? $("#ddlDefaultAccount").val() : '';
+	
     var args = '{"sMode":"' + $("#hidMode").val() + '", \
     	"sCloudID":"' + sCloudID + '", \
         "sCloudName":"' + sCloudName + '", \
         "sProvider":"' + $("#ddlProvider").val() + '", \
-        "sDefaultAccountID":"' + $("#ddlDefaultAccount").val() + '", \
+        "sDefaultAccountID":"' + acct_id + '", \
         "sAPIProtocol":"' + $("#ddlAPIProtocol").val() + '", \
         "sAPIUrl":"' + sAPIUrl + '" \
         }';
