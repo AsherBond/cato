@@ -22,6 +22,8 @@ import threading
 import uuid
 import decimal
 import base64
+import os
+import pwd
 from catodb import catodb
 
 # anything including catocommon can get new connections using the settings in 'config'
@@ -363,8 +365,8 @@ class CatoProcess():
     def __init__(self, process_name):
         self.host = os.uname()[1]
         self.platform = os.uname()[0]
-        self.host_domain = os.getlogin() +'@'+ os.uname()[1]
-        self.user = os.getlogin()
+        self.user = pwd.getpwuid(os.getuid())[0]
+        self.host_domain = self.user +'@'+ os.uname()[1]
         self.my_pid = os.getpid()
         self.process_name = process_name
         self.initialize_logfile()
