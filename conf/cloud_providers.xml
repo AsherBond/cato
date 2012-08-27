@@ -2,13 +2,20 @@
 	<providers>
 		<provider name="Amazon AWS" test_product="ec2" test_object="aws_ec2_security_group" user_defined_clouds="false">
 			<clouds>
-				<cloud name="us-east-1" region="us-east-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
-				<cloud name="us-west-1" region="us-west-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
-				<cloud name="us-west-2" region="us-west-2" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
-				<cloud name="eu-west-1" region="eu-west-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
-				<cloud name="ap-southeast-1" region="ap-southeast-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
-				<cloud name="ap-northeast-1" region="ap-northeast-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
-				<cloud name="sa-east-1" region="sa-east-1" api_url="amazonaws.com" api_protocol="HTTPS"></cloud>
+				<cloud name="us-east-1" region="us-east-1" api_url="amazonaws.com" api_protocol="HTTPS">
+				</cloud>
+				<cloud name="us-west-1" region="us-west-1" api_url="amazonaws.com" api_protocol="HTTPS">
+				</cloud>
+				<cloud name="us-west-2" region="us-west-2" api_url="amazonaws.com" api_protocol="HTTPS">
+				</cloud>
+				<cloud name="eu-west-1" region="eu-west-1" api_url="amazonaws.com" api_protocol="HTTPS">
+				</cloud>
+				<cloud name="ap-southeast-1" region="ap-southeast-1" api_url="amazonaws.com" api_protocol="HTTPS">
+				</cloud>
+				<cloud name="ap-northeast-1" region="ap-northeast-1" api_url="amazonaws.com" api_protocol="HTTPS">
+				</cloud>
+				<cloud name="sa-east-1" region="sa-east-1" api_url="amazonaws.com" api_protocol="HTTPS">
+				</cloud>
 			</clouds>
 			<products>
 				<product name="ec2" label="EC2" type="compute" api_version="2011-12-01" api_url_prefix="ec2.">
@@ -270,15 +277,15 @@
 				</product>
 			</products>
 		</provider>
-		<provider name="VWmare" test_product="" test_object="" user_defined_clouds="true">
-			<products>
-				<product name="VMware" label="VMware" type="compute" api_version="" api_url_prefix="" api_uri="">
-					<object_types>
-						<type id="vmware_vm" label="Virtual Machine" api_call="" xml_record_xpath=""></type>
-					</object_types>
-				</product>
-			</products>
-		</provider>
+		<!--<provider name="VWmare" test_product="" test_object="" user_defined_clouds="true">
+		<products>
+		<product name="VMware" label="VMware" type="compute" api_version="" api_url_prefix="" api_uri="">
+		<object_types>
+		<type id="vmware_vm" label="Virtual Machine" api_call="" xml_record_xpath=""></type>
+		</object_types>
+		</product>
+		</products>
+		</provider>-->
 		<!--<provider name="OpenStack" test_product="compute" test_object="" user_defined_clouds="true">
 		<products>
 		<product name="compute" label="Compute" api_version="v1.1" api_url_prefix="az-1." api_uri="/">
@@ -314,11 +321,17 @@
 		</provider>-->
 	</providers>
 	<image_types>
-		<image_type provider="Amazon AWS" object_type="aws_ec2_instance" name="AMI"></image_type>
-		<image_type provider="Amazon AWS" object_type="" name="CloudFormation"></image_type>
-		<image_type provider="Eucalyptus" object_type="aws_ec2_instance" name="EMI"></image_type>
-		<image_type provider="Eucalyptus" object_type="" name="Storm"></image_type>
-		<image_type provider="OpenStackAws" object_type="aws_ec2_instance" name="Image"></image_type>
-		<image_type provider="VWmare" object_type="vmware_vm" name="VM"></image_type>
+		<image_type provider="Amazon AWS" object_type="aws_ec2_instance" name="AMI">
+		</image_type>
+		<image_type provider="Amazon AWS" object_type="" name="CloudFormation">
+		</image_type>
+		<image_type provider="Eucalyptus" object_type="aws_ec2_instance" name="EMI">
+		</image_type>
+		<image_type provider="Eucalyptus" object_type="" name="Storm">
+		</image_type>
+		<image_type provider="OpenStackAws" object_type="aws_ec2_instance" name="Image">
+		</image_type>
+		<image_type provider="VWmare" object_type="vmware_vm" name="VM">
+		</image_type>
 	</image_types>
 </root>
