@@ -1239,6 +1239,10 @@ class ecoMethods:
                 i = 0
                 for dr in dt:
                     cot = ca.Provider.GetObjectTypeByName(dr["ecosystem_object_type"])
+                    if not cot:
+                        cot = cloud.CloudObjectType(None)
+                        cot.ID = "unknown"
+                        cot.Label = "Unknown Type"
 
                     # every 5 items gets a new row
                     if i % 5 == 0:
@@ -1249,7 +1253,9 @@ class ecoMethods:
                     # or a peek into the CloudProviders object in the session might be better.
                     
                     # something here can look up the icon for each type if we wanna do that.
-                    sIcon = "%s.png" % cot.ID
+                    sIcon = "static/images/cloud_object_types/%s.png" % cot.ID
+                    if not os.path.exists(sIcon):
+                        sIcon = "static/images/cloud_object_types/default.png"
 
                     sHTML += "<td>"
                     sHTML += " <div class=\"ecosystem_type\"" \
@@ -1269,7 +1275,7 @@ class ecoMethods:
                     # gotta clear the floats
                     sHTML += "<div class=\"clearfloat\">"
 
-                    sHTML += "<img class=\"action_icon\" src=\"static/images/cloud_object_types/" + sIcon + "\" alt=\"\" style=\"width: 32px; height: 32px; margin-left: -8px; padding-top: 10px;\" />"
+                    sHTML += "<img class=\"action_icon\" src=\"%s\" alt=\"\" style=\"width: 32px; height: 32px; margin-left: -8px; padding-top: 10px;\" />" % sIcon
 
 
                     sHTML += " </div>"

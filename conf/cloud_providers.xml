@@ -88,6 +88,11 @@
 							<property name="Path" label="" xpath="Path" short_list="1" sort_order="2" />
 							<property name="Arn" label="" xpath="Arn" short_list="1" sort_order="3" />
 						</type>
+						<type id="aws_iam_accesskey" label="IAM Access Key" api_call="ListAccessKeys" xml_record_xpath="ListAccessKeysResult/AccessKeyMetadata/member">
+							<property name="AccessKeyId" label="" xpath="AccessKeyId" id_field="1" short_list="1" sort_order="1" />
+							<property name="Status" label="" xpath="Status" short_list="1" sort_order="2" />
+							<property name="CreateDate" label="" xpath="CreateDate" short_list="1" sort_order="3" />
+						</type>
 					</object_types>
 				</product>
 				<product name="autoscaling" label="Auto Scaling" api_url_prefix="autoscaling." api_version="2010-08-01">
