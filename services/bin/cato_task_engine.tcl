@@ -3494,6 +3494,7 @@ proc new_connection {connection_system conn_name conn_type {cloud_name ""}} {
 		if {"$user_id" == ""} {
 			error_out "The user id value is required for a connection type of ssh - ec2, example: root@$connection_system" 9999
 		}
+        sleep 10
 		for {set ii 0} {$ii < 20} {incr ii} {
 			set state [gather_aws_system_info $connection_system $user_id $cloud_name]
 			if {"$state" == "running"} {
