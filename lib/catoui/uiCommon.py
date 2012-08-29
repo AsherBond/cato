@@ -332,10 +332,10 @@ def ForceLogout(sMsg=""):
     if not sMsg:
         sMsg = "Session Ended"
     
+    log_nouser("Forcing logout with message: " + sMsg, 0)
+    
     # logging out kills the session
     uiGlobals.session.kill()
-    
-    log_nouser("Forcing logout with message: " + sMsg, 0)
     raise web.seeother('/static/login.html')
 
 def GetSessionUserID():
