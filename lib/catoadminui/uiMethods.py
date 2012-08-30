@@ -145,7 +145,7 @@ class uiMethods:
                 if dt:
                     for dr in dt:
                         if not dr["login_id"] or not dr["login_password"]:
-                            items.append("Provide an Account Login ID and Password.")
+                            items.append("Provide an Account Login ID and Password for all Cloud Accounts.")
                 else: 
                     items.append("There are no Cloud Accounts defined.")
                 
