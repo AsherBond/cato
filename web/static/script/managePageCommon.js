@@ -153,7 +153,7 @@ $(document).ready(function () {
 //so, on each "manage" page, we'll call this from the individual pageLoads.
 
 function ManagePageLoad() {
-    initJtable(true, true);
+    //initJtable(true, true);
 
     //all the buttons are jQuery "button" widgets - enable them
     $("#clear_selected_btn").button({ icons: { primary: "ui-icon-refresh" }, text: false });
