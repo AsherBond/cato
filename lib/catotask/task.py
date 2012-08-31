@@ -1089,10 +1089,10 @@ class Step(object):
             if dr.has_key("button"):
                 self.UserSettings.Button = (dr["button"] if dr["button"] else "")
             if dr.has_key("skip"):
-                self.UserSettings.Skip = (dr["skip"] if dr["skip"] else "0")
+                self.UserSettings.Skip = (True if dr["skip"] == 1 else False)
             if dr.has_key("visible"):
-                self.UserSettings.Visible = (dr["visible"] if dr["visible"] else "1")
-            
+                self.UserSettings.Visible = (False if dr["visible"] == 0 else True)
+
             #NOTE!! :oTask can possibly be null, in lots of cases where we are just getting a step and don't know the task.
             #if it's null, it will not populate the parent object.
             #this happens all over the place in the HTMLTemplates stuff, and we don't need the extra overhead of the same task
