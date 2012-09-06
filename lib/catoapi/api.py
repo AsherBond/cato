@@ -140,17 +140,21 @@ class response:
 		dom = ET.fromstring('<apiResponse />')
 		ET.SubElement(dom, "method").text = self.Method
 		
-		#try to parse it and catch ... if it's xml add it, else add it as text
-		try:
-			test = ET.fromstring(self.Response)
-			r = ET.SubElement(dom, "response")
-			r.append(test)
-		except Exception: #(ElementTree.ParseError is a subclass of SyntaxError)
-			#no need to print the exception... it just means the self.Response couldn't be converted to xml
-			#that's ok, a non-xml response is allowed and handled here.
-			#if ex:
-				#print str(ex)
-			ET.SubElement(dom, "response").text = self.Response
+		# if there was no response, we can't crash
+		if self.Response:
+			#try to parse it and catch ... if it's xml add it, else add it as text
+			try:
+				test = ET.fromstring(self.Response)
+				r = ET.SubElement(dom, "response")
+				r.append(test)
+			except Exception: #(ElementTree.ParseError is a subclass of SyntaxError)
+				#no need to print the exception... it just means the self.Response couldn't be converted to xml
+				#that's ok, a non-xml response is allowed and handled here.
+				#if ex:
+					#print str(ex)
+				ET.SubElement(dom, "response").text = self.Response
+		else:
+			ET.SubElement(dom, "response").text = ""
 		
 		#include an error section if necessary
 		if self.ErrorCode != "":
@@ -164,6 +168,10 @@ class response:
 	def asJSON(self):
 		"""Returns the response as a JSON string"""
 		try:
+			# if there was no response, we can't crash
+			if self.Response is None:
+				self.Response = ""
+				
 			return json.dumps(self.__dict__, default=catocommon.jsonSerializeHandler)
 		except Exception as ex:
 			return ex.__str__()

@@ -772,11 +772,11 @@ class Ecosystem(object):
 
     def ObjectsAsText(self, sFilter=""):
         try:
-            log = self.Objects(sFilter)
-            if log:
+            objects = self.Objects(sFilter)
+            if objects:
                 keys = ['EcosystemObjectType', 'EcosystemObjectID', 'CloudName', 'AddedDate']
                 rows = []
-                for row in log:
+                for row in objects:
                     cols = []
                     for key in keys:
                         cols.append(str(row[key]))

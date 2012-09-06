@@ -53,7 +53,7 @@ class wmHandler:
 
         output_format = ""
         if args.has_key("output_format"):
-           output_format = args["output_format"]
+            output_format = args["output_format"]
         
         is_authenticated, user_id = api.authenticate(method, args)
         if not is_authenticated:

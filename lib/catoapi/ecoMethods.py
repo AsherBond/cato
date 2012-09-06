@@ -254,7 +254,7 @@ class ecoMethods:
                 if args["output_format"] == "json":
                     return R(response=obj.ObjectsAsJSON(fltr))
                 elif args["output_format"] == "text":
-                    return R(response=obj.ObjectsAsText())
+                    return R(response=obj.ObjectsAsText(fltr))
                 else:
                     return R(response=obj.ObjectsAsXML(fltr))
             else:
@@ -291,7 +291,7 @@ class ecoMethods:
                 if args["output_format"] == "json":
                     return R(response=obj.LogAsJSON(fltr))
                 elif args["output_format"] == "text":
-                    return R(response=obj.LogAsText())
+                    return R(response=obj.LogAsText(fltr))
                 else:
                     return R(response=obj.LogAsXML(fltr))
             else:
