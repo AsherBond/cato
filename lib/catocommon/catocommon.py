@@ -594,3 +594,6 @@ class CatoObjectTypes(object):
     Ecosystem = 50
     EcoTemplate = 51
     Request = 61
+    Deployment = 70
+    DeploymentService = 71
+    
