@@ -155,7 +155,7 @@ class Task(object):
         self.Description = sDesc
         self.CheckDBExists()
 
-    def FromID(self, sTaskID, bIncludeUserSettings=False):
+    def FromID(self, sTaskID, bIncludeUserSettings=False, include_code=True):
         sErr = ""
         try:
             db = catocommon.new_conn()
@@ -167,7 +167,7 @@ class Task(object):
             dr = db.select_row_dict(sSQL)
 
             if dr:
-                sErr = self.PopulateTask(db, dr, bIncludeUserSettings)
+                sErr = self.PopulateTask(db, dr, bIncludeUserSettings, include_code)
 
             if self.ID:
                 return ""
@@ -179,7 +179,7 @@ class Task(object):
         finally:
             db.close()
 
-    def FromNameVersion(self, name, version=None):
+    def FromNameVersion(self, name, version=None, include_code=True):
         sErr = ""
         try:
             db = catocommon.new_conn()
@@ -196,7 +196,7 @@ class Task(object):
             dr = db.select_row_dict(sSQL)
 
             if dr:
-                sErr = self.PopulateTask(db, dr, False)
+                sErr = self.PopulateTask(db, dr, False, include_code)
 
             if self.ID:
                 return ""
@@ -208,7 +208,7 @@ class Task(object):
         finally:
             db.close()
 
-    def FromOriginalIDVersion(self, otid, version=None):
+    def FromOriginalIDVersion(self, otid, version=None, include_code=True):
         sErr = ""
         try:
             db = catocommon.new_conn()
@@ -225,7 +225,7 @@ class Task(object):
             dr = db.select_row_dict(sSQL)
 
             if dr:
-                sErr = self.PopulateTask(db, dr, False)
+                sErr = self.PopulateTask(db, dr, False, include_code)
 
             if self.ID:
                 return ""
@@ -765,7 +765,7 @@ class Task(object):
         finally:
             db.close()
 
-    def PopulateTask(self, db, dr, IncludeUserSettings):
+    def PopulateTask(self, db, dr, IncludeUserSettings, IncludeCode=True):
         # only called from inside this class, so the caller passed in a db conn pointer too
         try:
             #of course it exists...
@@ -783,92 +783,93 @@ class Task(object):
             self.QueueDepth = (dr["queue_depth"] if dr["queue_depth"] else "")
             self.UseConnectorSystem = (True if dr["use_connector_system"] == 1 else False)
             
-            #parameters
-            if dr["parameter_xml"]:
-                xParameters = ET.fromstring(dr["parameter_xml"])
-                if xParameters is not None:
-                    self.ParameterXDoc = xParameters
-            # 
-            # * ok, this is important.
-            # * there are some rules for the process of 'Approving' a task and other things.
-            # * so, we'll need to know some count information
-            # 
-            sSQL = "select count(*) from task" \
-                " where original_task_id = '" + self.OriginalTaskID + "'" \
-                " and task_status = 'Approved'"
-            iCount = db.select_col_noexcep(sSQL)
-            if db.error:
-                return "Error counting Approved versions:" + db.error
-            self.NumberOfApprovedVersions = iCount
-
-            sSQL = "select count(*) from task where original_task_id = '" + self.OriginalTaskID + "'"
-            iCount = db.select_col_noexcep(sSQL)
-            if db.error:
-                return "Error counting Approved versions:" + db.error
-            self.NumberOfOtherVersions = iCount
-
-            sSQL = "select max(version) from task where original_task_id = '" + self.OriginalTaskID + "'"
-            sMax = db.select_col_noexcep(sSQL)
-            if db.error:
-                return "Error getting max version:" + db.error
-            self.MaxVersion = sMax
-            self.NextMinorVersion = str(float(self.MaxVersion) + .001)
-            self.NextMajorVersion = str(int(float(self.MaxVersion) + 1)) + ".000"
-
-            #now, the fun stuff
-            #1 get all the codeblocks and populate that dictionary
-            #2 then get all the steps... ALL the steps in one sql
-            #..... and while spinning them put them in the appropriate codeblock
-            #GET THE CODEBLOCKS
-            sSQL = "select codeblock_name from task_codeblock where task_id = '" + self.ID + "' order by codeblock_name"
-            dtCB = db.select_all_dict(sSQL)
-            if dtCB:
-                for drCB in dtCB:
-                    cb = Codeblock(drCB["codeblock_name"])
-                    self.Codeblocks[cb.Name] = cb
-            else:
-                #uh oh... there are no codeblocks!
-                #since all tasks require a MAIN codeblock... if it's missing,
-                #we can just repair it right here.
-                sSQL = "insert task_codeblock (task_id, codeblock_name) values ('" + self.ID + "', 'MAIN')"
-                if not db.exec_db_noexcep(sSQL):
-                    raise Exception(db.error)
-                self.Codeblocks["MAIN"] = Codeblock("MAIN")
-
-            #GET THE STEPS
-            #we need the userID to get the user settings in some cases
-            if IncludeUserSettings:
-                sUserID = uiCommon.GetSessionUserID()
-                #NOTE: it may seem like sorting will be an issue, but it shouldn't.
-                #sorting ALL the steps by their order here will ensure they get added to their respective 
-                # codeblocks in the right order.
-                sSQL = "select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name," \
-                    " us.visible, us.breakpoint, us.skip, us.button" \
-                    " from task_step s" \
-                    " left outer join task_step_user_settings us on us.user_id = '" + sUserID + "' and s.step_id = us.step_id" \
-                    " where s.task_id = '" + self.ID + "'" \
-                    " order by s.step_order"
-            else:
-                sSQL = "select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name," \
-                    " 0 as visible, 0 as breakpoint, 0 as skip, '' as button" \
-                    " from task_step s" \
-                    " where s.task_id = '" + self.ID + "'" \
-                    " order by s.step_order"
-
-            dtSteps = db.select_all_dict(sSQL)
-            if dtSteps:
-                for drSteps in dtSteps:
-                    oStep = Step.FromRow(drSteps, self)
-                    # the steps dictionary for each codeblock uses the ORDER, not the STEP ID, as the key
-                    # this way, we can order the dictionary.
-                    
-                    # maybe this should just be a list?
-                    if oStep:
-                        # just double check that the codeblocks match
-                        if self.Codeblocks.has_key(oStep.Codeblock):
-                            self.Codeblocks[oStep.Codeblock].Steps[oStep.Order] = oStep
-                        else:
-                            print("WARNING: Step thinks it belongs in codeblock [%s] but this task doesn't have that codeblock." % (oStep.Codeblock if oStep.Codeblock else "NONE"))
+            if IncludeCode:
+                #parameters
+                if dr["parameter_xml"]:
+                    xParameters = ET.fromstring(dr["parameter_xml"])
+                    if xParameters is not None:
+                        self.ParameterXDoc = xParameters
+                # 
+                # * ok, this is important.
+                # * there are some rules for the process of 'Approving' a task and other things.
+                # * so, we'll need to know some count information
+                # 
+                sSQL = "select count(*) from task" \
+                    " where original_task_id = '" + self.OriginalTaskID + "'" \
+                    " and task_status = 'Approved'"
+                iCount = db.select_col_noexcep(sSQL)
+                if db.error:
+                    return "Error counting Approved versions:" + db.error
+                self.NumberOfApprovedVersions = iCount
+    
+                sSQL = "select count(*) from task where original_task_id = '" + self.OriginalTaskID + "'"
+                iCount = db.select_col_noexcep(sSQL)
+                if db.error:
+                    return "Error counting Approved versions:" + db.error
+                self.NumberOfOtherVersions = iCount
+    
+                sSQL = "select max(version) from task where original_task_id = '" + self.OriginalTaskID + "'"
+                sMax = db.select_col_noexcep(sSQL)
+                if db.error:
+                    return "Error getting max version:" + db.error
+                self.MaxVersion = sMax
+                self.NextMinorVersion = str(float(self.MaxVersion) + .001)
+                self.NextMajorVersion = str(int(float(self.MaxVersion) + 1)) + ".000"
+    
+                #now, the fun stuff
+                #1 get all the codeblocks and populate that dictionary
+                #2 then get all the steps... ALL the steps in one sql
+                #..... and while spinning them put them in the appropriate codeblock
+                #GET THE CODEBLOCKS
+                sSQL = "select codeblock_name from task_codeblock where task_id = '" + self.ID + "' order by codeblock_name"
+                dtCB = db.select_all_dict(sSQL)
+                if dtCB:
+                    for drCB in dtCB:
+                        cb = Codeblock(drCB["codeblock_name"])
+                        self.Codeblocks[cb.Name] = cb
+                else:
+                    #uh oh... there are no codeblocks!
+                    #since all tasks require a MAIN codeblock... if it's missing,
+                    #we can just repair it right here.
+                    sSQL = "insert task_codeblock (task_id, codeblock_name) values ('" + self.ID + "', 'MAIN')"
+                    if not db.exec_db_noexcep(sSQL):
+                        raise Exception(db.error)
+                    self.Codeblocks["MAIN"] = Codeblock("MAIN")
+    
+                #GET THE STEPS
+                #we need the userID to get the user settings in some cases
+                if IncludeUserSettings:
+                    sUserID = uiCommon.GetSessionUserID()
+                    #NOTE: it may seem like sorting will be an issue, but it shouldn't.
+                    #sorting ALL the steps by their order here will ensure they get added to their respective 
+                    # codeblocks in the right order.
+                    sSQL = "select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name," \
+                        " us.visible, us.breakpoint, us.skip, us.button" \
+                        " from task_step s" \
+                        " left outer join task_step_user_settings us on us.user_id = '" + sUserID + "' and s.step_id = us.step_id" \
+                        " where s.task_id = '" + self.ID + "'" \
+                        " order by s.step_order"
+                else:
+                    sSQL = "select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name," \
+                        " 0 as visible, 0 as breakpoint, 0 as skip, '' as button" \
+                        " from task_step s" \
+                        " where s.task_id = '" + self.ID + "'" \
+                        " order by s.step_order"
+    
+                dtSteps = db.select_all_dict(sSQL)
+                if dtSteps:
+                    for drSteps in dtSteps:
+                        oStep = Step.FromRow(drSteps, self)
+                        # the steps dictionary for each codeblock uses the ORDER, not the STEP ID, as the key
+                        # this way, we can order the dictionary.
+                        
+                        # maybe this should just be a list?
+                        if oStep:
+                            # just double check that the codeblocks match
+                            if self.Codeblocks.has_key(oStep.Codeblock):
+                                self.Codeblocks[oStep.Codeblock].Steps[oStep.Order] = oStep
+                            else:
+                                print("WARNING: Step thinks it belongs in codeblock [%s] but this task doesn't have that codeblock." % (oStep.Codeblock if oStep.Codeblock else "NONE"))
         except Exception as ex:
             raise ex
 
