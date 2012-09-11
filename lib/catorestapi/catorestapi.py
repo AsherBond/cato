@@ -201,6 +201,25 @@ class index:
             except ImportError:
                 # stormMethods is an EE module, don't error if it's missing.
                 pass
+                        
+                    
+            try:      
+                from catoapi import depMethods
+                
+                for attname in dir(depMethods.depMethods):
+                    att = getattr(depMethods.depMethods, attname, None)
+                    if att:
+                        if hasattr(att, "__name__"):
+                            if listonly:
+                                out.append("depMethods/%s" % att.__name__)
+                            else:
+                                out.append("----------\n")
+                                out.append("Method: depMethods/%s" % att.__name__)
+                                if att.__doc__:
+                                    out.append("%s" % att.__doc__)
+            except ImportError:
+                # depMethods is an EE module, don't error if it's missing.
+                pass
 
             
             out.append("\n")
