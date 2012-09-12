@@ -24,7 +24,19 @@ import decimal
 import base64
 import os
 import pwd
+import re
+import json
 from catodb import catodb
+
+try:
+    import xml.etree.cElementTree as ET
+except (AttributeError, ImportError):
+    import xml.etree.ElementTree as ET
+try:
+    ET.ElementTree.iterfind
+except AttributeError as ex:
+    del(ET)
+    import catoxml.etree.ElementTree as ET
 
 # anything including catocommon can get new connections using the settings in 'config'
 def new_conn():
@@ -132,6 +144,17 @@ def unpackData(sIn):
 
 def new_guid():
     return str(uuid.uuid1())
+
+def is_guid(s):
+    if not s:
+        return False
+
+    p = re.compile("^(\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\}{0,1})$")
+    m = p.match(s)
+    if m:
+        return True
+    else:
+        return False
 
 def generate_password():
     import string
@@ -547,6 +570,66 @@ class dict2xml(object):
     def tostring(self):
         return self.doc.toxml(encoding="utf-8")
 
+class ObjectOutput(object):
+    """
+    This class handles common serialization of Cato object classes to JSON, XML or Text.
+    Some classes may have customized serilizers - this one works for objects with no special considerations.
+    """
+    @staticmethod
+    def AsJSON(dict_obj):
+        return json.dumps(dict_obj, default=jsonSerializeHandler)
+
+    @staticmethod
+    def AsXML(dict_obj, item_node):
+        try:
+            xml = dict2xml(dict_obj, item_node)
+            return xml.tostring()
+        except Exception as ex:
+            raise ex
+        
+    @staticmethod
+    def AsText(obj, keys, delimiter=None):
+        try:
+            if not delimiter:
+                delimiter = "\t"
+            vals = []
+            for key in keys:
+                vals.append(str(getattr(obj, key)))
+
+            return "%s\n%s" % (delimiter.join(keys), delimiter.join(vals))
+        except Exception as ex:
+            raise ex
+
+    @staticmethod
+    def IterableAsXML(dict_obj, root_node, item_node):
+        try:
+            dom = ET.fromstring(root_node)
+            if dict_obj:
+                for row in dict_obj:
+                    xml = dict2xml(row, item_node)
+                    node = ET.fromstring(xml.tostring())
+                    dom.append(node)
+            
+            return ET.tostring(dom)
+        except Exception as ex:
+            raise ex
+
+    @staticmethod
+    def IterableAsText(dict_obj, keys, delimiter=None):
+        try:
+            if not delimiter:
+                delimiter = "\t"
+            outrows = []
+            if dict_obj:
+                for row in dict_obj:
+                    cols = []
+                    for key in keys:
+                        cols.append(str(row[key]))
+                    outrows.append(delimiter.join(cols))
+              
+            return "%s\n%s" % (delimiter.join(keys), "\n".join(outrows))
+        except Exception as ex:
+            raise ex
 
 class SecurityLogTypes(object):
     Object = "Object"

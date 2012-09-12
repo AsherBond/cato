@@ -121,6 +121,7 @@ class response:
 	class Codes():
 		Exception = "Exception"
 		CreateError = "CreateError"
+		DeleteError = "DeleteError"
 		GetError = "GetError"
 		ListError = "ListError"
 		ProcessError = "ProcessError"
