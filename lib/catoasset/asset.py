@@ -17,7 +17,6 @@
     THIS CLASS has it's own database connections.
     Why?  Because it isn't only used by the UI.
 """
-import json
 from catocommon import catocommon
 
 class Assets(object): 
@@ -54,10 +53,7 @@ class Assets(object):
             db.close()
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.rows)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsJSON(self.rows)
 
 class Asset(object):
     def __init__(self):
@@ -129,10 +125,7 @@ class Asset(object):
             db.close()        
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.__dict__)
-        except Exception as ex:
-            raise ex    
+        return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
     @staticmethod
     def HasHistory(asset_id):
@@ -342,10 +335,7 @@ class Credentials(object):
             db.close()
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.rows)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsJSON(self.rows)
 
 class Credential(object):
     
@@ -501,8 +491,5 @@ class Credential(object):
             db.close()
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.__dict__)
-        except Exception as ex:
-            raise ex    
+        return catocommon.ObjectOutput.AsJSON(self.__dict__)
 

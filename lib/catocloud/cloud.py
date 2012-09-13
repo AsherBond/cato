@@ -18,7 +18,6 @@
     Why?  Because it isn't only used by the UI.
 """
 import os
-import json
 try:
     import xml.etree.cElementTree as ET
 except (AttributeError, ImportError):
@@ -69,38 +68,13 @@ class Clouds(object):
             db.close()
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.rows, default=catocommon.jsonSerializeHandler)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsJSON(self.rows)
 
     def AsXML(self):
-        try:
-            dom = ET.fromstring('<Clouds />')
-            if self.rows:
-                for row in self.rows:
-                    xml = catocommon.dict2xml(row, "Cloud")
-                    node = ET.fromstring(xml.tostring())
-                    dom.append(node)
-            
-            return ET.tostring(dom)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsXML(self.rows, "Clouds", "Cloud")
 
-    def AsText(self):
-        try:
-            keys = ['ID', 'Name', 'Provider', 'APIUrl', 'APIProtocol', 'DefaultAccount']
-            outrows = []
-            if self.rows:
-                for row in self.rows:
-                    cols = []
-                    for key in keys:
-                        cols.append(str(row[key]))
-                    outrows.append("\t".join(cols))
-              
-            return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
-        except Exception as ex:
-            raise ex
+    def AsText(self, delimiter=None):
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ['ID', 'Name', 'Provider', 'APIUrl', 'APIProtocol', 'DefaultAccount'], delimiter)
 
 class Cloud(object):
     def __init__(self):
@@ -198,7 +172,7 @@ class Cloud(object):
             else:
                 self.DefaultAccount = ""
             
-            return json.dumps(self.__dict__, default=catocommon.jsonSerializeHandler)
+            return catocommon.ObjectOutput.AsJSON(self.__dict__)
         except Exception as ex:
             raise ex
 
@@ -319,38 +293,13 @@ class CloudAccounts(object):
             db.close()
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.rows, default=catocommon.jsonSerializeHandler)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsJSON(self.rows)
 
     def AsXML(self):
-        try:
-            dom = ET.fromstring('<Accounts />')
-            if self.rows:
-                for row in self.rows:
-                    xml = catocommon.dict2xml(row, "Account")
-                    node = ET.fromstring(xml.tostring())
-                    dom.append(node)
-            
-            return ET.tostring(dom)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsXML(self.rows, "Accounts", "Account")
 
-    def AsText(self):
-        try:
-            keys = ['ID', 'Name', 'Provider', 'AccountNumber', 'LoginID', 'DefaultCloud']
-            outrows = []
-            if self.rows:
-                for row in self.rows:
-                    cols = []
-                    for key in keys:
-                        cols.append(str(row[key]))
-                    outrows.append("\t".join(cols))
-              
-            return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
-        except Exception as ex:
-            raise ex
+    def AsText(self, delimiter=None):
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ['ID', 'Name', 'Provider', 'AccountNumber', 'LoginID', 'DefaultCloud'], delimiter)
 
 class CloudAccount(object):
     def __init__(self):
@@ -889,4 +838,4 @@ class CloudObjectTypeProperty:
         self.Value = None
 
     def AsJSON(self):
-        return json.dumps(self.__dict__)
+        return catocommon.ObjectOutput.AsJSON(self.__dict__)

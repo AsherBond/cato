@@ -17,7 +17,6 @@
     THIS CLASS has it's own database connections.
     Why?  Because it isn't only used by the UI.
 """
-import json
 from catocommon import catocommon
 from catocloud import cloud
 
@@ -68,10 +67,7 @@ class Ecotemplates(object):
             db.close()
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.rows, default=catocommon.jsonSerializeHandler)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsJSON(self.rows)
         
     def AsXML(self):
         try:
@@ -86,19 +82,8 @@ class Ecotemplates(object):
         except Exception as ex:
             raise ex
 
-    def AsText(self):
-        try:
-            keys = ['ID', 'Name']
-            outrows = []
-            for row in self.rows:
-                cols = []
-                for key in keys:
-                    cols.append(str(row[key]))
-                outrows.append("\t".join(cols))
-              
-            return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
-        except Exception as ex:
-            raise ex
+    def AsText(self, delimiter=None):
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ['ID', 'Name'], delimiter)
 
 class Ecotemplate(object):
     def __init__(self):
@@ -220,10 +205,7 @@ class Ecotemplate(object):
             db.close()
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.__dict__, default=catocommon.jsonSerializeHandler)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
     def AsXML(self):
         try:
@@ -232,16 +214,8 @@ class Ecotemplate(object):
         except Exception as ex:
             raise ex
 
-    def AsText(self):
-        try:
-            keys = ["Name", "Description"]
-            vals = []
-            for key in keys:
-                vals.append(str(getattr(self, key)))
-              
-            return "%s\n%s" % ("\t".join(keys), "\t".join(vals))
-        except Exception as ex:
-            raise ex
+    def AsText(self, delimiter=None):
+        return catocommon.ObjectOutput.AsText(self, ['Name', 'Description'], delimiter)
 
     def dbExists(self):
         try:
@@ -595,10 +569,7 @@ class Ecosystems(object):
             db.close()
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.rows, default=catocommon.jsonSerializeHandler)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsJSON(self.rows)
         
     def AsXML(self):
         try:
@@ -613,20 +584,8 @@ class Ecosystems(object):
         except Exception as ex:
             raise ex
 
-    def AsText(self):
-        try:
-            keys = ['ID', 'Name', 'StormStatus']
-            outrows = []
-            if self.rows:
-                for row in self.rows:
-                    cols = []
-                    for key in keys:
-                        cols.append(str(row[key]))
-                    outrows.append("\t".join(cols))
-              
-            return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
-        except Exception as ex:
-            raise ex
+    def AsText(self, delimiter=None):
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ['ID', 'Name', 'StormStatus'], delimiter)
 
 class Ecosystem(object):
     def __init__(self):
@@ -682,7 +641,7 @@ class Ecosystem(object):
                     del action.Ecotemplate
                     rows.append(action.__dict__)
                   
-                return json.dumps(rows, default=catocommon.jsonSerializeHandler)
+                return catocommon.ObjectOutput.AsJSON(rows)
         except Exception as ex:
             raise ex
 
@@ -700,22 +659,10 @@ class Ecosystem(object):
         except Exception as ex:
             raise ex
 
-    def ActionsAsText(self):
-        try:
-            actions = self.Actions()
-            if actions:
-                keys = ['Category', 'Name', 'Description']
-                rows = []
-                for action in actions.itervalues():
-                    del action.Ecotemplate
-                    cols = []
-                    for key in keys:
-                        cols.append(str(getattr(action, key)))
-                    rows.append("\t".join(cols))
-                  
-                return "%s\n%s" % ("\t".join(keys), "\n".join(rows))
-        except Exception as ex:
-            raise ex
+    def ActionsAsText(self, delimiter=None):
+        actions = self.Actions()
+        if actions:
+            return catocommon.ObjectOutput.IterableAsText(actions.itervalues(), ['Category', 'Name', 'Description'], delimiter)
 
     def Objects(self, sFilter=""):
         try:
@@ -752,7 +699,8 @@ class Ecosystem(object):
         try:
             objects = self.Objects(sFilter)
             if objects:
-                return json.dumps(objects, default=catocommon.jsonSerializeHandler)
+                return catocommon.ObjectOutput.AsJSON(objects)
+
         except Exception as ex:
             raise ex
 
@@ -770,21 +718,10 @@ class Ecosystem(object):
         except Exception as ex:
             raise ex
 
-    def ObjectsAsText(self, sFilter=""):
-        try:
-            objects = self.Objects(sFilter)
-            if objects:
-                keys = ['EcosystemObjectType', 'EcosystemObjectID', 'CloudName', 'AddedDate']
-                rows = []
-                for row in objects:
-                    cols = []
-                    for key in keys:
-                        cols.append(str(row[key]))
-                    rows.append("\t".join(cols))
-                  
-                return "%s\n%s" % ("\t".join(keys), "\n".join(rows))
-        except Exception as ex:
-            raise ex
+    def ObjectsAsText(self, sFilter="", delimiter=None):
+        objects = self.Objects(sFilter)
+        if objects:
+            return catocommon.ObjectOutput.IterableAsText(objects.itervalues(), ['EcosystemObjectType', 'EcosystemObjectID', 'CloudName', 'AddedDate'], delimiter)
 
     def Log(self, sFilter=""):
         try:
@@ -822,7 +759,7 @@ class Ecosystem(object):
         try:
             log = self.Log(sFilter)
             if log:
-                return json.dumps(log, default=catocommon.jsonSerializeHandler)
+                return catocommon.ObjectOutput.AsJSON(log)
         except Exception as ex:
             raise ex
 
@@ -840,22 +777,10 @@ class Ecosystem(object):
         except Exception as ex:
             raise ex
 
-    def LogAsText(self, sFilter=""):
-        try:
-            log = self.Log(sFilter)
-            if log:
-                keys = ['EcosystemObjectType', 'LogicalID', 'EcosystemObjectID', 'Status', 'Log']
-                rows = []
-                for row in log:
-                    cols = []
-                    for key in keys:
-                        cols.append(str(row[key]))
-                    rows.append("\t".join(cols))
-                  
-                return "%s\n%s" % ("\t".join(keys), "\n".join(rows))
-        except Exception as ex:
-            raise ex
-
+    def LogAsText(self, sFilter="", delimiter=None):
+        log = self.Log(sFilter)
+        if log:
+            return catocommon.ObjectOutput.IterableAsText(log, ['EcosystemObjectType', 'LogicalID', 'EcosystemObjectID', 'Status', 'Log'], delimiter)
                 
     @staticmethod
     def DBCreateNew(sName, sEcotemplateID, sAccountID, sDescription="", sStormStatus="", sParameterXML="", sCloudID=""):
@@ -996,10 +921,7 @@ class Ecosystem(object):
             db.close()
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.__dict__, default=catocommon.jsonSerializeHandler)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
     def AsXML(self):
         try:
@@ -1008,14 +930,6 @@ class Ecosystem(object):
         except Exception as ex:
             raise ex
 
-    def AsText(self):
-        try:
-            keys = ["Name", "EcotemplateName", "StormStatus", "CreatedDate", "NumObjects"]
-            vals = []
-            for key in keys:
-                vals.append(str(getattr(self, key)))
-              
-            return "%s\n%s" % ("\t".join(keys), "\t".join(vals))
-        except Exception as ex:
-            raise ex
+    def AsText(self, delimiter=None):
+        return catocommon.ObjectOutput.AsText(self, ["Name", "EcotemplateName", "StormStatus", "CreatedDate", "NumObjects"], delimiter)
 

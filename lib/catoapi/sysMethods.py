@@ -58,7 +58,7 @@ class sysMethods:
 
             if rows:
                 if args["output_format"] == "json":
-                    resp = json.dumps(rows, default=catocommon.jsonSerializeHandler)
+                    resp = catocommon.ObjectOutput.IterableAsJSON(rows)
                     return R(response=resp)
                 elif args["output_format"] == "text":
                     keys = ['Instance', 'Component', 'Heartbeat', 'Enabled', 'LoadValue', 'MinutesIdle']

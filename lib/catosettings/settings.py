@@ -1,7 +1,6 @@
 """
     All of the settings for the Cato modules.
 """
-import json
 try:
     import xml.etree.cElementTree as ET
 except (AttributeError, ImportError):
@@ -25,7 +24,7 @@ class settings(object):
         self.Scheduler = self.scheduler().__dict__
         
     def AsJSON(self):
-        return json.dumps(self.__dict__)
+        return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
     class security(object):
         """
@@ -110,7 +109,7 @@ class settings(object):
                 db.close()
 
         def AsJSON(self):
-            return json.dumps(self.__dict__)
+            return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
     class poller(object):
         """
@@ -155,7 +154,7 @@ class settings(object):
                 db.close()
 
         def AsJSON(self):
-            return json.dumps(self.__dict__)
+            return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
     class messenger(object):
         """
@@ -235,7 +234,7 @@ class settings(object):
                 db.close()
 
         def AsJSON(self):
-            return json.dumps(self.__dict__)
+            return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
     class scheduler(object):
         """
@@ -286,7 +285,7 @@ class settings(object):
                 db.close()
 
         def AsJSON(self):
-            return json.dumps(self.__dict__)
+            return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
     """
         Application Settings are stored as XML in a separate table.

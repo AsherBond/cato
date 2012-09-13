@@ -173,7 +173,7 @@ class response:
 			if self.Response is None:
 				self.Response = ""
 				
-			return json.dumps(self.__dict__, default=catocommon.jsonSerializeHandler)
+			return catocommon.ObjectOutput.AsJSON(self.__dict__)
 		except Exception as ex:
 			return ex.__str__()
 

@@ -22,7 +22,6 @@ import threading
 import uuid
 import decimal
 import base64
-import os
 import pwd
 import re
 import json
@@ -601,12 +600,31 @@ class ObjectOutput(object):
             raise ex
 
     @staticmethod
-    def IterableAsXML(dict_obj, root_node, item_node):
+    def IterableAsJSON(iterable):
         try:
-            dom = ET.fromstring(root_node)
-            if dict_obj:
-                for row in dict_obj:
-                    xml = dict2xml(row, item_node)
+            if iterable:
+                lst = []
+                for item in iterable:
+                    if hasattr(item, "__dict__"):
+                        lst.append(item.__dict__)
+                    else:
+                        lst.append(item)
+                
+                return json.dumps(lst, default=jsonSerializeHandler)
+        except Exception as ex:
+            raise ex
+
+    @staticmethod
+    def IterableAsXML(iterable, root_node, item_node):
+        try:
+            dom = ET.fromstring("<%s />" % root_node)
+            if iterable:
+                for row in iterable:
+                    if hasattr(row, "__dict__"):
+                        xml = dict2xml(row.__dict__, item_node)
+                    else:
+                        xml = dict2xml(row, item_node)
+
                     node = ET.fromstring(xml.tostring())
                     dom.append(node)
             
@@ -615,16 +633,20 @@ class ObjectOutput(object):
             raise ex
 
     @staticmethod
-    def IterableAsText(dict_obj, keys, delimiter=None):
+    def IterableAsText(iterable, keys, delimiter=None):
         try:
             if not delimiter:
                 delimiter = "\t"
             outrows = []
-            if dict_obj:
-                for row in dict_obj:
+            if iterable:
+                for row in iterable:
                     cols = []
-                    for key in keys:
-                        cols.append(str(row[key]))
+                    if hasattr(row, "__dict__"):
+                        for key in keys:
+                            cols.append(str(row.__dict__[key]))
+                    else:
+                        for key in keys:
+                            cols.append(str(row[key]))
                     outrows.append(delimiter.join(cols))
               
             return "%s\n%s" % (delimiter.join(keys), "\n".join(outrows))
