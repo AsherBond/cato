@@ -749,12 +749,13 @@ class Task(object):
             self.QueueDepth = (dr["queue_depth"] if dr["queue_depth"] else "")
             self.UseConnectorSystem = (True if dr["use_connector_system"] == 1 else False)
             
+            # parameters - always available (for other processes)
+            if dr["parameter_xml"]:
+                xParameters = ET.fromstring(dr["parameter_xml"])
+                if xParameters is not None:
+                    self.ParameterXDoc = xParameters
+
             if IncludeCode:
-                #parameters
-                if dr["parameter_xml"]:
-                    xParameters = ET.fromstring(dr["parameter_xml"])
-                    if xParameters is not None:
-                        self.ParameterXDoc = xParameters
                 # 
                 # * ok, this is important.
                 # * there are some rules for the process of 'Approving' a task and other things.
@@ -1113,47 +1114,47 @@ class TaskRunLog(object):
                     sLimitClause = " limit " + str(sRows)
                     
             # how many log rows are there?
-            sSQL = "select count(*) from task_instance_log where task_instance = %s" % sTaskInstance
-            self.numrows = db.select_col_noexcep(sSQL)
+            sSQL = "select count(*) from task_instance_log where task_instance = %s"
+            self.numrows = db.select_col_noexcep(sSQL, (sTaskInstance))
             
             # result summary rows
             sSQL = """select log from task_instance_log 
                 where task_instance = %s 
                 and command_text = 'result_summary'
-                order by id""" % sTaskInstance
+                order by id"""
 
-            self.summary_rows = db.select_all_dict(sSQL)
+            self.summary_rows = db.select_all_dict(sSQL, (sTaskInstance))
             if db.error:
                 print db.error
 
             # NOW carry on with the regular rows
-            sSQL = "select til.task_instance, til.entered_dt, til.connection_name, til.log," \
-                " til.step_id, s.step_order, s.function_name, s.function_name as function_label, s.codeblock_name, " \
-                " til.command_text," \
-                " '' as variable_name,  '' as variable_value, " \
-                " case when length(til.log) > 256 then 1 else 0 end as large_text" \
-                " from task_instance_log til" \
-                " left outer join task_step s on til.step_id = s.step_id" \
-                " where til.task_instance = " + sTaskInstance + \
-                " order by til.id" + sLimitClause
-
+            sSQL = """select til.task_instance, til.entered_dt, til.connection_name, til.log,
+                til.step_id, s.step_order, s.function_name, s.function_name as function_label, s.codeblock_name,
+                til.command_text,
+                '' as variable_name,  '' as variable_value,
+                case when length(til.log) > 256 then 1 else 0 end as large_text
+                from task_instance_log til
+                left outer join task_step s on til.step_id = s.step_id
+                where til.task_instance = %s
+                order by til.id %s""" % (str(sTaskInstance), sLimitClause)
+                
             self.log_rows = db.select_all_dict(sSQL)
             if db.error:
                 print db.error
 
-            
         except Exception as ex:
             raise Exception(ex)
         finally:
             db.close()
 
     def AsJSON(self):
-        return catocommon.ObjectOutput.IterableAsJSON(self.log_rows)
+        return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
     def AsXML(self):
-        return catocommon.ObjectOutput.IterableAsXML(self.log_rows, "TaskLog", "Item")
+        return catocommon.ObjectOutput.AsXML(self.__dict__, "TaskLog", "Item")
 
     def AsText(self, delimiter=None):
+        # NOTE: the AsText method ONLY RETURNS THE LOG ROWS, not the result summary or row count.
         return catocommon.ObjectOutput.IterableAsText(self.log_rows, ['codeblock_name', 'step_order', 'function_name', 'log'], delimiter)
 
 class TaskInstance(object):
@@ -1350,7 +1351,7 @@ class TaskInstance(object):
 
 class TaskInstances(object):
     rows = {}
-    def __init__(self, sFilter="", sStatus="", sFrom="", sTo="", sRecords=""):
+    def __init__(self, sTaskID=None, sTaskInstance=None, sFilter="", sStatus="", sFrom="", sTo="", sRecords=""):
         try:
             db = catocommon.new_conn()
             
@@ -1364,6 +1365,12 @@ class TaskInstances(object):
                 sRecords = "200"
                 
             sWhereString = " where (1=1) "
+            
+            # if sTaskID or sTaskInstance are defined, they are hard filters, not like clauses.
+            if sTaskInstance:
+                sWhereString += " and ti.task_instance = '%s'" % sTaskInstance
+            if sTaskID:
+                sWhereString += " and ti.task_id = '%s'" % sTaskID
 
             if sFilter:
                 aSearchTerms = sFilter.split(",")

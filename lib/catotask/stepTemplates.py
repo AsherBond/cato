@@ -112,7 +112,7 @@ def DrawFullStep(oStep):
     sLockClause = (" onclick=\"return false\"" if oStep.Locked else "")
 
     
-    sMainHTML += "<li class=\"step " + sSkipStepClass + "\" id=\"" + sStepID + "\" " + sLockClause + ">"
+    sMainHTML += "<li class=\"step " + sSkipStepClass + "\" id=\"" + sStepID + "\" name=\"" + sStepID + "\" " + sLockClause + ">"
     
     
     # step expand image
@@ -3263,3 +3263,18 @@ def DrawCommandParameterSection(sParameterXML, bEditable, bSnipValues):
     
     return sHTML
     
+def BuildReadOnlySteps(oTask, sCodeblockName):
+    try:
+        sHTML = ""
+
+        if oTask.Codeblocks[sCodeblockName].Steps:
+            for order, oStep in oTask.Codeblocks[sCodeblockName].Steps.iteritems():
+                UI.log("Building %s - %d : %s" % (sCodeblockName, order, oStep.FunctionName), 4)
+                sHTML += DrawReadOnlyStep(oStep, True)
+        else:
+            sHTML = "<li class=\"no_step\">No Commands defined for this Codeblock.</li>"
+        
+        return sHTML
+    except Exception:
+        UI.log_nouser(traceback.format_exc(), 0)
+

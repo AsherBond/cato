@@ -43,7 +43,7 @@ class taskMethods:
             pager_html = ""
             sFilter = uiCommon.getAjaxArg("sSearch")
             sPage = uiCommon.getAjaxArg("sPage")
-            maxrows = 25
+            maxrows = 50
             tasks = task.Tasks(sFilter)
             if tasks.rows:
                 start, end, pager_html = uiCommon.GetPager(len(tasks.rows), maxrows, sPage)
@@ -72,14 +72,18 @@ class taskMethods:
 
     def wmGetTaskInstances(self):
         try:
-            sFilter = uiCommon.getAjaxArg("sSearch")
-            sStatus = uiCommon.getAjaxArg("sStatus")
-            sFrom = uiCommon.getAjaxArg("sFrom", "")
-            sTo = uiCommon.getAjaxArg("sTo", "")
-            sRecords = uiCommon.getAjaxArg("sRecords", "200")
+            _filter = uiCommon.getAjaxArg("sSearch")
+            status = uiCommon.getAjaxArg("sStatus")
+            _from = uiCommon.getAjaxArg("sFrom", "")
+            _to = uiCommon.getAjaxArg("sTo", "")
+            num_records = uiCommon.getAjaxArg("sRecords", "200")
             
             sHTML = ""
-            tasks = task.TaskInstances(sFilter, sStatus, sFrom, sTo, sRecords)
+            tasks = task.TaskInstances(sFilter=_filter, 
+                                       sStatus=status, 
+                                       sFrom=_from, 
+                                       sTo=_to, 
+                                       sRecords=num_records)
             if tasks.rows:
                 for row in tasks.rows:
                     task_label = "%s (%s)" % (row["TaskName"], str(row["Version"]))
@@ -119,7 +123,7 @@ class taskMethods:
                     return t.AsJSON()
             
             #should not get here if all is well
-            return "{\"result\":\"fail\",\"error\":\"Failed to get Task details for Task ID [%s].\"}" % sTaskID
+            return "{\"result\":\"fail\",\"error\":\"Failed to get Task details for Task ID [%s].\"}" % sID
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
 
@@ -650,7 +654,7 @@ class taskMethods:
             # MAIN codeblock first
             sHTML += "<div class=\"ui-state-default te_header\">MAIN</div>"
             sHTML += "<div class=\"codeblock_box\">"
-            sHTML += self.BuildReadOnlySteps(oTask, "MAIN")
+            sHTML += ST.BuildReadOnlySteps(oTask, "MAIN")
             sHTML += "</div>"
 
             # for the rest of the codeblocks
@@ -661,28 +665,13 @@ class taskMethods:
                 
                 sHTML += "<div class=\"ui-state-default te_header\" id=\"cbt_" + cb.Name + "\">" + cb.Name + "</div>"
                 sHTML += "<div class=\"codeblock_box\">"
-                sHTML += self.BuildReadOnlySteps(oTask, cb.Name)
+                sHTML += ST.BuildReadOnlySteps(oTask, cb.Name)
                 sHTML += "</div>"
 
             return sHTML
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
     
-    def BuildReadOnlySteps(self, oTask, sCodeblockName):
-        try:
-            sHTML = ""
-
-            if oTask.Codeblocks[sCodeblockName].Steps:
-                for order, oStep in oTask.Codeblocks[sCodeblockName].Steps.iteritems():
-                    uiCommon.log("Building %s - %d : %s" % (sCodeblockName, order, oStep.FunctionName), 4)
-                    sHTML += ST.DrawReadOnlyStep(oStep, True)
-            else:
-                sHTML = "<li class=\"no_step\">No Commands defined for this Codeblock.</li>"
-            
-            return sHTML
-        except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
-
     def wmGetStep(self):
         try:
             sStepID = uiCommon.getAjaxArg("sStepID")
