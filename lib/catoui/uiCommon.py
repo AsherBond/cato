@@ -14,12 +14,12 @@
 # limitations under the License.
 
 import web
+import os
 import urllib2
 import traceback
 import json
 import cgi
 import re
-import pickle
 import copy
 try:
     import xml.etree.cElementTree as ET
@@ -35,7 +35,6 @@ from catocommon import catocommon
 from catosettings import settings
 from catoui import uiGlobals
 from catouser import catouser
-
 
 # writes to stdout using the catocommon.server output function
 # also prints to the console.
@@ -387,46 +386,9 @@ def SetSessionObject(key, obj, category=""):
     else:
         uiGlobals.session[key] = obj
     
-#this one returns a list of Categories from the FunctionCategories class
-def GetTaskFunctionCategories():
-    try:
-        f = open("%s/datacache/_categories.pickle" % uiGlobals.web_root, 'rb')
-        if not f:
-            log_nouser("ERROR: Categories pickle missing.", 0)
-        obj = pickle.load(f)
-        f.close()
-        if obj:
-            return obj.Categories
-        else:
-            log_nouser("ERROR: Categories pickle could not be read.", 0)
-    except Exception:
-        log_nouser("ERROR: Categories pickle could not be read." + traceback.format_exc(), 0)
-        
-    return None
-        
-    # return GetSessionObject("", "function_categories")
-
-#this one returns the Functions dict containing all functions
-def GetTaskFunctions():
-    try:
-        f = open("%s/datacache/_categories.pickle" % uiGlobals.web_root, 'rb')
-        if not f:
-            log_nouser("ERROR: Categories pickle missing.", 0)
-        obj = pickle.load(f)
-        f.close()
-        if obj:
-            return obj.Functions
-        else:
-            log_nouser("ERROR: Categories pickle could not be read.", 0)
-    except Exception:
-        log_nouser("ERROR: Categories pickle could not be read." + traceback.format_exc(), 0)
-        
-    return None
-    # return GetSessionObject("", "functions")
-
 #this one returns just one specific function
 def GetTaskFunction(sFunctionName):
-    funcs = GetTaskFunctions()
+    funcs = uiGlobals.FunctionCategories.Functions
     if funcs:
         try:
             fn = funcs[sFunctionName]
@@ -1020,3 +982,33 @@ def GetPager(rowcount, maxrows, page):
         return start, end, pager_html      
     except Exception:
         log_nouser(traceback.format_exc(), 0)
+
+def LoadTaskCommands():
+    try:
+        from catotask import taskCommands
+        #we load two classes here...
+        #first, the category/function hierarchy
+        cats = taskCommands.FunctionCategories()
+        bCoreSuccess = cats.Load("%s/catotask/task_commands.xml" % uiGlobals.lib_path)
+        if not bCoreSuccess:
+            raise Exception("Critical: Unable to read/parse task_commands.xml.")
+
+        #try to append any extension files
+        #this will read all the xml files in /extensions
+        #and append to sErr if it failed, but not crash or die.
+        for root, subdirs, files in os.walk("%s/extensions" % uiGlobals.web_root):
+            for f in files:
+                ext = os.path.splitext(f)[-1]
+                if ext == ".xml":
+                    fullpath = os.path.join(root, f)
+                    if not cats.Append(fullpath):
+                        log_nouser("WARNING: Unable to load extension command xml file [" + fullpath + "].", 0)
+
+        # Command categories and functions are an object, loaded from XML when the 
+        # service starts, and stored on the uiGlobals module.
+        uiGlobals.FunctionCategories = cats
+        
+        return True
+    except Exception as ex:
+        log_nouser("Unable to load Task Commands XML." + ex.__str__(), 0)
+

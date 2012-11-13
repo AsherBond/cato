@@ -32,8 +32,14 @@ config = None
 # this is the root path for the web files
 web_root = None
 
+# the lib path relative to the running web.py process.
+lib_path = None
+
 # the debug level (0-4 with 0 being 'none' and 4 being 'verbose')
 debuglevel = 2 #defaults to 2
+
+# "Categories" and "Functions" are loaded from xml when the service starts and stored here.
+FunctionCategories = None
 
 ConnectionTypes = ["ssh - ec2", "ssh", "telnet", "mysql", "oracle", "sqlserver", "sybase", "informix"]
 

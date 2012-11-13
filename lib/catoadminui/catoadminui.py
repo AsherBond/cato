@@ -16,7 +16,6 @@
 import web
 import os
 import sys
-import pickle
 import shelve
 
 app_name = "cato_admin_ui"
@@ -302,48 +301,6 @@ def auth_app_processor(handle):
         else:
             return "Some content on this page isn't available to your user."
 
-
-def SetTaskCommands():
-    try:
-        from taskCommands import FunctionCategories
-        #we load two classes here...
-        #first, the category/function hierarchy
-        cats = FunctionCategories()
-        bCoreSuccess = cats.Load("%s/task_commands.xml" % web_root)
-        if not bCoreSuccess:
-            raise Exception("Critical: Unable to read/parse task_commands.xml.")
-
-        #try to append any extension files
-        #this will read all the xml files in /extensions
-        #and append to sErr if it failed, but not crash or die.
-        for root, subdirs, files in os.walk("%s/extensions" % web_root):
-            for f in files:
-                ext = os.path.splitext(f)[-1]
-                if ext == ".xml":
-                    fullpath = os.path.join(root, f)
-                    if not cats.Append(fullpath):
-                        uiCommon.log_nouser("WARNING: Unable to load extension command xml file [" + fullpath + "].", 0)
-
-        #put the categories list in the session...
-        #uiGlobals.session.function_categories = cats.Categories
-        #then the dict of all functions for fastest lookups
-        #uiGlobals.session.functions = cats.Functions
-
-        # was told not to put big objects in the session, so since this can actually be shared by all users,
-        # lets try saving a pickle
-        # it will get created every time a user logs in, but can be read by all.
-        with open("%s/datacache/_categories.pickle" % web_root, 'w') as f_out:
-            if not f_out:
-                print("ERROR: unable to create datacache/_categories.pickle.")
-            pickle.dump(cats, f_out, pickle.HIGHEST_PROTOCOL)
-        
-        #rebuild the cache html files
-        CacheTaskCommands()
-
-        return True
-    except Exception as ex:
-        uiCommon.log_nouser("Unable to load Task Commands XML." + ex.__str__(), 0)
-
 def CacheTaskCommands():
     #creates the html cache file
     try:
@@ -352,11 +309,11 @@ def CacheTaskCommands():
         sHelpHTML = ""
 
         # so, we will use the FunctionCategories class in the session that was loaded at login, and build the list items for the commands tab.
-        cats = uiCommon.GetTaskFunctionCategories()
+        cats = uiGlobals.FunctionCategories
         if not cats:
             print("Error: Task Function Categories class is not in the datacache.")
         else:
-            for cat in cats:
+            for cat in cats.Categories:
                 sCatHTML += "<li class=\"ui-widget-content ui-corner-all command_item category\""
                 sCatHTML += " id=\"cat_" + cat.Name + "\""
                 sCatHTML += " name=\"" + cat.Name + "\">"
@@ -635,6 +592,7 @@ if __name__ != app_name:
     uiGlobals.session = session
     uiGlobals.server = server
     uiGlobals.config = config
+    uiGlobals.lib_path = lib_path
     uiGlobals.web_root = web_root
     
     # setting this to True seems to show a lot more detail in UI exceptions
@@ -645,10 +603,13 @@ if __name__ != app_name:
     # so, when the service is started it will update the files, and the ui 
     # will simply pull in the files when requested.
     
-    # put the task commands in a pickle for our lookups
+    # put the task commands in a global for our lookups
     # and cache the html in a flat file
-    uiCommon.log_nouser("Generating static html...", 3)
-    SetTaskCommands()
+    uiCommon.log_nouser("Reading configuration files and generating static html...", 3)
+    uiCommon.LoadTaskCommands()
+    #rebuild the cache html files
+    CacheTaskCommands()
+
     CacheMenu()
 
     # Occasionally, for specific updates and other general reasons,
