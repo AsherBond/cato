@@ -602,15 +602,15 @@ class ObjectOutput(object):
     @staticmethod
     def IterableAsJSON(iterable):
         try:
+            lst = []
             if iterable:
-                lst = []
                 for item in iterable:
                     if hasattr(item, "__dict__"):
                         lst.append(item.__dict__)
                     else:
                         lst.append(item)
                 
-                return json.dumps(lst, default=jsonSerializeHandler)
+            return json.dumps(lst, default=jsonSerializeHandler)
         except Exception as ex:
             raise ex
 
@@ -642,11 +642,16 @@ class ObjectOutput(object):
                 for row in iterable:
                     cols = []
                     if hasattr(row, "__dict__"):
+                        # might be an object, which has the __dict__ builtin
                         for key in keys:
                             cols.append(str(row.__dict__[key]))
-                    else:
+                    elif isinstance({}, dict):
+                        # but if it actually IS a dict...
                         for key in keys:
                             cols.append(str(row[key]))
+                    else:
+                        # but if they're not, just return the whole row
+                        cols.append(str(row))
                     outrows.append(delimiter.join(cols))
               
             return "%s\n%s" % (delimiter.join(keys), "\n".join(outrows))
