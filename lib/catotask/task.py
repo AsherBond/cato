@@ -88,38 +88,13 @@ class Tasks(object):
             db.close()
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.rows, default=catocommon.jsonSerializeHandler)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsJSON(self.rows)
 
     def AsXML(self):
-        try:
-            dom = ET.fromstring('<Tasks />')
-            if self.rows:
-                for row in self.rows:
-                    xml = catocommon.dict2xml(row, "Task")
-                    node = ET.fromstring(xml.tostring())
-                    dom.append(node)
-            
-            return ET.tostring(dom)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsXML(self.rows, "Tasks", "Task")
 
-    def AsText(self):
-        try:
-            keys = ['ID', 'OriginalTaskID', 'Name', 'Code', 'Version', 'Status']
-            outrows = []
-            if self.rows:
-                for row in self.rows:
-                    cols = []
-                    for key in keys:
-                        cols.append(str(row[key]))
-                    outrows.append("\t".join(cols))
-              
-            return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
-        except Exception as ex:
-            raise ex
+    def AsText(self, delimiter=None):
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ['ID', 'OriginalTaskID', 'Name', 'Code', 'Version', 'Status'], delimiter)
 
 class Task(object):
     def __init__(self):
@@ -293,17 +268,8 @@ class Task(object):
         except Exception as ex:
             raise ex
 
-    def AsText(self):
-        try:
-            keys = ["Code", "Name", "Version", "Description", "Status", "IsDefaultVersion"]
-            vals = []
-            for key in keys:
-                vals.append(str(getattr(self, key)))
-              
-            return "%s\n%s" % ("\t".join(keys), "\t".join(vals))
-        except Exception as ex:
-            raise ex
-
+    def AsText(self, delimiter=None):
+        return catocommon.ObjectOutput.AsText(self, ["Code", "Name", "Version", "Description", "Status", "IsDefaultVersion"], delimiter)
 
     def AsXML(self, include_code=False):
         root = ET.fromstring('<task />')
@@ -1182,38 +1148,13 @@ class TaskRunLog(object):
             db.close()
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.log_rows, default=catocommon.jsonSerializeHandler)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsJSON(self.log_rows)
 
     def AsXML(self):
-        try:
-            dom = ET.fromstring('<TaskLog />')
-            if self.log_rows:
-                for row in self.log_rows:
-                    xml = catocommon.dict2xml(row, "Item")
-                    node = ET.fromstring(xml.tostring())
-                    dom.append(node)
-            
-            return ET.tostring(dom)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsXML(self.log_rows, "TaskLog", "Item")
 
-    def AsText(self):
-        try:
-            keys = ['codeblock_name', 'step_order', 'function_name', 'log']
-            outrows = []
-            if self.log_rows:
-                for row in self.log_rows:
-                    cols = []
-                    for key in keys:
-                        cols.append(str(row[key]))
-                    outrows.append("\t".join(cols))
-              
-            return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
-        except Exception as ex:
-            raise ex
+    def AsText(self, delimiter=None):
+        return catocommon.ObjectOutput.IterableAsText(self.log_rows, ['codeblock_name', 'step_order', 'function_name', 'log'], delimiter)
 
 class TaskInstance(object):
     """
@@ -1373,28 +1314,13 @@ class TaskInstance(object):
             db.close()
         
     def AsJSON(self):
-        try:
-            return json.dumps(self.__dict__, default=catocommon.jsonSerializeHandler)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
     def AsXML(self):
-        try:
-            xml = catocommon.dict2xml(self.__dict__, "TaskInstance")
-            return xml.tostring()
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.AsXML(self.__dict__, "TaskInstance")
 
-    def AsText(self):
-        try:
-            keys = ["task_instance", "task_status", "task_name_label", "submitted_dt", "completed_dt"]
-            vals = []
-            for key in keys:
-                vals.append(str(getattr(self, key)))
-              
-            return "%s\n%s" % ("\t".join(keys), "\t".join(vals))
-        except Exception as ex:
-            raise ex
+    def AsText(self, delimiter=None):
+        return catocommon.ObjectOutput.AsText(self, ["task_instance", "task_status", "task_name_label", "submitted_dt", "completed_dt"], delimiter)
 
     def Stop(self):
         try:
@@ -1525,36 +1451,11 @@ class TaskInstances(object):
             db.close()
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.rows, default=catocommon.jsonSerializeHandler)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsJSON(self.rows)
 
     def AsXML(self):
-        try:
-            dom = ET.fromstring('<TaskInstances />')
-            if self.rows:
-                for row in self.rows:
-                    xml = catocommon.dict2xml(row, "Instance")
-                    node = ET.fromstring(xml.tostring())
-                    dom.append(node)
-            
-            return ET.tostring(dom)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsXML(self.rows, "TaskInstances", "Instance")
 
-    def AsText(self):
-        try:
-            keys = ['Instance', 'TaskName', 'Version', 'Status', 'StartedBy', 'SubmittedDate', 'CompletedDate']
-            outrows = []
-            if self.rows:
-                for row in self.rows:
-                    cols = []
-                    for key in keys:
-                        cols.append(str(row[key]))
-                    outrows.append("\t".join(cols))
-                  
-            return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
-        except Exception as ex:
-            raise ex
+    def AsText(self, delimiter=None):
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ['Instance', 'TaskName', 'Version', 'Status', 'StartedBy', 'SubmittedDate', 'CompletedDate'], delimiter)
 

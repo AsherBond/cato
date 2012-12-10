@@ -125,15 +125,7 @@ def SetCookie(sCookie, sValue):
         log_nouser(traceback.format_exc(), 0)
 
 def IsGUID(s):
-    if not s:
-        return False
-
-    p = re.compile("^(\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\}{0,1})$")
-    m = p.match(s)
-    if m:
-        return True
-    else:
-        return False
+    return catocommon.is_guid(s)
 
 def packJSON(sIn):
     return catocommon.packData(sIn)

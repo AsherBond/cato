@@ -17,7 +17,6 @@
     THIS CLASS has it's own database connections.
     Why?  Because it isn't only used by the UI.
 """
-import json
 import re
 from catosettings import settings
 from catocommon import catocommon
@@ -53,10 +52,7 @@ class Users(object):
             db.close()
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.rows)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.IterableAsJSON(self.rows)
 
 class User(object):
     def __init__(self):
@@ -168,10 +164,7 @@ class User(object):
             db.close()        
 
     def AsJSON(self):
-        try:
-            return json.dumps(self.__dict__)
-        except Exception as ex:
-            raise ex
+        return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
     def Authenticate(self, login_id, password, client_ip, change_password=None, answer=None):
         try:

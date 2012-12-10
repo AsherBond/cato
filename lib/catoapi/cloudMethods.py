@@ -41,7 +41,7 @@ class cloudMethods:
                 if args["output_format"] == "json":
                     return R(response=obj.AsJSON())
                 elif args["output_format"] == "text":
-                    return R(response=obj.AsText())
+                    return R(response=obj.AsText(args["output_delimiter"]))
                 else:
                     return R(response=obj.AsXML())
             else:
@@ -67,7 +67,7 @@ class cloudMethods:
                 if args["output_format"] == "json":
                     return R(response=obj.AsJSON())
                 elif args["output_format"] == "text":
-                    return R(response=obj.AsText())
+                    return R(response=obj.AsText(args["output_delimiter"]))
                 else:
                     return R(response=obj.AsXML())
             else:
