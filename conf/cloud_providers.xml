@@ -12,6 +12,8 @@
 				</cloud>
 				<cloud name="ap-southeast-1" region="ap-southeast-1" api_url="amazonaws.com" api_protocol="HTTPS">
 				</cloud>
+				<cloud name="ap-southeast-2" region="ap-southeast-2" api_url="amazonaws.com" api_protocol="HTTPS">
+				</cloud>
 				<cloud name="ap-northeast-1" region="ap-northeast-1" api_url="amazonaws.com" api_protocol="HTTPS">
 				</cloud>
 				<cloud name="sa-east-1" region="sa-east-1" api_url="amazonaws.com" api_protocol="HTTPS">
