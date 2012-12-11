@@ -33,6 +33,51 @@ except AttributeError as ex:
 class taskMethods:
     """"""
 
+    def create_task(self, args):        
+        """
+        Create a new Task.
+        
+        Required Arguments: 
+            name - a name for the new Task.
+            
+        Optional Arguments:
+            code - a Task code.
+            desc - a Task description.
+        
+        Returns: A Task object.
+        """
+        try:
+            # define the required parameters for this call
+            required_params = ["name"]
+            has_required, resp = api.check_required_params(required_params, args)
+            if not has_required:
+                return resp
+
+            code = args["code"] if args.has_key("code") else ""
+            desc = args["desc"] if args.has_key("desc") else ""
+
+            t = task.Task()
+            t.FromArgs(args["name"], code, desc)
+
+            if not t.Name:
+                return R(err_code=R.Codes.Exception, err_detail="Unable to create Task.")
+
+            result, msg = t.DBSave()
+
+            if result:
+                catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Task created.")
+                if args["output_format"] == "json":
+                    return R(response=t.AsJSON())
+                elif args["output_format"] == "text":
+                    return R(response=t.AsText(args["output_delimiter"]))
+                else:
+                    return R(response=t.AsXML())
+            else:
+                return R(err_code=R.Codes.CreateError, err_detail=msg)
+            
+        except Exception as ex:
+            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+
     def get_task_instance_status(self, args):
         """
         Gets just the Status of a Task Instance.
