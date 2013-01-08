@@ -2,7 +2,7 @@ def check_license():
     # this is important... if anything fails on the license check...
     # we ALLOW access.  Don't want any bugs to limit the ability to use the software.
     try:
-        filename = "../LICENSE"
+        filename = "../../LICENSE"
         with open(filename, 'r') as f_in:
             license_text = f_in.read()
 
