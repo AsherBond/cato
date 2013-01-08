@@ -27,10 +27,14 @@ base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.
 lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 
-
-from catocommon import catocommon
-from catoui import uiGlobals
+from catoconfig import catoconfig
+from catocommon import catocommon, catoprocess
+from catoui import uiGlobals, uiCommon
 from catoapi import api
+from catolog import catolog
+
+app_name = "cato_rest_api"
+logger = catolog.get_logger(app_name)
 
 """
  wmHandler is the default handler for any urls not defined in the urls mapping below.
@@ -48,8 +52,8 @@ class wmHandler:
         args = web.input()
         # web.header('Content-Type', 'text/xml')
 
-        print("\nRequest: %s" % method)
-        print("Args: %s" % args)
+        logger.info("Request: %s" % method)
+        logger.info("Args: %s" % args)
 
         output_format = ""
         if args.has_key("output_format"):
@@ -58,7 +62,7 @@ class wmHandler:
         is_authenticated, user_id = api.authenticate(method, args)
         if not is_authenticated:
             if getattr(args, 'key', ''):
-                print("Authentication Failure [%s]" % getattr(args, 'key', ''))
+                logger.error("Authentication Failure [%s]" % getattr(args, 'key', ''))
             response = api.response(err_code="AuthenticationFailure")
             return response.Write(output_format)
         
@@ -110,7 +114,7 @@ class version:
         try:
             args = web.input()
             output_format = args["output_format"] if args.has_key("output_format") else ""
-            version = uiGlobals.config["version"] if uiGlobals.config.has_key("version") else "Unknown"
+            version = catoconfig.CONFIG
 
             if output_format == "json":
                 response = api.response(response='{"Version" : "%s"}' % version)
@@ -121,7 +125,7 @@ class version:
                 
             return response.Write(output_format)
         except Exception as ex:
-            print(ex.__str__())
+            logger.error(ex.__str__())
             
 # the default page if no URI is given, just an information message
 class index:        
@@ -233,14 +237,17 @@ class index:
 
 def main():
 
-    server = catocommon.CatoService("cato_rest_api")
+    server = catoprocess.CatoService(app_name)
     server.startup()
 
+    # now that the service is set up, we'll know what the logfile name is.
+    # so reget the logger
+    logger = catolog.get_logger(app_name)
+
     if len(sys.argv) < 2:
-        config = catocommon.read_config()
         port = "4001"
-        if "rest_api_port" in config:
-            port = config["rest_api_port"]
+        if "rest_api_port" in catoconfig.CONFIG:
+            port = catoconfig.CONFIG["rest_api_port"]
         sys.argv.append(port)
 
     urls = (
@@ -252,8 +259,6 @@ def main():
     app = web.application(urls, globals(), autoreload=True)
 
     uiGlobals.web = web
-    uiGlobals.server = server
-    uiGlobals.config = config
     
     # setting this to True seems to show a lot more detail in UI exceptions
     web.config.debug = False

@@ -29,6 +29,7 @@ except AttributeError as ex:
     import catoxml.etree.ElementTree as ET
 
 from catoui import uiCommon, uiGlobals
+from catolog import catolog
 from catocommon import catocommon
 from catotask import task, stepTemplates as ST
 
@@ -68,7 +69,7 @@ class taskMethods:
     
             return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetTaskInstances(self):
         try:
@@ -108,7 +109,7 @@ class taskMethods:
     
             return sHTML    
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetTask(self):
         try:
@@ -117,7 +118,7 @@ class taskMethods:
             t = task.Task()
             sErr = t.FromID(sID)
             if sErr:
-                uiCommon.log(sErr, 2)
+                uiCommon.log(sErr)
             if t:
                 if t.ID:
                     return t.AsJSON()
@@ -125,7 +126,7 @@ class taskMethods:
             #should not get here if all is well
             return "{\"result\":\"fail\",\"error\":\"Failed to get Task details for Task ID [%s].\"}" % sID
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmTaskSetDefault(self):
         try:
@@ -134,17 +135,17 @@ class taskMethods:
             result, err = task.Task.SetAsDefault(sID)
 
             if not result:
-                uiCommon.log(err, 2)
+                uiCommon.log(err)
                 return "{\"result\":\"fail\",\"error\":\"%s\"}" % err.replace('"', '\"')
             
             return "{\"result\":\"success\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetTaskCodeFromID(self):
         sOriginalTaskID = uiCommon.getAjaxArg("sOriginalTaskID")
 
-        if not uiCommon.IsGUID(sOriginalTaskID.replace("'", "")):
+        if not catocommon.is_guid(sOriginalTaskID.replace("'", "")):
             uiCommon.log("Invalid or missing Task ID.")
 
         try:
@@ -158,11 +159,11 @@ class taskMethods:
             else:
                 return "{\"code\" : \"%s\"}" % (sTaskCode)
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     @staticmethod
     def GetTaskStatus(sTaskID):
-        if not uiCommon.IsGUID(sTaskID):
+        if not catocommon.is_guid(sTaskID):
             uiCommon.log("Invalid or missing Task ID.")
 
         try:
@@ -177,7 +178,7 @@ class taskMethods:
             else:
                 return sStatus
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
         finally:
             if db.conn.socket:
                 db.close()
@@ -201,7 +202,7 @@ class taskMethods:
 
                 return "".join(sbString)
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
     
     def wmGetTaskVersions(self):
         try:
@@ -233,7 +234,7 @@ class taskMethods:
 
             return sHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmCreateTask(self):
         try:
@@ -259,7 +260,7 @@ class taskMethods:
 
             return "{\"id\" : \"%s\"}" % (t.ID)
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmCopyTask(self):
         try:
@@ -279,7 +280,7 @@ class taskMethods:
             uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Copied from " + sCopyTaskID);
             return "{\"id\" : \"%s\"}" % (sNewTaskID)
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmDeleteTasks(self):
         try:
@@ -334,7 +335,7 @@ class taskMethods:
             return "{\"result\" : \"success\"}"
             
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmUpdateTaskDetail(self):
         try:
@@ -343,7 +344,7 @@ class taskMethods:
             sValue = uiCommon.getAjaxArg("sValue")
             sUserID = uiCommon.GetSessionUserID()
 
-            if uiCommon.IsGUID(sTaskID) and uiCommon.IsGUID(sUserID):
+            if catocommon.is_guid(sTaskID) and catocommon.is_guid(sUserID):
                 # we encoded this in javascript before the ajax call.
                 # the safest way to unencode it is to use the same javascript lib.
                 # (sometimes the javascript and .net libs don't translate exactly, google it.)
@@ -403,7 +404,7 @@ class taskMethods:
             return "{\"result\" : \"success\"}"
             
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)           
+            uiCommon.log(traceback.format_exc())           
 
     def wmCreateNewTaskVersion(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
@@ -420,7 +421,7 @@ class taskMethods:
 
             return sNewTaskID
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return "Unable to create new version.  See server log for details."
 
     def wmGetCodeblocks(self):
@@ -433,13 +434,13 @@ class taskMethods:
             oTask = task.Task()
             sErr = oTask.FromID(sTaskID, False)
             if sErr:
-                uiCommon.log(sErr, 2)
+                uiCommon.log(sErr)
             if not oTask:
                 return "wmGetCodeblocks: Unable to get Task for ID [" + sTaskID + "]. " + sErr
             sCBHTML = ""
             for cb in oTask.Codeblocks.itervalues():
                 #if it's a guid it's a bogus codeblock (for export only)
-                if uiCommon.IsGUID(cb.Name):
+                if catocommon.is_guid(cb.Name):
                     continue
                 sCBHTML += "<li class=\"ui-widget-content codeblock\" id=\"cb_" + cb.Name + "\">"
                 sCBHTML += "<div>"
@@ -459,7 +460,7 @@ class taskMethods:
                 sCBHTML += "</li>"
             return sCBHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmAddCodeblock(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
@@ -520,7 +521,7 @@ class taskMethods:
         sOldCodeblockName = uiCommon.getAjaxArg("sOldCodeblockName")
         sNewCodeblockName = uiCommon.getAjaxArg("sNewCodeblockName")
         try:
-            if uiCommon.IsGUID(sTaskID):
+            if catocommon.is_guid(sTaskID):
                 #  first make sure we are not try:ing to rename it something that already exists.
                 sSQL = "select count(*) from task_codeblock where task_id = '" + sTaskID + "'" \
                     " and codeblock_name = '" + sNewCodeblockName + "'"
@@ -568,7 +569,7 @@ class taskMethods:
                 uiCommon.log("Unable to get codeblocks for task. Missing or invalid task_id.")
                 return "Unable to get codeblocks for task. Missing or invalid task_id."
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
         finally:
             return ""
 
@@ -597,7 +598,7 @@ class taskMethods:
                 uiCommon.log("Unable to copy Codeblock. Missing or invalid codeblock_name.")
 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
         
     def wmGetSteps(self):
         try:
@@ -614,7 +615,7 @@ class taskMethods:
             oTask = task.Task()
             sErr = oTask.FromID(sTaskID, True)
             if sErr:
-                uiCommon.log(sErr, 2)
+                uiCommon.log(sErr)
             if not oTask:
                 return "wmGetSteps: Unable to get Task for ID [" + sTaskID + "]. " + sErr
 
@@ -633,7 +634,7 @@ class taskMethods:
                     
             return sHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     
     def wmGetStepsPrint(self):
@@ -649,7 +650,7 @@ class taskMethods:
             oTask = task.Task()
             sErr = oTask.FromID(sTaskID, False)
             if sErr:
-                uiCommon.log(sErr, 2)
+                uiCommon.log(sErr)
 
             # MAIN codeblock first
             sHTML += "<div class=\"ui-state-default te_header\">MAIN</div>"
@@ -670,13 +671,13 @@ class taskMethods:
 
             return sHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
     
     def wmGetStep(self):
         try:
             sStepID = uiCommon.getAjaxArg("sStepID")
             sStepHTML = ""
-            if not uiCommon.IsGUID(sStepID):
+            if not catocommon.is_guid(sStepID):
                 uiCommon.log("Unable to get step. Invalid or missing Step ID. [" + sStepID + "].")
 
             sUserID = uiCommon.GetSessionUserID()
@@ -690,7 +691,7 @@ class taskMethods:
             # return the html
             return sStepHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmAddStep(self):
         try:
@@ -708,7 +709,7 @@ class taskMethods:
             # it's content will be xpath, value
             dValues = {}
 
-            if not uiCommon.IsGUID(sTaskID):
+            if not catocommon.is_guid(sTaskID):
                 uiCommon.log("Unable to add step. Invalid or missing Task ID. [" + sTaskID + "]")
 
 
@@ -739,7 +740,7 @@ class taskMethods:
 
             sNewStepID = catocommon.new_guid()
 
-            if uiCommon.IsGUID(sItem):
+            if catocommon.is_guid(sItem):
                 # copy from the clipboard
                 sSQL = "insert into task_step (step_id, task_id, codeblock_name, step_order, step_desc," \
                     " commented, locked," \
@@ -827,7 +828,7 @@ class taskMethods:
             else:
                 uiCommon.log("Unable to add step.  No new step_id.")
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmAddEmbeddedCommandToStep(self):
         try:
@@ -839,7 +840,7 @@ class taskMethods:
 
             sStepHTML = ""
             
-            if not uiCommon.IsGUID(sTaskID):
+            if not catocommon.is_guid(sTaskID):
                 uiCommon.log("Unable to add step. Invalid or missing Task ID. [" + sTaskID + "]")
                 return "Unable to add step. Invalid or missing Task ID. [" + sTaskID + "]"
 
@@ -870,7 +871,7 @@ class taskMethods:
                 dValues["codeblock"] = sCBName
                 sItem = "codeblock"
 
-            if uiCommon.IsGUID(sItem):
+            if catocommon.is_guid(sItem):
                 # a clipboard sItem is a guid id on the task_step_clipboard table
                 
                 # 1) get the function_xml from the clipboard table (sItem = step_id)
@@ -947,7 +948,7 @@ class taskMethods:
             # return the html
             return sStepHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmReorderSteps(self):
         try:
@@ -966,7 +967,7 @@ class taskMethods:
 
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmDeleteStep(self):
         try:
@@ -1024,7 +1025,7 @@ class taskMethods:
             
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
         
     def wmUpdateStep(self):
         try:
@@ -1038,7 +1039,7 @@ class taskMethods:
             # (sometimes the javascript and .net libs don't translate exactly, google it.)
             sValue = uiCommon.unpackJSON(sValue)
     
-            uiCommon.log("Updating step [%s (%s)] setting [%s] to [%s]." % (sFunction, sStepID, sXPath, sValue) , 4)
+            uiCommon.log("Updating step [%s (%s)] setting [%s] to [%s]." % (sFunction, sStepID, sXPath, sValue))
             
             # Some xpaths are hardcoded because they're on the step table and not in the xml.
             # this currently only applies to the step_desc column ("notes" field).
@@ -1065,7 +1066,7 @@ class taskMethods:
                     uiCommon.log("XML data for step [" + sStepID + "] is invalid.")
     
                 try:
-                    uiCommon.log("... looking for %s" % sXPath, 4)
+                    uiCommon.log("... looking for %s" % sXPath)
                     xNode = xDoc.find(sXPath)
     
                     if xNode is None:
@@ -1151,14 +1152,14 @@ class taskMethods:
     
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmToggleStepCommonSection(self):
         # no exceptions, just a log message if there are problems.
         try:
             sStepID = uiCommon.getAjaxArg("sStepID")
             sButton = uiCommon.getAjaxArg("sButton")
-            if uiCommon.IsGUID(sStepID):
+            if catocommon.is_guid(sStepID):
                 sUserID = uiCommon.GetSessionUserID()
                 sButton = ("null" if sButton == "" else "'" + sButton + "'")
     
@@ -1180,7 +1181,7 @@ class taskMethods:
             else:
                 uiCommon.log("Unable to toggle step button. Missing or invalid step_id.")
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             
     def wmToggleStep(self):
         # no exceptions, just a log message if there are problems.
@@ -1188,7 +1189,7 @@ class taskMethods:
             sStepID = uiCommon.getAjaxArg("sStepID")
             sVisible = uiCommon.getAjaxArg("sVisible")
             
-            if uiCommon.IsGUID(sStepID):
+            if catocommon.is_guid(sStepID):
                 sUserID = uiCommon.GetSessionUserID()
 
                 sVisible = ("1" if sVisible == "1" else "0")
@@ -1209,9 +1210,9 @@ class taskMethods:
                 
                 return ""
             else:
-                uiCommon.log("Unable to toggle step visibility. Missing or invalid step_id.", 2)
+                uiCommon.log("Unable to toggle step visibility. Missing or invalid step_id.")
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmToggleStepSkip(self):
         try:
@@ -1224,7 +1225,7 @@ class taskMethods:
 
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmFnIfAddSection(self):
         try:
@@ -1246,7 +1247,7 @@ class taskMethods:
 
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmTaskSearch(self):
         try:
@@ -1297,7 +1298,7 @@ class taskMethods:
 
             return sHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetStepVarsEdit(self):
         try:
@@ -1318,7 +1319,7 @@ class taskMethods:
             return '{"parse_type":"%d","row_delimiter":"%d","col_delimiter":"%d","html":"%s"}' % \
                 (oStep.OutputParseType, oStep.OutputRowDelimiter, oStep.OutputColumnDelimiter, uiCommon.packJSON(sHTML))
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmUpdateVars(self):
         try:
@@ -1404,8 +1405,8 @@ class taskMethods:
                 xVars[:] = [item[-1] for item in data]
 
             
-            uiCommon.log("Saving variables ...", 4)
-            uiCommon.log(ET.tostring(xVars), 4)
+            uiCommon.log("Saving variables ...")
+            uiCommon.log(ET.tostring(xVars))
             
             # add and remove using the xml wrapper functions
             ST.RemoveFromCommandXML(sStepID, "step_variables")
@@ -1413,7 +1414,7 @@ class taskMethods:
 
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetClips(self):
         try:
@@ -1490,7 +1491,7 @@ class taskMethods:
                     sHTML += "</li>"
             return sHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmCopyStepToClipboard(self):
         try:
@@ -1498,11 +1499,11 @@ class taskMethods:
             self.CopyStepToClipboard(sStepID)
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def CopyStepToClipboard(self, sStepID):
         try:
-            if uiCommon.IsGUID(sStepID):
+            if catocommon.is_guid(sStepID):
                 sUserID = uiCommon.GetSessionUserID()
     
                 # commands get new ids when copied into the clpboard.
@@ -1532,7 +1533,7 @@ class taskMethods:
                 uiCommon.log("Unable to copy step. Missing or invalid step_id.")
     
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmRemoveFromClipboard(self):
         try:
@@ -1541,7 +1542,7 @@ class taskMethods:
 
             # if the sStepID is a guid, we are removing just one
             # otherwise, if it's "ALL" we are whacking them all
-            if uiCommon.IsGUID(sStepID):
+            if catocommon.is_guid(sStepID):
                 sSQL = "delete from task_step_clipboard" \
                     " where user_id = '" + sUserID + "'" \
                     " and root_step_id = '" + sStepID + "'"
@@ -1556,7 +1557,7 @@ class taskMethods:
 
                 return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     
     def wmRunTask(self):
@@ -1571,7 +1572,7 @@ class taskMethods:
             sUserID = uiCommon.GetSessionUserID()
             return uiCommon.AddTaskInstance(sUserID, sTaskID, sEcosystemID, sAccountID, sAssetID, sParameterXML, sDebugLevel)
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetAccountEcosystems(self):
         sAccountID = uiCommon.getAjaxArg("sAccountID")
@@ -1600,7 +1601,7 @@ class taskMethods:
 
             return sHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
 
     """
@@ -1639,10 +1640,10 @@ class taskMethods:
             if sType == "instance":
                 # if sID is a guid, it's a task_id ... get the most recent run
                 # otherwise assume it's a task_instance and try: that.
-                if uiCommon.IsGUID(sID):
+                if catocommon.is_guid(sID):
                     sSQL = "select parameter_xml from task_instance_parameter where task_instance = " \
                         "(select max(task_instance) from task_instance where task_id = '" + sID + "')"
-                elif uiCommon.IsGUID(sFilterByEcosystemID):  # but if there's an ecosystem_id, limit it to tha:
+                elif catocommon.is_guid(sFilterByEcosystemID):  # but if there's an ecosystem_id, limit it to tha:
                     sSQL = "select parameter_xml from task_instance_parameter where task_instance = " \
                         "(select max(task_instance) from task_instance where task_id = '" + sID + "')" \
                         " and ecosystem_id = '" + sFilterByEcosystemID + "'"
@@ -1694,7 +1695,7 @@ class taskMethods:
             # nothing found
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
     
         # it may just be there are no parameters
         return ""
@@ -1759,7 +1760,7 @@ class taskMethods:
         
                 # IMPORTANT!!! if the ID is not a guid, it's a specific instance ID, and we'll need to get the task_id
                 # but if it is a GUID, but the type is "instance", taht means the most recent INSTANCE for this TASK_ID
-                if uiCommon.IsGUID(sID):
+                if catocommon.is_guid(sID):
                     sTaskID = sID
                 else:
                     sSQL = "select task_id" \
@@ -1785,7 +1786,7 @@ class taskMethods:
                 if self.db.error:
                     uiCommon.log_nouser(self.db.error, 0)
         
-            if not uiCommon.IsGUID(sTaskID):
+            if not catocommon.is_guid(sTaskID):
                 uiCommon.log("Unable to find Task ID for record.")
         
         
@@ -1844,7 +1845,7 @@ class taskMethods:
                     # but only for action types... instance data is historical and can't be munged
     
                     if xTaskParam is None and sType == "action":
-                        uiCommon.log("INFO: A parameter exists on the Action that no longer exists on the Task.  Removing it...", 4)
+                        uiCommon.log("INFO: A parameter exists on the Action that no longer exists on the Task.  Removing it...")
                         # BUT! in order to be able to delete it, we need enough xpath information to identify it.
                         # it has an 'id' attribute ... use that.
                         if sDefID:
@@ -1901,7 +1902,7 @@ class taskMethods:
             # nothing found
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
     
     def wmSaveDefaultParameterXML(self):
         try:
@@ -1912,7 +1913,7 @@ class taskMethods:
             sXML = uiCommon.getAjaxArg("sXML")
             sUserID = uiCommon.GetSessionUserID()
     
-            if uiCommon.IsGUID(sID) and uiCommon.IsGUID(sUserID):
+            if catocommon.is_guid(sID) and catocommon.is_guid(sUserID):
                 # we encoded this in javascript before the ajax call.
                 # the safest way to unencode it is to use the same javascript lib.
                 # (sometimes the javascript and .net libs don't translate exactly, google it.)
@@ -1935,7 +1936,7 @@ class taskMethods:
                     if self.db.error:
                         uiCommon.log_nouser(self.db.error, 0)
     
-                if not uiCommon.IsGUID(sTaskID):
+                if not catocommon.is_guid(sTaskID):
                     uiCommon.log("Unable to find Task ID for Action, or no Task ID provided.")
     
     
@@ -2066,7 +2067,7 @@ class taskMethods:
     
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     """
         END OF PARAMETER METHODS
@@ -2082,7 +2083,7 @@ class taskMethods:
 
         try:
             if not sType:
-                uiCommon.log("ERROR: Type was not passed to wmGetParameters.", 0)
+                uiCommon.log("ERROR: Type was not passed to wmGetParameters.")
                 return "ERROR: Type was not passed to wmGetParameters."
             
             sTable = ""
@@ -2101,7 +2102,7 @@ class taskMethods:
             return ST.DrawCommandParameterSection(sParameterXML, bEditable, bSnipValues)
 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
         # it may just be there are no parameters
         return ""
@@ -2112,7 +2113,7 @@ class taskMethods:
             sType = uiCommon.getAjaxArg("sType")
             sParamID = uiCommon.getAjaxArg("sParamID")
     
-            if not uiCommon.IsGUID(sID):
+            if not catocommon.is_guid(sID):
                 uiCommon.log("Invalid or missing ID.")
                 return "Invalid or missing ID."
 
@@ -2262,7 +2263,7 @@ class taskMethods:
 
             return sHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmDeleteTaskParam(self):
         try:
@@ -2277,7 +2278,7 @@ class taskMethods:
             elif sType == "task":
                 sTable = "task"
     
-            if sParamID and uiCommon.IsGUID(sID):
+            if sParamID and catocommon.is_guid(sID):
                 #  need the name and values for logging
                 sXML = ""
     
@@ -2314,7 +2315,7 @@ class taskMethods:
             else:
                 uiCommon.log("Invalid or missing Task or Parameter ID.")
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmUpdateTaskParam(self):
         try:
@@ -2335,7 +2336,7 @@ class taskMethods:
             sConstraint = uiCommon.getAjaxArg("sConstraint")
             sConstraintMsg = uiCommon.getAjaxArg("sConstraintMsg")
 
-            if not uiCommon.IsGUID(sID):
+            if not catocommon.is_guid(sID):
                 uiCommon.log("ERROR: Save Parameter - Invalid or missing ID.")
 
             # we encoded this in javascript before the ajax call.
@@ -2463,7 +2464,7 @@ class taskMethods:
 
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetTaskRunLogDetails(self):
         try:
@@ -2515,10 +2516,8 @@ class taskMethods:
                     return "{\"error\":\"%s\"}" % ti.Error
                 
                 # one last thing... does the logfile for this run exist on this server?
-                if uiGlobals.config.has_key("logfiles"):
-                    logdir = uiGlobals.config["logfiles"]
-                    if os.path.exists(r"%s/ce/%s.log" % (logdir, sTaskInstance)):
-                        ti.logfile_name = "%s/ce/%s.log" % (logdir, sTaskInstance)
+                if os.path.exists(r"%s/ce/%s.log" % (catolog.LOGPATH, sTaskInstance)):
+                    ti.logfile_name = "%s/ce/%s.log" % (catolog.LOGPATH, sTaskInstance)
 
                 # all done, serialize our output dictionary
                 return ti.AsJSON()
@@ -2528,7 +2527,7 @@ class taskMethods:
             #if we get here, there is just no data... maybe it never ran.
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetTaskRunLog(self):
         sTaskInstance = uiCommon.getAjaxArg("sTaskInstance")
@@ -2558,7 +2557,7 @@ class taskMethods:
                                     sSummary += "<div class='result_summary_item_name'>%s</div>" % name
                                     sSummary += "<div class='result_summary_item_detail ui-widget-content ui-corner-all'>%s</div>" % detail    
                     except Exception:
-                        uiCommon.log_nouser(traceback.format_exc(), 0)
+                        uiCommon.log(traceback.format_exc())
 
             # log rows
             if runlog.log_rows:
@@ -2652,16 +2651,15 @@ class taskMethods:
             return "{\"log\" : \"%s\", \"summary\" : \"%s\", \"totalrows\" : \"%s\"}" % (uiCommon.packJSON(sLog), uiCommon.packJSON(sSummary), sNumRows)
 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return ""
 
     def wmGetTaskLogfile(self):
         try:
             instance = uiCommon.getAjaxArg("sTaskInstance")
             logfile = ""
-            if instance and uiGlobals.config.has_key("logfiles"):
-                logdir = uiGlobals.config["logfiles"]
-                logfile = "%s/ce/%s.log" % (logdir, instance)
+            if instance:
+                logfile = "%s/ce/%s.log" % (catolog.LOGPATH, instance)
                 if os.path.exists(logfile):
                     if os.path.getsize(logfile) > 20971520: # 20 meg is a pretty big logfile for the browser.
                         return uiCommon.packJSON("Logfile is too big to view in a web browser.")
@@ -2696,7 +2694,7 @@ class taskMethods:
             filename = "%s_%s.csk" % (t.Name.replace(" ", "").replace("/", ""), seconds)
             with open("%s/temp/%s" % (uiGlobals.web_root, filename), 'w') as f_out:
                 if not f_out:
-                    uiCommon.log("ERROR: unable to write task export file.", 2)
+                    uiCommon.log("ERROR: unable to write task export file.")
                 f_out.write(xml)
                 
             return "{\"export_file\" : \"%s\"}" % filename
@@ -2746,13 +2744,13 @@ class taskMethods:
             #if we get here, there is just no data... 
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetTaskVarPickerPopup(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
 
         try:
-            if uiCommon.IsGUID(sTaskID):
+            if catocommon.is_guid(sTaskID):
                 sHTML = ""
 
                 # VARIABLES
@@ -2838,14 +2836,14 @@ class taskMethods:
                 uiCommon.log("Unable to get variables for task. Missing or invalid task_id.")
 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetTaskCodeblockPicker(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
         sStepID = uiCommon.getAjaxArg("sStepID")
 
         try:
-            if uiCommon.IsGUID(sTaskID):
+            if catocommon.is_guid(sTaskID):
                 sSQL = "select codeblock_name from task_codeblock where task_id = '" + sTaskID + "'" \
                     " and codeblock_name not in (select codeblock_name from task_step where step_id = '" + sStepID + "')" \
                     " order by codeblock_name"
@@ -2864,13 +2862,13 @@ class taskMethods:
                 uiCommon.log("Unable to get codeblocks for task. Missing or invalid task_id.")
 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetTaskConnections(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
 
         try:
-            if uiCommon.IsGUID(sTaskID):
+            if catocommon.is_guid(sTaskID):
                 sSQL = "select conn_name from (" \
                     "select distinct ExtractValue(function_xml, '//conn_name[1]') as conn_name" \
                     " from task_step" \
@@ -2895,7 +2893,7 @@ class taskMethods:
                 uiCommon.log("Unable to get connections for task. Missing or invalid task_id.")
 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             
     def wmStopTask(self):
         try:
@@ -2911,7 +2909,7 @@ class taskMethods:
                 uiCommon.log("Unable to stop task. Missing or invalid task_instance.")
 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmApproveTask(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
@@ -2920,7 +2918,7 @@ class taskMethods:
         try:
             sUserID = uiCommon.GetSessionUserID()
 
-            if uiCommon.IsGUID(sTaskID) and uiCommon.IsGUID(sUserID):
+            if catocommon.is_guid(sTaskID) and catocommon.is_guid(sUserID):
 
                 # check to see if this is the first task to be approved.
                 # if it is, we will make it default.
@@ -2965,7 +2963,7 @@ class taskMethods:
                 uiCommon.log("Unable to update task. Missing or invalid task id. [" + sTaskID + "]")
 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmFnNodeArrayAdd(self):
         try:
@@ -3016,7 +3014,7 @@ class taskMethods:
             
             # yeah, this wicked single line aggregates the value of each node
             sNewXML = "".join(ET.tostring(x) for x in list(xGroupNode))
-            uiCommon.log(sNewXML, 4)
+            uiCommon.log(sNewXML)
             
             if sNewXML != "":
                 ST.AddToCommandXML(sStepID, sAddTo, sNewXML.strip())
@@ -3024,7 +3022,7 @@ class taskMethods:
 
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmRemoveNodeFromStep(self):
         # NOTE: this function is capable of removing data from any command.
@@ -3038,4 +3036,4 @@ class taskMethods:
             else:
                 uiCommon.log("Unable to modify step. Invalid remove path.")
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())

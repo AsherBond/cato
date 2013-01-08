@@ -28,7 +28,11 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 
+from catoconfig import catoconfig
 from catocommon import catocommon
+
+from catolog import catolog
+logger = catolog.get_logger(__name__)
 
 # Note: this is not a container for CloudAccount objects - it's just a rowset from the database
 # with an AsJSON method.
@@ -149,7 +153,39 @@ class Cloud(object):
             
             #well, if we got here we have a problem... the ID provided wasn't found anywhere.
             #this should never happen, so bark about it.
-            print("Warning - Unable to find a Cloud with id [%s] on any Providers." % sCloudID)   
+            logger.warning("Unable to find a Cloud with id [%s] on any Providers." % sCloudID)   
+            return
+        except Exception as ex:
+            raise ex
+        finally:
+            db.close()
+
+    def FromName(self, name):
+        try:
+            db = catocommon.new_conn()
+            if not name:
+                raise Exception("Error building Cloud object: Cloud Name is required.")
+            
+            cp = CloudProviders()
+            if not cp:
+                raise Exception("Error building Cloud object: Unable to get CloudProviders.")
+            #check the CloudProvider class first ... it *should be there unless something is wrong.
+            for p in cp.itervalues():
+                for c in p.Clouds:
+                    if c.Name == name:
+                        self.IsUserDefined = c.IsUserDefined
+                        self.ID = c.ID
+                        self.Name = c.Name
+                        self.APIUrl = c.APIUrl
+                        self.APIProtocol = c.APIProtocol
+                        self.Region = c.Region
+                        self.Provider = c.Provider
+                        
+                        return
+            
+            #well, if we got here we have a problem... the name provided wasn't found anywhere.
+            #this should never happen, so bark about it.
+            logger.warning("Unable to find a Cloud with name [%s] on any Providers." % name)   
             return
         except Exception as ex:
             raise ex
@@ -547,8 +583,7 @@ class CloudProviders(dict):
     def __init__(self, include_products=True, include_clouds=True):
         try:
             db = catocommon.new_conn()
-            base_path = catocommon._get_base_path()
-            filename = os.path.join(base_path, "conf/cloud_providers.xml")
+            filename = os.path.join(catoconfig.BASEPATH, "conf/cloud_providers.xml")
             if not os.path.isfile(filename):
                 raise Exception("conf/cloud_providers.xml file does not exist.")
             xRoot = ET.parse(filename)
@@ -582,7 +617,7 @@ class CloudProviders(dict):
                         #else:
                             # DO NOT raise an exception here - user defined clouds are not required.
                             # but print a warning
-                            # print("Cloud Providers XML: Warning - Provider [%s] allows user defined Clouds, but none exist in the database." % pv.Name)
+                            # logger.warning("Cloud Providers XML: Warning - Provider [%s] allows user defined Clouds, but none exist in the database." % pv.Name)
                     
                     if include_products:
                         #get the cloudobjecttypes for this provider.                    

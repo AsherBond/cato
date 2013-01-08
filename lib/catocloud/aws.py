@@ -19,7 +19,12 @@ import hmac
 import hashlib
 import base64
 from catocloud import cloud
-from catoui import uiCommon
+from catocommon import catocommon
+
+from catolog import catolog
+logger = catolog.get_logger(__name__)
+# logger.info("foo")
+
 
 class awsInterface(object):
     def GetCloudObjectsAsXML(self, account_id, cloud_id, cloud_object_type, additional_args={}):
@@ -30,7 +35,7 @@ class awsInterface(object):
             ca.FromID(account_id)
             if ca.ID is None:
                 msg =  "Failed to get Cloud Account details for Cloud Account ID [" + account_id + "]."
-                print(msg)
+                logger.error(msg)
                 return None, msg
 
             if cloud_object_type is not None:
@@ -38,12 +43,12 @@ class awsInterface(object):
                 # if a key field is missing.
                 if not cloud_object_type.ID:
                     msg = "Cannot find definition for requested object type [" + cloud_object_type.ID + "]"
-                    print(msg)
+                    logger.error(msg)
                     return None, msg
 
             else:
                 msg = "GetCloudObjectType failed for [" + cloud_object_type.ID + "]"
-                print(msg)
+                logger.error(msg)
                 return None, msg
             
             # get the cloud object
@@ -57,7 +62,7 @@ class awsInterface(object):
             if err:
                 return None, err
             
-            sXML, err = uiCommon.HTTPGet(sURL, 30)
+            sXML, err = catocommon.http_get(sURL, 30)
             if err:
                 return None, err
 
@@ -106,7 +111,7 @@ class awsInterface(object):
 
             if not sHostName:
                 msg = "Unable to reconcile an endpoint from the Cloud [" + c.Name + "] or Cloud Object [" + cot.ID + "] definitions."
-                print(msg)
+                logger.error(msg)
                 return None, msg
             
             # HOST URI

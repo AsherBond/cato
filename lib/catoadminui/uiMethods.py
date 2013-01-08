@@ -27,7 +27,8 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 
-
+from catolog import catolog
+from catoconfig import catoconfig
 from catocommon import catocommon
 from catouser import catouser
 from catocloud import cloud
@@ -66,7 +67,7 @@ class uiMethods:
             return ""
             
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)    
+            uiCommon.log(traceback.format_exc())    
             
     def wmLicenseAgree(self):
         try:
@@ -80,26 +81,20 @@ class uiMethods:
             return ""
             
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)    
+            uiCommon.log(traceback.format_exc())    
             
     def wmGetDBInfo(self):
         try:
-            if uiGlobals.config.has_key("server"):
-                return uiGlobals.config["server"]
+            if catoconfig.CONFIG.has_key("server"):
+                return catoconfig.CONFIG["server"]
             else:
                 return "Unknown"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)    
+            uiCommon.log(traceback.format_exc())    
             
     def wmGetVersion(self):
-        try:
-            if uiGlobals.config.has_key("version"):
-                return uiGlobals.config["version"]
-            else:
-                return "Unknown"
-        except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)    
-            
+        return catoconfig.VERSION
+    
     def wmGetGettingStarted(self):
         try:
             sset = settings.settings()
@@ -154,7 +149,7 @@ class uiMethods:
             
             return sHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)    
+            uiCommon.log(traceback.format_exc())    
 
 
     def DrawGettingStartedItem(self, sID, sTitle, aItems, sActionLine):
@@ -177,7 +172,7 @@ class uiMethods:
             
             return sHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)    
+            uiCommon.log(traceback.format_exc())    
             
     def wmGetCloudAccountsForHeader(self):
         try:
@@ -202,7 +197,7 @@ class uiMethods:
             #should not get here if all is well
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetMenu(self):
         try:
@@ -224,7 +219,7 @@ class uiMethods:
             if f:
                 return f.read()
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
     
     def wmGetSystemStatus(self):
         try:
@@ -290,15 +285,14 @@ class uiMethods:
             return "{ \"processes\" : \"%s\", \"users\" : \"%s\", \"messages\" : \"%s\" }" % (sProcessHTML, sUserHTML, uiCommon.packJSON(sMessageHTML))
 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetProcessLogfile(self):
         try:
             component = uiCommon.getAjaxArg("component")
             logfile = ""
-            if component and uiGlobals.config.has_key("logfiles"):
-                logdir = uiGlobals.config["logfiles"]
-                logfile = "%s/%s.log" % (logdir, component)
+            if component:
+                logfile = "%s/%s.log" % (catolog.LOGPATH, component)
                 if os.path.exists(logfile):
                     with open(logfile, 'r') as f:
                         f.seek (0, 2)           # Seek @ EOF
@@ -378,7 +372,7 @@ class uiMethods:
             return "{ \"log\" : [ %s ] }" % (sLog)
 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetDatabaseTime(self):
         sNow = self.db.select_col_noexcep("select now()")
@@ -450,7 +444,7 @@ class uiMethods:
             return sHTML
 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetActionSchedules(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
@@ -504,7 +498,7 @@ class uiMethods:
             return sHTML
 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetRecurringPlan(self):
         sScheduleID = uiCommon.getAjaxArg("sScheduleID")
@@ -565,7 +559,7 @@ class uiMethods:
     
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmDeleteActionPlan(self):
         try:
@@ -585,7 +579,7 @@ class uiMethods:
     
             return ""
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
     
     def wmRunLater(self):
         try:
@@ -624,7 +618,7 @@ class uiMethods:
             if not self.db.exec_db_noexcep(sSQL):
                 uiCommon.log_nouser(self.db.error, 0)
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmRunRepeatedly(self):
         try:
@@ -677,7 +671,7 @@ class uiMethods:
             if not self.db.exec_db_noexcep(sSQL):
                 uiCommon.log_nouser(self.db.error, 0)
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmSavePlan(self):
         try:
@@ -710,7 +704,7 @@ class uiMethods:
             if not self.db.exec_db_noexcep(sSQL):
                 uiCommon.log_nouser(self.db.error, 0)
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
 
     def wmSaveSchedule(self):
@@ -765,7 +759,7 @@ class uiMethods:
             if not self.db.exec_db_noexcep(sSQL):
                 uiCommon.log_nouser(self.db.error, 0)
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetSettings(self):
         try:
@@ -776,7 +770,7 @@ class uiMethods:
             #should not get here if all is well
             return "{\"result\":\"fail\",\"error\":\"Error getting settings.\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmSaveSettings(self):
@@ -811,7 +805,7 @@ class uiMethods:
             #should not get here if all is well
             return "{\"result\":\"fail\",\"error\":\"Error saving settings - no type provided.\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmGetMyAccount(self):
@@ -836,7 +830,7 @@ class uiMethods:
                     return json.dumps(d)
 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             
     def wmSaveMyAccount(self):
         """
@@ -887,7 +881,7 @@ class uiMethods:
                 
             return "{\"result\":\"success\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmGetUsersTable(self):
@@ -920,7 +914,7 @@ class uiMethods:
     
             return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()           
         
     def wmGetUser(self):
@@ -935,7 +929,7 @@ class uiMethods:
             #should not get here if all is well
             return "{\"result\":\"fail\",\"error\":\"Failed to get details for User [" + sID + "].\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmGetAsset(self):
@@ -950,7 +944,7 @@ class uiMethods:
             #should not get here if all is well
             return "{\"result\":\"fail\",\"error\":\"Failed to get details for Asset [" + sID + "].\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmUpdateUser(self):
@@ -1037,7 +1031,7 @@ class uiMethods:
                                 # replace our special tokens with the values
                                 body = body.replace("##FULLNAME##", u.FullName).replace("##USERNAME##", u.LoginID).replace("##PASSWORD##", sNewPassword).replace("##URL##", sURL)
 
-                                print("Would send email here...")
+                                uiCommon.log_nouser("Would send email here...")
 #                                if !uiCommon.SendEmailMessage(sEmail.strip(), ag.APP_COMPANYNAME + " Account Management", "Account Action in " + ag.APP_NAME, sBody, 0000BYREF_ARG0000sErr:
                         
             
@@ -1065,7 +1059,7 @@ class uiMethods:
             
             return "{\"result\":\"success\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmCreateUser(self):
@@ -1084,7 +1078,7 @@ class uiMethods:
             return u.AsJSON()
         
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmDeleteUsers(self):
@@ -1126,7 +1120,7 @@ class uiMethods:
 
             return "{\"result\" : \"success\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetAssetsTable(self):
         try:
@@ -1157,7 +1151,7 @@ class uiMethods:
 
             return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()           
         
     def wmAssetSearch(self):
@@ -1206,7 +1200,7 @@ class uiMethods:
 
             return sHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             
     def wmGetCredentialsTable(self):
         try:
@@ -1237,7 +1231,7 @@ class uiMethods:
 
             return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()           
         
     def wmGetCredentialsJSON(self):
@@ -1250,7 +1244,7 @@ class uiMethods:
             #should not get here if all is well
             return "{\"result\":\"fail\",\"error\":\"Failed to get Credentials using filter [" + sFilter + "].\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmGetCredential(self):
@@ -1265,7 +1259,7 @@ class uiMethods:
             #should not get here if all is well
             return "{\"result\":\"fail\",\"error\":\"Failed to get details for Asset [" + sID + "].\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmCreateAsset(self):
@@ -1284,7 +1278,7 @@ class uiMethods:
             return a.AsJSON()
         
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmUpdateAsset(self):
@@ -1308,7 +1302,7 @@ class uiMethods:
             return "{\"result\" : \"success\"}"
         
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmDeleteAssets(self):
@@ -1358,7 +1352,7 @@ class uiMethods:
                 return "{\"result\" : \"success\"}"
                 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             
     def wmCreateCredential(self):
         try:
@@ -1381,7 +1375,7 @@ class uiMethods:
             return c.AsJSON()
         
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmDeleteCredentials(self):
@@ -1401,7 +1395,7 @@ class uiMethods:
             return "{\"result\" : \"success\"}"
                 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             
     def wmUpdateCredential(self):
         try:
@@ -1424,7 +1418,7 @@ class uiMethods:
             return "{\"result\" : \"success\"}"
         
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmCreateObjectFromXML(self):
@@ -1451,7 +1445,7 @@ class uiMethods:
                 
                 # TASKS
                 for xtask in xd.iterfind("task"):
-                    uiCommon.log("Importing Task [%s]" % xtask.get("name", "Unknown"), 3)
+                    uiCommon.log("Importing Task [%s]" % xtask.get("name", "Unknown"))
                     t = task.Task()
                     t.FromXML(ET.tostring(xtask))
 
@@ -1482,14 +1476,14 @@ class uiMethods:
                 
             return "{\"items\" : %s}" % json.dumps(items)
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)    
+            uiCommon.log(traceback.format_exc())    
             
     def wmHTTPGet(self):
         """Simply proxies an HTTP GET to another domain, and returns the results."""
         try:
             url = uiCommon.getAjaxArg("url")
             try:
-                result, err = uiCommon.HTTPGet(url, 15)
+                result, err = catocommon.http_get(url, 15)
                 if err:
                     return "External HTTP request failed.  %s" % err
 
@@ -1499,7 +1493,7 @@ class uiMethods:
             
             return result
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmGetRegistry(self):
         """Return the registry editor, complete html block, to the requestor."""
@@ -1518,7 +1512,7 @@ class uiMethods:
             return r.DrawRegistryEditor()
 
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
     def wmAddRegistryNode(self):
         try:
@@ -1545,7 +1539,7 @@ class uiMethods:
             
             return "{\"result\" : \"success\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
    
     def wmUpdateRegistryValue(self):
         try:
@@ -1571,7 +1565,7 @@ class uiMethods:
             
             return "{\"result\" : \"success\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
    
     def wmDeleteRegistryNode(self):
         try:
@@ -1593,7 +1587,7 @@ class uiMethods:
             
             return "{\"result\" : \"success\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
    
     """
     Some Enterprise features require additional script files.  A CE install would show 

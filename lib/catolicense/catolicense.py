@@ -29,4 +29,4 @@ def check_license():
             return "fail", "", license_text
 
     except Exception as ex:
-        print(ex.__str__())    
+        raise ex

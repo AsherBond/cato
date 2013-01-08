@@ -16,16 +16,16 @@
 #these globals are set on init, and anything that imports this file
 # has access to these objects
 import web
-from catocommon import catocommon
 
 # web.py "session"
 class session(web.session.Session):
     pass
 
-# Cato Service "server" is the running Cato service
-class server(catocommon.CatoProcess):
-    pass
+# if this is a web.py service, it'll have an "app_name"
+app_name = None
 
+# TODO: there is also a reference to this in catocommon
+# ... use it and get rid of this one
 # config is the configuration loaded from cato.conf (via catocommon) when the service started
 config = None
 
@@ -34,9 +34,6 @@ web_root = None
 
 # the lib path relative to the running web.py process.
 lib_path = None
-
-# the debug level (0-4 with 0 being 'none' and 4 being 'verbose')
-debuglevel = 2 #defaults to 2
 
 # "Categories" and "Functions" are loaded from xml when the service starts and stored here.
 FunctionCategories = None

@@ -23,10 +23,11 @@ base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.
 lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 
-from catocommon import catocommon
+from catolog import catolog
+from catocommon import catoprocess
 from catosettings import settings
 
-class Poller(catocommon.CatoService):
+class Poller(catoprocess.CatoService):
 
     poller_enabled = ""
 
@@ -44,18 +45,18 @@ class Poller(catocommon.CatoService):
         if rows:
             for row in rows:
                 task_instance = row[0]
-                self.output("Considering Task Instance: %d" % (task_instance))
+                self.logger.info("Considering Task Instance: %d" % (task_instance))
                 asset_id = row[1]
                 schedule_instance = row[2]
 
                 if task_instance > 0:
                     error_flag = 0
-                    self.output("Starting process ...")
+                    self.logger.info("Starting process ...")
 
-                    cmd_line = "nohup %s/services/bin/cato_task_engine %d >> %s/ce/%d.log 2>&1 &" % (self.home, task_instance, self.logfiles_path, task_instance)
+                    cmd_line = "nohup %s/services/bin/cato_task_engine %d >> %s/ce/%d.log 2>&1 &" % (self.home, task_instance, catolog.LOGPATH, task_instance)
 
                     ret = os.system(cmd_line)
-                    self.output("Task instance %d started with return code of %d" % (task_instance, ret))
+                    self.logger.info("Task instance %d started with return code of %d" % (task_instance, ret))
                     sql = """update task_instance set task_status = 'Staged'
                         where task_instance = %s"""
                     self.db.exec_db(sql, (task_instance))
@@ -63,11 +64,11 @@ class Poller(catocommon.CatoService):
                         
     def update_to_error(self, the_pid):
     
-        self.output("Setting tasks with PID %d and Processing status to Error..." % (the_pid))                  
+        self.logger.info("Setting tasks with PID %s and Processing status to Error..." % (the_pid))                  
 
         sql = """update task_instance set task_status = 'Error',
             completed_dt = now() 
-            where pid = %d and task_status = 'Processing'"""
+            where pid = %s and task_status = 'Processing'"""
         self.db.exec_db(sql, (the_pid))
 
     def update_cancelled(self, task_instance):
@@ -78,12 +79,12 @@ class Poller(catocommon.CatoService):
 
     def kill_ce_pid(self, pid):
 
-        self.output("Killing process %s" % (pid))
+        self.logger.info("Killing process %s" % (pid))
         try:
             os.kill(int(pid), signal.SIGKILL)
             #os.wait()
         except Exception, e:
-            self.output("Attempt to kill process %s failed: %s"% (pid, str(e)))
+            self.logger.info("Attempt to kill process %s failed: %s"% (pid, str(e)))
             
 
     def check_processing(self):
@@ -124,13 +125,13 @@ class Poller(catocommon.CatoService):
             self.loop = pset.LoopDelay
             self.max_processes = pset.MaxProcesses
         else:
-            self.output("Unable to get settings - using previous values.")
+            self.logger.info("Unable to get settings - using previous values.")
         
         mset = settings.settings.messenger()
         self.admin_email = (mset.AdminEmail if mset.AdminEmail else "")
 
         if previous_mode != "" and previous_mode != self.poller_enabled:
-            self.output("*** Control Change: Enabled is now %s" % 
+            self.logger.info("*** Control Change: Enabled is now %s" % 
                 (str(self.poller_enabled)))
 
     def get_aborting(self): 
@@ -142,7 +143,7 @@ class Poller(catocommon.CatoService):
         rows = self.db.select_all(sql)
         if rows:
             for row in rows:
-                self.output("Cancelling task_instance %d, pid %d" %
+                self.logger.info("Cancelling task_instance %d, pid %d" %
                     (row[0], row[1]))
 
                 if row[1]:

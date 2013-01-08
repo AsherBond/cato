@@ -38,7 +38,7 @@ class Db(object):
     def select_all(self, sql, params=()):
         """Gets a row set for a provided query."""
         if sql == "":
-            print("select_all: SQL cannot be empty.")
+            raise Exception("select_all: SQL cannot be empty.")
             return None
         
         try:
@@ -58,7 +58,7 @@ class Db(object):
     def select_row(self, sql, params=()):
         """Gets a single row for a provided query.  If there are multiple rows, the first is returned."""
         if sql == "":
-            print("select_row: SQL cannot be empty.")
+            raise Exception("select_row: SQL cannot be empty.")
             return None
         
         try:
@@ -77,7 +77,7 @@ class Db(object):
     def select_col(self, sql, params=()):
         """Gets a single value from the database.  If the query returns more than one column, the first is used."""
         if sql == "":
-            print("select_column: SQL cannot be empty.")
+            raise Exception("select_column: SQL cannot be empty.")
             return None
         
         try:
@@ -96,7 +96,7 @@ class Db(object):
     def exec_db(self, sql, params=()):
         """Used for updates, inserts and deletes"""
         if sql == "":
-            print("update: SQL cannot be empty.")
+            raise Exception("update: SQL cannot be empty.")
             return None
         
         try:
@@ -112,7 +112,7 @@ class Db(object):
     def tran_exec(self, sql, params=()):
         """DOES NOT perform a commit!"""
         if sql == "":
-            print("update: SQL cannot be empty.")
+            raise Exception("update: SQL cannot be empty.")
             return None
         
         try:
@@ -156,7 +156,7 @@ class Db(object):
     def select_all_dict(self, sql, params=()):
         """Gets a row set for a provided query."""
         if sql == "":
-            print("select_all: SQL cannot be empty.")
+            raise Exception("select_all: SQL cannot be empty.")
             return None
         
         try:
@@ -176,7 +176,7 @@ class Db(object):
     def select_row_dict(self, sql, params=()):
         """Gets a single row for a provided query.  If there are multiple rows, the first is returned."""
         if sql == "":
-            print("select_row: SQL cannot be empty.")
+            raise Exception("select_row: SQL cannot be empty.")
             return None
         
         try:
@@ -197,7 +197,7 @@ class Db(object):
     def exec_proc(self, sql, params=()):
         """Executes a procedure.  If there is a result set, it is returned."""
         if sql == "":
-            print("exec_proc: SQL cannot be empty.")
+            raise Exception("exec_proc: SQL cannot be empty.")
             return None
         
         try:

@@ -27,9 +27,9 @@ sys.path.insert(0, lib_path)
 
 from catosettings import settings
 from catocryptpy import catocryptpy
-from catocommon import catocommon
+from catocommon import catocommon, catoprocess
 
-class Messenger(catocommon.CatoService):
+class Messenger(catoprocess.CatoService):
     
     ### to do: add attachment logic into Messenger
 
@@ -64,11 +64,11 @@ class Messenger(catocommon.CatoService):
             
             #output "Smtp from address is $::SMTP_FROM"
         else:
-            self.output("Unable to get settings - using previous values.")
+            self.logger.info("Unable to get settings - using previous values.")
 
         
         if previous_mode != "" and previous_mode != self.messenger_enabled:
-            self.output("*** Control Change: Enabled is now %s" % 
+            self.logger.info("*** Control Change: Enabled is now %s" % 
                 (self.messenger_enabled))
 
     def update_msg_status(self, msg_id, status, err_msg):
@@ -90,7 +90,7 @@ class Messenger(catocommon.CatoService):
                 order by msg_id asc"""
         rows = self.db.select_all(sql, (self.retry_attempts))
         if rows:
-            self.output("Processing %d messages...", (len(rows)))
+            self.logger.info("Processing %d messages...", (len(rows)))
             try: 
                 server = smtplib.SMTP_SSL(self.smtp_server, int(self.smtp_port))
                 server.login(self.smtp_user, self.smtp_pass)

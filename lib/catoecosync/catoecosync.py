@@ -22,9 +22,9 @@ base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.
 lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 
-from catocommon import catocommon
+from catocommon import catocommon, catoprocess
 
-class Ecosync(catocommon.CatoService):
+class Ecosync(catoprocess.CatoService):
 
     ecosync_mode = ""
 
@@ -44,7 +44,7 @@ class Ecosync(catocommon.CatoService):
 
     def delete_eco_object(self, acc_id, obj_type, obj_id, cloud_id):
 
-        self.output("Deleting $object_id of type $object_type from account id $account_id and cloud id $cloud_id" %
+        self.logger.info("Deleting $object_id of type $object_type from account id $account_id and cloud id $cloud_id" %
             (obj_id, obj_type, acc_id, cloud_id))
 
         sql = """delete eo from ecosystem_object eo join ecosystem e 
@@ -125,7 +125,7 @@ class Ecosync(catocommon.CatoService):
 
     def startup(self):
 
-        catocommon.CatoService.startup(self)
+        catoprocess.CatoService.startup(self)
         self.tcl = Tcl(useTk=False)
         #catocommon.CatoService.startup()
         self.tcl.setvar(name='::HOME', value=self.home)

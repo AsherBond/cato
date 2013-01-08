@@ -14,6 +14,8 @@ except AttributeError as ex:
 
 
 from catocommon import catocommon
+from catolog import catolog
+logger = catolog.get_logger(__name__)
 
 class settings(object):
     #initing the whole parent class gives you DICTIONARIES of every subclass
@@ -104,7 +106,6 @@ class settings(object):
                 return True, ""
             except Exception as ex:
                 raise ex
-                print(ex)
             finally:
                 db.close()
 
@@ -228,7 +229,6 @@ class settings(object):
             
                 return True, ""
             except Exception as ex:
-                print(ex.__str__())
                 raise ex
             finally:
                 db.close()
@@ -303,7 +303,7 @@ class settings(object):
                 if xdoc is not None:
                     return xdoc.findtext(xpath, "")
                 
-            print("Info: attempt to find application settings [%s] failed." % xpath)
+            logger.warning("Info: attempt to find application settings [%s] failed." % xpath)
             return ""
         except Exception as ex:
             raise ex
@@ -315,7 +315,7 @@ class settings(object):
         try:
             # key is required, category is not
             if not setting:
-                print("Info: attempt to set application setting - missing setting name [%s/%s]." % (category, setting))
+                logger.warning("Info: attempt to set application setting - missing setting name [%s/%s]." % (category, setting))
                 return False, "Setting is a required value."
             
             sSQL = "select setting_xml from application_settings where id = 1"
@@ -360,7 +360,7 @@ class settings(object):
                     sSQL = "update application_settings set setting_xml='%s' where id=1" % ET.tostring(xdoc)
                     db = catocommon.new_conn()
                     if not db.exec_db_noexcep(sSQL):
-                        print("Info: attempt to set application setting [%s/%s] failed." % (category, setting))
+                        logger.warning("Info: attempt to set application setting [%s/%s] failed." % (category, setting))
                         return False, db.error
         
             return True, ""

@@ -14,18 +14,18 @@
 # limitations under the License.
 #########################################################################
 
-import os.path
-import sys
 from catocryptpy import catocryptpy
-import time
-import threading
+import urllib2
 import uuid
 import decimal
 import base64
-import pwd
 import re
 import json
+from catoconfig import catoconfig
 from catodb import catodb
+
+from catolog import catolog
+logger = catolog.get_logger(__name__)
 
 try:
     import xml.etree.cElementTree as ET
@@ -37,88 +37,125 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 
+# this file is common across all Cato modules, so the following globals are also common
+
+# the "CatoService, if there is one...
+CATOSERVICE = None
+
 # anything including catocommon can get new connections using the settings in 'config'
 def new_conn():
     newdb = catodb.Db()
-    newdb.connect_db(server=config["server"], port=config["port"],
-        user=config["user"], password=config["password"], database=config["database"])
+    newdb.connect_db(server=catoconfig.CONFIG["server"], port=catoconfig.CONFIG["port"],
+        user=catoconfig.CONFIG["user"], password=catoconfig.CONFIG["password"], database=catoconfig.CONFIG["database"])
     return newdb
 
 # this common function will use the encryption key in the config, and DECRYPT the input
 def cato_decrypt(encrypted):
     if encrypted:
-        return catocryptpy.decrypt_string(encrypted, config["key"])
+        return catocryptpy.decrypt_string(encrypted, catoconfig.CONFIG["key"])
     else:
         return encrypted
 # this common function will use the encryption key in the config, and ENCRYPT the input
 def cato_encrypt(s):
     if s:
-        return catocryptpy.encrypt_string(s, config["key"])
+        return catocryptpy.encrypt_string(s, catoconfig.CONFIG["key"])
     else:
         return ""
 
-def _get_base_path():
-    # this library file will always be in basepath/lib/catocommon
-    # so we will take off two directories and that will be the base_path
-    # this function should only be called from catocommon
-    base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    return base_path
-    
-def read_config():
-    base_path = _get_base_path()
 
-    filename = os.path.join(base_path, "conf/cato.conf")        
-    if not os.path.isfile(filename):
-        msg = "The configuration file " + filename + " does not exist."
-        raise Exception(msg)
+def http_get(url, timeout=30, headers={}):
+    """
+    Make an HTTP GET request, with a configurable timeout and optional headers.
+    Returns a tuple - the result and an error message.
+    """
+    if not url:
+        return "", "URL not provided."
+    
+    logger.info("Trying an HTTP GET to %s" % url)
+
+    # WHEN IT's time to do headers, do it this way
+#        req = urllib2.Request('http://www.example.com/')
+    # spin the headers dict ...
+#        req.add_header('Referer', 'http://www.python.org/')
+#        r = urllib2.urlopen(req)
+
+    # for now, just use the url directly
     try:
-        fp = open(filename, 'r')
-    except IOError as (errno, strerror):
-        msg = "Error opening file " + filename + " " + format(errno, strerror)
-        raise IOError(msg)
-    
-    key_vals = {}
-    contents = fp.read().splitlines()
-    fp.close
-    enc_key = ""
-    enc_pass = ""
-    for line in contents:
-        line = line.strip()
-        if len(line) > 0 and not line.startswith("#"):
-            row = line.split()
-            key = row[0].lower()
-            if len(row) > 1:
-                value = row[1]
-            else:
-                value = ""
+        response = urllib2.urlopen(url, None, timeout)
+        result = response.read()
+        if result:
+            return result, None
 
-            if key == "key":
-                if not value:
-                    raise Exception("ERROR: cato.conf 'key' setting is required.")
-                enc_key = value
-            elif key == "password":
-                if not value:
-                    raise Exception("ERROR: cato.conf 'password' setting is required.")
-                enc_pass = value
-            else:
-                key_vals[key] = value
-    un_key = catocryptpy.decrypt_string(enc_key, "")
-    key_vals["key"] = un_key
-    un_pass = catocryptpy.decrypt_string(enc_pass, un_key)
-    key_vals["password"] = un_pass
+    except urllib2.URLError as ex:
+        if hasattr(ex, "reason"):
+            logger.warning("http_get: failed to reach a server.")
+            logger.error(ex.reason)
+            return None, ex.reason
+        elif hasattr(ex, "code"):
+            logger.warning("http_get: The server couldn\'t fulfill the request.")
+            logger.error(ex.__str__())
+            return None, ex.__str__()
     
-    # something else here... 
-    # the root cato directory should have a VERSION file.
-    # read it's value into a config setting
-    verfilename = os.path.join(base_path, "VERSION")
-    if os.path.isfile(verfilename):
-        with open(verfilename, "r") as version_file:
-            ver = version_file.read()
-            key_vals["version"] = ver
-    else:
-        print("Info: VERSION file does not exist.")
+    # if all was well, we won't get here.
+    return None, "No results from request."
+
+def http_get_nofail(url):
+    """
+    This function does not fail.  For any errors it returns an empty result.
+
+    NOTE: this function is called by unauthenticated pages.
+    DO NOT use any of the helper functions like ".log" - they look for a user and kick back to the login page 
+    if none is found.  (infinite_loop = bad)
     
-    return key_vals
+    That's why we're using log_nouser.
+    
+    """
+    try:
+        if not url:
+            return ""
+        
+        logger.info("Trying an HTTP GET to %s" % url)
+        response = urllib2.urlopen(url, None, 4) # a 4 second timeout is enough
+        result = response.read()
+        
+        if result:
+            return result
+        else:
+            return ""
+        
+    except Exception as ex:
+        logger.warning(ex)
+        return ""
+
+def http_post(url, args, timeout=30, headers={}):
+    """
+    Make an HTTP GET request, with a configurable timeout and optional headers.
+    """
+    if not url:
+        return "", "URL not provided."
+    
+    logger.info("Trying an HTTP POST to %s..." % url)
+    logger.debug("   using args:\n%s" % args)
+
+    try:
+        data = json.dumps(args)
+        response = urllib2.urlopen(url, data, timeout)
+        result = response.read()
+        if result:
+            return result, None
+
+    except urllib2.URLError as ex:
+        if hasattr(ex, "reason"):
+            logger.warning("http_post: failed to reach a server.")
+            logger.error(ex.reason)
+            return None, ex.reason
+        elif hasattr(ex, "code"):
+            logger.warning("http_post: The server couldn\'t fulfill the request.")
+            logger.error(ex.__str__())
+            return None, ex.__str__()
+    
+    # if all was well, we won't get here.
+    return None
 
 def pretty_print_xml(xml_string):
     """
@@ -244,13 +281,12 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, ecosystem_id
             """ % (task_id, debug_level, user_id, schedule_instance, submitted_by_instance, ecosystem_id, account_id) 
         
         if not db.tran_exec_noexcep(sql):
-            print "Unable to run task [%s]." % task_id
-            raise Exception(db.error)
+            raise Exception("Unable to run task [%s].%s" % (task_id, db.error))
         
         task_instance = db.conn.insert_id()
         
         if not task_instance:
-            print "An error occured - unable to get the task_instance id."
+            logger.warning("An error occured - unable to get the task_instance id.")
             return None
         
         # do the parameters
@@ -258,7 +294,7 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, ecosystem_id
             sql = """insert into task_instance_parameter (task_instance, parameter_xml) 
                 values ('%s', '%s')""" % (str(task_instance), tick_slash(parameter_xml))
             if not db.tran_exec_noexcep(sql):
-                print "Unable to save parameter_xml for instance [%s]." % str(task_instance)
+                logger.warning("Unable to save parameter_xml for instance [%s]." % str(task_instance))
                 raise Exception(db.error)
 
         db.tran_commit()
@@ -287,7 +323,7 @@ def add_security_log(UserID, LogType, Action, ObjectType, ObjectID, LogMessage):
         values ('%s', '%s', '%s', now(), %d, '%s', '%s')""" % (LogType, Action, UserID, ObjectType, ObjectID, sTrimmedLog)
     db = new_conn()
     if not db.exec_db_noexcep(sSQL):
-        print db.error
+        logger.error(db.error)
     db.close()
 
 def write_add_log(UserID, oType, sObjectID, sObjectName, sLog=""):
@@ -360,7 +396,7 @@ def FindAndCall(method, args=None):
                 else:
                     return "Class [%s] does not exist or could not be loaded." % modname
             except ImportError as ex:
-                print(ex.__str__())
+                logger.error(ex.__str__())
                 return "Module [%s] does not exist." % modname
         else:
             methodToCall = getattr(globals, methodname, None)
@@ -380,146 +416,6 @@ def FindAndCall(method, args=None):
         if db:
             db.close()    
     
-#this file has a global 'config' that gets populated automatically.
-config = read_config()
-
-class CatoProcess():
-    def __init__(self, process_name):
-        self.host = os.uname()[1]
-        self.platform = os.uname()[0]
-        self.user = pwd.getpwuid(os.getuid())[0]
-        self.host_domain = self.user +'@'+ os.uname()[1]
-        self.my_pid = os.getpid()
-        self.process_name = process_name
-        self.initialize_logfile()
-        self.home = _get_base_path()
-        self.tmpdir = config["tmpdir"]
-
-    def set_logfile_name(self):
-        self.logfile_name = os.path.join(self.logfiles_path, self.process_name.lower() + ".log")
-
-    def initialize_logfile(self):
-        base_path = _get_base_path()
-        # logfiles go where defined in cato.conf, but in the base_path if not defined
-        self.logfiles_path = (config["logfiles"] if config["logfiles"] else os.path.join(base_path, "logfiles"))
-        self.set_logfile_name()
-
-        #stdout/stderr brute force interception can be optionally overridden.
-        if config.has_key("redirect_stdout"):
-            if config["redirect_stdout"] == "false":
-                # we'll just return before it can get redirected
-                return
-
-        sys.stderr = open(self.logfile_name, 'a', 1)
-        sys.stdout = open(self.logfile_name, 'a', 1)
-
-    def output(self, *args):
-        output_string = time.strftime("%Y-%m-%d %H:%M:%S ") + "".join(str(s) for s in args) + "\n\n"
-
-        #if we're not redirecting stdout, all messages that come through here get sent there too
-        if config.has_key("redirect_stdout"):
-            if config["redirect_stdout"] == "false":
-                print(output_string[:-1])
-
-        # the file is always written
-        fp = open(self.logfile_name, 'a')
-        fp.write(output_string)
-        fp.close
-
-    def startup(self):
-        self.output("####################################### Starting up ",
-            self.process_name,
-            " #######################################")
-        self.db = catodb.Db()
-        conn = self.db.connect_db(server=config["server"], port=config["port"],
-            user=config["user"],
-            password=config["password"], database=config["database"])
-        self.config = config
-
-
-    def end(self):
-        self.db.close()
-
-
-class CatoService(CatoProcess):
-
-    def __init__(self, process_name):
-        CatoProcess.__init__(self, process_name)
-        self.delay = 3
-        self.loop = 10
-        self.mode = "on"
-        self.master = 1
-
-
-    def check_registration(self):
-
-        # Get the node number
-        sql = "select id from application_registry where app_name = '" + self.process_name + \
-            "' and app_instance = '" + self.host_domain + "'"
-
-        result = self.db.select_col(sql)
-        if not result:
-            self.output(self.process_name + " has not been registered, registering...")
-            self.register_app()
-            result = self.db.select_col(sql)
-            self.instance_id = result
-        else:
-            self.output(self.process_name + " has already been registered, updating...")
-            self.instance_id = result
-            self.output("application instance = %d" % self.instance_id)
-            self.db.exec_db("""update application_registry set hostname = %s, userid = %s,
-                 pid = %s, platform = %s where id = %s""",
-                (self.host_domain, self.user, str(self.my_pid), self.platform,
-                 self.instance_id))
-
-    def register_app(self):
-        self.output("Registering application...")
-
-        sql = "insert into application_registry (app_name, app_instance, master, logfile_name, " \
-            "hostname, userid, pid, platform) values ('" + self.process_name + \
-            "', '" + self.host_domain + "',1, '" + self.process_name.lower() + ".log', \
-            '" + self.host + "', '" + self.user + "'," + str(self.my_pid) + ",'" + self.platform + "')"
-        self.db.exec_db(sql)
-        self.output("Application registered.")
-
-    def heartbeat_loop(self, event):
-        while True:
-            event.wait(self.loop)
-            if event.isSet():
-                break
-            self.update_heartbeat()
-
-    def update_heartbeat(self):
-        sql = "update application_registry set heartbeat = now() where id = %s"
-        self.db_heart.exec_db(sql, (self.instance_id))
-
-    def get_settings(self):
-        pass
-
-    def startup(self):
-        CatoProcess.startup(self)
-        self.check_registration()
-        self.get_settings
-        self.db_heart = catodb.Db()
-        conn_heart = self.db_heart.connect_db(server=self.config["server"], port=self.config["port"],
-            user=self.config["user"],
-            password=self.config["password"], database=self.config["database"])
-        self.update_heartbeat()
-        self.heartbeat_event = threading.Event()
-        self.heartbeat_thread = threading.Thread(target=self.heartbeat_loop, args=(self.heartbeat_event,))
-        self.heartbeat_thread.daemon = True
-        self.heartbeat_thread.start()
-
-    def end(self):
-        self.heartbeat_event.set()
-        self.heartbeat_thread.join()
-        self.db.close()
-
-    def service_loop(self):
-        while True:
-            self.get_settings()
-            self.main_process()
-            time.sleep(self.loop)
 
 ## This object to xml converter inspired from the following code snippet
 ## http://code.activestate.com/recipes/577739/
@@ -705,5 +601,5 @@ class CatoObjectTypes(object):
     EcoTemplate = 51
     Request = 61
     Deployment = 70
-    DeploymentService = 71
-    
+    DeploymentTemplate = 71
+    DeploymentService = 72

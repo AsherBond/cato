@@ -24,7 +24,7 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 
-from catoui import uiCommon, uiGlobals
+from catoui import uiCommon
 from catocommon import catocommon
 from catocloud import cloud
 
@@ -64,7 +64,7 @@ class cloudMethods:
     
             return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmGetProvidersList(self):
@@ -83,7 +83,7 @@ class cloudMethods:
                     
             return sHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
     
     def wmGetCloud(self):
@@ -98,7 +98,7 @@ class cloudMethods:
             #should not get here if all is well
             return "{\"result\":\"fail\",\"error\":\"Failed to get Cloud details for Cloud ID [" + sID + "].\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmGetCloudAccountsJSON(self):
@@ -111,7 +111,7 @@ class cloudMethods:
             #should not get here if all is well
             return "{\"result\":\"fail\",\"error\":\"Failed to get Cloud Accounts using filter [" + provider + "].\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmSaveCloud(self):
@@ -150,7 +150,7 @@ class cloudMethods:
                 c.Provider = cloud.Provider.FromName(sProvider)
                 result, msg = c.DBUpdate()
                 if not result:
-                    uiCommon.log(msg, 2)
+                    uiCommon.log(msg)
                     return "{\"info\" : \"%s\"}" % msg
                 
                 uiCommon.WriteObjectPropertyChangeLog(catocommon.CatoObjectTypes.Cloud, c.ID, c.Name, sCloudName, c.Name)
@@ -160,7 +160,7 @@ class cloudMethods:
             else:
                 return "{\"error\" : \"Unable to save Cloud using mode [" + sMode + "].\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmDeleteClouds(self):
@@ -186,7 +186,7 @@ class cloudMethods:
             return "{\"result\" : \"success\"}"
             
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
         
@@ -232,7 +232,7 @@ class cloudMethods:
             #should not get here if all is well
             return "{\"result\":\"fail\",\"error\":\"Failed to get Cloud Accounts using filter [" + sFilter + "].\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmGetCloudAccount(self):
@@ -247,7 +247,7 @@ class cloudMethods:
             #should not get here if all is well
             return "{\"result\":\"fail\",\"error\":\"Failed to get details for Cloud Account [" + sID + "].\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmGetKeyPairs(self):
@@ -283,7 +283,7 @@ class cloudMethods:
     
             return sHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmGetProvider(self):
@@ -296,7 +296,7 @@ class cloudMethods:
             else:
                 return "{\"result\":\"fail\",\"error\":\"Failed to get Provider details for [" + sProvider + "].\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmSaveAccount(self):
@@ -351,7 +351,7 @@ class cloudMethods:
                     ca.Provider = cloud.Provider.FromName(sProvider)
                     result, msg = ca.DBUpdate()
                     if not result:
-                        uiCommon.log(msg, 2)
+                        uiCommon.log(msg)
                         return "{\"info\" : \"%s\"}" % msg
 
 #            # what's the original name?
@@ -403,7 +403,7 @@ class cloudMethods:
 
             return "{\"result\" : \"success\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
 
 #    def wmGetProviderObjectTypes(self):
 #        try:
@@ -417,7 +417,7 @@ class cloudMethods:
 #                    
 #            return sHTML
 #        except Exception:
-#            uiCommon.log_nouser(traceback.format_exc(), 0)
+#            uiCommon.log(traceback.format_exc())
 #            return traceback.format_exc()
     
     def wmGetCloudObjectList(self):
@@ -443,7 +443,7 @@ class cloudMethods:
 
             return sHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def DrawTableForType(self, sAccountID, sObjectType, dt):
@@ -500,7 +500,7 @@ class cloudMethods:
 
                 # loop data columns
                 for prop in props:
-                    print("%s - %s" % (prop.Name, prop.Value))
+                    uiCommon.log_nouser("%s - %s" % (prop.Name, prop.Value), 3)
                     sValue = (prop.Value if prop.Value else "")
                     sHTML += "<td>"
 
@@ -518,7 +518,7 @@ class cloudMethods:
                                     sTags += "<b>%s</b> : %s<br />" % (xeTag.findtext("key", ""), xeTag.findtext("value", ""))
                                 sHTML += sTags
                         except: # couldn't parse it.  hmmm....
-                            print(traceback.format_exc())
+                            uiCommon.log_nouser(traceback.format_exc())
                             # I guess just stick the value in there, but make it safe
                             sHTML += uiCommon.SafeHTML(sValue)
                     else:                         
@@ -540,7 +540,7 @@ class cloudMethods:
 
             return sHTML
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmTestCloudConnection(self):
@@ -581,13 +581,13 @@ class cloudMethods:
 
             if not url:
                 return "{\"result\":\"fail\",\"error\":\"Unable to build API URL.\"}"
-            result, err = uiCommon.HTTPGet(url, 30)
+            result, err = catocommon.http_get(url, 30)
             if err:
                 return "{\"result\":\"fail\",\"error\":\"" + uiCommon.packJSON(err) + "\"}"
             
             return "{\"result\":\"success\",\"response\":\"" + uiCommon.packJSON(result) + "\"}"
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmSaveKeyPair(self):
@@ -650,7 +650,7 @@ class cloudMethods:
             return ""
         
         except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+            uiCommon.log(traceback.format_exc())
             return traceback.format_exc()
 
     def wmDeleteKeyPair(self):

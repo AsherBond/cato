@@ -26,9 +26,9 @@ lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 
 from catosettings import settings
-from catocommon import catocommon
+from catocommon import catocommon, catoprocess
 
-class Scheduler(catocommon.CatoService):
+class Scheduler(catoprocess.CatoService):
 
     scheduler_enabled = ""
 
@@ -48,20 +48,46 @@ class Scheduler(catocommon.CatoService):
                 # one of the processes cleans up the application_registry table
                 self.clean_appreg = sset.CleanAppRegistry
             else:
-                self.output("Unable to get settings - using previous values.")
+                self.logger.info("Unable to get settings - using previous values.")
     
             if previous_mode != "" and previous_mode != self.scheduler_enabled:
-                self.output("*** Control Change: Enabled is now %s" % 
+                self.logger.info("*** Control Change: Enabled is now %s" % 
                     (self.scheduler_enabled))
         except Exception as ex:
-            self.output(ex)
+            self.logger.error(ex)
 
     def clear_scheduled_action_plans(self):
         try:
             sql = """delete from action_plan where source = 'schedule'"""
             self.db.exec_db(sql)
         except Exception as ex:
-            self.output("Unable to delete from action_plan.\n"+ ex.__str__())
+            self.logger.error("Unable to delete from action_plan.\n"+ ex.__str__())
+
+    def balance_tasks(self):
+
+        sql = """delete from application_registry where timestampdiff(minute, heartbeat, now()) > 20"""
+        self.db.exec_db(sql)
+
+        sql = """update application_registry set master = 0 
+            where timestampdiff(second, heartbeat, now()) > (%s * 2)
+            and master = 1 and app_name = 'cato_poller'"""
+        self.db.exec_db(sql, (self.loop))
+
+        sql = """update application_registry set master = 1 
+            where timestampdiff(second, heartbeat, now()) < (%s * 2)
+            and master = 0 and app_name = 'cato_poller'"""
+        self.db.exec_db(sql, (self.loop))
+
+        sql = """update task_instance set ce_node = NULL, task_status = 'Submitted' 
+            where task_status in ('Staged','Submitted') and ce_node is not null and ce_node not in
+            (select id from application_registry where app_name = 'cato_poller' and master = 1)"""
+        self.db.exec_db(sql)
+
+        sql = """update task_instance set ce_node = 
+            (select id from application_registry 
+                where app_name = 'cato_poller' and master = 1 order by load_value asc limit 1) 
+            where task_status = 'Submitted' and ce_node is NULL"""
+        self.db.exec_db(sql)
 
     def expand_this_schedule(self, row):
         try:
@@ -119,7 +145,7 @@ class Scheduler(catocommon.CatoService):
                         values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                 self.db.exec_db(sql, (task_id, date, action_id, ecosystem_id, parameter_xml, debug_level, 'schedule', schedule_id, account_id))
         except Exception as ex:
-            self.output("Unable to expand schedule or insert into action_plan.\n"+ ex.__str__())
+            self.logger.error("Unable to expand schedule or insert into action_plan.\n"+ ex.__str__())
 
     def expand_schedules(self):
         try:
@@ -138,7 +164,7 @@ class Scheduler(catocommon.CatoService):
                     #print row
                     self.expand_this_schedule(row)
         except Exception as ex:
-            self.output("Error in expand_schedules.\n"+ ex.__str__())
+            self.logger.error("Error in expand_schedules.\n"+ ex.__str__())
 
     def run_schedule_instance(self, instance_row):
         try:
@@ -154,7 +180,7 @@ class Scheduler(catocommon.CatoService):
     
             ti = catocommon.add_task_instance(task_id, "", debug_level, parameter_xml, ecosystem_id, account_id, schedule_id, plan_id)
 
-            self.output("Started task instance %s for schedule id %s and plan id %s" % (ti, schedule_id, plan_id))
+            self.logger.info("Started task instance %s for schedule id %s and plan id %s" % (ti, schedule_id, plan_id))
             sql = """insert into action_plan_history (plan_id, task_id, run_on_dt, action_id, 
                     ecosystem_id, parameter_xml, debug_level, source, schedule_id, task_instance, account_id)
                     values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
@@ -163,7 +189,7 @@ class Scheduler(catocommon.CatoService):
             sql = """delete from action_plan where plan_id = %s"""
             self.db.exec_db(sql, (plan_id))
         except Exception as ex:
-            self.output("Unable to run schedule instance.  Probable error inserting action_plan_history.\n"+ ex.__str__())
+            self.logger.error("Unable to run schedule instance.  Probable error inserting action_plan_history.\n"+ ex.__str__())
 
 
     def check_schedules(self):
@@ -178,7 +204,7 @@ class Scheduler(catocommon.CatoService):
                 for row in rows:
                     self.run_schedule_instance(row)
         except Exception as ex:
-            self.output("Unable to check_schedules.\n"+ ex.__str__())
+            self.logger.error("Unable to check_schedules.\n"+ ex.__str__())
 
     def main_process(self):
         """main process loop, parent class will call this"""

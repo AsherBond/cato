@@ -13,12 +13,15 @@
 # limitations under the License.
 
 
+from catoconfig import catoconfig
+from catolog import catolog
 import web
 import os
 import sys
 import shelve
 
 app_name = "cato_admin_ui"
+logger = catolog.get_logger(app_name)
 
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 web_root = os.path.join(base_path, "ui/admin")
@@ -36,9 +39,9 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 
-from catocommon import catocommon
+from catocommon import catocommon, catoprocess
 from catolicense import catolicense
-from catoui import uiCommon, uiGlobals
+from catoui import uiGlobals
 from taskMethods import taskMethods
 
 # to avoid any path issues, "cd" to the web root.
@@ -72,18 +75,12 @@ class bypass:
 
 class version:        
     def GET(self):
-        try:
-            if uiGlobals.config.has_key("version"):
-                return uiGlobals.config["version"]
-            else:
-                return "Unknown"
-        except Exception as ex:
-            print(ex.__str__())
+        return catoconfig.VERSION
             
 # the login announcement hits the Cloud Sidekick web site for a news snip
 class announcement:        
     def GET(self):
-        s = uiCommon.HTTPGetNoFail("http://community.cloudsidekick.com/login-page-announcement?utm_source=cato_app&utm_medium=loginpage&utm_campaign=app")
+        s = catocommon.http_get_nofail("http://community.cloudsidekick.com/login-page-announcement?utm_source=cato_app&utm_medium=loginpage&utm_campaign=app")
         if s:
             return s
         else:
@@ -97,7 +94,7 @@ class getlicense:
                 lic = uiCommon.packJSON(uiCommon.FixBreaks(uiCommon.SafeHTML(lic)))
             return "{\"result\":\"%s\",\"message\":\"%s\",\"license\":\"%s\"}" % (result, msg, lic)
         except Exception as ex:
-            print(ex.__str__())
+            logger.error(ex.__str__())
             
 
 # the default page if no URI is given, just an information message
@@ -150,7 +147,7 @@ class taskEdit:
         if i.task_id:
             task_status = taskMethods.GetTaskStatus(i.task_id)
             if task_status == "Approved":
-                uiCommon.log("Warning: Attempt to explicitly access an Approved Task in the editor.", 2)
+                logger.warning("Attempt to explicitly access an Approved Task in the editor.", 2)
                 return render.taskView()
             else:
                 return render.taskEdit()
@@ -228,7 +225,7 @@ class upload:
             fullpath = "%s/%s" % (web_root, filepath)
             with open(fullpath, 'w') as f_out:
                 if not f_out:
-                    print("ERROR: unable to open %s for writing." % fullpath)
+                    logger.critical("Unable to open %s for writing." % fullpath)
                 f_out.write(x["fupFile"].file.read()) # writes the uploaded file to the newly created file.
             
             # all done, we loop back to the file_upload.html page, but this time include
@@ -260,9 +257,6 @@ class logout:
 def auth_app_processor(handle):
     path = web.ctx.path
     
-    # this is very handy in verbose debugging mode for identifying errors
-    uiCommon.log_nouser("Serving %s" % path, 4)
-    
     # requests that are allowed, no matter what
     if path in [
         "/uiMethods/wmAttemptLogin",
@@ -280,7 +274,7 @@ def auth_app_processor(handle):
 
     # any other request requires an active session ... kick it out if there's not one.
     if not uiGlobals.session.get('user', False):
-        uiCommon.log_nouser("Session Expired", 3)
+        logger.info("Session Expired")
         raise web.seeother('/static/login.html')
     
     # check the role/method mappings to see if the requested page is allowed
@@ -295,7 +289,7 @@ def auth_app_processor(handle):
     if uiCommon.check_roles(path):
         return handle()
     else:
-        print(path)
+        logger.debug(path)
         if "Methods/wm" in path:
             return ""
         else:
@@ -311,7 +305,7 @@ def CacheTaskCommands():
         # so, we will use the FunctionCategories class in the session that was loaded at login, and build the list items for the commands tab.
         cats = uiGlobals.FunctionCategories
         if not cats:
-            print("Error: Task Function Categories class is not in the datacache.")
+            logger.error("Task Function Categories class is not in the datacache.")
         else:
             for cat in cats.Categories:
                 sCatHTML += "<li class=\"ui-widget-content ui-corner-all command_item category\""
@@ -353,21 +347,21 @@ def CacheTaskCommands():
 
         with open("%s/static/_categories.html" % web_root, 'w') as f_out:
             if not f_out:
-                print("ERROR: unable to create static/_categories.html.")
+                logger.error("Unable to create static/_categories.html.")
             f_out.write(sCatHTML)
 
         with open("%s/static/_functions.html" % web_root, 'w') as f_out:
             if not f_out:
-                print("ERROR: unable to create static/_functions.html.")
+                logger.error("Unable to create static/_functions.html.")
             f_out.write(sFunHTML)
 
         with open("%s/static/_command_help.html" % web_root, 'w') as f_out:
             if not f_out:
-                print("ERROR: unable to create static/_command_help.html.")
+                logger.error("Unable to create static/_command_help.html.")
             f_out.write(sHelpHTML)
 
     except Exception as ex:
-        uiCommon.log_nouser(ex.__str__(), 0)
+        logger.error(ex.__str__())
 
 def CacheMenu():
     #put the site.master.xml in the session here
@@ -439,17 +433,17 @@ def CacheMenu():
 
     with open("%s/static/_amenu.html" % web_root, 'w') as f_out:
         if not f_out:
-            print("ERROR: unable to create static/_amenu.html.")
+            logger.error("Unable to create static/_amenu.html.")
         f_out.write(sAdminMenu)
 
     with open("%s/static/_dmenu.html" % web_root, 'w') as f_out:
         if not f_out:
-            print("ERROR: unable to create static/_dmenu.html.")
+            logger.error("Unable to create static/_dmenu.html.")
         f_out.write(sDevMenu)
 
     with open("%s/static/_umenu.html" % web_root, 'w') as f_out:
         if not f_out:
-            print("ERROR: unable to create static/_umenu.html.")
+            logger.error("Unable to create static/_umenu.html.")
         f_out.write(sUserMenu)
 
 
@@ -459,10 +453,9 @@ def Housekeeping():
     try:
         db = catocommon.new_conn()
 
-        uiCommon.log_nouser("Doing a little housekeeping...", 0)
+        logger.info("Doing a little housekeeping...")
         
-        base_path = catocommon._get_base_path()
-        filename = os.path.join(base_path, "conf/cloud_providers.xml")
+        filename = os.path.join(catoconfig.BASEPATH, "conf/cloud_providers.xml")
         if not os.path.isfile(filename):
             raise Exception("conf/cloud_providers.xml file does not exist.")
         xRoot = ET.parse(filename)
@@ -488,7 +481,7 @@ def Housekeeping():
                         cnt = db.select_col_noexcep(sql)
                         
                         if not cnt:
-                            uiCommon.log_nouser("Info: Creating Cloud [%s] on Provider [%s]..." % (cloud_name, p_name))
+                            logger.info("Creating Cloud [%s] on Provider [%s]..." % (cloud_name, p_name))
 
                             if xCloud.get("api_url", None) == None:
                                 raise Exception("Cloud Providers XML: All Clouds must have the 'api_url' attribute.")
@@ -499,12 +492,11 @@ def Housekeeping():
                             c, err = cloud.Cloud.DBCreateNew(cloud_name, p_name, xCloud.get("api_url", ""), xCloud.get("api_protocol", ""), xCloud.get("region", ""))
                             
                             if not c:
-                                uiCommon.log_nouser("Warning: Could not create Cloud from cloud_providers.xml definition.\n%s" % err, 2)
+                                logger.warning("Could not create Cloud from cloud_providers.xml definition.\n%s" % err)
                         
 
     except Exception as ex:
-        uiCommon.log_nouser("Warning: Unable to create Cloud from cloud_providers.xml definition.", 2)
-        uiCommon.log_nouser(ex.__str__(), 0)
+        logger.error(ex.__str__())
     finally:
         db.close()
     
@@ -515,31 +507,39 @@ def Housekeeping():
 
 
 if __name__ != app_name:
+    dbglvl = 20
+    if "admin_ui_debug" in catoconfig.CONFIG:
+        try:
+            dbglvl = int(catoconfig.CONFIG["admin_ui_debug"])
+        except:
+            raise Exception("admin_ui_debug setting in cato.conf must be an integer between 0-50.")
+    catolog.DEBUG = dbglvl
+            
+    c_dbglvl = 20
+    if "admin_ui_client_debug" in catoconfig.CONFIG:
+        try:
+            c_dbglvl = int(catoconfig.CONFIG["admin_ui_client_debug"])
+        except:
+            raise Exception("admin_ui_client_debug setting in cato.conf must be an integer between 0-50.")
+    catolog.CLIENTDEBUG = c_dbglvl
+            
     #this is a service, which has a db connection.
     # but we're not gonna use that for gui calls - we'll make our own when needed.
-    server = catocommon.CatoService(app_name)
+    server = catoprocess.CatoService(app_name)
     server.startup()
 
-    config = catocommon.read_config()
+    # now that the service is set up, we'll know what the logfile name is.
+    # so reget the logger
+    logger = catolog.get_logger(app_name)
 
-    if "version" in config:
-        print("Cato UI - Version %s" % config["version"])
+    logger.info("Cato UI - Version %s" % catoconfig.VERSION)
+    logger.info("DEBUG set to %d..." % dbglvl)
+    logger.info("CLIENTDEBUG set to %d..." % c_dbglvl)
 
-    if "admin_ui_port" in config:
-        port = config["admin_ui_port"]
+    if "admin_ui_port" in catoconfig.CONFIG:
+        port = catoconfig.CONFIG["admin_ui_port"]
         sys.argv.append(port)
     
-    dbglvl = 2
-    if "admin_ui_debug" in config:
-        try:
-            dbglvl = int(config["admin_ui_debug"])
-        except:
-            print("Warning: admin_ui_debug setting in cato.conf must be an integer between 0-4.")
-        print("Setting debug level to %d..." % dbglvl)
-    else:
-        print("Setting debug level to default (%d)..." % dbglvl)
-    uiGlobals.debuglevel = dbglvl
-            
     # the LAST LINE must be our /(.*) catchall, which is handled by uiMethods.
     urls = (
         '/', 'home',
@@ -590,8 +590,6 @@ if __name__ != app_name:
     app.notfound = notfound
     
     uiGlobals.session = session
-    uiGlobals.server = server
-    uiGlobals.config = config
     uiGlobals.lib_path = lib_path
     uiGlobals.web_root = web_root
     
@@ -605,7 +603,12 @@ if __name__ != app_name:
     
     # put the task commands in a global for our lookups
     # and cache the html in a flat file
-    uiCommon.log_nouser("Reading configuration files and generating static html...", 3)
+    logger.info("Reading configuration files and generating static html...")
+
+        #NOTE: this import is here and not at the top ON PURPOSE...
+    # if it's imported at the top, catolog won't have a LOGFILE defined yet 
+    # and the uiCommon logger won't write to the file
+    from catoui import uiCommon
     uiCommon.LoadTaskCommands()
     #rebuild the cache html files
     CacheTaskCommands()
@@ -619,15 +622,13 @@ if __name__ != app_name:
     # Uncomment the following - it will print out all the core methods in the app
     # this will be handy during the conversion, as we add functions to uiGlobals.RoleMethods.
 #    for s in dir():
-#        print("\"/%s\" : [\"Developer\"]," % s)
+#        logger.debug("\"/%s\" : [\"Developer\"]," % s)
 #    for s in dir(uiMethods):
-#        print("\"/uiMethods/%s\" : [\"Developer\"]," % s)
+#        logger.debug("\"/uiMethods/%s\" : [\"Developer\"]," % s)
 #    for s in dir(taskMethods):
-#        print("\"/taskMethods/%s\" : [\"Developer\"]," % s)
-#    for s in dir(ecoMethods):
-#        print("\"/ecoMethods/%s\" : [\"Developer\"]," % s)
+#        logger.debug("\"/taskMethods/%s\" : [\"Developer\"]," % s)
 #    for s in dir(cloudMethods):
-#        print("\"/cloudMethods/%s\" : [\"Developer\"]," % s)
+#        logger.debug("\"/cloudMethods/%s\" : [\"Developer\"]," % s)
 
 
     # NOTE: this "application" attribute will only be used if we're attached to as a 

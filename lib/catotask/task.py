@@ -17,10 +17,11 @@
     THIS CLASS has it's own database connections.
     Why?  Because it isn't only used by the UI.
 """
+from catolog import catolog
+logger = catolog.get_logger(__name__)
 
 import traceback
 import uuid
-import json
 try:
     import xml.etree.cElementTree as ET
 except (AttributeError, ImportError):
@@ -30,6 +31,7 @@ try:
 except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
+
 from catocommon import catocommon
 from catoui import uiCommon
 from datetime import datetime
@@ -218,7 +220,7 @@ class Task(object):
             
             xmlerr = "XML Error: Attribute not found."
             
-            uiCommon.log("Creating Task object from XML", 3)
+            logger.debug("Creating Task object from XML")
             xTask = ET.fromstring(sTaskXML)
             
             #attributes of the <task> node
@@ -252,11 +254,11 @@ class Task(object):
  
             # CODEBLOCKS
             xCodeblocks = xTask.findall("codeblocks/codeblock")
-            uiCommon.log("Number of Codeblocks: " + str(len(xCodeblocks)), 4)
+            logger.debug("Number of Codeblocks: " + str(len(xCodeblocks)))
             for xCB in xCodeblocks:
                 cbname = xTask.get("name", "")
                 if not cbname:
-                    uiCommon.log("Error: Codeblock 'name' attribute is required.", 1)
+                    logger.error("Codeblock 'name' attribute is required.", 1)
 
                 newcb = Codeblock(cbname)
                 newcb.FromXML(ET.tostring(xCB))
@@ -726,7 +728,6 @@ class Task(object):
 
             return sNewTaskID
         except Exception as ex:
-            print(traceback.format_exc())
             raise ex
         finally:
             db.close()
@@ -836,7 +837,7 @@ class Task(object):
                             if self.Codeblocks.has_key(oStep.Codeblock):
                                 self.Codeblocks[oStep.Codeblock].Steps[oStep.Order] = oStep
                             else:
-                                print("WARNING: Step thinks it belongs in codeblock [%s] but this task doesn't have that codeblock." % (oStep.Codeblock if oStep.Codeblock else "NONE"))
+                                raise Exception("WARNING: Step thinks it belongs in codeblock [%s] but this task doesn't have that codeblock." % (oStep.Codeblock if oStep.Codeblock else "NONE"))
         except Exception as ex:
             raise ex
 
@@ -864,7 +865,7 @@ class Codeblock(object):
         
         #STEPS
         xSteps = xCB.findall("steps/step")
-        uiCommon.log("Number of Steps in [" + self.Name + "]: " + str(len(xSteps)), 4)
+        logger.debug("Number of Steps in [" + self.Name + "]: " + str(len(xSteps)), 4)
         order = 1
         for xStep in xSteps:
             newstep = Step()
@@ -972,7 +973,7 @@ class Step(object):
                 return oStep
 
             if db.error:
-                uiCommon.log("Error getting Step by ID: " + db.error, 2)
+                logger.error("Error getting Step by ID: %s" % db.error)
             
             return None
         except Exception as ex:
@@ -1000,7 +1001,7 @@ class Step(object):
                 return oStep
 
             if db.error:
-                uiCommon.log("Error getting Step by ID: " + db.error, 2)
+                logger.error("Error getting Step by ID: " + db.error)
             
             return None
         except Exception as ex:
@@ -1032,12 +1033,12 @@ class Step(object):
                     self.OutputColumnDelimiter = int(self.FunctionXDoc.get("col_delimiter", 0))
                 except ET.ParseError:
                     self.IsValid = False
-                    print(traceback.format_exc())    
-                    print("CRITICAL: Unable to parse function xml in step [%s]." % self.ID)
+                    logger.error(traceback.format_exc())    
+                    raise Exception("CRITICAL: Unable to parse function xml in step [%s]." % self.ID)
                 except Exception:
                     self.IsValid = False
-                    print(traceback.format_exc())  
-                    print("CRITICAL: Exception in processing step [%s]." % self.ID)
+                    logger.error(traceback.format_exc())  
+                    raise Exception("CRITICAL: Exception in processing step [%s]." % self.ID)
                     
                 # if there's no description, and the function_xml says so, we can snip
                 # a bit of a value as the description
@@ -1125,7 +1126,7 @@ class TaskRunLog(object):
 
             self.summary_rows = db.select_all_dict(sSQL, (sTaskInstance))
             if db.error:
-                print db.error
+                logger.error(db.error)
 
             # NOW carry on with the regular rows
             sSQL = """select til.task_instance, til.entered_dt, til.connection_name, til.log,
@@ -1140,7 +1141,7 @@ class TaskRunLog(object):
                 
             self.log_rows = db.select_all_dict(sSQL)
             if db.error:
-                print db.error
+                logger.error(db.error)
 
         except Exception as ex:
             raise Exception(ex)
@@ -1174,10 +1175,10 @@ class TaskInstance(object):
             # if an instance was provided... it overrides all other args 
             # otherwise we need to figure out which instance we want
             if not sTaskInstance:
-                if uiCommon.IsGUID(sTaskID):
+                if catocommon.is_guid(sTaskID):
                     sSQL = "select max(task_instance) from task_instance where task_id = '%s'" % sTaskID
     
-                    if uiCommon.IsGUID(sAssetID):
+                    if catocommon.is_guid(sAssetID):
                         sSQL += " and asset_id = '%s'" % sAssetID
     
                     sTaskInstance = str(db.select_col_noexcep(sSQL))
@@ -1332,18 +1333,18 @@ class TaskInstance(object):
                     and task_status in ('Processing')""" % self.Instance
 
                 if not db.exec_db_noexcep(sSQL):
-                    print("Unable to stop task instance [%s]. %s" % (self.Instance, db.error))
+                    raise Exception("Unable to stop task instance [%s]. %s" % (self.Instance, db.error))
 
                 sSQL = """update task_instance set task_status = 'Cancelled'
                     where task_instance = '%s'
                     and task_status in ('Submitted','Queued','Staged')""" % self.Instance
 
                 if not db.exec_db_noexcep(sSQL):
-                    print("Unable to stop task instance [%s]. %s" % (self.Instance, db.error))
+                    raise Exception("Unable to stop task instance [%s]. %s" % (self.Instance, db.error))
 
                 return ""
             else:
-                print("Unable to stop task. Missing or invalid task_instance.")
+                raise Exception("Unable to stop task. Missing or invalid task_instance.")
         except Exception as ex:
             raise Exception(ex)
         finally:

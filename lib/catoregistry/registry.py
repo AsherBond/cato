@@ -45,7 +45,7 @@ class Registry(object):
                     self.xml_tree = ET.fromstring(self.xml_text)
                 else:
                     # if the object_id is a guid, it's an object registry:... add one if it's not there.
-                    if uiCommon.IsGUID(object_id):
+                    if catocommon.is_guid(object_id):
                         sSQL = "insert into object_registry values ('%s', '<registry />')" % object_id
                         if not db.exec_db_noexcep(sSQL):
                             raise Exception("Error: Could not create Registry." + db.error)

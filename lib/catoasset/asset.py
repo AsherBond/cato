@@ -18,6 +18,8 @@
     Why?  Because it isn't only used by the UI.
 """
 from catocommon import catocommon
+from catolog import catolog
+logger = catolog.get_logger(__name__)
 
 class Assets(object): 
     rows = {}
@@ -202,7 +204,7 @@ class Asset(object):
             "'" + sCredentialID + "'" \
             ")"
             if not db.tran_exec_noexcep(sSQL):
-                print(db.error)
+                logger.error(db.error)
                 if db.error == "key_violation":
                     return None, "Asset Name '" + sAssetName + "' already in use, choose another."
                 else: 
@@ -301,7 +303,7 @@ class Asset(object):
                 for tag in tags:
                     sql = "insert object_tags (object_type, object_id, tag_name) values (2, '%s','%s')" % (self.ID, tag)
                     if not db.exec_db_noexcep(sql):
-                        print("Error creating Tags for Asset %s." % self.ID)
+                        logger.error("Error creating Tags for Asset %s." % self.ID)
         except Exception as ex:
             raise ex
         finally:

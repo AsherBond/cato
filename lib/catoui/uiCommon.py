@@ -15,7 +15,6 @@
 
 import web
 import os
-import urllib2
 import traceback
 import json
 import cgi
@@ -31,33 +30,41 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 
+from catolog import catolog
+from catoconfig import catoconfig
 from catocommon import catocommon
 from catosettings import settings
 from catoui import uiGlobals
 from catouser import catouser
 
-# writes to stdout using the catocommon.server output function
-# also prints to the console.
-def log(msg, debuglevel=2):
+logger = catolog.get_logger(__name__)
+
+def log(msg, debuglevel=0):
+    """ 
+    This function is used by the UI's, because it adds the User ID to the log message.
+    """
     if msg:
-        if debuglevel <= uiGlobals.debuglevel:
-            user_id = ""
-            try:
-                user_id = GetSessionUserID()
-                msg = "%s :: %s" % (user_id, msg)
-            except:
-                """ do nothing if there's no user - it may be pre-login """
-                
-            log_nouser(msg, debuglevel)
+        user_id = ""
+        try:
+            user_id = GetSessionUserID()
+            msg = "%s :: %s" % (user_id, msg)
+        except:
+            """ do nothing if there's no user - it may be pre-login """
+            
+        log_nouser(msg, debuglevel)
 
 def log_nouser(msg, debuglevel=2):
+    # TODO!!! this whole function will go away as logger.foo goes everywhere
     if msg:
-        if debuglevel <= uiGlobals.debuglevel:
-            try:
-                uiGlobals.server.output(str(msg))
-            except:
-                uiGlobals.server.output(msg)
-
+        if debuglevel == 4:
+            logger.debug(msg)
+        elif debuglevel == 3:
+            logger.info(msg)
+        elif debuglevel == 2:
+            logger.warning(msg)
+        else:
+            logger.error(msg)
+        
 def check_roles(method):
     # if you wanna enable verbose page view logging, this is the place to do it.
     s_set = settings.settings.security()
@@ -76,10 +83,10 @@ def check_roles(method):
         if user_role in mapping:
             return True
         else:
-            log("User requesting %s - insufficient permissions" % method, 0)
+            log("User requesting %s - insufficient permissions" % method)
             return False
     else:
-        log("ERROR: %s does not have a role mapping." % method, 0)
+        log("ERROR: %s does not have a role mapping." % method)
         return False
 
 def CatoEncrypt(s):
@@ -122,9 +129,6 @@ def SetCookie(sCookie, sValue):
     except Exception:
         log_nouser("Warning: Attempt to set cookie [%s] failed." % sCookie, 2)
         log_nouser(traceback.format_exc(), 0)
-
-def IsGUID(s):
-    return catocommon.is_guid(s)
 
 def packJSON(sIn):
     return catocommon.packData(sIn)
@@ -401,74 +405,6 @@ def GetTaskFunction(sFunctionName):
     else:
         return None
 
-def HTTPGet(url, timeout=30, headers={}):
-    """
-    Make an HTTP GET request, with a configurable timeout and optional headers.
-    Returns a tuple - the result and an error message.
-    """
-    try:
-        if not url:
-            return "", "URL not provided."
-        
-        log_nouser("Trying an HTTP GET to %s" % url, 4)
-
-        # WHEN IT's time to do headers, do it this way
-#        req = urllib2.Request('http://www.example.com/')
-        # spin the headers dict ...
-#        req.add_header('Referer', 'http://www.python.org/')
-#        r = urllib2.urlopen(req)
-
-        # for now, just use the url directly
-        try:
-            response = urllib2.urlopen(url, None, timeout)
-            result = response.read()
-            if result:
-                return result, None
-
-        except urllib2.URLError as ex:
-            if hasattr(ex, "reason"):
-                log_nouser("HTTPGet: failed to reach a server.", 2)
-                log_nouser(ex.reason, 2)
-                return None, ex.reason
-            elif hasattr(ex, "code"):
-                log_nouser("HTTPGet: The server couldn\'t fulfill the request.", 2)
-                log_nouser(ex.__str__(), 2)
-                return None, ex.__str__()
-        
-        # if all was well, we won't get here.
-        return None, "No results from request."
-        
-    except Exception:
-        log_nouser(traceback.format_exc(), 2)
-
-def HTTPGetNoFail(url):
-    """
-    This function does not fail.  For any errors it returns an empty result.
-
-    NOTE: this function is called by unauthenticated pages.
-    DO NOT use any of the helper functions like ".log" - they look for a user and kick back to the login page 
-    if none is found.  (infinite_loop = bad)
-    
-    That's why we're using log_nouser.
-    
-    """
-    try:
-        if not url:
-            return ""
-        
-        log_nouser("Trying an HTTP GET to %s" % url, 4)
-        response = urllib2.urlopen(url, None, 4) # a 4 second timeout is enough
-        result = response.read()
-        
-        if result:
-            return result
-        else:
-            return ""
-        
-    except Exception:
-        log_nouser(traceback.format_exc(), 4)
-        return ""
-
 def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
     try:
         log("Querying the cloud for %s" % sObjectType, 4)
@@ -634,7 +570,7 @@ def AddTaskInstance(sUserID, sTaskID, sEcosystemID, sAccountID, sAssetID, sParam
         # we gotta peek into the XML and encrypt any newly keyed values
         sParameterXML = PrepareAndEncryptParameterXML(sParameterXML);                
     
-        if IsGUID(sTaskID) and IsGUID(sUserID):
+        if catocommon.is_guid(sTaskID) and catocommon.is_guid(sUserID):
             ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, sEcosystemID, sAccountID, "", "")
             log("Starting Task [%s] ... Instance is [%s]" % (sTaskID, ti), 3)
             return ti

@@ -1148,7 +1148,7 @@ def ddDataSource_GetAWSClouds():
 
 def AddToCommandXML(sStepID, sXPath, sXMLToAdd):
     try:
-        if not UI.IsGUID(sStepID):
+        if not catocommon.is_guid(sStepID):
             UI.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "].")
 
         UI.AddNodeToXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sXPath, sXMLToAdd)
@@ -1159,7 +1159,7 @@ def AddToCommandXML(sStepID, sXPath, sXMLToAdd):
 
 def SetNodeValueinCommandXML(sStepID, sNodeToSet, sValue):
     try:
-        if not UI.IsGUID(sStepID):
+        if not catocommon.is_guid(sStepID):
             UI.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "] ")
 
         UI.SetNodeValueinXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToSet, sValue)
@@ -1170,7 +1170,7 @@ def SetNodeValueinCommandXML(sStepID, sNodeToSet, sValue):
 
 def SetNodeAttributeinCommandXML(sStepID, sNodeToSet, sAttribute, sValue):
     try:
-        if not UI.IsGUID(sStepID):
+        if not catocommon.is_guid(sStepID):
             UI.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "] ")
 
         UI.SetNodeAttributeinXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToSet, sAttribute, sValue)
@@ -1181,7 +1181,7 @@ def SetNodeAttributeinCommandXML(sStepID, sNodeToSet, sAttribute, sValue):
 
 def RemoveFromCommandXML(sStepID, sNodeToRemove):
     try:
-        if not UI.IsGUID(sStepID):
+        if not catocommon.is_guid(sStepID):
             UI.log("Unable to modify step.<br />Invalid or missing Step ID. [" + sStepID + "]<br />")
         
         UI.RemoveNodeFromXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToRemove)
@@ -1897,7 +1897,7 @@ def RunTask(oStep):
         # sOnError = xError.findtext(value, "")
     
         # get the name and code for belonging to this otid and version
-        if UI.IsGUID(sOriginalTaskID):
+        if catocommon.is_guid(sOriginalTaskID):
             sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
                 " where original_task_id = '" + sOriginalTaskID + "'" + \
                 (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
@@ -1940,7 +1940,7 @@ def RunTask(oStep):
         #  get the asset name belonging to this asset_id
         #  OTHERWISE
         #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
-        if UI.IsGUID(sAssetID):
+        if catocommon.is_guid(sAssetID):
             sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
     
             sAssetName = db.select_col_noexcep(sSQL)
@@ -1981,7 +1981,7 @@ def RunTask(oStep):
                 " task_id=\"" + sActualTaskID + "\"></span>\n"
     
         # versions
-        if UI.IsGUID(sOriginalTaskID):
+        if catocommon.is_guid(sOriginalTaskID):
             sHTML += "<br />"
             sHTML += "Version: \n"
             sHTML += "<select " + CommonAttribs(oStep, False, "version", "") + " reget_on_change=\"true\">\n"
@@ -2017,11 +2017,11 @@ def RunTask(oStep):
         sHTML += "Asset: \n"
         sHTML += "<input type=\"text\"" \
             " help=\"Select an Asset or enter a variable.\"" + \
-            ("" if UI.IsGUID(sAssetID) else " syntax=\"variable\"") + \
+            ("" if catocommon.is_guid(sAssetID) else " syntax=\"variable\"") + \
             " step_id=\"" + sStepID + "\"" \
             " class=\"code w75pct\"" \
             " id=\"fn_run_task_assetname_" + sStepID + "\"" + \
-            (" disabled=\"disabled\"" if UI.IsGUID(sAssetID) else "") + \
+            (" disabled=\"disabled\"" if catocommon.is_guid(sAssetID) else "") + \
             " onchange=\"javascript:pushStepFieldChangeVia(this, '" + sAssetField + "');\"" \
             " value=\"" + sAssetName + "\" />\n"
     
@@ -2099,7 +2099,7 @@ def RunTask_View(oStep):
         sAssetID = xd.findtext("asset_id", "")
     
         # get the name and code for belonging to this otid and version
-        if UI.IsGUID(sOriginalTaskID):
+        if catocommon.is_guid(sOriginalTaskID):
             sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
                 " where original_task_id = '" + sOriginalTaskID + "'" + \
                 (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
@@ -2121,7 +2121,7 @@ def RunTask_View(oStep):
         #  get the asset name belonging to this asset_id
         #  OTHERWISE
         #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
-        if UI.IsGUID(sAssetID):
+        if catocommon.is_guid(sAssetID):
             sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
     
             sAssetName = db.select_col_noexcep(sSQL)
@@ -2141,7 +2141,7 @@ def RunTask_View(oStep):
         sHTML += "<span class=\"code\">" + sLabel + "</span>"
     
         # versions
-        if UI.IsGUID(sOriginalTaskID):
+        if catocommon.is_guid(sOriginalTaskID):
             sHTML += "<br />"
             sHTML += "Version: \n"
             sHTML += "<span class=\"code\">" + (sVersion if sVersion else "Default") + "</span>"
@@ -2190,7 +2190,7 @@ def Subtask(oStep):
         sVersion = xd.findtext("version", "")
     
         # get the name and code for belonging to this otid and version
-        if UI.IsGUID(sOriginalTaskID):
+        if catocommon.is_guid(sOriginalTaskID):
             sSQL = "select task_id, task_code, task_name from task" \
                 " where original_task_id = '" + sOriginalTaskID + "'" + \
                 (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
@@ -2252,7 +2252,7 @@ def Subtask(oStep):
             sHTML += "<span class=\"ui-icon ui-icon-print forceinline task_print_btn pointer\" title=\"View Task\"" \
                 " task_id=\"" + sActualTaskID + "\"></span>\n"
         # versions
-        if UI.IsGUID(sOriginalTaskID):
+        if catocommon.is_guid(sOriginalTaskID):
             sHTML += "<br />"
             sHTML += "Version: \n"
             sHTML += "<select " + CommonAttribs(oStep, False, "version", "") + \
@@ -2303,7 +2303,7 @@ def Subtask_View(oStep):
         sVersion = xd.findtext("version", "")
     
         # get the name and code for belonging to this otid and version
-        if UI.IsGUID(sOriginalTaskID):
+        if catocommon.is_guid(sOriginalTaskID):
             sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
                 " where original_task_id = '" + sOriginalTaskID + "'" + \
                 (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
@@ -2324,7 +2324,7 @@ def Subtask_View(oStep):
         sHTML += "Task: \n"
         sHTML += "<span class=\"code\">" + sLabel + "</span>"
         # versions
-        if UI.IsGUID(sOriginalTaskID):
+        if catocommon.is_guid(sOriginalTaskID):
             sHTML += "<br />"
             sHTML += "Version: \n"
             sHTML += "<span class=\"code\">" + (sVersion if sVersion else "Default") + "</span>"
@@ -2563,7 +2563,7 @@ def NewConnection(oStep):
         # now, based on the type, we might show or hide certain things
         if sConnType == "ssh - ec2":
             # if the assetid is a guid, it means the user switched from another connection type... wipe it.
-            if UI.IsGUID(sAssetID):
+            if catocommon.is_guid(sAssetID):
                 SetNodeValueinCommandXML(sStepID, "asset", "")
                 sAssetID = ""
             
@@ -2606,7 +2606,7 @@ def NewConnection(oStep):
             #  get the asset name belonging to this asset_id
             #  OTHERWISE
             #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
-            if UI.IsGUID(sAssetID):
+            if catocommon.is_guid(sAssetID):
                 sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
                 db = catocommon.new_conn()
                 sAssetName = db.select_col_noexcep(sSQL)
@@ -2681,7 +2681,7 @@ def NewConnection_View(oStep):
             #  get the asset name belonging to this asset_id
             #  OTHERWISE
             #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
-            if UI.IsGUID(sAssetID):
+            if catocommon.is_guid(sAssetID):
                 sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
                 db = catocommon.new_conn()
                 sAssetName = db.select_col_noexcep(sSQL)
