@@ -20,8 +20,8 @@ import shelve
 
 app_name = "cato_admin_ui"
 
-base_path = os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0])))
-web_root = os.path.join(base_path, "web")
+base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
+web_root = os.path.join(base_path, "ui/admin")
 lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 sys.path.append(web_root)
@@ -372,7 +372,7 @@ def CacheTaskCommands():
 def CacheMenu():
     #put the site.master.xml in the session here
     # this is a significant boost to performance
-    xRoot = ET.parse("%s/site.master.xml" % web_root)
+    xRoot = ET.parse("%s/catoadminui/site.master.xml" % lib_path)
     if not xRoot:
         raise Exception("Critical: Unable to read/parse site.master.xml.")
         
