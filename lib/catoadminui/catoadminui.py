@@ -65,7 +65,20 @@ class wmHandler:
     def POST(self, method):
         return catocommon.FindAndCall("catoadminui." + method)
 
-
+class getlog():
+    """
+    delivers an html page with a refresh timer.  content is the last n rows of the logfile
+    """
+    def GET(self):
+        return uiCommon.GetLog()
+        
+class setdebug():
+    """
+    sets the debug level of the service.
+    """
+    def GET(self):
+        return uiCommon.SetDebug()
+        
 def notfound():
     return web.notfound("Sorry, the page you were looking for was not found.")
 
@@ -575,6 +588,8 @@ if __name__ != app_name:
         '/temp/(.*)', 'temp',
         '/bypass', 'bypass',
         '/version', 'version',
+        '/getlog', 'getlog',
+        '/setdebug', 'setdebug',
         '/(.*)', 'wmHandler'
     )
 

@@ -948,3 +948,45 @@ def LoadTaskCommands():
     except Exception as ex:
         log_nouser("Unable to load Task Commands XML." + ex.__str__(), 0)
 
+def GetLog():
+    """
+    delivers an html page with a refresh timer.  content is the last n rows of the logfile
+    """
+    lines = getAjaxArg("lines")
+    lines = lines if lines else "1000"
+    
+    refresh = 10000
+    r = getAjaxArg("refresh")
+    if r:
+        try:
+            refresh = int(r) * 1000
+        except:
+            pass
+
+    l = os.popen("tail -%s %s" % (lines, catolog.LOGFILE)).readlines()
+    html = """<!DOCTYPE html>
+    <html>
+        <head>
+        </head>
+        <body>
+            <pre>%s</pre>
+            <a id="bottom">
+            <script type="text/javascript">
+                location.hash = "#bottom";
+                setInterval(location.reload, %d);
+            </script>
+        </body>
+    </html>
+    """ % ("".join(l), refresh)
+    
+    return html
+
+def SetDebug():
+    debug = getAjaxArg("debug")
+    if debug:
+        logger.critical("Changing debug level to %s." % debug)
+        catolog.set_debug(debug)
+            
+    return "Debug successfully changed."
+    
+
