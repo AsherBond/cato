@@ -472,6 +472,7 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
             sHTML += "</div>" #end step header icons
             sHTML += "  </div>" #end header
     
+            sHTML += "<div class=\"clearfloat\">"
             for xeChildNode in xeNode:
                 sChildNodeName = xeChildNode.tag
                 sChildXPath = sXPath + "/" + sChildNodeName
@@ -503,6 +504,7 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
                     UI.log("WARNING: This shouldn't have returned 'option' html.", 2)
                 sHTML += sNodeHTML
     
+            sHTML += "</div>"
             sHTML += "</div>"
     else: #end section
         sHTML += DrawField(xeNode, sXPath, oStep)
@@ -1128,7 +1130,7 @@ def SetCheckRadio(s1, s2):
 # dropdowns expect a Dictionary<string,string> object return
 
 def ddDataSource_GetDebugLevels():
-    return {"0": "None", "1": "Minimal", "2": "Normal", "3": "Enhanced", "4": "Verbose", }
+    return {"10": "Debug", "20": "Info", "30": "Warning", "40": "Error", "50": "Critical", }
 
 def ddDataSource_GetAWSClouds():
     data = {}

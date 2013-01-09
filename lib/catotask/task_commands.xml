@@ -33,7 +33,8 @@
 					<on_error input_type="text" />
 					<asset_id input_type="text" />
 					<handle input_type="text" />
-					<parameters></parameters>
+					<parameters>
+					</parameters>
 				</function>
 			</command>
 			<command name="sleep" label="Sleep" description="Sleeps for a selected number of seconds." help="Sleep is used to pause task execution for the number of seconds entered." icon="static/images/icons/player_pause_32.png">
@@ -61,9 +62,9 @@
 					<handle input_type="text" label="Handle" />
 				</function>
 			</command>
-			<command name="set_debug_level" label="Set Logging Level" description="Changes the logging level of the running Task." help="Set Logging Level is used to change the output logging level of the Task currently executing.&lt;br /&gt;&lt;br /&gt;Useful for turning logging off in high transaction Tasks, then enabling the output of just a few key statements needed for debugging.&lt;br /&gt;&lt;br /&gt;``variables`` are permitted." icon="static/images/icons/debug_level_32.png">
+			<command name="set_debug_level" label="Set Logging Level" description="Changes the logging threshold of the running Task." help="Set Logging Level is used to change the output logging level of the Task currently executing.&lt;br /&gt;&lt;br /&gt;Useful for turning logging off in high transaction Tasks, then enabling the output of just a few key statements needed for debugging.&lt;br /&gt;&lt;br /&gt;[[variables]] are permitted." icon="static/images/icons/debug_level_32.png">
 				<function name="set_debug_level">
-					<debug_level input_type="dropdown" label="Logging Level" datasource="function" dataset="ddDataSource_GetDebugLevels">2</debug_level>
+					<debug_level input_type="dropdown" label="Logging Level" datasource="function" dataset="ddDataSource_GetDebugLevels">20</debug_level>
 				</function>
 			</command>
 		</commands>

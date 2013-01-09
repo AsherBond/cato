@@ -33,7 +33,6 @@ except AttributeError as ex:
     import catoxml.etree.ElementTree as ET
 
 from catocommon import catocommon
-from catoui import uiCommon
 from datetime import datetime
 
 # Note: this is not a container for Task objects - it's just a rowset from the database
