@@ -120,6 +120,9 @@ class Task(object):
         self.NextMajorVersion = "2.000"
         #a task has a dictionary of codeblocks
         self.Codeblocks = {}
+        # in a very few cases getting a Task for a specific user may include some user settings
+        # if so this will contain a user id.
+        self.IncludeSettingsForUser = None
 
     def FromArgs(self, sName, sCode, sDesc):
         if not sName:
@@ -144,7 +147,7 @@ class Task(object):
             dr = db.select_row_dict(sSQL)
 
             if dr:
-                sErr = self.PopulateTask(db, dr, bIncludeUserSettings, include_code)
+                sErr = self.PopulateTask(db, dr, include_code)
 
             if self.ID:
                 return ""
@@ -173,7 +176,7 @@ class Task(object):
             dr = db.select_row_dict(sSQL)
 
             if dr:
-                sErr = self.PopulateTask(db, dr, False, include_code)
+                sErr = self.PopulateTask(db, dr, include_code)
 
             if self.ID:
                 return ""
@@ -202,7 +205,7 @@ class Task(object):
             dr = db.select_row_dict(sSQL)
 
             if dr:
-                sErr = self.PopulateTask(db, dr, False, include_code)
+                sErr = self.PopulateTask(db, dr, include_code)
 
             if self.ID:
                 return ""
@@ -732,7 +735,7 @@ class Task(object):
         finally:
             db.close()
 
-    def PopulateTask(self, db, dr, IncludeUserSettings, IncludeCode=True):
+    def PopulateTask(self, db, dr, IncludeCode=True):
         # only called from inside this class, so the caller passed in a db conn pointer too
         try:
             #of course it exists...
@@ -762,21 +765,21 @@ class Task(object):
                 # * there are some rules for the process of 'Approving' a task and other things.
                 # * so, we'll need to know some count information
                 # 
-                sSQL = "select count(*) from task" \
-                    " where original_task_id = '" + self.OriginalTaskID + "'" \
-                    " and task_status = 'Approved'"
+                sSQL = """select count(*) from task
+                    where original_task_id = '%s'
+                    and task_status = 'Approved'""" % self.OriginalTaskID
                 iCount = db.select_col_noexcep(sSQL)
                 if db.error:
                     return "Error counting Approved versions:" + db.error
                 self.NumberOfApprovedVersions = iCount
     
-                sSQL = "select count(*) from task where original_task_id = '" + self.OriginalTaskID + "'"
+                sSQL = "select count(*) from task where original_task_id = '%s'" % self.OriginalTaskID
                 iCount = db.select_col_noexcep(sSQL)
                 if db.error:
                     return "Error counting Approved versions:" + db.error
                 self.NumberOfOtherVersions = iCount
     
-                sSQL = "select max(version) from task where original_task_id = '" + self.OriginalTaskID + "'"
+                sSQL = "select max(version) from task where original_task_id = '%s'" % self.OriginalTaskID
                 sMax = db.select_col_noexcep(sSQL)
                 if db.error:
                     return "Error getting max version:" + db.error
@@ -789,7 +792,7 @@ class Task(object):
                 #2 then get all the steps... ALL the steps in one sql
                 #..... and while spinning them put them in the appropriate codeblock
                 #GET THE CODEBLOCKS
-                sSQL = "select codeblock_name from task_codeblock where task_id = '" + self.ID + "' order by codeblock_name"
+                sSQL = "select codeblock_name from task_codeblock where task_id = '%s' order by codeblock_name" % self.ID
                 dtCB = db.select_all_dict(sSQL)
                 if dtCB:
                     for drCB in dtCB:
@@ -799,30 +802,31 @@ class Task(object):
                     #uh oh... there are no codeblocks!
                     #since all tasks require a MAIN codeblock... if it's missing,
                     #we can just repair it right here.
-                    sSQL = "insert task_codeblock (task_id, codeblock_name) values ('" + self.ID + "', 'MAIN')"
+                    sSQL = "insert task_codeblock (task_id, codeblock_name) values ('%s', 'MAIN')" % self.ID
                     if not db.exec_db_noexcep(sSQL):
                         raise Exception(db.error)
                     self.Codeblocks["MAIN"] = Codeblock("MAIN")
     
+
+                #NOTE: it may seem like STEP sorting will be an issue, but it shouldn't.
+                #sorting ALL the steps by their order here will ensure they get added to their respective 
+                # codeblocks in the right order.
+                
                 #GET THE STEPS
                 #we need the userID to get the user settings in some cases
-                if IncludeUserSettings:
-                    sUserID = uiCommon.GetSessionUserID()
-                    #NOTE: it may seem like sorting will be an issue, but it shouldn't.
-                    #sorting ALL the steps by their order here will ensure they get added to their respective 
-                    # codeblocks in the right order.
-                    sSQL = "select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name," \
-                        " us.visible, us.breakpoint, us.skip, us.button" \
-                        " from task_step s" \
-                        " left outer join task_step_user_settings us on us.user_id = '" + sUserID + "' and s.step_id = us.step_id" \
-                        " where s.task_id = '" + self.ID + "'" \
-                        " order by s.step_order"
+                if self.IncludeSettingsForUser:
+                    sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name,
+                        us.visible, us.breakpoint, us.skip, us.button
+                        from task_step s
+                        left outer join task_step_user_settings us on us.user_id = '%s' and s.step_id = us.step_id
+                        where s.task_id = '%s'
+                        order by s.step_order""" % (self.IncludeSettingsForUser, self.ID)
                 else:
-                    sSQL = "select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name," \
-                        " 0 as visible, 0 as breakpoint, 0 as skip, '' as button" \
-                        " from task_step s" \
-                        " where s.task_id = '" + self.ID + "'" \
-                        " order by s.step_order"
+                    sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name,
+                        0 as visible, 0 as breakpoint, 0 as skip, '' as button
+                        from task_step s
+                        where s.task_id = '%s'
+                        order by s.step_order""" % self.ID
     
                 dtSteps = db.select_all_dict(sSQL)
                 if dtSteps:
@@ -1209,7 +1213,7 @@ class TaskInstance(object):
                     left outer join application_registry ar on ti.ce_node = ar.id
                     left outer join cloud_account ca on ti.account_id = ca.account_id
                     left outer join ecosystem d on ti.ecosystem_id = d.ecosystem_id
-                    where task_instance = %s""" % sTaskInstance
+                    where ti.task_instance = %s""" % sTaskInstance
     
                 dr = db.select_row_dict(sSQL)
                 if db.error:

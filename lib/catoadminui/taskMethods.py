@@ -411,7 +411,8 @@ class taskMethods:
         sMinorMajor = uiCommon.getAjaxArg("sMinorMajor")
         try:
             oTask = task.Task()
-            sErr = oTask.FromID(sTaskID, True)
+            oTask.IncludeSettingsForUser = uiCommon.GetSessionUserID()
+            sErr = oTask.FromID(sTaskID)
             if oTask is None:
                 uiCommon.log("Unable to continue.  Unable to build Task object" + sErr)
             
@@ -432,7 +433,7 @@ class taskMethods:
             sErr = ""
             #instantiate the new Task object
             oTask = task.Task()
-            sErr = oTask.FromID(sTaskID, False)
+            sErr = oTask.FromID(sTaskID)
             if sErr:
                 uiCommon.log(sErr)
             if not oTask:
@@ -613,7 +614,8 @@ class taskMethods:
             sErr = ""
             #instantiate the new Task object
             oTask = task.Task()
-            sErr = oTask.FromID(sTaskID, True)
+            oTask.IncludeSettingsForUser = uiCommon.GetSessionUserID()
+            sErr = oTask.FromID(sTaskID)
             if sErr:
                 uiCommon.log(sErr)
             if not oTask:
@@ -648,7 +650,7 @@ class taskMethods:
             
             #instantiate a Task object
             oTask = task.Task()
-            sErr = oTask.FromID(sTaskID, False)
+            sErr = oTask.FromID(sTaskID)
             if sErr:
                 uiCommon.log(sErr)
 
