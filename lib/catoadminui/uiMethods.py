@@ -647,7 +647,7 @@ class uiMethods:
 
             # figure out a label and a description
             sDesc = ""
-            sLabel, sDesc = uiCommon.GenerateScheduleLabel(sMonths, sDays, sHours, sMinutes, sDaysOrWeeks)
+            sLabel, sDesc = catocommon.GenerateScheduleLabel(sMonths, sDays, sHours, sMinutes, sDaysOrWeeks)
 
             sSQL = "insert into action_schedule (schedule_id, task_id, action_id, ecosystem_id, account_id," \
                 " months, days, hours, minutes, days_or_weeks, label, descr, parameter_xml, debug_level)" \
@@ -742,7 +742,7 @@ class uiMethods:
 
 
             # figure out a label
-            sLabel, sDesc = uiCommon.GenerateScheduleLabel(sMonths, sDays, sHours, sMinutes, sDaysOrWeeks)
+            sLabel, sDesc = catocommon.GenerateScheduleLabel(sMonths, sDays, sHours, sMinutes, sDaysOrWeeks)
 
             sSQL = "update action_schedule set" \
                 " months = '" + sMonths + "'," \
@@ -794,7 +794,7 @@ class uiMethods:
                 result, msg = obj.DBSave()
                 
                 if result:
-                    catocommon.add_security_log(GetSessionUserID(), catocommon.SecurityLogTypes.Security,
+                    catocommon.add_security_log(uiCommon.GetSessionUserID(), catocommon.SecurityLogTypes.Security,
                         catocommon.SecurityLogActions.ConfigChange, catocommon.CatoObjectTypes.NA, "",
                         "%s settings changed." % sType.capitalize())
                     
