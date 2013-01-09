@@ -22,7 +22,10 @@ do
     if [[ "`uname`" == "Darwin" ]]; then
         PIDS=`ps -A | grep "${CATO_EXE}" | grep -v "grep" | awk '{ print \$1 }'`
     else
+	echo "${CATO_EXE}"
         PIDS=`ps -eafl | grep "${CATO_EXE}" | grep -v "grep" | awk '{ print \$4 }'`
+        echo `ps -eafl | grep "${CATO_EXE}" `
+	echo $PIDS
     fi
 
     if [ -z "$PIDS" ]; then

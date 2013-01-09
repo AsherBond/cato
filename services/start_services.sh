@@ -1,4 +1,5 @@
 #!/bin/bash
+. $HOME/.profile
 date
 if [ -z "$CATO_HOME" ]; then
     
