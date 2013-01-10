@@ -39,9 +39,9 @@ class Poller(catoprocess.CatoService):
             from task_instance ti
             join task t on t.task_id = ti.task_id
             where ti.task_status = 'Submitted'
+                and ti.ce_node = %s
             order by task_instance asc limit %s"""
-        #self.output(sql % (get_num))
-        rows = self.db.select_all(sql, (get_num))
+        rows = self.db.select_all(sql, (self.instance_id, get_num))
         if rows:
             for row in rows:
                 task_instance = row[0]
@@ -136,11 +136,12 @@ class Poller(catoprocess.CatoService):
 
     def get_aborting(self): 
 
-        sql = """select task_instance, pid from task_instance 
+        sql = """select task_instance, ifnull(pid, 0) from task_instance 
             where task_status = 'Aborting' 
+                and ce_node = %s
             order by task_instance asc"""
 
-        rows = self.db.select_all(sql)
+        rows = self.db.select_all(sql, (self.instance_id))
         if rows:
             for row in rows:
                 self.logger.info("Cancelling task_instance %d, pid %d" %
@@ -155,7 +156,7 @@ class Poller(catoprocess.CatoService):
 
         self.update_load()
         self.get_aborting()
-        self.check_processing()
+        #self.check_processing()
 
         # don't kick off any new work if the poller isn't enabled.
         if self.poller_enabled:

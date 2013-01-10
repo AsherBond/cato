@@ -14,20 +14,41 @@
 # limitations under the License.
 #########################################################################
 
-### see examples from 
+# ## see examples from 
 # http://stackoverflow.com/questions/2701909/using-python-functions-in-tkinter-tcl/2708398#2708398
 # http://stackoverflow.com/questions/2519532/example-for-accessing-tcl-functions-from-python
+import logging
+from catolog import catolog
+
 import sys
 import os
 import traceback
+import time
+import re
+import pwd
 from Tkinter import Tcl
 
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 
+try:
+    import xml.etree.cElementTree as ET
+except (AttributeError, ImportError):
+    import xml.etree.ElementTree as ET
+try:
+    ET.ElementTree.iterfind
+except AttributeError as ex:
+    del(ET)
+    import catoxml.etree.ElementTree as ET
+
+from catoconfig import catoconfig
 from catocommon import catocommon
+from catodb import catodb
 from catosettings import settings
+# The TaskEngine class has a logger because it's a CatoProcess
+# the rest of these utility classes don't, so this logger global is for them.
+logger = None
 
 
 class TclFunc:
@@ -40,21 +61,44 @@ class TclFunc:
             return self.func(*args)
         except (SystemExit, KeyboardInterrupt):
             raise
-        except Exception, e:
+        except Exception as e:
             print("error in %s: %s" % (self.tclFuncName, e))
             traceback.print_exc(file=sys.stderr)
-            raise e
+            msg = "%s" % (e)
+            raise Exception(msg)
 
-class TaskEngine(catocommon.CatoProcess):
+class TaskEngine():
 
+    # REMEMBER!!! this __init__ overrides the CatoProcess init.
+    
     def __init__(self, process_name, task_instance):
+        self.host = os.uname()[1]
+        self.platform = os.uname()[0]
+        self.user = pwd.getpwuid(os.getuid())[0]
+        self.host_domain = self.user + '@' + os.uname()[1]
+        self.my_pid = os.getpid()
+        self.process_name = process_name
+        self.home = catoconfig.BASEPATH
+        self.tmpdir = catoconfig.CONFIG["tmpdir"]
+
         self.task_instance = task_instance
-        catocommon.CatoProcess.__init__(self, process_name)
+        # catoprocess.CatoProcess.__init__(self, process_name)
+        
+        # tell catoconfig what the LOGFILE name is, then get a logger
+        # if logging has already been set up this won't do anything
+        # but if it's not yet, this will set the basic config
+        logging.basicConfig(level=logging.DEBUG)
 
-    def set_logfile_name(self):
-        '''overrides set_logfile_name() in catocommon'''
+        # tell catolog what the LOGFILE name is, then get a logger
+        catolog.set_logfile(os.path.join(catolog.LOGPATH, "ce", self.task_instance + ".log"))
+        # IMPORTANT! since TaskEngine is a CatoProcess, we have to set logger, so all
+        # the calls to logger *in the core CatoProcess code* will have a logger
+        self.logger = catolog.get_logger(process_name)
 
-        self.logfile_name = os.path.join(self.logfiles_path, "ce",  self.task_instance +".log")
+        # IMPORTANT! set the global logger in this module, so the other classes 
+        # defined in this file can use it!
+        global logger
+        logger = self.logger
 
     def convert_tcl(self, data):
         '''Converts Python data to Tcl strings. A must use function to convert
@@ -81,12 +125,12 @@ class TaskEngine(catocommon.CatoProcess):
 
     def register_function(self, interp, func):
         '''Exposes a Python function to the Tcl interpreter'''
-        #interp.createcommand(func.func_name[4:], func)
+        # interp.createcommand(func.func_name[4:], func)
         TclFunc(interp, func)
         
 
     # a Python command example for Tcl
-    #def pycommand(a, b, c, d, e):
+    # def pycommand(a, b, c, d, e):
     #    '''A sample Python command for Tcl'''
     #    x = "%s %s %s %s %s" % (a, b, c, d, e)
     #    # gotta call convert_tcl for a python return set
@@ -100,7 +144,7 @@ class TaskEngine(catocommon.CatoProcess):
             debug_level = int(args[1])
 
         if debug_level_test >= debug_level:    
-            self.output(args[0])
+            logger.info(args[0])
 
     def tcl_decrypt_string(self, s):
         return self.convert_tcl(catocommon.cato_decrypt(s))
@@ -109,7 +153,8 @@ class TaskEngine(catocommon.CatoProcess):
         return self.convert_tcl(catocommon.cato_encrypt(s))
 
     def tcl_exec_db(self, sql):
-        self.db.exec_db(sql)
+        ret = self.db.exec_db(sql)
+        logger.info(ret)
 
     def tcl_select_row(self, sql):
         row = self.db.select_row(sql)
@@ -120,6 +165,21 @@ class TaskEngine(catocommon.CatoProcess):
         row = self.db.select_all(sql)
         new_rows = self.convert_tcl(row)
         return new_rows
+
+    def startup(self):
+        self.logger.info("""
+#######################################
+    Starting up %s
+#######################################""" % self.process_name)
+        self.db = catodb.Db()
+        conn = self.db.connect_db(server=catoconfig.CONFIG["server"], port=catoconfig.CONFIG["port"],
+            user=catoconfig.CONFIG["user"],
+            password=catoconfig.CONFIG["password"], database=catoconfig.CONFIG["database"])
+        self.config = catoconfig.CONFIG
+
+
+    def end(self):
+        self.db.close()
 
     def run(self):
 
@@ -145,6 +205,6 @@ class TaskEngine(catocommon.CatoProcess):
             tcl_str = self.tcl.eval('main_ce %s' % self.task_instance)
         except Exception as ex:
             err = self.tcl.getvar(name='errorInfo')
-            self.output(err)
+            logger.error(err)
             raise ex
 

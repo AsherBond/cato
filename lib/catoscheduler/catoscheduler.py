@@ -182,10 +182,16 @@ class Scheduler(catoprocess.CatoService):
 
             self.logger.info("Started task instance %s for schedule id %s and plan id %s" % (ti, schedule_id, plan_id))
             sql = """insert into action_plan_history (plan_id, task_id, run_on_dt, action_id, 
-                    ecosystem_id, parameter_xml, debug_level, source, schedule_id, task_instance, account_id)
-                    values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-            self.db.exec_db(sql, (plan_id, task_id, run_on_dt, action_id, ecosystem_id, parameter_xml, 
+                    ecosystem_id, parameter_xml, debug_level, source, schedule_id, task_instance, account_id, cloud_id)
+                    values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    on duplicate key update task_id=%s, run_on_dt=%s, action_id=%s, 
+                    ecosystem_id=%s, parameter_xml=%s, debug_level=%s, source=%s, 
+                    schedule_id=%s, task_instance=%s, account_id=%s"""
+            self.db.exec_db(sql, (plan_id, task_id, run_on_dt, action_id, ecosystem_id, parameter_xml,
+                debug_level, 'schedule', schedule_id, ti, account_id, cloud_id,
+                task_id, run_on_dt, action_id, ecosystem_id, parameter_xml,
                 debug_level, 'schedule', schedule_id, ti, account_id))
+
             sql = """delete from action_plan where plan_id = %s"""
             self.db.exec_db(sql, (plan_id))
         except Exception as ex:
@@ -211,4 +217,5 @@ class Scheduler(catoprocess.CatoService):
 
         self.expand_schedules()
         self.check_schedules()
+	self.balance_tasks()
 
