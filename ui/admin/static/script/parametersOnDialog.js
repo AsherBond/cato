@@ -154,7 +154,7 @@ function DrawParameterEditForm(parameter_xml) {
                     });
 
                     //draw an add link.
-                    output += "<div class=\"parameter_dialog_add_btn pointer\" add_to=\"" + parameter_id + "\"><img style=\"width:10px; height:10px;\" src=\"static/images/icons/edit_add.png\" alt=\"\" title=\"Add another value.\" />( click to add another value )</div>";
+                    output += "<div class=\"parameter_dialog_add_btn pointer\" add_to=\"" + parameter_id + "\"><span class=\"ui-icon ui-icon-plus forceinline\"></span>( click to add another value )</div>";
                 }
                 else {
                     //if there happen to be more than one defined somehow... too bad.  Just show the first one

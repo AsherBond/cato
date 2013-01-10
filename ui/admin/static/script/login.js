@@ -170,6 +170,7 @@ function Login() {
 
     $.ajax({
         type: "POST",
+        async: false,
         url: "../uiMethods/wmAttemptLogin",
         data: JSON.stringify(args),
         contentType: "application/json; charset=utf-8",
