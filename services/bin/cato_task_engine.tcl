@@ -805,7 +805,7 @@ proc send_email_2 {command} {
 	insert_audit $::STEP_ID "" "Inserting into message queue : TO:{$to} SUBJECT:{$subject} BODY:{$body}" ""
 	### This section needs fixing up - 2011-06-30, PMD
 	if {"$attachment" > ""} {
-		set sql "insert into message (date_time_entered,process_type,status,msg_to,msg_from,msg_subject,msg_body) values (getdate(),1,-1,'$to','$::CE_NAME','$subject','$body')"
+		set sql "insert into message (date_time_entered,process_type,status,msg_to,msg_from,msg_subject,msg_body) values (now(),1,-1,'$to','$::CE_NAME','$subject','$body')"
         exec_db $sql
 		set sql "select @@IDENTITY"
         exec_db $sql
@@ -816,7 +816,7 @@ proc send_email_2 {command} {
 		set sql "update message set status = 0 where msg_id = $msg_id"
         exec_db $sql
 	} else {
-		set sql "insert into message (date_time_entered,process_type,status,msg_to,msg_from,msg_subject,msg_body) values (getdate(),1,0,'$to','$::CE_NAME','$subject','$body')"
+		set sql "insert into message (date_time_entered,process_type,status,msg_to,msg_from,msg_subject,msg_body) values (now(),1,0,'$to','$::CE_NAME','$subject','$body')"
         exec_db $sql
 	}
 }
