@@ -108,7 +108,7 @@ function GetURL() {
 
 function fileWasSaved(filename) {
 	//get the file text from the server and populate the text field.
-	$.get(filename, function(data) {
+	$.get("temp/" + filename, function(data) {
 		$("#xml_to_import").val(data);
 	}, "text");
 	

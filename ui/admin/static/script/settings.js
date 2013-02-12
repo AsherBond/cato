@@ -82,7 +82,7 @@ function GetSettings() {
 					}
 				}
 			} catch (ex) {
-				alert(ex.message + "\nProbably a mismatched input field/json attribute name");
+				alert(ex.message + "\nProbably a mismatched html input field/json attribute name");
 			}
 		},
 		error : function(response) {

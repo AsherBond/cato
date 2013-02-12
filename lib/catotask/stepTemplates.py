@@ -1039,6 +1039,7 @@ def DrawEmbeddedReadOnlyStep(xEmbeddedFunction):
 
 def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
     sStepID = oStep.ID
+    sJSid = "%s_%s" % (oStep.ID, oStep.XPathPrefix.replace("/", "").replace("[", "").replace("]", ""))
 
     # a certain combination of tests means we have nothing to draw at all
     if bIsEmbedded and not sOptionHTML and not sVariableHTML:
@@ -1047,7 +1048,7 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
     #this is the section that is common to all steps.
     sHTML = ""
     sHTML += "        <hr />"
-    sHTML += "        <div class=\"step_common\" >"
+    sHTML += "        <div class=\"step_common\" step_id=\"" + sStepID + "\" xpath_prefix=\"" + oStep.XPathPrefix + "\" jsid=\"" + sJSid + "\">"
     sHTML += "            <div class=\"step_common_header\">" # header div
     
     sShowOnLoad = oStep.UserSettings.Button
@@ -1055,25 +1056,23 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
     #pill buttons
     if sVariableHTML != "":
         sHTML += "                <span class=\"step_common_button " + ("step_common_button_active" if sShowOnLoad == "variables" else "") + "\"" \
-            " id=\"btn_step_common_detail_" + sStepID + "_variables\"" \
-            " button=\"variables\"" \
-            " step_id=\"" + sStepID + "\">Variables</span>"
+            " id=\"btn_step_common_detail_" + sJSid + "_variables\"" \
+            " button=\"variables\">Variables</span>"
     if sOptionHTML != "":
         sHTML += "                <span class=\"step_common_button " + ("step_common_button_active" if sShowOnLoad == "options" else "") + "\"" \
-            " id=\"btn_step_common_detail_" + sStepID + "_options\"" \
-            " button=\"options\"" + " step_id=\"" + sStepID + "\">Options</span>"
+            " id=\"btn_step_common_detail_" + sJSid + "_options\"" \
+            " button=\"options\">Options</span>"
 
     # embedded commands don't have a notes button (it's the description of the command, which doesn't apply)
     if not bIsEmbedded:
         sHTML += "                <span class=\"step_common_button " + ("step_common_button_active" if sShowOnLoad == "notes" else "") + "\"" \
-            " id=\"btn_step_common_detail_" + sStepID + "_notes\"" \
-            " button=\"notes\"" + " step_id=\"" + sStepID + "\">Notes</span>"
+            " id=\"btn_step_common_detail_" + sJSid + "_notes\"" \
+            " button=\"notes\">Notes</span>"
 
         # not showing help either... too cluttered
         sHTML += "                <span class=\"step_common_button " + ("step_common_button_active" if sShowOnLoad == "help" else "") + "\"" \
-            " id=\"btn_step_common_detail_" + sStepID + "_help\"" \
-            " button=\"help\"" \
-            " step_id=\"" + sStepID + "\">Help</span>"
+            " id=\"btn_step_common_detail_" + sJSid + "_help\"" \
+            " button=\"help\">Help</span>"
     
     
     sHTML += "            </div>" # end header div
@@ -1081,7 +1080,7 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
     #sections
     # embedded commands don't have notes (it's the description of the command, which doesn't apply)
     if not bIsEmbedded:
-        sHTML += "            <div id=\"step_common_detail_" + sStepID + "_notes\"" \
+        sHTML += "            <div id=\"step_common_detail_" + sJSid + "_notes\"" \
             " class=\"step_common_detail " + ("" if sShowOnLoad == "notes" else "step_common_collapsed") + "\">"
             
         sHTML += "                <textarea rows=\"4\" " + CommonAttribs(oStep, False, "step_desc", "") + \
@@ -1090,7 +1089,7 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
 
         # embedded commands *could* show the help, but I don't like the look of it.
         # it's cluttered
-        sHTML += "            <div id=\"step_common_detail_" + sStepID + "_help\"" \
+        sHTML += "            <div id=\"step_common_detail_" + sJSid + "_help\"" \
             " class=\"ui-widget-content step_common_detail " + ("" if sShowOnLoad == "help" else "step_common_collapsed") + "\">"
         sHTML += oStep.Function.Help
         sHTML += "            </div>"
@@ -1098,7 +1097,7 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
     #some steps generate custom options we want in this pane
     #but we don't show the panel if there aren't any
     if sOptionHTML != "":
-        sHTML += "          <div id=\"step_common_detail_" + sStepID + "_options\"" \
+        sHTML += "          <div id=\"step_common_detail_" + sJSid + "_options\"" \
             " class=\"step_common_detail " + ("" if sShowOnLoad == "options" else "step_common_collapsed") + "\">"
         sHTML += "              <div>"
         sHTML += sOptionHTML
@@ -1108,7 +1107,7 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
     #some steps have variables
     #but we don't show the panel if there aren't any
     if sVariableHTML != "":
-        sHTML += "          <div id=\"step_common_detail_" + sStepID + "_variables\"" \
+        sHTML += "          <div id=\"step_common_detail_" + sJSid + "_variables\"" \
             " class=\"step_common_detail " + ("" if sShowOnLoad == "variables" else "step_common_collapsed") + "\">"
         sHTML += "              <div>"
         sHTML += sVariableHTML
@@ -1216,6 +1215,10 @@ def DrawDropZone(oStep, xEmbeddedFunction, sXPath, sLabel, bRequired):
         oEmbeddedStep.FunctionName = sFunctionName
         oEmbeddedStep.FunctionXDoc = xEmbeddedFunction
         oEmbeddedStep.Task = oStep.Task
+        oEmbeddedStep.OutputParseType = xEmbeddedFunction.get("parse_method", 0)
+        oEmbeddedStep.OutputRowDelimiter = xEmbeddedFunction.get("row_delimiter", 0)
+        oEmbeddedStep.OutputColumnDelimiter = xEmbeddedFunction.get("col_delimiter", 0)
+
         # THIS IS CRITICAL - this embedded step ... all fields in it will need an xpath prefix 
         oEmbeddedStep.XPathPrefix = sXPath + "/function"
         
@@ -1363,16 +1366,24 @@ def DrawVariableSectionForDisplay(oStep, bShowEditLink):
     if not bShowEditLink and not sVariableHTML:
         return ""
 
+    if oStep.XPathPrefix:
+        UI.log("EMBEDDED COMMAND", 4)
+
     iParseType = oStep.OutputParseType
     iRowDelimiter = oStep.OutputRowDelimiter
     iColumnDelimiter = oStep.OutputColumnDelimiter
-    UI.log("Parse Type [%d], Row Delimiter [%d], Col Delimiter [%d]" % (iParseType, iRowDelimiter, iColumnDelimiter), 4)
+    
+    UI.log("%s - Parse Type [%s], Row Delimiter [%s], Col Delimiter [%s]" % (oStep.XPathPrefix, iParseType, iRowDelimiter, iColumnDelimiter), 4)
 
     sHTML = ""
     if bShowEditLink:
-        sHTML += "<span class=\"variable_popup_btn\" step_id=\"" + sStepID + "\">" \
-            "<img src=\"static/images/icons/kedit_16.png\"" \
-            " title=\"Manage Variables\" alt=\"\" /> Manage Variables</span>"
+        # IF this is an 'embedded' command, it will have an oStep.XPathPrefix property
+        # in that case, we have to pass that prefix down, so subsequence code pulls the
+        # right xml attributes
+        
+        sHTML += """<span class=\"variable_popup_btn\" step_id=\"%s\" xpath_prefix=\"%s\">
+            <img src=\"static/images/icons/kedit_16.png\"
+             title=\"Manage Variables\" alt=\"\" /> Manage Variables</span>""" % (sStepID, oStep.XPathPrefix)
 
     # some types may only have one of the delimiters
     bRowDelimiterVisibility = (True if iParseType == 2 else False)
@@ -1454,20 +1465,27 @@ def GetVariablesForStepForDisplay(oStep):
         # yes this is valid. "null" in the database may translate to having no xml.  That's ok.
         return ""
 
-def DrawVariableSectionForEdit(oStep):
+def DrawVariableSectionForEdit(oStep, sXPathPrefix=None):
     sHTML = ""
-    # sStepID = drStep["step_id"]
-    # sFunction = drStep["function_name"]
-    sParseType = oStep.OutputParseType
-    iRowDelimiter = oStep.OutputRowDelimiter
-    iColumnDelimiter = oStep.OutputColumnDelimiter
+
+    # NOTE: it's possible we have an XPathPrefix here, which means
+    # NE NEED THE DETAILS OF AN EMBEDDED COMMAND
+    if sXPathPrefix:
+        xEmFunc = oStep.FunctionXDoc.find(sXPathPrefix)
+        sParseType = xEmFunc.get("parse_method", 0)
+        iRowDelimiter = xEmFunc.get("row_delimiter", 0)
+        iColumnDelimiter = xEmFunc.get("col_delimiter", 0)
+    else:
+        sParseType = oStep.OutputParseType
+        iRowDelimiter = oStep.OutputRowDelimiter
+        iColumnDelimiter = oStep.OutputColumnDelimiter
 
     # now, some sections or items may or may not be available.
     sDelimiterSectionVisiblity = ""
     # only 'parsed' types show delimiter pickers.  The hardcoded "delimited" (1) 
     # type does not allow changes to the delimiter.
-    sRowDelimiterVisibility = ("" if sParseType == 2 else "hidden")
-    sColDelimiterVisibility = ("" if sParseType == 2 else "hidden")
+    sRowDelimiterVisibility = ("" if str(sParseType) == "2" else "hidden")
+    sColDelimiterVisibility = ("" if str(sParseType) == "2" else "hidden")
 
     # some code here will replace non-printable delimiters with a token string
     sRowDelimiterLabel = LabelNonprintable(iRowDelimiter)
@@ -1501,12 +1519,13 @@ def DrawVariableSectionForEdit(oStep):
         " alt=\"Add Variable\" title=\"Add Variable\"/> Add a Variable</span><span id=\"variable_clearall_btn\">" \
         "<img src=\"static/images/icons/bookmark_delete_32.png\" width=\"16\" height=\"16\"" \
         " alt=\"Clear All Variables\" title=\"Clear All Variables\"/> Clear All Variables</span></div><hr />"
-    sHTML += GetVariablesForStepForEdit(oStep)
+    sHTML += GetVariablesForStepForEdit(oStep, sXPathPrefix)
     sHTML += "</div>"
 
-    return sHTML
+    return sHTML, sParseType, iRowDelimiter, iColumnDelimiter
 
-def GetVariablesForStepForEdit(oStep):
+
+def GetVariablesForStepForEdit(oStep, sXPathPrefix=None):
     sStepID = oStep.ID
 
     sHTML = ""
@@ -1520,7 +1539,10 @@ def GetVariablesForStepForEdit(oStep):
         return sHTML + "</ul>\n"
 
     # if the document is missing the root node, we still need to return the UL.
-    xVars = xDoc.findall("step_variables/variable")
+    if sXPathPrefix:
+        xVars = xDoc.findall("%s/step_variables/variable" % sXPathPrefix)
+    else:
+        xVars = xDoc.findall("step_variables/variable")
     if xVars is None:
         return sHTML + "</ul>\n"
     
@@ -2505,9 +2527,11 @@ def SetVariable(oStep):
             sHTML += "  <option " + SetOption("TO_UPPER", sMod) + " value=\"TO_UPPER\">UPPERCASE</option>\n"
             sHTML += "  <option " + SetOption("TO_LOWER", sMod) + " value=\"TO_LOWER\">lowercase</option>\n"
             sHTML += "  <option " + SetOption("TO_BASE64", sMod) + " value=\"TO_BASE64\">base64 encode</option>\n"
+            sHTML += "  <option " + SetOption("TO_BASE64_UTF16", sMod) + " value=\"TO_BASE64_UTF16\">base64 utf16 encode</option>\n"
             sHTML += "  <option " + SetOption("FROM_BASE64", sMod) + " value=\"FROM_BASE64\">base64 decode</option>\n"
             sHTML += "  <option " + SetOption("TO_JSON", sMod) + " value=\"TO_JSON\">Write JSON</option>\n"
             sHTML += "  <option " + SetOption("FROM_JSON", sMod) + " value=\"FROM_JSON\">Read JSON</option>\n"
+            sHTML += "  <option " + SetOption("Math", sMod) + " value=\"Math\">Math</option>\n"
             sHTML += "</select></td>\n"
     
             sHTML += "<td class=\"w1pct\">"

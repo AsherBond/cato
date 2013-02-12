@@ -155,11 +155,12 @@ $(document).ready(function () {
     //the onclick event of the 'popout' icon of each step
     $("#steps .variable_popup_btn").live("click", function() {
         var step_id = $(this).attr("step_id");
+        var xppfx = $(this).attr("xpath_prefix");
         $.ajax({
 	        async: false,
 	        type: "POST",
 	        url: "taskMethods/wmGetStepVarsEdit",
-	        data: '{"sStepID":"' + step_id + '"}',
+	        data: '{"sStepID":"' + step_id + '", "sXPathPrefix":"' + xppfx + '"}',
 	        contentType: "application/json; charset=utf-8",
 	        dataType: "json",
 	        success: function(response) {
@@ -167,6 +168,7 @@ $(document).ready(function () {
 					$("#step_var_edit_dialog #phVars").empty().html("ERROR (wmGetStepVarsEdit): unable to get the variables for this step.  One or more of the return values was missing.");
 
             	$("#step_var_edit_dialog #hidStepID").val(step_id);
+            	$("#step_var_edit_dialog #hidXPathPrefix").val(xppfx);
             	$("#step_var_edit_dialog #hidOutputParseType").val(response.parse_type);
             	$("#step_var_edit_dialog #hidRowDelimiter").val(response.row_delimiter);
             	$("#step_var_edit_dialog #hidColDelimiter").val(response.col_delimiter);
@@ -588,6 +590,7 @@ function doUpdate() {
     }
 
     var step_id = $("#step_var_edit_dialog #hidStepID").val();
+    var xpath_prefix = $("#step_var_edit_dialog #hidXPathPrefix").val();
     var opm = $("#step_var_edit_dialog #hidOutputParseType").val();
     var rowd = $("#step_var_edit_dialog #hidRowDelimiter").val();
     var cold = $("#step_var_edit_dialog #hidColDelimiter").val();
@@ -667,7 +670,7 @@ function doUpdate() {
         async: false,
         type: "POST",
         url: "taskMethods/wmUpdateVars",
-        data: '{"sStepID":"' + step_id + '", "sOPM":"' + opm + '", "sRowDelimiter":"' + rowd + '", "sColDelimiter":"' + cold + '", "oVarArray":' + vars + ' }',
+        data: '{"sStepID":"' + step_id + '", "sXPathPrefix":"' + xpath_prefix + '", "sOPM":"' + opm + '", "sRowDelimiter":"' + rowd + '", "sColDelimiter":"' + cold + '", "oVarArray":' + vars + ' }',
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {

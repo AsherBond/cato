@@ -111,9 +111,13 @@ def set_logfile(logfile):
     # add the file handler to the root logger
     root = logging.getLogger()
     
-    # doing this removes the originally defined stream handler.  grrr we don't wanna do that.
-#    for handler in root.handlers:
-#        root.removeHandler(handler)
+    # doing this removes the originally defined stream handler.
+    # this has pros and cons
+    # PROS - nothing will be streamed to stdout and need to be shoved off to dev/null
+    # CONS - nothing will be streamed to stdout, so if you run the process in a terminal there's no output
+    # I've flipped this on and off at least a dozen times... grrrrr...
+    for handler in root.handlers:
+        root.removeHandler(handler)
 
     formatter = logging.Formatter(LOGFORMAT)
     # fh = logging.FileHandler(LOGFILE)
@@ -137,6 +141,11 @@ class StreamToLogger(object):
         self.log_level = log_level
         #self.linebuf = ''
     
+    def flush(self):
+
+        pass
+
+
     def write(self, buf):
         msg = buf.rstrip()
         if msg and msg != "\n":
