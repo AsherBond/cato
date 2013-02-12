@@ -234,8 +234,8 @@ class upload:
             # raise web.seeother('/upload')
             
             ref_id = (x.ref_id if x.ref_id else "")
-            filepath = "temp/%s-%s.tmp" % (uiCommon.GetSessionUserID(), ref_id)
-            fullpath = "%s/%s" % (web_root, filepath)
+            filename = "%s-%s.tmp" % (uiCommon.GetSessionUserID(), ref_id)
+            fullpath = os.path.join(catoconfig.CONFIG["tmpdir"], filename)
             with open(fullpath, 'w') as f_out:
                 if not f_out:
                     logger.critical("Unable to open %s for writing." % fullpath)
@@ -243,13 +243,13 @@ class upload:
             
             # all done, we loop back to the file_upload.html page, but this time include
             # a qq arg - the file name
-            raise web.seeother("static/pages/file_upload.html?ref_id=%s&filename=%s" % (ref_id, filepath))
+            raise web.seeother("static/pages/file_upload.html?ref_id=%s&filename=%s" % (ref_id, filename))
 
 class temp:
     """all we do for temp is deliver the file."""
     def GET(self, filename):
         try:
-            f = open("%s/temp/%s" % (web_root, filename))
+            f = open(os.path.join(catoconfig.CONFIG["tmpdir"], filename))
             if f:
                 return f.read()
         except Exception as ex:
@@ -358,19 +358,21 @@ def CacheTaskCommands():
     
                 sFunHTML += "</div>"
 
-        with open("%s/static/_categories.html" % web_root, 'w') as f_out:
+        path = catoconfig.CONFIG["uicache"]
+    
+        with open("%s/_categories.html" % path, 'w') as f_out:
             if not f_out:
-                logger.error("Unable to create static/_categories.html.")
+                logger.error("Unable to create %s/_categories.html." % path)
             f_out.write(sCatHTML)
 
-        with open("%s/static/_functions.html" % web_root, 'w') as f_out:
+        with open("%s/_functions.html" % path, 'w') as f_out:
             if not f_out:
-                logger.error("Unable to create static/_functions.html.")
+                logger.error("Unable to create %s/_functions.html." % path)
             f_out.write(sFunHTML)
 
-        with open("%s/static/_command_help.html" % web_root, 'w') as f_out:
+        with open("%s/_command_help.html" % path, 'w') as f_out:
             if not f_out:
-                logger.error("Unable to create static/_command_help.html.")
+                logger.error("Unable to create %s/_command_help.html." % path)
             f_out.write(sHelpHTML)
 
     except Exception as ex:
@@ -444,19 +446,21 @@ def CacheMenu():
             if "user" in sRoles:
                 sUserMenu += sMenu.format(sUserItems)
 
-    with open("%s/static/_amenu.html" % web_root, 'w') as f_out:
+    path = catoconfig.CONFIG["uicache"]
+    
+    with open("%s/_amenu.html" % path, 'w') as f_out:
         if not f_out:
-            logger.error("Unable to create static/_amenu.html.")
+            logger.error("Unable to create %s/_amenu.html." % path)
         f_out.write(sAdminMenu)
 
-    with open("%s/static/_dmenu.html" % web_root, 'w') as f_out:
+    with open("%s/_dmenu.html" % path, 'w') as f_out:
         if not f_out:
-            logger.error("Unable to create static/_dmenu.html.")
+            logger.error("Unable to create %s/_dmenu.html." % path)
         f_out.write(sDevMenu)
 
-    with open("%s/static/_umenu.html" % web_root, 'w') as f_out:
+    with open("%s/_umenu.html" % path, 'w') as f_out:
         if not f_out:
-            logger.error("Unable to create static/_umenu.html.")
+            logger.error("Unable to create %s/_umenu.html." % path)
         f_out.write(sUserMenu)
 
 
@@ -600,7 +604,18 @@ if __name__ != app_name:
     
     app = web.application(urls, globals(), autoreload=True)
     web.config.session_parameters["cookie_name"] = app_name
-    session = web.session.Session(app, web.session.ShelfStore(shelve.open('%s/datacache/session.shelf' % web_root)))
+    
+    if "uicache" in catoconfig.CONFIG:
+        uicachepath = catoconfig.CONFIG["uicache"]
+    else:
+        logger.info("'uicache' not defined in cato.conf... using default /var/cato/ui")
+        uicachepath = "/var/cato/ui"
+        
+    if not os.path.exists(uicachepath):
+        logger.critical("UI file cache directory defined in cato.conf does not exist. [%s]" % uicachepath)
+        exit()
+        
+    session = web.session.Session(app, web.session.ShelfStore(shelve.open('%s/adminsession.shelf' % uicachepath)))
     app.add_processor(auth_app_processor)
     app.notfound = notfound
     

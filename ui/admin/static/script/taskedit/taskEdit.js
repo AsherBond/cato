@@ -256,7 +256,7 @@ function doGetDetails() {
 }
 
 function doGetCommands() {
-	$("#div_commands #categories").load("static/_categories.html", function() {
+	$("#div_commands #categories").load("uiMethods/wmGetCategories", function() {
 	    //set the help text on hover over a category
 	    $("#toolbox .category").hover(function () {
 	        $("#te_help_box_detail").html($("#help_text_" + $(this).attr("name")).html());
@@ -280,7 +280,7 @@ function doGetCommands() {
 	        $("#" + $(this).attr("id") + "_functions").removeClass("hidden");
 	    });
 	});
-	$("#div_commands #category_functions").load("static/_functions.html", function() {
+	$("#div_commands #category_functions").load("uiMethods/wmGetFunctions", function() {
 	    //init the draggable items (commands and the clipboard)
 	    //this will also be called when items are added/removed from the clipboard.
 	    initDraggable();

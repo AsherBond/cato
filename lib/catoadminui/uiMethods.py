@@ -215,11 +215,26 @@ class uiMethods:
             if role == "User":
                 filename = "_umenu.html"
 
-            f = open("%s/static/%s" % (uiGlobals.web_root, filename))
+            f = open(os.path.join(catoconfig.CONFIG["uicache"], filename))
             if f:
                 return f.read()
         except Exception:
             uiCommon.log(traceback.format_exc())
+    
+    def wmGetCategories(self):
+        f = open(os.path.join(catoconfig.CONFIG["uicache"], "_categories.html"))
+        if f:
+            return f.read()
+    
+    def wmGetFunctions(self):
+        f = open(os.path.join(catoconfig.CONFIG["uicache"], "_functions.html"))
+        if f:
+            return f.read()
+    
+    def wmGetCommandHelp(self):
+        f = open(os.path.join(catoconfig.CONFIG["uicache"], "_command_help.html"))
+        if f:
+            return f.read()
     
     def wmGetSystemStatus(self):
         try:
