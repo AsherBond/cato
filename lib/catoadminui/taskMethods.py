@@ -67,7 +67,11 @@ class taskMethods:
                     
                     sHTML += "</tr>"
     
-            return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
+            out = {}
+            out["pager"] = uiCommon.packJSON(pager_html)
+            out["rows"] = uiCommon.packJSON(sHTML)
+            
+            return catocommon.ObjectOutput.AsJSON(out)
         except Exception:
             uiCommon.log(traceback.format_exc())
 
@@ -80,10 +84,10 @@ class taskMethods:
             num_records = uiCommon.getAjaxArg("sRecords", "200")
             
             sHTML = ""
-            tasks = task.TaskInstances(sFilter=_filter, 
-                                       sStatus=status, 
-                                       sFrom=_from, 
-                                       sTo=_to, 
+            tasks = task.TaskInstances(sFilter=_filter,
+                                       sStatus=status,
+                                       sFrom=_from,
+                                       sTo=_to,
                                        sRecords=num_records)
             if tasks.rows:
                 for row in tasks.rows:
@@ -116,14 +120,14 @@ class taskMethods:
             sID = uiCommon.getAjaxArg("sTaskID")
             
             t = task.Task()
-            sErr = t.FromID(sID)
+            sErr = t.FromID(sID, False, False)
             if sErr:
                 uiCommon.log(sErr)
             if t:
                 if t.ID:
                     return t.AsJSON()
             
-            #should not get here if all is well
+            # should not get here if all is well
             return "{\"result\":\"fail\",\"error\":\"Failed to get Task details for Task ID [%s].\"}" % sID
         except Exception:
             uiCommon.log(traceback.format_exc())
@@ -431,7 +435,7 @@ class taskMethods:
             if len(sTaskID) < 36:
                 return "Unable to get Codeblocks - invalid Task ID."
             sErr = ""
-            #instantiate the new Task object
+            # instantiate the new Task object
             oTask = task.Task()
             sErr = oTask.FromID(sTaskID)
             if sErr:
@@ -440,7 +444,7 @@ class taskMethods:
                 return "wmGetCodeblocks: Unable to get Task for ID [" + sTaskID + "]. " + sErr
             sCBHTML = ""
             for cb in oTask.Codeblocks.itervalues():
-                #if it's a guid it's a bogus codeblock (for export only)
+                # if it's a guid it's a bogus codeblock (for export only)
                 if catocommon.is_guid(cb.Name):
                     continue
                 sCBHTML += "<li class=\"ui-widget-content codeblock\" id=\"cb_" + cb.Name + "\">"
@@ -612,7 +616,7 @@ class taskMethods:
 
             sAddHelpMsg = "No Commands have been defined in this Codeblock. Drag a Command here to add it."
             sErr = ""
-            #instantiate the new Task object
+            # instantiate the new Task object
             oTask = task.Task()
             oTask.IncludeSettingsForUser = uiCommon.GetSessionUserID()
             sErr = oTask.FromID(sTaskID)
@@ -648,7 +652,7 @@ class taskMethods:
 
             sHTML = ""
             
-            #instantiate a Task object
+            # instantiate a Task object
             oTask = task.Task()
             sErr = oTask.FromID(sTaskID)
             if sErr:
@@ -938,9 +942,9 @@ class taskMethods:
             # draw the embedded step and return the html
             # !!!!! This isn't a new step! ... It's an extension of the parent step.
             # but, since it's a different 'function', we'll treat it like a different step for now
-            oEmbeddedStep = task.Step() # a new step object
+            oEmbeddedStep = task.Step()  # a new step object
             oEmbeddedStep.ID = sStepID 
-            oEmbeddedStep.Function = func # a function object
+            oEmbeddedStep.Function = func  # a function object
             oEmbeddedStep.FunctionName = func.Name
             oEmbeddedStep.FunctionXDoc = xe
             # THIS IS CRITICAL - this embedded step ... all fields in it will need an xpath prefix 
@@ -1046,7 +1050,7 @@ class taskMethods:
             # Some xpaths are hardcoded because they're on the step table and not in the xml.
             # this currently only applies to the step_desc column ("notes" field).
             if sXPath == "step_desc":
-                sValue = catocommon.tick_slash(sValue) # escape single quotes for the SQL insert
+                sValue = catocommon.tick_slash(sValue)  # escape single quotes for the SQL insert
                 sSQL = "update task_step set " + sXPath + " = '" + sValue + "' where step_id = '" + sStepID + "'"
     
                 if not self.db.exec_db_noexcep(sSQL):
@@ -1068,7 +1072,7 @@ class taskMethods:
                     uiCommon.log("XML data for step [" + sStepID + "] is invalid.")
     
                 try:
-                    uiCommon.log("... looking for %s" % sXPath)
+                    uiCommon.log("... looking for [%s]" % sXPath)
                     xNode = xDoc.find(sXPath)
     
                     if xNode is None:
@@ -1102,7 +1106,7 @@ class taskMethods:
                         # if there are no slashes we'll just add this one explicitly as a child of root
                         if sXPath.find("/") == -1:
                             xDoc.append(ET.Element(sXPath))
-                        else:                             # and if there are break it down
+                        else:  # and if there are break it down
                             sWorkXPath = sXPath
                             while sWorkXPath.find("/") > -1:
                                 idx = uiCommon.LastIndexOf(sWorkXPath, "/") + 1
@@ -1160,12 +1164,16 @@ class taskMethods:
         # no exceptions, just a log message if there are problems.
         try:
             sStepID = uiCommon.getAjaxArg("sStepID")
+            
+            # todo: issue #71 - this should be saved to the db
+            # sXPathPrefix = uiCommon.getAjaxArg("sXPathPrefix")
+            
             sButton = uiCommon.getAjaxArg("sButton")
             if catocommon.is_guid(sStepID):
                 sUserID = uiCommon.GetSessionUserID()
                 sButton = ("null" if sButton == "" else "'" + sButton + "'")
     
-                #is there a row?
+                # is there a row?
                 iRowCount = self.db.select_col_noexcep("select count(*) from task_step_user_settings" \
                     " where user_id = '" + sUserID + "'" \
                     " and step_id = '" + sStepID + "'")
@@ -1196,7 +1204,7 @@ class taskMethods:
 
                 sVisible = ("1" if sVisible == "1" else "0")
     
-                #is there a row?
+                # is there a row?
                 iRowCount = self.db.select_col_noexcep("select count(*) from task_step_user_settings" \
                     " where user_id = '" + sUserID + "'" \
                     " and step_id = '" + sStepID + "'")
@@ -1305,6 +1313,7 @@ class taskMethods:
     def wmGetStepVarsEdit(self):
         try:
             sStepID = uiCommon.getAjaxArg("sStepID")
+            sXPathPrefix = uiCommon.getAjaxArg("sXPathPrefix")
             sUserID = uiCommon.GetSessionUserID()
     
             oStep = ST.GetSingleStep(sStepID, sUserID)
@@ -1313,19 +1322,20 @@ class taskMethods:
                 uiCommon.log("Error - Unable to get the details for the Command type '" + oStep.FunctionName + "'.")
             
             # we will return some key values, and the html for the dialog
-            sHTML = ST.DrawVariableSectionForEdit(oStep)
+            html, pt, rd, cd = ST.DrawVariableSectionForEdit(oStep, sXPathPrefix)
             
-            if not sHTML:
-                sHTML = "<span class=\"red_text\">Unable to get command variables.</span>"
+            if not html:
+                html = "<span class=\"red_text\">Unable to get command variables.</span>"
     
-            return '{"parse_type":"%d","row_delimiter":"%d","col_delimiter":"%d","html":"%s"}' % \
-                (oStep.OutputParseType, oStep.OutputRowDelimiter, oStep.OutputColumnDelimiter, uiCommon.packJSON(sHTML))
+            return '{"parse_type":"%s","row_delimiter":"%s","col_delimiter":"%s","html":"%s"}' % \
+                (pt, rd, cd, uiCommon.packJSON(html))
         except Exception:
             uiCommon.log(traceback.format_exc())
 
     def wmUpdateVars(self):
         try:
             sStepID = uiCommon.getAjaxArg("sStepID")
+            sXPathPrefix = uiCommon.getAjaxArg("sXPathPrefix")
             sOPM = uiCommon.getAjaxArg("sOPM")
             sRowDelimiter = uiCommon.getAjaxArg("sRowDelimiter")
             sColDelimiter = uiCommon.getAjaxArg("sColDelimiter")
@@ -1335,8 +1345,19 @@ class taskMethods:
             bAllDelimited = True
             
             # update the function_xml attributes.
-            ST.SetNodeAttributeinCommandXML(sStepID, "function", "row_delimiter", sRowDelimiter)
-            ST.SetNodeAttributeinCommandXML(sStepID, "function", "col_delimiter", sColDelimiter)
+            # row and col delimiters must be integers...
+            try:
+                int(sRowDelimiter)
+            except:
+                sRowDelimiter = 0
+            try:
+                int(sColDelimiter)
+            except:
+                sColDelimiter = 0
+                
+            xpath = sXPathPrefix if sXPathPrefix else "function"
+            ST.SetNodeAttributeinCommandXML(sStepID, xpath, "row_delimiter", sRowDelimiter)
+            ST.SetNodeAttributeinCommandXML(sStepID, xpath, "col_delimiter", sColDelimiter)
     
     
             # 1 - create a new xdocument
@@ -1399,7 +1420,7 @@ class taskMethods:
                 data = []
                 for elem in xVars:
                     key = elem.findtext("position")
-                    data.append((key, elem)) # the double parens are required! we're appending a tuple
+                    data.append((key, elem))  # the double parens are required! we're appending a tuple
                 
                 data.sort()
                 
@@ -1411,8 +1432,10 @@ class taskMethods:
             uiCommon.log(ET.tostring(xVars))
             
             # add and remove using the xml wrapper functions
-            ST.RemoveFromCommandXML(sStepID, "step_variables")
-            ST.AddToCommandXML(sStepID, "", catocommon.tick_slash(ET.tostring(xVars)))
+            removenode = "%s/step_variables" % sXPathPrefix if sXPathPrefix else "step_variables"
+            ST.RemoveFromCommandXML(sStepID, removenode)
+
+            ST.AddToCommandXML(sStepID, xpath, catocommon.tick_slash(ET.tostring(xVars)))
 
             return ""
         except Exception:
@@ -1482,9 +1505,9 @@ class taskMethods:
                     # TODO: for the moment we aren't building the view viersion of the command
                     # until we convert all the VIEW functions!
                     # we use this function because it draws a smaller version than DrawReadOnlyStep
-                    #sStepHTML = ""
-                    ## and don't draw those complex ones either
-                    #if not sFunction in "loop,exists,if,while":
+                    # sStepHTML = ""
+                    # # and don't draw those complex ones either
+                    # if not sFunction in "loop,exists,if,while":
                     # BUT WHEN WE DO! ... build a clipboard step object here from the row selected above
                     #    sStepHTML = ST.DrawClipboardStep(cs, True)
                     
@@ -1622,7 +1645,7 @@ class taskMethods:
         if sType == "task":
             return self.GetObjectParameterXML(sType, sID, "")
         else:
-            return self.GetMergedParameterXML(sType, sID, sFilterByEcosystemID); # Merging is happening here!
+            return self.GetMergedParameterXML(sType, sID, sFilterByEcosystemID);  # Merging is happening here!
 
     # """
     #  This method simply gets the XML directly from the db for the type.
@@ -1910,7 +1933,7 @@ class taskMethods:
         try:
             sType = uiCommon.getAjaxArg("sType")
             sID = uiCommon.getAjaxArg("sID")
-            sTaskID = uiCommon.getAjaxArg("sTaskID") # sometimes this may be here
+            sTaskID = uiCommon.getAjaxArg("sTaskID")  # sometimes this may be here
             sBaseXPath = uiCommon.getAjaxArg("sBaseXPath", "")
             sXML = uiCommon.getAjaxArg("sXML")
             sUserID = uiCommon.GetSessionUserID()
@@ -2357,7 +2380,7 @@ class taskMethods:
 
             sTable = ""
             sCurrentXML = ""
-            sParameterXPath = "parameter[@id='" + sParamID + "']" #using this to keep the code below cleaner.
+            sParameterXPath = "parameter[@id='" + sParamID + "']"  # using this to keep the code below cleaner.
 
             if sType == "ecosystem":
                 sTable = "ecosystem"
@@ -2370,7 +2393,7 @@ class taskMethods:
             # if sParamID is empty, we are adding
             if not sParamID:
                 sParamID = "p_" + catocommon.new_guid()
-                sParameterXPath = "parameter[@id='" + sParamID + "']" # reset this if we had to get a new id
+                sParameterXPath = "parameter[@id='" + sParamID + "']"  # reset this if we had to get a new id
 
 
                 # does the task already have parameters?
@@ -2455,6 +2478,10 @@ class taskMethods:
                 else:
                     sReadyValue = uiCommon.unpackJSON(sVal)
                     
+                # the value must be htmlencoded since we're building the xml as a string
+                # (this is so ugly... would love to take time to do it right)
+                sReadyValue = cgi.escape(sReadyValue)
+                    
                 sValueXML += "<value id=\"pv_" + catocommon.new_guid() + "\">" + sReadyValue + "</value>"
 
             sValueXML = "<values present_as=\"" + sPresentAs + "\">" + sValueXML + "</values>"
@@ -2526,7 +2553,7 @@ class taskMethods:
             else:
                 return "{\"error\":\"Unable to get Task Instance.  Check log for details.\"}"
                         
-            #if we get here, there is just no data... maybe it never ran.
+            # if we get here, there is just no data... maybe it never ran.
             return ""
         except Exception:
             uiCommon.log(traceback.format_exc())
@@ -2663,7 +2690,7 @@ class taskMethods:
             if instance:
                 logfile = "%s/ce/%s.log" % (catolog.LOGPATH, instance)
                 if os.path.exists(logfile):
-                    if os.path.getsize(logfile) > 20971520: # 20 meg is a pretty big logfile for the browser.
+                    if os.path.getsize(logfile) > 20971520:  # 20 meg is a pretty big logfile for the browser.
                         return uiCommon.packJSON("Logfile is too big to view in a web browser.")
                     with open(logfile, 'r') as f:
                         if f:
@@ -2694,7 +2721,7 @@ class taskMethods:
             # what are we gonna call this file?
             seconds = str(int(time.time()))
             filename = "%s_%s.csk" % (t.Name.replace(" ", "").replace("/", ""), seconds)
-            with open("%s/temp/%s" % (uiGlobals.web_root, filename), 'w') as f_out:
+            with open(os.path.join(catoconfig.CONFIG["tmpdir"], filename), 'w') as f_out:
                 if not f_out:
                     uiCommon.log("ERROR: unable to write task export file.")
                 f_out.write(xml)
@@ -2743,7 +2770,7 @@ class taskMethods:
                 # all done, serialize our output dictionary
                 return json.dumps(output)
 
-            #if we get here, there is just no data... 
+            # if we get here, there is just no data... 
             return ""
         except Exception:
             uiCommon.log(traceback.format_exc())
@@ -2774,7 +2801,7 @@ class taskMethods:
                     " where ifnull(var_name,'') <> ''" \
                     " order by var_name"
 
-                #lVars is a list of all the variables we can pick from
+                # lVars is a list of all the variables we can pick from
                 # the value is the var "name"
                 lVars = []
 
@@ -2826,7 +2853,10 @@ class taskMethods:
                 sHTML += "<div target=\"var_picker_group_globals\" class=\"ui-widget-content ui-corner-all value_picker_group\"><img alt=\"\" src=\"static/images/icons/expand.png\" style=\"width:12px;height:12px;\" /> Globals</div>"
                 sHTML += "<div id=\"var_picker_group_globals\" class=\"hidden\">"
 
-                lItems = ["_ASSET", "_SUBMITTED_BY", "_SUBMITTED_BY_EMAIL", "_TASK_INSTANCE", "_TASK_NAME", "_TASK_VERSION", "_DATE"]
+                lItems = ["_ASSET", "_SUBMITTED_BY", "_SUBMITTED_BY_EMAIL",
+                          "_TASK_INSTANCE", "_TASK_NAME", "_TASK_VERSION",
+                          "_DATE", "_HTTP_RESPONSE", "_UUID", "_UUID2",
+                          "_CLOUD_NAME", "_CLOUD_LOGIN_ID", "_CLOUD_LOGIN_PASS"]
                 for gvar in lItems:
                     sHTML += "<div class=\"ui-widget-content ui-corner-all value_picker_value\">%s</div>" % gvar
 

@@ -86,13 +86,15 @@ $(document).ready(function() {
 	$("#steps .step_common_button").live("click", function() {
 		var btn = "";
 		var dtl = $(this).attr("id").replace(/btn_/, "");
-		var stp = $(this).attr("step_id");
+		var stp = $(this).closest(".step_common").attr("step_id");
+		var xpp = $(this).closest(".step_common").attr("xpath_prefix");
+		var jsid = $(this).closest(".step_common").attr("jsid");
 
 		//if the one we just clicked on is already showing, hide them all
 		if ($("#" + dtl).hasClass("step_common_collapsed")) {
 			//hide all
-			$("#steps div[id^=step_common_detail_" + stp + "]").addClass("step_common_collapsed");
-			$("#step_detail_" + stp + " .step_common_button").removeClass("step_common_button_active");
+			$("#steps div[id^=step_common_detail_" + jsid + "]").addClass("step_common_collapsed");
+			$("#steps span[id^=btn_step_common_detail_" + jsid + "]").removeClass("step_common_button_active");
 
 			//show this one
 			$("#" + dtl).removeClass("step_common_collapsed");
@@ -109,7 +111,7 @@ $(document).ready(function() {
 			async : true,
 			type : "POST",
 			url : "taskMethods/wmToggleStepCommonSection",
-			data : '{"sStepID":"' + stp + '","sButton":"' + btn + '"}',
+			data : '{"sStepID":"' + stp + '","sXPathPrefix":"' + xpp + '","sButton":"' + btn + '"}',
 			contentType : "application/json; charset=utf-8",
 			dataType : "json",
 			success : function(msg) {
@@ -131,7 +133,7 @@ $(document).ready(function() {
 	});
 	$("#command_help_btn").click(function() {
 		showPleaseWait();
-		$("#command_help_dialog_detail").load("static/_command_help.html", function() {
+		$("#command_help_dialog_detail").load("uiMethods/wmGetCommandHelp", function() {
 			$("#command_help_dialog").dialog("open");
 			hidePleaseWait();
 		});

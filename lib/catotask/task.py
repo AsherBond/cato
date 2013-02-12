@@ -235,7 +235,8 @@ class Task(object):
             # for xml imports, this is a NEW task by default.
             # if the user changes 'on_conflict' to either replace or version up
             # the proper original task id will be resolved by that branch of DBSave
-            self.OriginalTaskID = self.ID
+            # but if it doesn't already exist... it's safe to reuse the otid from the source system
+            self.OriginalTaskID = xTask.get("original_task_id", xmlerr)
             self.Name = xTask.get("name", xmlerr)
             self.Code = xTask.get("code", xmlerr)
             self.OnConflict = xTask.get("on_conflict", "cancel") #cancel is the default action if on_conflict isn't specified
@@ -361,9 +362,10 @@ class Task(object):
         try:
             db = catocommon.new_conn()
             sSQL = """select task_id, original_task_id from task
-                where (task_name = '%s' and version = '%s')
-                or task_id = '%s'""" % (self.Name, self.Version, self.ID)
-            dr = db.select_row_dict(sSQL)
+                where (task_name = %s and version = %s)
+                or task_id = %s
+                or original_task_id = %s"""
+            dr = db.select_row_dict(sSQL, (self.Name, self.Version, self.ID, self.OriginalTaskID))
             if dr:
                 # PAY ATTENTION! 
                 # if the task exists... it might have been by name/version, so...
@@ -418,6 +420,12 @@ class Task(object):
                     db.tran_rollback()
                 return False, "ID and Name are required Task properties."
 
+            # this could be used in many cases below...
+            parameter_clause = " ''"
+            if self.ParameterXDoc is not None:
+                parameter_clause = " '" + catocommon.tick_slash(ET.tostring(self.ParameterXDoc)) + "'"
+            
+            
             if self.DBExists:
                 #uh oh... this task exists.  unless told to do so, we stop here.
                 if self.OnConflict == "cancel":
@@ -458,7 +466,7 @@ class Task(object):
                             " concurrent_instances = '" + str(self.ConcurrentInstances) + "'," \
                             " queue_depth = '" + str(self.QueueDepth) + "'," \
                             " created_dt = now()," \
-                            " parameter_xml = " + ("'" + catocommon.tick_slash(ET.tostring(self.ParameterXDoc)) + "'" if self.ParameterXDoc is None else "null") + \
+                            " parameter_xml = " + parameter_clause + \
                             " where task_id = '" + self.ID + "'"
                         if not db.tran_exec_noexcep(sSQL):
                             return False, db.error
@@ -479,8 +487,8 @@ class Task(object):
                             " '" + catocommon.tick_slash(self.Name) + "'," \
                             " '" + catocommon.tick_slash(self.Code) + "'," \
                             " '" + catocommon.tick_slash(self.Description) + "'," \
-                            " '" + self.Status + "'," \
-                            " '" + catocommon.tick_slash(ET.tostring(self.ParameterXDoc)) + "'," \
+                            " '" + self.Status + "'," + \
+                            parameter_clause + "," \
                             " now())"
                         if not db.tran_exec_noexcep(sSQL):
                             return False, db.error
@@ -501,8 +509,8 @@ class Task(object):
                             " '" + catocommon.tick_slash(self.Name) + "'," \
                             " '" + catocommon.tick_slash(self.Code) + "'," \
                             " '" + catocommon.tick_slash(self.Description) + "'," \
-                            " '" + self.Status + "'," \
-                            " '" + catocommon.tick_slash(ET.tostring(self.ParameterXDoc)) + "'," \
+                            " '" + self.Status + "'," + \
+                            parameter_clause + "," \
                             " now())"
                         if not db.tran_exec_noexcep(sSQL):
                             return False, db.error
@@ -511,10 +519,6 @@ class Task(object):
                         return False, "There is an ID or Name/Version conflict, and the on_conflict directive isn't a valid option. (replace/major/minor/cancel)"
             else:
                 #the default action is to ADD the new task row... nothing
-                parameter_clause = " '',"
-                if self.ParameterXDoc is not None:
-                    parameter_clause = " '" + catocommon.tick_slash(ET.tostring(self.ParameterXDoc)) + "',"
-                    
                 sSQL = "insert task" \
                     " (task_id, original_task_id, version, default_version," \
                     " task_name, task_code, task_desc, task_status, parameter_xml, created_dt)" \
@@ -526,7 +530,7 @@ class Task(object):
                     " '" + catocommon.tick_slash(self.Code) + "'," \
                     " '" + catocommon.tick_slash(self.Description) + "'," \
                     " '" + self.Status + "'," \
-                    + parameter_clause + \
+                    + parameter_clause + "," \
                     " now())"
                 if not db.tran_exec_noexcep(sSQL):
                     return False, db.error
@@ -868,7 +872,7 @@ class Codeblock(object):
         
         #STEPS
         xSteps = xCB.findall("steps/step")
-        logger.debug("Number of Steps in [" + self.Name + "]: " + str(len(xSteps)), 4)
+        logger.debug("Number of Steps in [" + self.Name + "]: " + str(len(xSteps)))
         order = 1
         for xStep in xSteps:
             newstep = Step()
@@ -1027,13 +1031,29 @@ class Step(object):
                     self.FunctionXDoc = ET.fromstring(func_xml)
                     
                     # what's the output parse type?
-                    self.OutputParseType = int(self.FunctionXDoc.get("parse_method", 0))
+                    try:
+                        opt = int(self.FunctionXDoc.get("parse_method", 0))
+                    except:
+                        logger.error("parse_method on step xml isn't a valid integer.")
+                        opt = 0
+                    self.OutputParseType = opt
                     
                     # if the output parse type is "2", we need row and column delimiters too!
                     #if self.OutputParseType == 2:
                     # but hey! why bother checking, just read 'em anyway.  Won't hurt anything.
-                    self.OutputRowDelimiter = int(self.FunctionXDoc.get("row_delimiter", 0))
-                    self.OutputColumnDelimiter = int(self.FunctionXDoc.get("col_delimiter", 0))
+                    try:
+                        rd = int(self.FunctionXDoc.get("row_delimiter", 0))
+                    except:
+                        logger.error("row_delimiter on step xml isn't a valid integer.")
+                        rd = 0
+                    self.OutputRowDelimiter = rd
+                    
+                    try:
+                        cd = int(self.FunctionXDoc.get("col_delimiter", 0))
+                    except:
+                        logger.error("row_delimiter on step xml isn't a valid integer.")
+                        cd = 0
+                    self.OutputColumnDelimiter = cd
                 except ET.ParseError:
                     self.IsValid = False
                     logger.error(traceback.format_exc())    

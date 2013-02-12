@@ -146,6 +146,7 @@
 			</command>
 			<command name="winrm_cmd" label="Windows Remote Management" description="A command issued via the WinRM tool for interaction with Windows hosts." help="Can connect to an instance of the WinRM service running on a Windows host and issue commands. Enter the command that should be executed. Prior to the command being executed, variable substitution will occur. &lt;br&gt;&lt;br&gt;Options:&lt;br&gt;Timeout value in seconds, this is the number of seconds the command engine will wait for the command prompt to return until it timeouts out the process." icon="static/images/icons/konsole_32.png">
 				<function name="winrm_cmd" variables="true" parse_method="2" snip="command">
+					<conn_name input_type="text" label="Connection" connection_picker="true" />
 					<command input_type="textarea" rows="3" label="Command" class="w95pct" style="display: block;" />
 					<timeout input_type="text" option_tab="Options" label="Timeout" break_after="true" />
 				</function>
