@@ -115,7 +115,7 @@ def http_get_nofail(url):
             return ""
         
         logger.info("Trying an HTTP GET to %s" % url)
-        response = urllib2.urlopen(url, None, 4) # a 4 second timeout is enough
+        response = urllib2.urlopen(url, None, 4)  # a 4 second timeout is enough
         result = response.read()
         
         if result:
@@ -168,7 +168,11 @@ def pretty_print_xml(xml_string):
 def packData(sIn):
     if not sIn:
         return sIn
-    sOut = base64.b64encode(str(sIn))
+    
+    # data being sent might have unicode chars... 
+    sIn = sIn.encode("utf-8")
+
+    sOut = base64.b64encode(sIn)
     return sOut.replace("/", "%2F").replace("+", "%2B")
 
 def unpackData(sIn):
@@ -176,7 +180,15 @@ def unpackData(sIn):
         return sIn
     
     sOut = sIn.replace("%2F", "/").replace("%2B", "+")
-    return base64.b64decode(sOut)
+
+    # unbase64 it
+    sOut = base64.b64decode(sOut)
+    
+    # *most* of the user-provided values run through this function...
+    # so here's a nearly universal place to scrub a string for unicode.
+    sOut = sOut.decode("utf-8")
+    
+    return sOut
 
 def new_guid():
     return str(uuid.uuid1())
@@ -513,10 +525,10 @@ def GenerateScheduleLabel(sMo, sDa, sHo, sMi, sDW):
     return sDesc, sTooltip
 
 
-## This object to xml converter inspired from the following code snippet
-## http://code.activestate.com/recipes/577739/
+# # This object to xml converter inspired from the following code snippet
+# # http://code.activestate.com/recipes/577739/
 
-## It's not a full featured XML object serializer ... simply turns a python dict into an XML document.
+# # It's not a full featured XML object serializer ... simply turns a python dict into an XML document.
 
 class dict2xml(object):
     def __init__(self, structure, rootname):
@@ -568,7 +580,7 @@ class ObjectOutput(object):
     """
     @staticmethod
     def AsJSON(dict_obj):
-        return json.dumps(dict_obj, default=jsonSerializeHandler)
+        return json.dumps(dict_obj, default=jsonSerializeHandler, indent=4)
 
     @staticmethod
     def AsXML(dict_obj, item_node):
@@ -602,7 +614,7 @@ class ObjectOutput(object):
                     else:
                         lst.append(item)
                 
-            return json.dumps(lst, default=jsonSerializeHandler)
+            return json.dumps(lst, default=jsonSerializeHandler, indent=4)
         except Exception as ex:
             raise ex
 

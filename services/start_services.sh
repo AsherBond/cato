@@ -23,7 +23,6 @@ start_other_procs() {
     while read line
     do
         CATO_EXE="$CATO_HOME/services/bin/$line"
-        CATO_LOG="$CATO_LOGS/$line.log"
         if [[ "`uname`" == "Darwin" ]]; then
             PID=`ps -A | grep "${CATO_EXE}" | grep -v "grep"`
         else
@@ -31,7 +30,7 @@ start_other_procs() {
         fi
         if [ ! "$PID" ]; then
             echo "Starting ${CATO_EXE}"
-            nohup ${CATO_EXE} >> ${CATO_LOG} 2>&1 &
+            nohup ${CATO_EXE} >> /dev/null 2>&1 &
         else
             echo "${CATO_EXE} is already running"
         fi

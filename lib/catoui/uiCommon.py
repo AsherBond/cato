@@ -98,16 +98,34 @@ def CatoDecrypt(s):
 def getAjaxArgs():
     """Just returns the whole posted json as a json dictionary"""
     data = web.data()
-    return json.loads(data)
+    if data:
+        return json.loads(data)
+    else:
+        # maybe it was a GET?  check web.input()
+        data = dict(web.input())
+        if data:
+            return dict(data)
+        else:
+            return {}
+    
 
 def getAjaxArg(sArg, sDefault=""):
     """Picks out and returns a single value."""
     try:
         data = web.data()
-        dic = json.loads(data)
-        if dic.has_key(sArg):
-            if dic[sArg]:
-                return dic[sArg]
+        dic = None
+        if data:
+            dic = json.loads(data)
+        else:
+            # maybe it was a GET?  check web.input()
+            dic = dict(web.input())
+
+        if dic:
+            if dic.has_key(sArg):
+                if dic[sArg]:
+                    return dic[sArg]
+                else:
+                    return sDefault
             else:
                 return sDefault
         else:
@@ -120,7 +138,7 @@ def GetCookie(sCookie):
     if cookie:
         return cookie
     else:
-        log_nouser("Warning: Attempt to retrieve cookie [%s] failed - cookie doesn't exist.  This is usually OK immediately following a login." % sCookie, 3)
+        log_nouser("Warning: Attempt to retrieve cookie [%s] failed - cookie doesn't exist.  This is usually OK immediately following a login." % sCookie, 4)
         return ""
 
 def SetCookie(sCookie, sValue):
@@ -231,98 +249,6 @@ def PrepareAndEncryptParameterXML(sParameterXML):
     except Exception:
         log_nouser(traceback.format_exc(), 0)
 
-def GenerateScheduleLabel(sMo, sDa, sHo, sMi, sDW):
-    sDesc = ""
-    sTooltip = ""
-
-    # we can analyze the details and come up with a pretty name for this schedule.
-    # this may need to be it's own web method eventually...
-    if sMo != "0,1,2,3,4,5,6,7,8,9,10,11,":
-        sDesc += "Some Months, "
-
-    if sDW == "0":
-        # explicit days 
-        if sDa == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,":
-            sDesc += "Every Day, "
-    else:
-        # weekdays
-        if sDa == "0,1,2,3,4,5,6,":
-            sDesc += "Every Weekday, "
-        else:
-            sDesc += "Some Days, "
-
-    # hours and minutes labels play together, and are sometimes exclusive of one another
-    # we'll figure that out later...
-
-    if sHo == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,":
-        sDesc += "Hourly, "
-    else:
-        sDesc += "Selected Hours, "
-
-    if sMi == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,":
-        sDesc += "Every Minute"
-    else:
-        sDesc += "Selected Minutes"
-
-    # just use the guid if we couldn't derive a label.
-    if sDesc != "":
-        sDesc += "."
-
-
-
-
-    # build a verbose description too
-    sTmp = ""
-
-    # months
-    if sMo == "0,1,2,3,4,5,6,7,8,9,10,11,":
-        sTmp = "Every Month"
-    else:
-        sTmp = sMo[:-1].replace("0", "Jan").replace("1", "Feb").replace("2", "Mar").replace("3", "Apr").replace("4", "May").replace("5", "Jun").replace("6", "Jul").replace("7", "Aug").replace("8", "Sep").replace("9", "Oct").replace("10", "Nov").replace("11", "Dec")
-    sTooltip += "Months: (" + sTmp + ")<br />\n"
-
-    # days
-    sTmp = ""
-    if sDW == "0":
-        if sDa == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,":
-            sTmp = "Every Day"
-        else:
-            a = sDa.split(',')
-            for s in a:
-                # individual days are +1
-                a2 = []
-                if s:
-                    a2.append(str(int(s) + 1))
-                    sTmp = ",".join(a2)
-
-        sTooltip += "Days: (" + sTmp + ")<br />\n"
-    else:
-        if sDa == "0,1,2,3,4,5,6,":
-            sTmp = "Every Weekday"
-        else:
-            sTmp = sDa[:-1].replace("0", "Sun").replace("1", "Mon").replace("2", "Tue").replace("3", "Wed").replace("4", "Thu").replace("5", "Fri").replace("6", "Sat")
-
-        sTooltip += "Weekdays: (" + sTmp + ")<br />\n"
-
-    # hours
-    sTmp = ""
-    if sHo == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,":
-        sTmp = "Every Hour"
-    else:
-        sTmp = sHo[:-1]
-    sTooltip += "Hours: (" + sTmp + ")<br />\n"
-
-    # minutes
-    sTmp = ""
-    if sMi == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,":
-        sTmp = "Every Minute"
-    else:
-        sTmp = sMi[:-1]
-    sTooltip += "Minutes: (" + sTmp + ")<br />\n"
-
-    return sDesc, sTooltip
-
-
 def ForceLogout(sMsg=""):
     if not sMsg:
         sMsg = "Session Ended"
@@ -340,6 +266,26 @@ def GetSessionUserID():
             return uid
         else:
             ForceLogout("Server Session has expired (1). Please log in again.")
+    except Exception:
+        log_nouser(traceback.format_exc(), 0)
+
+def GetSessionUserName():
+    try:
+        un = GetSessionObject("user", "user_name")
+        if un:
+            return un
+        else:
+            ForceLogout("Server Session has expired (1a). Please log in again.")
+    except Exception:
+        log_nouser(traceback.format_exc(), 0)
+
+def GetSessionUserFullName():
+    try:
+        fn = GetSessionObject("user", "full_name")
+        if fn:
+            return fn
+        else:
+            ForceLogout("Server Session has expired (1b). Please log in again.")
     except Exception:
         log_nouser(traceback.format_exc(), 0)
 
@@ -882,6 +828,16 @@ def UpdateHeartbeat():
             if not db.exec_db_noexcep(sSQL):
                 log_nouser(db.error, 0)
             db.close()
+        return ""
+    except Exception:
+        log_nouser(traceback.format_exc(), 0)
+
+def WriteClientLog(msg, debuglevel=2):
+    try:
+        if msg:
+            #logger.warning("TODO: this should write to the client logfile...")
+            log("CLIENT - %s" % (msg)) #, debuglevel, "%s_client.log" % app)
+
         return ""
     except Exception:
         log_nouser(traceback.format_exc(), 0)

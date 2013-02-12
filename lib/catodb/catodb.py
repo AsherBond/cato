@@ -26,7 +26,7 @@ class Db(object):
         """Establishes a connection as a class property."""
 
         try:
-            self.conn = pymysql.connect(host=server, port=int(port), 
+            self.conn = pymysql.connect(charset='utf8', host=server, port=int(port), 
                 user=user, passwd=password, db=database)
             self.conn.autocommit(1)
         except Exception as e:

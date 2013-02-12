@@ -49,7 +49,7 @@ class CatoProcess():
     Starting up %s
 #######################################""" % self.process_name)
         self.db = catodb.Db()
-        conn = self.db.connect_db(server=catoconfig.CONFIG["server"], port=catoconfig.CONFIG["port"],
+        self.db.connect_db(server=catoconfig.CONFIG["server"], port=catoconfig.CONFIG["port"],
             user=catoconfig.CONFIG["user"],
             password=catoconfig.CONFIG["password"], database=catoconfig.CONFIG["database"])
         self.config = catoconfig.CONFIG
@@ -72,17 +72,16 @@ class CatoService(CatoProcess):
     def check_registration(self):
 
         # Get the node number
-        sql = "select id from application_registry where app_name = '" + self.process_name + \
-            "' and app_instance = '" + self.host_domain + "'"
+        sql = """select id from application_registry where app_name = %s and app_instance = %s"""
 
-        result = self.db.select_col(sql)
+        result = self.db.select_col(sql, (self.process_name, self.host_domain))
         if not result:
-            self.logger.info(self.process_name + " has not been registered, registering...")
+            self.logger.info("[%s] has not been registered, registering..." % self.process_name)
             self.register_app()
             result = self.db.select_col(sql)
             self.instance_id = result
         else:
-            self.logger.info(self.process_name + " has already been registered, updating...")
+            self.logger.info("[%s] has already been registered, updating..." % self.process_name)
             self.instance_id = result
             self.logger.info("application instance = %d" % self.instance_id)
             self.db.exec_db("""update application_registry set hostname = %s, userid = %s,
@@ -93,11 +92,13 @@ class CatoService(CatoProcess):
     def register_app(self):
         self.logger.info("Registering application...")
 
-        sql = "insert into application_registry (app_name, app_instance, master, logfile_name, " \
-            "hostname, userid, pid, platform) values ('" + self.process_name + \
-            "', '" + self.host_domain + "',1, '" + self.process_name.lower() + ".log', \
-            '" + self.host + "', '" + self.user + "'," + str(self.my_pid) + ",'" + self.platform + "')"
-        self.db.exec_db(sql)
+        sql = """insert into application_registry 
+            (app_name, app_instance, master, logfile_name, hostname, userid, pid, platform)
+            values 
+            (%s, %s, 1, %s, %s, %s, %s, %s)"""
+        params = (self.process_name, self.host_domain, "%s.log" % self.process_name.lower(),
+                self.host, self.user, self.my_pid, self.platform)
+        self.db.exec_db(sql, params)
         self.logger.info("Application registered.")
 
     def heartbeat_loop(self, event):
@@ -112,6 +113,10 @@ class CatoService(CatoProcess):
         self.db_heart.exec_db(sql, (self.instance_id))
 
     def get_settings(self):
+        """
+        This does nothing here in the generic format, but is overloaded 
+        by any other processes that subclass CatoService.
+        """
         pass
 
     def startup(self):
@@ -119,7 +124,7 @@ class CatoService(CatoProcess):
         self.check_registration()
         self.get_settings
         self.db_heart = catodb.Db()
-        conn_heart = self.db_heart.connect_db(server=self.config["server"], port=self.config["port"],
+        self.db_heart.connect_db(server=self.config["server"], port=self.config["port"],
             user=self.config["user"],
             password=self.config["password"], database=self.config["database"])
         self.update_heartbeat()
