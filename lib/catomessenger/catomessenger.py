@@ -91,14 +91,23 @@ class Messenger(catoprocess.CatoService):
         rows = self.db.select_all(sql, (self.retry_attempts))
         if rows:
             self.logger.info("Processing %d messages...", (len(rows)))
+            s = smtplib.SMTP_SSL(timeout=20)
+            #s.set_debuglevel(True)
+
             try: 
-                server = smtplib.SMTP_SSL(self.smtp_server, int(self.smtp_port))
-                server.login(self.smtp_user, self.smtp_pass)
-            except Exception, e:
+                s.connect(self.smtp_server, int(self.smtp_port))    
+                #s.ehlo()
+                #if s.has_extn('STARTTLS'):
+                #    s.starttls()
+                #    s.ehlo()
+                s.login(self.smtp_user, self.smtp_pass)
+            except Exception as e:
+                err_msg = "Error attempting to establish smtp connection to smtp server %s, port %s: %s" % (self.smtp_server, self.smtp_port, e)
+                self.logger.info(err_msg)
                 for row in rows:
                     msg_id = row[0]
-                    err_msg = str(e)
                     self.update_msg_status(msg_id, 1, err_msg)
+                return 
 
             for row in rows:
                 msg_id = row[0]
@@ -119,15 +128,15 @@ class Messenger(catoprocess.CatoService):
                 msg.attach(part1)
                 msg.attach(part2)
                 try:
-                    server.sendmail(self.smtp_from, msg_to, msg.as_string())
-                except Exception, e:
-                    err_msg = str(e)
+                    s.sendmail(self.smtp_from, msg_to, msg.as_string())
+                except Exception as e:
+                    err_msg = "Error sending smtp message: %s" % (e)
                     self.update_msg_status(msg_id, 1, err_msg)
                 else:
                     self.update_msg_status(msg_id, 2, "")
                 del(msg)
 
-            server.quit()
+            s.quit()
 
 
     def main_process(self):
