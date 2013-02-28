@@ -13,7 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
  
- 
+from catolog import catolog
+logger = catolog.get_logger(__name__)
+
+import traceback
+
 from catoapi import api
 from catoapi.api import response as R
 from catotask import task
@@ -75,8 +79,9 @@ class taskMethods:
             else:
                 return R(err_code=R.Codes.CreateError, err_detail=msg)
             
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
 
     def get_task_instance_status(self, args):
         """
@@ -107,8 +112,9 @@ class taskMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Status for Task Instance [%s]." % args["instance"])
             
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
 
     def get_task_instance(self, args):
         """
@@ -139,8 +145,49 @@ class taskMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Task Instance [%s]." % args["instance"])
             
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
+
+    def resubmit_task_instance(self, args):
+        """
+        Resubmits a completed,errored or cancelled Task Instance.
+        
+        Required Arguments: instance
+            The Task Instance identifier.
+
+        Returns: Returns: Nothing if successful, error messages on failure.
+        """
+        try:
+            # this is a developer function
+            if not args["_developer"]:
+                return R(err_code=R.Codes.Forbidden)
+            
+            required_params = ["instance"]
+            has_required, resp = api.check_required_params(required_params, args)
+            if not has_required:
+                return resp
+
+            obj = task.TaskInstance(args["instance"])
+            if obj:
+                if obj.Error:
+                    return R(err_code=R.Codes.GetError, err_detail=obj.Error)
+
+#                if deployment_id and sequence_instance:
+#                    msg = "Task [%s] Instance [%s] resubmitted by [%s]." % (ti.task_name_label, ti.task_instance, username)
+#                    deployment.WriteDeploymentLog(msg, dep_id=deployment_id, seq_inst=sequence_instance)
+    
+                result, err = obj.Resubmit(args["_user_id"])
+                if result:
+                    return R(response="Instance [%s] successfully resubmitted." % args["instance"])
+                else:
+                    return R(err_code=R.Codes.StartFailure, err_detail=err)
+            else:
+                return R(err_code=R.Codes.GetError, err_detail="Unable to get Task Instance [%s]." % args["instance"])
+            
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
 
     def get_task_log(self, args):
         """
@@ -169,8 +216,9 @@ class taskMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Run Log for Task Instance [%s]." % args["instance"])
             
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
 
     def run_task(self, args):
         """
@@ -190,6 +238,10 @@ class taskMethods:
             If 'output_format' is set to 'text', returns only a Task Instance ID.
         """
         try:
+            # this is a developer function
+            if not args["_developer"]:
+                return R(err_code=R.Codes.Forbidden)
+            
             required_params = ["task"]
             has_required, resp = api.check_required_params(required_params, args)
             if not has_required:
@@ -245,8 +297,9 @@ class taskMethods:
                 identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
                 return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
 
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
 
     def stop_task(self, args):
         """
@@ -258,6 +311,10 @@ class taskMethods:
         Returns: Nothing if successful, error messages on failure.
         """
         try:
+            # this is a developer function
+            if not args["_developer"]:
+                return R(err_code=R.Codes.Forbidden)
+            
             required_params = ["instance"]
             has_required, resp = api.check_required_params(required_params, args)
             if not has_required:
@@ -267,12 +324,13 @@ class taskMethods:
             ti = task.TaskInstance(args["instance"])
             if ti:
                 ti.Stop()
-                return R(response="Instance %s successfully stopped." % args["instance"])
+                return R(response="Instance [%s] successfully stopped." % args["instance"])
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Run Log for Task Instance [%s]." % args["instance"])
+                return R(err_code=R.Codes.StopFailure, err_detail="Unable to stop Task Instance [%s]." % args["instance"])
             
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
 
     def list_tasks(self, args):        
         """
@@ -300,8 +358,9 @@ class taskMethods:
             else:
                 return R(err_code=R.Codes.ListError, err_detail="Unable to list Tasks.")
             
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
 
     def get_task_instances(self, args):
         """
@@ -338,8 +397,9 @@ class taskMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Task Instances.")
             
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
 
     def get_task(self, args):        
         """
@@ -377,8 +437,9 @@ class taskMethods:
                 identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
                 return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
             
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
 
     def describe_task_parameters(self, args):        
         """
@@ -452,8 +513,9 @@ class taskMethods:
                 identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
                 return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
             
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
 
     def get_task_parameters_template(self, args):        
         """
@@ -466,7 +528,7 @@ class taskMethods:
             version - A specific version.  ('Default' if omitted.)
             
         Returns: An XML template defining the Parameters for a Task.
-            (Used for calling run_task or run_ecosystem_action.)
+            (Used for calling run_task or run_action.)
         """
         try:
             # define the required parameters for this call
@@ -479,37 +541,40 @@ class taskMethods:
 
             obj = task.Task()
             obj.FromNameVersion(args["task"], ver)
-            if obj.ParameterXDoc:
-                """
-                    Build a template for a parameter xml document, suitable for editing and submission.
-                    Used for the command line tools and API.
-                    The UI has it's own more complex logic for presentation and interaction.
-                """
-                
-                # the xml document is *almost* suitable for this purpose.
-                # we just wanna strip out the presentation metadata
-                xdoc = obj.ParameterXDoc
-                # all we need to do is remove the additional dropdown values.
-                # they're "allowed values", NOT an array.
-                xParamValues = xdoc.findall("parameter/values")
-                if xParamValues is not None:
-                    for xValues in xParamValues: 
-                        if xValues.get("present_as", ""):
-                            if xValues.get("present_as", "") == "dropdown":
-                                # if it's a dropdown type, show the allowed values.
-                                xValue = xValues.findall("value")
-                                if xValue is not None:
-                                    if len(xValue) > 1:
-                                        for val in xValue[1:]:
-                                            xValues.remove(val)
-                                        
-                xmlstr = catocommon.pretty_print_xml(ET.tostring(xdoc))
-                                        
-                return R(response=xmlstr)
+            if obj.ID:
+                if obj.ParameterXDoc:
+                    """
+                        Build a template for a parameter xml document, suitable for editing and submission.
+                        Used for the command line tools and API.
+                        The UI has it's own more complex logic for presentation and interaction.
+                    """
+                    
+                    # the xml document is *almost* suitable for this purpose.
+                    # we just wanna strip out the presentation metadata
+                    xdoc = obj.ParameterXDoc
+                    # all we need to do is remove the additional dropdown values.
+                    # they're "allowed values", NOT an array.
+                    xParamValues = xdoc.findall("parameter/values")
+                    if xParamValues is not None:
+                        for xValues in xParamValues: 
+                            if xValues.get("present_as", ""):
+                                if xValues.get("present_as", "") == "dropdown":
+                                    # if it's a dropdown type, show the allowed values.
+                                    xValue = xValues.findall("value")
+                                    if xValue is not None:
+                                        if len(xValue) > 1:
+                                            for val in xValue[1:]:
+                                                xValues.remove(val)
+                                            
+                    xmlstr = catocommon.pretty_print_xml(ET.tostring(xdoc))
+                                            
+                    return R(response=xmlstr)
+                else:
+                    return R(err_code=R.Codes.GetError, err_detail="Task has no parameters defined.")
             else:
                 identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
                 return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
             
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
-
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)

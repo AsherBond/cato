@@ -270,7 +270,7 @@ function DeleteItems() {
 	       try {
 		        if (task) {
 		        	if (task.info) {
-		        		showInfo(task.info);
+		        		showInfo(task.info, "", true);
 		        	}
 
 	                // clear the selected array, search field and fire a new search
@@ -297,11 +297,14 @@ function ExportTasks() {
     //on this page, the hidSelectedArray is ORIGINAL TASK IDS.
     //take that into consideration.
 
-    var ArrayString = $("#hidSelectedArray").val();
+	var args = {};
+	args.sIncludeRefs = $("#export_dialog_include_refs").is(':checked')
+	args.sTaskArray = $("#hidSelectedArray").val();
+
     $.ajax({
         type: "POST",
         url: "taskMethods/wmExportTasks",
-        data: '{"sTaskArray":"' + ArrayString + '"}',
+        data: JSON.stringify(args),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {

@@ -26,7 +26,7 @@
 			</command>
 			<command name="run_task" label="Run Task" description="Run Task executes launches another task." help="Run task is used to launch a task in a seperate execution stream. Select the task to be run and optionally select the asset on which is to be executed against. The task will get scheduled for immediate execution and will run independently from the calling task." icon="static/images/icons/player_play_32.png">
 				<function name="run_task">
-					<original_task_id input_type="text" />
+					<task_name input_type="text" />
 					<version input_type="text" />
 					<time_to_wait input_type="text" />
 					<on_success input_type="text" />
@@ -99,7 +99,7 @@
 			</command>
 			<command name="subtask" label="Subtask" description="Loads and executes the specified Task." help="Subtask runs the task identified in the Task: entry field. All variables available prior to subtask execution are available within the subtask and any variables set during the subtask are available after it is finished.&lt;br&gt;&lt;br&gt;Subtasks are usually best for common execution logic that can be shared across multiple tasks. " icon="static/images/icons/tab_duplicate_32.png">
 				<function name="subtask">
-					<original_task_id input_type="text" />
+					<task_name input_type="text" />
 					<version input_type="text" />
 				</function>
 			</command>
@@ -219,18 +219,7 @@
 					<source input_type="textarea" rows="3" label="Text" class="w95pct" required="true" label_style="display: block;" />
 				</function>
 			</command>
-			<command name="set_ecosystem_registry" label="Set Ecosystem Registry" description="Updates a value in an Ecosystem Registry" help="Set Ecosystem Registry is used to update a value in an Ecosystem Registry.&lt;br /&gt;&lt;br /&gt;Useful for saving Task specific state or configuration information between Task runs.&lt;br /&gt;&lt;br /&gt;[[variables]] are permitted." icon="static/images/icons/kexi_32.png">
-				<function name="set_ecosystem_registry">
-					<pairs label="Pairs">
-						<pair>
-							<key input_type="text" label="Key" />
-							<value input_type="text" label="Value" />
-							<mask input_type="checkbox" label="Masked?" />
-						</pair>
-					</pairs>
-				</function>
-			</command>
-			<command name="exists" label="Exists" description="The Exists command will check one or more variables to ensure they have values" help="The Exists command will check one or more variables to ensure they have values&lt;br /&gt;" icon="static/images/icons/exists.png">
+						<command name="exists" label="Exists" description="The Exists command will check one or more variables to ensure they have values" help="The Exists command will check one or more variables to ensure they have values&lt;br /&gt;" icon="static/images/icons/exists.png">
 				<function name="exists">
 					<variables>
 						<variable>

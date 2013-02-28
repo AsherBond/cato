@@ -15,7 +15,7 @@
 
 $(document).ready(function () {
     //any page that includes this script will get the following dialog inner code
-    //but the page requires a placeholder div... called "storm_run_dialog"
+    //but the page requires a placeholder div... called "log_view_dialog"
     var d = 'Filter: <input type="text" id="log_view_dialog_search" />' +
     	'<span># of Results <input id="log_view_dialog_records" /></span>' +
     	'<br /><span style="z-index: 1200;">Begin Date<input id="log_view_dialog_from" class="datepicker" /></span>' +
@@ -106,7 +106,7 @@ function GetLog() {
         	} else if (response.log) {
 	            //spin the json and build a table
 	            $.each(response.log, function() {
-                	$("#log_view_dialog_results").append("<tr><td>" + this[0] + "</td><td>" + unpackJSON(this[1]) + "</td><td>" + unpackJSON(this[2]) + "</td></tr>");
+                	$("#log_view_dialog_results").append("<tr><td nowrap>" + this[0] + "</td><td>" + unpackJSON(this[1]) + "</td><td>" + unpackJSON(this[2]) + "</td></tr>");
             	});
             	initJtable(true, false);
         	} else {

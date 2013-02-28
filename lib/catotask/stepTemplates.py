@@ -199,14 +199,10 @@ def GetStepTemplate(oStep):
         sHTML = ClearVariable(oStep)
     elif sFunction.lower() == "wait_for_tasks":
         sHTML = WaitForTasks(oStep)
-    elif sFunction.lower() == "set_ecosystem_registry":
-        sHTML = SetEcosystemRegistry(oStep)
     elif sFunction.lower() == "subtask":
         sHTML = Subtask(oStep)
     elif sFunction.lower() == "run_task":
         sHTML = RunTask(oStep)
-    elif sFunction.lower() == "get_ecosystem_objects":
-        sHTML = GetEcosystemObjects(oStep)
     elif sFunction.lower() == "transfer":
         sHTML = "Not Yet Available" #Transfer(oStep)
     elif sFunction.lower() == "set_asset_registry":
@@ -1673,55 +1669,6 @@ def LabelNonprintable(iVal):
 From here to the bottom are the hardcoded commands.
 """
 
-def GetEcosystemObjects(oStep):
-    """
-        This one could easily be moved out of hardcode and into the commands.xml using a function based lookup.
-    """
-    try:
-        xd = oStep.FunctionXDoc
-
-        sObjectType = xd.findtext("object_type", "")
-        sHTML = ""
-
-        sHTML += "Select Object Type:\n"
-        sHTML += "<select " + CommonAttribs(oStep, True, "object_type", "") + ">\n"
-        sHTML += "  <option " + SetOption("", sObjectType) + " value=\"\"></option>\n"
-
-        # this builds a unique list of all object types, provider agnostic
-        otypes = {}
-        cp = cloud.CloudProviders(include_clouds = False)
-        if cp is not None:
-            for p in cp.itervalues():
-                cots = p.GetAllObjectTypes()
-                for cot in cots.itervalues():
-                    if cot.ID not in otypes.iterkeys():
-                        otypes[cot.ID] = cot
-
-        for otype in sorted(otypes.itervalues()):
-            sHTML += "<option " + SetOption(otype.ID, sObjectType) + " value=\"" + otype.ID + "\">" + otype.Label + "</option>\n";            
-        
-        sHTML += "</select>\n"
-
-        sCloudFilter = xd.findtext("cloud_filter", "")
-        sHTML += "Cloud Filter: \n" + "<input type=\"text\" " + \
-        CommonAttribs(oStep, False, "cloud_filter", "") + \
-        " help=\"Enter all or part of a cloud name to filter the results.\" value=\"" + sCloudFilter + "\" />\n"
-
-        sResultName = xd.findtext("result_name", "")
-        sHTML += "<br />Result Variable: \n" + "<input type=\"text\" " + \
-        CommonAttribs(oStep, False, "result_name", "") + \
-        " help=\"This variable array will contain the ID of each Ecosystem Object.\" value=\"" + sResultName + "\" />\n"
-
-        sCloudName = xd.findtext("cloud_name", "")
-        sHTML += " Cloud Name Variable: \n" + "<input type=\"text\" " + \
-        CommonAttribs(oStep, False, "cloud_name", "") + \
-        " help=\"This variable array will contain the name of the Cloud for each Ecosystem Object.\" value=\"" + sCloudName + "\" />\n"
-
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
-
 def SqlExec(oStep):
     """
         This should return a tuple, the html and a flag of whether or not to draw the variable button
@@ -1906,11 +1853,12 @@ def RunTask(oStep):
         sHTML = ""
         sParameterXML = ""
         
-        sOriginalTaskID = xd.findtext("original_task_id", "")
+        sTaskName = xd.findtext("task_name", "")
         sVersion = xd.findtext("version")
         sHandle = xd.findtext("handle", "")
         sTime = xd.findtext("time_to_wait", "")
         sAssetID = xd.findtext("asset_id", "")
+        sOriginalTaskID = ""
     
         # xSuccess = xd.find("# on_success")
         # if xSuccess is None) return "Error: XML does not contain on_success:
@@ -1921,9 +1869,9 @@ def RunTask(oStep):
         # sOnError = xError.findtext(value, "")
     
         # get the name and code for belonging to this otid and version
-        if catocommon.is_guid(sOriginalTaskID):
-            sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
-                " where original_task_id = '" + sOriginalTaskID + "'" + \
+        if sTaskName:
+            sSQL = "select original_task_id, task_id, task_code, task_name, parameter_xml from task" \
+                " where task_name = '" + sTaskName + "'" + \
                 (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
     
             dr = db.select_row_dict(sSQL)
@@ -1933,14 +1881,15 @@ def RunTask(oStep):
     
             if dr is not None:
                 sLabel = dr["task_code"] + " : " + dr["task_name"]
+                sOriginalTaskID = dr["original_task_id"]
                 sActualTaskID = dr["task_id"]
                 sParameterXML = (dr["parameter_xml"] if dr["parameter_xml"] else "")
             else:
                 # It's possible that the user changed the task from the picker but had 
                 # selected a version, which is still there now but may not apply to the new task.
                 # so, if the above SQL failed, try: again by resetting the version box to the default.
-                sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
-                    " where original_task_id = '" + sOriginalTaskID + "'" \
+                sSQL = "select original_task_id, task_id, task_code, task_name, parameter_xml from task" \
+                    " where task_name = '" + sTaskName + "'" + \
                     " and default_version = 1"
     
                 dr = db.select_row_dict(sSQL)
@@ -1950,6 +1899,7 @@ def RunTask(oStep):
     
                 if dr is not None:
                     sLabel = dr["task_code"] + " : " + dr["task_name"]
+                    sOriginalTaskID = dr["original_task_id"]
                     sActualTaskID = dr["task_id"]
                     sParameterXML = (dr["parameter_xml"] if dr["parameter_xml"] else "")
     
@@ -1957,7 +1907,7 @@ def RunTask(oStep):
                     SetNodeValueinCommandXML(sStepID, "//version", "")
                 else:
                     # a default doesnt event exist, really fail...
-                    return "Unable to find task [" + sOriginalTaskID + "] version [" + sVersion + "]." + db.error
+                    sLabel = "Unable to find [%s]" % sTaskName
     
     
         # IF IT's A GUID...
@@ -1980,11 +1930,11 @@ def RunTask(oStep):
     
     
         # all good, draw the widget
-        sOTIDField = catocommon.new_guid()
+        sTNField = catocommon.new_guid()
     
         sHTML += "<input type=\"text\" " + \
-            CommonAttribsWithID(oStep, True, "original_task_id", sOTIDField, "hidden") + \
-            " value=\"" + sOriginalTaskID + "\"" + " reget_on_change=\"true\" />"
+            CommonAttribsWithID(oStep, True, "task_name", sTNField, "hidden") + \
+            " value=\"" + sTaskName + "\"" + " reget_on_change=\"true\" />"
     
         sHTML += "Task: \n"
         sHTML += "<input type=\"text\"" \
@@ -1996,7 +1946,7 @@ def RunTask(oStep):
             " id=\"fn_run_task_taskname_" + sStepID + "\"" \
             " value=\"" + sLabel + "\" />\n"
         sHTML += "<span class=\"ui-icon ui-icon-search forceinline task_picker_btn pointer\" title=\"Pick Task\"" \
-            " target_field_id=\"" + sOTIDField + "\"" \
+            " target_field_id=\"" + sTNField + "\"" \
             " step_id=\"" + sStepID + "\"></span>\n"
         if sActualTaskID != "":
             sHTML += "<span class=\"ui-icon ui-icon-pencil forceinline task_open_btn pointer\" title=\"Edit Task\"" \
@@ -2104,9 +2054,9 @@ def RunTask_View(oStep):
     try:
         db = catocommon.new_conn()
 
-        sStepID = oStep.ID
         xd = oStep.FunctionXDoc
-    
+        
+        sOriginalTaskID = ""
         sActualTaskID = ""
         # sOnSuccess = ""
         # sOnError = ""
@@ -2116,16 +2066,16 @@ def RunTask_View(oStep):
         sHTML = ""
         sParameterXML = ""
         
-        sOriginalTaskID = xd.findtext("original_task_id", "")
+        sTaskName = xd.findtext("task_name", "")
         sVersion = xd.findtext("version")
         sHandle = xd.findtext("handle", "")
         sTime = xd.findtext("time_to_wait", "")
         sAssetID = xd.findtext("asset_id", "")
     
         # get the name and code for belonging to this otid and version
-        if catocommon.is_guid(sOriginalTaskID):
+        if sTaskName:
             sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
-                " where original_task_id = '" + sOriginalTaskID + "'" + \
+                " where task_name = '" + sTaskName + "'" + \
                 (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
     
             dr = db.select_row_dict(sSQL)
@@ -2135,10 +2085,11 @@ def RunTask_View(oStep):
     
             if dr is not None:
                 sLabel = dr["task_code"] + " : " + dr["task_name"]
+                sOriginalTaskID = dr["original_task_id"]
                 sActualTaskID = dr["task_id"]
                 sParameterXML = (dr["parameter_xml"] if dr["parameter_xml"] else "")
             else:
-                return "Unable to find task [" + sOriginalTaskID + "] version [" + sVersion + "]." + db.error
+                sLabel = "Unable to find [%s]" % sTaskName
     
     
         # IF IT's A GUID...
@@ -2210,13 +2161,15 @@ def Subtask(oStep):
         sLabel = ""
         sHTML = ""
     
-        sOriginalTaskID = xd.findtext("original_task_id", "")
+        sTaskName = xd.findtext("task_name", "")
         sVersion = xd.findtext("version", "")
+        
+        sOriginalTaskID = ""
     
         # get the name and code for belonging to this otid and version
-        if catocommon.is_guid(sOriginalTaskID):
-            sSQL = "select task_id, task_code, task_name from task" \
-                " where original_task_id = '" + sOriginalTaskID + "'" + \
+        if sTaskName:
+            sSQL = "select original_task_id, task_id, task_code, task_name from task" \
+                " where task_name = '" + sTaskName + "'" + \
                 (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
     
             dr = db.select_row_dict(sSQL)
@@ -2226,13 +2179,14 @@ def Subtask(oStep):
 
             if dr is not None:
                 sLabel = dr["task_code"] + " : " + dr["task_name"]
+                sOriginalTaskID = dr["original_task_id"]
                 sActualTaskID = dr["task_id"]
             else:
                 # It's possible that the user changed the task from the picker but had 
                 # selected a version, which is still there now but may not apply to the new task.
                 # so, if the above SQL failed, try: again by resetting the version box to the default.
-                sSQL = "select task_id, task_code, task_name from task" \
-                    " where original_task_id = '" + sOriginalTaskID + "'" \
+                sSQL = "select original_task_id, task_id, task_code, task_name from task" \
+                    " where task_name = '" + sTaskName + "'" \
                     " and default_version = 1"
     
                 dr = db.select_row_dict(sSQL)
@@ -2242,20 +2196,26 @@ def Subtask(oStep):
     
                 if dr is not None:
                     sLabel = dr["task_code"] + " : " + dr["task_name"]
+                    sOriginalTaskID = dr["original_task_id"]
                     sActualTaskID = dr["task_id"]
     
                     # oh yeah, and set the version field to null since it was wrong.
                     SetNodeValueinCommandXML(sStepID, "version", "")
                 else:
-                    # a default doesnt event exist, really fail...
-                    UI.log("Unable to find task [" + sOriginalTaskID + "] version [" + sVersion + "].")
-                    return "Unable to find task [" + sOriginalTaskID + "] version [" + sVersion + "]."
+                    # set the name anyway, but mark the field
+                    sLabel = "Unable to find [" + sTaskName + "]."
     
+#        # if we didn't get the full details, we bail...
+#        if not sOriginalTaskID:
+#            UI.log("Unable to resolve original id of task [" + sTaskName + "] version [" + sVersion + "].")
+#            return "Unable to resolve original id of  task [" + sTaskName + "] version [" + sVersion + "]."
+            
+        
         # all good, draw the widget
-        sOTIDField = catocommon.new_guid()
+        sTNField = catocommon.new_guid()
     
         sHTML += "<input type=\"text\" " + \
-            CommonAttribsWithID(oStep, True, "original_task_id", sOTIDField, "hidden") + \
+            CommonAttribsWithID(oStep, True, "task_name", sTNField, "hidden") + \
             " value=\"" + sOriginalTaskID + "\" reget_on_change=\"true\" />\n"
     
         sHTML += "Task: \n"
@@ -2268,7 +2228,7 @@ def Subtask(oStep):
             " id=\"fn_subtask_taskname_" + sStepID + "\"" \
             " value=\"" + sLabel + "\" />\n"
         sHTML += "<span class=\"ui-icon ui-icon-search forceinline task_picker_btn pointer\"" \
-            " target_field_id=\"" + sOTIDField + "\"" \
+            " target_field_id=\"" + sTNField + "\"" \
             " step_id=\"" + sStepID + "\"></span>\n"
         if sActualTaskID != "":
             sHTML += "<span class=\"ui-icon ui-icon-pencil forceinline task_open_btn pointer\" title=\"Edit Task\"" \
@@ -2323,13 +2283,14 @@ def Subtask_View(oStep):
         sLabel = ""
         sHTML = ""
     
-        sOriginalTaskID = xd.findtext("original_task_id", "")
+        sTaskName = xd.findtext("task_name", "")
         sVersion = xd.findtext("version", "")
-    
+        sOriginalTaskID = ""
+        
         # get the name and code for belonging to this otid and version
-        if catocommon.is_guid(sOriginalTaskID):
-            sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
-                " where original_task_id = '" + sOriginalTaskID + "'" + \
+        if sTaskName:
+            sSQL = "select original_task_id, task_id, task_code, task_name, parameter_xml from task" \
+                " where task_name = '" + sTaskName + "'" + \
                 (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
     
             dr = db.select_row_dict(sSQL)
@@ -2339,10 +2300,11 @@ def Subtask_View(oStep):
 
             if dr is not None:
                 sLabel = dr["task_code"] + " : " + dr["task_name"]
+                sOriginalTaskID = dr["original_task_id"]
                 sActualTaskID = dr["task_id"]
                 sParameterXML = (dr["parameter_xml"] if dr["parameter_xml"] else "")
             else:
-                return "Unable to find task [" + sOriginalTaskID + "] version [" + sVersion + "]."
+                sLabel = "Unable to find [%s]" % sTaskName
     
         # all good, draw the widget
         sHTML += "Task: \n"
@@ -2415,9 +2377,6 @@ def WaitForTasks(oStep):
     except Exception:
         UI.log_nouser(traceback.format_exc(), 0)
         return "Unable to draw Step - see log for details."
-
-def SetEcosystemRegistry(oStep):
-    return DrawKeyValueSection(oStep, False, True, "Key", "Value")
 
 def ClearVariable(oStep):
     try:

@@ -15,9 +15,12 @@
  
  
 """
-Ecosystem/Ecotemplate endpoint methods.
+System endpoint methods.
 """
-import json
+from catolog import catolog
+logger = catolog.get_logger(__name__)
+
+import traceback
 
 try:
     import xml.etree.cElementTree as ET
@@ -81,9 +84,10 @@ class sysMethods:
                     
                     return R(response=ET.tostring(dom))
             else:
-                return R(err_code=R.Codes.ListError, err_detail="Unable to list Ecosystems.")
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+                return R(err_code=R.Codes.ListError, err_detail="Unable to list Processes.")
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
         finally:
             db.close()
             

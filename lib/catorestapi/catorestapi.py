@@ -32,6 +32,7 @@ from catocommon import catocommon, catoprocess
 from catoui import uiGlobals, uiCommon
 from catoapi import api
 from catolog import catolog
+from catouser import catouser
 
 app_name = "cato_rest_api"
 logger = catolog.get_logger(app_name)
@@ -61,8 +62,14 @@ class wmHandler:
         
         is_authenticated, user_id = api.authenticate(method, args)
         if not is_authenticated:
+            # authentication failures won't return details to the client
+            # but will write some info in the api log
+            # the second return arg holds a failure code
             if getattr(args, 'key', ''):
-                logger.error("Authentication Failure [%s]" % getattr(args, 'key', ''))
+                logger.error("Authentication Failure [%s] - [%s]" % (getattr(args, 'key', ''), user_id))
+            else:
+                logger.error("Authentication Failure [%s]" % user_id)
+
             response = api.response(err_code="AuthenticationFailure")
             return response.Write(output_format)
         
@@ -71,6 +78,26 @@ class wmHandler:
         # (using an _ prefix to avoid conflicts)
         args["_user_id"] = user_id
         args["output_format"] = output_format
+        args["_admin"] = False
+        args["_developer"] = False
+        
+        # the API commands do some logging that use these detail properties
+        u = catouser.User()
+        u.FromID(user_id)
+        if u:
+            args["role"] = u.Role
+            args["_user_full_name"] = u.FullName
+            
+            # flags are set so certain methods can have restricted access.
+            if u.Role == "Administrator":
+                args["_admin"] = True
+                args["_developer"] = True
+            if u.Role == "Developer":
+                args["_developer"] = True
+        else:
+            logger.error("Authenticated, but unable to build a User object.")
+            response = api.response(err_code="Exception", err_msg="Authenticated, but unable to build a User object.")
+            return response.Write(output_format)
 
         response = catocommon.FindAndCall("catoapi." + method, args)
         # FindAndCall can have all sorts of return values.
@@ -127,7 +154,7 @@ class version:
         try:
             args = web.input()
             output_format = args["output_format"] if args.has_key("output_format") else ""
-            version = catoconfig.CONFIG
+            version = catoconfig.VERSION
 
             if output_format == "json":
                 response = api.response(response='{"Version" : "%s"}' % version)
@@ -202,25 +229,6 @@ class index:
                         
                     
             try:      
-                from catoapi import stormMethods
-                
-                for attname in dir(stormMethods.stormMethods):
-                    att = getattr(stormMethods.stormMethods, attname, None)
-                    if att:
-                        if hasattr(att, "__name__"):
-                            if listonly:
-                                out.append("stormMethods/%s" % att.__name__)
-                            else:
-                                out.append("----------\n")
-                                out.append("Method: stormMethods/%s" % att.__name__)
-                                if att.__doc__:
-                                    out.append("%s" % att.__doc__)
-            except ImportError:
-                # stormMethods is an EE module, don't error if it's missing.
-                pass
-                        
-                    
-            try:      
                 from catoapi import depMethods
                 
                 for attname in dir(depMethods.depMethods):
@@ -235,7 +243,26 @@ class index:
                                 if att.__doc__:
                                     out.append("%s" % att.__doc__)
             except ImportError:
-                # depMethods is an EE module, don't error if it's missing.
+                # depMethods is a Maestro module, don't error if it's missing.
+                pass
+
+                    
+            try:      
+                from catoapi import dsMethods
+                
+                for attname in dir(dsMethods.dsMethods):
+                    att = getattr(dsMethods.dsMethods, attname, None)
+                    if att:
+                        if hasattr(att, "__name__"):
+                            if listonly:
+                                out.append("dsMethods/%s" % att.__name__)
+                            else:
+                                out.append("----------\n")
+                                out.append("Method: dsMethods/%s" % att.__name__)
+                                if att.__doc__:
+                                    out.append("%s" % att.__doc__)
+            except ImportError:
+                # dsMethods is a Maestro module, don't error if it's missing.
                 pass
 
             

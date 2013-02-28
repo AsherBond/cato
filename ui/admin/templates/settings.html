@@ -3,298 +3,310 @@ $var jsfiles: settings.js
 $var cssfiles:
 
 <style type="text/css">
-	#content {
-		padding: 20px 10px 10px 10px;
-	}
-	#left_panel {
-		padding: 20px 0px 0px 0px;
-	}
+    #content {
+        padding: 20px 10px 10px 10px;
+    }
+    #left_panel {
+        padding: 20px 0px 0px 0px;
+    }
 </style>
 <div id="content">
-    <form  autocomplete="off">
-        <div id="div_security_detail" class="detail_panel hidden">
-            <div class="ui-widget-content ui-corner-all">
-                <div class="ui-widget-header">
-                    <img src="static/images/icons/login_24.png" alt="" style="vertical-align: middle;"/><span>Security Policy</span>
-                </div>
+	<form  autocomplete="off">
+		<div id="div_security_detail" class="detail_panel hidden">
+			<div class="ui-widget-content ui-corner-all">
+				<div class="ui-widget-header">
+					<img src="static/images/icons/login_24.png" alt="" style="vertical-align: middle;"/><span>Security Policy</span>
+				</div>
 
-                <table width="100%">
-                    <tr>
-                        <td width="150px" class="row_odd"> Password Maximum Age </td>
-                        <td width="300" class="row_odd">
-                        <input type="text" id="PassMaxAge" name="PassMaxAge" class="usertextbox"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> Password Maximum Attempts </td>
-                        <td class="row_even">
-                        <input type="text" id="PassMaxAttempts" name="PassMaxAttempts" class="usertextbox"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> Password Maximum Length </td>
-                        <td class="row_odd">
-                        <input type="text" id="PassMaxLength" name="PassMaxLength" class="usertextbox"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> Password Minimum Length </td>
-                        <td class="row_even">
-                        <input type="text" id="PassMinLength" name="PassMinLength" class="usertextbox" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> Complex Password? </td>
-                        <td class="row_odd">
-                        <input type="checkbox" id="PassComplexity" name="PassComplexity" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> Password Age Warning Days </td>
-                        <td class="row_even">
-                        <input type="text" id="PassAgeWarn" name="PassAgeWarn" class="usertextbox" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> Password History </td>
-                        <td class="row_odd">
-                        <input type="text" id="PasswordHistory" name="PasswordHistory" class="usertextbox" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> Require Password Change on First Login? </td>
-                        <td class="row_even">
-                        <input type="checkbox" id="PassRequireInitialChange" name="PassRequireInitialChange" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> Auto Lock Reset </td>
-                        <td class="row_odd">
-                        <input type="text" id="AutoLockReset" name="AutoLockReset" class="usertextbox" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> Login Message </td>
-                        <td class="row_even">                        <textarea id="LoginMessage" name="LoginMessage" rows="4" class="usertextbox"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> Authentication Error Message </td>
-                        <td class="row_odd">                        <textarea id="AuthErrorMessage" name="AuthErrorMessage" rows="4" class="usertextbox"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> New User Welcome Email </td>
-                        <td class="row_even">                        <textarea id="NewUserMessage" name="NewUserMessage" rows="4" class="usertextbox"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> Verbose Page View Logging </td>
-                        <td class="row_odd">
-                        <input type="checkbox" id="PageViewLogging" name="PageViewLogging" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> Report View Logging </td>
-                        <td class="row_even">
-                        <input type="checkbox" id="ReportViewLogging" name="ReportViewLogging" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> Allow Users to Log In? </td>
-                        <td class="row_odd">
-                        <input type="checkbox" id="AllowLogin" name="AllowLogin" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="text-align: center;" height="25" class="row_odd"><span module="security" class="save_btn">Save</span></td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        <div id="div_poller_detail" class="detail_panel hidden">
-            <div class="ui-widget-content ui-corner-all">
-                <div class="ui-widget-header">
-                    <img src="static/images/icons/ldap_24.png" alt="" style="vertical-align: middle;"/><span>Poller Settings</span>
-                </div>
-                <table width="100%">
-                    <tr>
-                        <td width="150px" class="row_odd"> Poller On / Off </td>
-                        <td class="row_odd">
-                        <select id="Enabled" name="Enabled" class="usertextbox">
-                            <option value="true">on</option>
-                            <option value="false">off</option>
-                        </select></td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> Loop Delay (seconds) </td>
-                        <td class="row_even">
-                        <input type="text" id="LoopDelay" name="LoopDelay" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
-                        class="usertextbox" MaxLength="5" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> Concurrent Instances </td>
-                        <td class="row_odd">
-                        <input type="text" id="MaxProcesses" name="MaxProcesses" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
-                        class="usertextbox" MaxLength="5" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="text-align: center;" height="25" class="row_odd"><span module="poller" class="save_btn">Save</span></td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        <div id="div_scheduler_detail" class="detail_panel hidden">
-            <div class="ui-widget-content ui-corner-all">
-                <div class="ui-widget-header">
-                    <img src="static/images/icons/sched_24.png" alt="" style="vertical-align: middle;"/><span>Scheduler Settings</span>
-                </div>
-                <table width="100%">
-                    <tr>
-                        <td width="150px" class="row_odd"> Scheduler On / Off </td>
-                        <td class="row_odd">
-                        <select id="Enabled" name="Enabled" class="usertextbox">
-                            <option value="true">on</option>
-                            <option value="false">off</option>
-                        </select></td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> Loop Delay (seconds) </td>
-                        <td class="row_even">
-                        <input type="text" id="LoopDelay" name="LoopDelay" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
-                        class="usertextbox" MaxLength="5" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> Schedule Minimum Depth </td>
-                        <td class="row_odd">
-                        <input type="text" id="ScheduleMinDepth" name="ScheduleMinDepth" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
-                        class="usertextbox" MaxLength="5" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> Schedule Max Days </td>
-                        <td class="row_even">
-                        <input type="text" id="ScheduleMaxDays" name="ScheduleMaxDays" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
-                        class="usertextbox" MaxLength="5" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> Clean App Registry (minutes) </td>
-                        <td class="row_odd">
-                        <input type="text" id="CleanAppRegistry" name="CleanAppRegistry" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
-                        class="usertextbox" MaxLength="5" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="text-align: center;" height="25" class="row_odd"><span module="scheduler" class="save_btn">Save</span></td>
-                </table>
-            </div>
-        </div>
-        <div id="div_messenger_detail" class="detail_panel hidden">
-            <div class="ui-widget-content ui-corner-all">
-                <div class="ui-widget-header">
-                    <img src="static/images/icons/notify_24.png" alt="" style="vertical-align: middle;"/><span>Messenger Settings</span>
-                </div>
-                <table width="100%">
-                    <tr>
-                        <td class="row_odd" width="150px"> Messenger On / Off </td>
-                        <td class="row_odd">
-                        <select id="Enabled" name="Enabled" class="usertextbox">
-                            <option value="true">on</option>
-                            <option value="false">off</option>
-                        </select></td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> Poll Loop </td>
-                        <td class="row_even">
-                        <input type="text" id="PollLoop" name="PollLoop" class="usertextbox" MaxLength="5" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> Retry Delay </td>
-                        <td class="row_odd">
-                        <input type="text" id="RetryDelay" name="RetryDelay" class="usertextbox" MaxLength="5" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> Retry Max Attempts </td>
-                        <td class="row_even">
-                        <input type="text" id="RetryMaxAttempts" name="RetryMaxAttempts" class="usertextbox" MaxLength="5" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> SMTP Server Address </td>
-                        <td class="row_odd">
-                        <input type="text" id="SMTPServerAddress" name="SMTPServerAddress" class="usertextbox" MaxLength="256" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> SMTP User Account </td>
-                        <td class="row_even">
-                        <input type="text" id="SMTPUserAccount" name="SMTPUserAccount" class="usertextbox" MaxLength="256" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> SMTP User Password </td>
-                        <td class="row_odd">
-                        <input type="password" id="SMTPUserPassword" name="SMTPUserPassword" class="usertextbox" value="~!@@!~" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> SMTP Password Confirm </td>
-                        <td class="row_even">
-                        <input type="password" id="SMTPPasswordConfirm" name="SMTPPasswordConfirm" class="usertextbox" value="~!@@!~" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> SMTP Server Port </td>
-                        <td class="row_odd">
-                        <input type="text" id="SMTPServerPort" name="SMTPServerPort" class="usertextbox" MaxLength="5" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> From Email </td>
-                        <td class="row_even">
-                        <input type="text" id="FromEmail" name="FromEmail" class="usertextbox" MaxLength="256" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_odd"> From Name </td>
-                        <td class="row_odd">
-                        <input type="text" id="FromName" name="FromName" class="usertextbox" MaxLength="256" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="row_even"> Administrative Emails </td>
-                        <td class="row_even">                        <textarea id="AdminEmail" name="AdminEmail" class="usertextbox"></textarea></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="text-align: center;" height="25" class="row_odd"><span module="messenger" class="save_btn">Save</span></td>
-                    </tr>
+				<table width="100%">
+					<tr>
+						<td width="150px" class="row_odd"> Password Maximum Age </td>
+						<td width="300" class="row_odd">
+						<input type="text" id="PassMaxAge" name="PassMaxAge" class="usertextbox"/>
+						</td>
+					</tr>
+					<tr>
+						<td class="row_even"> Password Maximum Attempts </td>
+						<td class="row_even">
+						<input type="text" id="PassMaxAttempts" name="PassMaxAttempts" class="usertextbox"/>
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Password Maximum Length </td>
+						<td class="row_odd">
+						<input type="text" id="PassMaxLength" name="PassMaxLength" class="usertextbox"/>
+						</td>
+					</tr>
+					<tr>
+						<td class="row_even"> Password Minimum Length </td>
+						<td class="row_even">
+						<input type="text" id="PassMinLength" name="PassMinLength" class="usertextbox" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Complex Password? </td>
+						<td class="row_odd">
+						<input type="checkbox" id="PassComplexity" name="PassComplexity" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_even"> Password Age Warning Days </td>
+						<td class="row_even">
+						<input type="text" id="PassAgeWarn" name="PassAgeWarn" class="usertextbox" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Password History </td>
+						<td class="row_odd">
+						<input type="text" id="PasswordHistory" name="PasswordHistory" class="usertextbox" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_even"> Require Password Change on First Login? </td>
+						<td class="row_even">
+						<input type="checkbox" id="PassRequireInitialChange" name="PassRequireInitialChange" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Auto Lock Reset </td>
+						<td class="row_odd">
+						<input type="text" id="AutoLockReset" name="AutoLockReset" class="usertextbox" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_even"> Login Message </td>
+						<td class="row_even">						<textarea id="LoginMessage" name="LoginMessage" rows="4" class="usertextbox"></textarea></td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Authentication Error Message </td>
+						<td class="row_odd">						<textarea id="AuthErrorMessage" name="AuthErrorMessage" rows="4" class="usertextbox"></textarea></td>
+					</tr>
+					<tr>
+						<td class="row_even"> New User Welcome Email </td>
+						<td class="row_even">						<textarea id="NewUserMessage" name="NewUserMessage" rows="4" class="usertextbox"></textarea></td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Verbose Page View Logging </td>
+						<td class="row_odd">
+						<input type="checkbox" id="PageViewLogging" name="PageViewLogging" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_even"> Report View Logging </td>
+						<td class="row_even">
+						<input type="checkbox" id="ReportViewLogging" name="ReportViewLogging" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Allow Users to Log In? </td>
+						<td class="row_odd">
+						<input type="checkbox" id="AllowLogin" name="AllowLogin" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2" style="text-align: center;" height="25" class="row_odd"><span module="security" class="save_btn">Save</span></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div id="div_poller_detail" class="detail_panel hidden">
+			<div class="ui-widget-content ui-corner-all">
+				<div class="ui-widget-header">
+					<img src="static/images/icons/ldap_24.png" alt="" style="vertical-align: middle;"/><span>Poller Settings</span>
+				</div>
+				<table width="100%">
+					<tr>
+						<td width="150px" class="row_odd"> Poller On / Off </td>
+						<td class="row_odd">
+						<select id="Enabled" name="Enabled" class="usertextbox">
+							<option value="true">on</option>
+							<option value="false">off</option>
+						</select></td>
+					</tr>
+					<tr>
+						<td class="row_even"> Loop Delay (seconds) </td>
+						<td class="row_even">
+						<input type="text" id="LoopDelay" name="LoopDelay" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+						class="usertextbox" MaxLength="5" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Concurrent Instances </td>
+						<td class="row_odd">
+						<input type="text" id="MaxProcesses" name="MaxProcesses" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+						class="usertextbox" MaxLength="5" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2" style="text-align: center;" height="25" class="row_odd"><span module="poller" class="save_btn">Save</span></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div id="div_scheduler_detail" class="detail_panel hidden">
+			<div class="ui-widget-content ui-corner-all">
+				<div class="ui-widget-header">
+					<img src="static/images/icons/sched_24.png" alt="" style="vertical-align: middle;"/><span>Scheduler Settings</span>
+				</div>
+				<table width="100%">
+					<tr>
+						<td width="150px" class="row_odd"> Scheduler On / Off </td>
+						<td class="row_odd">
+						<select id="Enabled" name="Enabled" class="usertextbox">
+							<option value="true">on</option>
+							<option value="false">off</option>
+						</select></td>
+					</tr>
+					<tr>
+						<td class="row_even"> Loop Delay (seconds) </td>
+						<td class="row_even">
+						<input type="text" id="LoopDelay" name="LoopDelay" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+						class="usertextbox" MaxLength="5" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Schedule Minimum Depth </td>
+						<td class="row_odd">
+						<input type="text" id="ScheduleMinDepth" name="ScheduleMinDepth" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+						class="usertextbox" MaxLength="5" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_even"> Schedule Max Days </td>
+						<td class="row_even">
+						<input type="text" id="ScheduleMaxDays" name="ScheduleMaxDays" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+						class="usertextbox" MaxLength="5" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Clean App Registry (minutes) </td>
+						<td class="row_odd">
+						<input type="text" id="CleanAppRegistry" name="CleanAppRegistry" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+						class="usertextbox" MaxLength="5" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2" style="text-align: center;" height="25" class="row_odd"><span module="scheduler" class="save_btn">Save</span></td>
+				</table>
+			</div>
+		</div>
+		<div id="div_messenger_detail" class="detail_panel hidden">
+			<div class="ui-widget-content ui-corner-all">
+				<div class="ui-widget-header">
+					<img src="static/images/icons/notify_24.png" alt="" style="vertical-align: middle;"/><span>Messenger Settings</span>
+				</div>
+				<table width="100%">
+					<tr>
+						<td class="row_even" width="150px"> Messenger On / Off </td>
+						<td class="row_even">
+						<select id="Enabled" name="Enabled" class="usertextbox">
+							<option value="true">on</option>
+							<option value="false">off</option>
+						</select></td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Poll Loop </td>
+						<td class="row_odd">
+						<input type="text" id="PollLoop" name="PollLoop" class="usertextbox" MaxLength="5" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_even"> Retry Delay </td>
+						<td class="row_even">
+						<input type="text" id="RetryDelay" name="RetryDelay" class="usertextbox" MaxLength="5" onkeypress="Javascript:return restrictEntryToNumber(event, this);" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Retry Max Attempts </td>
+						<td class="row_odd">
+						<input type="text" id="RetryMaxAttempts" name="RetryMaxAttempts" class="usertextbox" MaxLength="5" onkeypress="Javascript:return restrictEntryToNumber(event, this);" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_even"> SMTP Server Address </td>
+						<td class="row_even">
+						<input type="text" id="SMTPServerAddress" name="SMTPServerAddress" class="usertextbox" MaxLength="256" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> SMTP User Account </td>
+						<td class="row_odd">
+						<input type="text" id="SMTPUserAccount" name="SMTPUserAccount" class="usertextbox" MaxLength="256" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_even"> SMTP User Password </td>
+						<td class="row_even">
+						<input type="password" id="SMTPUserPassword" name="SMTPUserPassword" class="usertextbox" value="~!@@!~" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> SMTP Password Confirm </td>
+						<td class="row_odd">
+						<input type="password" id="SMTPPasswordConfirm" name="SMTPPasswordConfirm" class="usertextbox" value="~!@@!~" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_even"> SMTP Server Port </td>
+						<td class="row_even">
+						<input type="text" id="SMTPServerPort" name="SMTPServerPort" class="usertextbox" MaxLength="5" onkeypress="Javascript:return restrictEntryToNumber(event, this);" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Use Legacy SSL </td>
+						<td class="row_odd">
+						<input type="checkbox" id="SMTPUseSSL" name="SMTPUseSSL" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_even"> SMTP Connection Timeout </td>
+						<td class="row_even">
+						<input type="text" id="SMTPConnectionTimeout" name="SMTPConnectionTimeout" class="usertextbox" MaxLength="5" onkeypress="Javascript:return restrictEntryToNumber(event, this);"  />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> From Email </td>
+						<td class="row_odd">
+						<input type="text" id="FromEmail" name="FromEmail" class="usertextbox" MaxLength="256" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_even"> From Name </td>
+						<td class="row_even">
+						<input type="text" id="FromName" name="FromName" class="usertextbox" MaxLength="256" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Administrative Emails </td>
+						<td class="row_odd">						<textarea id="AdminEmail" name="AdminEmail" class="usertextbox"></textarea></td>
+					</tr>
+					<tr>
+						<td colspan="2" style="text-align: center;" height="25" class="row_odd"><span module="messenger" class="save_btn">Save</span></td>
+					</tr>
 
-                </table>
-            </div>
-        </div>
-    </form>
+				</table>
+			</div>
+		</div>
+	</form>
 </div>
 
 <div id="left_panel">
-    <div id="group_tabs">
-        <b>Select a Module</b>
-        <hr />
-        <ul id="tabs">
-            <li class="group_tab" id="security">
-                Security Policy
-            </li>
-            <li class="group_tab" id="poller">
-                Poller
-            </li>
-            <li class="group_tab" id="scheduler">
-                Scheduler
-            </li>
-            <li class="group_tab" id="messenger">
-                Messenger
-            </li>
-        </ul>
-    </div>
+	<div id="group_tabs">
+		<b>Select a Module</b>
+		<hr />
+		<ul id="tabs">
+			<li class="group_tab" id="security">
+				Security Policy
+			</li>
+			<li class="group_tab" id="poller">
+				Poller
+			</li>
+			<li class="group_tab" id="scheduler">
+				Scheduler
+			</li>
+			<li class="group_tab" id="messenger">
+				Messenger
+			</li>
+		</ul>
+	</div>
 </div>

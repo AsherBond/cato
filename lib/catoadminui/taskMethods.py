@@ -18,6 +18,8 @@ import re
 import traceback
 import json
 import time
+import cgi
+
 try:
     import xml.etree.cElementTree as ET
 except (AttributeError, ImportError):
@@ -32,6 +34,7 @@ from catoui import uiCommon, uiGlobals
 from catolog import catolog
 from catocommon import catocommon
 from catotask import task, stepTemplates as ST
+from catoconfig import catoconfig
 
 # task-centric web methods
 
@@ -355,32 +358,47 @@ class taskMethods:
                 sValue = uiCommon.unpackJSON(sValue)
                 sValue = catocommon.tick_slash(sValue)
 
-                sSQL = "select original_task_id from task where task_id = '" + sTaskID + "'"
-                sOriginalTaskID = self.db.select_col_noexcep(sSQL)
-
-                if not sOriginalTaskID:
-                    uiCommon.log("ERROR: Unable to get original_task_id for [" + sTaskID + "]." + self.db.error)
-                    return "{\"error\" : \"Unable to get original_task_id for [" + sTaskID + "].\"}"
-
+                sSQL = "select original_task_id, task_name from task where task_id = %s"
+                row = self.db.select_row_dict(sSQL, (sTaskID))
+                if not row:
+                    uiCommon.log("ERROR: Unable to get original_task_id for [%s] %s" % (sTaskID, self.db.error))
+                    return "{\"error\" : \"Unable to get original_task_id for [%s].\"}" % sTaskID
+                    
+                sOriginalTaskID = row["original_task_id"]
+                sTaskName = row["task_name"]
+                
 
                 # what's the "set clause"?
-                sSetClause = sColumn + "='" + sValue + "'"
+                sSetClause = "%s='%s'" % (sColumn, sValue)
 
                 #  bugzilla 1074, check for existing task_code and task_name
                 if sColumn == "task_code" or sColumn == "task_name":
-                    sSQL = "select task_id from task where " + \
-                        sColumn + "='" + sValue + "'" \
-                        " and original_task_id <> '" + sOriginalTaskID + "'"
+                    sSQL = "select task_id from task where %s='%s' and original_task_id <> '%s'" % (sColumn, sValue, sOriginalTaskID)
 
                     sValueExists = self.db.select_col_noexcep(sSQL)
                     if self.db.error:
-                        uiCommon.log("ERROR: Unable to check for existing names [" + sTaskID + "]." + self.db.error)
+                        uiCommon.log("ERROR: Unable to check for existing names [%s] %s" % (sTaskID, self.db.error))
 
                     if sValueExists:
-                        return "{\"info\" : \"" + sValue + " exists, please choose another value.\"}"
+                        return "{\"info\" : \"%s exists, please choose another value.\"}" % sValue
                 
                     # changing the name or code updates ALL VERSIONS
-                    sSQL = "update task set " + sSetClause + " where original_task_id = '" + sOriginalTaskID + "'"
+                    sSQL = "update task set %s where original_task_id = '%s'" % (sSetClause, sOriginalTaskID)
+                    if not self.db.exec_db_noexcep(sSQL):
+                        uiCommon.log("Unable to update task [%s] %s" % (sTaskID, self.db.error))
+                    
+                    if sColumn == "task_name":
+                        # changing the TASK NAME updates any references (run_task, subtask commands) on any other Tasks.
+                        # NOTE: this is done with a like clause and string replacement on the name
+                        # ... and just to further clarify no conflict with other data, some xml pre/suffix is included
+                        sSQL = """update task_step set 
+                            function_xml = replace(function_xml, '>{0}</', '>{1}</')
+                            where function_xml like '%%>{0}</%%'
+                            and function_name in ('run_task', 'subtask')""".format(sTaskName, sValue)
+                        uiCommon.log(sSQL)
+                        if not self.db.exec_db_noexcep(sSQL):
+                            uiCommon.log("Unable to update task name references [%s] %s" % (sTaskID, self.db.error))
+                    
                 else:
                     # some columns on this table allow nulls... in their case an empty sValue is a null
                     if sColumn == "concurrent_instances" or sColumn == "queue_depth":
@@ -394,16 +412,14 @@ class taskMethods:
                         else:
                             sSetClause = sColumn + " = 0"
                     
-                    sSQL = "update task set " + sSetClause + " where task_id = '" + sTaskID + "'"
-                
-
-                if not self.db.exec_db_noexcep(sSQL):
-                    uiCommon.log("Unable to update task [" + sTaskID + "]." + self.db.error)
+                    sSQL = "update task set %s where task_id = '%s'" % (sSetClause, sTaskID)
+                    if not self.db.exec_db_noexcep(sSQL):
+                        uiCommon.log("Unable to update task [%s] %s" % (sTaskID, self.db.error))
 
                 uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sColumn, sValue)
 
             else:
-                uiCommon.log("Unable to update task. Missing or invalid task [" + sTaskID + "] id.")
+                uiCommon.log("Unable to update task. Missing or invalid task [%s] id." % sTaskID)
 
             return "{\"result\" : \"success\"}"
             
@@ -1287,6 +1303,7 @@ class taskMethods:
                         sDesc = sDesc.replace("\"", "").replace("'", "")
     
                         sHTML += "<li class=\"ui-widget-content ui-corner-all search_dialog_value\" tag=\"task_picker_row\"" \
+                            " task_name=\"" + sTaskName + "\"" \
                             " original_task_id=\"" + row["OriginalTaskID"] + "\"" \
                             " task_label=\"" + sLabel + "\"" \
                             "\">"
@@ -1897,9 +1914,9 @@ class taskMethods:
                                     if xVal.text == sValueToSelect:
                                         xVal.attrib["selected"] = "true"
                         elif sPresentAs == "list":
-                            # first, a list gets ALL the values replaced...
-                            xTaskParamValues.clear()
-                            xTaskParamValues.append(xDefValues)
+                            # replace the whole list with the defaults if they exist
+                            xTaskParam.remove(xTaskParamValues)
+                            xTaskParam.append(xDefValues)
                         else:
                             # IMPORTANT NOTE:
                             # remember... both these XML documents came from wmGetObjectParameterXML...
@@ -2701,34 +2718,55 @@ class taskMethods:
             return ex.__str__()
             
     def wmExportTasks(self):
-        try:
-            sTaskArray = uiCommon.getAjaxArg("sTaskArray")
-            if len(sTaskArray) < 36:
-                return "{\"info\" : \"Unable to delete - no selection.\"}"
-    
-            otids = sTaskArray.split(",")
-            
-            xml = ""
-            for otid in otids:
-                # get the task
-                t = task.Task()
-                t.FromOriginalIDVersion(otid)
-                if t:
-                    xml += t.AsXML(include_code=True)
-            
-            xml = "<tasks>%s</tasks>" % xml
+        """
+        This function creates an xml export file of all tasks specified in sTaskArray.  
+        
+        If the "include references" flag is set, each task is scanned for additional
+        references, and they are included in the export.
+        """
+        
+        sIncludeRefs = uiCommon.getAjaxArg("sIncludeRefs")
+        sTaskArray = uiCommon.getAjaxArg("sTaskArray")
+        if len(sTaskArray) < 36:
+            return "{\"info\" : \"Unable to delete - no selection.\"}"
 
-            # what are we gonna call this file?
-            seconds = str(int(time.time()))
-            filename = "%s_%s.csk" % (t.Name.replace(" ", "").replace("/", ""), seconds)
-            with open(os.path.join(catoconfig.CONFIG["tmpdir"], filename), 'w') as f_out:
-                if not f_out:
-                    uiCommon.log("ERROR: unable to write task export file.")
-                f_out.write(xml)
-                
-            return "{\"export_file\" : \"%s\"}" % filename
-        except Exception as ex:
-            return ex.__str__()
+        otids = sTaskArray.split(",")
+        xml = ""
+        
+        # there can be many tasks selected...
+        # to help a little bit, we'll use the first name we encounter on the export file name
+        helpername = ""
+        
+        for otid in otids:
+            # get the task
+            t = task.Task()
+            t.FromOriginalIDVersion(otid)
+            if t:
+                if not helpername:
+                    helpername = t.Name
+                    
+                xml += t.AsXML(include_code=True)
+
+                # regarding references, here's the deal
+                # in a while loop, we check the references for each task in the array
+                # UTIL THE 'otid' LIST STOPS GROWING.
+                if catocommon.is_true(sIncludeRefs):
+                    reftasks = t.GetReferencedTasks()
+                    for reftask in reftasks:
+                        if reftask.OriginalTaskID not in otids:
+                            otids.append(reftask.OriginalTaskID)
+
+        xml = "<tasks>%s</tasks>" % xml
+
+        # what are we gonna call this file?
+        seconds = str(int(time.time()))
+        filename = "%s_%s.csk" % (helpername.replace(" ", "").replace("/", ""), seconds)
+        with open(os.path.join(catoconfig.CONFIG["tmpdir"], filename), 'w') as f_out:
+            if not f_out:
+                uiCommon.log("ERROR: unable to write task export file.")
+            f_out.write(xml)
+            
+        return "{\"export_file\" : \"%s\"}" % filename
             
     def wmGetTaskStatusCounts(self):
         try:

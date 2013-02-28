@@ -3,110 +3,113 @@ $var jsfiles: managePageCommon.js taskManage.js
 $var cssfiles:
 
 <div style="display: none;">
-    <input id="hidMode" type="hidden" name="hidMode" />
-    <input id="hidCurrentEditID" type="hidden" name="hidCurrentEditID" />
-    <input id="hidSelectedArray" type="hidden" name="hidSelectedArray" />
+	<input id="hidMode" type="hidden" name="hidMode" />
+	<input id="hidCurrentEditID" type="hidden" name="hidCurrentEditID" />
+	<input id="hidSelectedArray" type="hidden" name="hidSelectedArray" />
 </div>
 <div id="left_panel">
-    <div class="left_tooltip">
-        <img src="static/images/manage-tasks-192x192.png" alt="" />
-        <div id="left_tooltip_box_outer">
-            <div id="left_tooltip_box_inner">
-                <h2>Tasks</h2>
-                <p>
-                    The Manage Tasks screen allows administrators
-                    to modify, add and delete Tasks.
-                </p>
-                <p>
-                    Select one or more Tasks from the list to the right, using the checkboxes. Select
-                    an action to modify or delete the Tasks you've selected.
-                </p>
-                <p>
-                    <a href="http://projects.cloudsidekick.com/projects/cato/wiki/Tasks?utm_source=cato_app&amp;utm_medium=helplink&amp;utm_campaign=app" target="_blank"><img src="static/images/icons/info.png" alt="" />Click here</a>
-                    for a more detailed introduction to Tasks.
-                </p>
-            </div>
-        </div>
-    </div>
+	<div class="left_tooltip">
+		<img src="static/images/manage-tasks-192x192.png" alt="" />
+		<div id="left_tooltip_box_outer">
+			<div id="left_tooltip_box_inner">
+				<h2>Tasks</h2>
+				<p>
+					The Manage Tasks screen allows administrators
+					to modify, add and delete Tasks.
+				</p>
+				<p>
+					Select one or more Tasks from the list to the right, using the checkboxes. Select
+					an action to modify or delete the Tasks you've selected.
+				</p>
+				<p>
+					<a href="http://projects.cloudsidekick.com/projects/cato/wiki/Tasks?utm_source=cato_app&amp;utm_medium=helplink&amp;utm_campaign=app" target="_blank"><img src="static/images/icons/info.png" alt="" />Click here</a>
+					for a more detailed introduction to Tasks.
+				</p>
+			</div>
+		</div>
+	</div>
 </div>
 <div id="content">
-    <span id="lblItemsSelected">0</span> Items Selected <span id="clear_selected_btn">&nbsp;</span><span
-    id="item_create_btn">Create</span><span id="item_copy_btn">Copy</span><span
-    id="item_export_btn">Export</span><span id="item_delete_btn">Delete</span>
-    <input type="text" id="txtSearch" class="search_text" />
-    <span id="item_search_btn">Search</span>
-    <table class="jtable" cellspacing="1" cellpadding="1" width="99%">
-        <thead>
-            <tr>
-                <th class="chkboxcolumn">
-                <input class="chkbox" type="checkbox" id="chkAll" />
-                </th>
-                <th class="sortable" width="75px"> Task Code </th>
-                <th class="sortable" width="200px"> Task Name </th>
-                <th class="sortable" width="50px"> Version </th>
-                <th class="sortable" width="400px"> Description </th>
-                <th class="sortable" width="75px"> Status </th>
-                <th class="sortable" width="25px"> Versions </th>
-            </tr>
-        </thead>
-        <tbody id="tasks"></tbody>
-    </table>
+	<span id="lblItemsSelected">0</span> Items Selected <span id="clear_selected_btn">&nbsp;</span><span
+	id="item_create_btn">Create</span><span id="item_copy_btn">Copy</span><span
+	id="item_export_btn">Export</span><span id="item_delete_btn">Delete</span>
+	<input type="text" id="txtSearch" class="search_text" />
+	<span id="item_search_btn">Search</span>
+	<table class="jtable" cellspacing="1" cellpadding="1" width="99%">
+		<thead>
+			<tr>
+				<th class="chkboxcolumn">
+				<input class="chkbox" type="checkbox" id="chkAll" />
+				</th>
+				<th class="sortable" width="75px"> Task Code </th>
+				<th class="sortable" width="200px"> Task Name </th>
+				<th class="sortable" width="50px"> Version </th>
+				<th class="sortable" width="400px"> Description </th>
+				<th class="sortable" width="75px"> Status </th>
+				<th class="sortable" width="25px"> Versions </th>
+			</tr>
+		</thead>
+		<tbody id="tasks"></tbody>
+	</table>
 	<div id="pager"></div>
 </div>
 <div id="edit_dialog" class="hidden" title="New Task">
-    <table width="100%">
-        <tbody>
-            <tr>
-                <td colspan="2"><span id="lblNewTaskMessage"></span></td>
-            </tr>
-            <tr>
-                <td> Task Code </td>
-                <td>
-                <input type="text" id="txtTaskCode" class="usertextbox" style="width: 300px;">
-                </td>
-            </tr>
-            <tr>
-                <td> Task Name </td>
-                <td>
-                <input type="text" id="txtTaskName" class="usertextbox" style="width: 300px;">
-                </td>
-            </tr>
-            <tr>
-                <td> Description </td>
-                <td>                <textarea id="txtTaskDesc" class="usertextbox" style="width: 300px;" rows="3"></textarea></td>
-            </tr>
-        </tbody>
-    </table>
+	<table width="100%">
+		<tbody>
+			<tr>
+				<td colspan="2"><span id="lblNewTaskMessage"></span></td>
+			</tr>
+			<tr>
+				<td> Task Code </td>
+				<td>
+				<input type="text" id="txtTaskCode" class="usertextbox" style="width: 300px;">
+				</td>
+			</tr>
+			<tr>
+				<td> Task Name </td>
+				<td>
+				<input type="text" id="txtTaskName" class="usertextbox" style="width: 300px;">
+				</td>
+			</tr>
+			<tr>
+				<td> Description </td>
+				<td>				<textarea id="txtTaskDesc" class="usertextbox" style="width: 300px;" rows="3"></textarea></td>
+			</tr>
+		</tbody>
+	</table>
 </div>
 <div id="delete_dialog" class="hidden" title="Delete Tasks">
-    Are you sure you want to delete these Tasks?
+	Are you sure you want to delete these Tasks?
 </div>
 <div id="export_dialog" class="hidden" title="Export Tasks">
-    Are you sure you want to export these Tasks?
+	<input type="checkbox" id="export_dialog_include_refs" />
+	<label for"export_dialog_include_refs">Include All Referenced Tasks?</label>
+	<br /><br />
+	Are you sure you want to export these Tasks?
 </div>
 <div id="copy_dialog" class="hidden" title="Copy Task">
-    <table width="100%">
-        <tr>
-            <td colspan="2"><span id="lblTaskCopy"></span></td>
-        </tr>
-        <tr>
-            <td> Copy From Version </td>
-            <td><select name="ddlTaskVersions" id="ddlTaskVersions"></select></td>
-        </tr>
-        <tr>
-            <td> New Task Code </td>
-            <td>
-            <input type="text" id="txtCopyTaskCode" class="usertextbox" style="width: 300px;"
-            MaxLength="32">
-            </td>
-        </tr>
-        <tr>
-            <td> New Task Name </td>
-            <td>
-            <input type="text" id="txtCopyTaskName" class="usertextbox" style="width: 300px;"
-            MaxLength="256">
-            </td>
-        </tr>
-    </table>
-    <input id="hidCopyTaskID" type="hidden" name="hidCopyTaskID" />
+	<table width="100%">
+		<tr>
+			<td colspan="2"><span id="lblTaskCopy"></span></td>
+		</tr>
+		<tr>
+			<td> Copy From Version </td>
+			<td><select name="ddlTaskVersions" id="ddlTaskVersions"></select></td>
+		</tr>
+		<tr>
+			<td> New Task Code </td>
+			<td>
+			<input type="text" id="txtCopyTaskCode" class="usertextbox" style="width: 300px;"
+			MaxLength="32">
+			</td>
+		</tr>
+		<tr>
+			<td> New Task Name </td>
+			<td>
+			<input type="text" id="txtCopyTaskName" class="usertextbox" style="width: 300px;"
+			MaxLength="256">
+			</td>
+		</tr>
+	</table>
+	<input id="hidCopyTaskID" type="hidden" name="hidCopyTaskID" />
 </div>

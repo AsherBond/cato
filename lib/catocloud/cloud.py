@@ -614,10 +614,10 @@ class CloudProviders(dict):
                                 c.FromArgs(pv, True, dr["cloud_id"], dr["cloud_name"], dr["api_url"], dr["api_protocol"], dr["region"])
                                 if c:
                                     pv.Clouds.append(c)
-                        #else:
+                        else:
                             # DO NOT raise an exception here - user defined clouds are not required.
-                            # but print a warning
-                            # logger.warning("Cloud Providers XML: Warning - Provider [%s] allows user defined Clouds, but none exist in the database." % pv.Name)
+                            # but print a debug message
+                            logger.debug("Cloud Providers XML: Warning - Provider [%s] allows user defined Clouds, but none exist in the database." % pv.Name)
                     
                     if include_products:
                         #get the cloudobjecttypes for this provider.                    

@@ -17,6 +17,7 @@
 import os
 import sys
 import smtplib
+import traceback
 from email.MIMEMultipart import MIMEMultipart
 from email.mime.text import MIMEText
 #from email.Utils import formatdate
@@ -48,6 +49,8 @@ class Messenger(catoprocess.CatoService):
             self.retry_attempts = mset.RetryMaxAttempts
             self.smtp_server = mset.SMTPServerAddress
             self.smtp_port = mset.SMTPServerPort
+            self.smtp_use_ssl = mset.SMTPUseSSL
+            self.smtp_conn_timeout = (mset.SMTPConnectionTimeout if mset.SMTPConnectionTimeout else 20)
 
             self.smtp_user = mset.SMTPUserAccount
             self.smtp_pass = mset.SMTPUserPassword
@@ -91,19 +94,25 @@ class Messenger(catoprocess.CatoService):
         rows = self.db.select_all(sql, (self.retry_attempts))
         if rows:
             self.logger.info("Processing %d messages...", (len(rows)))
-            s = smtplib.SMTP_SSL(timeout=20)
+            s = smtplib.SMTP(timeout=self.smtp_conn_timeout)
+            if self.smtp_use_ssl:
+                s = smtplib.SMTP_SSL(timeout=self.smtp_conn_timeout)
+            else:
+                s = smtplib.SMTP(timeout=self.smtp_conn_timeout)
             #s.set_debuglevel(True)
 
             try: 
                 s.connect(self.smtp_server, int(self.smtp_port))    
-                #s.ehlo()
-                #if s.has_extn('STARTTLS'):
-                #    s.starttls()
-                #    s.ehlo()
+                s.ehlo()
+                if s.has_extn('STARTTLS'):
+                    self.logger.info("tls found, using it")
+                    s.starttls()
+                    s.ehlo()
                 s.login(self.smtp_user, self.smtp_pass)
             except Exception as e:
                 err_msg = "Error attempting to establish smtp connection to smtp server %s, port %s: %s" % (self.smtp_server, self.smtp_port, e)
                 self.logger.info(err_msg)
+                self.logger.info(traceback.format_exc())
                 for row in rows:
                     msg_id = row[0]
                     self.update_msg_status(msg_id, 1, err_msg)

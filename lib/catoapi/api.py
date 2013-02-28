@@ -19,13 +19,13 @@
 
 """Common API functions."""
 
-import json
 import base64
 import hmac
 import hashlib
 from datetime import datetime, timedelta
 import time
 from catocommon import catocommon
+from catosettings import settings
 
 try:
 	import xml.etree.cElementTree as ET
@@ -41,12 +41,13 @@ except AttributeError as ex:
 def authenticate(action, args):
 	try:
 		db = catocommon.new_conn()
-		#if it fails anywhere along the way just return false ...
+		sset = settings.settings.security()
+		# if it fails anywhere along the way just return false ...
 		# we're not returning error messages that would help a hacker.
 		
-		#here's how it works - we need the "action", the "key", the "timestamp" and the signed string
+		# here's how it works - we need the "action", the "key", the "timestamp" and the signed string
 		
-		#using the action, key and timestamp, we will:
+		# using the action, key and timestamp, we will:
 		# a) build our own string to sign
 		# b) sign it
 		# c) compare it to what was sent.
@@ -54,11 +55,11 @@ def authenticate(action, args):
 		ts = getattr(args, 'timestamp', '')
 		sig = getattr(args, 'signature', '')
 		
-		#Not enough arguments for the authentication? Fail.
+		# Not enough arguments for the authentication? Fail.
 		if action == '' or key == '' or ts == '' or sig == '':
 			return False, None
 		
-		#test the timestamp for er, timeliness
+		# test the timestamp for er, timeliness
 		fmt = "%Y-%m-%dT%H:%M:%S"
 		arg_ts = datetime.fromtimestamp(time.mktime(time.strptime(ts, fmt)))
 		now_ts = datetime.utcnow()
@@ -66,21 +67,34 @@ def authenticate(action, args):
 		if (now_ts - arg_ts) > timedelta (seconds=15):
 			return False, None
 		
-		#the timestamp used for the signature was URLencoded.  reencode before building our signature.
+		# the timestamp used for the signature was URLencoded.  reencode before building our signature.
 		ts = ts.replace(":", "%3A")
 		string_to_sign = "%s?key=%s&timestamp=%s" % (action, key, ts)
 		
 		db.ping_db()
-		#we need the password for the provided key (user_id)... that's what we use to build the signature.
-		sql = """select user_id, user_password from users where user_id = '{0}' or username = '{0}'""".format(key) 
+		# we need the password for the provided key (user_id)... that's what we use to build the signature.
+		sql = """select user_id, user_password, status, force_change, failed_login_attempts
+			from users 
+			where user_id = '{0}' or username = '{0}'""".format(key) 
 		row = db.select_row_dict(sql)
 		
 		if not row:
 			return False, None
 		
+		# first, a few simple checks for this user.
+		# 1) is it enabled?
+		if row["status"] < 1:
+			return False, "disabled"
+		# 2) is it requiring a new password?
+		if row["force_change"] > 0:
+			return False, "password change"
+		# 3) is it locked?
+		if row["failed_login_attempts"] >= sset.PassMaxAttempts:
+			return False, "locked"
+		
 		# from here on down, 'key' is the user_id
 		key = row["user_id"]
-		#decrypt the password so we can use it to generate the signature
+		# decrypt the password so we can use it to generate the signature
 		pwd = catocommon.cato_decrypt(row["user_password"])
 		
 		signed = base64.b64encode(hmac.new(pwd, msg=string_to_sign, digestmod=hashlib.sha256).digest())
@@ -88,7 +102,7 @@ def authenticate(action, args):
 		if signed != sig:
 			return False, None
 		
-		#made it here... we're authenticated!
+		# made it here... we're authenticated!
 		return True, key
 	except Exception as ex:
 		raise Exception(ex)
@@ -120,6 +134,7 @@ class response:
 	"""The apiResponse class is used for all API calls.  It's the standard response for everything."""
 	class Codes():
 		Exception = "Exception"
+		Forbidden = "Forbidden"
 		CreateError = "CreateError"
 		DeleteError = "DeleteError"
 		GetError = "GetError"
@@ -134,6 +149,10 @@ class response:
 		self.ErrorCode = err_code
 		self.ErrorMessage = err_msg
 		self.ErrorDetail = err_detail
+		
+		# if there's an error code and no details, use a generic message.
+		if self.ErrorCode and not self.ErrorDetail:
+			self.ErrorDetail = "An Exception has occured.  Check the API Server logfile for more information."
 
 	def asXMLString(self):
 		"""Returns the response as an XML string"""
@@ -143,21 +162,21 @@ class response:
 		
 		# if there was no response, we can't crash
 		if self.Response:
-			#try to parse it and catch ... if it's xml add it, else add it as text
+			# try to parse it and catch ... if it's xml add it, else add it as text
 			try:
 				test = ET.fromstring(self.Response)
 				r = ET.SubElement(dom, "response")
 				r.append(test)
-			except Exception: #(ElementTree.ParseError is a subclass of SyntaxError)
-				#no need to print the exception... it just means the self.Response couldn't be converted to xml
-				#that's ok, a non-xml response is allowed and handled here.
-				#if ex:
-					#print str(ex)
+			except Exception:  # (ElementTree.ParseError is a subclass of SyntaxError)
+				# no need to print the exception... it just means the self.Response couldn't be converted to xml
+				# that's ok, a non-xml response is allowed and handled here.
+				# if ex:
+					# print str(ex)
 				ET.SubElement(dom, "response").text = self.Response
 		else:
 			ET.SubElement(dom, "response").text = ""
 		
-		#include an error section if necessary
+		# include an error section if necessary
 		if self.ErrorCode != "":
 			e = ET.SubElement(dom, "error")
 			ET.SubElement(e, "code").text = self.ErrorCode

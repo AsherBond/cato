@@ -75,12 +75,16 @@ def read_config():
                 if not value:
                     raise Exception("ERROR: cato.conf 'password' setting is required.")
                 enc_pass = value
+            elif key == "mongodb.password":
+                enc_mongo_pass = value
             else:
                 key_vals[key] = value
     un_key = catocryptpy.decrypt_string(enc_key, "")
     key_vals["key"] = un_key
     un_pass = catocryptpy.decrypt_string(enc_pass, un_key)
     key_vals["password"] = un_pass
+    un_mongo_pass = catocryptpy.decrypt_string(enc_mongo_pass, un_key)
+    key_vals["mongodb.password"] = un_mongo_pass
     
     # something else here... 
     # the root cato directory should have a VERSION file.

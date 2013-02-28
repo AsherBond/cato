@@ -162,7 +162,7 @@ class Asset:
 class System:
     def __init__(self, name, address=None, port=None, db_name=None, conn_type=None, userid=None,
         password=None, p_password=None, domain=None, conn_string=None, private_key=None,
-        private_key_name=None, cloud_name=None):
+        private_key_name=None, cloud_name=None, protocol=None):
 
         self.name = name
         self.address = address
@@ -177,6 +177,7 @@ class System:
         self.private_key = private_key
         self.private_key_name = private_key_name
         self.cloud_name = cloud_name
+        self.protocol = protocol
 
 
 class Connection:
@@ -317,6 +318,20 @@ class TaskEngine():
         except:
             pass
 
+    def disconnect_mssql(self, handle):
+    
+        try:
+            handle.close()
+        except:
+            pass
+
+    def disconnect_sqlany(self, handle):
+    
+        try:
+            handle.close()
+        except:
+            pass
+
     def disconnect_mysql(self, handle):
     
         try:
@@ -392,57 +407,61 @@ class TaskEngine():
             kf.write(key)
             kf.close()
             os.chmod(kf_name, 0400)
-            c = pexpect.spawn('ssh -i %s -o ForwardAgent=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s' % (
-                kf_name, user, host), timeout=timeout, logfile=sys.stdout)
+            cmd = "ssh -i %s -o ForwardAgent=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s" % (kf_name, user, host)
         else:
-            c = pexpect.spawn('ssh -o ForwardAgent=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s' % (user, host), 
-                timeout=timeout, logfile=sys.stdout)
+            cmd = "ssh -o ForwardAgent=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s" % (user, host)
 
-        # TODO - telnet support
+        reattempt = True
+        attempt = 1
+        while reattempt is True:
+            c = pexpect.spawn(cmd, timeout=timeout, logfile=sys.stdout)
 
-        # TODO - regenerate host key if failure
-    
-        # TODO - limit the number of attempts, but at least reattempt once
+            # TODO - telnet support
+            # TODO - regenerate host key if failure
 
-        msg = None
+            msg = None
+            cpl = c.compile_pattern_list(expect_list)
+                
+            while not at_prompt:
 
-        cpl = c.compile_pattern_list(expect_list)
-        
-        while not at_prompt:
-
-            index = c.expect_list(cpl)
-            print index
-            if index == 0:
-                msg = "The address %s is unreachable, check network or firewall settings" % (host)
-            elif index == 1:
-                msg = "Authentication failed for address %s, user %s" % (host, user)
-            elif index == 2:
-                c.sendline ("yes")
-            elif index == 3:
-                c.sendline(passphrase)
-            elif index == 4:
-                at_prompt = True
-            elif index == 5:
-                logger.warning("The password for user %s will expire soon! Continuing ..." % (user))
-                c.logfile = None
-                c.sendline(password)
-                # c.logfile=sys.stdout 
-            elif index == 6:
-                c.logfile = None
-                c.sendline(password)
-                # c.logfile=sys.stdout 
-                c.delaybeforesend = 0
-            elif index == 7:
-                msg = "The connection to %s closed unexpectedly." % (host)
-            elif index == 8:
-                msg = "The connection to %s timed out after %s seconds." % (host, timeout)
-            if msg:
-                print msg
-                try: 
-                    msg = msg + "\n" + c.before + c.match.group() + c.after
-                except:
-                    pass
-                raise Exception(msg)
+                index = c.expect_list(cpl)
+                if index == 0 or index == 8:
+                    if attempt != 10:
+                        log_msg = "ssh connection address %s unreachable on attempt %d. Sleeping and reattempting" % (host, attempt)
+                        self.insert_audit("new_connection", log_msg, "")
+                        time.sleep(20)
+                        attempt += 1
+                        break
+                    else:
+                        msg = "The address %s is unreachable, check network or firewall settings" % (host)
+                elif index == 1:
+                    msg = "Authentication failed for address %s, user %s" % (host, user)
+                elif index == 2:
+                    c.sendline ("yes")
+                elif index == 3:
+                    c.sendline(passphrase)
+                elif index == 4:
+                    at_prompt = True
+                    reattempt = False
+                elif index == 5:
+                    logger.warning("The password for user %s will expire soon! Continuing ..." % (user))
+                    c.logfile = None
+                    c.sendline(password)
+                    # c.logfile=sys.stdout 
+                elif index == 6:
+                    c.logfile = None
+                    c.sendline(password)
+                    # c.logfile=sys.stdout 
+                    c.delaybeforesend = 0
+                elif index == 7:
+                    msg = "The connection to %s closed unexpectedly." % (host)
+                if msg:
+                    print msg
+                    try: 
+                        msg = msg + "\n" + c.before + c.match.group() + c.after
+                    except:
+                        pass
+                    raise Exception(msg)
 
         c.sendline("unset PROMPT_COMMAND;export PS1='PROMPT>'")
         index = c.expect(["PROMPT>.*PROMPT>$", pexpect.EOF, pexpect.TIMEOUT])
@@ -492,12 +511,12 @@ class TaskEngine():
         conn_string = "%s/%s@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=%s)(PORT=%s)))(CONNECT_DATA=(SID=%s)))" % (user,
             password, server, port, database)
 
-	tries = 5
-	for ii in range(tries):
-	    try:
-	        conn = cx_Oracle.connect(conn_string)
+        tries = 5
+        for ii in range(tries):
+            try:
+                conn = cx_Oracle.connect(conn_string)
                 break
-	    except Exception as e:
+            except Exception as e:
                 if "ORA-12505" in e and ii < tries:
                     # oracle listener, sleep and retry
                     logger.info("Oracle listener not available. Sleeping and retrying")
@@ -505,11 +524,34 @@ class TaskEngine():
                     wait_time = (ii * 5) + 1
                     time.sleep(wait_time)
                 else:
-	            msg = "Could not connect to the database. Error message -> %s" % (e)
-	            raise Exception(msg)
+                    msg = "Could not connect to the database. Error message -> %s" % (e)
+                    raise Exception(msg)
 
         conn.autocommit = True
         return conn
+
+
+    def connect_mssql(self, server="", port="", user="", password="", database=""):
+
+        from pytds import dbapi
+        try:
+            conn = dbapi.connect(server=server, user=user, password=password, database=database)
+        except Exception as e:
+            msg = "Could not connect to the database. Error message -> %s" % (e)
+            raise Exception(msg)
+        return conn
+
+
+    def connect_sqlany(self, server="", port="", user="", password="", database=""):
+
+        import sqlanydb
+        try:
+            conn = sqlanydb.connect(UID=user,PWD=password, HOST=server, DBN=database)
+        except Exception as e:
+            msg = "Could not connect to the database. Error message -> %s" % (e)
+            raise Exception(msg)
+        return conn
+
 
     def connect_mysql(self, server="", port="", user="", password="", database=""):
 
@@ -947,19 +989,19 @@ class TaskEngine():
         return Step(step_id, function_name, step_xml, parse_method, row_del, col_del)
 
     def subtask_cmd(self, command):
-        orig_subtask_id, subtask_version = self.get_command_params(command, "original_task_id", "version")[:]
+        subtask_name, subtask_version = self.get_command_params(command, "task_name", "version")[:]
 
-        logger.debug("subtask id %s, subtask_version %s" % (orig_subtask_id, subtask_version))
+        logger.debug("subtask [%s] version [%s]" % (subtask_name, subtask_version))
         if len(subtask_version):
-            sql = """select task_id from task where original_task_id = %s and version = %s"""
-            row = self.db.select_row(sql, (orig_subtask_id, subtask_version))
+            sql = """select task_id from task where task_name = %s and version = %s"""
+            row = self.db.select_row(sql, (subtask_name, subtask_version))
         else:
-            sql = """select task_id from task where original_task_id = %s and default_version = 1"""
-            row = self.db.select_row(sql, (orig_subtask_id))
+            sql = """select task_id from task where task_name = %s and default_version = 1"""
+            row = self.db.select_row(sql, (subtask_name))
 
-        task = row[0]
+        task_id = row[0]
 
-        self.process_task(task)
+        self.process_task(task_id)
 
     def codeblock_cmd(self, task, command):
         name = self.get_command_params(command, "codeblock")[0]
@@ -1348,6 +1390,8 @@ class TaskEngine():
         if typ == "GET" and len(data):
             url = url + "?" + data
             data = None
+        elif typ == "GET" and not len(data):
+            data = None
         elif typ == "POST" and not len(data):
             data = None
         
@@ -1370,7 +1414,7 @@ class TaskEngine():
         response_ms = int(round((after - before).total_seconds() * 1000))
         self.http_response = response_ms
 
-        log = "http %s %s\012%s\012%s\012Response time = %s ms" % (type, url, data, buff, response_ms)
+        log = "http %s %s\012%s\012%s\012Response time = %s ms" % (typ, url, data, buff, response_ms)
         self.insert_audit("http", log)
         variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
             "range_begin", "prefix", "range_end", "suffix", "regex")
@@ -1679,26 +1723,53 @@ class TaskEngine():
             return None
 
 
-    def connect_winrm(self, server, port, user, password):
+    def connect_winrm(self, server, port, user, password, protocol):
 
         if not port:
             port = "5985"
 
-        # TODO - we should give the user the ability to select the protocol
-        protocol = "http"
+        if not protocol:
+            protocol = "http"
+
+        if protocol not in ["http", "https"]:
+            msg = "Connection to winrm endpoint required either https or http protocol. %s is invalid protocol" % (protocol)
+            raise Exception(msg)
+        
+        if protocol == "http":
+            transport = "plaintext"
+        else:
+            transport = "ssl"
 
         address = "%s://%s:%s/wsman" % (protocol, server, port)
         import winrm
         from winrm import winrm_service
         # TODO - allow the user to specify a transport of kerberos, and also test this
         # depends on ubuntu: sudo apt-get install libkrb5-dev; sudo pip install kerberos
-        conn = winrm_service.WinRMWebService(endpoint=address, transport='plaintext', username=user, password=password)
+        
+        conn = winrm_service.WinRMWebService(endpoint=address, transport=transport, username=user, password=password)
         return conn
 
 
     def get_winrm_shell(self, conn):
 
-        return conn.open_shell()
+        s = None
+        reattempt = True
+        attempt = 1
+        while reattempt is True:
+            try: 
+                s = conn.open_shell()
+                reattempt = False
+            except Exception as e:
+                if ("Operation timed out" in str(e) or "No route to host" in str(e)) and attempt < 11:
+                    log_msg = "winrm connection address unreachable on attempt %d. Sleeping and reattempting" % (attempt)
+                    self.insert_audit("new_connection", log_msg, "")
+                    time.sleep(20)
+                    attempt += 1
+                else:
+                    msg = "winrm connection failed with error %s" % (e)
+                    raise Exception(msg)
+                    
+        return s
 
 
     def winrm_cmd(self, step):
@@ -1790,15 +1861,18 @@ class TaskEngine():
     
     def run_task_cmd(self, step):
 
-        params = self.get_command_params(step.command, "original_task_id", "version", "handle", "asset_id", "time_to_wait", "parameters")
-        original_task_id = params[0]
+        params = self.get_command_params(step.command, "task_name", "version", "handle", "asset_id", "time_to_wait", "parameters")
+        task_name = params[0]
         version = params[1]
         handle = params[2].lower()
         asset_id = self.replace_variables(params[3])
         wait_time = self.replace_variables(params[4])
         parameters = self.replace_variables(params[5])
 
-        if not len(handle):
+        if not task_name:
+            raise Exception("Handle name undefined. Run Task requires a Task Name.")
+
+        if not handle:
             raise Exception("Handle name undefined. Run Task requires a handle name.")
 
         try:
@@ -1813,22 +1887,21 @@ class TaskEngine():
             msg = "%s" % (ex)
             raise Exception(msg)
             
-        sql = """select task_id, task_name, version, default_version, now() from task where original_task_id = %s"""
+        sql = """select task_id, version, default_version, now() from task where task_name = %s"""
         if len(version):
             sql = sql + " and version = %s"
-            row = self.db.select_row(sql, (original_task_id, version))
+            row = self.db.select_row(sql, (task_name, version))
         else:
             sql = sql + " and default_version = 1"
-            row = self.db.select_row(sql, (original_task_id))
+            row = self.db.select_row(sql, (task_name))
 
         if row:
             task_id = row[0]
-            task_name = row[1]
-            task_version = row[2]
-            default_version = row[3]
-            submitted_dt = row[4]
+            task_version = row[1]
+            default_version = row[2]
+            submitted_dt = row[3]
         else:
-            msg = "Run Task error, task %s and version %s does not exist in this installation" % (original_task_id, version)
+            msg = "Run Task - Task [%s] version [%s] does not exist." % (task_name, version)
             raise Exception(msg)
 
         ti = catocommon.add_task_instance(task_id=task_id, user_id=self.submitted_by, debug_level=self.debug_level,
@@ -2513,9 +2586,10 @@ class TaskEngine():
                 except Exception as ex:
                     msg = "%s" % (ex)
                     logger.info(msg)
-                pass
             elif c.conn_type == "sqlserver":
-                pass
+                self.disconnect_mssql(c.handle)
+            elif c.conn_type == "sqlanywhere":
+                self.disconnect_sqlany(c.handle)
             elif c.conn_type == "oracle":
                 self.disconnect_oracle(c.handle)
             del(c)
@@ -2593,7 +2667,7 @@ class TaskEngine():
             except KeyError as ex:
                 # we haven't loaded it before, let's disect the asset string
 
-                address = userid = password = port = db_name = None
+                address = userid = password = port = db_name = protocol = None
 
                 for pair in asset.split(" "):
                     k, v = pair.split("=")
@@ -2605,6 +2679,8 @@ class TaskEngine():
                         password = v
                     elif k == "port":
                         port = v
+                    elif k == "protocol":
+                        protocol = v
                     elif k == "db_name":
                         db_name = v
                     else:
@@ -2612,7 +2688,7 @@ class TaskEngine():
                         logger.info(msg)
                 
                 s = System(name, address=address, userid=userid, password=password,
-                    port=port, db_name=db_name)
+                    port=port, db_name=db_name, protocol=protocol)
 
                 self.systems[name] = s
 
@@ -2623,7 +2699,7 @@ class TaskEngine():
         # and make the connection. We'll store any connection handle we get back for later use
         self.connect_system(conn)
 
-        msg = "New connection named %s to asset %s created with a connection type %s" % (conn_name, address, conn_type)
+        msg = "New connection named %s to asset %s created with a connection type %s" % (conn_name, s.address, conn_type)
         self.insert_audit("new_connection", msg, "")
 
 
@@ -2651,11 +2727,8 @@ class TaskEngine():
             
         elif c.conn_type == "winrm":
 
-            if not c.system.port:
-                port = "5985"
-            
-            c.handle = self.connect_winrm(server=c.system.address, port=port, user=c.system.userid,
-                password=c.system.password)
+            c.handle = self.connect_winrm(server=c.system.address, port=c.system.port, user=c.system.userid,
+                password=c.system.password, protocol=c.system.protocol)
 
             c.shell_id = self.get_winrm_shell(c.handle)
             
@@ -2673,8 +2746,26 @@ class TaskEngine():
             pass
         elif c.conn_type == "informix":
             pass
+        elif c.conn_type == "sqlanywhere":
+
+            if c.system.port:
+                port = c.system.port
+            else:
+                port = "2638"
+               
+            c.handle = self.connect_sqlany(server=c.system.address, port=port, user=c.system.userid,
+                password=c.system.password, database=c.system.db_name)
+
         elif c.conn_type == "sqlserver":
-            pass
+
+            if c.system.port:
+                port = int(c.system.port)
+            else:
+                port = 1433
+               
+            c.handle = self.connect_mssql(server=c.system.address, port=port, user=c.system.userid,
+                password=c.system.password, database=c.system.db_name)
+
         elif c.conn_type == "oracle":
         
             if not c.system.port or c.system.port == "":
@@ -2887,10 +2978,10 @@ class TaskEngine():
         variables = self.get_node_list(step.command, "step_variables/variable", "name", "position")
         if c.conn_type == "mysql":
             self.sql_exec_mysql(sql, variables, c.handle)
-        elif c.conn_type == "oracle":
-            self.sql_exec_oracle(sql, variables, c.handle)
+        elif c.conn_type in ["sqlanywhere", "sqlserver", "oracle"]:
+            self.sql_exec_dbi(sql, variables, c.handle)
 
-    def sql_exec_oracle(self, sql, variables, conn):
+    def sql_exec_dbi(self, sql, variables, conn):
    
         cursor = conn.cursor()
         try:

@@ -12,6 +12,7 @@ The shadow colors should match the border color from ui-widget-content.
 	top: 0;
 	left: 0;
 	z-index: 99999;
+	overflow: hidden;
 }
 
 #tiptip_holder.tip_top {

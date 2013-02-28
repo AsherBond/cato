@@ -72,7 +72,7 @@ def _redirect_stdout():
     stderr_logger.addHandler(fh)
     
     sys.stdout = StreamToLogger(stdout_logger, logging.INFO)
-    sys.stderr = StreamToLogger(stderr_logger, logging.ERROR)
+    sys.stderr = StreamToLogger(stderr_logger, logging.CRITICAL)
 
     
 def _get_logfiles_path():
@@ -142,7 +142,6 @@ class StreamToLogger(object):
         #self.linebuf = ''
     
     def flush(self):
-
         pass
 
 

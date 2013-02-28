@@ -370,7 +370,7 @@ $(document).ready(function() {
 					$("#task_picker_dialog").dialog("close");
 					$("#task_picker_results").empty();
 
-					field.val($(this).attr("original_task_id"));
+					field.val($(this).attr("task_name"));
 					field.change();
 				});
 

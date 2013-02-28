@@ -570,7 +570,7 @@ class uiMethods:
                 uiCommon.log_nouser(self.db.error, 0)
     
             #  if we made it here, so save the logs
-            uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.EcoTemplate, "", "", "Schedule [" + sScheduleID + "] deleted.")
+            uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Schedule, "", "", "Schedule [" + sScheduleID + "] deleted.")
     
             return ""
         except Exception:
@@ -590,7 +590,7 @@ class uiMethods:
                 uiCommon.log_nouser(self.db.error, 0)
 
             #  if we made it here, so save the logs
-            uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.EcoTemplate, "", "", "Action Plan [" + iPlanID + "] deleted.")
+            uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Schedule, "", "", "Action Plan [" + iPlanID + "] deleted.")
     
             return ""
         except Exception:
@@ -640,16 +640,16 @@ class uiMethods:
             sTaskID = uiCommon.getAjaxArg("sTaskID")
             sActionID = uiCommon.getAjaxArg("sActionID")
             sEcosystemID = uiCommon.getAjaxArg("sEcosystemID")
-            sMonths = uiCommon.getAjaxArg("sMonths")
-            sDays = uiCommon.getAjaxArg("sDays")
-            sHours = uiCommon.getAjaxArg("sHours")
-            sMinutes = uiCommon.getAjaxArg("sMinutes")
+            aMonths = uiCommon.getAjaxArg("sMonths")
+            aDays = uiCommon.getAjaxArg("sDays")
+            aHours = uiCommon.getAjaxArg("sHours")
+            aMinutes = uiCommon.getAjaxArg("sMinutes")
             sDaysOrWeeks = uiCommon.getAjaxArg("sDaysOrWeeks")
             sParameterXML = uiCommon.getAjaxArg("sParameterXML")
             iDebugLevel = uiCommon.getAjaxArg("iDebugLevel")
             sAccountID = uiCommon.getAjaxArg("sAccountID")
             
-            if not sTaskID or not sMonths or not sDays or not sHours or not sMinutes or not sDaysOrWeeks:
+            if not sTaskID or not aMonths or not aDays or not aHours or not aMinutes or not sDaysOrWeeks:
                 uiCommon.log("Missing or invalid Schedule timing or Task ID.")
 
             # we encoded this in javascript before the ajax call.
@@ -662,7 +662,7 @@ class uiMethods:
 
             # figure out a label and a description
             sDesc = ""
-            sLabel, sDesc = catocommon.GenerateScheduleLabel(sMonths, sDays, sHours, sMinutes, sDaysOrWeeks)
+            sLabel, sDesc = catocommon.GenerateScheduleLabel(aMonths, aDays, aHours, aMinutes, sDaysOrWeeks)
 
             sSQL = "insert into action_schedule (schedule_id, task_id, action_id, ecosystem_id, account_id," \
                 " months, days, hours, minutes, days_or_weeks, label, descr, parameter_xml, debug_level)" \
@@ -672,10 +672,10 @@ class uiMethods:
                 + (" '" + sActionID + "'" if sActionID else "''") + "," \
                 + (" '" + sEcosystemID + "'" if sEcosystemID else "''") + "," \
                 + (" '" + sAccountID + "'" if sAccountID else "''") + "," \
-                " '" + sMonths + "'," \
-                " '" + sDays + "'," \
-                " '" + sHours + "'," \
-                " '" + sMinutes + "'," \
+                " '" + ",".join([str(x) for x in aMonths]) + "'," \
+                " '" + ",".join([str(x) for x in aDays]) + "'," \
+                " '" + ",".join([str(x) for x in aHours]) + "'," \
+                " '" + ",".join([str(x) for x in aMinutes]) + "'," \
                 " '" + sDaysOrWeeks + "'," \
                 + (" '" + sLabel + "'" if sLabel else "null") + "," \
                 + (" '" + sDesc + "'" if sDesc else "null") + "," \

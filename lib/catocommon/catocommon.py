@@ -21,6 +21,9 @@ import decimal
 import base64
 import re
 import json
+import calendar
+from bson.objectid import ObjectId
+
 from catoconfig import catoconfig
 from catodb import catodb
 
@@ -382,53 +385,49 @@ def FindAndCall(method, args=None):
         So, if the "method" argument is foo.bar/baz, it will do "from foo import bar"
         and then the function being hooked would be "bar.baz()"
     """
-    try:
-        db = new_conn()
-        # does it have a / ?  if so let's look for another class.
-        # NOTE: this isn't recursive... only the first value before a / is the class
-        modname = ""
-        methodname = method
-        classname = ""
-        
-        if "/" in method:
-            modname, methodname = method.split('/', 1)
-            classname = modname
-        if "." in modname:
-            modname, classname = modname.split('.', 1)
-            modname = "%s.%s" % (modname, classname)
-            
-        if modname and classname and methodname:    
-            try:
-                mod = __import__(modname, globals(), locals(), classname)
-                cls = getattr(mod, classname, None)
-
-                if cls:
-                    cls.db = db
-                    methodToCall = getattr(cls(), methodname, None)
-                else:
-                    return "Class [%s] does not exist or could not be loaded." % modname
-            except ImportError as ex:
-                logger.error(ex.__str__())
-                return "Module [%s] does not exist." % modname
-        else:
-            methodToCall = getattr(globals, methodname, None)
-
-        if methodToCall:
-            if callable(methodToCall):
-                if args:
-                    return methodToCall(args)
-                else:
-                    return methodToCall()
-
-        return "Method [%s] does not exist or could not be called." % method
-        
-    except Exception as ex:
-        raise ex
-    finally:
-        if db:
-            db.close()    
+    db = new_conn()
+    # does it have a / ?  if so let's look for another class.
+    # NOTE: this isn't recursive... only the first value before a / is the class
+    modname = ""
+    methodname = method
+    classname = ""
     
-def GenerateScheduleLabel(sMo, sDa, sHo, sMi, sDW):
+    if "/" in method:
+        modname, methodname = method.split('/', 1)
+        classname = modname
+    if "." in modname:
+        modname, classname = modname.split('.', 1)
+        modname = "%s.%s" % (modname, classname)
+        
+    if modname and classname and methodname:    
+        try:
+            mod = __import__(modname, globals(), locals(), classname)
+            cls = getattr(mod, classname, None)
+
+            if cls:
+                cls.db = db
+                methodToCall = getattr(cls(), methodname, None)
+            else:
+                return "Class [%s] does not exist or could not be loaded." % modname
+        except ImportError as ex:
+            logger.error(ex.__str__())
+            return "Module [%s] does not exist." % modname
+    else:
+        methodToCall = getattr(globals, methodname, None)
+
+    if methodToCall:
+        if callable(methodToCall):
+            if args:
+                return methodToCall(args)
+            else:
+                return methodToCall()
+
+    if db:
+        db.close()    
+
+    return "Method [%s] does not exist or could not be called." % method
+    
+def GenerateScheduleLabel(aMo, aDa, aHo, aMi, sDW):
     """
     Given the properties of a schedule, will return a printable description
     and short tooltip.
@@ -439,16 +438,16 @@ def GenerateScheduleLabel(sMo, sDa, sHo, sMi, sDW):
 
     # we can analyze the details and come up with a pretty name for this schedule.
     # this may need to be it's own web method eventually...
-    if sMo != "0,1,2,3,4,5,6,7,8,9,10,11,":
+    if aMo != [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]:
         sDesc += "Some Months, "
 
     if sDW == "0":
         # explicit days 
-        if sDa == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,":
+        if aDa == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]:
             sDesc += "Every Day, "
     else:
         # weekdays
-        if sDa == "0,1,2,3,4,5,6,":
+        if aDa == [0, 1, 2, 3, 4, 5, 6]:
             sDesc += "Every Weekday, "
         else:
             sDesc += "Some Days, "
@@ -456,12 +455,12 @@ def GenerateScheduleLabel(sMo, sDa, sHo, sMi, sDW):
     # hours and minutes labels play together, and are sometimes exclusive of one another
     # we'll figure that out later...
 
-    if sHo == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,":
+    if aHo == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]:
         sDesc += "Hourly, "
     else:
         sDesc += "Selected Hours, "
 
-    if sMi == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,":
+    if aMi == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]:
         sDesc += "Every Minute"
     else:
         sDesc += "Selected Minutes"
@@ -477,49 +476,58 @@ def GenerateScheduleLabel(sMo, sDa, sHo, sMi, sDW):
     sTmp = ""
 
     # months
-    if sMo == "0,1,2,3,4,5,6,7,8,9,10,11,":
+    if aMo == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]:
         sTmp = "Every Month"
     else:
-        sTmp = sMo[:-1].replace("0", "Jan").replace("1", "Feb").replace("2", "Mar").replace("3", "Apr").replace("4", "May").replace("5", "Jun").replace("6", "Jul").replace("7", "Aug").replace("8", "Sep").replace("9", "Oct").replace("10", "Nov").replace("11", "Dec")
+        m2 = []
+        for m in aMo:
+            # the calendar utility has months based on 1=January
+            m2.append(calendar.month_name[m + 1][:3])
+    
+        sTmp = ",".join(m2)
     sTooltip += "Months: (" + sTmp + ")<br />\n"
 
     # days
     sTmp = ""
     if sDW == "0":
-        if sDa == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,":
+        if aDa == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]:
             sTmp = "Every Day"
         else:
-            a = sDa.split(',')
-            for s in a:
+            d2 = []
+            for i in aDa:
                 # individual days are +1
-                a2 = []
-                if s:
-                    a2.append(str(int(s) + 1))
-                    sTmp = ",".join(a2)
+                d2.append(i + 1)
+
+            sTmp = ",".join([str(x) for x in d2])
 
         sTooltip += "Days: (" + sTmp + ")<br />\n"
     else:
-        if sDa == "0,1,2,3,4,5,6,":
+        if aDa == [0, 1, 2, 3, 4, 5, 6]:
             sTmp = "Every Weekday"
         else:
-            sTmp = sDa[:-1].replace("0", "Sun").replace("1", "Mon").replace("2", "Tue").replace("3", "Wed").replace("4", "Thu").replace("5", "Fri").replace("6", "Sat")
+            d2 = []
+            for d in aDa:
+                # because the python calendar lib has no way to set SUNDAY as the first day of the week
+                # we must subtract 1
+                d2.append(calendar.day_name[d - 1])
+            sTmp = ",".join([str(x) for x in d2])
 
         sTooltip += "Weekdays: (" + sTmp + ")<br />\n"
 
     # hours
     sTmp = ""
-    if sHo == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,":
+    if aHo == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]:
         sTmp = "Every Hour"
     else:
-        sTmp = sHo[:-1]
+        sTmp = ",".join([str(x) for x in aHo])
     sTooltip += "Hours: (" + sTmp + ")<br />\n"
 
     # minutes
     sTmp = ""
-    if sMi == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,":
+    if aMi == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]:
         sTmp = "Every Minute"
     else:
-        sTmp = sMi[:-1]
+        sTmp = ",".join([str(x) for x in aMi])
     sTooltip += "Minutes: (" + sTmp + ")<br />\n"
 
     return sDesc, sTooltip
@@ -596,8 +604,18 @@ class ObjectOutput(object):
             if not delimiter:
                 delimiter = "\t"
             vals = []
-            for key in keys:
-                vals.append(str(getattr(obj, key)))
+            if hasattr(obj, "__dict__"):
+                # might be an object, which has the __dict__ builtin
+                for key in keys:
+                    vals.append(str(obj.__dict__[key]))
+            elif isinstance(obj, dict):
+                # but if it actually IS a dict...
+                for key in keys:
+                    vals.append(str(obj[key]))
+            else:
+                # assume it's an object and get the attribute by name
+                for key in keys:
+                    vals.append(str(getattr(obj, key)))
 
             return "%s\n%s" % (delimiter.join(keys), delimiter.join(vals))
         except Exception as ex:
@@ -649,7 +667,7 @@ class ObjectOutput(object):
                         # might be an object, which has the __dict__ builtin
                         for key in keys:
                             cols.append(str(row.__dict__[key]))
-                    elif isinstance({}, dict):
+                    elif isinstance(row, dict):
                         # but if it actually IS a dict...
                         for key in keys:
                             cols.append(str(row[key]))

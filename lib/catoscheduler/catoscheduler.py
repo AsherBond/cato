@@ -17,7 +17,7 @@
 import os
 import sys
 
-### requires croniter from https://github.com/taichino/croniter
+# ## requires croniter from https://github.com/taichino/croniter
 from croniter import croniter
 from datetime import datetime
 
@@ -61,7 +61,7 @@ class Scheduler(catoprocess.CatoService):
             sql = """delete from action_plan where source = 'schedule'"""
             self.db.exec_db(sql)
         except Exception as ex:
-            self.logger.error("Unable to delete from action_plan.\n"+ ex.__str__())
+            self.logger.error("Unable to delete from action_plan.\n" + ex.__str__())
 
     def balance_tasks(self):
 
@@ -96,8 +96,8 @@ class Scheduler(catoprocess.CatoService):
             months = row[2]
             days_or_weeks = row[3]
             days = row[4]
-            #hours [split_clean = row[5]]
-            #minutes [split_clean = row[6]]
+            # hours [split_clean = row[5]]
+            # minutes [split_clean = row[6]]
             hours = row[5]
             minutes = row[6]
             start_dt = row[7]
@@ -109,33 +109,33 @@ class Scheduler(catoprocess.CatoService):
             start_instances = row[13]
             account_id = row[14]
     
-            #print "Number to start = ", start_instances
+            # print "Number to start = ", start_instances
             if not start_dt:
                 start_dt = now
             else:
                 start_dt = start_dt + 1
     
-            #days = self.split_clean(self.string map(self.day_map, days))
-            #months = self.split_clean(months)
+            # days = self.split_clean(self.string map(self.day_map, days))
+            # months = self.split_clean(months)
     
-            #the_dates = ""
-            #print days_or_weeks
-            #print days
+            # the_dates = ""
+            # print days_or_weeks
+            # print days
             if days_or_weeks == 1:
                 # this will be days of the week, 0 - 6
                 # 0 = sunday, 1 = monday, ... 6 = saturday
-                dow = days.rstrip(",")
+                dow = days
                 dom = "*"
             else:
                 # this will be days of the month, 1 - 31
                 dow = "*"
-                dom = days.rstrip(",")
+                dom = days
     
-            months = ",".join([str((int(i) + 1)) for i in months.rstrip(",").split(",")])
-            #start_dt = start_dt + 600000
+            months = ",".join([str((int(i) + 1)) for i in months.split(",")])
+            # start_dt = start_dt + 600000
             the_start_dt = datetime.fromtimestamp(start_dt)
-            cron_string = minutes.rstrip(",") + " " + hours.rstrip(",") + " " + dom + " " +  months + " " + dow
-            #print cron_string
+            cron_string = minutes + " " + hours + " " + dom + " " + months + " " + dow
+            # print cron_string
             citer = croniter(cron_string, the_start_dt) 
             for _ in range(start_instances):
                 date = citer.get_next(datetime)
@@ -145,7 +145,7 @@ class Scheduler(catoprocess.CatoService):
                         values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                 self.db.exec_db(sql, (task_id, date, action_id, ecosystem_id, parameter_xml, debug_level, 'schedule', schedule_id, account_id))
         except Exception as ex:
-            self.logger.error("Unable to expand schedule or insert into action_plan.\n"+ ex.__str__())
+            self.logger.error("Unable to expand schedule or insert into action_plan.\n" + ex.__str__())
 
     def expand_schedules(self):
         try:
@@ -160,11 +160,11 @@ class Scheduler(catoprocess.CatoService):
             rows = self.db.select_all(sql, (self.min_depth, self.min_depth))
             if rows:
                 for row in rows:
-                    #print "row is"
-                    #print row
+                    # print "row is"
+                    # print row
                     self.expand_this_schedule(row)
         except Exception as ex:
-            self.logger.error("Error in expand_schedules.\n"+ ex.__str__())
+            self.logger.error("Error in expand_schedules.\n" + ex.__str__())
 
     def run_schedule_instance(self, instance_row):
         try:
@@ -197,11 +197,40 @@ class Scheduler(catoprocess.CatoService):
         except Exception as ex:
             self.logger.error("Unable to run schedule instance.  Probable error inserting action_plan_history.\n"+ ex.__str__())
 
+    def housekeeping(self):
+        """
+        Certain items in the db need occasional inspection for integrity, cleanup, etc.
+        
+        This is a potential place to add other maintenance items, logfile cleanup, and the like.
+        """
+
+        
+        # this first one is a silent databate integrity test and repair
+        # it's 100% critical that task_names be the same across all version of a task.
+        # if not, certain functions like subtask and runtask that reference tasks by name/version 
+        # won't work properly.
+        
+        # This check will find any names that might have gotten out of whack, and repair them.
+        # the repair is made by resetting ALL the task names to match the 'default_version'.
+        sql = """select original_task_id from task
+            group by original_task_id
+            having count(distinct task_name) > 1"""
+        rows = self.db.select_all_dict(sql)
+        if rows:
+            self.logger.info("Housekeeping found Tasks with mismatched names... reconciling...")
+            for row in rows:
+                sql = """update task set task_name = (select task_name from (select task_name
+                    from task t
+                    where t.original_task_id=%s
+                    and t.default_version=1) as tmptable)
+                    where original_task_id=%s"""
+                self.logger.info("    Fixing names for [%s]" % row["original_task_id"])
+                self.db.exec_db(sql, (row["original_task_id"], row["original_task_id"]))
 
     def check_schedules(self):
         try:
             sql = """select ap.schedule_id, min(ap.plan_id) as plan_id, ap.task_id,
-                    ap.action_id, ap.ecosystem_id, ap.parameter_xml, ap.debug_level, min(ap.run_on_dt), ap.account_id
+                    ap.action_id, ap.ecosystem_id, ap.parameter_xml, ap.debug_level, min(ap.run_on_dt), ap.account_id, ap.cloud_id
                     from action_plan  ap
                     where run_on_dt < now() group by schedule_id"""
     
@@ -210,12 +239,15 @@ class Scheduler(catoprocess.CatoService):
                 for row in rows:
                     self.run_schedule_instance(row)
         except Exception as ex:
-            self.logger.error("Unable to check_schedules.\n"+ ex.__str__())
+            self.logger.error("Unable to check_schedules.\n" + ex.__str__())
 
     def main_process(self):
         """main process loop, parent class will call this"""
 
         self.expand_schedules()
         self.check_schedules()
-	self.balance_tasks()
+        self.balance_tasks()
+        
+        # housekeeping - some items in the db need occasional attention
+        self.housekeeping()
 

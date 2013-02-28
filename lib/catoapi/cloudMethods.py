@@ -18,6 +18,10 @@
 Cloud / Cloud Account endpoint methods.
 """
 
+from catolog import catolog
+logger = catolog.get_logger(__name__)
+
+import traceback
 from catoapi.api import response as R
 from catocloud import cloud
 
@@ -47,8 +51,9 @@ class cloudMethods:
             else:
                 return R(err_code=R.Codes.ListError, err_detail="Unable to list Clouds.")
             
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
 
     def list_cloud_accounts(self, args):        
         """
@@ -73,6 +78,7 @@ class cloudMethods:
             else:
                 return R(err_code=R.Codes.ListError, err_detail="Unable to list Cloud Accounts.")
             
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
 

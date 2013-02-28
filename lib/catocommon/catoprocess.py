@@ -78,16 +78,19 @@ class CatoService(CatoProcess):
         if not result:
             self.logger.info("[%s] has not been registered, registering..." % self.process_name)
             self.register_app()
-            result = self.db.select_col(sql)
+            result = self.db.select_col(sql, (self.process_name, self.host_domain))
             self.instance_id = result
         else:
             self.logger.info("[%s] has already been registered, updating..." % self.process_name)
             self.instance_id = result
             self.logger.info("application instance = %d" % self.instance_id)
-            self.db.exec_db("""update application_registry set hostname = %s, userid = %s,
-                 pid = %s, platform = %s where id = %s""",
-                (self.host_domain, self.user, str(self.my_pid), self.platform,
-                 self.instance_id))
+            sql = """update application_registry set 
+                hostname = %s, 
+                userid = %s,
+                pid = %s, 
+                platform = %s 
+                where id = %s"""
+            self.db.exec_db(sql, (self.host_domain, self.user, self.my_pid, self.platform, self.instance_id))
 
     def register_app(self):
         self.logger.info("Registering application...")

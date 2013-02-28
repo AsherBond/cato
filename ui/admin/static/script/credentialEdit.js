@@ -47,6 +47,13 @@ $(document).ready(function () {
         }
 
     });
+    
+    var tip = "For uncommon cases where a system requires multiple authentication prompts, for example certain brands of TCP/IP switches.";
+    $("#priv_mode_info").attr("title", tip);
+    $("#priv_mode_info").click(function() {
+    	showInfo(tip, "", true);
+    });
+    $("#priv_mode_info").tipTip();
 
     ManagePageLoad();
     GetItems();
