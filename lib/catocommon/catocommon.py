@@ -26,7 +26,6 @@ from bson.objectid import ObjectId
 
 from catoconfig import catoconfig
 from catodb import catodb
-from catomongo import Connection 
 from catoerrors import DatastoreError
 
 from catolog import catolog
@@ -64,6 +63,8 @@ def new_mongo_conn():
     :return: instance of mongodb Database
     """
     try:
+        from catomongo import Connection 
+        
         mongodb_server = catoconfig.CONFIG["mongodb.server"]
         mongodb_port = int(catoconfig.CONFIG["mongodb.port"]) if catoconfig.CONFIG["mongodb.port"] else 27017
         mongodb_dbname = catoconfig.CONFIG["mongodb.database"]

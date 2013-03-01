@@ -41,8 +41,6 @@ except AttributeError as ex:
 
 from catoconfig import catoconfig
 from catocommon import catocommon
-from catodatastore import datastore
-from catodeployment import deployment
 from catodb import catodb
 from catoruntimes import runtimes
 from bson.json_util import dumps
@@ -54,6 +52,18 @@ import urllib2
 import httplib
 import base64
 from . import matheval
+
+# these are Maestro libs, don't crash if they aren't found.
+# of course the commands that reference them will still crash.
+try:
+    from catodatastore import datastore
+except ImportError:
+    pass
+try:
+    from catodeployment import deployment
+except ImportError:
+    pass
+
 
 # global logger can be used in all classes.
 logger = None
@@ -717,7 +727,13 @@ class TaskEngine():
             
     
     def get_datastore_value(self, doc_id, collection, key, var):
-
+        
+        # this is a Maestro function - fail nicely if not available
+        if "datastore" not in globals():
+            logger.warning("This command is available in Cloud Sidekick Maestro.")
+            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
+            return ""
+        
         if not doc_id or not key or not var:
             return "Document ID, Key and Variable Name are required arguments."
         
@@ -735,6 +751,13 @@ class TaskEngine():
             return ""
     
     def set_datastore_value(self, doc_id, collection, key, val):
+        
+        # this is a Maestro function - fail nicely if not available
+        if "datastore" not in globals():
+            logger.warning("This command is available in Cloud Sidekick Maestro.")
+            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
+            return ""
+        
         if not doc_id or not key:
             return "Document ID and Key are required arguments."
         
@@ -760,6 +783,12 @@ class TaskEngine():
     # These next two commands use a hardcoded value for the datastore collection
     def append_deployment_value(self, scope, key, value):
 
+        # this is a Maestro function - fail nicely if not available
+        if "deployment" not in globals():
+            logger.warning("This command is available in Cloud Sidekick Maestro.")
+            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
+            return ""
+        
         # get a deployment or service object from a name or id
         if scope == "Deployment":
             ds = deployment.Deployment()
@@ -774,6 +803,12 @@ class TaskEngine():
                 ds.Datastore.Append(key, value)
 
     def get_deployment_value(self, scope, pairs):
+        
+        # this is a Maestro function - fail nicely if not available
+        if "deployment" not in globals():
+            logger.warning("This command is available in Cloud Sidekick Maestro.")
+            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
+            return ""
             
         # get a deployment or service object from a name or id
         if scope == "Deployment":
@@ -809,6 +844,12 @@ class TaskEngine():
         del(ds)
     
     def unset_deployment_value(self, scope, key):
+        
+        # this is a Maestro function - fail nicely if not available
+        if "deployment" not in globals():
+            logger.warning("This command is available in Cloud Sidekick Maestro.")
+            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
+            return ""
 
         if not key or key == "":
             raise Exception("Key name is a required argument.")
@@ -827,6 +868,12 @@ class TaskEngine():
 
 
     def set_deployment_value(self, scope, key, val):
+        
+        # this is a Maestro function - fail nicely if not available
+        if "deployment" not in globals():
+            logger.warning("This command is available in Cloud Sidekick Maestro.")
+            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
+            return ""
 
         if not key or key == "":
             raise Exception("Key name is a required argument.")
@@ -2083,6 +2130,12 @@ class TaskEngine():
 
     def get_service_hosts_cmd(self, step):
 
+        # this is a Maestro function - fail nicely if not available
+        if "deployment" not in globals():
+            logger.warning("This command is available in Cloud Sidekick Maestro.")
+            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
+            return ""
+
         if not self.deployment_id:
             raise Exception("Get Service Hosts command must be used from within a deployment")
 
@@ -2122,6 +2175,12 @@ class TaskEngine():
                     self.rt.set(instance_name, row[2], t_index)
             
     def register_host_instance(self, step):
+
+        # this is a Maestro function - fail nicely if not available
+        if "deployment" not in globals():
+            logger.warning("This command is available in Cloud Sidekick Maestro.")
+            self.insert_audit(self._name__, "This command is available in Cloud Sidekick Maestro.")
+            return ""
 
         if not self.deployment_id:
             raise Exception("Register Host Instance command must be used within a Deployment")
@@ -2521,6 +2580,12 @@ class TaskEngine():
 
 
     def get_deployment_info(self):
+
+        # this is a Maestro function - fail nicely if not available
+        if "deployment" not in globals():
+            logger.warning("This command is available in Cloud Sidekick Maestro.")
+            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
+            return ""
 
         sql = """select d.deployment_id, d.deployment_name, d.document_id,
             ds.deployment_service_id, ds.service_name, ds.document_id, dsi.instance_label
