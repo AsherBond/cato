@@ -1,11 +1,11 @@
 ﻿//Copyright 2012 Cloud Sidekick
-// 
+//
 //Licensed under the Apache License, Version 2.0 (the "License");
 //you may not use this file except in compliance with the License.
 //You may obtain a copy of the License at
-// 
+//
 //    http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //Unless required by applicable law or agreed to in writing, software
 //distributed under the License is distributed on an "AS IS" BASIS,
 //WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,13 +15,11 @@
 
 //Shared functionality for the task launch dialog
 
-$(document).ready(function () {
-    //any page that includes this script will get the following dialog inner code
-    //but the page requires a placeholder div... called "task_launch_dialog"
+$(document).ready(function() {
+	//any page that includes this script will get the following dialog inner code
+	//but the page requires a placeholder div... called "task_launch_dialog"
     var d = '<div id="task_launch_dialog_task_name" class="floatleft"></div><div class="floatright">Server Time: <span class="current_time"></span></div><hr />' +
                 'Cloud Account: <span id="task_launch_dialog_account_name"></span>' +
-                '&nbsp;&nbsp;Ecosystem:&nbsp;&nbsp;' +
-                '<select id="task_launch_dialog_ecosystem"></select>' +
                 '&nbsp;&nbsp;Logging Level:&nbsp;&nbsp;' +
                 '<select id="task_launch_dialog_debug_level">' +
                 '   <option value="0">None</option>' +
@@ -86,12 +84,10 @@ $(document).ready(function () {
                 '<input type="hidden" id="task_launch_dialog_task_id" />' +
                 '<input type="hidden" id="task_launch_dialog_account_id" />' +
                 '<input type="hidden" id="task_launch_dialog_asset_id" />' +
-                '<input type="hidden" id="task_launch_dialog_action_id" />' +
-                '<input type="hidden" id="task_launch_dialog_ecosystem_id" />' +
                 '<input type="hidden" id="task_launch_dialog_task_instance" />' +
                 '<input type="hidden" id="plan_edit_plan_id" />';
 
-    $("#task_launch_dialog").prepend(d);
+	$("#task_launch_dialog").prepend(d);
 
     var plan_edit_content = '' +
         'Editing <span id="plan_edit_mode"></span>: <span id="plan_edit_name"></span>' +
@@ -100,207 +96,213 @@ $(document).ready(function () {
         '</div>' +
         '<div id="plan_edit_schedule" class="floatright task_launch_column">' +
         '</div>';
-    $("#plan_edit_dialog").html(plan_edit_content);
+	$("#plan_edit_dialog").html(plan_edit_content);
 
-
-    //dialog was drawn dynamically, have to do some bindings
-    $("#task_launch_dialog_schedule").tabs();
-    $(".datetimepicker").datetimepicker();
-    $("#run_now_btn").button({ icons: { primary: "ui-icon-play"} });
-    $("#run_now_btn").live("click", function () {
+	//dialog was drawn dynamically, have to do some bindings
+	$("#task_launch_dialog_schedule").tabs();
+	$(".datetimepicker").datetimepicker();
+	$("#run_now_btn").button({
+		icons : {
+			primary : "ui-icon-play"
+		}
+	});
+	$("#run_now_btn").live("click", function() {
 		if (checkRequiredParams() == true && checkParamConstraints() == true)
-	    	RunNow();
-    });
-    $("#run_later_btn").button({ icons: { primary: "ui-icon-seek-next"} });
-    $("#run_later_btn").live("click", function () {
+			RunNow();
+	});
+	$("#run_later_btn").button({
+		icons : {
+			primary : "ui-icon-seek-next"
+		}
+	});
+	$("#run_later_btn").live("click", function() {
 		if (checkRequiredParams() == true && checkParamConstraints() == true)
-	    	RunLater();
-    });
-    $("#run_repeatedly_btn").button({ icons: { primary: "ui-icon-calculator"} });
-    $("#run_repeatedly_btn").live("click", function () {
-        if (checkRequiredParams() == true && checkParamConstraints() == true)
-	    	RunRepeatedly();
-    });
+			RunLater();
+	});
+	$("#run_repeatedly_btn").button({
+		icons : {
+			primary : "ui-icon-calculator"
+		}
+	});
+	$("#run_repeatedly_btn").live("click", function() {
+		if (checkRequiredParams() == true && checkParamConstraints() == true)
+			RunRepeatedly();
+	});
 
+	//init the dialogs
+	$("#task_launch_dialog").dialog({
+		autoOpen : false,
+		modal : true,
+		height : 650,
+		width : 900,
+		open : function(event, ui) {
+			$(".ui-dialog-titlebar-close", ui).hide();
+		},
+		buttons : {
+			"Close" : function() {
+				CloseTaskLaunchDialog();
+			}
+		}
+	});
+	$("#plan_edit_dialog").dialog({
+		autoOpen : false,
+		modal : true,
+		height : 650,
+		width : 900,
+		open : function(event, ui) {
+			$(".ui-dialog-titlebar-close", ui).hide();
+		},
+		buttons : {
+			"Save" : function() {
+				var mode = $("#plan_edit_mode").html();
 
-    //init the dialogs
-    $("#task_launch_dialog").dialog({
-        autoOpen: false,
-        modal: true,
-        height: 650,
-        width: 900,
-        open: function (event, ui) { $(".ui-dialog-titlebar-close", ui).hide(); },
-        buttons: {
-            "Close": function () {
-                CloseTaskLaunchDialog();
-            }
-        }
-    });
-    $("#plan_edit_dialog").dialog({
-        autoOpen: false,
-        modal: true,
-        height: 650,
-        width: 900,
-        open: function (event, ui) { $(".ui-dialog-titlebar-close", ui).hide(); },
-        buttons: {
-            "Save": function () {
-                var mode = $("#plan_edit_mode").html();
+				if (mode == "Plan")
+					x = SavePlan();
+				//only saves params (may eventually prompt to update the timetable?)
 
-                if (mode == "Plan")
-                    x = SavePlan(); //only saves params (may eventually prompt to update the timetable?)
+				if (mode == "Schedule")
+					x = SaveRecurringPlan();
+				//does timetable and params
 
-                if (mode == "Schedule")
-                    x = SaveRecurringPlan();  //does timetable and params
+				if (x)
+					ClosePlanEditDialog();
+			},
+			"Cancel" : function() {
+				ClosePlanEditDialog();
+			}
+		}
+	});
 
-                if (x)
-                	ClosePlanEditDialog();
-            },
-            "Cancel": function () {
-                ClosePlanEditDialog();
-            }
-        }
-    });
+	//changing the radio button on the dialog
+	$("#rbDefault").live("click", function() {
+		var task_id = $("#task_launch_dialog_task_id").val();
+		$("#task_launch_dialog_params").fadeOut(500, function() {
+			getParamXML(task_id, "task");
+		});
+		$("#task_launch_dialog_params").fadeIn(500);
+	});
+	$("#rbPrevious").live("click", function() {
+		//see if there is an instance first, if not use the task_id
+		var id = $("#task_launch_dialog_task_instance").val();
+		if (id == "")
+			id = $("#task_launch_dialog_task_id").val();
+		$("#task_launch_dialog_params").fadeOut(500, function() {
+			getParamXML(id, "instance");
+		});
+		$("#task_launch_dialog_params").fadeIn(500);
+	});
+	$("#rbAction").live("click", function() {
+		var action_id = $("#task_launch_dialog_action_id").val();
+		$("#task_launch_dialog_params").fadeOut(500, function() {
+			getParamXML(action_id, "action");
+		});
+		$("#task_launch_dialog_params").fadeIn(500);
+	});
 
-    //changing the radio button on the dialog
-    $("#rbDefault").live("click", function () {
-        var task_id = $("#task_launch_dialog_task_id").val();
-        $("#task_launch_dialog_params").fadeOut(500, function () {
-            getParamXML(task_id, "task");
-        });
-        $("#task_launch_dialog_params").fadeIn(500);
-    });
-    $("#rbPrevious").live("click", function () {
-        //see if there is an instance first, if not use the task_id
-        var id = $("#task_launch_dialog_task_instance").val();
-        if (id == "") id = $("#task_launch_dialog_task_id").val();
-        var eco_id = $("#task_launch_dialog_ecosystem_id").val();
-        $("#task_launch_dialog_params").fadeOut(500, function () {
-            getParamXML(id, "instance", eco_id);
-        });
-        $("#task_launch_dialog_params").fadeIn(500);
-    });
-    $("#rbAction").live("click", function () {
-        var action_id = $("#task_launch_dialog_action_id").val();
-        $("#task_launch_dialog_params").fadeOut(500, function () {
-            getParamXML(action_id, "action");
-        });
-        $("#task_launch_dialog_params").fadeIn(500);
-    });
+	//click on an action plan
+	$("#task_launch_dialog_plans .action_plan_name").live("click", function() {
+		ShowPlanEditDialog(this);
+	});
+	//remove an action plan
+	$(".action_plan_remove_btn").live("click", function() {
+		deleteActionPlan(this);
+	});
 
+	//click on a schedule
+	$("#task_launch_dialog_schedules .schedule_name").live("click", function() {
+		ShowPlanEditDialog(this);
+	});
+	//remove a schedule
+	$(".schedule_remove_btn").live("click", function() {
+		deleteSchedule(this);
+	});
 
-    //click on an action plan
-    $("#task_launch_dialog_plans .action_plan_name").live("click", function () {
-        ShowPlanEditDialog(this);
-    });
-    //remove an action plan
-    $(".action_plan_remove_btn").live("click", function () {
-        deleteActionPlan(this);
-    });
+	//-------------------------------------------------
+	//THIS FOLLOWING SECTION IS ALL FOR HANDLING THE RECURRING PLAN PICKERS
+	//-------------------------------------------------
 
-    //click on a schedule
-    $("#task_launch_dialog_schedules .schedule_name").live("click", function () {
-        ShowPlanEditDialog(this);
-    });
-    //remove a schedule
-    $(".schedule_remove_btn").live("click", function () {
-        deleteSchedule(this);
-    });
+	//what happens when you click on any picker?
+	$(".plan_datepoint").live("click", function() {
+		$(this).toggleClass("plan_datepoint_active");
+	});
 
+	// Months
+	$("#liMonthsAll").click(function() {
+		// if this is being set active
+		$("#olMonths li").removeClass("plan_datepoint_active");
+		if ($(this).hasClass("plan_datepoint_active")) {
+			$("#olMonths li").addClass("plan_datepoint_active");
+		}
+	});
+	$("#olMonths li").click(function() {
+		$("#liMonthsAll").removeClass("plan_datepoint_active");
+	});
 
-    //change ecosystems
-    $("#task_launch_dialog_ecosystem").live("change", function () {
-        $("#task_launch_dialog_ecosystem_id").val($(this).val());
-        getPlans();
-    });
+	// days
+	// any click on a date turns off All and turns on Dates
+	$("#olDates li").click(function() {
+		if (!$("#liDates").hasClass("plan_datepoint_active")) {
+			$("#liDates").addClass("plan_datepoint_active");
+		}
+		$("#liDaysWeek").removeClass("plan_datepoint_active");
+		$("#liDaysAll").removeClass("plan_datepoint_active");
+	});
+	$("#liDaysAll").click(function() {
+		$("#liDaysWeek").removeClass("plan_datepoint_active");
+		$("#liDates").removeClass("plan_datepoint_active");
+		$("#olWeek").hide()
+		$("#olWeek li").removeClass("plan_datepoint_active");
+		$("#olDates li").removeClass("plan_datepoint_active");
 
+		$("#olDates").show();
+	});
 
-    //-------------------------------------------------
-    //THIS FOLLOWING SECTION IS ALL FOR HANDLING THE RECURRING PLAN PICKERS
-    //-------------------------------------------------
+	$("#liDaysWeek").click(function() {
+		$("#liDaysAll").removeClass("plan_datepoint_active");
+		$("#liDates").removeClass("plan_datepoint_active");
+		$("#olWeek li").removeClass("plan_datepoint_active");
+		$("#olWeek").show();
+		$("#olDates li").removeClass("plan_datepoint_active");
+		$("#olDates").hide();
+	});
+	$("#liDates").click(function() {
+		$("#liDaysAll").removeClass("plan_datepoint_active");
+		$("#liDaysWeek").removeClass("plan_datepoint_active");
+		$("#olWeek").hide();
+		$("#olWeek li").removeClass("plan_datepoint_active");
+		$("#olDates").show();
+		$("#olDates li").removeClass("plan_datepoint_active");
+	});
 
-    //what happens when you click on any picker?
-    $(".plan_datepoint").live("click", function () {
-        $(this).toggleClass("plan_datepoint_active");
-    });
+	// hours
+	$("#liHoursAll").click(function() {
+		$("#olHours li").removeClass("plan_datepoint_active");
+		if ($(this).hasClass("plan_datepoint_active")) {
+			$("#olHours li").addClass("plan_datepoint_active");
+		}
+	});
+	$("#olHours li").click(function() {
+		$("#liHoursAll").removeClass("plan_datepoint_active");
+	});
 
-    // Months
-    $("#liMonthsAll").click(function () {
-        // if this is being set active
-        $("#olMonths li").removeClass("plan_datepoint_active");
-        if ($(this).hasClass("plan_datepoint_active")) {
-            $("#olMonths li").addClass("plan_datepoint_active");
-        }
-    });
-    $("#olMonths li").click(function () {
-        $("#liMonthsAll").removeClass("plan_datepoint_active");
-    });
+	// minutes
+	$("#liMinutesAll").click(function() {
+		$("#olMinutes li").removeClass("plan_datepoint_active");
+		if ($(this).hasClass("plan_datepoint_active")) {
+			$("#olMinutes li").addClass("plan_datepoint_active");
+		}
+	});
+	$("#olMinutes li").click(function() {
+		$("#liMinutesAll").removeClass("plan_datepoint_active");
+	});
 
-    // days
-    // any click on a date turns off All and turns on Dates
-    $("#olDates li").click(function () {
-        if (!$("#liDates").hasClass("plan_datepoint_active")) {
-            $("#liDates").addClass("plan_datepoint_active");
-        }
-        $("#liDaysWeek").removeClass("plan_datepoint_active");
-        $("#liDaysAll").removeClass("plan_datepoint_active");
-    });
-    $("#liDaysAll").click(function () {
-        $("#liDaysWeek").removeClass("plan_datepoint_active");
-        $("#liDates").removeClass("plan_datepoint_active");
-        $("#olWeek").hide()
-        $("#olWeek li").removeClass("plan_datepoint_active");
-        $("#olDates li").removeClass("plan_datepoint_active");
-
-        $("#olDates").show();
-    });
-
-    $("#liDaysWeek").click(function () {
-        $("#liDaysAll").removeClass("plan_datepoint_active");
-        $("#liDates").removeClass("plan_datepoint_active");
-        $("#olWeek li").removeClass("plan_datepoint_active");
-        $("#olWeek").show();
-        $("#olDates li").removeClass("plan_datepoint_active");
-        $("#olDates").hide();
-    });
-    $("#liDates").click(function () {
-        $("#liDaysAll").removeClass("plan_datepoint_active");
-        $("#liDaysWeek").removeClass("plan_datepoint_active");
-        $("#olWeek").hide();
-        $("#olWeek li").removeClass("plan_datepoint_active");
-        $("#olDates").show();
-        $("#olDates li").removeClass("plan_datepoint_active");
-    });
-
-    // hours
-    $("#liHoursAll").click(function () {
-        $("#olHours li").removeClass("plan_datepoint_active");
-        if ($(this).hasClass("plan_datepoint_active")) {
-            $("#olHours li").addClass("plan_datepoint_active");
-        }
-    });
-    $("#olHours li").click(function () {
-        $("#liHoursAll").removeClass("plan_datepoint_active");
-    });
-
-    // minutes
-    $("#liMinutesAll").click(function () {
-        $("#olMinutes li").removeClass("plan_datepoint_active");
-        if ($(this).hasClass("plan_datepoint_active")) {
-            $("#olMinutes li").addClass("plan_datepoint_active");
-        }
-    });
-    $("#olMinutes li").click(function () {
-        $("#liMinutesAll").removeClass("plan_datepoint_active");
-    });
-
-    //-------------------------------------------------
-    //END RECURRING PLAN PICKERS
-    //-------------------------------------------------
-
+	//-------------------------------------------------
+	//END RECURRING PLAN PICKERS
+	//-------------------------------------------------
 
 });
 
-//NOTE: this is different than checkRequiredParameters.  
+//NOTE: this is different than checkRequiredParameters.
 // in those cases we're checking our "required" flag... here we're more specific.
 function checkParamConstraints() {
 	//look over the parameters and do their constraint checking
@@ -332,7 +334,6 @@ function checkParamConstraints() {
 	//there are no parameters
 }
 
-
 //check parameters before launching or scheduling
 function checkRequiredParams() {
 	//at this time it doesn't seem necesary to do anything for encrypted values.
@@ -341,15 +342,15 @@ function checkRequiredParams() {
 
 	if ($(".task_launch_parameter_required").length > 0) {
 		var warn = false;
-		$(".task_launch_parameter_required").each(function(){
+		$(".task_launch_parameter_required").each(function() {
 			var has_val = false;
-	
+
 			//lists and single values are the same, a single is just a one item list.
-			$(this).find(".task_launch_parameter_value_input").each(function(i, fld){
+			$(this).find(".task_launch_parameter_value_input").each(function(i, fld) {
 				if ($(fld).val() && $(fld).val() != '')
 					has_val = true;
 			});
-	
+
 			//mark or unmark it
 			if (has_val == true) {
 				$(this).removeClass("ui-state-highlight");
@@ -358,799 +359,779 @@ function checkRequiredParams() {
 				warn = true;
 			}
 		});
-	
+
 		if (warn == true) {
-			ask = confirm("Some Parameters have empty values.\n\nWhile Parameters are allowed to be blank, " +
-				" the highlighted ones are required.\n\nClick 'OK' to proceed, or 'Cancel' to update the Parameters.")
+			ask = confirm("Some Parameters have empty values.\n\nWhile Parameters are allowed to be blank, " + " the highlighted ones are required.\n\nClick 'OK' to proceed, or 'Cancel' to update the Parameters.")
 			if (ask) {
 				//if they selected OK, clear the highlights and proceed
 				$(".task_launch_parameter_required").removeClass("ui-state-highlight");
-				return true;		
+				return true;
 			}
 		} else {
 			return true;
 		}
 	} else
-		return true; //there are no parameters
+		return true;
+	//there are no parameters
 }
-//get rid of run on, change ecosystemID to "filterbyecosystemid"
-function getParamXML(id, type, eco_id) {
-    var task_parameter_xml = "";
-    
-    if (eco_id === undefined || eco_id === null)
-    	eco_id = ""
 
-    $.ajax({
-        async: false,
-        type: "POST",
-        url: "taskMethods/wmGetParameterXML",
-        data: '{"sType":"' + type + '","sID":"' + id + '","sFilterByEcosystemID":"' + eco_id + '"}',
-        contentType: "application/json; charset=utf-8",
-        dataType: "xml",
-        success: function (response) {
-            if (response != "")
-                task_parameter_xml = response;
-        },
-        error: function (response) {
-            showAlert(response.responseText);
-        }
-    });
+function getParamXML(id, type, filter_id) {
+	var task_parameter_xml = "";
 
-    var output = DrawParameterEditForm(task_parameter_xml);
+	if (filter_id === undefined || filter_id === null)
+		filter_id = ""
 
+	$.ajax({
+		async : false,
+		type : "POST",
+		url : "taskMethods/wmGetParameterXML",
+		data : '{"sType":"' + type + '","sID":"' + id + '","sFilterID":"' + filter_id + '"}',
+		contentType : "application/json; charset=utf-8",
+		dataType : "xml",
+		success : function(response) {
+			if (response != "")
+				task_parameter_xml = response;
+		},
+		error : function(response) {
+			showAlert(response.responseText);
+		}
+	});
 
-    $("#task_launch_dialog_params").html(output);
+	var output = DrawParameterEditForm(task_parameter_xml);
 
-    //don't forget to bind the tooltips!
-    bindParameterToolTips();
+	$("#task_launch_dialog_params").html(output);
+
+	//don't forget to bind the tooltips!
+	bindParameterToolTips();
 }
 
 function ShowTaskLaunchDialog(jsonargs) {
 	$('.current_time').load('uiMethods/wmGetDatabaseTime');
-	
-    //function takes a json array as arguments
-    //'{"task_id":"","task_name":"","account_id":"","account_name":"","ecosystem_id":"","task_instance":"","asset_id":"","action_id":""}'
 
-    var args = jQuery.parseJSON(jsonargs);
+	//function takes a json array as arguments
+	//'{"task_id":"","task_name":"","account_id":"","account_name":"","task_instance":"","asset_id":""}'
 
-    //work out the mandatory arguments...
-    if (!args.task_id || !args.task_name) {
-        alert("Task ID and Name are required to launch a Task.");
-        return false;
-    }
+	var args = jQuery.parseJSON(jsonargs);
 
-    $("#task_launch_dialog_task_id").val(args.task_id);
-    $("#task_launch_dialog_task_name").html(args.task_name);
+	//work out the mandatory arguments...
+	if (!args.task_id || !args.task_name) {
+		alert("Task ID and Name are required to launch a Task.");
+		return false;
+	}
+
+	$("#task_launch_dialog_task_id").val(args.task_id);
+	$("#task_launch_dialog_task_name").html(args.task_name);
 
 	//we will always pass over an account_id, but it could vary depending on *where* the launch request originated.
 	//1) from task edit it uses the global setting
-	//2) from ecosystems it uses the global setting (which happens to be associated with that ecosystem)
-	//3) from the "Run Log" it will use the same as the previous instance being viewed in the log
+	//2) from the "Run Log" it will use the same as the previous instance being viewed in the log
 	//NOTE: if no args are passed to this function we will use the global setting
-    if (!args.account_id || args.account_id == "") {
-        args.account_id = $("#header_cloud_accounts").val();
-        $("#task_launch_dialog_account_id").val($("#header_cloud_accounts").val());
-        $("#task_launch_dialog_account_name").html($("#header_cloud_accounts :selected").text());
-    } else {
-        $("#task_launch_dialog_account_id").val(args.account_id);
-        $("#task_launch_dialog_account_name").html(args.account_name);
-    }
+	if (!args.account_id || args.account_id == "") {
+		args.account_id = $("#header_cloud_accounts").val();
+		$("#task_launch_dialog_account_id").val($("#header_cloud_accounts").val());
+		$("#task_launch_dialog_account_name").html($("#header_cloud_accounts :selected").text());
+	} else {
+		$("#task_launch_dialog_account_id").val(args.account_id);
+		$("#task_launch_dialog_account_name").html(args.account_name);
+	}
 
-    //optional args, depending on how we were called and controlling how the dialog is presented.
-    if (args.asset_id)
-        $("#task_launch_dialog_asset_id").val(args.asset_id);
-    if (args.task_instance)
-        $("#task_launch_dialog_task_instance").val(args.task_instance);
-    if (args.action_id)
-        $("#task_launch_dialog_action_id").val(args.action_id);
+	//optional args, depending on how we were called and controlling how the dialog is presented.
+	if (args.asset_id)
+		$("#task_launch_dialog_asset_id").val(args.asset_id);
+	if (args.task_instance)
+		$("#task_launch_dialog_task_instance").val(args.task_instance);
+	if (args.action_id)
+		$("#task_launch_dialog_action_id").val(args.action_id);
 
 	//if a debug level was passed, set it
 	if (args.debug_level && args.debug_level != "")
 		$('#task_launch_dialog_debug_level option[value=' + args.debug_level + ']').attr('selected', 'selected');
 
+	//ALL DONE WITH Arguments... now let's build out the dialog...
 
-    //ALL DONE WITH Arguments... now let's build out the dialog...
+	//what XML do we actually go get?
+	if (args.task_instance && args.task_instance != "") {//if there's an instance let's get it!
+		$("#rbPrevious").attr("checked", "checked");
+		getParamXML(args.task_instance, "instance");
+	} else if (args.action_id && args.action_id != "") {//if there's an action let's get it!
+		//oh by the way, the action radio is hidden by default, so if we have an action let's show the button
+		$("#action_defaults_btn").removeClass("hidden");
 
-    //populate the ecosystem dropdown
-    //BUT ONLY if there was no ecosystem passed in. If there was, hide the dropdown
-    //(this webmethod will select the ecosystem that was passed in, if any.)
-    //and we can't send along an undefined, so define something, even if it's empty
-    var eco_id = "";
-    if (args.ecosystem_id) {
-        $("#task_launch_dialog_ecosystem_id").val(args.ecosystem_id);
-        eco_id = args.ecosystem_id;
-        $("#task_launch_dialog_ecosystem").html("<option>" + args.ecosystem_name + "</option>");
-    } else {
-    	 $("#task_launch_dialog_ecosystem_id").val("")
-        $.ajax({
-            async: true,
-            type: "POST",
-            url: "taskMethods/wmGetAccountEcosystems",
-            data: '{"sAccountID":"' + args.account_id + '","sEcosystemID":"' + eco_id + '"}',
-            contentType: "application/json; charset=utf-8",
-            dataType: "html",
-            success: function (response) {
-                $("#task_launch_dialog_ecosystem").html(response);
-            },
-            error: function (response) {
-                showAlert(response.responseText);
-            }
-        });
-    }
+		$("#rbAction").attr("checked", "checked");
+		getParamXML(args.action_id, "action");
+	} else {//task defaults by default!
+		$("#rbDefault").attr("checked", "checked");
+		getParamXML(args.task_id, "task");
+	}
 
-    //what XML do we actually go get?
-    if (args.task_instance && args.task_instance != "") { //if there's an instance let's get it!
-        $("#rbPrevious").attr("checked", "checked");
-        getParamXML(args.task_instance, "instance", eco_id);
-    }
-    else if (args.action_id && args.action_id != "") { //if there's an action let's get it!
-        //oh by the way, the action radio is hidden by default, so if we have an action let's show the button
-        $("#action_defaults_btn").removeClass("hidden");
+	//get the plans
+	getPlans();
 
-        $("#rbAction").attr("checked", "checked");
-        getParamXML(args.action_id, "action");
-    }
-    else { //task defaults by default!
-        $("#rbDefault").attr("checked", "checked");
-        getParamXML(args.task_id, "task");
-    }
-
-
-    //get the plans
-    getPlans();
-
-    $.unblockUI();
-    $("#task_launch_dialog").dialog("open");
+	$.unblockUI();
+	$("#task_launch_dialog").dialog("open");
 }
 
 function ShowPlanEditDialog(ctl) {
-    //var action_id = $("#task_launch_dialog_action_id").val();
-    var plan_id = $(ctl).parents(".action_plan").attr("plan_id");
-    var schedule_id = $(ctl).parents(".action_plan").attr("schedule_id");
+	//var action_id = $("#task_launch_dialog_action_id").val();
+	var plan_id = $(ctl).parents(".action_plan").attr("plan_id");
+	var schedule_id = $(ctl).parents(".action_plan").attr("schedule_id");
 
-    $("#task_launch_dialog_parameters").fadeOut(500, function () {
+	$("#task_launch_dialog_parameters").fadeOut(500, function() {
 
-        //user might have clicked a PLAN or a SCHEDULE.
-        //if there is a plan_id, it's a plan.
-        if (plan_id) {
-            var source = $(ctl).parents(".action_plan").attr("source");
-            var plan_name = $(ctl).html();
-            //show the PLAN parameters
-            presentPlanParams(plan_id, plan_name);
+		//user might have clicked a PLAN or a SCHEDULE.
+		//if there is a plan_id, it's a plan.
+		if (plan_id) {
+			var source = $(ctl).parents(".action_plan").attr("source");
+			var plan_name = $(ctl).html();
+			//show the PLAN parameters
+			presentPlanParams(plan_id, plan_name);
 
-            //and get the schedule definition if needed
-            if (source == 'schedule')
-                loadRecurringPlan(schedule_id);
+			//and get the schedule definition if needed
+			if (source == 'schedule')
+				loadRecurringPlan(schedule_id);
 
-        } else { //it's a schedule
-            schedule_id = $(ctl).parents(".action_schedule").attr("id").replace(/as_/, "");
+		} else {//it's a schedule
+			schedule_id = $(ctl).parents(".action_schedule").attr("id").replace(/as_/, "");
 
-            //get the params from the SCHEDULE, not the PLAN
-            presentScheduleParams(schedule_id, "Schedule");
-            //and the definition
-            loadRecurringPlan(schedule_id);
-        }
+			//get the params from the SCHEDULE, not the PLAN
+			presentScheduleParams(schedule_id, "Schedule");
+			//and the definition
+			loadRecurringPlan(schedule_id);
+		}
 
-        $("#plan_edit_dialog").dialog("open");
-    });
+		$("#plan_edit_dialog").dialog("open");
+	});
 }
+
 function ClosePlanEditDialog() {
-    dismissPlanParams();
-    dismissRecurringPlan();
-    $("#plan_edit_dialog").dialog("close");
+	dismissPlanParams();
+	dismissRecurringPlan();
+	$("#plan_edit_dialog").dialog("close");
 }
 
 function CloseTaskLaunchDialog() {
-    $("#task_launch_dialog").dialog("close");
-    $("#task_launch_dialog_params").empty();
+	$("#task_launch_dialog").dialog("close");
+	$("#task_launch_dialog_params").empty();
 
-    //empty every input on the dialog
-    $('#task_launch_dialog :input').each(function () {
-        var type = this.type;
-        var tag = this.tagName.toLowerCase(); // normalize case
-        if (type == 'text' || type == 'password' || tag == 'textarea')
-            this.value = "";
-        else if (type == 'checkbox' || type == 'radio')
-            this.checked = false;
-        else if (tag == 'select')
-            this.selectedIndex = 0;
-    });
+	//empty every input on the dialog
+	$('#task_launch_dialog :input').each(function() {
+		var type = this.type;
+		var tag = this.tagName.toLowerCase();
+		// normalize case
+		if (type == 'text' || type == 'password' || tag == 'textarea')
+			this.value = "";
+		else if (type == 'checkbox' || type == 'radio')
+			this.checked = false;
+		else if (tag == 'select')
+			this.selectedIndex = 0;
+	});
 
 	//NOTE: the debug drop down actually should have item #2 selected by default.
-	$('#task_launch_dialog_debug_level option[value="2"]').attr('selected', 'selected');	
-    return false;
+	$('#task_launch_dialog_debug_level option[value="2"]').attr('selected', 'selected');
+	return false;
 }
 
 function RunNow() {
 
-    showPleaseWait();
-    $("#update_success_msg").text("Starting Task...");
+	showPleaseWait();
+	$("#update_success_msg").text("Starting Task...");
 
-    var account_id = $("#task_launch_dialog_account_id").val();
-    var task_id = $("#task_launch_dialog_task_id").val();
-    var asset_id = $("#task_launch_dialog_asset_id").val();
-    var ecosystem_id = $("#task_launch_dialog_ecosystem_id").val();
-    var debug_level = $("#task_launch_dialog_debug_level").val();
+	var account_id = $("#task_launch_dialog_account_id").val();
+	var task_id = $("#task_launch_dialog_task_id").val();
+	var asset_id = $("#task_launch_dialog_asset_id").val();
+	var debug_level = $("#task_launch_dialog_debug_level").val();
 
-    //build the XML from the dialog
-    var parameter_xml = packJSON(buildXMLToSubmit());
-    //alert(parameter_xml);
+	//build the XML from the dialog
+	var parameter_xml = packJSON(buildXMLToSubmit());
+	//alert(parameter_xml);
 
-    $.ajax({
-        async: false,
-        type: "POST",
-        url: "taskMethods/wmRunTask",
-        data: '{"sTaskID":"' + task_id + '","sAssetID":"","sAccountID":"' + account_id + '","sEcosystemID":"' + ecosystem_id + '","sParameterXML":"' + parameter_xml + '","iDebugLevel":"' + debug_level + '"}',
-        contentType: "application/json; charset=utf-8",
-        dataType: "text",
-        success: function (response) {
+	$.ajax({
+		async : false,
+		type : "POST",
+		url : "taskMethods/wmRunTask",
+		data : '{"sTaskID":"' + task_id + '","sAssetID":"","sAccountID":"' + account_id + '","sParameterXML":"' + parameter_xml + '","iDebugLevel":"' + debug_level + '"}',
+		contentType : "application/json; charset=utf-8",
+		dataType : "text",
+		success : function(response) {
 			if (response.length > 0) {
 				// if the 'new window' box is checked...
 				if ($("#new_runlog_window").is(':visible')) {
 					if ($("#new_runlog_window").is(':checked')) {
-				    	openDialogWindow('taskRunLog?task_instance=' + response, 'TaskRunLog' + response, 950, 750, 'true');
-				  	} else {
-				    	location.href='taskRunLog?task_instance=' + response;				  	
-				  	}
+						openDialogWindow('taskRunLog?task_instance=' + response, 'TaskRunLog' + response, 950, 750, 'true');
+					} else {
+						location.href = 'taskRunLog?task_instance=' + response;
+					}
 				} else {
-				    openDialogWindow('taskRunLog?task_instance=' + response, 'TaskRunLog' + response, 950, 750, 'true');
+					openDialogWindow('taskRunLog?task_instance=' + response, 'TaskRunLog' + response, 950, 750, 'true');
 				}
-						
-			    $("#update_success_msg").text("Start Successful").fadeOut(2000);
-			
-			    //hate sticking it here, but this is only for the task edit/view pages...
-			    $("#debug_instance").val(response);
-			    //does the page have this function?
-	            if (typeof doGetDebug == 'function') {
-				    doGetDebug();
-			    }
+
+				$("#update_success_msg").text("Start Successful").fadeOut(2000);
+
+				//hate sticking it here, but this is only for the task edit/view pages...
+				$("#debug_instance").val(response);
+				//does the page have this function?
+				if ( typeof doGetDebug == 'function') {
+					doGetDebug();
+				}
 			} else {
-			  	alert("The Task may not have started... no Task Instance was returned.")
+				alert("The Task may not have started... no Task Instance was returned.")
 			}
 
-            $("#update_success_msg").fadeOut(2000);
-		    hidePleaseWait();
-        },
-        error: function (response) {
-            $("#update_success_msg").fadeOut(2000);
-            showAlert(response.responseText);
-        }
-    });
+			$("#update_success_msg").fadeOut(2000);
+			hidePleaseWait();
+		},
+		error : function(response) {
+			$("#update_success_msg").fadeOut(2000);
+			showAlert(response.responseText);
+		}
+	});
 
-    CloseTaskLaunchDialog();
+	CloseTaskLaunchDialog();
 
 }
 
 function ReadTimetable() {
-    //built the timetable values
-    //I know this seems crazy, but we can loop every single selected datepoint, and build different arrays 
-    //based on the name of the datepoint!
+	//built the timetable values
+	//I know this seems crazy, but we can loop every single selected datepoint, and build different arrays
+	//based on the name of the datepoint!
 
-    var months = "";
-    var days = "";
-    var hrs = "";
-    var mins = "";
-    var dorw = "";
+	var months = [];
+	var days = [];
+	var hrs = [];
+	var mins = [];
+	var dorw = "";
 
-    $('.plan_datepoint_active').each(function () {
-        var id = $(this).attr("id");
-        var typ = id.substring(0, id.indexOf('_'));
+	$('.plan_datepoint_active').each(function() {
+		var id = $(this).attr("id");
+		var typ = id.substring(0, id.indexOf('_'));
 
-        switch (id) {
-            case 'liMonthsAll':
-                months = "0,1,2,3,4,5,6,7,8,9,10,11,";
-                break;
-            case 'liDaysAll':
-                days = "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,";
-                dorw = "0"; // 0 = explicit days, all selected
-                break;
-            case 'liDates':
-                dorw = "0"; // 0 = explicit days, only some selected
-                break;
-            case 'liDaysWeek':
-                //this toggle does NOT indicate an 'all' condition, rather a weekdays mode
-                dorw = "1"; // 1 = weekdays
-                break;
-            case 'liHoursAll':
-                hrs = "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,";
-                break;
-            case 'liMinutesAll':
-                mins = "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,";
-                break;
-            default:
-                //if it wasn't one of the selector buttons, it must be an explicit date point
-                //NOTE: both days (d) and weekday (w) selectors populate the "days" array.
-                switch (typ) {
-                    case 'mo':
-                        months += id.replace(/mo_/, "") + ",";
-                        break;
-                    case 'd': //see note above
-                        //days are incremented by one so they can be 0 based in the db and 1 based in the gui
-                        days += id.replace(/d_/, "") + ",";
-                        break;
-                    case 'w': //see note above
-                        days += id.replace(/w_/, "") + ",";
-                        break;
-                    case 'h':
-                        hrs += id.replace(/h_/, "") + ",";
-                        break;
-                    case 'm':
-                        mins += id.replace(/m_/, "") + ",";
-                        break;
-                }
+		switch (id) {
+			case 'liMonthsAll':
+				months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+				break;
+			case 'liDaysAll':
+				days = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30];
+				dorw = "0";
+				// 0 = explicit days, all selected
+				break;
+			case 'liDates':
+				dorw = "0";
+				// 0 = explicit days, only some selected
+				break;
+			case 'liDaysWeek':
+				//this toggle does NOT indicate an 'all' condition, rather a weekdays mode
+				dorw = "1";
+				// 1 = weekdays
+				break;
+			case 'liHoursAll':
+				hrs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
+				break;
+			case 'liMinutesAll':
+				mins = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59];
+				break;
+			default:
+				//if it wasn't one of the selector buttons, it must be an explicit date point
+				//NOTE: both days (d) and weekday (w) selectors populate the "days" array.
+				var tmp;
+				switch (typ) {
+					case 'mo':
+						tmp = parseInt(id.replace(/mo_/, ""));
+						if (!isNaN(tmp)) {
+							months.push(tmp);
+						}
+						break;
+					case 'd':
+						tmp = parseInt(id.replace(/d_/, ""));
+						if (!isNaN(tmp)) {
+							days.push(tmp);
+						}
+						break;
+					case 'w':
+						tmp = parseInt(id.replace(/w_/, ""));
+						if (!isNaN(tmp)) {
+							days.push(tmp);
+						}
+						break;
+					case 'h':
+						tmp = parseInt(id.replace(/h_/, ""));
+						if (!isNaN(tmp)) {
+							hrs.push(tmp);
+						}
+						break;
+					case 'm':
+						tmp = parseInt(id.replace(/m_/, ""));
+						if (!isNaN(tmp)) {
+							mins.push(tmp);
+						}
+						break;
+				}
 
-                break;
-        }
-    });
+				break;
+		}
+	});
 
-    if (months == "" || days == "" || hrs == "" || mins == "" || dorw == "")
-    {
-        showInfo("Please select a complete schedule - at least one item from each section.");
+	if (!months.length || !days.length || !hrs.length || !mins.length || dorw == "") {
+		showInfo("Please select a complete schedule - at least one item from each section.");
 		return null;
 	}
-	
-    var ttarr = {};
-    ttarr.months = months;
-    ttarr.days = days;
-    ttarr.hrs = hrs;
-    ttarr.mins = mins;
-    ttarr.dorw = dorw;
 
-    return ttarr;
+	var ttarr = {};
+	ttarr.months = months;
+	ttarr.days = days;
+	ttarr.hrs = hrs;
+	ttarr.mins = mins;
+	ttarr.dorw = dorw;
+
+	return ttarr;
 }
-function RunRepeatedly() {
-    var account_id = $("#task_launch_dialog_account_id").val();
-    var task_id = $("#task_launch_dialog_task_id").val();
-    var action_id = $("#task_launch_dialog_action_id").val();
-    var ecosystem_id = $("#task_launch_dialog_ecosystem_id").val();
-    var debug_level = $("#task_launch_dialog_debug_level").val();
 
-    //timetable comes back as json
-    var tt = ReadTimetable();
+function RunRepeatedly() {
+	var account_id = $("#task_launch_dialog_account_id").val();
+	var task_id = $("#task_launch_dialog_task_id").val();
+	var action_id = $("#task_launch_dialog_action_id").val();
+	var debug_level = $("#task_launch_dialog_debug_level").val();
+
+	//timetable comes back as json
+	var tt = ReadTimetable();
 	if (tt) {
-	    //build the XML from the dialog
-	    var parameter_xml = packJSON(buildXMLToSubmit());
-	
-	    var args = '{"sTaskID":"' + task_id + '",' +
-	        '"sActionID":"' + action_id + '",' +
-	        '"sAccountID":"' + account_id + '",' +
-	        '"sEcosystemID":"' + ecosystem_id + '",' +
-	        '"sMonths":"' + tt.months + '",' +
-	        '"sDays":"' + tt.days + '",' +
-	        '"sHours":"' + tt.hrs + '",' +
-	        '"sMinutes":"' + tt.mins + '",' +
-	        '"sDaysOrWeeks":"' + tt.dorw + '",' +
-	        '"sParameterXML":"' + parameter_xml + '",' +
-	        '"iDebugLevel":"' + debug_level + '"}';
-	
-	    $.ajax({
-	        async: false,
-	        type: "POST",
-	        url: "uiMethods/wmRunRepeatedly",
-	        data: args,
-	        contentType: "application/json; charset=utf-8",
-	        dataType: "text",
-	        success: function (response) {
-	            $("#update_success_msg").text("Schedule Successful").fadeOut(2000);
-	
-	            //refresh and change to the "Plan" tab so the user knows something happened
-	            getPlans();
-	            $('#task_launch_dialog_schedule').tabs('select', 3);
-	        },
-	        error: function (response) {
-	            $("#update_success_msg").fadeOut(2000);
-	            showAlert(response.responseText);
-	        }
-	    });
+		//build the XML from the dialog
+		var parameter_xml = packJSON(buildXMLToSubmit());
+
+		var args = {};
+		args.sTaskID = task_id;
+		args.sActionID = action_id;
+		args.sAccountID = account_id;
+		args.sMonths = tt.months;
+		args.sDays = tt.days;
+		args.sHours = tt.hrs;
+		args.sMinutes = tt.mins;
+		args.sDaysOrWeeks = tt.dorw;
+		args.sParameterXML = parameter_xml;
+		args.iDebugLevel = debug_level;
+
+		$.ajax({
+			async : false,
+			type : "POST",
+			url : "uiMethods/wmRunRepeatedly",
+			data : JSON.stringify(args),
+			contentType : "application/json; charset=utf-8",
+			dataType : "text",
+			success : function(response) {
+				$("#update_success_msg").text("Schedule Successful").fadeOut(2000);
+
+				//refresh and change to the "Plan" tab so the user knows something happened
+				getPlans();
+				$('#task_launch_dialog_schedule').tabs('select', 3);
+			},
+			error : function(response) {
+				$("#update_success_msg").fadeOut(2000);
+				showAlert(response.responseText);
+			}
+		});
 	}
 }
 
 function RunLater() {
 	//future enhancement:
-    //if this save would be really close to a recurring entry ... courtesy prompt the user?
+	//if this save would be really close to a recurring entry ... courtesy prompt the user?
 
-    var run_on = $("#run_on_date").val();
-    if (!run_on) {
-        alert("Please select a Time.");
-        return false;
-    }
+	var run_on = $("#run_on_date").val();
+	if (!run_on) {
+		alert("Please select a Time.");
+		return false;
+	}
 
-    var account_id = $("#task_launch_dialog_account_id").val();
-    var task_id = $("#task_launch_dialog_task_id").val();
-    var action_id = $("#task_launch_dialog_action_id").val();
-    var ecosystem_id = $("#task_launch_dialog_ecosystem_id").val();
-    var debug_level = $("#task_launch_dialog_debug_level").val();
+	var account_id = $("#task_launch_dialog_account_id").val();
+	var task_id = $("#task_launch_dialog_task_id").val();
+	var action_id = $("#task_launch_dialog_action_id").val();
+	var debug_level = $("#task_launch_dialog_debug_level").val();
 
-    //build the XML from the dialog
-    var parameter_xml = packJSON(buildXMLToSubmit());
+	//build the XML from the dialog
+	var parameter_xml = packJSON(buildXMLToSubmit());
 
-    $.ajax({
-        async: false,
-        type: "POST",
-        url: "uiMethods/wmRunLater",
-        data: '{"sTaskID":"' + task_id + '","sActionID":"' + action_id + '","sAccountID":"' + account_id + '","sEcosystemID":"' + ecosystem_id + '","sRunOn":"' + run_on + '","sParameterXML":"' + parameter_xml + '","iDebugLevel":"' + debug_level + '"}',
-        contentType: "application/json; charset=utf-8",
-        dataType: "text",
-        success: function (response) {
-            $("#update_success_msg").text("Plan Successful").fadeOut(2000);
+	$.ajax({
+		async : false,
+		type : "POST",
+		url : "uiMethods/wmRunLater",
+		data : '{"sTaskID":"' + task_id + '","sActionID":"' + action_id + '","sAccountID":"' + account_id + '","sRunOn":"' + run_on + '","sParameterXML":"' + parameter_xml + '","iDebugLevel":"' + debug_level + '"}',
+		contentType : "application/json; charset=utf-8",
+		dataType : "text",
+		success : function(response) {
+			$("#update_success_msg").text("Plan Successful").fadeOut(2000);
 
-            //refresh and change to the "Plan" tab so the user knows something happened
-            getPlans();
-            $('#task_launch_dialog_schedule').tabs('select', 3);
-        },
-        error: function (response) {
-            $("#update_success_msg").fadeOut(2000);
-            showAlert(response.responseText);
-        }
-    });
+			//refresh and change to the "Plan" tab so the user knows something happened
+			getPlans();
+			$('#task_launch_dialog_schedule').tabs('select', 3);
+		},
+		error : function(response) {
+			$("#update_success_msg").fadeOut(2000);
+			showAlert(response.responseText);
+		}
+	});
 }
 
 function SaveRecurringPlan() {
-    var schedule_id = $("#plan_edit_plan_id").val();
-    var debug_level = $("#task_launch_dialog_debug_level").val();
+	var schedule_id = $("#plan_edit_plan_id").val();
+	var debug_level = $("#task_launch_dialog_debug_level").val();
 
-    //timetable comes back as json
-    var tt = ReadTimetable();
+	//timetable comes back as json
+	var tt = ReadTimetable();
 	if (tt) {
-	
-	    //build the XML from the dialog
-	    var parameter_xml = packJSON(buildXMLToSubmit());
-	
-	    var args = '{"sScheduleID":"' + schedule_id + '",' +
-	        '"sMonths":"' + tt.months + '",' +
-	        '"sDays":"' + tt.days + '",' +
-	        '"sHours":"' + tt.hrs + '",' +
-	        '"sMinutes":"' + tt.mins + '",' +
-	        '"sDaysOrWeeks":"' + tt.dorw + '",' +
-	        '"sParameterXML":"' + parameter_xml + '",' +
-	        '"iDebugLevel":"' + debug_level + '"}';
-	
-	    $.ajax({
-	        async: false,
-	        type: "POST",
-	        url: "uiMethods/wmSaveSchedule",
-	        data: args,
-	        contentType: "application/json; charset=utf-8",
-	        dataType: "text",
-	        success: function (response) {
-	            $("#update_success_msg").text("Update Successful").fadeOut(2000);
-	
-	            //change to the "Plan" tab so the user knows something happened
-	            getPlans();  //this refreshes the plans tabs because labels have changed.
-	            $('#task_launch_dialog_schedule').tabs('select', 3);
-	
-			    //will refresh the parent page, if it has an appropriate function
-	            if (typeof doGetPlans == 'function') {
-				    doGetPlans();
-			    }
-	        },
-	        error: function (response) {
-	            $("#update_success_msg").fadeOut(2000);
-	            showAlert(response.responseText);
-	        }
-	    });
-	    
-	    return true;
+
+		//build the XML from the dialog
+		var parameter_xml = packJSON(buildXMLToSubmit());
+
+		var args = '{"sScheduleID":"' + schedule_id + '",' + '"sMonths":"' + tt.months + '",' + '"sDays":"' + tt.days + '",' + '"sHours":"' + tt.hrs + '",' + '"sMinutes":"' + tt.mins + '",' + '"sDaysOrWeeks":"' + tt.dorw + '",' + '"sParameterXML":"' + parameter_xml + '",' + '"iDebugLevel":"' + debug_level + '"}';
+
+		$.ajax({
+			async : false,
+			type : "POST",
+			url : "uiMethods/wmSaveSchedule",
+			data : args,
+			contentType : "application/json; charset=utf-8",
+			dataType : "text",
+			success : function(response) {
+				$("#update_success_msg").text("Update Successful").fadeOut(2000);
+
+				//change to the "Plan" tab so the user knows something happened
+				getPlans();
+				//this refreshes the plans tabs because labels have changed.
+				$('#task_launch_dialog_schedule').tabs('select', 3);
+
+				//will refresh the parent page, if it has an appropriate function
+				if ( typeof doGetPlans == 'function') {
+					doGetPlans();
+				}
+			},
+			error : function(response) {
+				$("#update_success_msg").fadeOut(2000);
+				showAlert(response.responseText);
+			}
+		});
+
+		return true;
 	}
 	return false;
 }
 
 function SavePlan() {
-    var plan_id = $("#plan_edit_plan_id").val();
-    var debug_level = $("#task_launch_dialog_debug_level").val();
+	var plan_id = $("#plan_edit_plan_id").val();
+	var debug_level = $("#task_launch_dialog_debug_level").val();
 
-    //build the XML from the dialog
-    var parameter_xml = packJSON(buildXMLToSubmit());
+	//build the XML from the dialog
+	var parameter_xml = packJSON(buildXMLToSubmit());
 
-    $.ajax({
-        async: false,
-        type: "POST",
-        url: "uiMethods/wmSavePlan",
-        data: '{"iPlanID":"' + plan_id + '","sParameterXML":"' + parameter_xml + '","iDebugLevel":"' + debug_level + '"}',
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (msg) {
-            $("#update_success_msg").text("Update Successful").fadeOut(2000);
+	$.ajax({
+		async : false,
+		type : "POST",
+		url : "uiMethods/wmSavePlan",
+		data : '{"iPlanID":"' + plan_id + '","sParameterXML":"' + parameter_xml + '","iDebugLevel":"' + debug_level + '"}',
+		contentType : "application/json; charset=utf-8",
+		dataType : "json",
+		success : function(msg) {
+			$("#update_success_msg").text("Update Successful").fadeOut(2000);
 
-            //change to the "Plan" tab so the user knows something happened
-            //unlike SaveRecurringPlan - no need to refresh the plan tab here
-            $('#task_launch_dialog_schedule').tabs('select', 3);
+			//change to the "Plan" tab so the user knows something happened
+			//unlike SaveRecurringPlan - no need to refresh the plan tab here
+			$('#task_launch_dialog_schedule').tabs('select', 3);
 
-		    //will refresh the parent page, if it has an appropriate function
-            if (typeof doGetPlans == 'function') {
-			    doGetPlans();
-		    }
-        },
-        error: function (response) {
-            $("#update_success_msg").fadeOut(2000);
-            showAlert(response.responseText);
-        }
-    });
-    
-    return true;
+			//will refresh the parent page, if it has an appropriate function
+			if ( typeof doGetPlans == 'function') {
+				doGetPlans();
+			}
+		},
+		error : function(response) {
+			$("#update_success_msg").fadeOut(2000);
+			showAlert(response.responseText);
+		}
+	});
+
+	return true;
 }
 
 function getPlans() {
-    var task_id = $("#task_launch_dialog_task_id").val();
-    var action_id = $("#task_launch_dialog_action_id").val();
-    var eco_id = $("#task_launch_dialog_ecosystem_id").val();
+	var task_id = $("#task_launch_dialog_task_id").val();
 
-    $.ajax({
-        async: true,
-        type: "POST",
-        url: "uiMethods/wmGetActionPlans",
-        data: '{"sTaskID":"' + task_id + '","sActionID":"' + action_id + '","sEcosystemID":"' + eco_id + '"}',
-        contentType: "application/json; charset=utf-8",
-        dataType: "html",
-        success: function (response) {
-            $("#task_launch_dialog_plans").html(response);
-        },
-        error: function (response) {
-            showAlert(response.responseText);
-        }
-    });
-    $.ajax({
-        async: true,
-        type: "POST",
-        url: "uiMethods/wmGetActionSchedules",
-        data: '{"sTaskID":"' + task_id + '","sActionID":"' + action_id + '","sEcosystemID":"' + eco_id + '"}',
-        contentType: "application/json; charset=utf-8",
-        dataType: "html",
-        success: function (response) {
-            $("#task_launch_dialog_schedules").html(response);
-            //schedule icon tooltips
-            $("#task_launch_dialog_schedules .schedule_tip").tipTip({
-                defaultPosition: "right",
-                keepAlive: false,
-                activation: "hover",
-                maxWidth: "500px",
-                fadeIn: 100
-            });
-        },
-        error: function (response) {
-            showAlert(response.responseText);
-        }
-    });
+	$.ajax({
+		async : true,
+		type : "POST",
+		url : "uiMethods/wmGetActionPlans",
+		data : '{"sTaskID":"' + task_id + '"}',
+		contentType : "application/json; charset=utf-8",
+		dataType : "html",
+		success : function(response) {
+			$("#task_launch_dialog_plans").html(response);
+		},
+		error : function(response) {
+			showAlert(response.responseText);
+		}
+	});
+	$.ajax({
+		async : true,
+		type : "POST",
+		url : "uiMethods/wmGetActionSchedules",
+		data : '{"sTaskID":"' + task_id + '"}',
+		contentType : "application/json; charset=utf-8",
+		dataType : "html",
+		success : function(response) {
+			$("#task_launch_dialog_schedules").html(response);
+			//schedule icon tooltips
+			$("#task_launch_dialog_schedules .schedule_tip").tipTip({
+				defaultPosition : "right",
+				keepAlive : false,
+				activation : "hover",
+				maxWidth : "500px",
+				fadeIn : 100
+			});
+		},
+		error : function(response) {
+			showAlert(response.responseText);
+		}
+	});
 }
 
 function deleteSchedule(ctl) {
-    var schedule_id = $(ctl).parents(".action_schedule").attr("id").replace(/as_/, "");
-    var msg = "Are you sure you want to delete this Recurring Action Plan?";
+	var schedule_id = $(ctl).parents(".action_schedule").attr("id").replace(/as_/, "");
+	var msg = "Are you sure you want to delete this Recurring Action Plan?";
 
-    if (confirm(msg)) {
-        $.ajax({
-            async: false,
-            type: "POST",
-            url: "uiMethods/wmDeleteSchedule",
-            data: '{"sScheduleID":"' + schedule_id + '"}',
-            contentType: "application/json; charset=utf-8",
-            dataType: "text",
-            success: function (response) {
-                $("#update_success_msg").text("Delete Successful").fadeOut(2000);
+	if (confirm(msg)) {
+		$.ajax({
+			async : false,
+			type : "POST",
+			url : "uiMethods/wmDeleteSchedule",
+			data : '{"sScheduleID":"' + schedule_id + '"}',
+			contentType : "application/json; charset=utf-8",
+			dataType : "text",
+			success : function(response) {
+				$("#update_success_msg").text("Delete Successful").fadeOut(2000);
 
-                $(ctl).parents(".action_schedule").remove();
-                //might be some on the Schedules tab too
-                $(".action_schedule[id='as_" + schedule_id + "']").remove();
-                //remove any action plans too, directly from the page.
-                $(".action_plan[schedule_id='" + schedule_id + "']").remove();
-            },
-            error: function (response) {
-                $("#update_success_msg").fadeOut(2000);
-                showAlert(response.responseText);
-            }
-        });
-    }
+				$(ctl).parents(".action_schedule").remove();
+				//might be some on the Schedules tab too
+				$(".action_schedule[id='as_" + schedule_id + "']").remove();
+				//remove any action plans too, directly from the page.
+				$(".action_plan[schedule_id='" + schedule_id + "']").remove();
+			},
+			error : function(response) {
+				$("#update_success_msg").fadeOut(2000);
+				showAlert(response.responseText);
+			}
+		});
+	}
 }
 
 function deleteActionPlan(ctl) {
-    var plan_id = $(ctl).parents(".action_plan").attr("plan_id");
+	var plan_id = $(ctl).parents(".action_plan").attr("plan_id");
 
-    var src = $(ctl).parents(".action_plan").attr("source");
-    var msg = "Are you sure you want to remove this Action Plan?";
+	var src = $(ctl).parents(".action_plan").attr("source");
+	var msg = "Are you sure you want to remove this Action Plan?";
 
-    if (src == 'scheduler')
-        msg += "\n\nA plan added by the Scheduler and removed here cannot be rescheduled.";
+	if (src == 'scheduler')
+		msg += "\n\nA plan added by the Scheduler and removed here cannot be rescheduled.";
 
-    if (confirm(msg)) {
-        $.ajax({
-            async: false,
-            type: "POST",
-            url: "uiMethods/wmDeleteActionPlan",
-            data: '{"iPlanID":"' + plan_id + '"}',
-            contentType: "application/json; charset=utf-8",
-            dataType: "text",
-            success: function (response) {
-                $("#update_success_msg").text("Delete Successful").fadeOut(2000);
+	if (confirm(msg)) {
+		$.ajax({
+			async : false,
+			type : "POST",
+			url : "uiMethods/wmDeleteActionPlan",
+			data : '{"iPlanID":"' + plan_id + '"}',
+			contentType : "application/json; charset=utf-8",
+			dataType : "text",
+			success : function(response) {
+				$("#update_success_msg").text("Delete Successful").fadeOut(2000);
 
-                $(ctl).parents(".action_plan").remove();
-                //might be some on the Schedules tab too
-                $(".action_plan[plan_id='" + plan_id + "']").remove();
-            },
-            error: function (response) {
-                $("#update_success_msg").fadeOut(2000);
-                showAlert(response.responseText);
-            }
-        });
-    }
+				$(ctl).parents(".action_plan").remove();
+				//might be some on the Schedules tab too
+				$(".action_plan[plan_id='" + plan_id + "']").remove();
+			},
+			error : function(response) {
+				$("#update_success_msg").fadeOut(2000);
+				showAlert(response.responseText);
+			}
+		});
+	}
 }
 
 function presentScheduleParams(schedule_id, schedule_name) {
-    $("#plan_edit_plan_id").val(schedule_id);
-    $("#plan_edit_mode").html("Schedule");
-    $("#plan_edit_name").html(schedule_name);
+	$("#plan_edit_plan_id").val(schedule_id);
+	$("#plan_edit_mode").html("Schedule");
+	$("#plan_edit_name").html(schedule_name);
 
-    //uncheck all radio buttons as an indicator the data didn't come from there
-    $("input[name='radio']").removeAttr("checked");
+	//uncheck all radio buttons as an indicator the data didn't come from there
+	$("input[name='radio']").removeAttr("checked");
 
-    //get the params for this plan
-    getParamXML(schedule_id, "schedule", "");
+	//get the params for this plan
+	getParamXML(schedule_id, "schedule", "");
 
-    $("#task_launch_params_content").appendTo("#plan_edit_parameters");
+	$("#task_launch_params_content").appendTo("#plan_edit_parameters");
 }
+
 function presentPlanParams(plan_id, plan_name) {
-    $("#plan_edit_plan_id").val(plan_id);
-    $("#plan_edit_mode").html("Plan");
-    $("#plan_edit_name").html(plan_name);
+	$("#plan_edit_plan_id").val(plan_id);
+	$("#plan_edit_mode").html("Plan");
+	$("#plan_edit_name").html(plan_name);
 
-    //uncheck all radio buttons as an indicator the data didn't come from there
-    $("input[name='radio']").removeAttr("checked");
+	//uncheck all radio buttons as an indicator the data didn't come from there
+	$("input[name='radio']").removeAttr("checked");
 
-    //get the params for this plan
-    getParamXML(plan_id, "plan", "");
+	//get the params for this plan
+	getParamXML(plan_id, "plan", "");
 
-    $("#task_launch_params_content").appendTo("#plan_edit_parameters");
+	$("#task_launch_params_content").appendTo("#plan_edit_parameters");
 }
+
 function dismissPlanParams() {
-    var task_id = $("#task_launch_dialog_task_id").val();
-    var action_id = $("#task_launch_dialog_action_id").val();
-    var plan_id = $("#plan_edit_plan_id").val();
+	var task_id = $("#task_launch_dialog_task_id").val();
+	var action_id = $("#task_launch_dialog_action_id").val();
+	var plan_id = $("#plan_edit_plan_id").val();
 
 	//if the action_id is empty, we must be looking at the dialog on a task centric page.
 	if (action_id != "") {
-	    //get the default parameters for the action again
-	    $("#rbAction").attr("checked", "checked");
-	    getParamXML(action_id, "action");
+		//get the default parameters for the action again
+		$("#rbAction").attr("checked", "checked");
+		getParamXML(action_id, "action");
 	} else {
-	    //get the default parameters for the task again
-	    $("#rbDefault").attr("checked", "checked");
-	    getParamXML(task_id, "task");
+		//get the default parameters for the task again
+		$("#rbDefault").attr("checked", "checked");
+		getParamXML(task_id, "task");
 	}
 
-    //put it back
-    $("#task_launch_params_content").appendTo("#task_launch_dialog_parameters");
+	//put it back
+	$("#task_launch_params_content").appendTo("#task_launch_dialog_parameters");
 
-    $("#task_launch_dialog_parameters").fadeIn(500);
+	$("#task_launch_dialog_parameters").fadeIn(500);
 }
 
 function dismissRecurringPlan() {
-    //clear all selected timetable buttons
-    $(".plan_datepoint_active").removeClass("plan_datepoint_active");
+	//clear all selected timetable buttons
+	$(".plan_datepoint_active").removeClass("plan_datepoint_active");
 
-    //put it back
-    $("#run_repeatedly_content").appendTo("#RunRepeatedlyTab");
+	//put it back
+	$("#run_repeatedly_content").appendTo("#RunRepeatedlyTab");
 }
+
 function loadRecurringPlan(schedule_id) {
-    $.ajax({
-        type: "POST",
-        async: false,
-        url: "uiMethods/wmGetRecurringPlan",
-        data: '{"sScheduleID":"' + schedule_id + '"}',
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-            if (response.length == 0) {
-                showAlert('error no response');
-            } else {
-                populateTimetable(response);
+	$.ajax({
+		type : "POST",
+		async : false,
+		url : "uiMethods/wmGetRecurringPlan",
+		data : '{"sScheduleID":"' + schedule_id + '"}',
+		contentType : "application/json; charset=utf-8",
+		dataType : "json",
+		success : function(response) {
+			if (response.length == 0) {
+				showAlert('error no response');
+			} else {
+				populateTimetable(response);
 
-                //move it to the edit dialog
-                $("#run_repeatedly_content").appendTo("#plan_edit_schedule");
+				//move it to the edit dialog
+				$("#run_repeatedly_content").appendTo("#plan_edit_schedule");
 
-            }
-        },
-        error: function (response) {
-            showAlert(response.responseText);
-        }
-    });
+			}
+		},
+		error : function(response) {
+			showAlert(response.responseText);
+		}
+	});
 }
+
 function populateTimetable(timetable) {
-    //the timetable may have previous selections... clear EVERYTHING
-    $(".plan_datepoint_active").removeClass("plan_datepoint_active");
+	//the timetable may have previous selections... clear EVERYTHING
+	$(".plan_datepoint_active").removeClass("plan_datepoint_active");
 
-    // Months, 0 == Jan, 11 == Dec
-    var Months = timetable.sMonths;
-    if (Months == "0,1,2,3,4,5,6,7,8,9,10,11,") {
-        $("#liMonthsAll").addClass("plan_datepoint_active");
-    }
-    else {
-        var valueArray = Months.split(",")
-        for (var i = 0; i < valueArray.length; i++) {
-            $("#mo_" + valueArray[i]).addClass("plan_datepoint_active");
-        }
-    }
+	// Months, 0 == Jan, 11 == Dec
+	var Months = timetable.sMonths;
+	if (Months == "0,1,2,3,4,5,6,7,8,9,10,11") {
+		$("#liMonthsAll").addClass("plan_datepoint_active");
+	} else {
+		var valueArray = Months.split(",")
+		for (var i = 0; i < valueArray.length; i++) {
+			$("#mo_" + valueArray[i]).addClass("plan_datepoint_active");
+		}
+	}
 
-    // Days or weekdays
-    var dorw = timetable.sDaysOrWeeks;
-    var days = timetable.sDays;
-    valueArray = days.split(",")
+	// Days or weekdays
+	var dorw = timetable.sDaysOrWeeks;
+	var days = timetable.sDays;
+	valueArray = days.split(",")
 
-    switch (dorw) {
-        case '0': //days
-            $("#olWeek").hide();
-        	//hide and clear the "weekdays"
-            $("#olWeek li").removeClass("plan_datepoint_active");
-            $("#olDates").show();
+	switch (dorw) {
+		case '0':
+			//days
+			$("#olWeek").hide();
+			//hide and clear the "weekdays"
+			$("#olWeek li").removeClass("plan_datepoint_active");
+			$("#olDates").show();
 
-            if (days == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,") {
-                $("#liDaysAll").addClass("plan_datepoint_active");
-            }
-            else {
-                for (var i = 0; i < valueArray.length; i++) {
-                    $("#d_" + valueArray[i]).addClass("plan_datepoint_active");
-                }
-                $("#liDates").addClass("plan_datepoint_active");
-            }
-            break;
-        case '1': //days of week 
-        	//hide and clear the "days"
-            $("#olDates").hide();
-            $("#olDates li").removeClass("plan_datepoint_active");
-            $("#olWeek").show();
+			if (days == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30") {
+				$("#liDaysAll").addClass("plan_datepoint_active");
+			} else {
+				for (var i = 0; i < valueArray.length; i++) {
+					$("#d_" + valueArray[i]).addClass("plan_datepoint_active");
+				}
+				$("#liDates").addClass("plan_datepoint_active");
+			}
+			break;
+		case '1':
+			//days of week
+			//hide and clear the "days"
+			$("#olDates").hide();
+			$("#olDates li").removeClass("plan_datepoint_active");
+			$("#olWeek").show();
 
-            for (var i = 0; i < valueArray.length; i++) {
-                $("#w_" + valueArray[i]).addClass("plan_datepoint_active");
-            }
-            $("#liDaysWeek").addClass("plan_datepoint_active");
-            break;
-        default:
-            $("#olWeek").hide();
-            break;
-    };
+			for (var i = 0; i < valueArray.length; i++) {
+				$("#w_" + valueArray[i]).addClass("plan_datepoint_active");
+			}
+			$("#liDaysWeek").addClass("plan_datepoint_active");
+			break;
+		default:
+			$("#olWeek").hide();
+			break;
+	};
 
-    // Hours
-    var Hours = timetable.sHours;
-    valueArray = Hours.split(",")
-    if (Hours == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,") {
-        $("#liHoursAll").addClass("plan_datepoint_active");
-    }
-    else {
-        for (var i = 0; i < valueArray.length; i++) {
-            $("#h_" + valueArray[i]).addClass("plan_datepoint_active");
-        }
-    }
+	// Hours
+	var Hours = timetable.sHours;
+	valueArray = Hours.split(",")
+	if (Hours == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23") {
+		$("#liHoursAll").addClass("plan_datepoint_active");
+	} else {
+		for (var i = 0; i < valueArray.length; i++) {
+			$("#h_" + valueArray[i]).addClass("plan_datepoint_active");
+		}
+	}
 
-    // Minutes
-    var Minutes = timetable.sMinutes;
-    valueArray = Minutes.split(",")
-    if (Minutes == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,") {
-        $("#liMinutesAll").addClass("plan_datepoint_active");
-    } else {
-        for (var i = 0; i < valueArray.length; i++) {
-            $("#m_" + valueArray[i]).addClass("plan_datepoint_active");
-        }
-    }
+	// Minutes
+	var Minutes = timetable.sMinutes;
+	valueArray = Minutes.split(",")
+	if (Minutes == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59") {
+		$("#liMinutesAll").addClass("plan_datepoint_active");
+	} else {
+		for (var i = 0; i < valueArray.length; i++) {
+			$("#m_" + valueArray[i]).addClass("plan_datepoint_active");
+		}
+	}
 }
 
 function drawRecurringItem(howmany, idprefix, add) {
-    var output = '';
-    var label = '';
+	var output = '';
+	var label = '';
 
-    for (i = 0; i < howmany; i++) {
-        if (add)
-            label = i + 1;
-        else
-            label = i;
+	for ( i = 0; i < howmany; i++) {
+		if (add)
+			label = i + 1;
+		else
+			label = i;
 
-        if (("" + label).length == 1)
-            label = "0" + label;
+		if (("" + label).length == 1)
+			label = "0" + label;
 
-        var id = idprefix + "_" + i;
+		var id = idprefix + "_" + i;
 
-        output += '<li id="' + id + '" class="plan_datepoint"><span class="ui-state-default ui-corner-all">' + label + '</span></li>';
-    }
+		output += '<li id="' + id + '" class="plan_datepoint"><span class="ui-state-default ui-corner-all">' + label + '</span></li>';
+	}
 
-    return output;
+	return output;
 }
+
 function drawRecurringPanel() {
     //separated this out so the dynamic html block at the top of this file isn't stupid huge
 

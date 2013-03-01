@@ -1283,13 +1283,13 @@ class TaskInstance(object):
                     t.task_name, t.version, '' as asset_name, u.full_name,
                     ar.app_instance, ar.platform, ar.hostname,
                     t.concurrent_instances, t.queue_depth,
-                    ti.ecosystem_id, d.ecosystem_name, ti.account_id, ca.account_name
+                    d.instance_id, d.instance_label, ti.account_id, ca.account_name
                     from task_instance ti
                     join task t on ti.task_id = t.task_id
                     left outer join users u on ti.submitted_by = u.user_id
                     left outer join application_registry ar on ti.ce_node = ar.id
                     left outer join cloud_account ca on ti.account_id = ca.account_id
-                    left outer join ecosystem d on ti.ecosystem_id = d.ecosystem_id
+                    left outer join deployment_service_inst d on ti.ecosystem_id = d.instance_id
                     where ti.task_instance = %s""" % sTaskInstance
     
                 dr = db.select_row_dict(sSQL)
@@ -1314,8 +1314,8 @@ class TaskInstance(object):
     
                     self.submitted_by_instance = ("" if not dr["submitted_by_instance"] else dr["submitted_by_instance"])
     
-                    self.ecosystem_id = (dr["ecosystem_id"] if dr["ecosystem_id"] else "")
-                    self.ecosystem_name = (dr["ecosystem_name"] if dr["ecosystem_name"] else "")
+                    self.instance_id = (dr["instance_id"] if dr["instance_id"] else "")
+                    self.instance_label = (dr["instance_label"] if dr["instance_label"] else "")
                     self.account_id = (dr["account_id"] if dr["account_id"] else "")
                     self.account_name = (dr["account_name"] if dr["account_name"] else "")
     
@@ -1545,8 +1545,8 @@ class TaskInstances(object):
                 t.version as Version, 
                 ar.hostname as CEName, 
                 ar.platform as CEType,
-                d.ecosystem_name as EcosystemName, 
-                d.ecosystem_id as EcosystemID,
+                d.instance_label as ServiceInstanceLabel, 
+                d.instance_id as ServiceInstanceID,
                 convert(ti.submitted_dt, CHAR(20)) as SubmittedDate,
                 convert(ti.started_dt, CHAR(20)) as StartedDate,
                 convert(ti.completed_dt, CHAR(20)) as CompletedDate
@@ -1554,7 +1554,7 @@ class TaskInstances(object):
                 left join task t on t.task_id = ti.task_id
                 %s
                 left outer join application_registry ar on ti.ce_node = ar.id
-                left outer join ecosystem d on ti.ecosystem_id = d.ecosystem_id
+                left outer join deployment_service_inst d on ti.ecosystem_id = d.instance_id
                 left join users u on u.user_id = ti.submitted_by
                 left join asset a on a.asset_id = ti.asset_id
                 %s %s

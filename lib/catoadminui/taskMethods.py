@@ -30,7 +30,7 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 
-from catoui import uiCommon, uiGlobals
+from catoui import uiCommon
 from catolog import catolog
 from catocommon import catocommon
 from catotask import task, stepTemplates as ST
@@ -105,7 +105,7 @@ class taskMethods:
                     sHTML += "<td class=\"selectable\">%s</td>" % row["StartedBy"]
                     sHTML += "<td class=\"selectable\">%s</td>" % (row["CEName"] if row["CEName"] else "")
                     sHTML += "<td class=\"selectable\">%s</td>" % str((row["ProcessID"] if row["ProcessID"] else ""))
-                    sHTML += "<td class=\"selectable\">%s</td>" % (row["EcosystemName"] if row["EcosystemName"] else "")
+                    sHTML += "<td class=\"selectable\">%s</td>" % (row["ServiceInstanceLabel"] if row["ServiceInstanceLabel"] else "")
                     sHTML += "<td class=\"selectable\">%s<br />%s</td>" % (
                         ("(s)&nbsp;%s" % row["SubmittedDate"].replace(" ", "&nbsp;") if row["SubmittedDate"] else ""),
                         ("(c)&nbsp;%s" % row["CompletedDate"].replace(" ", "&nbsp;") if row["CompletedDate"] else "")
@@ -303,8 +303,9 @@ class taskMethods:
             # first we need a list of tasks that will not be deleted
             sSQL = """select task_name from task t
                     where t.original_task_id in (%s)
-                    and (t.task_id in (select ti.task_id from task_instance ti where ti.task_id = t.task_id)
-                    or t.original_task_id in (select original_task_id from ecotemplate_action))""" % sDeleteArray 
+                    and (
+                    t.task_id in (select ti.task_id from task_instance ti where ti.task_id = t.task_id)
+                    )""" % sDeleteArray 
             sTaskNames = self.db.select_csv(sSQL, True)
 
             # list of tasks that will be deleted
@@ -337,7 +338,7 @@ class taskMethods:
                 uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Task, "Multiple", "Original Task IDs", sDeleteArray)
             
             if len(sTaskNames) > 0:
-                return "{\"info\" : \"Task(s) (" + sTaskNames + ") have history rows or are referenced by Ecotemplate Actions and could not be deleted.\"}"
+                return "{\"info\" : \"Task(s) (" + sTaskNames + ") have history rows and could not be deleted.\"}"
             
             return "{\"result\" : \"success\"}"
             
@@ -1605,46 +1606,16 @@ class taskMethods:
     def wmRunTask(self):
         try:
             sTaskID = uiCommon.getAjaxArg("sTaskID")
-            sEcosystemID = uiCommon.getAjaxArg("sEcosystemID")
+            sScopeID = uiCommon.getAjaxArg("sScopeID")
             sAccountID = uiCommon.getAjaxArg("sAccountID")
             sAssetID = uiCommon.getAjaxArg("sAssetID")
             sParameterXML = uiCommon.getAjaxArg("sParameterXML")
             sDebugLevel = uiCommon.getAjaxArg("iDebugLevel")
             
             sUserID = uiCommon.GetSessionUserID()
-            return uiCommon.AddTaskInstance(sUserID, sTaskID, sEcosystemID, sAccountID, sAssetID, sParameterXML, sDebugLevel)
+            return uiCommon.AddTaskInstance(sUserID, sTaskID, sScopeID, sAccountID, sAssetID, sParameterXML, sDebugLevel)
         except Exception:
             uiCommon.log(traceback.format_exc())
-
-    def wmGetAccountEcosystems(self):
-        sAccountID = uiCommon.getAjaxArg("sAccountID")
-        sEcosystemID = uiCommon.getAjaxArg("sEcosystemID")
-
-        sHTML = ""
-
-        try:
-            # if the ecosystem passed in isn't really there, make it "" so we can compare below.
-            if not sEcosystemID:
-                sEcosystemID = ""
-
-            if sAccountID:
-                sSQL = "select ecosystem_id, ecosystem_name from ecosystem" \
-                     " where account_id = '" + sAccountID + "'" \
-                     " order by ecosystem_name"; 
-
-            dt = self.db.select_all_dict(sSQL)
-    
-            if dt:
-                sHTML += "<option value=''></option>"
-
-                for dr in dt:
-                    sSelected = ("selected=\"selected\"" if sEcosystemID == dr["ecosystem_id"] else "")
-                    sHTML += "<option value=\"" + dr["ecosystem_id"] + "\" " + sSelected + ">" + dr["ecosystem_name"] + "</option>"
-
-            return sHTML
-        except Exception:
-            uiCommon.log(traceback.format_exc())
-
 
     """
         PARAMETER WEB METHODS and supporting static methods.
@@ -1655,14 +1626,14 @@ class taskMethods:
     def wmGetParameterXML(self):
         sType = uiCommon.getAjaxArg("sType")
         sID = uiCommon.getAjaxArg("sID")
-        sFilterByEcosystemID = uiCommon.getAjaxArg("sFilterByEcosystemID")
-        return self.GetParameterXML(sType, sID, sFilterByEcosystemID)
+        sFilterID = uiCommon.getAjaxArg("sFilterID")
+        return self.GetParameterXML(sType, sID, sFilterID)
 
-    def GetParameterXML(self, sType, sID, sFilterByEcosystemID):
+    def GetParameterXML(self, sType, sID, sFilterID):
         if sType == "task":
             return self.GetObjectParameterXML(sType, sID, "")
         else:
-            return self.GetMergedParameterXML(sType, sID, sFilterByEcosystemID);  # Merging is happening here!
+            return self.GetMergedParameterXML(sType, sID, sFilterID);  # Merging is happening here!
 
     # """
     #  This method simply gets the XML directly from the db for the type.
@@ -1674,107 +1645,104 @@ class taskMethods:
     def wmGetObjectParameterXML(self):
         sType = uiCommon.getAjaxArg("sType")
         sID = uiCommon.getAjaxArg("sID")
-        sFilterByEcosystemID = uiCommon.getAjaxArg("sFilterByEcosystemID")
-        return self.GetObjectParameterXML(sType, sID, sFilterByEcosystemID)
+        sFilterID = uiCommon.getAjaxArg("sFilterID")
+        return self.GetObjectParameterXML(sType, sID, sFilterID)
 
-    def GetObjectParameterXML(self, sType, sID, sFilterByEcosystemID):
-        try:
-            if sType == "instance":
-                # if sID is a guid, it's a task_id ... get the most recent run
-                # otherwise assume it's a task_instance and try: that.
-                if catocommon.is_guid(sID):
-                    sSQL = "select parameter_xml from task_instance_parameter where task_instance = " \
-                        "(select max(task_instance) from task_instance where task_id = '" + sID + "')"
-                elif catocommon.is_guid(sFilterByEcosystemID):  # but if there's an ecosystem_id, limit it to tha:
-                    sSQL = "select parameter_xml from task_instance_parameter where task_instance = " \
-                        "(select max(task_instance) from task_instance where task_id = '" + sID + "')" \
-                        " and ecosystem_id = '" + sFilterByEcosystemID + "'"
-                else:
-                    sSQL = "select parameter_xml from task_instance_parameter where task_instance = '" + sID + "'"
-            elif sType == "runtask":
-                #  in this case, sID is actually a *step_id* !
-                # sucks that MySql doesn't have decent XML functions... we gotta do manipulation grr...
-                sSQL = "select substring(function_xml," \
-                    " locate('<parameters>', function_xml)," \
-                    " locate('</parameters>', function_xml) - locate('<parameters>', function_xml) + 13)" \
-                    " as parameter_xml" \
-                    " from task_step where step_id = '" + sID + "'"
-    
-            elif sType == "action":
-                sSQL = "select parameter_defaults from ecotemplate_action where action_id = '" + sID + "'"
-            elif sType == "plan":
-                sSQL = "select parameter_xml from action_plan where plan_id = " + sID
-            elif sType == "schedule":
-                sSQL = "select parameter_xml from action_schedule where schedule_id = '" + sID + "'"
-            elif sType == "task":
-                sSQL = "select parameter_xml from task where task_id = '" + sID + "'"
-    
-            sParameterXML = self.db.select_col_noexcep(sSQL)
-            if self.db.error:
-                uiCommon.log_nouser(self.db.error, 0)
-    
-            if sParameterXML:
-                xParams = ET.fromstring(sParameterXML)
-                if xParams is None:
-                    uiCommon.log("Parameter XML data for [" + sType + ":" + sID + "] is invalid.")
-    
-                # NOTE: some values on this document may have a "encrypt" attribute.
-                # If so, we will:
-                #  1) obscure the ENCRYPTED value and make it safe to be an html attribute
-                #  2) return some stars so the user will know a value is there.
-                for xEncryptedValue in xParams.findall("parameter[@encrypt='true']/values/value"):
-                    # if the value is empty, it still gets an oev attribute
-                    sVal = ("" if not xEncryptedValue.text else uiCommon.packJSON(xEncryptedValue.text))
-                    xEncryptedValue.attrib["oev"] = sVal
-                    # but it only gets stars if it has a value
-                    if sVal:
-                        xEncryptedValue.text = "********"
-    
-                resp = ET.tostring(xParams)
-                if resp:
-                    return resp
+    def GetObjectParameterXML(self, sType, sID, sFilterID):
+        if sType == "instance":
+            # if sID is a guid, it's a task_id ... get the most recent run
+            # otherwise assume it's a task_instance and try: that.
+            if catocommon.is_guid(sID):
+                sSQL = """select parameter_xml from task_instance_parameter where task_instance = 
+                    (select max(ti.task_instance) 
+                    from task_instance ti
+                    join task_instance_parameter tip on ti.task_instance = tip.task_instance
+                     where ti.task_id = '%s')""" % sID
+            elif catocommon.is_guid(sFilterID):  # but if there's a filter_id, limit it to tha:
+                sSQL = """select parameter_xml from task_instance_parameter where task_instance = 
+                    (select max(ti.task_instance) 
+                    from task_instance ti
+                    join task_instance_parameter tip on ti.task_instance = tip.task_instance
+                     where ti.task_id = '%s'
+                     and ti.ecosystem_id = '%s'""" % (sID, sFilterID)
+            else:
+                sSQL = "select parameter_xml from task_instance_parameter where task_instance = '" + sID + "'"
+        elif sType == "runtask":
+            #  in this case, sID is actually a *step_id* !
+            # sucks that MySql doesn't have decent XML functions... we gotta do manipulation grr...
+            sSQL = """select substring(function_xml,
+                locate('<parameters>', function_xml),
+                locate('</parameters>', function_xml) - locate('<parameters>', function_xml) + 13)
+                as parameter_xml
+                from task_step where step_id = '%s'""" % sID
 
-            # nothing found
-            return ""
-        except Exception:
-            uiCommon.log(traceback.format_exc())
-    
+        elif sType == "plan":
+            sSQL = "select parameter_xml from action_plan where plan_id = " + sID
+        elif sType == "schedule":
+            sSQL = "select parameter_xml from action_schedule where schedule_id = '" + sID + "'"
+        elif sType == "task":
+            sSQL = "select parameter_xml from task where task_id = '" + sID + "'"
+
+        sParameterXML = self.db.select_col_noexcep(sSQL)
+        if self.db.error:
+            uiCommon.log_nouser(self.db.error, 0)
+
+        if sParameterXML:
+            xParams = ET.fromstring(sParameterXML)
+            if xParams is None:
+                uiCommon.log("Parameter XML data for [" + sType + ":" + sID + "] is invalid.")
+
+            # NOTE: some values on this document may have a "encrypt" attribute.
+            # If so, we will:
+            #  1) obscure the ENCRYPTED value and make it safe to be an html attribute
+            #  2) return some stars so the user will know a value is there.
+            for xEncryptedValue in xParams.findall("parameter[@encrypt='true']/values/value"):
+                # if the value is empty, it still gets an oev attribute
+                sVal = ("" if not xEncryptedValue.text else uiCommon.packJSON(xEncryptedValue.text))
+                xEncryptedValue.attrib["oev"] = sVal
+                # but it only gets stars if it has a value
+                if sVal:
+                    xEncryptedValue.text = "********"
+
+            resp = ET.tostring(xParams)
+            if resp:
+                return resp
+
         # it may just be there are no parameters
         return ""
 
     def wmGetMergedParameterXML(self):
         sType = uiCommon.getAjaxArg("sType")
         sID = uiCommon.getAjaxArg("sID")
-        sEcosystemID = uiCommon.getAjaxArg("sEcosystemID")
-        return self.GetMergedParameterXML(sType, sID, sEcosystemID)
+        sFilterID = uiCommon.getAjaxArg("sFilterID")
+        return self.GetMergedParameterXML(sType, sID, sFilterID)
 
-    # """
-    #  * This method does MERGING!
-    #  * 
-    #  * It gets the XML for the Task, and additionally get the XML for the other record,
-    #  * and merges them together, using the values from one to basically select values in 
-    #  * the master task XML.
-    #  * 
-    #  * """
-    def GetMergedParameterXML(self, sType, sID, sEcosystemID):
+    def GetMergedParameterXML(self, sType, sID, sFilterID):
+        """
+         This method does MERGING!
+         
+         It gets the XML for the Task, and additionally get the XML for the other record,
+         and merges them together, using the values from one to basically select values in 
+         the master task XML.
+         
+         For example, the run_task command may have parameter VALUES saved on it.
+         These will override any values defined on the task.
+         
+         However, if the value is NOT defined on run_task, the task default still applies.
+         
+         More commonly, this method merges any parameters submitted 
+             on a PREVIOUS RUN of the task, again using defined task defaults 
+             if any are omitted.
+          
+         """
         try:
             if not sID:
                 uiCommon.log("ID required to look up default Parameter values.")
         
-            # what is the task associated with this action?
-            # and get the XML for it
             sDefaultsXML = ""
             sTaskID = ""
         
-            if sType == "action":
-                sDefaultsXML = self.GetObjectParameterXML(sType, sID, "")
-        
-                sSQL = "select t.task_id" \
-                     " from ecotemplate_action ea" \
-                     " join task t on ea.original_task_id = t.original_task_id" \
-                     " and t.default_version = 1" \
-                     " where ea.action_id = '" + sID + "'"
-            elif sType == "runtask":
+            if sType == "runtask":
                 # RunTask is actually a command type
                 # but it's very very similar to an Action.
                 # so... it handles it's params like an action... more or less.
@@ -1782,11 +1750,11 @@ class taskMethods:
                 # HACK ALERT!  Since we are dealing with a unique case here where we have and need both the 
                 # step_id AND the target task_id, we're piggybacking a value in.
                 # the sID is the STEP_ID (which is kindof equivalient to the action)
-                # the sEcosystemID is the target TASK_ID
+                # the sFilterID is the target TASK_ID
                 # yes, it's a hack I know... but better than adding another argument everywhere... sue me.
                 
                 # NOTE: plus, don't get confused... yes, run task references tasks by original id and version, but we already worked that out.
-                # the sEcosystemID passed in to this function is already resolved to an explicit task_id... it's the right one.
+                # the sFilterID passed in to this function is already resolved to an explicit task_id... it's the right one.
         
                 # get the parameters off the step itself.
                 # which is also goofy, as they are embedded *inside* the function xml of the step.
@@ -1795,10 +1763,10 @@ class taskMethods:
                 
                 # now, we will want to get the parameters for the task *referenced by the command* down below
                 # but no sql is necessary to get the ID... we already know it!
-                sTaskID = sEcosystemID
+                sTaskID = sFilterID
                 
             elif sType == "instance":
-                sDefaultsXML = self.GetObjectParameterXML(sType, sID, sEcosystemID)
+                sDefaultsXML = self.GetObjectParameterXML(sType, sID, sFilterID)
         
                 # IMPORTANT!!! if the ID is not a guid, it's a specific instance ID, and we'll need to get the task_id
                 # but if it is a GUID, but the type is "instance", taht means the most recent INSTANCE for this TASK_ID
@@ -1883,17 +1851,6 @@ class taskMethods:
                             xTaskParam = parent_map[node]
                             
                             
-                    # if it doesn't exist in the task params, remove it from this document, permanently
-                    # but only for action types... instance data is historical and can't be munged
-    
-                    if xTaskParam is None and sType == "action":
-                        uiCommon.log("INFO: A parameter exists on the Action that no longer exists on the Task.  Removing it...")
-                        # BUT! in order to be able to delete it, we need enough xpath information to identify it.
-                        # it has an 'id' attribute ... use that.
-                        if sDefID:
-                            uiCommon.RemoveNodeFromXMLColumn("ecotemplate_action", "parameter_defaults", "action_id = '" + sID + "'", "parameter[@id='" + sDefID + "']")           
-                        continue
-            
                     if xTaskParam is not None:
                         # is this an encrypted parameter?
                         sEncrypt = ""
@@ -1967,19 +1924,8 @@ class taskMethods:
                 # so, like when we read it, we gotta spin and compare, and build an XML that only represents *changes*
                 # to the defaults on the task.
                 
-                if sType == "action":
-                    # what is the task associated with this action?
-                    sSQL = "select t.task_id" \
-                        " from ecotemplate_action ea" \
-                        " join task t on ea.original_task_id = t.original_task_id" \
-                        " and t.default_version = 1" \
-                        " where ea.action_id = '" + sID + "'"
-                    sTaskID = self.db.select_col_noexcep(sSQL)
-                    if self.db.error:
-                        uiCommon.log_nouser(self.db.error, 0)
-    
                 if not catocommon.is_guid(sTaskID):
-                    uiCommon.log("Unable to find Task ID for Action, or no Task ID provided.")
+                    uiCommon.log("No Task ID provided.")
     
     
                 sOverrideXML = ""
@@ -2089,23 +2035,14 @@ class taskMethods:
                 sOverrideXML = ET.tostring(xADDoc)
     
                 # FINALLY, we have an XML that represents only the differences we wanna save.
-                if sType == "action":
-                    sSQL = "update ecotemplate_action set" \
-                        " parameter_defaults = '" + sOverrideXML + "'" \
-                        " where action_id = '" + sID + "'"
-    
-                    if not self.db.exec_db_noexcep(sSQL):
-                        uiCommon.log("Unable to update Action [" + sID + "]." + self.db.error)
-    
-                    uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.EcoTemplate, sID, sID, "Default parameters updated: [" + sOverrideXML + "]")
-                elif sType == "runtask":
+                if sType == "runtask":
                     # WICKED!!!!
                     # I can use my super awesome xml functions!
                     xpath = "%s/parameters" % sBaseXPath if sBaseXPath else "parameters"
                     ST.RemoveFromCommandXML(sID, xpath)
                     ST.AddToCommandXML(sID, sBaseXPath, sOverrideXML)
             else:
-                uiCommon.log("Unable to update Eco Template Action. Missing or invalid Action ID.")
+                uiCommon.log("Unable to update Action. Missing or invalid Action ID.")
     
             return ""
         except Exception:
@@ -2130,9 +2067,7 @@ class taskMethods:
             
             sTable = ""
 
-            if sType == "ecosystem":
-                sTable = "ecosystem"
-            elif sType == "task":
+            if sType == "task":
                 sTable = "task"
 
             sSQL = "select parameter_xml from " + sTable + " where " + sType + "_id = '" + sID + "'"
@@ -2161,9 +2096,7 @@ class taskMethods:
 
             sTable = ""
 
-            if sType == "ecosystem":
-                sTable = "ecosystem"
-            elif sType == "task":
+            if sType == "task":
                 sTable = "task"
 
             # default values if adding - get overridden if there is a record
@@ -2315,9 +2248,7 @@ class taskMethods:
     
             sTable = ""
     
-            if sType == "ecosystem":
-                sTable = "ecosystem"
-            elif sType == "task":
+            if sType == "task":
                 sTable = "task"
     
             if sParamID and catocommon.is_guid(sID):
@@ -2346,8 +2277,6 @@ class taskMethods:
     
                     if sType == "task":
                         uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sID, "Deleted Parameter:[" + sName + "]", sValues)
-                    if sType == "ecosystem":
-                        uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Ecosystem, sID, "Deleted Parameter:[" + sName + "]", sValues)
     
     
                 # Here's the real work ... do the whack
@@ -2399,9 +2328,7 @@ class taskMethods:
             sCurrentXML = ""
             sParameterXPath = "parameter[@id='" + sParamID + "']"  # using this to keep the code below cleaner.
 
-            if sType == "ecosystem":
-                sTable = "ecosystem"
-            elif sType == "task":
+            if sType == "task":
                 sTable = "task"
 
             bParamAdd = False
@@ -2463,19 +2390,15 @@ class taskMethods:
                 bParamAdd = False
 
 
-            #  not clean at all handling both tasks and ecosystems in the same method, but whatever.
+            #  not clean at all, but whatever.
             if bParamAdd:
                 if sType == "task":
                     uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, sID, "Parameter", "Added Parameter [%s]" % sName)
-                if sType == "ecosystem":
-                    uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Ecosystem, sID, "Parameter", "Added Parameter [%s]" % sName)
             else:
                 #  would be a lot of trouble to add the from to, why is it needed you have each value in the log, just scroll back
                 #  so just add a changed message to the log
                 if sType == "task":
                     uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sID, "Parameter", "Modified Parameter [%s]" % sName)
-                if sType == "ecosystem":
-                    uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Ecosystem, sID, "Parameter", "Modified Parameter [%s]" % sName)
 
             # update the values
             aValues = sValues.split("|")
@@ -2894,7 +2817,10 @@ class taskMethods:
                 lItems = ["_ASSET", "_SUBMITTED_BY", "_SUBMITTED_BY_EMAIL",
                           "_TASK_INSTANCE", "_TASK_NAME", "_TASK_VERSION",
                           "_DATE", "_HTTP_RESPONSE", "_UUID", "_UUID2",
-                          "_CLOUD_NAME", "_CLOUD_LOGIN_ID", "_CLOUD_LOGIN_PASS"]
+                          "_CLOUD_NAME", "_CLOUD_LOGIN_ID", "_CLOUD_LOGIN_PASS",
+                          "_HOST_ID", "_HOST", "_INSTANCE_ID",
+                          "_SERVICE_ID", "_SERVICE_NAME", "_SERVICE_DOCID",
+                          "_DEPLOYMENT_ID", "_DEPLOYMENT_NAME", "_DEPLOYMENT_DOCID"]
                 for gvar in lItems:
                     sHTML += "<div class=\"ui-widget-content ui-corner-all value_picker_value\">%s</div>" % gvar
 

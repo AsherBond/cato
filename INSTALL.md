@@ -5,17 +5,6 @@
 Cato CE will run on many different Linux distros and versions, but the most tested is Ubuntu 10.04 - 12.04.
 See the Install portion below for the distros and versions supported by the automated install.
 
-**Third party open source packages required for install (these are installed by the automated install script referenced below):**
-
-Python 2.7, MySQL 5.1+, Tcl 8.5+, Web.py, PyMySql, Boto 2.4.1+, Croniter, 
-Py-Dom-Xpath, MySQLtcl, Tcl TLS, Tdom, Tcllib, Expect, Tcllib, Tclcloud, Tclwinrm
-
-Optional MS SqlServer connectivity (you must install on your own):
-FreeTDS, TclTds
-
-Optional Oracle connectivity (you must install on your own):
-Oracle Instant Client, OraTcl
-
 ## Install
 
 These installation instructions cover installing Cato on a single linux 
@@ -66,24 +55,65 @@ The automated install script has been tested and _does not_ work on the followin
 - Suse EL 10
 - Suse EL 11
 
-The following commands will download a bash script which will install Cato CE and all 
-non-optional dependencies listed above.  
+### Installation
+
+Select a user other than root to be the application user account on the target machine. Ssh into the machine using this user. 
+This user will own the application files and directories as well as run the services. 
+
+The application user account will need to have cron enabled.
+
+Download the supplied tar file to the target server. Unpack the file with the following command. 
+Substitute /opt/cato for any target directory desired.
 
 ```
-curl -Lk --output /tmp/cato_ce_install.sh https://s3.amazonaws.com/downloads.cloudsidekick.com/install/cato_ce_install.sh
+export CATOHOME=/opt/cato
+sudo mkdir $CATOHOME
+sudo tar -xvzf cloudsidekickcato.tar.gz -C $CATOHOME --strip-components=1
+```
+
+Change current directory to the target directory.
+
+```
+cd $CATOHOME
 ```
 
 #### Optional:
-Edit the installation script to customize the Cato release number, database name, passwords, etc if desired. 
+It is optional to edit the install.sh script to modify user ids, passwords, file locations, etc.
+
+The installation script will create a directory under /var named cato. This directory will hold logfiles, cache
+files and temporary files. If desired, change these parameters in the top of the install.sh script.
+
+Run the installation script.
 
 ```
-chmod +x /tmp/cato_ce_install.sh
-sudo /tmp/cato_ce_install.sh
+sudo ./install.sh
 ```
+
+Change the ownership of the application files and directories to the application user account. 
+The following example changes it to the ubuntu user. Modify the following commands as appropriate
+for the user, group and target directories.
+
+``` 
+sudo chown -R ubuntu:ubuntu $CATOHOME
+sudo chown -R ubuntu:ubuntu  /var/cato
+```
+
+Now start all services.
+
+```
+./services/start_services.sh
+```
+
 
 ## Post-Install
 
-This script will start 5 server processes: Poller, Scheduler, Messenger, Ecosync and Admin UI. 
+This script will start several server processes:
+
+cato_messenger
+cato_rest_api
+cato_admin_ui
+cato_poller
+cato_scheduler
 
 Confirm all processes are running:
 
@@ -91,7 +121,7 @@ Confirm all processes are running:
 ps -eafl | grep cato_ | grep -v grep
 ```
 
-If all five processes are not running, check the logfiles for errors. 
+If all processes are not running, check the logfiles for errors. 
 
 ```
 cd /var/cato/log
@@ -105,27 +135,42 @@ the processes and also place monitors in cron.
 To stop the services:
 
 ```
-sudo /opt/cato/services/stop_services.sh
-sudo /opt/cato/web/stop_web.sh
+/opt/cato/services/stop_services.sh
 ```
 
 To start the services:
 
 ```
-sudo /opt/cato/services/start_services.sh
-sudo /opt/cato/web/start_web.sh
+/opt/cato/services/start_services.sh
+```
+
+## Firewalls
+
+To enable access to the cato application, open the following ports locally 
+on the target machine and any external firewalls. 
+
+Ports 8080, 8082
+
+To perform a quick test, disable the local firewall via the following commands. 
+NOTE: this is not recommened for a production machine. 
+
+RedHat / CentOS:
+
+```
+sudo service iptables stop
+sudo chkconfig iptables off
 ```
 
 ## Administrator UI Login
 
-To login to the Cato CE Administrator UI, point your browser to: 
+To login to the Cato Administrator UI, point your browser to: 
 
 ```
-http://<serveraddress>
+http://<serveraddress>:8082
 ```
 
-Username: __administrator__
-Password: __password__
+Username: administrator
+Password: password
 
 > You will be required to change the password upon initial login.
 

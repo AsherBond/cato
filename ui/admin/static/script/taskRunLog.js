@@ -145,22 +145,19 @@ $(document).ready(function() {
 
 				var task_id = $("#hidTaskID").val();
 				var asset_id = $("#hidAssetID").val();
-				var ecosystem_id = $("#hidEcosystemID").val();
+				var svc_inst_id = $("#hidServiceInstanceID").val();
 				var account_id = $("#hidAccountID").val();
 				var instance = $("#hidInstanceID").val();
 				var debug_level = $("#hidDebugLevel").val();
 
 				var task_name = $("#lblTaskName").text();
-				var ecosystem_name = $("#lblEcosystemName").text();
+				var svc_inst_lbl = $("#lblServiceInstanceLabel").text();
 				var account_name = $("#lblAccountName").text();
 
 				var args = '{"task_id":"' + task_id + '", "task_name":"' + task_name + '", "debug_level":"' + debug_level + '", "instance":"' + instance + '"';
 
 				if (account_id)
 					args += ', "account_id":"' + account_id + '", "account_name":"' + account_name + '"';
-
-				if (ecosystem_id)
-					args += ', "ecosystem_id":"' + ecosystem_id + '", "ecosystem_name":"' + ecosystem_name + '"';
 
 				args += '}';
 
@@ -201,7 +198,7 @@ function doGetDetails() {
 			$("#hidTaskID").val(instance.task_id);
 			$("#hidAssetID").val(instance.asset_id);
 			$("#hidSubmittedByInstance").val(instance.submitted_by_instance);
-			$("#hidEcosystemID").val(instance.ecosystem_id);
+			$("#hidServiceInstanceID").val(instance.instance_id);
 			$("#hidAccountID").val(instance.account_id);
 			$("#hidDebugLevel").val(instance.debug_level);
 
@@ -216,7 +213,7 @@ function doGetDetails() {
 			$("#lblCENode").text(instance.ce_node);
 			$("#lblPID").text(instance.pid);
 			$("#lblSubmittedByInstance").text(instance.submitted_by_instance);
-			$("#lblEcosystemName").text(instance.ecosystem_name);
+			$("#lblServiceInstanceLabel").text(instance.instance_label);
 			$("#lblAccountName").text(instance.account_name);
 
 			if (instance.submitted_by_instance != "")

@@ -143,6 +143,40 @@ $var cssfiles:
 				</table>
 			</div>
 		</div>
+		<div id="div_marshaller_detail" class="detail_panel hidden">
+			<div class="ui-widget-content ui-corner-all">
+				<div class="ui-widget-header">
+					<img src="static/images/icons/config_24.png" alt="" style="vertical-align: middle;"/><span>Marshaller Settings</span>
+				</div>
+				<table width="100%">
+					<tr>
+						<td width="150px" class="row_odd"> Marshaller On / Off </td>
+						<td class="row_odd">
+						<select id="Enabled" name="Enabled" class="usertextbox">
+							<option value="true">on</option>
+							<option value="false">off</option>
+						</select></td>
+					</tr>
+					<tr>
+						<td class="row_even"> Loop Delay (seconds) </td>
+						<td class="row_even">
+						<input type="text" id="LoopDelay" name="LoopDelay" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+						class="usertextbox" MaxLength="5" />
+						</td>
+					</tr>
+					<tr>
+						<td class="row_odd"> Debug </td>
+						<td class="row_odd">
+						<input type="text" id="Debug" name="Debug" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+						class="usertextbox" MaxLength="5" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2" style="text-align: center;" height="25" class="row_odd"><span module="marshaller" class="save_btn">Save</span></td>
+					</tr>
+				</table>
+			</div>
+		</div>
 		<div id="div_scheduler_detail" class="detail_panel hidden">
 			<div class="ui-widget-content ui-corner-all">
 				<div class="ui-widget-header">
@@ -300,6 +334,9 @@ $var cssfiles:
 			</li>
 			<li class="group_tab" id="poller">
 				Poller
+			</li>
+			<li class="group_tab" id="marshaller">
+				Marshaller
 			</li>
 			<li class="group_tab" id="scheduler">
 				Scheduler

@@ -20,6 +20,7 @@ CREATE TABLE `action_plan` (
   `debug_level` int(11) DEFAULT NULL,
   `source` varchar(16) NOT NULL DEFAULT 'manual',
   `schedule_id` varchar(36) DEFAULT NULL,
+  `cloud_id` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`plan_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `action_plan_history` (
@@ -34,6 +35,7 @@ CREATE TABLE `action_plan_history` (
   `source` varchar(16) NOT NULL DEFAULT 'manual',
   `schedule_id` varchar(36) DEFAULT NULL,
   `task_instance` bigint(20) DEFAULT NULL,
+  `cloud_id` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`plan_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `action_schedule` (
@@ -53,6 +55,7 @@ CREATE TABLE `action_schedule` (
   `descr` varchar(512) DEFAULT NULL,
   `last_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `modified` int(11) DEFAULT '1',
+  `cloud_id` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`schedule_id`,`last_modified`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `application_registry` (
@@ -70,7 +73,8 @@ CREATE TABLE `application_registry` (
   `executible_path` varchar(1024) DEFAULT '',
   `command_line` varchar(255) DEFAULT '',
   `platform` varchar(255) DEFAULT '',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `app_name` (`app_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `application_settings` (
   `id` int(11) NOT NULL,
@@ -125,7 +129,7 @@ CREATE TABLE `clouds` (
   `default_account_id` varchar(36) DEFAULT NULL,
   `region` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`cloud_id`),
-  UNIQUE KEY `cloud_provider_UNIQUE` (`cloud_name`,`provider`)
+  UNIQUE KEY `CLOUD_NAME` (`cloud_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `clouds_keypair` (
   `keypair_id` varchar(36) NOT NULL,
@@ -136,104 +140,239 @@ CREATE TABLE `clouds_keypair` (
   PRIMARY KEY (`cloud_id`,`keypair_name`),
   UNIQUE KEY `keypair_id_UNIQUE` (`keypair_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `ecosystem` (
-  `ecosystem_id` varchar(36) NOT NULL,
-  `ecosystem_name` varchar(64) NOT NULL,
-  `account_id` varchar(36) NOT NULL,
-  `ecotemplate_id` varchar(36) NOT NULL,
-  `ecosystem_desc` varchar(512) DEFAULT NULL,
-  `created_dt` datetime DEFAULT NULL,
-  `last_update_dt` datetime DEFAULT NULL,
-  `parameter_xml` text,
-  `storm_file` text,
-  `storm_parameter_xml` text,
-  `storm_cloud_id` varchar(36) DEFAULT NULL,
-  `storm_status` varchar(32) DEFAULT NULL,
-  `request_id` varchar(36) DEFAULT NULL,
-  PRIMARY KEY (`ecosystem_id`),
-  UNIQUE KEY `name_cloud_account` (`account_id`,`ecosystem_name`),
-  KEY `fk_cloud_account` (`account_id`),
-  KEY `FK_ecotemplate_id` (`ecotemplate_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `ecosystem_log` (
-  `ecosystem_log_id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `ecosystem_id` varchar(36) NOT NULL,
-  `ecosystem_object_type` varchar(32) NOT NULL,
-  `logical_id` varchar(256) DEFAULT NULL,
-  `ecosystem_object_id` varchar(64) NOT NULL,
-  `status` varchar(32) NOT NULL,
-  `log` text,
-  `update_dt` datetime DEFAULT NULL,
-  `event_id` varchar(256) DEFAULT NULL,
-  PRIMARY KEY (`ecosystem_log_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `ecosystem_object` (
-  `ecosystem_id` varchar(36) NOT NULL,
-  `cloud_id` varchar(36) NOT NULL,
-  `ecosystem_object_id` varchar(64) NOT NULL,
-  `ecosystem_object_type` varchar(32) NOT NULL,
-  `added_dt` datetime DEFAULT NULL,
-  PRIMARY KEY (`ecosystem_id`,`ecosystem_object_id`,`ecosystem_object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `ecosystem_object_tag` (
-  `ecosystem_id` varchar(36) NOT NULL,
-  `ecosystem_object_id` varchar(64) NOT NULL,
-  `key_name` varchar(128) NOT NULL,
-  `value` varchar(256) NOT NULL,
-  PRIMARY KEY (`ecosystem_id`,`ecosystem_object_id`,`key_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-CREATE TABLE `ecosystem_output` (
-  `ecosystem_id` varchar(36) NOT NULL,
-  `output_key` varchar(32) NOT NULL,
-  `output_desc` varchar(256) DEFAULT NULL,
-  `output_value` varchar(1024) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `ecotemplate` (
-  `ecotemplate_id` varchar(36) NOT NULL,
-  `ecotemplate_name` varchar(64) DEFAULT NULL,
-  `ecotemplate_desc` varchar(512) DEFAULT NULL,
-  `storm_file_type` varchar(8) DEFAULT NULL,
-  `storm_file` text,
-  PRIMARY KEY (`ecotemplate_id`),
-  UNIQUE KEY `ecotemplate_name` (`ecotemplate_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `ecotemplate_action` (
+CREATE TABLE `dep_action_inst` (
   `action_id` varchar(36) NOT NULL,
-  `ecotemplate_id` varchar(36) NOT NULL,
+  `task_instance` bigint(20) NOT NULL,
+  `status` varchar(32) NOT NULL,
+  PRIMARY KEY (`action_id`,`task_instance`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_seq_inst` (
+  `seq_instance` bigint(20) NOT NULL AUTO_INCREMENT,
+  `sequence_id` varchar(36) NOT NULL,
+  `deployment_id` varchar(36) NOT NULL,
+  `status` varchar(16) NOT NULL,
+  `on_error` varchar(16) NOT NULL DEFAULT 'pause',
+  `submitted_dt` datetime DEFAULT NULL,
+  `submitted_by` varchar(36) DEFAULT '',
+  `completed_dt` datetime DEFAULT NULL,
+  `current_step` int(11) DEFAULT NULL,
+  `params_def` text,
+  `params_vals` text,
+  `pid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`seq_instance`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_seq_inst_step` (
+  `seq_instance` bigint(20) NOT NULL,
+  `step_number` int(11) NOT NULL,
+  `status` varchar(16) NOT NULL,
+  PRIMARY KEY (`seq_instance`,`step_number`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_seq_inst_step_svc` (
+  `seq_instance` bigint(20) NOT NULL,
+  `step_number` int(11) NOT NULL,
+  `deployment_service_id` varchar(36) NOT NULL,
+  `state` varchar(32) NOT NULL,
+  `next_state` varchar(32) NOT NULL,
+  `status` varchar(32) NOT NULL,
+  `original_task_id` varchar(36) NOT NULL,
+  `task_version` varchar(16) NOT NULL,
+  PRIMARY KEY (`seq_instance`,`step_number`,`deployment_service_id`,`state`,`next_state`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_seq_inst_svc` (
+  `seq_instance` bigint(20) NOT NULL,
+  `deployment_service_id` varchar(36) NOT NULL,
+  PRIMARY KEY (`seq_instance`,`deployment_service_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_seq_inst_tran` (
+  `seq_instance` bigint(20) NOT NULL,
+  `step_number` int(11) NOT NULL,
+  `deployment_service_id` varchar(36) NOT NULL,
+  `instance_id` varchar(36) NOT NULL,
+  `state` varchar(32) NOT NULL,
+  `next_state` varchar(32) NOT NULL,
+  `instance_label` varchar(80) NOT NULL,
+  `task_instance` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`seq_instance`,`step_number`,`deployment_service_id`,`instance_id`,`state`,`next_state`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_seq_params` (
+  `sequence_id` varchar(36) NOT NULL,
+  `params_def` text NOT NULL,
+  `params_vals` text NOT NULL,
+  PRIMARY KEY (`sequence_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_seq_tran_params` (
+  `sequence_id` varchar(36) NOT NULL,
+  `step_number` int(11) NOT NULL,
+  `deployment_service_id` varchar(36) NOT NULL,
+  `state` varchar(32) NOT NULL,
+  `next_state` varchar(45) NOT NULL,
+  `parameter_xml` text,
+  PRIMARY KEY (`sequence_id`,`step_number`,`deployment_service_id`,`state`,`next_state`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_service_inst_mon` (
+  `instance_id` varchar(36) NOT NULL,
+  `schedule_id` varchar(36) NOT NULL,
+  PRIMARY KEY (`instance_id`,`schedule_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_service_inst_params` (
+  `instance_id` varchar(36) NOT NULL,
+  `state` varchar(32) NOT NULL,
+  `next_state` varchar(45) NOT NULL,
+  `parameter_xml` text,
+  PRIMARY KEY (`instance_id`,`state`,`next_state`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_service_inst_proc` (
+  `instance_id` varchar(36) NOT NULL,
+  `proc_name` varchar(32) NOT NULL,
+  `desired_count` int(11) DEFAULT NULL,
+  PRIMARY KEY (`instance_id`,`proc_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_service_inst_proc_inst` (
+  `instance_id` varchar(36) NOT NULL,
+  `proc_name` varchar(32) NOT NULL,
+  `pid` int(11) NOT NULL DEFAULT '0',
+  `start_dt` datetime DEFAULT NULL,
+  PRIMARY KEY (`instance_id`,`proc_name`,`pid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_service_state_mon` (
+  `deployment_service_id` varchar(36) NOT NULL,
+  `state` varchar(16) NOT NULL,
+  `original_task_id` varchar(36) NOT NULL DEFAULT '',
+  `task_version` varchar(16) DEFAULT NULL,
+  `months` varchar(27) DEFAULT NULL,
+  `days_or_weeks` int(11) DEFAULT NULL,
+  `days` varchar(84) DEFAULT NULL,
+  `hours` varchar(62) DEFAULT NULL,
+  `minutes` varchar(172) DEFAULT NULL,
+  PRIMARY KEY (`deployment_service_id`,`state`,`original_task_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `deployment` (
+  `deployment_id` varchar(36) NOT NULL,
+  `deployment_name` varchar(64) NOT NULL,
+  `template_name` varchar(64) NOT NULL,
+  `template_version` varchar(8) NOT NULL,
+  `document_id` varchar(24) NOT NULL,
+  `status` varchar(16) DEFAULT NULL,
+  `owner_user_id` varchar(36) DEFAULT NULL,
+  `deployment_desc` varchar(512) DEFAULT NULL,
+  `health` varchar(16) DEFAULT 'unknown',
+  `grouping` varchar(45) DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT NULL,
+  `uptime` varchar(45) DEFAULT NULL,
+  `archive` int(11) DEFAULT NULL,
+  `prompts` text,
+  `created_dt` datetime NOT NULL,
+  PRIMARY KEY (`deployment_id`),
+  UNIQUE KEY `environment_name_UNIQUE` (`deployment_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `deployment_action` (
+  `action_id` varchar(36) NOT NULL,
   `action_name` varchar(64) NOT NULL,
+  `scope` int(11) NOT NULL,
+  `deployment_id` varchar(36) NOT NULL,
+  `deployment_service_id` varchar(36) DEFAULT NULL,
+  `action_icon` varchar(32) DEFAULT NULL,
   `action_desc` varchar(512) DEFAULT NULL,
   `category` varchar(32) DEFAULT NULL,
   `original_task_id` varchar(36) DEFAULT NULL,
   `task_version` decimal(18,3) DEFAULT NULL,
   `parameter_defaults` text,
-  `action_icon` varchar(32) DEFAULT NULL,
   PRIMARY KEY (`action_id`),
-  UNIQUE KEY `template_action` (`ecotemplate_id`,`action_name`)
+  UNIQUE KEY `service_action` (`action_name`,`deployment_id`,`deployment_service_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `ecotemplate_runlist` (
-  `item_id` varchar(36) NOT NULL,
-  `ecotemplate_id` varchar(36) NOT NULL,
-  `item_type` varchar(32) NOT NULL,
-  `item_order` int(11) NOT NULL,
-  `item_notes` varchar(2048) DEFAULT NULL,
-  `account_id` varchar(36) DEFAULT NULL,
-  `cloud_id` varchar(36) DEFAULT NULL,
-  `image_id` varchar(36) DEFAULT NULL,
-  `source` varchar(1024) DEFAULT NULL,
-  `data` text,
-  PRIMARY KEY (`item_id`)
+CREATE TABLE `deployment_host` (
+  `deployment_id` varchar(36) NOT NULL,
+  `host_id` varchar(36) NOT NULL,
+  `host_name` varchar(128) NOT NULL,
+  `address` varchar(128) DEFAULT NULL,
+  `up_dt` datetime DEFAULT NULL,
+  PRIMARY KEY (`deployment_id`,`host_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `image` (
-  `image_id` varchar(36) NOT NULL,
-  `image_type` varchar(32) NOT NULL,
-  `image_name` varchar(256) NOT NULL,
-  `image_desc` varchar(2048) DEFAULT NULL,
-  `account_id` varchar(36) DEFAULT NULL,
+CREATE TABLE `deployment_log` (
+  `log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `log_dt` datetime NOT NULL,
+  `deployment_id` varchar(36) NOT NULL,
+  `deployment_service_id` varchar(36) DEFAULT NULL,
+  `instance_id` varchar(36) DEFAULT NULL,
+  `seq_instance` bigint(20) DEFAULT NULL,
+  `step_number` int(11) DEFAULT NULL,
+  `action_id` varchar(36) DEFAULT NULL,
+  `state` varchar(45) DEFAULT NULL,
+  `next_state` varchar(32) DEFAULT NULL,
+  `task_instance` bigint(20) DEFAULT NULL,
+  `log_msg` text,
+  PRIMARY KEY (`log_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `deployment_sequence` (
+  `sequence_id` varchar(36) NOT NULL,
+  `deployment_id` varchar(36) NOT NULL,
+  `sequence_name` varchar(32) NOT NULL,
+  `sequence_desc` varchar(255) DEFAULT NULL,
+  `icon` varchar(64) DEFAULT NULL,
+  `prompts` text,
+  PRIMARY KEY (`sequence_id`),
+  UNIQUE KEY `sequence_name_deployment` (`deployment_id`,`sequence_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `deployment_service` (
+  `deployment_id` varchar(36) NOT NULL,
+  `deployment_service_id` varchar(36) NOT NULL,
+  `service_name` varchar(64) NOT NULL,
+  `document_id` varchar(24) NOT NULL,
+  `service_desc` varchar(255) DEFAULT NULL,
+  `health` varchar(16) DEFAULT 'unknown',
+  PRIMARY KEY (`deployment_id`,`deployment_service_id`),
+  UNIQUE KEY `service_name_deployment_id` (`deployment_id`,`service_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `deployment_service_inst` (
+  `deployment_service_id` varchar(36) NOT NULL,
+  `instance_id` varchar(36) NOT NULL,
+  `instance_label` varchar(80) NOT NULL,
+  `status` varchar(16) NOT NULL,
+  `current_state` varchar(16) DEFAULT NULL,
+  `desired_state` varchar(16) DEFAULT NULL,
   `cloud_id` varchar(36) DEFAULT NULL,
-  `external_id` varchar(256) DEFAULT NULL,
-  `source` varchar(1024) DEFAULT NULL,
-  `data` text,
-  PRIMARY KEY (`image_id`)
+  `cloud_account_id` varchar(36) DEFAULT NULL,
+  `task_instance` int(11) DEFAULT NULL,
+  `host_id` varchar(36) DEFAULT NULL,
+  `seq_instance` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`instance_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `deployment_service_state` (
+  `deployment_service_id` varchar(36) NOT NULL,
+  `state` varchar(16) NOT NULL,
+  `next_state` varchar(16) DEFAULT '',
+  `original_task_id` varchar(36) DEFAULT NULL,
+  `task_version` varchar(16) DEFAULT NULL,
+  `cfn_json` text,
+  `image` varchar(36) DEFAULT NULL,
+  `run_level` int(11) DEFAULT '0',
+  `state_desc` varchar(255) DEFAULT NULL,
+  `predecessors` varchar(1024) DEFAULT NULL,
+  `json` text DEFAULT NULL,
+  PRIMARY KEY (`deployment_service_id`,`state`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `deployment_step` (
+  `sequence_id` varchar(36) NOT NULL,
+  `step_number` int(11) NOT NULL,
+  PRIMARY KEY (`sequence_id`,`step_number`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `deployment_step_service` (
+  `sequence_id` varchar(36) NOT NULL,
+  `step_number` int(11) NOT NULL,
+  `deployment_service_id` varchar(36) NOT NULL,
+  `desired_state` varchar(16) NOT NULL,
+  `initial_state` varchar(16) DEFAULT NULL,
+  `json` text DEFAULT NULL,
+  PRIMARY KEY (`sequence_id`,`step_number`,`deployment_service_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `deployment_template` (
+  `template_id` varchar(36) NOT NULL,
+  `template_name` varchar(64) NOT NULL,
+  `template_version` varchar(8) NOT NULL,
+  `template_desc` varchar(1024) DEFAULT NULL,
+  `template_text` text NOT NULL,
+  PRIMARY KEY (`template_id`),
+  UNIQUE KEY `name_version` (`template_name`,`template_version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `ldap_domain` (
   `ldap_domain` varchar(255) NOT NULL DEFAULT '',
@@ -258,6 +397,13 @@ CREATE TABLE `login_security_settings` (
   `allow_login` int(11) NOT NULL,
   `new_user_email_message` varchar(1024) DEFAULT NULL,
   `log_days` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `marshaller_settings` (
+  `id` int(11) NOT NULL,
+  `mode_off_on` varchar(3) NOT NULL,
+  `loop_delay_sec` int(11) NOT NULL,
+  `debug` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `message` (
@@ -302,12 +448,24 @@ CREATE TABLE `messenger_settings` (
   `retry_max_attempts` int(11) NOT NULL,
   `smtp_server_addr` varchar(255) DEFAULT '',
   `smtp_server_user` varchar(255) DEFAULT '',
-  `smtp_server_password` varchar(255) DEFAULT '1753-01-01 00:00:00',
+  `smtp_server_password` varchar(255) DEFAULT NULL,
   `smtp_server_port` int(11) DEFAULT NULL,
+  `smtp_timeout` int(11) DEFAULT NULL,
+  `smtp_ssl` int(11) DEFAULT NULL,
   `from_email` varchar(255) DEFAULT '',
   `from_name` varchar(255) DEFAULT '',
   `admin_email` varchar(255) DEFAULT '',
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `metric_db_waits` (
+  `instance_id` varchar(36) NOT NULL,
+  `metric_dt` datetime NOT NULL,
+  `class` varchar(45) NOT NULL,
+  `total_waits` int(11) DEFAULT NULL,
+  `pct_waits` decimal(4,2) DEFAULT NULL,
+  `avg_wait_time` decimal(4,2) DEFAULT NULL,
+  `pct_time` decimal(4,2) DEFAULT NULL,
+  PRIMARY KEY (`instance_id`,`metric_dt`,`class`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `object_registry` (
   `object_id` varchar(36) NOT NULL,
@@ -327,28 +485,6 @@ CREATE TABLE `poller_settings` (
   `max_processes` int(11) NOT NULL,
   `app_instance` varchar(1024) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `request` (
-  `request_id` varchar(36) NOT NULL,
-  `request_status` varchar(32) NOT NULL,
-  `request_desc` varchar(256) NOT NULL,
-  `requestor_id` varchar(36) NOT NULL,
-  `request_dt` datetime NOT NULL,
-  `start_dt` datetime DEFAULT NULL,
-  `end_dt` datetime DEFAULT NULL,
-  `request_notes` text,
-  `approved_dt` datetime DEFAULT NULL,
-  `approver_id` varchar(36) DEFAULT NULL,
-  `approval_notes` text,
-  PRIMARY KEY (`request_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `request_item` (
-  `item_id` varchar(36) NOT NULL,
-  `request_id` varchar(36) NOT NULL,
-  `item_order` int(11) NOT NULL,
-  `image_id` varchar(36) NOT NULL,
-  `item_notes` varchar(2048) DEFAULT NULL,
-  PRIMARY KEY (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `scheduler_settings` (
   `id` int(11) NOT NULL,
@@ -417,6 +553,7 @@ CREATE TABLE `task_instance` (
   `submitted_by_instance` bigint(20) DEFAULT NULL,
   `ecosystem_id` varchar(36) DEFAULT NULL,
   `account_id` varchar(36) DEFAULT NULL,
+  `cloud_id` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`task_instance`),
   KEY `IX_task_instance_asset_id` (`asset_id`),
   KEY `IX_task_instance_cenode` (`ce_node`),

@@ -179,25 +179,6 @@ class index:
         out.append("---------------------------\n")
         
         try:
-            from catoapi import ecoMethods
-            
-#            if ecoMethods.ecoMethods.__doc__:
-#                out.append(ecoMethods.ecoMethods.__doc__)
-            
-            for attname in dir(ecoMethods.ecoMethods):
-                att = getattr(ecoMethods.ecoMethods, attname, None)
-                if att:
-                    if hasattr(att, "__name__"):
-                        if listonly:
-                            out.append("ecoMethods/%s" % att.__name__)
-                        else:
-                            out.append("----------\n")
-                            out.append("Method: ecoMethods/%s" % att.__name__)
-                            if att.__doc__:
-                                out.append("%s" % att.__doc__)
-                        
-
-
             from catoapi import taskMethods
             
             for attname in dir(taskMethods.taskMethods):

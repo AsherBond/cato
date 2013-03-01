@@ -208,18 +208,6 @@ function_xml = replace(function_xml,
 where function_name = 'log_msg';
 
 
-# DATASET -> SET ECOSYSTEM REGISTRY
-update task_step set function_xml = 
-replace(function_xml,
-'<function command_type="dataset"',
-'<function name="set_ecosystem_registry"'),
-function_xml = replace(function_xml,
-'<function name="dataset"',
-'<function name="set_ecosystem_registry"'),
-function_name = 'set_ecosystem_registry'
-where function_name = 'dataset' or function_name = 'set_ecosystem_registry';
-
-
 
 # THIS FIXES ANY COMMANDS THAT HAD VARIABLE_XML
 update task_step set function_xml = 
@@ -288,16 +276,5 @@ function_xml = replace(function_xml,
 where function_name = 'wait_for_tasks';
 
 
-# SET ECOSYSTEM REGISTRY
-update task_step set 
-function_xml = replace(function_xml,
-'<function name="set_ecosystem_registry"><pair>',
-'<function name="set_ecosystem_registry"><pairs><pair>'
-),
-function_xml = replace(function_xml,
-'</pair></function>',
-'</pair></pairs></function>'
-)
-where function_name = 'set_ecosystem_registry';
 
 

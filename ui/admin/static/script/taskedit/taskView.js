@@ -197,7 +197,7 @@ function doGetPlans() {
         async: true,
         type: "POST",
         url: "uiMethods/wmGetActionPlans",
-        data: '{"sTaskID":"' + g_task_id + '","sActionID":"","sEcosystemID":""}',
+        data: '{"sTaskID":"' + g_task_id + '"}',
         contentType: "application/json; charset=utf-8",
         dataType: "html",
         success: function (response) {
@@ -223,7 +223,7 @@ function doGetPlans() {
         async: true,
         type: "POST",
         url: "uiMethods/wmGetActionSchedules",
-        data: '{"sTaskID":"' + g_task_id + '","sActionID":"","sEcosystemID":""}',
+        data: '{"sTaskID":"' + g_task_id + '"}',
         contentType: "application/json; charset=utf-8",
         dataType: "html",
         success: function (response) {

@@ -1905,7 +1905,7 @@ class TaskEngine():
             raise Exception(msg)
 
         ti = catocommon.add_task_instance(task_id=task_id, user_id=self.submitted_by, debug_level=self.debug_level,
-            parameter_xml=parameters, ecosystem_id=self.instance_id, account_id=self.cloud_account,
+            parameter_xml=parameters, scope_id=self.instance_id, account_id=self.cloud_account,
             schedule_instance=self.schedule_instance, submitted_by_instance=self.task_instance,
             cloud_id=self.cloud_id) 
 

@@ -230,7 +230,7 @@ function ShowRunTaskParameterEdit() {
 	        async: false,
 	        type: "POST",
 	        url: "taskMethods/wmGetParameterXML",
-	        data: '{"sType":"runtask","sID":"' + rt_step_id + '","sFilterByEcosystemID":"' + rt_task_id + '"}',
+	        data: '{"sType":"runtask","sID":"' + rt_step_id + '","sFilterID":"' + rt_task_id + '"}',
 	        contentType: "application/json; charset=utf-8",
 	        dataType: "xml",
 	        success: function (response) {

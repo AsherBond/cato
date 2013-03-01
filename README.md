@@ -40,8 +40,8 @@ https://github.com/cloudsidekick/cato/issues
 
 ## Requirements
 
-See the INSTALL file in this directory.
+See the INSTALL.md file in this directory.
 
 ## Installation
 
-See the INSTALL file in this directory.
+See the INSTALL.md file in this directory.

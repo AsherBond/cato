@@ -37,7 +37,7 @@ from catotask import task
 from catoregistry import registry
 from catosettings import settings
 
-from catoui import uiCommon, uiGlobals
+from catoui import uiCommon
 
 # these are generic ui web methods, and stuff that's not enough to need it's own file.
 
@@ -401,34 +401,23 @@ class uiMethods:
         
     def wmGetActionPlans(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
-        sActionID = uiCommon.getAjaxArg("sActionID")
-        sEcosystemID = uiCommon.getAjaxArg("sEcosystemID")
         try:
             sHTML = ""
 
-            sSQL = "select plan_id, date_format(ap.run_on_dt, '%%m/%%d/%%Y %%H:%%i') as run_on_dt, ap.source, ap.action_id, ap.ecosystem_id," \
-                " ea.action_name, e.ecosystem_name, ap.source, ap.schedule_id" \
-                " from action_plan ap" \
-                " left outer join ecotemplate_action ea on ap.action_id = ea.action_id" \
-                " left outer join ecosystem e on ap.ecosystem_id = e.ecosystem_id" \
-                " where ap.task_id = '" + sTaskID + "'" + \
-                (" and ap.action_id = '" + sActionID + "'" if sActionID else "") + \
-                (" and ap.ecosystem_id = '" + sEcosystemID + "'" if sEcosystemID else "") + \
-                " order by ap.run_on_dt"
-            dt = self.db.select_all_dict(sSQL)
+            sSQL = """select plan_id, date_format(ap.run_on_dt, '%%m/%%d/%%Y %%H:%%i') as run_on_dt, ap.source, ap.action_id,
+                ap.source, ap.schedule_id
+                from action_plan ap
+                where ap.task_id = %s 
+                order by ap.run_on_dt"""
+            dt = self.db.select_all_dict(sSQL, (sTaskID))
             if self.db.error:
                 uiCommon.log_nouser(self.db.error, 0)
             else:
                 if dt:
                     for dr in dt:
-                        sHTML += " <div class=\"ui-widget-content ui-corner-all pointer clearfloat action_plan\"" \
-                            " id=\"ap_" + str(dr["plan_id"]) + "\"" \
-                            " plan_id=\"" + str(dr["plan_id"]) + "\"" \
-                            " eco_id=\"" + dr["ecosystem_id"] + "\"" \
-                            " run_on=\"" + str(dr["run_on_dt"]) + "\"" \
-                            " source=\"" + dr["source"] + "\"" \
-                            " schedule_id=\"" + str(dr["schedule_id"]) + "\"" \
-                        ">"
+                        sHTML += '''<div class="ui-widget-content ui-corner-all pointer clearfloat action_plan"
+                            id="ap_%s" plan_id="%s" run_on="%s" source="%s"
+                            schedule_id="%s">''' % (str(dr["plan_id"]), str(dr["plan_id"]), str(dr["run_on_dt"]), dr["source"], str(dr["schedule_id"]))
                         sHTML += " <div class=\"floatleft action_plan_name\">"
     
                         # an icon denotes if it's manual or scheduled
@@ -439,14 +428,6 @@ class uiMethods:
     
                         sHTML += dr["run_on_dt"]
     
-                        # show the action and ecosystem if it's in the results but NOT passed in
-                        # that means we are looking at this from a TASK
-                        if not sActionID:
-                            if dr["ecosystem_name"]:
-                                sHTML += " " + dr["ecosystem_name"]
-    
-                            if dr["action_name"]:
-                                sHTML += " (" + dr["action_name"] + ")"
                         sHTML += " </div>"
     
                         sHTML += " <div class=\"floatright\">"
@@ -463,38 +444,24 @@ class uiMethods:
 
     def wmGetActionSchedules(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
-        sActionID = uiCommon.getAjaxArg("sActionID")
-        sEcosystemID = uiCommon.getAjaxArg("sEcosystemID")
         try:
             sHTML = ""
 
-            sSQL = "select s.schedule_id, s.label, s.descr, e.ecosystem_name, a.action_name" \
-                " from action_schedule s" \
-                " left outer join ecotemplate_action a on s.action_id = a.action_id" \
-                " left outer join ecosystem e on s.ecosystem_id = e.ecosystem_id" \
-                " where s.task_id = '" + sTaskID + "'" + \
-                (" and e.ecosystem_id = '" + sEcosystemID + "'" if sEcosystemID else "")
-            dt = self.db.select_all_dict(sSQL)
+            sSQL = """select s.schedule_id, s.label, s.descr
+                from action_schedule s
+                where s.task_id = %s"""
+            dt = self.db.select_all_dict(sSQL, (sTaskID))
             if self.db.error:
                 uiCommon.log_nouser(self.db.error, 0)
             else:
                 if dt:
                     for dr in dt:
                         sToolTip = ""
-                        # show the action and ecosystem if it's in the results but NOT passed in
-                        # that means we are looking at this from a TASK
-                        if not sActionID:
-                            sToolTip += "Ecosystem: " + (dr["ecosystem_name"] if dr["ecosystem_name"] else "None") + "<br />"
-        
-                            if dr["action_name"]:
-                                sToolTip += "Action: " + dr["action_name"] + "<br />"
-        
                         sToolTip += (dr["descr"] if dr["descr"] else "")
         
                         # draw it
                         sHTML += " <div class=\"ui-widget-content ui-corner-all pointer clearfloat action_schedule\"" \
-                            " id=\"as_" + dr["schedule_id"] + "\"" \
-                        ">"
+                            " id=\"as_" + dr["schedule_id"] + "\">"
                         sHTML += " <div class=\"floatleft schedule_name\">"
         
                         sHTML += "<span class=\"floatleft ui-icon ui-icon-calculator schedule_tip\" title=\"" + sToolTip + "\"></span>"
@@ -600,7 +567,6 @@ class uiMethods:
         try:
             sTaskID = uiCommon.getAjaxArg("sTaskID")
             sActionID = uiCommon.getAjaxArg("sActionID")
-            sEcosystemID = uiCommon.getAjaxArg("sEcosystemID")
             sRunOn = uiCommon.getAjaxArg("sRunOn")
             sParameterXML = uiCommon.getAjaxArg("sParameterXML")
             iDebugLevel = uiCommon.getAjaxArg("iDebugLevel")
@@ -617,12 +583,11 @@ class uiMethods:
             # we gotta peek into the XML and encrypt any newly keyed values
             sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML)          
 
-            sSQL = "insert into action_plan (task_id, action_id, ecosystem_id, account_id," \
+            sSQL = "insert into action_plan (task_id, action_id, account_id," \
                 " run_on_dt, parameter_xml, debug_level, source)" \
                 " values (" \
                 " '" + sTaskID + "'," + \
                 (" '" + sActionID + "'" if sActionID else "''") + "," + \
-                (" '" + sEcosystemID + "'" if sEcosystemID else "''") + "," + \
                 (" '" + sAccountID + "'" if sAccountID else "''") + "," \
                 " str_to_date('" + sRunOn + "', '%%m/%%d/%%Y %%H:%%i')," + \
                 (" '" + catocommon.tick_slash(sParameterXML) + "'" if sParameterXML else "null") + "," + \
@@ -639,7 +604,6 @@ class uiMethods:
         try:
             sTaskID = uiCommon.getAjaxArg("sTaskID")
             sActionID = uiCommon.getAjaxArg("sActionID")
-            sEcosystemID = uiCommon.getAjaxArg("sEcosystemID")
             aMonths = uiCommon.getAjaxArg("sMonths")
             aDays = uiCommon.getAjaxArg("sDays")
             aHours = uiCommon.getAjaxArg("sHours")
@@ -664,13 +628,12 @@ class uiMethods:
             sDesc = ""
             sLabel, sDesc = catocommon.GenerateScheduleLabel(aMonths, aDays, aHours, aMinutes, sDaysOrWeeks)
 
-            sSQL = "insert into action_schedule (schedule_id, task_id, action_id, ecosystem_id, account_id," \
+            sSQL = "insert into action_schedule (schedule_id, task_id, action_id, account_id," \
                 " months, days, hours, minutes, days_or_weeks, label, descr, parameter_xml, debug_level)" \
                    " values (" \
                 " '" + catocommon.new_guid() + "'," \
                 " '" + sTaskID + "'," \
                 + (" '" + sActionID + "'" if sActionID else "''") + "," \
-                + (" '" + sEcosystemID + "'" if sEcosystemID else "''") + "," \
                 + (" '" + sAccountID + "'" if sAccountID else "''") + "," \
                 " '" + ",".join([str(x) for x in aMonths]) + "'," \
                 " '" + ",".join([str(x) for x in aDays]) + "'," \
@@ -1456,7 +1419,7 @@ class uiMethods:
                 return "{\"error\" : \"Data is not properly formatted XML.\"}"
             
             if xd is not None:
-                # so, what's in here?  Tasks?  Ecotemplates?
+                # so, what's in here?  Tasks?
                 
                 # TASKS
                 for xtask in xd.iterfind("task"):
@@ -1485,8 +1448,7 @@ class uiMethods:
             else:
                 items.append({"info" : "Unable to create Task from backup XML."})
                 
-                #TODO: for loop for Ecotemplates and Assets will go here, same logic as above
-                # ECOTEMPLATES
+                #TODO: for loop for Assets will go here, same logic as above
                 # ASSETS
                 
             return "{\"items\" : %s}" % json.dumps(items)
@@ -1621,4 +1583,14 @@ class uiMethods:
             return ""
         except Exception as ex:
             return ex.__str__()
-            
+          
+    """
+        The Cloud Sidekick reporting tool is a standalone web service.
+        Because of cross site scripting rules, we have proxy the http connection here.
+    """  
+    def wmGetWidget(self):
+        return uiCommon.GetWidget()
+
+    def wmGetLayout(self):
+        return uiCommon.GetLayout()
+        

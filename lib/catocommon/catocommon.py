@@ -26,6 +26,8 @@ from bson.objectid import ObjectId
 
 from catoconfig import catoconfig
 from catodb import catodb
+from catomongo import Connection 
+from catoerrors import DatastoreError
 
 from catolog import catolog
 logger = catolog.get_logger(__name__)
@@ -51,6 +53,48 @@ def new_conn():
     newdb.connect_db(server=catoconfig.CONFIG["server"], port=catoconfig.CONFIG["port"],
         user=catoconfig.CONFIG["user"], password=catoconfig.CONFIG["password"], database=catoconfig.CONFIG["database"])
     return newdb
+
+
+def new_mongo_conn():
+    """
+    Connects to mongodb and optionally authenticates.
+    
+    If mongodb.user is set to empty string, no authentication is performed.
+    
+    :return: instance of mongodb Database
+    """
+    try:
+        mongodb_server = catoconfig.CONFIG["mongodb.server"]
+        mongodb_port = int(catoconfig.CONFIG["mongodb.port"]) if catoconfig.CONFIG["mongodb.port"] else 27017
+        mongodb_dbname = catoconfig.CONFIG["mongodb.database"]
+        mongodb_user = catoconfig.CONFIG["mongodb.user"]
+        mongodb_pw = catoconfig.CONFIG["mongodb.password"]
+
+        conn = Connection(mongodb_server, mongodb_port)
+        db = conn[mongodb_dbname]
+
+        if mongodb_user:
+            logger.debug("Authenticating with MongoDB using user [%s]" % mongodb_user)
+            db.authenticate(mongodb_user, mongodb_pw)
+        else:
+            logger.debug("Mongo credentials not defined in cato.conf... skipping authentication.")
+            pass
+    except Exception as e:
+        raise DatastoreError("Couldn't create a Mongo connection to database [%s]" % mongodb_dbname, e)
+    return db
+
+def mongo_disconnect(db):
+    """
+    Disconnects a connection associated with the db previously created via
+    a call to new_mongo_conn.
+        
+    """
+    try:
+        db.connection.disconnect()
+    except Exception, e:
+        raise DatastoreError(
+                    "Error disconnecting %s: %s" \
+                    % db.name, e)
 
 # this common function will use the encryption key in the config, and DECRYPT the input
 def cato_decrypt(encrypted):
@@ -221,6 +265,10 @@ def jsonSerializeHandler(obj):
     if isinstance(obj, decimal.Decimal):
         return float(obj)
     
+    # Mongo results will often have the ObjectId type
+    if isinstance(obj, ObjectId):
+        return str(obj)
+        
     # date time
     if hasattr(obj, 'isoformat'):
         return obj.isoformat()
@@ -260,14 +308,15 @@ def tick_slash(s):
     
     return ""
 
-def add_task_instance(task_id, user_id, debug_level, parameter_xml, ecosystem_id, account_id, schedule_instance, submitted_by_instance):
+def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id, account_id, schedule_instance, submitted_by_instance, cloud_id=False):
     """This *should* be the only place where rows are added to task_instance."""
     try:
         user_id = "'%s'" % user_id if user_id else "null"
         account_id = "'%s'" % account_id if account_id else "null"
-        ecosystem_id = "'%s'" % ecosystem_id if ecosystem_id else "null"
+        scope_id = "'%s'" % scope_id if scope_id else "null"
         schedule_instance = "'%s'" % schedule_instance if schedule_instance else "null"
         submitted_by_instance = "'%s'" % submitted_by_instance if submitted_by_instance else "null"
+        cloud_id = "'%s'" % cloud_id if cloud_id else "null"
         # just in case
         debug_level = str(debug_level)
 
@@ -281,7 +330,8 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, ecosystem_id
                 schedule_instance,
                 submitted_by_instance,
                 ecosystem_id,
-                account_id
+                account_id,
+                cloud_id
             ) values (
                 'Submitted',
                 now(),
@@ -291,9 +341,10 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, ecosystem_id
                 %s,
                 %s,
                 %s,
+                %s,
                 %s
             )
-            """ % (task_id, debug_level, user_id, schedule_instance, submitted_by_instance, ecosystem_id, account_id) 
+            """ % (task_id, debug_level, user_id, schedule_instance, submitted_by_instance, scope_id, account_id, cloud_id)
         
         if not db.tran_exec_noexcep(sql):
             raise Exception("Unable to run task [%s].%s" % (task_id, db.error))
@@ -723,9 +774,6 @@ class CatoObjectTypes(object):
     Domain = 36
     CloudAccount = 40
     Cloud = 41
-    Ecosystem = 50
-    EcoTemplate = 51
-    Request = 61
     Deployment = 70
     DeploymentTemplate = 71
     DeploymentService = 72

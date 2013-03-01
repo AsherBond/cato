@@ -1760,7 +1760,6 @@
 			<command name="aws_ec2_RunInstances" label="RunInstances" description="" help="&lt;a href='http://docs.amazonwebservices.com/AWSEC2/latest/APIReference/ApiReference-query-RunInstances.html' target='_blank'&gt;AWS documentation for RunInstances&lt;/a&gt;" icon="static/images/icons/aws_16.png">
 				<function name="aws_ec2_RunInstances">
 					<aws_region input_type="dropdown" label="AWS Region" class="combo w300px" datasource="function" dataset="ddDataSource_GetAWSClouds" />
-					<instance_role input_type="text" label="Server Role" />
 					<result_name input_type="text" hr_after="true" label="Result Variable" />
 					<ImageId input_type="text" />
 					<MinCount input_type="text" />

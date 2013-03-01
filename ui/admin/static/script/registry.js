@@ -85,7 +85,6 @@ $(document).ready(function () {
         if (type == "global") var objectid = "global";
         if (type == "asset") var objectid = $("#hidCurrentEditID").val();
         if (type == "task") var objectid = $("#hidOriginalTaskID").val();
-        if (type == "ecosystem") var objectid = g_eco_id;
         GetRegistry(objectid);
     });
 
@@ -131,7 +130,6 @@ function DeleteRegistryItem(id, xpath) {
     if (type == "global") var objectid = "global";
     if (type == "asset") var objectid = $("#hidCurrentEditID").val();
     if (type == "task") var objectid = $("#hidOriginalTaskID").val();
-    if (type == "ecosystem") var objectid = g_eco_id;
 
     $("#update_success_msg").text("Deleting...").show();
 
@@ -172,7 +170,6 @@ function AddRegistryItem() {
     if (type == "global") var objectid = "global";
     if (type == "asset") var objectid = $("#hidCurrentEditID").val();
     if (type == "task") var objectid = $("#hidOriginalTaskID").val();
-    if (type == "ecosystem") var objectid = g_eco_id;
 
     if (name == "") {
         alert("Name is required.");
@@ -219,7 +216,6 @@ function SaveRegistryValue() {
     if (type == "global") var objectid = "global";
     if (type == "asset") var objectid = $("#hidCurrentEditID").val();
     if (type == "task") var objectid = $("#hidOriginalTaskID").val();
-    if (type == "ecosystem") var objectid = g_eco_id;
 
     var value = $("#reg_edit_dialog_value").val();
     var encrypt = ($("#reg_edit_dialog_encrypt").attr("checked") == "checked" ? 1 : 0);
@@ -269,7 +265,6 @@ function SaveRegistryNode() {
     if (type == "global") var objectid = "global";
     if (type == "asset") var objectid = $("#hidCurrentEditID").val();
     if (type == "task") var objectid = $("#hidOriginalTaskID").val();
-    if (type == "ecosystem") var objectid = g_eco_id;
 
     var oldname = $("#reg_add_dialog_oldname").val();
     var name = $("#reg_add_dialog_name").val();

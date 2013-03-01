@@ -201,21 +201,21 @@ class taskStatus:
     def GET(self):
         return render.taskStatus()
 
-class ecoTemplateManage:        
+class deploymentManage:        
     def GET(self):
-        return render.ecoTemplateManage()
+        return render.deploymentManage()
 
-class ecoTemplateEdit:        
+class deploymentEdit:        
     def GET(self):
-        return render.ecoTemplateEdit()
+        return render.deploymentEdit()
 
-class ecosystemManage:        
+class depTemplateManage:        
     def GET(self):
-        return render.ecosystemManage()
+        return render.depTemplateManage()
 
-class ecosystemEdit:        
+class depTemplateEdit:        
     def GET(self):
-        return render.ecosystemEdit()
+        return render.depTemplateEdit()
 
 class importObject:        
     def GET(self):
@@ -576,10 +576,10 @@ if __name__ != app_name:
         '/taskManage', 'taskManage',
         '/systemStatus', 'systemStatus',
         '/taskStatus', 'taskStatus',
-        '/ecoTemplateEdit', 'ecoTemplateEdit',
-        '/ecoTemplateManage', 'ecoTemplateManage',
-        '/ecosystemManage', 'ecosystemManage',
-        '/ecosystemEdit', 'ecosystemEdit',
+        '/deploymentEdit', 'deploymentEdit',
+        '/deploymentManage', 'deploymentManage',
+        '/depTemplateEdit', 'depTemplateEdit',
+        '/depTemplateManage', 'depTemplateManage',
         '/userEdit', 'userEdit',
         '/assetEdit', 'assetEdit',
         '/tagEdit', 'tagEdit',

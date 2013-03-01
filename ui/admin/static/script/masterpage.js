@@ -141,11 +141,6 @@ $(document).ready(function() {
 		$(this).addClass("ui-icon-triangle-1-s");
 	});
 
-	//Storm
-	if ( typeof (STORM) == 'undefined') {
-		$(".storm").hide();
-	}
-
 });
 function showMyAccount() {
 	$.ajax({

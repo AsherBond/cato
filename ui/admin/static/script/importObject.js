@@ -60,15 +60,12 @@ $(document).ready(function () {
 			            			var url = "";
 									if (item.type == "task")
 										url = "taskEdit?task_id=" + item.id;
-									if (item.type == "ecotemplate")
-										url = "ecoTemplateEdit?ecotemplate_id=" + item.id;
 			            			
 			            			infomsg += "Click <a href='" + url + "'>here</a> to edit " + item.name + "<br />";
 			            		}
 							});
 							
 							infomsg += "<br /><br />Click <a href='taskManage'>here</a> to manage Tasks.<br />";
-							infomsg += "Click <a href='ecotemplateManage'>here</a> to manage Ecotemplates.<br />";
 							
 							showInfo("Results", infomsg, true);
 	

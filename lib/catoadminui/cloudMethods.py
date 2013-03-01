@@ -206,7 +206,7 @@ class cloudMethods:
                 for row in ca.rows[start:end]:
                     sHTML += "<tr account_id=\"" + row["ID"] + "\">"
                     
-                    if not row["has_ecosystems"]:
+                    if not row["has_services"]:
                         sHTML += "<td class=\"chkboxcolumn\">"
                         sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
                         " id=\"chk_" + row["ID"] + "\"" \
@@ -215,7 +215,7 @@ class cloudMethods:
                     else:
                         sHTML += "<td>"
                         sHTML += "<span class=\"ui-icon ui-icon-info forceinline account_help_btn\"" \
-                            " title=\"This account has associated Ecosystems and cannot be deleted.\"></span>"
+                            " title=\"This account has associated Service Instances and cannot be deleted.\"></span>"
                         sHTML += "</td>"
                     
                     sHTML += "<td class=\"selectable\">%s</td>" % row["Name"]
@@ -448,17 +448,6 @@ class cloudMethods:
 
     def DrawTableForType(self, sAccountID, sObjectType, dt):
         try:
-            # we will need this at the bottom
-            sSQL = "select eo.ecosystem_object_id, e.ecosystem_id, e.ecosystem_name" \
-                " from ecosystem_object eo" \
-                " join ecosystem e on eo.ecosystem_id = e.ecosystem_id" \
-                " where e.account_id = '" + sAccountID + "'" \
-                " and eo.ecosystem_object_type = '" + sObjectType + "'"
-
-            ecosystems = self.db.select_all_dict(sSQL)
-            if self.db.error:
-                return self.db.error
-
             sHTML = ""
 
             # buld the table
@@ -474,9 +463,6 @@ class cloudMethods:
                 sHTML += prop.Label
                 sHTML += "</th>"
 
-            # the last column is hardcoded for ecosystems.
-            sHTML += "<th>Ecosystems</th>"
-
             sHTML += "</tr>"
 
             # loop rows
@@ -489,7 +475,7 @@ class cloudMethods:
                 sHTML += "<tr>"
                 sHTML += "<td class=\"chkboxcolumn\">"
                 
-                # not drawing the checkbox if there's no ID defined, we can't add it to an ecosystem without an id
+                # not drawing the checkbox if there's no ID defined
                 if sObjectID:
                     sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
                         " id=\"chk_" + sJSID + "\"" \
@@ -526,14 +512,6 @@ class cloudMethods:
 
                     sHTML += "</td>"
 
-                # spin the ecosystems query here, building a list of ecosystems associated with this object
-                sHTML += "<td>"
-                if ecosystems:
-                    for ecosystem in ecosystems:
-                        if ecosystem["ecosystem_object_id"] == sObjectID:
-                            sHTML += "<span class=\"ecosystem_link pointer\" ecosystem_id=\"%s\">%s</span><br />" % (ecosystem["ecosystem_id"], ecosystem["ecosystem_name"])
-                sHTML += "</td>"
-                
                 sHTML += "</tr>"
 
             sHTML += "</table>"

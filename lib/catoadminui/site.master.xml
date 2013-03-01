@@ -38,19 +38,21 @@
 			</item>
 			<item label="Manage Shared Credentials" icon="static/images/icons/shared_24.png" onclick="showPleaseWait();" href="credentialEdit">
 			</item>
-		</menu>
+<item roles="developer" label="View Security Log" icon="static/images/icons/password.png" onclick="ShowLogViewDialog(0, '', true);">
+			</item>
+				</menu>
 		<menu roles="developer" label="Tasks" icon="static/images/icons/manage_tasks_24.png">
 			<item roles="developer" label="Manage Tasks" icon="static/images/icons/manage_tasks_24.png" onclick="showPleaseWait();" href="taskManage">
 			</item>
 			<item roles="developer" label="Manage Assets" icon="static/images/icons/manage_asset_24.png" onclick="showPleaseWait();" href="assetEdit">
 			</item>
-		</menu>
-		<menu roles="developer user" label="Ecosystems" icon="static/images/icons/ecosystems_24.png">
-			<item roles="developer" label="Manage Ecotemplates" icon="static/images/icons/ecotemplates_24.png" onclick="showPleaseWait();" href="ecoTemplateManage">
+					<item roles="developer" label="Import a Backup File" icon="static/images/icons/import_24.png" onclick="showPleaseWait();" href="importObject">
 			</item>
-			<item roles="developer user" label="Manage Ecosystems" icon="static/images/icons/ecosystems_24.png" onclick="showPleaseWait();" href="ecosystemManage">
-			</item>
-			<item roles="developer user" label="Cloud Discovery" icon="static/images/icons/cloud_discovery_24.png" onclick="showPleaseWait();" href="cloudDiscovery">
+</menu>
+		<menu roles="developer user" label="Deployments" icon="static/images/icons/deployments_24.png">
+			<!--<item roles="developer" label="Manage Deployments" icon="static/images/icons/deployments_24.png" onclick="showPleaseWait();" href="deploymentManage">
+			</item>-->
+			<item roles="developer user" label="Deployment Templates" icon="static/images/icons/templates_24.png" onclick="showPleaseWait();" href="depTemplateManage">
 			</item>
 		</menu>
 		<menu roles="developer" label="Configuration" icon="static/images/icons/config_24.png">
@@ -58,15 +60,13 @@
 			</item>
 			<item label="Manage Clouds" icon="static/images/icons/clouds_24.png" onclick="showPleaseWait();" href="cloudEdit">
 			</item>
-			<!--<item roles="developer" label="Cloud API Tester" icon="static/images/icons/api_tester_24.png" onclick="showPleaseWait();" href="cloudAPITester">
+			<item roles="developer user" label="Cloud Discovery" icon="static/images/icons/cloud_discovery_24.png" onclick="showPleaseWait();" href="cloudDiscovery">
+			</item>
+<!--<item roles="developer" label="Cloud API Tester" icon="static/images/icons/api_tester_24.png" onclick="showPleaseWait();" href="cloudAPITester">
 		</item>-->
 			<item roles="developer" label="Manage Settings" icon="static/images/icons/login_24.png" onclick="showPleaseWait();" href="settings">
 			</item>
-			<item roles="developer" label="Import a Backup File" icon="static/images/icons/import_24.png" onclick="showPleaseWait();" href="importObject">
-			</item>
-			<item roles="developer" label="View Security Log" icon="static/images/icons/password.png" onclick="ShowLogViewDialog(0, '', true);">
-			</item>
-		</menu>
+			</menu>
 		<menu roles="all" label="Help" icon="static/images/icons/help_24.png">
 			<item roles="all" label="Read the Documentation" icon="static/images/icons/documentation_24.png" target="_blank" href="http://projects.cloudsidekick.com/projects/cato/wiki/Guide?utm_source=cato_app&amp;utm_medium=menu&amp;utm_campaign=app">
 			</item>

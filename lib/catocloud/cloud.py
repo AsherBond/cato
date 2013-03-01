@@ -317,7 +317,7 @@ class CloudAccounts(object):
                 ca.login_id as LoginID, 
                 c.cloud_name as DefaultCloud,
                 case is_default when 1 then 'Yes' else 'No' end as IsDefault,
-                (select count(*) from ecosystem where account_id = ca.account_id) as has_ecosystems
+                (select count(*) from deployment_service_inst where cloud_account_id = ca.account_id) as has_services
                 from cloud_account ca
                 left outer join clouds c on ca.default_cloud_id = c.cloud_id
                 where 1=1 %s order by ca.is_default desc, ca.account_name""" % sWhereString

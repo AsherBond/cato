@@ -233,16 +233,106 @@
 					</actions>
 				</function>
 			</command>
+			<command name="get_datastore_value" label="Get Datastore Value" description="Gets a value from a Datastore document." help="Populates the provided variable name with a value from a Datastore document.&lt;br /&gt;&lt;br /&gt;Document ID is required.&lt;br /&gt;Collection is optional - if omitted the default collection is used.&lt;br /&gt;Key is a dotted notation path to the desired value, for example 'path.to.value'.&lt;br /&gt;&lt;br /&gt;[[variables]] are permitted." icon="static/images/icons/get_document_value.png">
+				<function name="get_datastore_value">
+					<doc_id input_type="text" label="Document ID" required="true" />
+					<collection input_type="text" label="Collection" />
+					<key input_type="text" label="Key" break_after="true" />
+					<variable_name input_type="text" label="Variable" required="true" />
+				</function>
+			</command>
+			<command name="set_datastore_value" label="Set Datastore Value" description="Sets a value in a Datastore document." help="Sets a value in a Datastore document.&lt;br /&gt;&lt;br /&gt;Document ID is required.&lt;br /&gt;Collection is optional - if omitted the default collection is used.&lt;br /&gt;Key is a dotted notation path to the desired value, for example 'path.to.value'.&lt;br /&gt;&lt;br /&gt;Valid JSON document snippets are allowed as values..&lt;br /&gt;&lt;br /&gt;[[variables]] are permitted." icon="static/images/icons/set_document_value.png">
+				<function name="set_datastore_value">
+					<doc_id input_type="text" label="Document ID" required="true" />
+					<collection input_type="text" label="Collection" />
+					<key input_type="text" label="Key" />
+					<value input_type="textarea" rows="3" label="Value" class="w95pct" label_style="display: block;" />
+				</function>
+			</command>
+			<command name="get_deployment_value" label="Get Deployment Value" description="Gets a value from a Deployment's Datastore document." help="Populates the provided variable name with a value from a Datastore document.&lt;br /&gt;&lt;br /&gt;Deployment can be either a Deployment ID or Name.  If omitted, the Deployment in scope is assumed.  If no Deployment is in scope, an error will occur.&lt;br /&gt;&lt;br /&gt;Key is a dotted notation path to the desired value, for example 'path.to.value'.&lt;br /&gt;&lt;br /&gt;[[variables]] are permitted." icon="static/images/icons/get_document_value.png">
+				<function name="get_deployment_value">
+					<scope input_type="dropdown" label="Scope" datasource="local" dataset="Deployment|Service">Deployment</scope>
+					<pairs label="Key Value Pairs" is_array="true">
+						<pair label="Pair">
+							<key input_type="text" label="Key" />
+							<variable_name input_type="text" label="Variable" required="true" />
+						</pair>
+					</pairs>
+				</function>
+			</command>
+			<command name="append_deployment_value" label="Append Deployment Value" description="Appends values to an array node in a Deployment's Datastore document." help="" icon="static/images/icons/get_document_value.png">
+				<function name="append_deployment_value">
+					<scope input_type="dropdown" label="Scope" datasource="local" dataset="Deployment|Service">Deployment</scope>
+					<key input_type="text" label="Key" />
+					<value input_type="text" label="Value" required="true" />
+				</function>
+			</command>
+			<command name="set_deployment_value" label="Set Deployment Value" description="Sets a value in a Deployment's Datastore document." help="Sets a value in a Datastore document.&lt;br /&gt;&lt;br /&gt;Deployment can be either a Deployment ID or Name.  If omitted, the Deployment in scope is assumed.  If no Deployment is in scope, an error will occur.&lt;br /&gt;&lt;br /&gt;Key is a dotted notation path to the desired value, for example 'path.to.value'.&lt;br /&gt;&lt;br /&gt;Valid JSON document snippets are allowed as values..&lt;br /&gt;&lt;br /&gt;[[variables]] are permitted." icon="static/images/icons/set_document_value.png">
+				<function name="set_deployment_value">
+					<scope input_type="dropdown" label="Scope" datasource="local" dataset="Deployment|Service">Deployment</scope>
+					<pairs label="Key Value Pairs" is_array="true">
+						<pair label="Pair">
+							<key input_type="text" label="Key" />
+							<value input_type="text" label="Value" class="w200px" />
+						</pair>
+					</pairs>
+				</function>
+			</command>
+			<command name="unset_deployment_value" label="Unset Deployment Value" description="Unsets a node or value in a Deployment's Datastore document." help="Unsets a value in a Datastore document.&lt;br /&gt;&lt;br /&gt;Deployment can be either a Deployment ID or Name.  If omitted, the Deployment in scope is assumed.  If no Deployment is in scope, an error will occur.&lt;br /&gt;&lt;br /&gt;Key is a dotted notation path to the desired value, for example 'path.to.value'.&lt;br /&gt;&lt;br /&gt;Valid JSON document snippets are allowed as values..&lt;br /&gt;&lt;br /&gt;[[variables]] are permitted." icon="static/images/icons/set_document_value.png">
+				<function name="set_deployment_value">
+					<scope input_type="dropdown" label="Scope" datasource="local" dataset="Deployment|Service">Deployment</scope>
+					<keys label="Key Paths" is_array="true">
+						<key label="Key">
+							<name input_type="text" label="Key Path" />
+						</key>
+					</keys>
+				</function>
+			</command>
+			<command name="store_instance_metric" label="Store Instance Metric" description="Stores metrics associated with a service instance" help="" icon="static/images/icons/bookmark_add_32.png">
+				<function name="store_instance_metric">
+					<metric_name input_type="text" label="Metric Name" />
+					<metrics label="Metrics">
+						<metric label="Metric">
+							<name input_type="text" label="Name" />
+							<value input_type="text" label="Value" />
+						</metric>
+					</metrics>
+				</function>
+			</command>
 		</commands>
 	</category>
 	<category name="cloud" label="Cloud" description="Commands for deployment management" icon="static/images/icons/bookmark_add_32.png">
 		<commands>
-			<command name="get_ecosystem_objects" label="Get Ecosystem Objects" description="Retrieves all of the objects for a ecosystem of a given object type. " help="" icon="static/images/icons/database_32.png">
-				<function name="get_ecosystem_objects" snip="object_type">
-					<object_type input_type="select" label="Object Type"></object_type>
-					<cloud_filter label="Cloud Filter" input_type="text" />
-					<result_name label="Result Variable" input_type="text" />
-					<cloud_name label="Cloud Name Variable" input_type="text" />
+			<command name="get_service_hosts" label="Get Service Hosts" description="Retrieves all of the hosts for a service instance" help="" icon="static/images/icons/database_32.png">
+				<function name="get_service_hosts" snip="object_type">
+					<service_name label="Service Name (input, optional)" input_type="text" />
+					<host_name_out label="Host Name (output)" input_type="text" />
+					<address_out label="Host Address (output)" input_type="text" />
+					<instance_name label="Instance Name (output)" input_type="text" />
+				</function>
+			</command>
+			<command name="change_instance_state" label="Change Instance State" description="Changes the instance state for a service instance" help="" icon="static/images/icons/set_asset_registry_32.png">
+				<function name="change_instance_state" snip="name">
+					<new_current_state label="New Current State" input_type="text" />
+					<desired_state label="Desired State (optional)" input_type="text" />
+				</function>
+			</command>
+			<command name="register_host_instance" label="Register Host Instance" description="Registers a host with the Deployment and Service Instance" help="" icon="static/images/icons/set_asset_registry_32.png">
+				<function name="register_host_instance" snip="name">
+					<host_name label="Hostname" input_type="text" />
+					<address label="Address" input_type="text" />
+				</function>
+			</command>
+			<command name="record_process_info" label="Record Process Info" description="Records the process name and pid for a tracked process on the Service Instance" help="" icon="static/images/icons/set_asset_registry_32.png">
+				<function name="record_process_info" snip="name">
+					<process_name label="Process Name" input_type="text" />
+					<pid label="Pid" input_type="text" />
+				</function>
+			</command>
+			<command name="update_host_address" label="Update Host Address" description="Updates the host address within a Deployment" help="" icon="static/images/icons/set_asset_registry_32.png">
+				<function name="register_host_instance" snip="name">
+					<host_name label="Hostname" input_type="text" />
+					<address label="Address" input_type="text" />
 				</function>
 			</command>
 			<command name="store_private_key" label="Store Private Key" description="Stores the private portion of a keypair for later use.." help="" icon="static/images/icons/set_asset_registry_32.png">
@@ -250,6 +340,46 @@
 					<name label="Keypair Name" input_type="text" />
 					<cloud_name label="Cloud Name" input_type="text" />
 					<private_key label="Private Key" input_type="textarea" rows="1" class="w50pct" style="height:18px;vertical-align:bottom;" />
+				</function>
+			</command>
+		</commands>
+	</category>
+	<category name="vmware" label="VMware" description="Commands for interacting VMware vCenter hosts." icon="static/images/icons/exec_32.png">
+		<commands>
+			<command name="vmw_list_images" label="VMware List Images" description="" icon="">
+				<function name="vmw_list_images" variables="true" parse_method="1">
+					<endpoint_name input_type="dropdown" label="vCenter Endpoint" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAWSClouds" />
+					<instance_uuid label="InstanceUUID" input_type="text" />
+					<filters label="Filters" is_array="true">
+						<filter label="Filter">
+							<name label="Name" input_type="text" />
+							<values label="Values" is_array="true">
+								<value label="Value" input_type="text" />
+							</values>
+						</filter>
+					</filters>
+				</function>
+			</command>
+			<command name="vmw_power_on_image" label="VMware Power On Image" description="" icon="">
+				<function name="vmw_power_on_image" variables="true" parse_method="1">
+					<endpoint_name input_type="dropdown" label="vCenter Endpoint" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAWSClouds" />
+					<instance_uuid label="InstanceUUID" input_type="text" />
+				</function>
+			</command>
+			<command name="vmw_power_off_image" label="VMware Power Off Image" description="" icon="">
+				<function name="vmw_power_off_image" variables="true" parse_method="1">
+					<endpoint_name input_type="dropdown" label="vCenter Endpoint" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAWSClouds" />
+					<instance_uuid label="InstanceUUID" input_type="text" />
+				</function>
+			</command>
+			<command name="vmw_clone_image" label="VMware Clone Image" description="" icon="">
+				<function name="vmw_clone_image" variables="true" parse_method="1">
+					<endpoint_name input_type="dropdown" label="vCenter Endpoint" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAWSClouds" />
+					<instance_uuid label="InstanceUUID" input_type="text" />
+					<name label="New Name" input_type="text" />
+					<folder label="Folder" input_type="text" />
+					<resourcepool label="Resource Pool" input_type="text" />
+					<power_on label="Power On (yes/no)" input_type="text" />
 				</function>
 			</command>
 		</commands>

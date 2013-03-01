@@ -506,7 +506,7 @@ def RemoveDefaultNamespacesFromXML(xml):
         log_nouser(traceback.format_exc(), 4)
         return ""
     
-def AddTaskInstance(sUserID, sTaskID, sEcosystemID, sAccountID, sAssetID, sParameterXML, sDebugLevel):
+def AddTaskInstance(sUserID, sTaskID, sScopeID, sAccountID, sAssetID, sParameterXML, sDebugLevel):
     try:
         if not sUserID: return ""
         if not sTaskID: return ""
@@ -517,7 +517,7 @@ def AddTaskInstance(sUserID, sTaskID, sEcosystemID, sAccountID, sAssetID, sParam
         sParameterXML = PrepareAndEncryptParameterXML(sParameterXML);                
     
         if catocommon.is_guid(sTaskID) and catocommon.is_guid(sUserID):
-            ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, sEcosystemID, sAccountID, "", "")
+            ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, sScopeID, sAccountID, "", "")
             log("Starting Task [%s] ... Instance is [%s]" % (sTaskID, ti), 3)
             return ti
         else:
@@ -903,6 +903,45 @@ def LoadTaskCommands():
         return True
     except Exception as ex:
         log_nouser("Unable to load Task Commands XML." + ex.__str__(), 0)
+
+"""
+    These two functions are called by handlers in both the UIs.
+"""  
+def GetWidget():
+    """Simply proxies an HTTP GET to another domain, and returns the results."""
+    args = getAjaxArgs()
+    url = get_dash_url()
+    result, err = catocommon.http_post("%s/widget" % url, args, 15)
+    if err:
+        return "Unable to reach the Dash API.  Is the service running?\n %s" % err
+    
+    return result
+
+def GetLayout():
+    """Simply proxies an HTTP GET to another domain, and returns the results."""
+    args = getAjaxArgs()
+    url = get_dash_url()
+    result, err = catocommon.http_post("%s/layout" % url, args, 15)
+    if err:
+        return "Unable to reach the Dash API.  Is the service running?\n %s" % err
+    
+    return result
+
+def get_dash_url():
+    url = "http://localhost"
+    if catoconfig.CONFIG.has_key("dash_api_url"):
+        url = (catoconfig.CONFIG["dash_api_url"] if catoconfig.CONFIG["dash_api_url"] else "http://localhost")
+    else:
+        log("Warning: dash_api_url setting not defined in cato.conf... using http://localhost")
+
+    port = "4002"
+    if catoconfig.CONFIG.has_key("dash_api_port"):
+        port = (catoconfig.CONFIG["dash_api_port"] if catoconfig.CONFIG["rest_api_port"] else "4002")
+    else:
+        log("Warning: dash_api_port setting not defined in cato.conf... using 4002")
+        
+    return "%s:%s" % (url, port)
+
 
 def GetLog():
     """

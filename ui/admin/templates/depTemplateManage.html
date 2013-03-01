@@ -1,0 +1,100 @@
+$def with ()
+$var jsfiles: managePageCommon.js depTemplateManage.js jsonlint/c/js/json2.js jsonlint/c/js/jsl.parser.js jsonlint/c/js/jsl.format.js jsonlint/c/js/jsl.interactions.js
+$var cssfiles:
+
+<div style="display: none;">
+	<input id="hidMode" type="hidden" name="hidMode" />
+	<input id="hidCurrentEditID" type="hidden" name="hidCurrentEditID" />
+	<input id="hidSelectedArray" type="hidden" name="hidSelectedArray" />
+</div>
+<div id="left_panel">
+	<div class="left_tooltip">
+		<img src="static/images/icons/deployments_128.png" alt="" />
+		<div id="left_tooltip_box_outer">
+			<div id="left_tooltip_box_inner">
+				<h4>Deployment Templates</h4>
+				<p>
+					The Manage Deployment Templates screen allows
+					administrators to modify, add and delete Templates for Deployment.
+				</p>
+				<p>
+					Select one or more Templates from the list to the right, using the checkboxes. Select
+					an action to modify or delete the Templates you've selected.
+				</p>
+				<p>
+					Templates cannot be deleted if they are referenced by any Deployment.
+				</p>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="content">
+	<span id="lblItemsSelected">0</span> Items Selected <span id="clear_selected_btn">&nbsp;</span><span
+	id="item_create_btn">Create</span><span id="item_delete_btn">Delete</span>
+	<input type="text" id="txtSearch" class="search_text" />
+	<span id="item_search_btn">Search</span>
+	<table class="jtable" cellspacing="1" cellpadding="1" width="99%">
+		<thead>
+			<tr>
+				<th class="chkboxcolumn">
+				<input class="chkbox" type="checkbox" id="chkAll" />
+				</th>
+				<th class="sortable"> Name </th>
+				<th class="sortable"> Version </th>
+				<th class="sortable"> Description </th>
+			</tr>
+		</thead>
+		<tbody id="templates"></tbody>
+	</table>
+	<div id="pager"></div>
+</div>
+<div id="edit_dialog" class="hidden" title="New Deployment Template">
+	<table width="100%">
+		<tbody>
+			<tr>
+				<td colspan="2"><span id="lblNewMessage"></span></td>
+			</tr>
+			<tr>
+				<td> Name </td>
+				<td>
+				<input type="text" id="txtTemplateName" class="w400px">
+				</td>
+			</tr>
+			<tr>
+				<td> Version </td>
+				<td>
+				<input type="text" id="txtTemplateVersion" class="w100px">
+				</td>
+			</tr>
+			<tr>
+				<td style="vertical-align: top;"> Description </td>
+				<td>				<textarea id="txtTemplateDesc" class="w400px" rows="3"></textarea></td>
+			</tr>
+			<tr>
+				<td> Template Source </td>
+				<td>
+				<select id="ddlTemplateSource">
+					<option value="Text" selected="selected">Text</option>
+					<option value="URL">URL</option>
+					<option value="File">File</option>
+				</select><span id="url_to_text_btn">Convert to Text</span></td>
+			</tr>
+			<tr class="templatefileimport hidden">
+				<td style="vertical-align: middle;"> Import File </td>
+				<td><iframe src="static/pages/file_upload.html?ref_id=new_template" style="width: 100%; height: 28px;"></iframe></td>
+			</tr>
+			<tr>
+				<td colspan="2">				<textarea class="w600px" id="txtTemplateFile" rows="10"></textarea>
+				<div class="validation">
+					<span id="validate">Validate</span>
+					<input type="checkbox" id="chk_reformat" checked="checked" />
+					<label for="chk_format">Format?</label>
+					<pre id="json_parse_msg"></pre>
+				</div></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div id="delete_dialog" class="hidden" title="Delete Deployment Templates">
+	Are you sure you want to delete these Deployment Templates?
+</div>

@@ -22,6 +22,7 @@ class settings(object):
     def __init__(self):
         self.Security = self.security().__dict__
         self.Poller = self.poller().__dict__
+        self.Marshaller = self.marshaller().__dict__
         self.Messenger = self.messenger().__dict__
         self.Scheduler = self.scheduler().__dict__
         
@@ -164,6 +165,51 @@ class settings(object):
                 
                 db = catocommon.new_conn()
                 if not db.exec_db_noexcep(sql, params):
+                    return False, db.error
+            
+                return True, ""
+            except Exception as ex:
+                raise ex
+            finally:
+                db.close()
+
+        def AsJSON(self):
+            return catocommon.ObjectOutput.AsJSON(self.__dict__)
+
+    class marshaller(object):
+        """
+            These settings are defaults if there are no values in the database.
+        """
+        Enabled = True  # is it processing work?
+        LoopDelay = 10  # how often does it check for work?
+        Debug = 20  # the debug level
+        
+        def __init__(self):
+            try:
+                sql = """select mode_off_on, loop_delay_sec, debug 
+                    from marshaller_settings where id = 1"""
+                
+                db = catocommon.new_conn()
+                row = db.select_row_dict(sql)
+                if row:
+                    self.Enabled = catocommon.is_true(row["mode_off_on"])
+                    self.LoopDelay = row["loop_delay_sec"]
+                    self.Debug = row["debug"]
+            except Exception as ex:
+                raise ex
+            finally:
+                db.close()
+            
+        def DBSave(self):
+            try:
+                mode = ("1" if catocommon.is_true(self.Enabled) else "0")
+                sql = """update marshaller_settings set 
+                    mode_off_on = %s,
+                    loop_delay_sec = %s,
+                    debug = %s"""
+
+                db = catocommon.new_conn()
+                if not db.exec_db_noexcep(sql, (mode, self.LoopDelay, self.Debug)):
                     return False, db.error
             
                 return True, ""

@@ -21,7 +21,6 @@ import traceback
 from catoapi import api
 from catoapi.api import response as R
 from catotask import task
-from catoecosystem import ecosystem
 from catocloud import cloud
 from catocommon import catocommon
 try:
@@ -230,7 +229,7 @@ class taskMethods:
             
         Optional Arguments:
             log_level - an integer (0-4) where 0 is none, 2 is normal and 4 is verbose.  Default is 2.
-            ecosystem - the ID or Name of an Ecosystem.  Certain Task commands are scoped to this Ecosystem.
+            service_instance - the ID or Name of a Service Instance.  Certain Task commands are scoped to this Service Instance.
             account - the ID or Name of a Cloud Account.  Certain Task commands require a Cloud Account.
             parameter_xml - An XML document defining parameters for the Task.
 
@@ -256,14 +255,9 @@ class taskMethods:
                 task_id = obj.ID
                 debug = args["log_level"] if args.has_key("log_level") else "2"
                 
-                # annoying, but we need to reconcile the ecosystem arg to an ID
-                ecosystem = args["ecosystem"] if args.has_key("ecosystem") else ""
-                ecosystem_id = ""
-                if ecosystem:
-                    e = ecosystem.Ecosystem()
-                    e.FromName(args["ecosystem"])
-                    if e:
-                        ecosystem_id = e.ID
+                # not verifying this optional value because that would require importing a maestro lib
+                # just use it as-is
+                service_instance_id = args["service_instance"] if args.has_key("service_instance") else ""
                 
                 # same for account
                 account_id = ""
@@ -277,7 +271,7 @@ class taskMethods:
                 parameter_xml = args["parameter_xml"] if args.has_key("parameter_xml") else ""
 
                 # try to launch it
-                ti = catocommon.add_task_instance(task_id, args["_user_id"], debug, parameter_xml, ecosystem_id, account_id, "", "")
+                ti = catocommon.add_task_instance(task_id, args["_user_id"], debug, parameter_xml, service_instance_id, account_id, "", "")
                 
                 if ti:
                     if args["output_format"] == "text":

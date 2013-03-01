@@ -128,8 +128,6 @@ function ShowParameterEdit(param_id) {
     var type = $("#hidParamType").val();
     if (type == "task")
         id = g_task_id;
-    else if (type == "ecosystem")
-        id = $("#hidEcosystemID").val();
 
     //go get the details for the parameter via ajax and populate the dialog
     $.ajax({
@@ -157,8 +155,6 @@ function doSaveParam() {
     var type = $("#hidParamType").val();
     if (type == "task")
         id = g_task_id;
-    else if (type == "ecosystem")
-        id = $("#hidEcosystemID").val();
 
     var param_id = $("#param_edit_param_id").val();
     var name = $("#param_edit_name").val();
@@ -250,8 +246,6 @@ function doDeleteParam() {
     var type = $("#hidParamType").val();
     if (type == "task")
         id = g_task_id;
-    else if (type == "ecosystem")
-        id = $("#hidEcosystemID").val();
 
     $("#update_success_msg").text("Updating...").show();
     $.ajax({
