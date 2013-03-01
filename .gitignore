@@ -96,3 +96,5 @@ ui/admin/static/_dmenu.html
 ui/admin/static/_functions.html
 
 ui/admin/static/_umenu.html
+
+conf/.DS_Store
