@@ -56,7 +56,7 @@ def DrawFullStep(oStep):
         sNoFunc += "    </div>"
         sNoFunc += "    <div id=\"step_detail_" + sStepID + "\" class=\"ui-widget-content ui-state-highlight ui-corner-bottom step_detail\" >"
         sNoFunc += "Error building Step - Unable to get the details for the command type '" + oStep.FunctionName + "'.<br />"
-        sNoFunc += "This command type may have been deprecated - check the latest Cato release notes.<br />"
+        sNoFunc += "This command type may have been deprecated or the extension not loaded.<br />"
         sNoFunc += "    </div>"
         sNoFunc += "</li>"
 
@@ -242,7 +242,7 @@ def DrawReadOnlyStep(oStep, bDisplayNotes):
         sNoFunc += "    <div class=\"view_step_header ui-state-default ui-state-highlight\" id=\"view_step_header_" + sStepID + "\"><img src=\"static/images/icons/status_unknown_16.png\" /></div>"
         sNoFunc += "    <div class=\"view_step_detail ui-state-highlight\" id=\"step_detail_" + sStepID + "\">"
         sNoFunc += "Error building Step - Unable to get the details for the command type '" + oStep.FunctionName + "'.<br />"
-        sNoFunc += "This command type may have been deprecated - check the latest Cato release notes.<br />"
+        sNoFunc += "This command type may have been deprecated or the extension not loaded.<br />"
         sNoFunc += "      </div>"
         sNoFunc += "</div>"
         sNoFunc += "</li>"
@@ -914,7 +914,7 @@ def DrawEmbeddedStep(oStep):
         sNoFunc += "    </div>"
         sNoFunc += "    <div class=\"ui-widget-content ui-state-highlight ui-corner-bottom step_detail\" >"
         sNoFunc += "Error building Step - Unable to get the details for the command type '" + oStep.FunctionName + "'.<br />"
-        sNoFunc += "This command type may have been deprecated - check the latest Cato release notes.<br />"
+        sNoFunc += "This command type may have been deprecated or the extension not loaded.<br />"
         sNoFunc += "    </div>"
         sNoFunc += "</div>"
 
@@ -1000,7 +1000,7 @@ def DrawEmbeddedReadOnlyStep(xEmbeddedFunction):
             sNoFunc += "    </div>"
             sNoFunc += "    <div class=\"ui-widget-content ui-state-highlight ui-corner-bottom step_detail\" >"
             sNoFunc += "Error building Step - Unable to get the details for the command type '" + sFunctionName + "'.<br />"
-            sNoFunc += "This command type may have been deprecated - check the latest Cato release notes.<br />"
+            sNoFunc += "This command type may have been deprecated or the extension not loaded.<br />"
             sNoFunc += "    </div>"
             sNoFunc += "</div>"
     

@@ -2,18 +2,13 @@
 	<category name="examples" label="Examples" description="Example extension commands." icon="static/extensions/icons/examples.png">
 		<commands>
 			<command name="hello_world" label="Hello World" description="Writes 'Hello World' to the Task Engine Log." help="An extension example. Writes 'Hello World' to the Task Engine log." icon="static/images/icons/smiley_32.png">
-				<function name="hello_world" extension="examples/hello_world/hello_world.tcl">
+				<function name="hello_world" extension="examples.hello_world.hello_world">
 					<!--<test input_type="dropdown" label="test" hr_after="true" style="combo" datasource="file" dataset="vals.xml" />-->
 					<message input_type="text" label="Say" />
 				</function>
 			</command>
-			<command name="python_example" label="Python Example" description="A Python extension." help="An example of an extension that executes a Python script." icon="static/extensions/icons/python_32.png">
-				<function name="python_example" extension="examples/python_example/python_example.tcl">
-					<arg input_type="text" label="Argument" />
-				</function>
-			</command>
-			<command name="bash_example" label="Bash Example" description="A shell script extension." help="An example of an extension that executes a Shell script." icon="static/extensions/icons/shellscript_32.png">
-				<function name="bash_example" extension="examples/bash_example/bash_example.tcl">
+<command name="bash_example" label="Bash Example" description="A shell script extension." help="An example of an extension that executes a Shell script." icon="static/extensions/icons/shellscript_32.png">
+				<function name="bash_example" extension="examples.bash_example.bash_example">
 					<arg input_type="text" label="Argument" />
 				</function>
 			</command>

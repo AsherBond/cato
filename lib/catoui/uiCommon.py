@@ -876,33 +876,43 @@ def GetPager(rowcount, maxrows, page):
         log_nouser(traceback.format_exc(), 0)
 
 def LoadTaskCommands():
-    try:
-        from catotask import taskCommands
-        #we load two classes here...
-        #first, the category/function hierarchy
-        cats = taskCommands.FunctionCategories()
-        bCoreSuccess = cats.Load("%s/catotask/task_commands.xml" % uiGlobals.lib_path)
-        if not bCoreSuccess:
-            raise Exception("Critical: Unable to read/parse task_commands.xml.")
+    from catotask import taskCommands
+    #we load two classes here...
+    #first, the category/function hierarchy
+    cats = taskCommands.FunctionCategories()
+    bCoreSuccess = cats.Load("%s/catotask/task_commands.xml" % uiGlobals.lib_path)
+    if not bCoreSuccess:
+        raise Exception("Critical: Unable to read/parse task_commands.xml.")
 
-        #try to append any extension files
-        #this will read all the xml files in /extensions
-        #and append to sErr if it failed, but not crash or die.
-        for root, subdirs, files in os.walk("%s/extensions" % uiGlobals.web_root):
+    # we've got the AWS commands in our controlled source.  They're not extensions.
+    bCoreSuccess = cats.Append("%s/catotask/aws_commands.xml" % uiGlobals.lib_path)
+    if not bCoreSuccess:
+        raise Exception("Critical: Unable to read/parse aws_commands.xml.")
+
+    #try to append any extension files
+    #this will read all the xml files in /extensions
+    #and append to sErr if it failed, but not crash or die.
+    
+    # extension paths are defined in config.
+    expath = []
+    if catoconfig.CONFIG.has_key("extension_path"):
+        expath = catoconfig.CONFIG["extension_path"].split(";")
+    
+    for p in expath:
+        for root, subdirs, files in os.walk(p):
             for f in files:
                 ext = os.path.splitext(f)[-1]
                 if ext == ".xml":
                     fullpath = os.path.join(root, f)
+                    log_nouser("Loading extension commands [%s]" % fullpath, 4)
                     if not cats.Append(fullpath):
                         log_nouser("WARNING: Unable to load extension command xml file [" + fullpath + "].", 0)
 
-        # Command categories and functions are an object, loaded from XML when the 
-        # service starts, and stored on the uiGlobals module.
-        uiGlobals.FunctionCategories = cats
-        
-        return True
-    except Exception as ex:
-        log_nouser("Unable to load Task Commands XML." + ex.__str__(), 0)
+    # Command categories and functions are an object, loaded from XML when the 
+    # service starts, and stored on the uiGlobals module.
+    uiGlobals.FunctionCategories = cats
+    
+    return True
 
 """
     These two functions are called by handlers in both the UIs.

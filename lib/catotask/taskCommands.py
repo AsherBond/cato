@@ -30,15 +30,15 @@ from catoui import uiCommon as UI
 # as well as a dictionary of function objects.
 # it's useful for spinning categories and functions hierarchically, as when building the command toolbox
 class FunctionCategories(object):
-    Categories = [] # all the categories - NOTE that categories contain a list of their own functions
-    Functions = {} # a dictionary of ALL FUNCTIONS - for when you need to look up a function directly by name without recursing categories
+    Categories = []  # all the categories - NOTE that categories contain a list of their own functions
+    Functions = {}  # a dictionary of ALL FUNCTIONS - for when you need to look up a function directly by name without recursing categories
     
-    #method to load from the disk
+    # method to load from the disk
     def Load(self, sFileName):
         try:
             xRoot = ET.parse(sFileName)
             if xRoot == None:
-                #crash... we can't do anything if the XML is busted
+                # crash... we can't do anything if the XML is busted
                 return False
             else:
                 xCategories = xRoot.findall(".//category")
@@ -57,7 +57,7 @@ class FunctionCategories(object):
             UI.log_nouser("Parsing extension file " + sFileName, 4)
             xRoot = ET.parse(sFileName)
             if xRoot == None:
-                #crash... we can't do anything if the XML is busted
+                # crash... we can't do anything if the XML is busted
                 return False
             else:
                 xCategories = xRoot.findall(".//category")
@@ -73,20 +73,31 @@ class FunctionCategories(object):
             UI.log_nouser("WARNING: Error parsing extension command file [" + sFileName + "]. " + ex.__str__(), 0)
 
     def BuildCategory(self, xCategory):
-        #not crashing... just skipping
-        if not xCategory.get("name", None):
+
+        catname = xCategory.get("name", None)
+        
+        # not crashing... just skipping
+        if not catname:
             return None
         
-        #ok, minimal data is intact... proceed...
-        cat = Category()
-        cat.Name =  xCategory.get("name")
-        cat.Label = xCategory.get("label", cat.Name)
-        cat.Description = xCategory.get("description", "")
-        cat.Icon = xCategory.get("icon", "")
+        # if this category has already been added, find it and append to it instead
+        cat = None
+        for c in self.Categories:
+            if c.Name == xCategory.get("name"):
+                cat = c
+
+        if not cat:
+            # new category.
+            cat = Category()
+            cat.Name = xCategory.get("name")
+            cat.Label = xCategory.get("label", cat.Name)
+            cat.Description = xCategory.get("description", "")
+            cat.Icon = xCategory.get("icon", "")
+    
 
         # load up this category with it's functions
         for xFunction in xCategory.findall("commands/command"):
-            #not crashing... just skipping
+            # not crashing... just skipping
             if not xCategory.get("name", None):
                 return None
 
@@ -128,6 +139,6 @@ class Function(object):
         self.Description = None
         self.Help = None
         self.Icon = None
-        self.Category = cat #Function has a parent Category
+        self.Category = cat  # Function has a parent Category
         self.TemplateXML = None
         self.TemplateXDoc = None

@@ -16,6 +16,7 @@
 
 import logging
 from catolog import catolog
+from catoconfig import catoconfig
 
 import sys
 import os
@@ -23,11 +24,13 @@ import traceback
 import time
 import re
 import pwd
+import importlib                   
 import pexpect
 
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
+
 
 try:
     import xml.etree.cElementTree as ET
@@ -39,7 +42,6 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 
-from catoconfig import catoconfig
 from catocommon import catocommon
 from catodb import catodb
 from catoruntimes import runtimes
@@ -52,17 +54,6 @@ import urllib2
 import httplib
 import base64
 from . import matheval
-
-# these are Maestro libs, don't crash if they aren't found.
-# of course the commands that reference them will still crash.
-try:
-    from catodatastore import datastore
-except ImportError:
-    pass
-try:
-    from catodeployment import deployment
-except ImportError:
-    pass
 
 
 # global logger can be used in all classes.
@@ -290,13 +281,6 @@ class TaskEngine():
         self.systems = {}
         self.assets = {}
         self.tasks = {}
-        self.deployment_id = None
-        self.instance_name = ""
-        self.deployment_name = ""
-        self.deployment_docid = ""
-        self.service_id = ""
-        self.service_name = ""
-        self.service_docid = ""
         self.audit_trail_on = 2
         self.current_step_id = ""
         self.loop_break = False
@@ -306,6 +290,7 @@ class TaskEngine():
         self.submitted_by_user = ""
         self.submitted_by_email = ""
         self.http_response = -1
+        self.instance_id = ""
 
     # ## internal methods here
 
@@ -556,7 +541,7 @@ class TaskEngine():
 
         import sqlanydb
         try:
-            conn = sqlanydb.connect(UID=user,PWD=password, HOST=server, DBN=database)
+            conn = sqlanydb.connect(UID=user, PWD=password, HOST=server, DBN=database)
         except Exception as e:
             msg = "Could not connect to the database. Error message -> %s" % (e)
             raise Exception(msg)
@@ -685,212 +670,6 @@ class TaskEngine():
     def new_uuid(self):
 
         return str(uuid.uuid4())
-
-
-    # def tcl_replace_var_from_datastore_value(self, var):
-    #    """
-    #        Parses apart a variable in specific format and queries the datastore:
-    #        [[@collection.doc_id:path.to.value]]
-    #        
-    #        Rules:
-    #        * If there's no . on the left side of the :, the default collection is assumed
-    #        * if there's no :, the entire document is returned
-    #    """
-    #    if not var:
-    #        return "Variable is empty."
-    #    
-    #    # get rid of the @
-    #    var = var[1:]
-    #    col = ""
-    #    doc_id = ""
-    #    path = ""
-    #    if ":" in var:
-    #        doc_id, path = var.split(":")
-    #    else:
-    #        doc_id = var
-    # 
-    #     if "." in doc_id:
-    #         col, doc_id = doc_id.split(".")
-    #         
-    #     doc = datastore.Document(doc_id, col)
-    #     if doc.ID:
-    #         result = doc.Lookup(path)
-    #         if result:
-    #             return result
-    #         else:
-    #             logger.info("Datastore lookup for [%s] in document [%s] returned nothing." % (path, doc_id))
-    #             return ""
-    #     else:
-    #         # document wasn't found.
-    #         logger.error("Unable to find Data Document with ID [%s] in collection [%s]." % (doc_id, col))
-    #         return ""
-            
-    
-    def get_datastore_value(self, doc_id, collection, key, var):
-        
-        # this is a Maestro function - fail nicely if not available
-        if "datastore" not in globals():
-            logger.warning("This command is available in Cloud Sidekick Maestro.")
-            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
-            return ""
-        
-        if not doc_id or not key or not var:
-            return "Document ID, Key and Variable Name are required arguments."
-        
-        doc = datastore.Document({'_id': doc_id}, collection)
-        if doc.ID:
-            result = doc.Lookup(key)
-            if result:
-                self.rt.set(var, result)
-            else:
-                logger.info("Datastore lookup for [%s] in document [%s] returned nothing." % (key, doc_id))
-                return ""
-        else:
-            # document wasn't found.
-            logger.error("Unable to find Data Document with ID [%s] in collection [%s]." % (doc_id, collection))
-            return ""
-    
-    def set_datastore_value(self, doc_id, collection, key, val):
-        
-        # this is a Maestro function - fail nicely if not available
-        if "datastore" not in globals():
-            logger.warning("This command is available in Cloud Sidekick Maestro.")
-            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
-            return ""
-        
-        if not doc_id or not key:
-            return "Document ID and Key are required arguments."
-        
-        doc = datastore.Document({'_id': doc_id}, collection)
-        if not doc.ID:
-            logger.info("Document does not exist, creating")
-            empty_doc = None
-            doc, msg = datastore.create_document(doc_id, empty_doc)
-            logger.info(msg)
-
-        if doc.ID:
-            logger.debug("key is %s, value is %s" % (key, val))
-            # result, msg = doc.Set(key, val)
-            result = doc.Set(key, val)
-            if not result:
-                logger.info(msg)
-                return ""
-        else:
-            # document wasn't found.
-            logger.error("Unable to find Data Document with ID [%s] in collection [%s]." % (doc_id, collection))
-            return ""
-    
-    # These next two commands use a hardcoded value for the datastore collection
-    def append_deployment_value(self, scope, key, value):
-
-        # this is a Maestro function - fail nicely if not available
-        if "deployment" not in globals():
-            logger.warning("This command is available in Cloud Sidekick Maestro.")
-            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
-            return ""
-        
-        # get a deployment or service object from a name or id
-        if scope == "Deployment":
-            ds = deployment.Deployment()
-            ds.FromID(self.deployment_id)
-        else:
-            ds = deployment.DeploymentService()
-            ds.FromID(self.service_id)
-            
-        if ds.ID:
-            # does the deployment have a document?  it should... that's required
-            if ds.Datastore.doc:
-                ds.Datastore.Append(key, value)
-
-    def get_deployment_value(self, scope, pairs):
-        
-        # this is a Maestro function - fail nicely if not available
-        if "deployment" not in globals():
-            logger.warning("This command is available in Cloud Sidekick Maestro.")
-            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
-            return ""
-            
-        # get a deployment or service object from a name or id
-        if scope == "Deployment":
-            ds = deployment.Deployment()
-            ds.FromID(self.deployment_id)
-        else:
-            ds = deployment.DeploymentService()
-            ds.FromID(self.service_id)
-
-        if ds.ID:
-            # does the deployment or service have a document?  it should... that's required
-            if ds.Datastore.doc:
-                logger.info("looking into datastore doc [%s]..." % (ds.Datastore.ID))
-
-                for pair in pairs:
-                    key, var = pair[:]
-                    key = self.replace_variables(key)
-        
-                    if not var or not key:
-                        logger.error("Key and Variable Name are required.")
-
-                    logger.debug("        looking up [%s]..." % key)            
-                    result = ds.Datastore.Lookup(key)
-                    if result:
-                        logger.debug("        found! setting [%s] to [%s]..." % (var, result))            
-                        for (ii, value) in enumerate(result):
-                            self.rt.set(var, value, ii + 1)
-                    else:
-                        self.rt.clear(var)
-                        return ""
-            else:
-                logger.error("Datastore document for %s ID %s was not found, continuing" % (scope, ds.Name))
-        del(ds)
-    
-    def unset_deployment_value(self, scope, key):
-        
-        # this is a Maestro function - fail nicely if not available
-        if "deployment" not in globals():
-            logger.warning("This command is available in Cloud Sidekick Maestro.")
-            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
-            return ""
-
-        if not key or key == "":
-            raise Exception("Key name is a required argument.")
-
-        # get a deployment or service object from a name or id
-        if scope == "Deployment":
-            ds = deployment.Deployment()
-            ds.FromID(self.deployment_id)
-        else:
-            ds = deployment.DeploymentService()
-            ds.FromID(self.service_id)
-
-        if ds.ID:
-            if ds.Datastore.doc:
-                ds.Datastore.Unset(key)
-
-
-    def set_deployment_value(self, scope, key, val):
-        
-        # this is a Maestro function - fail nicely if not available
-        if "deployment" not in globals():
-            logger.warning("This command is available in Cloud Sidekick Maestro.")
-            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
-            return ""
-
-        if not key or key == "":
-            raise Exception("Key name is a required argument.")
-        
-        # get a deployment or service object from a name or id
-        if scope == "Deployment":
-            ds = deployment.Deployment()
-            ds.FromID(self.deployment_id)
-        else:
-            ds = deployment.DeploymentService()
-            ds.FromID(self.service_id)
-            
-        if ds.ID:
-            if ds.Datastore.doc:
-                ds.Datastore.Set(key, val)
-        else:
-            raise Exception("Unable to set Deployment datastore document... the deployment doesn't have a document!")
     
     def insert_audit(self, command, log, conn=""):
 
@@ -915,13 +694,6 @@ class TaskEngine():
         sql = """insert into task_conn_log (task_instance, address, userid, conn_type, conn_dt) values (%s,%s,%s,%s,now())"""
         self.db.exec_db(sql, (self.task_instance, address, userid, conn_type))
 
-    # def tcl_register_deployment_object(self, deployment_service_id, service_object_id, service_object_type):
-    #    
-    #    sql = """insert into deployment_service_object (deployment_service_id, service_object_id, 
-    #        service_object_type, added_dt) values (%s, %s, %s, now())"""
-    #    self.db.exec_db(sql, (deployment_service_id, service_object_id, service_object_type))
-
-
     def get_cloud_name(self, cloud_id):
 
         sql = """select cloud_name from clouds where cloud_id = %s"""
@@ -930,36 +702,6 @@ class TaskEngine():
             return row[0]
         else:
             return ""
-
-    # def tcl_get_service_objects(self, dep_service_id, object_type, var_name):
-
-    #    sql = """select dso.service_object_id from deployment_service_object dso where dso.deployment_service_id
-    #        = %s and service_object_type = %s"""
-    #    rows = self.db.select_all(sql, (dep_service_id, object_type))
-    #    logger.debug(sql % (dep_service_id, object_type))
-    #    logger.debug(rows)
-    #    self.rt.clear(var_name)
-    #    if rows:
-    #        ii = 0
-    #        for row in rows:
-    #            ii += 1
-    #            self.rt.set(var_name, row[0], ii)
-    #            
-
-    # def tcl_get_service_objects(self, dep_service_id, object_type, var_name):
-
-    #    sql = """select dso.service_object_id from deployment_service_object dso where dso.deployment_service_id
-    #        = %s and service_object_type = %s"""
-    #    rows = self.db.select_all(sql, (dep_service_id, object_type))
-    #    logger.debug(sql % (dep_service_id, object_type))
-    #    logger.debug(rows)
-    #    self.rt.clear(var_name)
-    #    if rows:
-    #        ii = 0
-    #        for row in rows:
-    #            ii += 1
-    #            self.rt.set(var_name, row[0], ii)
-                
 
     def get_default_cloud_for_account(self, account_id):
 
@@ -989,9 +731,6 @@ class TaskEngine():
                 index = None
             # FIXUP - need to do modifers logic here
             logger.info("v name is %s, value is %s" % (name, value))
-            #if name.upper() == "_DEPLOYMENT_ID":
-            #    self.deployment_id = value
-            #else:
 
             if modifier == "Math":
                 value = self.math.eval_expr(value)
@@ -1006,9 +745,9 @@ class TaskEngine():
             elif modifier == "FROM_BASE64":
                 value = base64.b64decode(value)
             elif modifier == "Write JSON":
-                pass # TODO
+                pass  # TODO
             elif modifier == "Read JSON":
-                pass # TODO
+                pass  # TODO
 
             self.rt.set(name, value, index)
 
@@ -1153,21 +892,21 @@ class TaskEngine():
         elif s == "_HOST_ADDRESS":
             v = self.host_address
         elif s == "_INSTANCE_ID":
-            v = self.instance_id
+            v = self.instance_id if hasattr(self, "instance_id") else ""
         elif s == "_INSTANCE_NAME":
-            v = self.instance_name
+            v = self.instance_name if hasattr(self, "instance_name") else ""
         elif s == "_SERVICE_ID":
-            v = self.service_id
+            v = self.service_id if hasattr(self, "service_id") else ""
         elif s == "_SERVICE_NAME":
-            v = self.service_name
+            v = self.service_name if hasattr(self, "service_name") else ""
         elif s == "_SERVICE_DOCID":
-            v = self.service_docid
+            v = self.service_docid if hasattr(self, "service_docid") else ""
         elif s == "_DEPLOYMENT_ID":
-            v = self.deployment_id
+            v = self.deployment_id if hasattr(self, "deployment_id") else ""
         elif s == "_DEPLOYMENT_NAME":
-            v = self.deployment_name
+            v = self.deployment_name if hasattr(self, "deployment_name") else ""
         elif s == "_DEPLOYMENT_DOCID":
-            v = self.deployment_docid
+            v = self.deployment_docid if hasattr(self, "deployment_docid") else ""
         elif s == "_UUID":
             v = self.new_uuid()
         elif s == "_UUID2":
@@ -1365,54 +1104,6 @@ class TaskEngine():
         self.db.exec_db(sql, (to, self.host_domain, sub, body))
 
 
-    def get_datastore_value_cmd(self, step):
-
-        docid, col, key, v_name = self.get_command_params(step.command, "doc_id", "collection", "key", "variable_name")[:]
-        docid = self.replace_variables(docid)
-        col = self.replace_variables(col)
-        key = self.replace_variables(key)
-
-        self.get_datastore_value(docid, col, key, v_name)
-
-    def set_datastore_value_cmd(self, step):
-
-        docid, col, key, value = self.get_command_params(step.command, "doc_id", "collection", "key", "value")[:]
-        docid = self.replace_variables(docid)
-        col = self.replace_variables(col)
-        key = self.replace_variables(key)
-        value = self.replace_variables(value)
-
-        logger.debug("doc_id is %s, collection is %s, key is %s, value is %s" % (docid, col, key, value))
-        self.set_datastore_value(docid, col, key, value)
-
-
-    def record_process_info_cmd(self, step):
-
-        if not self.instance_id:
-            raise Exception("Record Process Info command must be used within a Service Instance")
-
-        process_name, pid = self.get_command_params(step.command, "process_name", "pid")[:]
-        process_name = self.replace_variables(process_name)
-        pid = self.replace_variables(pid)
-
-        if len(process_name) == 0:
-            raise Exception("Record Process Info command requires a process name")
-
-        sql = """insert into dep_service_inst_proc (instance_id, proc_name) values (%s, %s)"""
-        # try to insert, if errors on pk, then move on
-        try:
-            self.db.exec_db(sql, (self.instance_id, process_name))
-        except:
-            pass
-
-        sql = """insert into dep_service_inst_proc_inst (instance_id, proc_name, pid, start_dt) 
-            values (%s, %s, %s, now())"""
-        # try to insert, if errors on pk, then move on
-        try:
-            self.db.exec_db(sql, (self.instance_id, process_name, pid))
-        except:
-            pass
-
     def http_cmd(self, step):
 
         timeout = 5
@@ -1519,21 +1210,21 @@ class TaskEngine():
                     # the word "end" can be used to get all the way to the end 
                     # of the string.
                     
-                    if not len(range_begin): # we are using a prefix to find the start
+                    if not len(range_begin):  # we are using a prefix to find the start
                         begin = line.find(prefix)
                         if begin == -1:
                             self.rt.set(name, value, ii + 1)
                             continue
                         else:
                             begin += 1
-                    else: # we are using a number index to find the start
+                    else:  # we are using a number index to find the start
                         begin = int(range_begin) - 1
-                    if not len(range_end): # we are using a suffix to find the end
+                    if not len(range_end):  # we are using a suffix to find the end
                         end = line.find(suffix, begin + 1)
                         if end == -1:
                             self.rt.set(name, value, ii + 1)
                             continue
-                    else: # we are using a number index to find the end
+                    else:  # we are using a number index to find the end
                         try:
                             # convert range_end to an int
                             end = int(range_end)
@@ -1577,70 +1268,6 @@ class TaskEngine():
         if len(variables):
             # print variables
             self.process_buffer(buff, step)
-
-    def store_instance_metric_cmd(self, step):
-
-        if not self.instance_id:
-            raise Exception("Store Instance Metric command must be used within a Service Instance")
-
-        pairs = self.get_node_list(step.command, "metrics/metric", "name", "value")
-        metric_name = self.get_command_params(step.command, "metric_name")[0]
-        metric_name = self.replace_variables(metric_name)
-
-        if len(metric_name) == 0:
-            raise Exception("Store Instance Metric command requires a metric name")
-
-        db = catocommon.new_mongo_conn()
-        coll = db[metric_name]
-
-        metric_doc = {}
-        metric_doc["instance_id"] = self.instance_id
-        metric_doc["timestamp"] = datetime.now()
-
-        for p in pairs:
-            name = self.replace_variables(p[0])
-            value = self.replace_variables(p[1])
-            metric_doc[name] = value
-
-        logger.debug(metric_doc)
-        ret = coll.insert(metric_doc)
-        logger.debug("%s value inserted with _id %s" % (metric_name, ret))
-
-        catocommon.mongo_disconnect(db)
-        
-
-    def unset_deployment_value_cmd(self, step):
-
-        keys = self.get_node_list(step.command, "keys/key", "name")
-        scope = self.get_command_params(step.command, "scope")[0]
-        for k in keys:
-            key = self.replace_variables(k[0])
-            self.unset_deployment_value(scope, key)
-
-    def set_deployment_value_cmd(self, step):
-
-        pairs = self.get_node_list(step.command, "pairs/pair", "key", "value")
-        scope = self.get_command_params(step.command, "scope")[0]
-        for p in pairs:
-            key = self.replace_variables(p[0])
-            value = self.replace_variables(p[1])
-            self.set_deployment_value(scope, key, value)
-
-
-    def append_deployment_value_cmd(self, step):
-
-        scope, key, value = self.get_command_params(step.command, "scope", "key", "value")[:]
-        key = self.replace_variables(key)
-        value = self.replace_variables(value)
-
-        self.append_deployment_value(scope, key, value)
-
-    def get_deployment_value_cmd(self, step):
-
-        scope = self.get_command_params(step.command, "scope")[0]
-        pairs = self.get_node_list(step.command, "pairs/pair", "key", "variable_name")
-        self.get_deployment_value(scope, pairs)
-
 
     def end_task_cmd(self, step):
 
@@ -2034,58 +1661,6 @@ class TaskEngine():
         return status
 
 
-    def change_instance_state_cmd(self, step):
-
-        if not self.instance_id:
-            raise Exception("Change Instance State command must be used within a Service Instance")
-
-        current_state, desired_state = self.get_command_params(step.command, "new_current_state", "desired_state")[:]
-        current_state = self.replace_variables(current_state)
-        desired_state = self.replace_variables(desired_state)
-
-        if len(current_state) == 0:
-            raise Exception("New Current State value is required on the Change Instance State command")
-
-        if len(desired_state) > 0:
-            desired_state_string = ", desired_state = %s " % (desired_state)
-        else:
-            desired_state_string = ""
-
-        sql = """update deployment_service_inst set current_state = %s %s 
-            where instance_id = %s"""
-        self.db.exec_db(sql, (current_state, desired_state_string, self.instance_id))
-
-        msg = "Service Instance state change to %s" % (current_state)
-        self.insert_audit("change_instance_state_cmd", msg, "")
-
-    def update_host_address(self, step):
-
-        if not self.deployment_id:
-            raise Exception("Update Host Address command must be used within a Deployment")
-
-        host_name, address = self.get_command_params(step.command, "host_name", "address")[:]
-        host_name = self.replace_variables(host_name)
-        address = self.replace_variables(address)
-
-        if len(host_name) == 0:
-            raise Exception("Host Name is required when using the Register Host Instance command")
-
-        sql = """update deployment_host set address = %s, up_dt=now() where deployment_id = %s and host_name = %s"""
-        self.db.exec_db(sql, (address, self.deployment_id, host_name))
-
-        msg = "Host %s updated with address %s" % (host_name, address)
-        self.insert_audit("update_host_address", msg, "")
-
-    def lookup_service_id(self, service_name):
-
-        sql = """select deployment_service_id from deployment_service 
-            where deployment_id = %s and service_name = %s"""
-        row = self.db.select_row(sql, (self.deployment_id, service_name))
-        if row:
-            return row[0]
-        else:
-            return None
-
     def get_system_id_from_name(self, asset_name):
 
         sql = """select asset_id from asset where asset_name = %s"""
@@ -2127,84 +1702,6 @@ class TaskEngine():
             msg = "The asset id %s does not exist in the database" % (asset_id)
             raise Exception(msg)
         return s
-
-    def get_service_hosts_cmd(self, step):
-
-        # this is a Maestro function - fail nicely if not available
-        if "deployment" not in globals():
-            logger.warning("This command is available in Cloud Sidekick Maestro.")
-            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
-            return ""
-
-        if not self.deployment_id:
-            raise Exception("Get Service Hosts command must be used from within a deployment")
-
-        service_name, host_name_out, address_out, instance_name = self.get_command_params(step.command,
-            "service_name", "host_name_out", "address_out", "instance_name")[:]
-        service_name = self.replace_variables(service_name)
-
-        if not host_name_out:
-            raise Exception("Get Service Hosts command requires a Host Name result variable")
-
-        if not service_name:
-            service_id = self.service_id
-        else:
-            service_id = self.lookup_service_id(service_name)
-            if not service_id:
-                raise Exception("A service with the name of %s does not exist within this deployment" 
-                    % (service_name))
-        
-        sql = """select dh.host_name, dh.address, dsi.instance_label
-            from deployment_service_inst dsi
-            join deployment_host dh on dh.host_id = dsi.host_id
-            where dsi.deployment_service_id = %s order by dsi.instance_label"""
-        rows = self.db.select_all(sql, (service_id))
-        self.rt.clear(host_name_out)
-
-        if instance_name:
-            self.rt.clear(instance_name)
-        if address_out:
-            self.rt.clear(address_out)
-        if rows:
-            for ii, row in enumerate(rows):
-                t_index = ii + 1
-                self.rt.set(host_name_out, row[0], t_index)
-                if address_out:
-                    self.rt.set(address_out, row[1], t_index)
-                if instance_name:
-                    self.rt.set(instance_name, row[2], t_index)
-            
-    def register_host_instance(self, step):
-
-        # this is a Maestro function - fail nicely if not available
-        if "deployment" not in globals():
-            logger.warning("This command is available in Cloud Sidekick Maestro.")
-            self.insert_audit(self._name__, "This command is available in Cloud Sidekick Maestro.")
-            return ""
-
-        if not self.deployment_id:
-            raise Exception("Register Host Instance command must be used within a Deployment")
-        elif not self.instance_id:
-            raise Exception("Register Host Instance command must be used within a Service Instance")
-
-        host_name, address = self.get_command_params(step.command, "host_name", "address")[:]
-        host_name = self.replace_variables(host_name)
-        address = self.replace_variables(address)
-
-        if len(host_name) == 0:
-            raise Exception("Host Name is required when using the Register Host Instance command")
-
-        newid = self.new_uuid()
-
-        sql = """insert into deployment_host (deployment_id, host_id, host_name, address, up_dt) 
-            values (%s,%s,%s,%s, now())"""
-        self.db.exec_db(sql, (self.deployment_id, newid, host_name, address))
-
-        sql = """update deployment_service_inst set host_id = %s where instance_id = %s"""
-        self.db.exec_db(sql, (newid, self.instance_id))
-
-        msg = "Host %s registered with deployment" % (host_name)
-        self.insert_audit("register_host_instance", msg, "")
 
     def log_msg_cmd(self, step):
 
@@ -2444,32 +1941,8 @@ class TaskEngine():
             self.sql_exec_cmd(step)
         elif f == "store_private_key":
             self.store_private_key_cmd(step)
-        elif f == "get_service_hosts":
-            self.get_service_hosts_cmd(step)
         # elif f == "r53_dns_change":
         #    self.tcl.eval('r53_dns_change {%s}' % step.command)
-        elif f == "get_datastore_value":
-            self.get_datastore_value_cmd(step)
-        elif f == "change_instance_state":
-            self.change_instance_state_cmd(step)
-        elif f == "update_host_address":
-            self.update_host_address(step)
-        elif f == "register_host_instance":
-            self.register_host_instance(step)
-        elif f == "set_datastore_value":
-            self.set_datastore_value_cmd(step)
-        elif f == "get_deployment_value":
-            self.get_deployment_value_cmd(step)
-        elif f == "append_deployment_value":
-            self.append_deployment_value_cmd(step)
-        elif f == "unset_deployment_value":
-            self.unset_deployment_value_cmd(step)
-        elif f == "record_process_info":
-            self.record_process_info_cmd(step)
-        elif f == "store_instance_metric":
-            self.store_instance_metric_cmd(step)
-        elif f == "set_deployment_value":
-            self.set_deployment_value_cmd(step)
         elif f == "set_variable":
             self.set_variable_cmd(step)
         elif f == "comment":
@@ -2493,14 +1966,6 @@ class TaskEngine():
             self.send_email_cmd(step)
         elif f == "get_instance_handle":
             self.get_instance_handle_cmd(step)
-        elif f == "vmw_clone_image":
-            self.vmw_clone_image(step.command)
-        elif f == "vmw_power_off_image":
-            self.vmw_power_image(step.command, "off")
-        elif f == "vmw_power_on_image":
-            self.vmw_power_image(step.command, "on")
-        elif f == "vmw_list_images":
-            self.vmw_list_images(step.command)
         elif f == "add_summary_item":
             self.add_summary_item_cmd(step)
         elif f == "clear_variable":
@@ -2521,10 +1986,48 @@ class TaskEngine():
             self.cmd_line_cmd(step)
         elif f.startswith('aws_'):
             self.aws_cmd(step)
-        # else:
-        #    self.tcl.eval('process_extension {%s} {%s}' % (f, step.command))
+        else:
+            self.process_extension(f, step)
         
+    def process_extension(self, name, step):
+        """
+        
+        This command will attempt to load an extension module, in the 
+        path defined by "extension", assuming the function name is the, um, function name.
+        
+        NOTE: we did something *similar* in startup(), but we didn't load every single module.
+        There, we just loaded and ran the "augment" function, which modified the TE class instance
+        with extension-wide features.
+        
+        Here we're going after a specific function.
+        
+        """
+        root = ET.fromstring(step.command)
+        extension = root.attrib.get("extension")
+        if not extension:
+            logger.error("Unable to get 'extension' property from extension command xml.")
+            return ""
+        
+        logger.info("loading extension [%s] ..." % extension)
+        try:
+            mod = importlib.import_module(extension)
+        except ImportError as ex:
+            logger.error(ex.__str__())
+            return "Extension module [%s] does not exist." % extension
 
+        # evidently the module exists... try to call the function
+        method_to_call = getattr(mod, name, None)
+
+        if method_to_call:
+            if callable(method_to_call):
+                # we pass a pointer to the TaskEngine instance itself, so the extension code has access to everything!
+                # also pass in the logger, since it's global and not a TE property
+                return method_to_call(self, step, logger)
+            else:
+                logger.error("Extension found, method [%s] found, but not callable." % name)
+        else:
+            logger.error("Extension found, but method [%s] not found." % name)
+        
     def process_codeblock(self, task, codeblock_name):
 
         logger.info("##### Processing Codeblock %s" % (codeblock_name))
@@ -2578,37 +2081,6 @@ class TaskEngine():
             self.provider, self.cloud_login_id, password = row[:]
             self.cloud_login_password = catocommon.cato_decrypt(password)
 
-
-    def get_deployment_info(self):
-
-        # this is a Maestro function - fail nicely if not available
-        if "deployment" not in globals():
-            logger.warning("This command is available in Cloud Sidekick Maestro.")
-            self.insert_audit("", "This command is available in Cloud Sidekick Maestro.")
-            return ""
-
-        sql = """select d.deployment_id, d.deployment_name, d.document_id,
-            ds.deployment_service_id, ds.service_name, ds.document_id, dsi.instance_label
-        from deployment d
-        join deployment_service ds on d.deployment_id = ds.deployment_id
-        join deployment_service_inst dsi on dsi.deployment_service_id = ds.deployment_service_id
-        where dsi.instance_id = %s"""
-        deprow = self.db.select_row(sql, (self.instance_id))
-        if deprow:
-            self.deployment_id, self.deployment_name, self.deployment_docid, self.service_id, \
-            self.service_name, self.service_docid, self.instance_name = deprow[:]
-
-        sql = """select dh.host_id, dh.host_name, dh.address from deployment_service_inst dsi
-            join deployment_host dh on dh.host_id = dsi.host_id
-            where dsi.instance_id = %s"""
-        row = self.db.select_row(sql, (self.instance_id))
-        if row:
-            self.host_id, self.host_name, self.host_address = row[:]
-        else:
-            self.host_id = ""
-            self.host_name = ""
-            self.host_address = ""
-            
 
     def release_all(self):
 
@@ -2874,93 +2346,6 @@ class TaskEngine():
    
         return cloud
 
-    def vmw_list_images(self, command):
-
-        import catosphere
-        instance_uuid, endpoint_name = self.get_command_params(command, "instance_uuid", "endpoint_name")[:]
-        instance_uuid = self.replace_variables(instance_uuid)
-        endpoint_name = self.replace_variables(endpoint_name)
-
-        cloud = self.get_cloud_connection(endpoint_name)
-
-        values = []
-        root = ET.fromstring(command)
-        filters = root.findall("filters/filter")
-        the_filter = {}
-        if filters:
-            for f in filters:
-                name = f.findtext("./name", "")
-                values = f.findall("./values/value")
-                value_list = []
-                for v in values:
-                    logger.debug("value is %s" % (v.findtext(".", "")))
-                    value_list.append(v.findtext(".", ""))
-                the_filter[name] = value_list
-            
-        instances = cloud.server.list_instances(instanceUuid=instance_uuid, filter=the_filter)
-        logger.info(instances)
-
-        results = []
-        if len(instances):
-
-            for i in instances:
-                results.append(i.get_properties())
-
-            if len(results):
-                variables = self.get_node_list(command, "step_variables/variable", "name", "position")
-                self.process_list_buffer(results, variables)
-
-        logger.info(results)
-        msg = catosphere.get_all_property_names() + results
-        logger.info(results)
-        self.insert_audit("vmw_list_images", msg, "")
-
-    def vmw_clone_image(self, command):
-
-        instance_uuid, endpoint_name, name, folder, resourcepool, power_on = self.get_command_params(command,
-            "instance_uuid", "endpoint_name", "name", "folder", "resourcepool", "power_on")[:]
-        instance_uuid = self.replace_variables(instance_uuid)
-        endpoint_name = self.replace_variables(endpoint_name)
-        logger.debug("endpoint name = %s" % (endpoint_name))
-        name = self.replace_variables(name)
-        folder = self.replace_variables(folder)
-        resourcepool = self.replace_variables(resourcepool)
-        power_on = self.replace_variables(power_on)
-
-        if len(instance_uuid) == 0:
-            raise Exception("InstanceUUID field is required for VMware Clone command")
-        if len(name) == 0:
-            raise Exception("Name field is required for VMware Clone command")
-        cloud = self.get_cloud_connection(endpoint_name)
-            
-        instance = cloud.server.list_instances(instanceUuid=instance_uuid)[0]
-        result = instance.clone(name=name)
-        msg = "VMware Image Clone %s\nOK" % (instance_uuid)
-        self.insert_audit("vmw_clone_image", msg, "")
-        logger.info(result)
-        
-    def vmw_power_image(self, command, on_off):
-
-        instance_uuid, endpoint_name = self.get_command_params(command, "instance_uuid", "endpoint_name")[:]
-        instance_uuid = self.replace_variables(instance_uuid)
-        endpoint_name = self.replace_variables(endpoint_name)
-
-        if len(instance_uuid) == 0:
-            raise Exception("InstanceUUID field is required for VMware Power commands")
-
-        cloud = self.get_cloud_connection(endpoint_name)
-            
-        if on_off == "on":
-            msg = "VMware Image Power On %s\nOK" % (instance_uuid)
-            self.insert_audit("vmw_power_on_image", msg, "")
-        elif on_off == "off":
-            result = cloud.server.power_off_vm(instance_uuid)
-            msg = "VMware Image Power Off %s\nOK" % (instance_uuid)
-            self.insert_audit("vmw_power_of_image", msg, "")
-
-        logger.info(result)
-        
-
     def select_all(self, sql, conn=None):
 
         if not conn:
@@ -3113,32 +2498,6 @@ class TaskEngine():
         if row:
             self.parse_input_params(row[0])
 
-    def run_task_instance(self):
-
-        logger.info("Task Instance: %s - PID: %s" % 
-            (self.task_instance, os.getpid()))
-        self.update_ti_pid()
-        self.get_task_instance()
-        self.get_task_params()
-        logger.info("Task Name: %s - Version: %s, DEBUG LEVEL: %s, Service Instance id: %s" % 
-            (self.task_name, self.task_version, self.debug_level, self.instance_id))
-
-        if self.instance_id:
-            self.get_deployment_info()
-
-        self.cloud_name = None
-        if self.cloud_account:
-            self.gather_account_info(self.cloud_account)
-        if self.cloud_id:
-            self.cloud_name = self.get_cloud_name(self.cloud_id)
-        elif self.cloud_account:
-            self.cloud_id = self.get_default_cloud_for_account(self.cloud_account)
-            self.cloud_name = self.get_cloud_name(self.cloud_id)
-            
-
-        logger.info("cloud_account is %s, cloud_name is %s " % (self.cloud_account, self.cloud_name))
-
-        self.process_task(self.task_id)
 
     def startup(self):
         logger.info("""
@@ -3152,12 +2511,72 @@ class TaskEngine():
         self.config = catoconfig.CONFIG
 
 
+        logger.info("Task Instance: %s - PID: %s" % 
+            (self.task_instance, os.getpid()))
+        self.update_ti_pid()
+        self.get_task_instance()
+        self.get_task_params()
+        logger.info("Task Name: %s - Version: %s, DEBUG LEVEL: %s, Service Instance id: %s" % 
+            (self.task_name, self.task_version, self.debug_level, self.instance_id))
+
+
+        self.cloud_name = None
+        if self.cloud_account:
+            self.gather_account_info(self.cloud_account)
+        if self.cloud_id:
+            self.cloud_name = self.get_cloud_name(self.cloud_id)
+        elif self.cloud_account:
+            self.cloud_id = self.get_default_cloud_for_account(self.cloud_account)
+            self.cloud_name = self.get_cloud_name(self.cloud_id)
+            
+
+        logger.info("cloud_account is %s, cloud_name is %s " % (self.cloud_account, self.cloud_name))
+
+        
+
+        # extension paths are defined in config.
+        if catoconfig.CONFIG.has_key("extension_path"):
+            expath = catoconfig.CONFIG["extension_path"].split(";")
+            for p in expath:
+                logger.info("Appending extension path [%s]" % p)
+                sys.path.append(p)
+        
+                for root, subdirs, files in os.walk(p):
+                    for f in files:
+                        if f == "augment_te.py":
+                            self.augment("%s.augment_te" % os.path.basename(root))
+        
+
+    def augment(self, modname):
+        
+        logger.info("augmenting from [%s] ..." % modname)
+        try:
+            mod = importlib.import_module(modname)
+        except ImportError as ex:
+            raise ex
+
+        # evidently the module exists... try to call the function
+        method_to_call = getattr(mod, "__augment__", None)
+
+        if method_to_call:
+            if callable(method_to_call):
+                # we pass a pointer to the TaskEngine instance itself, so the extension code has access to everything!
+                # also pass in the logger, since it's global and not a TE property
+                return method_to_call(self, logger)
+            else:
+                logger.error("augment_te module found, but __augment__ is not callable.")
+        else:
+            logger.error("augment_te module found, but doesn't contain __augment__()")
+        
+
+
     def end(self):
         self.db.close()
+        
 
     def run(self):
         try: 
-            self.run_task_instance()
+            self.process_task(self.task_id)
             self.update_status('Completed')
             if len(self.summary) > 0:
                 msg = "result_summary" "<result_summary><items>%s</items></result_summary>" % (self.summary)
