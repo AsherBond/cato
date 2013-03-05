@@ -36,46 +36,21 @@ class FunctionCategories(object):
     # method to load from the disk
     def Load(self, sFileName):
         try:
+            UI.log_nouser("Loading commands from extension file [%s]" % sFileName, 4)
             xRoot = ET.parse(sFileName)
             if xRoot == None:
                 # crash... we can't do anything if the XML is busted
-                return False
+                UI.log_nouser("Invalid XML [%s]" % sFileName, 3)
             else:
                 xCategories = xRoot.findall(".//category")
                 for xCategory in xCategories:
-                    cat = self.BuildCategory(xCategory)
-                    if cat != None:
-                        self.Categories.append(cat)
-                        
-                return True
+                    self.BuildCategory(xCategory)
         except Exception as ex:
-            raise ex
-
-    # append extension files to the class
-    def Append(self, sFileName):
-        try:
-            UI.log_nouser("Parsing extension file " + sFileName, 4)
-            xRoot = ET.parse(sFileName)
-            if xRoot == None:
-                # crash... we can't do anything if the XML is busted
-                return False
-            else:
-                xCategories = xRoot.findall(".//category")
-                for xCategory in xCategories:
-                    cat = self.BuildCategory(xCategory)
-                    if cat != None:
-                        UI.log_nouser("Parsing extension category = " + cat.Name, 4)
-                        self.Categories.append(cat)
-                        
-                return True
-        except Exception as ex:
-            # appending does not throw an exception, just a warning in the log
             UI.log_nouser("WARNING: Error parsing extension command file [" + sFileName + "]. " + ex.__str__(), 0)
 
     def BuildCategory(self, xCategory):
 
         catname = xCategory.get("name", None)
-        
         # not crashing... just skipping
         if not catname:
             return None
@@ -84,6 +59,7 @@ class FunctionCategories(object):
         cat = None
         for c in self.Categories:
             if c.Name == xCategory.get("name"):
+                UI.log_nouser("Appending extension category = [%s]" % c.Name, 4)
                 cat = c
 
         if not cat:
@@ -93,7 +69,9 @@ class FunctionCategories(object):
             cat.Label = xCategory.get("label", cat.Name)
             cat.Description = xCategory.get("description", "")
             cat.Icon = xCategory.get("icon", "")
-    
+            UI.log_nouser("Creating extension category = [%s]" % cat.Name, 4)
+            self.Categories.append(cat)
+
 
         # load up this category with it's functions
         for xFunction in xCategory.findall("commands/command"):
@@ -119,8 +97,6 @@ class FunctionCategories(object):
             # while we're here, it's a good place to append this funcion to the 
             # complete dict on this class
             self.Functions[fn.Name] = fn
-
-        return cat
 
 
 class Category(object):

@@ -880,14 +880,10 @@ def LoadTaskCommands():
     #we load two classes here...
     #first, the category/function hierarchy
     cats = taskCommands.FunctionCategories()
-    bCoreSuccess = cats.Load("%s/catotask/task_commands.xml" % uiGlobals.lib_path)
-    if not bCoreSuccess:
-        raise Exception("Critical: Unable to read/parse task_commands.xml.")
+    cats.Load(os.path.join(os.environ["CATO_HOME"], "lib/catotask/task_commands.xml"))
 
     # we've got the AWS commands in our controlled source.  They're not extensions.
-    bCoreSuccess = cats.Append("%s/catotask/aws_commands.xml" % uiGlobals.lib_path)
-    if not bCoreSuccess:
-        raise Exception("Critical: Unable to read/parse aws_commands.xml.")
+    cats.Load(os.path.join(os.environ["CATO_HOME"], "lib/catotask/aws_commands.xml"))
 
     #try to append any extension files
     #this will read all the xml files in /extensions
@@ -904,9 +900,7 @@ def LoadTaskCommands():
                 ext = os.path.splitext(f)[-1]
                 if ext == ".xml":
                     fullpath = os.path.join(root, f)
-                    log_nouser("Loading extension commands [%s]" % fullpath, 4)
-                    if not cats.Append(fullpath):
-                        log_nouser("WARNING: Unable to load extension command xml file [" + fullpath + "].", 0)
+                    cats.Load(fullpath)
 
     # Command categories and functions are an object, loaded from XML when the 
     # service starts, and stored on the uiGlobals module.
