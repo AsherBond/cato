@@ -32,7 +32,7 @@ Extension entry functions MUST have the following argument signature:
 	
 """
 
-def hello_world(TE, step, logger):
+def hello_world(TE, step):
 	# TE.get_command_params returns the VALUES of each provided property
 	# step.command is the raw XML of the command
 	message = TE.get_command_params(step.command, "message")[0]
@@ -45,7 +45,7 @@ def hello_world(TE, step, logger):
 	logentry = "Someone said [%s]." % message
 
 	# logger writes to the task log FILE
-	logger.critical(logentry)
+	TE.logger.critical(logentry)
 	
 	# insert_audit writes to the task run log in the DATABASE
 	TE.insert_audit("hello_world", logentry, "")

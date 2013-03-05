@@ -22,7 +22,7 @@
 
 import subprocess
 
-def bash_example(TE, step, logger):
+def bash_example(TE, step):
 	args = TE.get_command_params(step.command, "args")[:]
 	
 	p = subprocess.Popen(['ls' % args], stdout=subprocess.PIPE)
@@ -30,7 +30,7 @@ def bash_example(TE, step, logger):
 	out = "".join(iter(p.stdout.readline, b''))
 
 	# logger writes to the task log FILE
-	logger.info(out)
+	TE.logger.info(out)
 	
 	# insert_audit writes to the task run log in the DATABASE
 	TE.insert_audit("bash_example", out, "")
