@@ -548,6 +548,7 @@ if __name__ != app_name:
     # now that the service is set up, we'll know what the logfile name is.
     # so reget the logger
     logger = catolog.get_logger(app_name)
+    catolog.set_debug(dbglvl)
 
     logger.info("Cato UI - Version %s" % catoconfig.VERSION)
     logger.info("DEBUG set to %d..." % dbglvl)
