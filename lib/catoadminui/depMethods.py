@@ -22,6 +22,20 @@
 """
 
 import traceback
+import os
+import sys
+
+# CATO will check for MAESTRO_HOME environment variable.
+# if found, we will add libs from that path
+
+# AT THE MOMENT, this is only necessary to enable the deploymentTemplate pages.
+if not os.environ.has_key("MAESTRO_HOME") or not os.environ["MAESTRO_HOME"]:
+    raise Exception("MAESTRO_HOME environment variable not set.  Maestro is required for Deployment features.")
+
+MAESTRO_HOME = os.environ["MAESTRO_HOME"]
+sys.path.insert(0, os.path.join(MAESTRO_HOME, "lib"))
+
+
 
 from catoui import uiCommon
 from catocommon import catocommon
