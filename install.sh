@@ -180,6 +180,7 @@ NEWKEY=`$CATOHOME/conf/catoencrypt $ENCRYPTIONKEY ""`
 ENCDBPASS=`$CATOHOME/conf/catoencrypt $CATODBPASS $ENCRYPTIONKEY`
 ENCDBREADPASS=`$CATOHOME/conf/catoencrypt $CATODBREADPASS $ENCRYPTIONKEY`
 ENCADMINPASS=`$CATOHOME/conf/catoencrypt $ADMINPASS $ENCRYPTIONKEY`
+sed -i"" -e"s|#CATOHOME#|${CATOHOME}|" $CATOHOME/conf/cato.conf
 sed -i"" -e"s|#CATODBNAME#|${CATODBNAME}|" $CATOHOME/conf/cato.conf
 sed -i"" -e"s|#CATODBUSER#|${CATODBUSER}|" $CATOHOME/conf/cato.conf
 sed -i"" -e"s|#CATODBPASS#|${ENCDBPASS}|" $CATOHOME/conf/cato.conf
