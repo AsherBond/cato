@@ -83,7 +83,7 @@ def read_config():
     key_vals["key"] = un_key
     un_pass = catocryptpy.decrypt_string(enc_pass, un_key)
     key_vals["password"] = un_pass
-    un_mongo_pass = catocryptpy.decrypt_string(enc_mongo_pass, un_key)
+    un_mongo_pass = catocryptpy.decrypt_string(enc_mongo_pass, un_key) if enc_mongo_pass else ""
     key_vals["mongodb.password"] = un_mongo_pass
     
     # something else here... 
