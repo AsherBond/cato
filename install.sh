@@ -54,6 +54,9 @@ CATOFILESDIR="/var/cato"
 LOGFILESDIR="$CATOFILESDIR/log"
 TMPDIR="$CATOFILESDIR/tmp"
 
+MONGOADMIN=admin
+MONGOADMINPASS=secret
+
 ###
 ### shouldn't have to edit below this line
 ###
@@ -93,12 +96,13 @@ echo $FLAVOR
 if [ "$FLAVOR" = "deb" ];
 then
     apt-get update -q
-    apt-get install -y -q python-dev python-pip build-essential
+    apt-get install -y -q python-dev mongodb python-pip build-essential
 
     export DEBIAN_FRONTEND=noninteractive
     echo "mysql-server mysql-server/root_password select $ROOTDBPASS" | debconf-set-selections
     echo "mysql-server mysql-server/root_password_again select $ROOTDBPASS" | debconf-set-selections
     apt-get -y -q=2 install mysql-server
+    MONGOSERVICE="mongodb"
 
 elif [ "$FLAVOR" = "rh" ];
 then 
@@ -111,7 +115,18 @@ then
     mysql -u root -p$ROOTDBPASS -e "SET PASSWORD FOR 'root'@'`hostname`' = PASSWORD('$ROOTDBPASS');"
     mysql -u root -p$ROOTDBPASS -e "DROP USER ''@'localhost';"
     mysql -u root -p$ROOTDBPASS -e "DROP USER ''@'`hostname`';"
-    cat > /etc/yum.repos.d/10gen.repo
+    MONGOSERVICE="mongod"
+    cat > /etc/yum.repos.d/10gen.repo <<EOF
+[10gen]
+name=10gen Repository
+baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64
+gpgcheck=0
+enabled=1
+EOF
+    yum -y --quiet install mongo-10gen mongo-10gen-server
+    # the following is to work around a bug on redhat / centos
+    sed -i"" -e"s|^pidfilepath.*$|pidfilepath=/var/lib/mongo/mongod.lock|"  /etc/mongod.conf
+    service ${MONGOSERVICE} start
 
 elif [ "$FLAVOR" = "suse" ];
 then 
@@ -143,6 +158,12 @@ pip install -q http://github.com/pdunnigan/pywinrm/archive/master.zip
 cd $CATOHOME/src/catocrypt
 python setup.py install --install-platlib=$CATOHOME/lib/catocryptpy
 cd $CATOHOME
+
+# mongodb setup
+$CATOHOME/tools/mongo_secure.py 127.0.0.1 ${MONGOADMIN} ${MONGOADMINPASS} ${CATODBNAME} ${CATODBUSER} ${CATODBPASS}
+sed -i"" -e"s|#auth|auth|" /etc/${MONGOSERVICE}.conf
+service ${MONGOSERVICE} stop
+service ${MONGOSERVICE} start
 
 mkdir -p $LOGFILESDIR/ce
 mkdir -p $LOGFILESDIR/se

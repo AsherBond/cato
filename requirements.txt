@@ -1,8 +1,11 @@
 web.py
 croniter
 boto==2.7.0
+celery
 PyMySQL
+pymongo
 apache-libcloud
+jsonpath
 pysphere
 pexpect
 python-tds
