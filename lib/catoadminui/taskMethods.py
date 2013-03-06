@@ -1741,7 +1741,8 @@ class taskMethods:
         
             sDefaultsXML = ""
             sTaskID = ""
-        
+            sSQL = ""
+            
             if sType == "runtask":
                 # RunTask is actually a command type
                 # but it's very very similar to an Action.
@@ -1792,9 +1793,12 @@ class taskMethods:
         
             # if we didn't get a task id directly, use the SQL to look it up
             if not sTaskID:
-                sTaskID = self.db.select_col_noexcep(sSQL)
-                if self.db.error:
-                    uiCommon.log_nouser(self.db.error, 0)
+                if sSQL:
+                    sTaskID = self.db.select_col_noexcep(sSQL)
+                    if self.db.error:
+                        uiCommon.log_nouser(self.db.error, 0)
+                else:
+                    uiCommon.log("GetMergedParams - no task id and no sql to look one up.", 0)
         
             if not catocommon.is_guid(sTaskID):
                 uiCommon.log("Unable to find Task ID for record.")
@@ -1953,7 +1957,7 @@ class taskMethods:
                     # look it up in the task param xml
                     sADName = xDefault.findtext("name", "")
                     xADValues = xDefault.find("values")
-
+                    
                     # NOTE! elementtree doesn't track parents of nodes.  We need to build a parent map...
                     parent_map = dict((c, p) for p in xTPDoc.getiterator() for c in p)
                     
@@ -2027,13 +2031,17 @@ class taskMethods:
                             sTaskVals += s
                         for s in xADValues.findtext("value"):
                             sDefVals += s
+                            
+                        # if the values match the defaults identically, don't include them
+                        # this allows the defaults to change if needed without storing
+                        # an old copy here.
                         if sTaskVals == sDefVals:
                             xADDoc.remove(xDefault)
                             continue
 
                 # done
                 sOverrideXML = ET.tostring(xADDoc)
-    
+
                 # FINALLY, we have an XML that represents only the differences we wanna save.
                 if sType == "runtask":
                     # WICKED!!!!

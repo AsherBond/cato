@@ -55,7 +55,7 @@ $(document).ready(function () {
         buttons: {
             "Save": function () {
                 SaveRunTaskParameters();
-                ClosePlanEditDialog();
+                CloseRunTaskParameterEdit();
             },
             "Cancel": function () {
                 CloseRunTaskParameterEdit();
