@@ -1072,14 +1072,26 @@ class TaskEngine():
                 params = self.aws_drill_in(node, node.tag, params, node_names)
         del(nodes)
 
-        result = self.call_aws(cloud_name, product, action, params)
+        num_retries = 3
+        for ii in range(1, num_retries + 1):
+            try:
+                result = self.call_aws(cloud_name, product, action, params)
+                break
+            except Exception as ex:
+                if "<Code>InvalidInstanceID.NotFound</Code>" in str(ex) and ii == num_retries:
+                    self.logger.info("Instance ID not found. Sleeping and retrying")
+                    time.sleep(ii * 2)
+                else:
+                    msg = "%s command %s failed: %s" % (product, action, ex)
+                    raise Exception(msg)
+                    
 
         msg = "%s %s" % (step.function_name, params)
         if result:
             msg = msg + "\n" + result
             self.rt.set(result_var, result)
         self.insert_audit("aws_cmd", msg, "")
-
+        
 
     def process_step(self, task, step):
         msg = """
