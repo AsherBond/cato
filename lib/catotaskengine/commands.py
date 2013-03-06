@@ -227,13 +227,14 @@ def subtask_cmd(self, task, step):
 
 def run_task_cmd(self, task, step):
 
-    params = self.get_command_params(step.command, "task_name", "version", "handle", "asset_id", "time_to_wait", "parameters")
+    params = self.get_command_params(step.command, "task_name", "version", "handle", "asset_id", "time_to_wait")
     task_name = params[0]
     version = params[1]
     handle = params[2].lower()
     asset_id = self.replace_variables(params[3])
     wait_time = self.replace_variables(params[4])
-    parameters = self.replace_variables(params[5])
+    parameters = self.extract_xml_string(step.command, "parameters")
+    parameters = self.replace_variables(parameters)
 
     if not task_name:
         raise Exception("Handle name undefined. Run Task requires a Task Name.")
@@ -253,7 +254,7 @@ def run_task_cmd(self, task, step):
         msg = "%s" % (ex)
         raise Exception(msg)
         
-    sql = """select task_id, version, default_version, now() from task where task_name = %s"""
+    sql = """select task_id, version, default_version, parameter_xml, now() from task where task_name = %s"""
     if len(version):
         sql = sql + " and version = %s"
         row = self.db.select_row(sql, (task_name, version))
@@ -265,11 +266,22 @@ def run_task_cmd(self, task, step):
         task_id = row[0]
         task_version = row[1]
         default_version = row[2]
-        submitted_dt = row[3]
+        task_params = row[3]
+        submitted_dt = row[4]
     else:
         msg = "Run Task - Task [%s] version [%s] does not exist." % (task_name, version)
         raise Exception(msg)
 
+    # one final thing before submitting...
+    # the parameters on the run_task command ARE NOT the full set of parameters, 
+    # rather likely a subset of what's defined on the task to be ran.
+    #     (this allows a user to set a few explicit values on this command,
+    #     while leaving other values on the task that can be changed without the need to 
+    #     change every reference to the task.)
+    
+    # merged_params = self.merge_parameters(task_params, parameters)
+    
+    
     ti = catocommon.add_task_instance(task_id=task_id, user_id=self.submitted_by, debug_level=self.debug_level,
         parameter_xml=parameters, scope_id=self.instance_id, account_id=self.cloud_account,
         schedule_instance=self.schedule_instance, submitted_by_instance=self.task_instance,
