@@ -227,12 +227,13 @@ def subtask_cmd(self, task, step):
 
 def run_task_cmd(self, task, step):
 
-    params = self.get_command_params(step.command, "task_name", "version", "handle", "asset_id", "time_to_wait")
-    task_name = params[0]
-    version = params[1]
-    handle = params[2].lower()
-    asset_id = self.replace_variables(params[3])
-    wait_time = self.replace_variables(params[4])
+    args = self.get_command_params(step.command, "task_name", "version", "handle", "asset_id", "time_to_wait")
+    task_name = args[0]
+    version = args[1]
+    handle = args[2].lower()
+    asset_id = self.replace_variables(args[3])
+    wait_time = self.replace_variables(args[4])
+    
     parameters = self.extract_xml_string(step.command, "parameters")
     parameters = self.replace_variables(parameters)
 
@@ -279,11 +280,11 @@ def run_task_cmd(self, task, step):
     #     while leaving other values on the task that can be changed without the need to 
     #     change every reference to the task.)
     
-    # merged_params = self.merge_parameters(task_params, parameters)
+    merged_params = self.merge_parameters(task_params, parameters)
     
     
     ti = catocommon.add_task_instance(task_id=task_id, user_id=self.submitted_by, debug_level=self.debug_level,
-        parameter_xml=parameters, scope_id=self.instance_id, account_id=self.cloud_account,
+        parameter_xml=merged_params, scope_id=self.instance_id, account_id=self.cloud_account,
         schedule_instance=self.schedule_instance, submitted_by_instance=self.task_instance,
         cloud_id=self.cloud_id) 
 

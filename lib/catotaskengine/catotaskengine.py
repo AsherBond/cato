@@ -1379,84 +1379,64 @@ class TaskEngine():
         del(root)
         return z
 
-#    def merge_parameters(self, default_xml, override_xml):
-#        
-#        # this will merge the two parameter documents, with 
-#        # values from the second overriding values from the first
-#        
-#        xdefaults = ET.fromstring(default_xml)
-#        xoverrides = ET.fromstring(override_xml)
-#        
-#        # spin the nodes in the DEFAULTS xml, then dig in to the task XML and UPDATE the value if found.
-#        # (if the node no longer exists, delete the node from the defaults xml IF IT WAS AN ACTION)
-#        # and default "values" take precedence over task values.
-#        for xdefault in xdefaults.findall("parameter"):
-#            # nothing to do if it's empty
-#            if xdefault is None:
-#                break
-#    
-#            # look it up in the task param xml
-#            def_param_name = xdefault.findtext("name", "")
-#            xdefvalues = xdefault.find("values")
-#            
-#            # nothing to do if there is no values node...  or if it contains no values...  or if there is no parameter name.
-#            if xdefvalues is None or not len(xdefvalues) or not def_param_name:
-#                break
-#        
-#        
-#            # so, we have some valid data in the defaults xml... let's merge!
-#
-#            # NOTE! elementtree doesn't track parents of nodes.  We need to build a parent map...
-#            parent_map = dict((c, p) for p in xdefaults.getiterator() for c in p)
-#            
-#            # we have the name of the parameter... go spin and find the matching node in the TASK param XML
-#            xTaskParam = None
-#            for node in xdefaults.findall("parameter/name"):
-#                if node.text == def_param_name:
-#                    # now we have the "name" node, what's the parent?
-#                    xTaskParam = parent_map[node]
-#                    
-#            # @@@@@ here is where I stopped...
-#            if xTaskParam is not None:
-#                # the "values" collection will be the 'next' node
-#                xTaskParamValues = xTaskParam.find("values")
-#
-#                sPresentAs = xTaskParamValues.get("present_as", "")
-#                if sPresentAs == "dropdown":
-#                    # dropdowns get a "selected" indicator
-#                    sValueToSelect = xdefvalues.findtext("value", "")
-#                    if sValueToSelect:
-#                        # find the right one by value and give it the "selected" attribute.
-#                        for xVal in xTaskParamValues.findall("value"):
-#                            if xVal.text == sValueToSelect:
-#                                xVal.attrib["selected"] = "true"
-#                elif sPresentAs == "list":
-#                    # replace the whole list with the defaults if they exist
-#                    xTaskParam.remove(xTaskParamValues)
-#                    xTaskParam.append(xdefvalues)
-#                else:
-#                    # IMPORTANT NOTE:
-#                    # remember... both these XML documents came from wmGetObjectParameterXML...
-#                    # so any encrypted data IS ALREADY OBFUSCATED and base64'd in the oev attribute.
-#                    
-#                    # it's a single value, so just replace it with the default.
-#                    xVal = xTaskParamValues.find("value[1]")
-#                    if xVal is not None:
-#                        # if this is an encrypted parameter, we'll be replacing (if a default exists) the oev attribute
-#                        # AND the value... don't want them to get out of sync!
-#                        if catocommon.is_true(sEncrypt):
-#                            if xdefvalues.find("value") is not None:
-#                                xVal.attrib["oev"] = xdefvalues.find("value").get("oev", "")
-#                                xVal.text = xdefvalues.findtext("value", "")
-#                        else:
-#                            # not encrypted, just replace the value.
-#                            if xdefvalues.find("value") is not None:
-#                                xVal.text = xdefvalues.findtext("value", "")
-#
-#    if xdefaults is not None:    
-#        resp = ET.tostring(xdefaults)
-#        if resp:
-#            return resp
+    def merge_parameters(self, default_xml, override_xml):
+        
+        # this will merge the two parameter documents, with 
+        # values from the second overriding values from the first
+        
+        xdefaults = ET.fromstring(default_xml)
+        xoverrides = ET.fromstring(override_xml)
+        
+        # spin the nodes in the DEFAULTS xml, then dig in to the task XML and UPDATE the value if found.
+        # (if the node no longer exists, delete the node from the defaults xml IF IT WAS AN ACTION)
+        # and default "values" take precedence over task values.
+        for xoverride in xoverrides.findall("parameter"):
+            # nothing to do if it's empty
+            if xoverride is None:
+                break
+    
+            # look it up in the task param xml
+            xovername = xoverride.findtext("name", "")
+            xovervals = xoverride.find("values")
+            
+            # nothing to do if there is no values node... or if it contains no values... or if there is no parameter name
+            if xovervals is None or not len(xovervals) or not xovername:
+                break
+        
+        
+            # so, we have some valid data in the override xml... let's merge!
+
+            # NOTE! elementtree doesn't track parents of nodes.  We need to build a parent map...
+            parent_map = dict((c, p) for p in xdefaults.getiterator() for c in p)
+            
+            # we have the name of the parameter... go spin and find the matching node in the TASK param XML
+            xdefaultparam = None
+            for node in xdefaults.findall("parameter/name"):
+                if node.text == xovername:
+                    # now we have the "name" node, what's the parent?
+                    xdefaultparam = parent_map[node]
+                    
+                    
+            if xdefaultparam is not None:
+                # the "values" collection will be the 'next' node
+                xdefaultparamvalues = xdefaultparam.find("values")
+        
+                sPresentAs = xdefaultparamvalues.get("present_as", "")
+                if sPresentAs == "list":
+                    # replace the whole list with the defaults if they exist
+                    xdefaultparam.remove(xdefaultparamvalues)
+                    xdefaultparam.append(xovervals)
+                else:
+                    # it's a single value, so just replace it with the default.
+                    xval = xdefaultparamvalues.find("value[1]")
+                    if xval is not None:
+                        if xovervals.find("value") is not None:
+                            xval.text = xovervals.findtext("value", "")
+
+        if xdefaults is not None:    
+            resp = ET.tostring(xdefaults)
+            if resp:
+                return resp
         
         
     def parse_input_params(self, params):
