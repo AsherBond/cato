@@ -1627,13 +1627,14 @@ class taskMethods:
         sType = uiCommon.getAjaxArg("sType")
         sID = uiCommon.getAjaxArg("sID")
         sFilterID = uiCommon.getAjaxArg("sFilterID")
-        return self.GetParameterXML(sType, sID, sFilterID)
+        sXPath = uiCommon.getAjaxArg("sXPath")
+        return self.GetParameterXML(sType, sID, sFilterID, sXPath)
 
-    def GetParameterXML(self, sType, sID, sFilterID):
+    def GetParameterXML(self, sType, sID, sFilterID, sXPath=""):
         if sType == "task":
             return self.GetObjectParameterXML(sType, sID, "")
         else:
-            return self.GetMergedParameterXML(sType, sID, sFilterID);  # Merging is happening here!
+            return self.GetMergedParameterXML(sType, sID, sFilterID, sXPath);  # Merging is happening here!
 
     # """
     #  This method simply gets the XML directly from the db for the type.
@@ -1648,44 +1649,51 @@ class taskMethods:
         sFilterID = uiCommon.getAjaxArg("sFilterID")
         return self.GetObjectParameterXML(sType, sID, sFilterID)
 
-    def GetObjectParameterXML(self, sType, sID, sFilterID):
-        if sType == "instance":
-            # if sID is a guid, it's a task_id ... get the most recent run
-            # otherwise assume it's a task_instance and try: that.
-            if catocommon.is_guid(sID):
-                sSQL = """select parameter_xml from task_instance_parameter where task_instance = 
-                    (select max(ti.task_instance) 
-                    from task_instance ti
-                    join task_instance_parameter tip on ti.task_instance = tip.task_instance
-                     where ti.task_id = '%s')""" % sID
-            elif catocommon.is_guid(sFilterID):  # but if there's a filter_id, limit it to tha:
-                sSQL = """select parameter_xml from task_instance_parameter where task_instance = 
-                    (select max(ti.task_instance) 
-                    from task_instance ti
-                    join task_instance_parameter tip on ti.task_instance = tip.task_instance
-                     where ti.task_id = '%s'
-                     and ti.ecosystem_id = '%s'""" % (sID, sFilterID)
-            else:
-                sSQL = "select parameter_xml from task_instance_parameter where task_instance = '" + sID + "'"
-        elif sType == "runtask":
+    def GetObjectParameterXML(self, sType, sID, sFilterID, sXPath=""):
+        if sType == "runtask":
+            # run task needs xpath to find the xml in step function xml
+
             #  in this case, sID is actually a *step_id* !
             # sucks that MySql doesn't have decent XML functions... we gotta do manipulation grr...
-            sSQL = """select substring(function_xml,
-                locate('<parameters>', function_xml),
-                locate('</parameters>', function_xml) - locate('<parameters>', function_xml) + 13)
-                as parameter_xml
-                from task_step where step_id = '%s'""" % sID
+            sSQL = """select function_xml from task_step where step_id = '%s'""" % sID
+            func_xml = self.db.select_col_noexcep(sSQL)
+            if self.db.error:
+                uiCommon.log_nouser(self.db.error, 0)
+                
+            xroot = ET.fromstring(func_xml)
+            xparams = xroot.find("%s/parameters" % sXPath)
+            sParameterXML = ET.tostring(xparams)
 
-        elif sType == "plan":
-            sSQL = "select parameter_xml from action_plan where plan_id = " + sID
-        elif sType == "schedule":
-            sSQL = "select parameter_xml from action_schedule where schedule_id = '" + sID + "'"
-        elif sType == "task":
-            sSQL = "select parameter_xml from task where task_id = '" + sID + "'"
-
-        sParameterXML = self.db.select_col_noexcep(sSQL)
-        if self.db.error:
-            uiCommon.log_nouser(self.db.error, 0)
+        else:
+            # other types can select it directly from their repspective tables
+            if sType == "instance":
+                # if sID is a guid, it's a task_id ... get the most recent run
+                # otherwise assume it's a task_instance and try: that.
+                if catocommon.is_guid(sID):
+                    sSQL = """select parameter_xml from task_instance_parameter where task_instance = 
+                        (select max(ti.task_instance) 
+                        from task_instance ti
+                        join task_instance_parameter tip on ti.task_instance = tip.task_instance
+                         where ti.task_id = '%s')""" % sID
+                elif catocommon.is_guid(sFilterID):  # but if there's a filter_id, limit it to tha:
+                    sSQL = """select parameter_xml from task_instance_parameter where task_instance = 
+                        (select max(ti.task_instance) 
+                        from task_instance ti
+                        join task_instance_parameter tip on ti.task_instance = tip.task_instance
+                         where ti.task_id = '%s'
+                         and ti.ecosystem_id = '%s'""" % (sID, sFilterID)
+                else:
+                    sSQL = "select parameter_xml from task_instance_parameter where task_instance = '" + sID + "'"
+            elif sType == "plan":
+                sSQL = "select parameter_xml from action_plan where plan_id = " + sID
+            elif sType == "schedule":
+                sSQL = "select parameter_xml from action_schedule where schedule_id = '" + sID + "'"
+            elif sType == "task":
+                sSQL = "select parameter_xml from task where task_id = '" + sID + "'"
+    
+            sParameterXML = self.db.select_col_noexcep(sSQL)
+            if self.db.error:
+                uiCommon.log_nouser(self.db.error, 0)
 
         if sParameterXML:
             xParams = ET.fromstring(sParameterXML)
@@ -1717,7 +1725,7 @@ class taskMethods:
         sFilterID = uiCommon.getAjaxArg("sFilterID")
         return self.GetMergedParameterXML(sType, sID, sFilterID)
 
-    def GetMergedParameterXML(self, sType, sID, sFilterID):
+    def GetMergedParameterXML(self, sType, sID, sFilterID, sXPath=""):
         """
          This method does MERGING!
          
@@ -1760,7 +1768,7 @@ class taskMethods:
                 # get the parameters off the step itself.
                 # which is also goofy, as they are embedded *inside* the function xml of the step.
                 # but don't worry that's handled in here
-                sDefaultsXML = self.GetObjectParameterXML(sType, sID, "")
+                sDefaultsXML = self.GetObjectParameterXML(sType, sID, "", sXPath)
                 
                 # now, we will want to get the parameters for the task *referenced by the command* down below
                 # but no sql is necessary to get the ID... we already know it!

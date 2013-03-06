@@ -225,12 +225,18 @@ function doAddIfSection(step_id, add_to, idx) {
 function ShowRunTaskParameterEdit() {
     var task_parameter_xml = "";
 
+	args = {};
+	args.sXPath = rt_base_xpath;
+	args.sType = "runtask";
+	args.sID = rt_step_id;
+	args.sFilterID = rt_task_id;
+	
 	if (rt_task_id != "") {
 	    $.ajax({
 	        async: false,
 	        type: "POST",
 	        url: "taskMethods/wmGetParameterXML",
-	        data: '{"sType":"runtask","sID":"' + rt_step_id + '","sFilterID":"' + rt_task_id + '"}',
+	        data: JSON.stringify(args),
 	        contentType: "application/json; charset=utf-8",
 	        dataType: "xml",
 	        success: function (response) {
