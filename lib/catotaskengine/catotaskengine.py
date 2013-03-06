@@ -49,7 +49,7 @@ from bson.json_util import dumps
 import uuid
 from awspy import awspy
 import base64
-from . import matheval
+from matheval import matheval
 from . import commands
 from . import classes
 
