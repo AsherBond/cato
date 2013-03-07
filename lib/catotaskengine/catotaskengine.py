@@ -264,6 +264,13 @@ class TaskEngine():
                         pass
                     raise Exception(msg)
 
+        # we successfully logged in, let's get rid of the private key
+        if key:
+            try:
+                os.remove(kf_name)
+            except:
+                pass
+
         c.sendline("unset PROMPT_COMMAND;export PS1='PROMPT>'")
         index = c.expect(["PROMPT>.*PROMPT>$", pexpect.EOF, pexpect.TIMEOUT])
         if index == 0:
