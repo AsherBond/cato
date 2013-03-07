@@ -321,17 +321,15 @@ def CacheTaskCommands():
             logger.error("Task Function Categories class is not in the datacache.")
         else:
             for cat in cats.Categories:
-                sCatHTML += "<li class=\"ui-widget-content ui-corner-all command_item category\""
+                sCatHTML += "<div class=\"ui-widget-content ui-corner-all command_item category\""
                 sCatHTML += " id=\"cat_" + cat.Name + "\""
                 sCatHTML += " name=\"" + cat.Name + "\">"
-                sCatHTML += "<div>"
                 sCatHTML += "<img class=\"category_icon\" src=\"" + cat.Icon + "\" alt=\"\" />"
                 sCatHTML += "<span>" + cat.Label + "</span>"
                 sCatHTML += "</div>"
                 sCatHTML += "<div id=\"help_text_" + cat.Name + "\" class=\"hidden\">"
                 sCatHTML += cat.Description
                 sCatHTML += "</div>"
-                sCatHTML += "</li>"
                 
                 sFunHTML += "<div class=\"functions hidden\" id=\"cat_" + cat.Name + "_functions\">"
                 # now, let's work out the functions.
@@ -342,7 +340,7 @@ def CacheTaskCommands():
                     sFunHTML += " name=\"fn_" + fn.Name + "\">"
                     sFunHTML += "<img class=\"function_icon\" src=\"" + fn.Icon + "\" alt=\"\" />"
                     sFunHTML += "<span>" + fn.Label + "</span>"
-                    sFunHTML += "<div id=\"help_text_" + fn.Name + "\" class=\"hidden\">"
+                    sFunHTML += "<div id=\"help_text_fn_" + fn.Name + "\" class=\"hidden\">"
                     sFunHTML += fn.Description
                     sFunHTML += "</div>"
                     sFunHTML += "</div>"

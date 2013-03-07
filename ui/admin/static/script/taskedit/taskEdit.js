@@ -294,8 +294,10 @@ function doGetCommands() {
 	$("#div_commands #categories").load("uiMethods/wmGetCategories", function() {
 		//set the help text on hover over a category
 		$("#toolbox .category").hover(function() {
+			$(this).addClass("command_item_hover");
 			$("#te_help_box_detail").html($("#help_text_" + $(this).attr("name")).html());
 		}, function() {
+			$(this).removeClass("command_item_hover");
 			$("#te_help_box_detail").html("");
 		});
 
@@ -586,18 +588,13 @@ function initDraggable() {
 
 	//unbind it first so they don't stack (since hover doesn't support "live")
 	$("#toolbox .function").unbind("mouseenter mouseleave");
-	$("#toolbox .command_item").unbind("mouseenter mouseleave");
 
 	//set the help text on hover over a function
 	$("#toolbox .function").hover(function() {
+		$(this).addClass("command_item_hover");
 		$("#te_help_box_detail").html($("#help_text_" + $(this).attr("name")).html());
 	}, function() {
-		$("#te_help_box_detail").html("");
-	});
-
-	$("#toolbox .command_item").hover(function() {
-		$(this).addClass("command_item_hover");
-	}, function() {
 		$(this).removeClass("command_item_hover");
+		$("#te_help_box_detail").html("");
 	});
 }

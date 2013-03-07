@@ -62,27 +62,23 @@
 }
 
 .category {
-    font-size: 0.9em;
 }
 .category_selected {
-    background-color: #DDDDDD;
-    color: #3333FF;
+    background-color: #e3e3e3 !important;
 }
 .category_functions {
 }
 .category_icon {
-    width: 16px;
-    height: 16px;
-    margin: 4px 6px 1px 4px;
+    width: 20px;
+    height: 20px;
+    margin: 2px 6px -4px 0px;
 }
 .function {
-    font-size: 1em;
-    padding: 5px 5px 0px 5px;
 }
 .function_icon {
-    width: 16px;
-    height: 16px;
-    margin-right: 5px;
+    width: 20px;
+    height: 20px;
+    margin: 2px 6px -4px 0px;
 }
 .function_helper {
     border: 1px solid #D3D3D3;
@@ -237,16 +233,18 @@
 }
 
 .command_item {
-    background-color: #f8f8f8;
+    background-image: none;
+    background-color: #FBFBFB;
     cursor: pointer;
     margin: 0px 0px 2px 4px;
     padding-left: 5px;
     color: #202020;
     list-style-type: none;
+    font-size: 0.9em;
 }
 .command_item_hover {
     /*background: url( 'images/item_bg_alt.png' ) repeat-x scroll;*/
-    color: #101010;
+    background-color: #e3e3e3;
 }
 .clip {
     height: 60px;
@@ -349,7 +347,7 @@
 }
 .step_detail {
     padding: 4px 4px 0px 4px;
-    background: #EFEFEF;
+    background: #F8F8F8;
     font-size: 11px;
     border-top: none; /*border-left: 3px solid #BCBCBC; 	border-right: 3px solid #BCBCBC; 	border-bottom: 3px solid #BCBCBC; 	border-radius-bottomleft: 17px;*/
 }
