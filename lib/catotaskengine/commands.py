@@ -412,7 +412,7 @@ def store_private_key_cmd(self, task, step):
     self.insert_audit("store_private_key", msg, "")
 
 
-def comment(self, task, step):
+def comment_cmd(self, task, step):
     self.logger.info("skipping comment")
 
 
@@ -457,7 +457,7 @@ def set_variable_cmd(self, task, step):
         self.rt.set(name, value, index)
 
     
-def cancel_tasks_cmd(self, task, step):
+def cancel_task_cmd(self, task, step):
 
     tis = self.get_command_params(step.command, "task_instance")[0]
     tis = self.replace_variables(tis)
