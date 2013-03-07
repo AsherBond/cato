@@ -817,7 +817,7 @@ def set_debug_level_cmd(self, task, step):
     dl = self.replace_variables(dl)
     self.logger.info("Setting the debug level to [%s]" % dl)
     
-    self.set_sebug(dl)
+    self.set_debug(dl)
 
 def sleep_cmd(self, task, step):
 
