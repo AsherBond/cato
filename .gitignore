@@ -21,41 +21,7 @@ web/convert.out
 
 web/convert.out
 
-web/static/_amenu.html
-
-web/static/_dmenu.html
-
-web/static/_umenu.html
-
-logfiles/cato_poller.log
-
-web/static/storm.js
-
-web/static/script/storm.js
-
-lib/tclcloud/LICENSE.txt
-
-lib/tclcloud/README
-
-lib/tclcloud/pkgIndex.tcl
-
-lib/tclcloud/tclcloud.tcl
-
-web/static/_functions.html
-
-web/datacache/_categories.pickle
-
-web/static/_categories.html
-
-web/static/script/stormRunDialog.js
-
-web/static/script/stormStopDialog.js
-
-web/static/_command_help.html
-
 web/site.master.xml.ce
-
-lib/catoapi/stormMethods.py
 
 lib/catoimage
 
@@ -75,26 +41,11 @@ web/static/script/imageEdit.js
 
 web/imageMethods.py
 
-lib/stormlaunch
-
 lib/catoadminui/imageMethods.py
 
 lib/catoadminui/tag.py
 
 lib/catoadminui/tagMethods.py
 
-ui/admin/static/.DS_Store
+.DS_Store
 
-ui/admin/static/_amenu.html
-
-ui/admin/static/_categories.html
-
-ui/admin/static/_command_help.html
-
-ui/admin/static/_dmenu.html
-
-ui/admin/static/_functions.html
-
-ui/admin/static/_umenu.html
-
-conf/.DS_Store
