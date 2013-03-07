@@ -13,39 +13,5 @@ conf/cato.conf
 
 logfiles/*
 
-services/mystart
-
-web/convert.in
-
-web/convert.out
-
-web/convert.out
-
-web/site.master.xml.ce
-
-lib/catoimage
-
-web/templates/tagEdit.html
-
-web/templates/imageEdit.html
-
-web/tagMethods.py
-
-web/tag.py
-
-web/static/script/tagEdit.js
-
-web/static/script/objectTag.js
-
-web/static/script/imageEdit.js
-
-web/imageMethods.py
-
-lib/catoadminui/imageMethods.py
-
-lib/catoadminui/tag.py
-
-lib/catoadminui/tagMethods.py
-
 .DS_Store
 
