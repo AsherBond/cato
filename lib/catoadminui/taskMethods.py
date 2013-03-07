@@ -1289,7 +1289,7 @@ class taskMethods:
                     sHTML += "No results found"
                 else:
                     if iRowsToGet >= 100:
-                        sHTML += "<div>Search found " + iRowsToGet + " results.  Displaying the first 100.</div>"
+                        sHTML += "<div>Search found %s results.  Displaying the first 100.</div>" % iRowsToGet
                         iRowsToGet = 99
                     sHTML += "<ul id=\"search_task_ul\" class=\"search_dialog_ul\">"
     
@@ -1661,7 +1661,8 @@ class taskMethods:
                 uiCommon.log_nouser(self.db.error, 0)
                 
             xroot = ET.fromstring(func_xml)
-            xparams = xroot.find("%s/parameters" % sXPath)
+            prefix = "%s/" if sXPath else ""
+            xparams = xroot.find("%sparameters" % prefix)
             sParameterXML = ET.tostring(xparams)
 
         else:
