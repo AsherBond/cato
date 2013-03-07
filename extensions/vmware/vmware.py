@@ -14,7 +14,7 @@
 # limitations under the License.
 #########################################################################
 
-def vmw_list_images(TE, step, logger):
+def vmw_list_images(TE, step):
 
     import catosphere
     instance_uuid, endpoint_name = TE.get_command_params(step.command, "instance_uuid", "endpoint_name")[:]
@@ -33,12 +33,12 @@ def vmw_list_images(TE, step, logger):
             values = f.findall("./values/value")
             value_list = []
             for v in values:
-                logger.debug("value is %s" % (v.findtext(".", "")))
+                TE.logger.debug("value is %s" % (v.findtext(".", "")))
                 value_list.append(v.findtext(".", ""))
             the_filter[name] = value_list
         
     instances = cloud.server.list_instances(instanceUuid=instance_uuid, filter=the_filter)
-    logger.info(instances)
+    TE.logger.info(instances)
 
     results = []
     if len(instances):
@@ -50,18 +50,18 @@ def vmw_list_images(TE, step, logger):
             variables = TE.get_node_list(step.command, "step_variables/variable", "name", "position")
             TE.process_list_buffer(results, variables)
 
-    logger.info(results)
+    TE.logger.info(results)
     msg = catosphere.get_all_property_names() + results
-    logger.info(results)
+    TE.logger.info(results)
     TE.insert_audit("vmw_list_images", msg, "")
 
-def vmw_clone_image(TE, step, logger):
+def vmw_clone_image(TE, step):
 
     instance_uuid, endpoint_name, name, folder, resourcepool, power_on = TE.get_command_params(step.command,
         "instance_uuid", "endpoint_name", "name", "folder", "resourcepool", "power_on")[:]
     instance_uuid = TE.replace_variables(instance_uuid)
     endpoint_name = TE.replace_variables(endpoint_name)
-    logger.debug("endpoint name = %s" % (endpoint_name))
+    TE.logger.debug("endpoint name = %s" % (endpoint_name))
     name = TE.replace_variables(name)
     folder = TE.replace_variables(folder)
     resourcepool = TE.replace_variables(resourcepool)
@@ -77,12 +77,12 @@ def vmw_clone_image(TE, step, logger):
     result = instance.clone(name=name)
     msg = "VMware Image Clone %s\nOK" % (instance_uuid)
     TE.insert_audit("vmw_clone_image", msg, "")
-    logger.info(result)
+    TE.logger.info(result)
         
-def vwm_power_on_image(TE, step, logger):
+def vwm_power_on_image(TE, step):
     vmw_power_image(step.command, "on")
             
-def vwm_power_off_image(TE, step, logger):
+def vwm_power_off_image(TE, step):
     vmw_power_image(step.command, "off")
             
 def vmw_power_image(TE, command, on_off):
@@ -104,5 +104,5 @@ def vmw_power_image(TE, command, on_off):
         msg = "VMware Image Power Off %s\nOK" % (instance_uuid)
         TE.insert_audit("vmw_power_off_image", msg, "")
 
-    logger.info(result)
+    TE.logger.info(result)
     

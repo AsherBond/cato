@@ -412,7 +412,7 @@ def store_private_key_cmd(self, task, step):
     self.insert_audit("store_private_key", msg, "")
 
 
-def comment(TE, step, logger):
+def comment(self, task, step):
     self.logger.info("skipping comment")
 
 
