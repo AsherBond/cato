@@ -1144,15 +1144,17 @@ class TaskEngine():
         root = ET.fromstring(step.command)
         extension = root.attrib.get("extension")
         if not extension:
-            self.logger.error("Unable to get 'extension' property from extension command xml.")
-            return ""
+            msg = "Unable to get 'extension' property from extension command xml for extension %s" % (name)
+            self.logger.error(msg)
+            raise Exception(msg)
         
         self.logger.info("loading extension [%s] ..." % extension)
         try:
             mod = importlib.import_module(extension)
         except ImportError as ex:
             self.logger.error(ex.__str__())
-            return "Extension module [%s] does not exist." % extension
+            msg = "Extension module [%s] does not exist." % extension
+            raise Exception(msg)
 
         # evidently the module exists... try to call the function
         method_to_call = getattr(mod, name, None)
@@ -1162,9 +1164,11 @@ class TaskEngine():
                 # we pass a pointer to the TaskEngine instance itself, so the extension code has access to everything!
                 return method_to_call(self, step)
             else:
-                self.logger.error("Extension found, method [%s] found, but not callable." % name)
+                msg = "Extension found, method [%s] found, but not callable." % name
+                raise Exception(msg)
         else:
-            self.logger.error("Extension found, but method [%s] not found." % name)
+            msg = "Extension found, but method [%s] not found." % name
+            raise Exception(msg)
         
     def process_codeblock(self, task, codeblock_name):
 
