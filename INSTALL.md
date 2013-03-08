@@ -77,7 +77,7 @@ Change current directory to the target directory.
 cd $CATO_HOME
 ```
 
-#### Optional:
+__Optional__
 It is optional to edit the install.sh script to modify user ids, passwords, file locations, etc.
 
 The installation script will create a directory under /var named cato. This directory will hold logfiles, cache
