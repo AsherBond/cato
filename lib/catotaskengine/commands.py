@@ -860,23 +860,26 @@ def winrm_cmd_cmd(self, task, step):
     self.logger.info(cmd)
     command_id = c.handle.run_command(c.shell_id, cmd)
     buff, err, return_code = c.handle.get_command_output(c.shell_id, command_id)
-    if return_code > 0:
-        # return code of > 0 seems to be a winrm error. bad
-        self.logger.info(buff)
-        raise Exception(err)
-    elif return_code == -1:
+
+    self.logger.info("WinRM return code %s" % return_code)
+    self.logger.info("Buffer returned is %s" % buff)
+    self.logger.info("Error result is %s" % err)
+    
+    #if return_code > 0:
+    #    # return code of > 0 seems to be a winrm error. bad
+    #    self.logger.info(buff)
+    #    raise Exception(err)
+    #elif return_code == -1:
+    if return_code != 0:
         # return code of -1 seems to be an error from the command line
         # we will pass this on to the task to figure out what to do with
-        if len(buff):
+        if len(err):
             buff = "%s\n%s" % (buff, err)
-        else:
-            buff = err
+        #else:
+        #    buff = err
 
     c.handle.cleanup_command(c.shell_id, command_id)
 
-    self.logger.info(buff)
-    self.logger.info(err)
-    self.logger.info(return_code)
     
     msg = "%s\n%s" % (cmd, buff)
     self.insert_audit("winrm_cmd", msg)
