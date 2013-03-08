@@ -83,6 +83,8 @@ It is optional to edit the install.sh script to modify user ids, passwords, file
 The installation script will create a directory under /var named cato. This directory will hold logfiles, cache
 files and temporary files. If desired, change these parameters in the top of the install.sh script.
 
+#### Run Install
+
 Run the installation script.
 
 ```
