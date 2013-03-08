@@ -76,10 +76,11 @@ python -c "import cx_Oracle; print 'install successful'"
 ```
 
 Add ORACLE_HOME and LD_LIBRARY_PATH to the cato application user's profile script. 
-First determine the filename of the profile script and then change it below. 
+First determine the filename of the profile script and then change it below. It may be .bash_profile
+depending on your flavor of linux.
 
 ```
-export PROF=.bash_profile
+export PROF=.profile
 echo "export ORACLE_HOME=${CATO_HOME}/lib/instantclient_11_2" >> ~/${PROF}
 echo "export LD_LIBRARY_PATH=$ORACLE_HOME" >>  ~/${PROF}
 ```
