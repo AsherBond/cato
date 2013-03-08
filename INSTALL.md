@@ -66,15 +66,15 @@ Download the supplied tar file to the target server. Unpack the file with the fo
 Substitute /opt/cato for any target directory desired.
 
 ```
-export CATOHOME=/opt/cato
-sudo mkdir $CATOHOME
-sudo tar -xvzf cloudsidekickcato.tar.gz -C $CATOHOME --strip-components=1
+export CATO_HOME=/opt/cato
+sudo mkdir $CATO_HOME
+sudo tar -xvzf cloudsidekickcato.tar.gz -C $CATO_HOME --strip-components=1
 ```
 
 Change current directory to the target directory.
 
 ```
-cd $CATOHOME
+cd $CATO_HOME
 ```
 
 #### Optional:
@@ -94,8 +94,14 @@ The following example changes it to the ubuntu user. Modify the following comman
 for the user, group and target directories.
 
 ``` 
-sudo chown -R ubuntu:ubuntu $CATOHOME
+sudo chown -R ubuntu:ubuntu $CATO_HOME
 sudo chown -R ubuntu:ubuntu  /var/cato
+```
+
+Add the CATO_HOME environment variable to the .profile (or .bash_profile depending on the flavor of linux).
+
+```
+echo "export CATO_HOME=$CATO_HOME" >> ~/.profile
 ```
 
 Now start all services.
