@@ -30,7 +30,7 @@ set -ex
 # customize the following values to suit your needs
 
 # cato target directory
-CATOHOME=`pwd`
+CATO_HOME=`pwd`
 # the password for the root@localhost mysql user...
 ROOTDBPASS="cloudsidekick"
 # the database name to install cato in...
@@ -90,7 +90,7 @@ else
 fi
 echo $FLAVOR
 
-#mkdir $CATOHOME
+#mkdir $CATO_HOME
 
 # Ubuntu specific
 if [ "$FLAVOR" = "deb" ];
@@ -150,17 +150,17 @@ else
 fi
 
 # install third party python packages
-pip install -q -r $CATOHOME/requirements.txt
+pip install -q -r $CATO_HOME/requirements.txt
 pip install -q https://github.com/cloudsidekick/awspy/archive/master.zip
 pip install -q http://github.com/pdunnigan/pywinrm/archive/master.zip
 
 # compile c++ encryption library
-cd $CATOHOME/src/catocrypt
-python setup.py install --install-platlib=$CATOHOME/lib/catocryptpy
-cd $CATOHOME
+cd $CATO_HOME/src/catocrypt
+python setup.py install --install-platlib=$CATO_HOME/lib/catocryptpy
+cd $CATO_HOME
 
 # mongodb setup
-$CATOHOME/tools/mongo_secure.py 127.0.0.1 ${MONGOADMIN} ${MONGOADMINPASS} ${CATODBNAME} ${CATODBUSER} ${CATODBPASS}
+$CATO_HOME/tools/mongo_secure.py 127.0.0.1 ${MONGOADMIN} ${MONGOADMINPASS} ${CATODBNAME} ${CATODBUSER} ${CATODBPASS}
 sed -i"" -e"s|#auth|auth|" /etc/${MONGOSERVICE}.conf
 service ${MONGOSERVICE} stop
 service ${MONGOSERVICE} start
@@ -175,30 +175,30 @@ mysql -u root -p$ROOTDBPASS -e "GRANT EXECUTE, SELECT, INSERT, UPDATE, DELETE, L
 mysql -u root -p$ROOTDBPASS -e "GRANT SELECT, CREATE TEMPORARY TABLES ON $CATODBNAME.* TO '$CATODBREADUSER'@'localhost' IDENTIFIED BY '$CATODBREADPASS';"
 mysql -u root -p$ROOTDBPASS -e "FLUSH PRIVILEGES;"
 
-cp $CATOHOME/conf/default.cato.conf $CATOHOME/conf/cato.conf
-NEWKEY=`$CATOHOME/conf/catoencrypt $ENCRYPTIONKEY ""`
-ENCDBPASS=`$CATOHOME/conf/catoencrypt $CATODBPASS $ENCRYPTIONKEY`
-ENCDBREADPASS=`$CATOHOME/conf/catoencrypt $CATODBREADPASS $ENCRYPTIONKEY`
-ENCADMINPASS=`$CATOHOME/conf/catoencrypt $ADMINPASS $ENCRYPTIONKEY`
-sed -i"" -e"s|#CATOHOME#|${CATOHOME}|" $CATOHOME/conf/cato.conf
-sed -i"" -e"s|#CATODBNAME#|${CATODBNAME}|" $CATOHOME/conf/cato.conf
-sed -i"" -e"s|#CATODBUSER#|${CATODBUSER}|" $CATOHOME/conf/cato.conf
-sed -i"" -e"s|#CATODBPASS#|${ENCDBPASS}|" $CATOHOME/conf/cato.conf
-sed -i"" -e"s|#CATODBREADUSER#|${CATODBREADUSER}|" $CATOHOME/conf/cato.conf
-sed -i"" -e"s|#CATODBREADPASS#|${ENCDBREADPASS}|" $CATOHOME/conf/cato.conf
-sed -i"" -e"s|#ENCRYPTIONKEY#|${NEWKEY}|" $CATOHOME/conf/cato.conf
-sed -i"" -e"s|#LOGFILESDIR#|${LOGFILESDIR}|" $CATOHOME/conf/cato.conf
-sed -i"" -e"s|#TMPDIR#|${TMPDIR}|" $CATOHOME/conf/cato.conf
-sed -i"" -e"s|#CATOFILES#|${CATOFILESDIR}|" $CATOHOME/conf/cato.conf
-sed -i"" -e"s|#ADMINPASSWORD#|${ENCADMINPASS}|" $CATOHOME/conf/data/cato_data.sql
+cp $CATO_HOME/conf/default.cato.conf $CATO_HOME/conf/cato.conf
+NEWKEY=`$CATO_HOME/conf/catoencrypt $ENCRYPTIONKEY ""`
+ENCDBPASS=`$CATO_HOME/conf/catoencrypt $CATODBPASS $ENCRYPTIONKEY`
+ENCDBREADPASS=`$CATO_HOME/conf/catoencrypt $CATODBREADPASS $ENCRYPTIONKEY`
+ENCADMINPASS=`$CATO_HOME/conf/catoencrypt $ADMINPASS $ENCRYPTIONKEY`
+sed -i"" -e"s|#CATO_HOME#|${CATO_HOME}|" $CATO_HOME/conf/cato.conf
+sed -i"" -e"s|#CATODBNAME#|${CATODBNAME}|" $CATO_HOME/conf/cato.conf
+sed -i"" -e"s|#CATODBUSER#|${CATODBUSER}|" $CATO_HOME/conf/cato.conf
+sed -i"" -e"s|#CATODBPASS#|${ENCDBPASS}|" $CATO_HOME/conf/cato.conf
+sed -i"" -e"s|#CATODBREADUSER#|${CATODBREADUSER}|" $CATO_HOME/conf/cato.conf
+sed -i"" -e"s|#CATODBREADPASS#|${ENCDBREADPASS}|" $CATO_HOME/conf/cato.conf
+sed -i"" -e"s|#ENCRYPTIONKEY#|${NEWKEY}|" $CATO_HOME/conf/cato.conf
+sed -i"" -e"s|#LOGFILESDIR#|${LOGFILESDIR}|" $CATO_HOME/conf/cato.conf
+sed -i"" -e"s|#TMPDIR#|${TMPDIR}|" $CATO_HOME/conf/cato.conf
+sed -i"" -e"s|#CATOFILES#|${CATOFILESDIR}|" $CATO_HOME/conf/cato.conf
+sed -i"" -e"s|#ADMINPASSWORD#|${ENCADMINPASS}|" $CATO_HOME/conf/data/cato_data.sql
 
 
-mysql -u root -p$ROOTDBPASS $CATODBNAME < $CATOHOME/conf/data/cato_ddl.sql
-mysql -u root -p$ROOTDBPASS $CATODBNAME < $CATOHOME/conf/data/cato_data.sql
+mysql -u root -p$ROOTDBPASS $CATODBNAME < $CATO_HOME/conf/data/cato_ddl.sql
+mysql -u root -p$ROOTDBPASS $CATODBNAME < $CATO_HOME/conf/data/cato_data.sql
 
-sed -i"" -e"s|${ENCADMINPASS}|#ADMINPASSWORD#|" $CATOHOME/conf/data/cato_data.sql
+sed -i"" -e"s|${ENCADMINPASS}|#ADMINPASSWORD#|" $CATO_HOME/conf/data/cato_data.sql
 
-#$CATOHOME/services/start_services.sh
+#$CATO_HOME/services/start_services.sh
 set +x
 echo ""
 echo ""
