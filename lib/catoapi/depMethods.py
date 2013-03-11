@@ -641,6 +641,92 @@ class depMethods:
             logger.error(traceback.format_exc())
             return R(err_code=R.Codes.Exception)
 
+    def run_action(self, args):        
+        """
+        Runs an Action on a Deployment, Service or Service Instance.
+        
+        Required Arguments: 
+            deployment - can be either an Deployment ID or Name.
+            action - The name of an Action on this Deployment.
+        
+        Optional Arguments: 
+            service - can be either a Service ID or Name.
+            service_instance - can be either a Service Instance ID or Name.
+            log_level - an integer (0-4) where 0 is none, 2 is normal and 4 is verbose.  Default is 2.
+            params - a JSON document of properly formatted parameters for this sequence run.
+
+        Returns: A Task Instance object.
+        """
+        try:
+            required_params = ["deployment", "action"]
+            has_required, resp = api.check_required_params(required_params, args)
+            if not has_required:
+                return resp
+
+            svc = args["service"] if args.has_key("service") else None
+            inst = args["service_instance"] if args.has_key("service_instance") else None
+            debug = args["log_level"] if args.has_key("log_level") else None
+            params = args["params"] if args.has_key("params") else None
+            try:
+                params = json.loads(params)
+            except Exception as ex:
+                return R(err_code=R.Codes.Exception, err_detail="Parameters template is not valid JSON. %s" % ex)
+
+            # we're trying this with one command at the moment.
+            dep = deployment.Deployment()
+            dep.FromName(args["deployment"])
+            if dep.ID:
+    
+                action = deployment.Action()
+
+                if svc:            
+                    service = dep.GetService(svc)
+                    if service:
+                        action.FromName(args["action"], dep.ID, service.ID)
+                    else:
+                        return R(err_code=R.Codes.GetError, err_detail="Unable to get Service for identifier [%s]." % svc)
+
+                else:    
+                    action.FromName(args["action"], args["deployment"])
+                
+                
+                if not action.ID:
+                    return R(err_code=R.Codes.GetError, err_detail="Unable to get Action for [%s - %s]." % (args["action"], args["deployment"], svc))
+                    
+                # the Run command will figure out what to run on... just give it the args we have
+                #parameter_xml=None, deployment_id=None, service_id=None, instance_id=None, log_level=None
+                taskinstances, msg = action.Run(user_id=args["_user_id"], instance_id=inst, parameters=params, log_level=debug)
+                
+                if not taskinstances:
+                    return R(err_code=R.Codes.StartFailure, err_detail=msg)
+                
+
+                if args["output_format"] == "json":
+                    return R(response=catocommon.ObjectOutput.IterableAsJSON(taskinstances))
+                elif args["output_format"] == "text":
+                    return R(response=catocommon.ObjectOutput.IterableAsText(taskinstances, ["Instance"], args["output_delimiter"]))
+                else:
+                    return R(response=catocommon.ObjectOutput.IterableAsXML(taskinstances, "instances", "instance"))
+            else:
+                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+            
+            # 1) deployment id only, finds action and runs the deployment level command
+            
+            # 2) service id, finds action and runs on ALL INSTANCES in the service,
+            
+            # 3) instance_id, finds action and runs on one instance
+            #     ???? but only if the 'scope' on the action is 0 or 2... service-only actions can't run on one instance.
+
+
+            # 2) all instances of service
+            
+            
+            # 3) one instance
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
+            
+    
     def run_sequence(self, args):        
         """
         Starts a Sequence on a Deployment.
@@ -1065,6 +1151,12 @@ class depMethods:
         Returns: A JSON parameters template.
         """
         try:
+            # define the required parameters for this call
+            required_params = ["deployment", "sequence"]
+            has_required, resp = api.check_required_params(required_params, args)
+            if not has_required:
+                return resp
+
             basic = args["basic"] if args.has_key("basic") else None
 
             obj = deployment.Deployment()

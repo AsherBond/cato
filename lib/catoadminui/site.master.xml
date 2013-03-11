@@ -49,7 +49,13 @@
 					<item roles="developer" label="Import a Backup File" icon="static/images/icons/import_24.png" onclick="showPleaseWait();" href="importObject">
 			</item>
 </menu>
-				<menu roles="developer" label="Configuration" icon="static/images/icons/config_24.png">
+		<menu roles="developer user" label="Deployments" icon="static/images/icons/deployments_24.png">
+			<!--<item roles="developer" label="Manage Deployments" icon="static/images/icons/deployments_24.png" onclick="showPleaseWait();" href="deploymentManage">
+			</item>-->
+			<item roles="developer user" label="Deployment Templates" icon="static/images/icons/templates_24.png" onclick="showPleaseWait();" href="depTemplateManage">
+			</item>
+		</menu>
+		<menu roles="developer" label="Configuration" icon="static/images/icons/config_24.png">
 			<item label="Manage Cloud Accounts" icon="static/images/icons/cloud_accounts_24.png" onclick="showPleaseWait();" href="cloudAccountEdit">
 			</item>
 			<item label="Manage Clouds" icon="static/images/icons/clouds_24.png" onclick="showPleaseWait();" href="cloudEdit">

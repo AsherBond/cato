@@ -205,6 +205,45 @@ def http_post(url, args, timeout=30, headers={}):
     # if all was well, we won't get here.
     return None
 
+def paramxml2json(pxml, basic=False):
+    """
+    Returns a JSON document representing a blank parameters document for running the Sequence.
+    
+    IMPORTANT!
+    This routine MUST create a template exactly like the Maestro UI creates when submitting parameters.
+    
+    Any design changes must be applied in both places.
+    
+    ui/user/static/script/runSequenceDialog.js
+    """
+    xroot = ET.fromstring(pxml)
+    if xroot is not None:
+        out = []
+        for xparam in xroot.findall("parameter"):
+            tmp = {}
+            tmp["name"] = xparam.findtext("name", "")
+            tmp["values"] = []
+
+            xvals = xparam.find("values")
+            present_as = xvals.get("present_as", "")
+            
+            # if present as is list or value we can include the default values
+            if present_as:
+                if present_as == "list":
+                    tmp["values"] = [val.text for val in xvals.findall("value")]
+                elif present_as == "value":
+                    val = xvals.findtext("value[1]")
+                    if val:
+                        tmp["values"].append(val)
+                elif not basic and present_as == "dropdown":
+                    # for a dropdown we don't include a value, but 
+                    # we do stick the valid values in a *different key* as a reference.
+                    tmp["allowed_values"] = [val.text for val in xvals.findall("value")]
+
+            out.append(tmp)
+        return out
+    return None
+
 def pretty_print_xml(xml_string):
     """
         Takes an xml *string* and returns a pretty version.

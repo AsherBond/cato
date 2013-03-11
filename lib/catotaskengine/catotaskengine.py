@@ -1468,12 +1468,12 @@ class TaskEngine():
             root = ET.fromstring(params)
             nodes = root.findall("./parameter")
             for node in nodes:
-                name = node.findtext("name", "")
+                name = node.findtext("name", "").strip()
                 v_nodes = node.findall("./values/value")
                 ii = 0
                 for v_node in v_nodes:
                     ii += 1
-                    self.rt.set(name, v_node.text, ii)
+                    self.rt.set(name, v_node.text.strip(), ii)
             del(root)
         except ET.ParseError:
             self.logger.error("Invalid or missing XML for parameters.")

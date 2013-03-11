@@ -520,6 +520,7 @@ class taskMethods:
         
         Optional Arguments:
             version - A specific version.  ('Default' if omitted.)
+            basic - in JSON mode, if provided, will omit descriptive details.
             
         Returns: An XML template defining the Parameters for a Task.
             (Used for calling run_task or run_action.)
@@ -532,6 +533,7 @@ class taskMethods:
                 return resp
 
             ver = args["version"] if args.has_key("version") else ""
+            basic = args["basic"] if args.has_key("basic") else None
 
             obj = task.Task()
             obj.FromNameVersion(args["task"], ver)
@@ -543,26 +545,32 @@ class taskMethods:
                         The UI has it's own more complex logic for presentation and interaction.
                     """
                     
-                    # the xml document is *almost* suitable for this purpose.
-                    # we just wanna strip out the presentation metadata
-                    xdoc = obj.ParameterXDoc
-                    # all we need to do is remove the additional dropdown values.
-                    # they're "allowed values", NOT an array.
-                    xParamValues = xdoc.findall("parameter/values")
-                    if xParamValues is not None:
-                        for xValues in xParamValues: 
-                            if xValues.get("present_as", ""):
-                                if xValues.get("present_as", "") == "dropdown":
-                                    # if it's a dropdown type, show the allowed values.
-                                    xValue = xValues.findall("value")
-                                    if xValue is not None:
-                                        if len(xValue) > 1:
-                                            for val in xValue[1:]:
-                                                xValues.remove(val)
-                                            
-                    xmlstr = catocommon.pretty_print_xml(ET.tostring(xdoc))
-                                            
-                    return R(response=xmlstr)
+                    if args["output_format"] == "json":
+                        # the deployment module has a function that will convert this xml to suitable json
+                        pxml = ET.tostring(obj.ParameterXDoc)
+                        lst = catocommon.paramxml2json(pxml, basic)
+                        return R(response=catocommon.ObjectOutput.AsJSON(lst))
+                    else:
+                        # the xml document is *almost* suitable for this purpose.
+                        # we just wanna strip out the presentation metadata
+                        xdoc = obj.ParameterXDoc
+                        # all we need to do is remove the additional dropdown values.
+                        # they're "allowed values", NOT an array.
+                        xParamValues = xdoc.findall("parameter/values")
+                        if xParamValues is not None:
+                            for xValues in xParamValues: 
+                                if xValues.get("present_as", ""):
+                                    if xValues.get("present_as", "") == "dropdown":
+                                        # if it's a dropdown type, show the allowed values.
+                                        xValue = xValues.findall("value")
+                                        if xValue is not None:
+                                            if len(xValue) > 1:
+                                                for val in xValue[1:]:
+                                                    xValues.remove(val)
+                                                
+                        xmlstr = catocommon.pretty_print_xml(ET.tostring(xdoc))
+                                                
+                        return R(response=xmlstr)
                 else:
                     return R(err_code=R.Codes.GetError, err_detail="Task has no parameters defined.")
             else:
