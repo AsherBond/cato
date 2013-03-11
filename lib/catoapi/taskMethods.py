@@ -17,6 +17,7 @@ from catolog import catolog
 logger = catolog.get_logger(__name__)
 
 import traceback
+import json
 
 from catoapi import api
 from catoapi.api import response as R
@@ -231,7 +232,7 @@ class taskMethods:
             log_level - an integer (0-4) where 0 is none, 2 is normal and 4 is verbose.  Default is 2.
             service_instance - the ID or Name of a Service Instance.  Certain Task commands are scoped to this Service Instance.
             account - the ID or Name of a Cloud Account.  Certain Task commands require a Cloud Account.
-            parameter_xml - An XML document defining parameters for the Task.
+            parameters - A JSON or XML document defining parameters for the Task.
 
         Returns: A JSON object, the Task Instance.
             If 'output_format' is set to 'text', returns only a Task Instance ID.
@@ -268,10 +269,46 @@ class taskMethods:
                     if ca:
                         account_id = ca.ID
 
-                parameter_xml = args["parameter_xml"] if args.has_key("parameter_xml") else ""
+                parameters = args["parameters"] if args.has_key("parameters") else ""
+                pxml = ""
+                # are the parameters json?
+                try:
+                    # the add_task_instance command requires parameter XML...
+                    # we accept json or xml from the client
+                    # convert as necessary
+                    logger.info("Checking for JSON parameters...")
+                    pjson = json.loads(parameters)
+                    if pjson:
+                        for p in pjson:
+                            vals = ""
+                            if p["values"]:
+                                for v in p["values"]:
+                                    vals += "<value>%s</value>" % v
+                            pxml += "<parameter><name>%s</name><values>%s</values></parameter>" % (p["name"], vals)
+                        
+                        pxml = "<parameters>%s</parameters>" % pxml
+                except Exception as ex:
+                    logger.info("Trying to parse parameters as JSON failed. %s" % ex)
+                
+                # not json, maybe xml?
+                if not pxml:
+                    try:
+                        logger.info("Parameters are not JSON... trying XML...")
+                        # just test to see if it's valid so we can throw an error if not.
+                        test = ET.fromstring(parameters)
+                        pxml = parameters # an xml STRING!!! - it gets parsed by the Task Engine
+                    except Exception as ex:
+                        logger.info("Trying to parse parameters as XML failed. %s" % ex)
+                
+
+                # parameters were provided, but could not be validated
+                if parameters and not pxml:
+                    return R(err_code=R.Codes.Exception, err_detail="Parameters template could not be parsed as valid JSON or XML.")
+    
+
 
                 # try to launch it
-                ti = catocommon.add_task_instance(task_id, args["_user_id"], debug, parameter_xml, service_instance_id, account_id, "", "")
+                ti = catocommon.add_task_instance(task_id, args["_user_id"], debug, pxml, service_instance_id, account_id, "", "")
                 
                 if ti:
                     if args["output_format"] == "text":
@@ -545,12 +582,8 @@ class taskMethods:
                         The UI has it's own more complex logic for presentation and interaction.
                     """
                     
-                    if args["output_format"] == "json":
-                        # the deployment module has a function that will convert this xml to suitable json
-                        pxml = ET.tostring(obj.ParameterXDoc)
-                        lst = catocommon.paramxml2json(pxml, basic)
-                        return R(response=catocommon.ObjectOutput.AsJSON(lst))
-                    else:
+                    # provide XML params if requested... the default is json.
+                    if args["output_format"] == "xml":
                         # the xml document is *almost* suitable for this purpose.
                         # we just wanna strip out the presentation metadata
                         xdoc = obj.ParameterXDoc
@@ -571,6 +604,12 @@ class taskMethods:
                         xmlstr = catocommon.pretty_print_xml(ET.tostring(xdoc))
                                                 
                         return R(response=xmlstr)
+                    else:
+                        # the deployment module has a function that will convert this xml to suitable json
+                        pxml = ET.tostring(obj.ParameterXDoc)
+                        lst = catocommon.paramxml2json(pxml, basic)
+                        return R(response=catocommon.ObjectOutput.AsJSON(lst))
+                        
                 else:
                     return R(err_code=R.Codes.GetError, err_detail="Task has no parameters defined.")
             else:

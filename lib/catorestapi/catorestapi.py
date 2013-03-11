@@ -208,10 +208,14 @@ class index:
                             if att.__doc__:
                                 out.append("%s" % att.__doc__)
                         
-                    
             try:      
                 from catoapi import depMethods
                 
+                msg = "- The following API commands are available only if Cloud Sidekick Maestro is installed. -"
+                out.append("-" * len(msg))
+                out.append(msg)
+                out.append("-" * len(msg))
+                                    
                 for attname in dir(depMethods.depMethods):
                     att = getattr(depMethods.depMethods, attname, None)
                     if att:
