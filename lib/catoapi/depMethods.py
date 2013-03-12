@@ -710,18 +710,63 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-            # 1) deployment id only, finds action and runs the deployment level command
+        except Exception:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception)
             
-            # 2) service id, finds action and runs on ALL INSTANCES in the service,
-            
-            # 3) instance_id, finds action and runs on one instance
-            #     ???? but only if the 'scope' on the action is 0 or 2... service-only actions can't run on one instance.
 
+    def get_action_parameters(self, args):        
+        """
+        Gets the Parameters template for a specific Deployment/Service Action.
+        
+        Required Arguments: 
+            deployment - can be either an Deployment ID or Name.
+            action - The name of an Action on this Deployment.
+        
+        Optional Arguments: 
+            service - can be either a Service ID or Name.
 
-            # 2) all instances of service
+        Returns: A Parameters document template.
+        """
+        try:
+            required_params = ["deployment", "action"]
+            has_required, resp = api.check_required_params(required_params, args)
+            if not has_required:
+                return resp
+
+            svc = args["service"] if args.has_key("service") else None
+            basic = args["basic"] if args.has_key("basic") else None
+
+            # we're trying this with one command at the moment.
+            dep = deployment.Deployment()
+            dep.FromName(args["deployment"])
+            if dep.ID:
+    
+                action = deployment.Action()
+
+                if svc:            
+                    service = dep.GetService(svc)
+                    if service:
+                        action.FromName(args["action"], dep.ID, service.ID)
+                    else:
+                        return R(err_code=R.Codes.GetError, err_detail="Unable to get Service for identifier [%s]." % svc)
+
+                else:    
+                    action.FromName(args["action"], args["deployment"])
+                
+                
+                if not action.ID:
+                    return R(err_code=R.Codes.GetError, err_detail="Unable to get Action for [%s - %s]." % (args["action"], args["deployment"], svc))
+                    
+                # now we have the action, what are it's task parameters?
+                if action.TaskParameterXML:
+                    lst = catocommon.paramxml2json(action.TaskParameterXML, basic)      
+                    return R(response=catocommon.ObjectOutput.AsJSON(lst))              
+                else:
+                    return R(err_code=R.Codes.GetError, err_detail="Action has no parameters defined.")
+            else:
+                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-            
-            # 3) one instance
         except Exception:
             logger.error(traceback.format_exc())
             return R(err_code=R.Codes.Exception)
