@@ -548,7 +548,7 @@ class taskMethods:
             logger.error(traceback.format_exc())
             return R(err_code=R.Codes.Exception)
 
-    def get_task_parameters_template(self, args):        
+    def get_task_parameters(self, args):        
         """
         Gets a Parameters template for a Task.
         
