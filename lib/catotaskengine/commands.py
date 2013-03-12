@@ -446,7 +446,7 @@ def set_variable_cmd(self, task, step):
         elif modifier == "TO_BASE64":
             value = base64.b64encode(value)
         elif modifier == "TO_BASE64_UTF16":
-            value = base64.b64encode(value.encode("utf-16"))
+            value = base64.b64encode(value.encode("utf_16_le"))
         elif modifier == "FROM_BASE64":
             value = base64.b64decode(value)
         elif modifier == "Write JSON":
