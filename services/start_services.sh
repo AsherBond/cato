@@ -66,7 +66,7 @@ else
     rm -f .shutdown
 fi
 
-crontab -l | grep start_services.sh 2>&1 1>/dev/null
+crontab -l | grep ${CATO_HOME}/services/start_services.sh 2>&1 1>/dev/null
 if [ $? -eq 1 ]; then
     echo "Adding start_services.sh to crontab"
     crontab -l > $CATO_HOME/conf/crontab.backup 2>/dev/null

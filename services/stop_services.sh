@@ -37,13 +37,13 @@ do
         done
     fi 
 done < $CATO_HOME/services/cato_services
-if [ "$1" = "leavecron" ]; then
+if [ "$1" != "leavecron" ]; then
 	echo "Removing startup.sh from crontab"
-		crontab -l | grep -v start_services.sh > $CATO_HOME/conf/crontab.backup 2>/dev/null
+		crontab -l | grep -v "${CATO_HOME}/services/start_services.sh" > $CATO_HOME/conf/crontab.backup 2>/dev/null
 		crontab -r 2>/dev/null
 		crontab $CATO_HOME/conf/crontab.backup
 		rm $CATO_HOME/conf/crontab.backup
-	touch .shutdown
+	#touch .shutdown
 fi
 
 echo "end"
