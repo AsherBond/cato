@@ -230,7 +230,11 @@ def paramxml2json(pxml, basic=False):
             # if present as is list or value we can include the default values
             if present_as:
                 if present_as == "list":
-                    tmp["values"] = [val.text for val in xvals.findall("value")]
+                    vals = []
+                    for val in xvals.findall("value"):
+                        if val.text:
+                            vals.append(val.text)
+                    tmp["values"] = vals
                 elif present_as == "value":
                     val = xvals.findtext("value[1]")
                     if val:
