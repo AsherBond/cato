@@ -38,7 +38,9 @@
 			</item>
 			<item label="Manage Shared Credentials" icon="static/images/icons/shared_24.png" onclick="showPleaseWait();" href="credentialEdit">
 			</item>
-<item roles="developer" label="View Security Log" icon="static/images/icons/password.png" onclick="ShowLogViewDialog(0, '', true);">
+<item label="Manage Tags" icon="static/images/icons/tag_24.png" onclick="showPleaseWait();" href="tagEdit">
+			</item>
+		<item roles="developer" label="View Security Log" icon="static/images/icons/password.png" onclick="ShowLogViewDialog(0, '', true);">
 			</item>
 				</menu>
 		<menu roles="developer" label="Tasks" icon="static/images/icons/manage_tasks_24.png">

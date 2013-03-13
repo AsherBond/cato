@@ -50,25 +50,28 @@ class taskMethods:
             maxrows = 50
             tasks = task.Tasks(sFilter)
             if tasks.rows:
-                start, end, pager_html = uiCommon.GetPager(len(tasks.rows), maxrows, sPage)
+                # before we break the results into pages, we first filter it by tag
+                # THIS IS DEPENDANT on the task results containing a list of tags for each task.
+                allowedrows = uiCommon.FilterSetByTag(tasks.rows)
+                               
+                # now we have a filtered set... proceed...
+                start, end, pager_html = uiCommon.GetPager(len(allowedrows), maxrows, sPage)
 
-                for row in tasks.rows[start:end]:
-                    sHTML += "<tr task_id=\"" + row["ID"] + "\" status=\"" + row["Status"] + "\">"
-                    sHTML += "<td class=\"chkboxcolumn\">"
-                    sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
-                    " id=\"chk_" + row["OriginalTaskID"] + "\"" \
-                    " object_id=\"" + row["ID"] + "\"" \
-                    " tag=\"chk\" />"
+                for row in allowedrows[start:end]:
+                    sHTML += '<tr task_id="%s" status="%s">' % (row["ID"], row["Status"])
+                    sHTML += '<td class="chkboxcolumn">'
+                    sHTML += '''<input type="checkbox" class="chkbox"
+                        id="chk_%s" object_id=%s" tag="chk" />''' % (row["OriginalTaskID"], row["ID"])
                     sHTML += "</td>"
                     
-                    sHTML += "<td class=\"selectable\">" + row["Code"] + "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["Name"] + "</td>"
-                    sHTML += "<td class=\"selectable\">" + str(row["Version"]) + "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["Description"] + "</td>"
-                    sHTML += "<td class=\"selectable\">" + row["Status"] + "</td>"
-                    sHTML += "<td class=\"selectable\">" + str(row["Versions"]) + "</td>"
+                    sHTML += '<td class="selectable">' + row["Code"] + '</td>'
+                    sHTML += '<td class="selectable">' + row["Name"] + '</td>'
+                    sHTML += '<td class="selectable">' + str(row["Version"]) + '</td>'
+                    sHTML += '<td class="selectable">' + row["Description"] + '</td>'
+                    sHTML += '<td class="selectable">' + row["Status"] + '</td>'
+                    sHTML += '<td class="selectable">' + str(row["Versions"]) + '</td>'
                     
-                    sHTML += "</tr>"
+                    sHTML += '</tr>'
     
             out = {}
             out["pager"] = uiCommon.packJSON(pager_html)

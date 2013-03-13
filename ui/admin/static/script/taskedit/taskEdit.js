@@ -226,6 +226,10 @@ function doGetDetails() {
 		contentType : "application/json; charset=utf-8",
 		dataType : "json",
 		success : function(task) {
+			if (task.error) {
+				showAlert(task.error);
+				return;
+			}
 			try {
 				$("#hidOriginalTaskID").val(task.OriginalTaskID);
 				$("#txtTaskCode").val(task.Code);

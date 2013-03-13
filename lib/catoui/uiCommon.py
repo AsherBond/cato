@@ -36,6 +36,7 @@ from catocommon import catocommon
 from catosettings import settings
 from catoui import uiGlobals
 from catouser import catouser
+from catotag import tag
 
 logger = catolog.get_logger(__name__)
 
@@ -336,7 +337,51 @@ def SetSessionObject(key, obj, category=""):
     else:
         uiGlobals.session[key] = obj
     
+<<<<<<< HEAD
 # this one returns just one specific function
+=======
+def FilterSetByTag(rows):
+    if GetSessionUserRole() == "Administrator":
+        filtered = rows
+    else:
+        tags = tag.ObjectTags(1, GetSessionUserID())
+        
+        filtered = []
+        for row in rows:
+            if set(tags) & set(row["Tags"].split(",") if row["Tags"] else []):
+                filtered.append(row)
+                
+    return filtered
+
+def UserAndObjectTagsMatch(object_id, object_type):
+    sql = """select 1 from object_tags otu
+        join object_tags oto on otu.tag_name = oto.tag_name
+        where (otu.object_type = 1)
+        and otu.object_id = %s
+        and oto.object_type = %s
+        and oto.object_id = %s""" 
+
+    uid = GetSessionUserID()
+    db = catocommon.new_conn()
+    result = db.select_col_noexcep(sql, (uid, object_type, object_id))
+    db.close()
+    
+    return catocommon.is_true(result)
+
+#        public bool UserHasTag(string sGroup)
+#        {
+#            //this looks up roles by name
+#            string sGroups = null;
+#            sGroups = GetSessionUserTagsByName();
+#            if (sGroups.IndexOf(sGroup) > -1)
+#                return true;
+#            else
+#                return false;
+#        }
+
+    
+#this one returns just one specific function
+>>>>>>> tag checking enabled on task list page.
 def GetTaskFunction(sFunctionName):
     funcs = uiGlobals.FunctionCategories.Functions
     if funcs:
