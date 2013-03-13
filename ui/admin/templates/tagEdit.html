@@ -1,0 +1,67 @@
+$def with ()
+$var jsfiles: managePageCommon.js validation.js tagEdit.js
+$var cssfiles:
+
+<div style="display: none;">
+    <input id="hidMode" type="hidden" name="hidMode" />
+    <input id="hidCurrentEditID" type="hidden" name="hidCurrentEditID" />
+    <input id="hidSelectedArray" type="hidden" name="hidSelectedArray" />
+    <input type="hidden" id="hidSortColumn" />
+    <input type="hidden" id="hidPage" />
+    <!-- Start visible elements -->
+</div>
+<div id="left_panel">
+    <div id="left_tooltip_img">
+        <img src="static/images/manage-tags-192x192.png" alt="" />
+    </div>
+    <div class="left_tooltip">
+        <div id="left_tooltip_box_outer">
+            <div id="left_tooltip_box_inner">
+                <h2>Tags</h2>
+                <p>
+                    Tags are used to group objects together for various reasons, including access control.
+                </p>
+                <p>
+                    Select a Tag from the list to the right to edit it.
+                </p>
+                <p>
+                    <a href="http://projects.cloudsidekick.com/projects/cato/wiki/Tags?utm_source=cato_app&amp;utm_medium=helplink&amp;utm_campaign=app" target="_blank"><span class="ui-icon ui-icon-info forceinline"></span>Click here</a>
+                    for a more detailed introduction to Tagging.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="content">
+    <span id="lblItemsSelected">0</span> Items Selected <span id="clear_selected_btn"></span>
+    <span id="item_create_btn">Create</span>
+    <span id="item_delete_btn">Delete</span>
+    <input type="text" id="txtSearch" class="search_text" />
+    <span id="item_search_btn">Search</span>
+    <table class="jtable" cellspacing="1" cellpadding="1" width="99%">
+        <thead>
+            <tr>
+                <td class="sortable"></td>
+                <td class="sortable"> Tag </td>
+                <td class="sortable"> Description </td>
+                <td class="sortable"> # of References </td>
+            </tr>
+        </thead>
+        <tbody id="tags"></tbody>
+    </table>
+    <div id="pager"></div>
+</div>
+<div id="edit_dialog" class="hidden" title="Create a New Tag">
+    <div>
+        Tag:
+    </div>
+    <input id="txtTag" name="txtTag" class="w95pct" validate_as="tag" />
+    <br />
+    <div>
+        Description:
+    </div>
+    <textarea class="w95pct" rows="3" id="txtDescription" name="txtDescription"></textarea>
+</div>
+<div id="delete_dialog" class="hidden" title="Delete Tags">
+    Are you sure you want to delete the selected Tag(s)?
+</div>
