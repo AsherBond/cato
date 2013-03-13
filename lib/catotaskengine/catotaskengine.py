@@ -1085,7 +1085,7 @@ class TaskEngine():
                 result = self.call_aws(cloud_name, product, action, params)
                 break
             except Exception as ex:
-                if "<Code>InvalidInstanceID.NotFound</Code>" in str(ex) and ii == num_retries:
+                if "<Code>InvalidInstanceID.NotFound</Code>" in str(ex) and ii <= num_retries:
                     self.logger.info("Instance ID not found. Sleeping and retrying")
                     time.sleep(ii * 2)
                 else:
