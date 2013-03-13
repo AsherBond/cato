@@ -272,38 +272,39 @@ class taskMethods:
                 parameters = args["parameters"] if args.has_key("parameters") else ""
                 pxml = ""
                 # are the parameters json?
-                try:
-                    # the add_task_instance command requires parameter XML...
-                    # we accept json or xml from the client
-                    # convert as necessary
-                    logger.info("Checking for JSON parameters...")
-                    pjson = json.loads(parameters)
-                    if pjson:
-                        for p in pjson:
-                            vals = ""
-                            if p["values"]:
-                                for v in p["values"]:
-                                    vals += "<value>%s</value>" % v
-                            pxml += "<parameter><name>%s</name><values>%s</values></parameter>" % (p["name"], vals)
-                        
-                        pxml = "<parameters>%s</parameters>" % pxml
-                except Exception as ex:
-                    logger.info("Trying to parse parameters as JSON failed. %s" % ex)
-                
-                # not json, maybe xml?
-                if not pxml:
+                if parameters:
                     try:
-                        logger.info("Parameters are not JSON... trying XML...")
-                        # just test to see if it's valid so we can throw an error if not.
-                        test = ET.fromstring(parameters)
-                        pxml = parameters # an xml STRING!!! - it gets parsed by the Task Engine
+                        # the add_task_instance command requires parameter XML...
+                        # we accept json or xml from the client
+                        # convert as necessary
+                        logger.info("Checking for JSON parameters...")
+                        pjson = json.loads(parameters)
+                        if pjson:
+                            for p in pjson:
+                                vals = ""
+                                if p["values"]:
+                                    for v in p["values"]:
+                                        vals += "<value>%s</value>" % v
+                                pxml += "<parameter><name>%s</name><values>%s</values></parameter>" % (p["name"], vals)
+                            
+                            pxml = "<parameters>%s</parameters>" % pxml
                     except Exception as ex:
-                        logger.info("Trying to parse parameters as XML failed. %s" % ex)
+                        logger.info("Trying to parse parameters as JSON failed. %s" % ex)
+                    
+                    # not json, maybe xml?
+                    if not pxml:
+                        try:
+                            logger.info("Parameters are not JSON... trying XML...")
+                            # just test to see if it's valid so we can throw an error if not.
+                            test = ET.fromstring(parameters)
+                            pxml = parameters # an xml STRING!!! - it gets parsed by the Task Engine
+                        except Exception as ex:
+                            logger.info("Trying to parse parameters as XML failed. %s" % ex)
                 
 
-                # parameters were provided, but could not be validated
-                if parameters and not pxml:
-                    return R(err_code=R.Codes.Exception, err_detail="Parameters template could not be parsed as valid JSON or XML.")
+                    # parameters were provided, but could not be validated
+                    if not pxml:
+                        return R(err_code=R.Codes.Exception, err_detail="Parameters template could not be parsed as valid JSON or XML.")
     
 
 

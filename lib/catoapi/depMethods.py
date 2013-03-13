@@ -667,10 +667,11 @@ class depMethods:
             inst = args["service_instance"] if args.has_key("service_instance") else None
             debug = args["log_level"] if args.has_key("log_level") else None
             params = args["params"] if args.has_key("params") else None
-            try:
-                params = json.loads(params)
-            except Exception as ex:
-                return R(err_code=R.Codes.Exception, err_detail="Parameters template is not valid JSON. %s" % ex)
+            if params:
+                try:
+                    params = json.loads(params)
+                except Exception as ex:
+                    return R(err_code=R.Codes.Exception, err_detail="Parameters template is not valid JSON. %s" % ex)
 
             # we're trying this with one command at the moment.
             dep = deployment.Deployment()
@@ -795,10 +796,11 @@ class depMethods:
 
             oe = args["onerror"] if args.has_key("onerror") else None
             pms = args["params"] if args.has_key("params") else None
-            try:
-                pms = json.loads(pms)
-            except Exception as ex:
-                return R(err_code=R.Codes.Exception, err_detail="Parameters template is not valid JSON. %s" % ex)
+            if pms:
+                try:
+                    pms = json.loads(pms)
+                except Exception as ex:
+                    return R(err_code=R.Codes.Exception, err_detail="Parameters template is not valid JSON. %s" % ex)
 
             obj = deployment.Deployment()
             obj.FromName(args["deployment"])
