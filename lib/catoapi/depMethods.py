@@ -67,9 +67,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.ListError, err_detail="Unable to list Deployments.")
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
         
 #    def import_deployment(self, args):        
 #        """
@@ -165,9 +165,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.CreateError, err_detail=msg)
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def delete_deployment(self, args):        
         """
@@ -201,9 +201,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def describe_deployment(self, args):        
         """
@@ -246,9 +246,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_deployment(self, args):        
         """
@@ -279,9 +279,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_deployment_document(self, args):        
         """
@@ -306,9 +306,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
         
     def get_deployment_services(self, args):        
         """
@@ -337,9 +337,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
         
     def create_deployment_service(self, args):        
         """
@@ -380,9 +380,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_deployment_sequence(self, args):        
         """
@@ -413,9 +413,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
         
     def get_deployment_sequences(self, args):        
         """
@@ -444,9 +444,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
         
     def add_sequence_step(self, args):        
         """
@@ -492,9 +492,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def add_service_to_sequence_step(self, args):        
         """
@@ -545,9 +545,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def remove_service_from_sequence_step(self, args):        
         """
@@ -593,9 +593,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def delete_sequence_step(self, args):        
         """
@@ -637,9 +637,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def run_action(self, args):        
         """
@@ -710,9 +710,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
             
 
     def get_action_parameters(self, args):        
@@ -767,9 +767,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
             
     
     def run_sequence(self, args):        
@@ -823,9 +823,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_sequence_instance(self, args):        
         """
@@ -853,9 +853,9 @@ class depMethods:
                     return R(response=instance.AsXML())
             else:
                 return R(err_code=R.Codes.StartFailure, err_detail="Sequence Instance not found using ID [%s]." % args["instance"])
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_sequence_instance_status(self, args):        
         """
@@ -883,9 +883,9 @@ class depMethods:
                     return R(response=instance.Instance["Status"])
             else:
                 return R(err_code=R.Codes.StartFailure, err_detail="Sequence Instance not found using ID [%s]." % args["instance"])
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def stop_sequence(self, args):
         """
@@ -1004,9 +1004,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def delete_deployment_service_state(self, args):        
         """
@@ -1050,9 +1050,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_deployment_service_states(self, args):        
         """
@@ -1086,9 +1086,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
         
     def get_sequence_instances(self, args):
         """
@@ -1128,9 +1128,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Sequence Instances.")
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_deployment_log(self, args):
         """
@@ -1178,9 +1178,9 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_sequence_parameters(self, args):
         """
@@ -1220,7 +1220,7 @@ class depMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 

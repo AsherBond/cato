@@ -68,9 +68,9 @@ class dsMethods:
             else:
                 return R(err_code=R.Codes.ListError, err_detail="Unable to list Documents.")
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def list_document_collections(self, args):        
         """
@@ -95,9 +95,9 @@ class dsMethods:
             else:
                 return R(err_code=R.Codes.ListError, err_detail="Unable to list Document Collections.")
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def create_document(self, args):        
         """
@@ -124,9 +124,9 @@ class dsMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail=msg)
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_document(self, args):        
         """
@@ -161,9 +161,9 @@ class dsMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to find Data Document using query %s." % args["query"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_document_value(self, args):        
         """
@@ -207,9 +207,9 @@ class dsMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to find Document for Cato Object ID [%s]." % args["doc_id"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def set_document_value(self, args):        
         """
@@ -247,6 +247,6 @@ class dsMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to find Document for Cato Object ID [%s]." % args["cato_object_id"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)

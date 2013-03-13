@@ -79,9 +79,9 @@ class taskMethods:
             else:
                 return R(err_code=R.Codes.CreateError, err_detail=msg)
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_task_instance_status(self, args):
         """
@@ -112,9 +112,9 @@ class taskMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Status for Task Instance [%s]." % args["instance"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_task_instance(self, args):
         """
@@ -145,9 +145,9 @@ class taskMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Task Instance [%s]." % args["instance"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def resubmit_task_instance(self, args):
         """
@@ -185,9 +185,9 @@ class taskMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Task Instance [%s]." % args["instance"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_task_log(self, args):
         """
@@ -216,9 +216,9 @@ class taskMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Run Log for Task Instance [%s]." % args["instance"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def run_task(self, args):
         """
@@ -328,9 +328,9 @@ class taskMethods:
                 identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
                 return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
 
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def stop_task(self, args):
         """
@@ -359,9 +359,9 @@ class taskMethods:
             else:
                 return R(err_code=R.Codes.StopFailure, err_detail="Unable to stop Task Instance [%s]." % args["instance"])
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def list_tasks(self, args):        
         """
@@ -389,9 +389,9 @@ class taskMethods:
             else:
                 return R(err_code=R.Codes.ListError, err_detail="Unable to list Tasks.")
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_task_instances(self, args):
         """
@@ -428,9 +428,9 @@ class taskMethods:
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Task Instances.")
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_task(self, args):        
         """
@@ -468,9 +468,9 @@ class taskMethods:
                 identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
                 return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def describe_task_parameters(self, args):        
         """
@@ -544,9 +544,9 @@ class taskMethods:
                 identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
                 return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_task_parameters(self, args):        
         """
@@ -616,6 +616,6 @@ class taskMethods:
                 identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
                 return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)

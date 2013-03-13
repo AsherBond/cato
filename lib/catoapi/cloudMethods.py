@@ -51,9 +51,9 @@ class cloudMethods:
             else:
                 return R(err_code=R.Codes.ListError, err_detail="Unable to list Clouds.")
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def list_cloud_accounts(self, args):        
         """
@@ -78,7 +78,7 @@ class cloudMethods:
             else:
                 return R(err_code=R.Codes.ListError, err_detail="Unable to list Cloud Accounts.")
             
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
+            return R(err_code=R.Codes.Exception, err_detail=ex)
 

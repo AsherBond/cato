@@ -58,6 +58,7 @@ class sysMethods:
                 order by component, master desc"""
             
             rows = db.select_all_dict(sSQL)
+            db.close()
 
             if rows:
                 if args["output_format"] == "json":
@@ -85,11 +86,9 @@ class sysMethods:
                     return R(response=ET.tostring(dom))
             else:
                 return R(err_code=R.Codes.ListError, err_detail="Unable to list Processes.")
-        except Exception:
+        except Exception as ex:
             logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception)
-        finally:
-            db.close()
+            return R(err_code=R.Codes.Exception, err_detail=ex)
             
 
 
