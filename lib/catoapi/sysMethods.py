@@ -21,6 +21,7 @@ from catolog import catolog
 logger = catolog.get_logger(__name__)
 
 import traceback
+import json
 
 try:
     import xml.etree.cElementTree as ET
@@ -32,15 +33,68 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 
+from catoapi import api
 from catoapi.api import response as R
 from catocommon import catocommon
+from catotask import task
 
 class sysMethods:
     """These are utility methods for the Cato system."""
 
-    ### NOTE:
-    ### many of the functions here aren't done up in pretty classes.
-    ### ... this is sort of a catch-all module.
+    # ## NOTE:
+    # ## many of the functions here aren't done up in pretty classes.
+    # ## ... this is sort of a catch-all module.
+    def import_backup(self, args):
+        """
+        Imports an XML backup file.
+        
+        NOTE: this function is a near identical copy of catoadminui/uiMethods.wmCreateObjectsFromXML.
+        Any changes here should be considered there as well.
+        """
+        # define the required parameters for this call
+        required_params = ["xml"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+
+        # what types of things were in this backup?  what are their new ids?
+        items = []
+
+        # parse it as a validation, and to find out what's in it.
+        xd = None
+        try:
+            xd = ET.fromstring(args["xml"])
+        except ET.ParseError as ex:
+            return R(err_code=R.Codes.Exception, err_detail="File is not properly formatted XML.")
+        
+        if xd is not None:
+            for xtask in xd.iterfind("task"):
+                logger.info("Importing Task [%s]" % xtask.get("name", "Unknown"))
+                t = task.Task()
+                t.FromXML(ET.tostring(xtask))
+
+                result, err = t.DBSave()
+                if result:
+                    catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Created by import.")
+
+                    items.append({"type" : "task", "id" : t.ID, "Name" : t.Name, "Info" : "Success"}) 
+                else:
+                    if err:
+                        items.append({"type" : "task", "id" : t.ID, "Name" : t.Name, "Info" : err}) 
+                    else:
+                        items.append({"type" : "task", "id" : t.ID, "Name" : t.Name, "Info" : "Unable to create Task. No error available."}) 
+                
+
+        else:
+            items.append({"info" : "Unable to create Task from backup XML."})
+        
+        if args["output_format"] == "json":
+            return R(response=catocommon.ObjectOutput.IterableAsJSON(items))
+        elif args["output_format"] == "text":
+            return R(response=catocommon.ObjectOutput.IterableAsText(items, ["Name", "Info"], args["output_delimiter"]))
+        else:
+            return R(response=catocommon.ObjectOutput.IterableAsXML(items, "Results", "Result"))
     
     def list_processes(self, args):        
         """
