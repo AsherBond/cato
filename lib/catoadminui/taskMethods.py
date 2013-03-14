@@ -300,48 +300,14 @@ class taskMethods:
             if not sDeleteArray:
                 return "{\"info\" : \"Unable to delete - no selection.\"}"
                 
-            # first we need a list of tasks that will not be deleted
-            sSQL = """select task_name from task t
-                    where t.original_task_id in (%s)
-                    and (
-                    t.task_id in (select ti.task_id from task_instance ti where ti.task_id = t.task_id)
-                    )""" % sDeleteArray 
-            sTaskNames = self.db.select_csv(sSQL, True)
-
-            # list of tasks that will be deleted
-            # we have an array of 'original_task_id' - we need an array of task_id
-            sSQL = "select t.task_id from task t " \
-                " where t.original_task_id in (" + sDeleteArray + ")" \
-                " and t.task_id not in (select ti.task_id from task_instance ti where ti.task_id = t.task_id)"
-            sTaskIDs = self.db.select_csv(sSQL, True)
-            if len(sTaskIDs) > 1:
-                sSQL = "delete from task_step_user_settings" \
-                    " where step_id in" \
-                    " (select step_id from task_step where task_id in (" + sTaskIDs + "))"
-                if not self.db.tran_exec_noexcep(sSQL):
-                    uiCommon.log(self.db)
-    
-                sSQL = "delete from task_step where task_id in (" + sTaskIDs + ")"
-                if not self.db.tran_exec_noexcep(sSQL):
-                    uiCommon.log_nouser(self.db.error, 0)
-    
-                sSQL = "delete from task_codeblock where task_id in (" + sTaskIDs + ")"
-                if not self.db.tran_exec_noexcep(sSQL):
-                    uiCommon.log(self.db)
-    
-                sSQL = "delete from task where task_id in (" + sTaskIDs + ")"
-                if not self.db.tran_exec_noexcep(sSQL):
-                    uiCommon.log(self.db)
-    
-                self.db.tran_commit()
-    
+            result, msg = task.Tasks.Delete(sDeleteArray.split(","), uiCommon.GetSessionUserID())
+            
+            if result:
                 uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Task, "Multiple", "Original Task IDs", sDeleteArray)
-            
-            if len(sTaskNames) > 0:
-                return "{\"info\" : \"Task(s) (" + sTaskNames + ") have history rows and could not be deleted.\"}"
-            
-            return "{\"result\" : \"success\"}"
-            
+                return "{\"result\" : \"success\"}"
+            else:
+                return "{\"info\" : \"%s\"}" % msg
+        
         except Exception:
             uiCommon.log(traceback.format_exc())
 

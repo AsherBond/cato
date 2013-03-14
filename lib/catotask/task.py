@@ -41,52 +41,48 @@ from datetime import datetime
 class Tasks(object):
     rows = {}
     def __init__(self, sFilter="", show_all_versions=False):
-        try:
-            db = catocommon.new_conn()
-            sWhereString = ""
-            if sFilter:
-                aSearchTerms = sFilter.split()
-                for term in aSearchTerms:
-                    if term:
-                        sWhereString += " and (t.task_name like '%%" + term + "%%' " \
-                            "or t.task_code like '%%" + term + "%%' " \
-                            "or t.task_desc like '%%" + term + "%%' " \
-                            "or t.task_status like '%%" + term + "%%') "
-    
-            if show_all_versions:
-                sSQL = """select 
-                    t.task_id as ID, 
-                    t.original_task_id as OriginalTaskID, 
-                    t.task_name as Name, 
-                    t.task_code as Code, 
-                    t.task_desc as Description, 
-                    t.version as Version, 
-                    t.task_status as Status,
-                    (select count(*) from task where original_task_id = t.original_task_id) as Versions,
-                    group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
-                    from task t
-                    left outer join object_tags ot on t.original_task_id = ot.object_id
-                    where 1=1 %s group by t.task_id, t.version order by t.task_code, t.version""" % sWhereString
-            else:
-                sSQL = """select 
-                    t.task_id as ID, 
-                    t.original_task_id as OriginalTaskID, 
-                    t.task_name as Name, 
-                    t.task_code as Code, 
-                    t.task_desc as Description, 
-                    t.version as Version, 
-                    t.task_status as Status,
-                    (select count(*) from task where original_task_id = t.original_task_id) as Versions,
-                    group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
-                    from task t
-                    left outer join object_tags ot on t.original_task_id = ot.object_id
-                    where t.default_version = 1 %s group by t.original_task_id order by t.task_code""" % sWhereString
-            
-            self.rows = db.select_all_dict(sSQL)
-        except Exception as ex:
-            raise Exception(ex)
-        finally:
-            db.close()
+        db = catocommon.new_conn()
+        sWhereString = ""
+        if sFilter:
+            aSearchTerms = sFilter.split()
+            for term in aSearchTerms:
+                if term:
+                    sWhereString += " and (t.task_name like '%%" + term + "%%' " \
+                        "or t.task_code like '%%" + term + "%%' " \
+                        "or t.task_desc like '%%" + term + "%%' " \
+                        "or t.task_status like '%%" + term + "%%') "
+
+        if show_all_versions:
+            sSQL = """select 
+                t.task_id as ID, 
+                t.original_task_id as OriginalTaskID, 
+                t.task_name as Name, 
+                t.task_code as Code, 
+                t.task_desc as Description, 
+                t.version as Version, 
+                t.task_status as Status,
+                (select count(*) from task where original_task_id = t.original_task_id) as Versions,
+                group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
+                from task t
+                left outer join object_tags ot on t.original_task_id = ot.object_id
+                where 1=1 %s group by t.task_id, t.version order by t.task_code, t.version""" % sWhereString
+        else:
+            sSQL = """select 
+                t.task_id as ID, 
+                t.original_task_id as OriginalTaskID, 
+                t.task_name as Name, 
+                t.task_code as Code, 
+                t.task_desc as Description, 
+                t.version as Version, 
+                t.task_status as Status,
+                (select count(*) from task where original_task_id = t.original_task_id) as Versions,
+                group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
+                from task t
+                left outer join object_tags ot on t.original_task_id = ot.object_id
+                where t.default_version = 1 %s group by t.original_task_id order by t.task_code""" % sWhereString
+        
+        self.rows = db.select_all_dict(sSQL)
+        db.close()
 
     def AsJSON(self):
         return catocommon.ObjectOutput.IterableAsJSON(self.rows)
@@ -97,6 +93,59 @@ class Tasks(object):
     def AsText(self, delimiter=None):
         return catocommon.ObjectOutput.IterableAsText(self.rows, ['ID', 'OriginalTaskID', 'Name', 'Code', 'Version', 'Status'], delimiter)
 
+    @staticmethod
+    def Delete(ids, user_id):
+        """
+        Delete a list of tasks.
+        
+        Done here instead of in the Task class - no point to instantiate a task just to delete it.
+        """
+        db = catocommon.new_conn()
+        
+        delete_ids = ",".join(ids) 
+
+        # first we need a list of tasks that will not be deleted
+        sql = """select task_name from task t
+                where t.original_task_id in (%s)
+                and (
+                t.task_id in (select ti.task_id from task_instance ti where ti.task_id = t.task_id)
+                )""" % delete_ids 
+        sTaskNames = db.select_csv(sql, True)
+
+        # list of tasks that will be deleted
+        # we have an array of 'original_task_id' - we need an array of task_id
+        sql = """select t.task_id from task t
+            where t.original_task_id in (%s)
+            and t.task_id not in 
+            (select ti.task_id from task_instance ti where ti.task_id = t.task_id)""" % delete_ids
+        task_ids = db.select_csv(sql, True)
+        if len(task_ids) > 1:
+            sql = """delete from task_step_user_settings
+                where step_id in
+                (select step_id from task_step where task_id in (%s))""" % task_ids
+            if not db.tran_exec_noexcep(sql):
+                logger.error(db.error)
+
+            sql = "delete from task_step where task_id in (" + task_ids + ")"
+            if not db.tran_exec_noexcep(sql):
+                logger.error(db.error)
+
+            sql = "delete from task_codeblock where task_id in (" + task_ids + ")"
+            if not db.tran_exec_noexcep(sql):
+                logger.error(db.error)
+
+            sql = "delete from task where task_id in (" + task_ids + ")"
+            if not db.tran_exec_noexcep(sql):
+                logger.error(db.error)
+
+            db.tran_commit()
+            db.close()
+
+        if len(sTaskNames) > 0:
+            return False, "Task(s) (%s) have history rows and could not be deleted." % sTaskNames
+        
+        return True, None
+        
 class Task(object):
     def __init__(self):
         self.ID = ""
