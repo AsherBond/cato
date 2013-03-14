@@ -19,6 +19,8 @@
 #########################################################################
  
 import traceback
+import json
+
 from catoui import uiCommon
 from catocommon import catocommon
 from catotag import tag
@@ -28,9 +30,9 @@ class tagMethods:
     
     def wmGetTagsTable(self):
         try:
-            sHTML = ""
+            table_html = ""
             pager_html = ""
-            sFilter = uiCommon.getAjaxArg("sSearch")
+            sFilter = uiCommon.getAjaxArg("sFilter")
             sPage = uiCommon.getAjaxArg("sPage")
             maxrows = 25
 
@@ -39,20 +41,23 @@ class tagMethods:
                 start, end, pager_html = uiCommon.GetPager(len(t.rows), maxrows, sPage)
 
                 for row in t.rows[start:end]:
-                    sHTML += "<tr tag_name=\"" + row["tag_name"] + "\">"
-                    sHTML += "<td class=\"chkboxcolumn\">"
-                    sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
+                    table_html += "<tr tag_name=\"" + row["tag_name"] + "\">"
+                    table_html += "<td class=\"chkboxcolumn\">"
+                    table_html += "<input type=\"checkbox\" class=\"chkbox\"" \
                     " id=\"chk_" + row["tag_name"] + "\"" \
                     " tag=\"chk\" />"
-                    sHTML += "</td>"
+                    table_html += "</td>"
                     
-                    sHTML += "<td class=\"selectable\">%s</td>" % row["tag_name"]
-                    sHTML += "<td class=\"selectable desc\">%s</td>" % (row["tag_desc"] if row["tag_desc"] else "")
-                    sHTML += "<td class=\"selectable\">%s</td>" % str(row["in_use"])
+                    table_html += "<td class=\"selectable\">%s</td>" % row["tag_name"]
+                    table_html += "<td class=\"selectable desc\">%s</td>" % (row["tag_desc"] if row["tag_desc"] else "")
+                    table_html += "<td class=\"selectable\">%s</td>" % str(row["in_use"])
                     
-                    sHTML += "</tr>"
+                    table_html += "</tr>"
 
-            return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
+            out = {}
+            out["pager"] = pager_html
+            out["rows"] = table_html
+            return json.dumps(out)    
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
             return traceback.format_exc()           
@@ -60,14 +65,14 @@ class tagMethods:
     def wmCreateTag(self):
         try:
             sTagName = uiCommon.getAjaxArg("sTagName")
-            sDesc = uiCommon.unpackJSON(uiCommon.getAjaxArg("sDescription"))
+            sDesc = uiCommon.getAjaxArg("sDescription")
                 
             t = tag.Tag(sTagName, sDesc)
             t, err = t.DBCreateNew()
             if err:
-                return "{\"error\" : \"" + err + "\"}"
+                return json.dumps({"error":err})
             if t == None:
-                return "{\"error\" : \"Unable to create Tag.\"}"
+                return json.dumps({"error":"Unable to create Tag."})
 
             uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Tag, t.Name, t.Name, "Tag Created")
 
@@ -81,7 +86,7 @@ class tagMethods:
         try:
             sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
             if not sDeleteArray:
-                return "{\"info\" : \"Unable to delete - no selection.\"}"
+                return json.dumps({"info" : "Unable to delete - no selection."})
 
             sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
             
@@ -95,7 +100,7 @@ class tagMethods:
 
             uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Tag, "", sDeleteArray, "Tag(s) Deleted")
 
-            return "{\"result\" : \"success\"}"
+            return json.dumps({"result" : "success"})
                 
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
@@ -112,19 +117,19 @@ class tagMethods:
             if sDesc:
                 result, err = t.DBUpdate()
                 if err:
-                    return "{\"error\" : \"" + err + "\"}"
-                if not result:
-                    return "{\"error\" : \"Unable to update Tag.\"}"
+                    return json.dumps({"error":err})
+                if t == None:
+                    return json.dumps({"error":"Unable to update Tag."})
 
             # and possibly rename it
             if sNewTagName:
                 result, err = t.DBRename(sNewTagName)
                 if err:
-                    return "{\"error\" : \"" + err + "\"}"
+                    return json.dumps({"error":err})
                 if not result:
-                    return "{\"error\" : \"Unable to rename Tag.\"}"
+                    return json.dumps({"error":"Unable to r Tag."})
 
-            return "{\"result\" : \"success\"}"
+            return json.dumps({"result" : "success"})
         
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
@@ -203,9 +208,9 @@ class tagMethods:
     
             # fail on missing values
             if iObjectType < 0:
-                return "{ \"error\" : \"Invalid Object Type.\" }"
+                return json.dumps({"error":"Invalid Object Type."})
             if not sObjectID or not sTagName:
-                return "{ \"error\" : \"Missing or invalid Object ID or Tag Name.\" }"
+                return json.dumps({"error":"Missing or invalid Object ID or Tag Name."})
     
             sSQL = """insert into object_tags
                 (object_id, object_type, tag_name)
@@ -214,9 +219,9 @@ class tagMethods:
             if not self.db.exec_db_noexcep(sSQL):
                 uiCommon.log_nouser(self.db.error, 0)
     
-            uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [" + sTagName + "] added.")
+            uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [%s] added." % sTagName)
     
-            return ""
+            return json.dumps({"result" : "success"})
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
 
@@ -231,18 +236,18 @@ class tagMethods:
     
             # fail on missing values
             if iObjectType < 0:
-                return "{ \"error\" : \"Invalid Object Type.\" }"
+                return json.dumps({"error":"Invalid Object Type."})
             if not sObjectID or not sTagName:
-                return "{ \"error\" : \"Missing or invalid Object ID or Tag Name.\" }"
+                return json.dumps({"error":"Missing or invalid Object ID or Tag Name."})
     
             sSQL = """delete from object_tags where object_id = '%s' and tag_name = '%s'""" % (sObjectID, sTagName)
     
             if not self.db.exec_db_noexcep(sSQL):
                 uiCommon.log_nouser(self.db.error, 0)
     
-            uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [" + sTagName + "] removed.")
+            uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [%s] removed." % sTagName)
     
-            return ""
+            return json.dumps({"result" : "success"})
         except Exception:
             uiCommon.log_nouser(traceback.format_exc(), 0)
 

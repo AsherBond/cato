@@ -4,16 +4,12 @@ $var cssfiles: taskEdit.css taskView.css
 <div id="left_panel_te">
 	<div id="toolbox">
 		<div id="toolbox_tabs" class="toolbox_tabs_1row">
-			<span id="tab_status" linkto="div_status" class="ui-state-default ui-corner-top ui-state-active toolbox_tab">Status</span><span
-			id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top toolbox_tab">Details</span><span
-			id="tab_sequences" linkto="div_sequences" class="ui-state-default ui-corner-top toolbox_tab">Sequences</span><span
-			id="tab_datastore" linkto="div_datastore" class="ui-state-default ui-corner-top toolbox_tab">Datastore</span><!--<span
-			id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>-->
+			<span
+			id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top ui-state-active toolbox_tab">Details</span><span
+			id="tab_datastore" linkto="div_datastore" class="ui-state-default ui-corner-top toolbox_tab">Datastore</span><span
+			id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>
 		</div>
-		<div id="div_status" class="ui-widget-content ui-corner-top toolbox_panel">
-			services in this list
-		</div>
-		<div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+		<div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel">
 			<div style="padding: 0 0 0 5px;">
 				<span class="detail_label">Name:</span>
 				<input type="text" id="txtDeploymentName" class="task_details code" te_group="detail_fields" column="Name" />
@@ -28,22 +24,6 @@ $var cssfiles: taskEdit.css taskView.css
 				<br />
 			</div>
 		</div>
-		<div id="div_sequences" class="ui-widget-content ui-corner-top toolbox_panel hidden">
-			<ul>
-				<li>
-					startup
-				</li>
-				<li>
-					shutdown
-				</li>
-				<li>
-					scale up
-				</li>
-				<li>
-					scale down
-				</li>
-			</ul>
-		</div>
 		<div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
 			<span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
 			<ul id="objects_tags"></ul>
@@ -54,20 +34,12 @@ $var cssfiles: taskEdit.css taskView.css
 	<center>
 		<h3><span id="lblDeploymentHeader"></span></h3>
 	</center>
-	<div id="div_status_detail" class="detail_panel">
-		status dashboard
-	</div>
 	<div id="div_details_detail" class="detail_panel hidden">
 		details go here
-	</div>
-	<div id="div_sequences_detail" class="detail_panel hidden">
-		sequences go here
 	</div>
 	<div id="div_datastore_detail" class="detail_panel hidden">
 		<div id="jsoneditor" style="width: 100%;"></div>
 	</div>
 </div>
-<div class="hidden">
-	<input type="hidden" id="hidParamType" value="task" />
-	<input type="hidden" id="hidDeploymentID" />
-</div>
+<input id="hidPageSaveType" type="hidden" value="dynamic" />
+<input id="hidObjectType" type="hidden" value="70" />

@@ -175,8 +175,8 @@ class taskMethods:
     def IsTaskAllowed(task_id):
         # given a task id, we need to find the original task id,
         # then check if the user can see it based on tags
-#        if uiCommon.GetSessionUserRole() == "Administrator":
-#            return True
+        if uiCommon.GetSessionUserRole() == "Administrator":
+            return True
         
         if not catocommon.is_guid(task_id):
             uiCommon.log("Invalid or missing Task ID.")

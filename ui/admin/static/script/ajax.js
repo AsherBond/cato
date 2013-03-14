@@ -37,19 +37,31 @@ catoAjax.getQuestion = function(username) {"use strict";
 	return ajaxPost("uiMethods/wmGetQuestion", args);
 }
 
-catoAjax.getTagList = function(object_id) {"use strict";
+// TAG SPECIFIC FUNCTIONS
+catoAjax.tags = function() {
+	// a class for tagging specific calls
+}
+
+catoAjax.tags.getTagsTable = function(filter, page) {"use strict";
+	var args = {};
+	args.sFilter = filter;
+	args.sPage = page;
+	return ajaxPost("tagMethods/wmGetTagsTable", args);
+}
+
+catoAjax.tags.getTagList = function(object_id) {"use strict";
 	var args = {};
 	args.sObjectID = object_id;
 	return ajaxPost("tagMethods/wmGetTagList", args, "html");
 }
 
-catoAjax.getObjectsTags = function(object_id) {"use strict";
+catoAjax.tags.getObjectsTags = function(object_id) {"use strict";
 	var args = {};
 	args.sObjectID = object_id;
 	return ajaxPost("tagMethods/wmGetObjectsTags", args, "html");
 }
 
-catoAjax.addObjectTag = function(object_id, object_type, tag_name) {"use strict";
+catoAjax.tags.addObjectTag = function(object_id, object_type, tag_name) {"use strict";
 	var args = {};
 	args.sObjectID = object_id;
 	args.sObjectType = object_type;
@@ -57,7 +69,7 @@ catoAjax.addObjectTag = function(object_id, object_type, tag_name) {"use strict"
 	return ajaxPost("tagMethods/wmAddObjectTag", args);
 }
 
-catoAjax.removeObjectTag = function(object_id, object_type, tag_name) {"use strict";
+catoAjax.tags.removeObjectTag = function(object_id, object_type, tag_name) {"use strict";
 	var args = {};
 	args.sObjectID = object_id;
 	args.sObjectType = object_type;
@@ -65,6 +77,26 @@ catoAjax.removeObjectTag = function(object_id, object_type, tag_name) {"use stri
 	return ajaxPost("tagMethods/wmRemoveObjectTag", args);
 }
 
+catoAjax.tags.createTag = function(tag_name, desc) {"use strict";
+	var args = {};
+	args.sTagName = tag_name;
+	args.sDescription = desc;
+	return ajaxPost("tagMethods/wmCreateTag", args);
+}
+
+catoAjax.tags.updateTag = function(tag_name, new_name, desc) {"use strict";
+	var args = {};
+	args.sTagName = tag_name;
+	args.sNewTagName = new_name;
+	args.sDescription = desc;
+	return ajaxPost("tagMethods/wmUpdateTag", args);
+}
+
+catoAjax.tags.deleteTags = function(taglist) {"use strict";
+	var args = {};
+	args.sDeleteArray = taglist;
+	return ajaxPost("tagMethods/wmDeleteTags", args);
+}
 
 /*
  * This generic function is used by anything that needs to do an AJAX POST

@@ -14,6 +14,8 @@
 //
 
 //This is all the functions to support the deploymentEdit page.
+var g_id;
+
 $(document).ready(function() {
 	//used a lot
 	g_id = getQuerystringVariable("deployment_id");
@@ -49,7 +51,6 @@ function GetDetails() {
 		dataType : "json",
 		success : function(deployment) {
 			try {
-				$("#hidDeploymentID").val(deployment.ID);
 				$("#txtDeploymentName").val(deployment.Name);
 				$("#txtCurrentStatus").val(deployment.Status);
 				$("#lblDeploymentHeader").html(deployment.Name);
@@ -82,7 +83,7 @@ function tabWasClicked(tab) {
 		GetDetails();
 	} else if (tab == "tags") {
 		if ( typeof (GetObjectsTags) != 'undefined') {
-			GetObjectsTags($("#hidDeploymentID").val());
+			GetObjectsTags(g_id);
 		}
 	}
 
