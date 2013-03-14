@@ -50,6 +50,9 @@ class uiMethods:
     def wmGetQuestion(self):
         return uiCommon.GetQuestion()
             
+    def wmGetConfig(self):
+        return json.dumps(catoconfig.CONFIG)
+            
     def wmUpdateHeartbeat(self):
         uiCommon.UpdateHeartbeat()
         return ""
