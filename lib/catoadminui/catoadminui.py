@@ -158,20 +158,35 @@ class taskEdit:
         # we check the status here before doing anything, and redirect accordingly.
         i = web.input(task_id=None)
         if i.task_id:
-            task_status = taskMethods.GetTaskStatus(i.task_id)
-            if task_status == "Approved":
-                logger.warning("Attempt to explicitly access an Approved Task in the editor.", 2)
-                return render.taskView()
+            # do we have permission to see this task?
+            allowed = taskMethods.IsTaskAllowed(i.task_id)
+            if allowed:
+                task_status = taskMethods.GetTaskStatus(i.task_id)
+                if task_status == "Approved":
+                    logger.warning("Attempt to explicitly access an Approved Task in the editor.", 2)
+                    return render.taskView()
+                else:
+                    return render.taskEdit()
             else:
-                return render.taskEdit()
-
+                return render.notAllowed("Not allowed to manage this Task.")
+                
 class taskRunLog:        
     def GET(self):
         return render_popup.taskRunLog()
 
 class taskView:        
     def GET(self):
-        return render.taskView()
+        # NOTE: Getting the task edit page has a safety check.
+        # An "Approved" task cannot be opened in the editor... so...
+        # we check the status here before doing anything, and redirect accordingly.
+        i = web.input(task_id=None)
+        if i.task_id:
+            # do we have permission to see this task?
+            allowed = taskMethods.IsTaskAllowed(i.task_id)
+            if allowed:
+                return render.taskView()
+            else:
+                return render.notAllowed("Not allowed to manage this Task.")
 
 class taskPrint:        
     def GET(self):

@@ -337,9 +337,6 @@ def SetSessionObject(key, obj, category=""):
     else:
         uiGlobals.session[key] = obj
     
-<<<<<<< HEAD
-# this one returns just one specific function
-=======
 def FilterSetByTag(rows):
     if GetSessionUserRole() == "Administrator":
         filtered = rows
@@ -381,7 +378,6 @@ def UserAndObjectTagsMatch(object_id, object_type):
 
     
 #this one returns just one specific function
->>>>>>> tag checking enabled on task list page.
 def GetTaskFunction(sFunctionName):
     funcs = uiGlobals.FunctionCategories.Functions
     if funcs:
