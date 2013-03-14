@@ -57,6 +57,7 @@ RoleMethods = {
     "/taskStatus" : True,
     "/taskView" : ["Developer"],
     "/upload" : ["Developer"],
+    "/uiMethods/wmGetConfig" : True,
     "/uiMethods/wmGetMenu" : True,
     "/uiMethods/wmAddRegistryNode" : ["Developer"],
     "/uiMethods/wmAssetSearch" : ["Developer"],
