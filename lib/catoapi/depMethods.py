@@ -684,18 +684,33 @@ class depMethods:
                     service = dep.GetService(svc)
                     if service:
                         action.FromName(args["action"], dep.ID, service.ID)
-                    else:
-                        return R(err_code=R.Codes.GetError, err_detail="Unable to get Service for identifier [%s]." % svc)
 
+                        # if an 'inst' was passed, see if we can reconcile an existing instance
+                        if inst:
+                            instance = dep.GetServiceInstance(inst)
+                            inst = instance.InstanceID
+                            
+                        # the action is for a service so check the scope.
+                        # kick back an error if it's scoped for 'instance only' or 'service only' but the args don't agree.
+                        # 0 = action is visible on both Services AND Instances - allow
+                        # 1 = action is Service Level only, doesn't appear on Instances
+                        # 2 = Instance level only, doesn't appear at the Service level
+                        if action.Scope == 1 and inst:
+                            return R(err_code=R.Codes.StartFailure, 
+                                     err_detail="This Action is defined to run on Services only - do not supply a Service Instance.")
+                        if action.Scope == 2 and not inst:
+                            return R(err_code=R.Codes.StartFailure, 
+                                     err_detail="This Action is defined to run on Service Instances only - please provide a Service Instance.")
                 else:    
-                    action.FromName(args["action"], args["deployment"])
+                    action.FromName(args["action"], dep.ID)
                 
                 
                 if not action.ID:
-                    return R(err_code=R.Codes.GetError, err_detail="Unable to get Action for [%s - %s]." % (args["action"], args["deployment"], svc))
+                    return R(err_code=R.Codes.GetError, 
+                             err_detail="Unable to get Action for [%s - %s]." % (args["action"], args["deployment"], svc))
                     
+                
                 # the Run command will figure out what to run on... just give it the args we have
-                #parameter_xml=None, deployment_id=None, service_id=None, instance_id=None, log_level=None
                 taskinstances, msg = action.Run(user_id=args["_user_id"], instance_id=inst, parameters=params, log_level=debug)
                 
                 if not taskinstances:
@@ -708,8 +723,6 @@ class depMethods:
                     return R(response=catocommon.ObjectOutput.IterableAsText(taskinstances, ["Instance"], args["output_delimiter"]))
                 else:
                     return R(response=catocommon.ObjectOutput.IterableAsXML(taskinstances, "instances", "instance"))
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             
         except Exception as ex:
             logger.error(traceback.format_exc())
@@ -753,7 +766,7 @@ class depMethods:
                         return R(err_code=R.Codes.GetError, err_detail="Unable to get Service for identifier [%s]." % svc)
 
                 else:    
-                    action.FromName(args["action"], args["deployment"])
+                    action.FromName(args["action"], dep.ID)
                 
                 
                 if not action.ID:
