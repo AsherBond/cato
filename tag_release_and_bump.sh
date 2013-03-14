@@ -6,6 +6,8 @@ if [ "$version" = "" ] ; then
     echo "usage: $0 <release>"
     exit 1
 fi
+git tag -d $version
+git push origin :refs/tags/$version
 git pull
 echo $version > VERSION
 
