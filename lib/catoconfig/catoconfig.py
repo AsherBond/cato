@@ -42,6 +42,48 @@ def _get_base_path():
     return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     
 def read_config():
+    """
+    Will read the cato.conf file and populate the CONFIG dictionary with settings.
+    
+    In case of errors reading the file, and to simplify downstream code, 
+    default values are defined here.
+    """
+    cfg = {}
+    cfg["server"] = "localhost"
+    cfg["database"] = "cato"
+    cfg["port"] = "3306"
+    cfg["dbUseSSL"] = "false"
+    cfg["dbSqlLog"] = "false"
+    cfg["dbLog"] = "true"
+    cfg["dbConnectionTimeout"] = "15"
+    cfg["dbConnectionRetries"] = "15"
+
+    cfg["logfiles"] = "/var/log/cato"
+    cfg["uicache"] = "/var/cato/ui"
+    cfg["tmpdir"] = "/tmp"
+    
+    cfg["redirect_stdout"] = "false"
+    cfg["write_http_logs"] = "false"
+    
+    cfg["ui_permissions"] = "true"
+    
+    cfg["admin_ui_port"] = "8082"
+    cfg["admin_ui_debug"] = "0"
+    
+    cfg["user_ui_port"] = "8080"
+    cfg["user_ui_debug"] = "0"
+    cfg["user_ui_client_debug"] = "30"
+    cfg["user_ui_enable_refresh"] = "true"
+    
+    cfg["rest_api_url"] = "http://localhost"
+    cfg["rest_api_port"] = "4001"
+    cfg["rest_api_debug"] = "20"
+    
+    cfg["dash_api_url"] = "http://localhost"
+    cfg["dash_api_port"] = "4002"
+    cfg["dash_api_debug"] = "0"
+
+    
     filename = os.path.join(BASEPATH, "conf/cato.conf")        
     if not os.path.isfile(filename):
         msg = "The configuration file " + filename + " does not exist."
@@ -52,7 +94,6 @@ def read_config():
         msg = "Error opening file " + filename + " " + format(errno, strerror)
         raise IOError(msg)
     
-    key_vals = {}
     contents = fp.read().splitlines()
     fp.close
     enc_key = ""
@@ -78,13 +119,14 @@ def read_config():
             elif key == "mongodb.password":
                 enc_mongo_pass = value
             else:
-                key_vals[key] = value
+                cfg[key] = value
+
     un_key = catocryptpy.decrypt_string(enc_key, "")
-    key_vals["key"] = un_key
+    cfg["key"] = un_key
     un_pass = catocryptpy.decrypt_string(enc_pass, un_key)
-    key_vals["password"] = un_pass
+    cfg["password"] = un_pass
     un_mongo_pass = catocryptpy.decrypt_string(enc_mongo_pass, un_key) if enc_mongo_pass else ""
-    key_vals["mongodb.password"] = un_mongo_pass
+    cfg["mongodb.password"] = un_mongo_pass
     
     # something else here... 
     # the root cato directory should have a VERSION file.
@@ -93,13 +135,25 @@ def read_config():
     if os.path.isfile(verfilename):
         with open(verfilename, "r") as version_file:
             ver = version_file.read()
-            key_vals["version"] = ver
+            cfg["version"] = ver
     else:
         raise Exception("Info: VERSION file does not exist.", 0)
  
-    return key_vals
+    return cfg
 
+def safe_config():
+    """
+    The safe config is a small set of config settings allowed to be published
+    to the web and API clients if requested.
+    """
+    cfg = {}
+    cfg["user_ui_port"] = CONFIG["user_ui_port"]
+    cfg["admin_ui_port"] = CONFIG["admin_ui_port"]
+    cfg["user_ui_enable_refresh"] = CONFIG["user_ui_enable_refresh"]
+    return cfg
 
 BASEPATH = _get_base_path()
 CONFIG = read_config()
+SAFECONFIG = safe_config()
 VERSION = CONFIG["version"] if CONFIG.has_key("version") else "NOT SET"
+
