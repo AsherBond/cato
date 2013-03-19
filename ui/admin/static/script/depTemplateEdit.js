@@ -251,6 +251,10 @@ function tabWasClicked(tab) {"use strict";
 		getDeployments();
 	} else if (tab === "details") {
 		getDetails();
+    } else if (tab == "tags") {
+        if (typeof(GetObjectsTags) != 'undefined') {
+	        GetObjectsTags(g_id);
+        }
 	}
 
 	//hide 'em all

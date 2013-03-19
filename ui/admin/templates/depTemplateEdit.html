@@ -1,12 +1,13 @@
 $def with ()
-$var jsfiles: toolbox.js depTemplateEdit.js jsonlint/c/js/json2.js jsonlint/c/js/jsl.parser.js jsonlint/c/js/jsl.format.js jsonlint/c/js/jsl.interactions.js
+$var jsfiles: toolbox.js depTemplateEdit.js tags.js jsonlint/c/js/json2.js jsonlint/c/js/jsl.parser.js jsonlint/c/js/jsl.format.js jsonlint/c/js/jsl.interactions.js
 $var cssfiles: taskEdit.css taskView.css
 
 <div id="left_panel_te">
 	<div id="toolbox">
 		<div id="toolbox_tabs" class="toolbox_tabs_1row">
 			<span id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top ui-state-active toolbox_tab">Details</span><span
-			id="tab_deployments" linkto="div_deployments" class="ui-state-default ui-corner-top toolbox_tab">Deployments</span>
+			id="tab_deployments" linkto="div_deployments" class="ui-state-default ui-corner-top toolbox_tab">Deployments</span><span
+			id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>
 		</div>
 		<div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel">
 			<div style="padding: 0 0 0 5px;">
@@ -27,6 +28,10 @@ $var cssfiles: taskEdit.css taskView.css
 				<hr />
 				<div id="deployment_results"></div>
 			</div>
+		</div>
+		<div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+			<span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
+			<ul id="objects_tags"></ul>
 		</div>
 	</div>
 </div>
