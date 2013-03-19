@@ -51,7 +51,7 @@ class uiMethods:
         return uiCommon.GetQuestion()
             
     def wmGetConfig(self):
-        return json.dumps(catoconfig.CONFIG)
+        return json.dumps(catoconfig.SAFECONFIG)
             
     def wmUpdateHeartbeat(self):
         uiCommon.UpdateHeartbeat()
