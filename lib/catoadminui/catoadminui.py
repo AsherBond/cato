@@ -121,7 +121,8 @@ class home:
 
 class notAllowed:        
     def GET(self):
-        return render.notAllowed()
+        i = web.input(msg="")
+        return render.notAllowed(i.msg)
 
 class settings:        
     def GET(self):

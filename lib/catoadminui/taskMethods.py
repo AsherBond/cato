@@ -173,19 +173,12 @@ class taskMethods:
 
     @staticmethod
     def IsTaskAllowed(task_id):
-        # given a task id, we need to find the original task id,
-        # then check if the user can see it based on tags
-        if uiCommon.GetSessionUserRole() == "Administrator":
-            return True
-        
-        if not catocommon.is_guid(task_id):
-            uiCommon.log("Invalid or missing Task ID.")
-
+        # Tasks are a special case - permissions are done by the original_task_id
         db = catocommon.new_conn()
         sql = "select original_task_id from task where task_id = %s"
         otid = db.select_col_noexcep(sql, (task_id))
         if otid:
-            return uiCommon.UserAndObjectTagsMatch(otid, 3)
+            return uiCommon.IsObjectAllowed(otid, catocommon.CatoObjectTypes.Task)
         else:
             uiCommon.log("Unable to find Task for permissions check using ID [%s]" % task_id)
             return False

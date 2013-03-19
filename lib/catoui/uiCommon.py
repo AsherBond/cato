@@ -338,8 +338,12 @@ def SetSessionObject(key, obj, category=""):
         uiGlobals.session[key] = obj
     
 def FilterSetByTag(rows):
+    # if permissions checking is turned off, everything is allowed
+    if catoconfig.CONFIG["ui_permissions"] == "false":
+        return rows
+    
     if GetSessionUserRole() == "Administrator":
-        filtered = rows
+        return rows
     else:
         tags = tag.ObjectTags(1, GetSessionUserID())
         
@@ -347,10 +351,22 @@ def FilterSetByTag(rows):
         for row in rows:
             if set(tags) & set(row["Tags"].split(",") if row["Tags"] else []):
                 filtered.append(row)
-                
-    return filtered
+        return filtered
 
-def UserAndObjectTagsMatch(object_id, object_type):
+def IsObjectAllowed(object_id, object_type):
+    # if permissions checking is turned off, everything is allowed
+    if catoconfig.CONFIG["ui_permissions"] == "false":
+        return True
+    
+    # given a task id, we need to find the original task id,
+    # then check if the user can see it based on tags
+    if GetSessionUserRole() == "Administrator":
+        return True
+    
+    if not object_id or not object_type:
+        log("Invalid or missing Object ID or Object Type.")
+        return False
+
     sql = """select 1 from object_tags otu
         join object_tags oto on otu.tag_name = oto.tag_name
         where (otu.object_type = 1)
