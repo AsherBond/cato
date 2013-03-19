@@ -42,34 +42,31 @@ class Clouds(object):
     rows = {}
         
     def __init__(self, sFilter=""):
-        try:
-            db = catocommon.new_conn()
-            sWhereString = ""
-            if sFilter:
-                aSearchTerms = sFilter.split()
-                for term in aSearchTerms:
-                    if term:
-                        sWhereString += " and (c.cloud_name like '%%" + term + "%%' " \
-                            "or ca.account_name like '%%" + term + "%%' " \
-                            "or c.provider like '%%" + term + "%%' " \
-                            "or c.api_url like '%%" + term + "%%') "
-    
-            sSQL = """select 
-                c.cloud_id as ID, 
-                c.cloud_name as Name, 
-                c.provider as Provider, 
-                c.api_url as APIUrl, 
-                c.api_protocol as APIProtocol, 
-                ca.account_name as DefaultAccount
-                from clouds c
-                left outer join cloud_account ca on c.default_account_id = ca.account_id
-                where 1=1 %s order by c.provider, c.cloud_name""" % sWhereString
+        db = catocommon.new_conn()
+        sWhereString = ""
+        if sFilter:
+            aSearchTerms = sFilter.split()
+            for term in aSearchTerms:
+                if term:
+                    sWhereString += " and (c.cloud_name like '%%" + term + "%%' " \
+                        "or ca.account_name like '%%" + term + "%%' " \
+                        "or c.provider like '%%" + term + "%%' " \
+                        "or c.api_url like '%%" + term + "%%') "
+
+        sSQL = """select 
+            c.cloud_id as ID, 
+            c.cloud_name as Name, 
+            c.provider as Provider, 
+            c.api_url as APIUrl, 
+            c.api_protocol as APIProtocol, 
+            ca.account_name as DefaultAccount
+            from clouds c
+            left outer join cloud_account ca on c.default_account_id = ca.account_id
+            where 1=1 %s order by c.provider, c.cloud_name""" % sWhereString
             
-            self.rows = db.select_all_dict(sSQL)
-        except Exception as ex:
-            raise Exception(ex)
-        finally:
-            db.close()
+        rows = db.select_all_dict(sSQL)
+        self.rows = rows if rows else {}
+        db.close()
 
     def AsJSON(self):
         return catocommon.ObjectOutput.IterableAsJSON(self.rows)
@@ -94,25 +91,20 @@ class Cloud(object):
     # NOTE: there is a possible circular reference between clouds and accounts.
     # So, to avoid those loops, this is an instance method that populates the attribute
     def GetDefaultAccount(self):
-        try:
-            db = catocommon.new_conn()
-            
-            sSQL = """select default_account_id from clouds where cloud_id = '%s'""" % self.ID
-            row = db.select_row_dict(sSQL)
-            if row:
-                if row["default_account_id"]:
-                    ca = CloudAccount()
-                    ca.FromID(row["default_account_id"])
-                    if ca.ID:
-                        self.DefaultAccount = ca
-                        return ca
-
-            return None
+        db = catocommon.new_conn()
         
-        except Exception as ex:
-            raise Exception(ex)
-        finally:
-            db.close()
+        sSQL = """select default_account_id from clouds where cloud_id = '%s'""" % self.ID
+        row = db.select_row_dict(sSQL)
+        db.close()
+        if row:
+            if row["default_account_id"]:
+                ca = CloudAccount()
+                ca.FromID(row["default_account_id"])
+                if ca.ID:
+                    self.DefaultAccount = ca
+                    return ca
+
+        return None
         
  
     #the default constructor (manual creation)
@@ -129,68 +121,56 @@ class Cloud(object):
         self.Provider = p
 
     def FromID(self, sCloudID):
-        try:
-            db = catocommon.new_conn()
-            if not sCloudID:
-                raise Exception("Error building Cloud object: Cloud ID is required.")
-            
-            cp = CloudProviders()
-            if not cp:
-                raise Exception("Error building Cloud object: Unable to get CloudProviders.")
-            #check the CloudProvider class first ... it *should be there unless something is wrong.
-            for p in cp.itervalues():
-                for c in p.Clouds:
-                    if c.ID == sCloudID:
-                        self.IsUserDefined = c.IsUserDefined
-                        self.ID = c.ID
-                        self.Name = c.Name
-                        self.APIUrl = c.APIUrl
-                        self.APIProtocol = c.APIProtocol
-                        self.Region = c.Region
-                        self.Provider = c.Provider
-                        
-                        return
-            
-            #well, if we got here we have a problem... the ID provided wasn't found anywhere.
-            #this should never happen, so bark about it.
-            logger.warning("Unable to find a Cloud with id [%s] on any Providers." % sCloudID)   
-            return
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+        if not sCloudID:
+            raise Exception("Error building Cloud object: Cloud ID is required.")
+        
+        cp = CloudProviders()
+        if not cp:
+            raise Exception("Error building Cloud object: Unable to get CloudProviders.")
+        #check the CloudProvider class first ... it *should be there unless something is wrong.
+        for p in cp.itervalues():
+            for c in p.Clouds:
+                if c.ID == sCloudID:
+                    self.IsUserDefined = c.IsUserDefined
+                    self.ID = c.ID
+                    self.Name = c.Name
+                    self.APIUrl = c.APIUrl
+                    self.APIProtocol = c.APIProtocol
+                    self.Region = c.Region
+                    self.Provider = c.Provider
+                    
+                    return
+        
+        #well, if we got here we have a problem... the ID provided wasn't found anywhere.
+        #this should never happen, so bark about it.
+        logger.warning("Unable to find a Cloud with id [%s] on any Providers." % sCloudID)   
+        return
 
     def FromName(self, name):
-        try:
-            db = catocommon.new_conn()
-            if not name:
-                raise Exception("Error building Cloud object: Cloud Name is required.")
-            
-            cp = CloudProviders()
-            if not cp:
-                raise Exception("Error building Cloud object: Unable to get CloudProviders.")
-            #check the CloudProvider class first ... it *should be there unless something is wrong.
-            for p in cp.itervalues():
-                for c in p.Clouds:
-                    if c.Name == name:
-                        self.IsUserDefined = c.IsUserDefined
-                        self.ID = c.ID
-                        self.Name = c.Name
-                        self.APIUrl = c.APIUrl
-                        self.APIProtocol = c.APIProtocol
-                        self.Region = c.Region
-                        self.Provider = c.Provider
-                        
-                        return
-            
-            #well, if we got here we have a problem... the name provided wasn't found anywhere.
-            #this should never happen, so bark about it.
-            logger.warning("Unable to find a Cloud with name [%s] on any Providers." % name)   
-            return
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+        if not name:
+            raise Exception("Error building Cloud object: Cloud Name is required.")
+        
+        cp = CloudProviders()
+        if not cp:
+            raise Exception("Error building Cloud object: Unable to get CloudProviders.")
+        #check the CloudProvider class first ... it *should be there unless something is wrong.
+        for p in cp.itervalues():
+            for c in p.Clouds:
+                if c.Name == name:
+                    self.IsUserDefined = c.IsUserDefined
+                    self.ID = c.ID
+                    self.Name = c.Name
+                    self.APIUrl = c.APIUrl
+                    self.APIProtocol = c.APIProtocol
+                    self.Region = c.Region
+                    self.Provider = c.Provider
+                    
+                    return
+        
+        #well, if we got here we have a problem... the name provided wasn't found anywhere.
+        #this should never happen, so bark about it.
+        logger.warning("Unable to find a Cloud with name [%s] on any Providers." % name)   
+        return
 
     def IsValidForCalls(self):
         if self.APIUrl and self.APIProtocol:
@@ -198,90 +178,79 @@ class Cloud(object):
         return False
 
     def AsJSON(self):
-        try:
-            # convert the Provider object to a dictionary for serialization
-            self.Provider = self.Provider.__dict__
-            self.GetDefaultAccount()
-            if self.DefaultAccount:
-                del self.DefaultAccount.Provider
-                self.DefaultAccount = self.DefaultAccount.__dict__
-            else:
-                self.DefaultAccount = ""
-            
-            return catocommon.ObjectOutput.AsJSON(self.__dict__)
-        except Exception as ex:
-            raise ex
+        # convert the Provider object to a dictionary for serialization
+        self.Provider = self.Provider.__dict__
+        self.GetDefaultAccount()
+        if self.DefaultAccount:
+            del self.DefaultAccount.Provider
+            self.DefaultAccount = self.DefaultAccount.__dict__
+        else:
+            self.DefaultAccount = ""
+        
+        return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
     #STATIC METHOD
     #creates this Cloud as a new record in the db
     #and returns the object
     @staticmethod
     def DBCreateNew(sCloudName, sProvider, sAPIUrl, sAPIProtocol, sRegion="", sDefaultAccountID=""):
-        try:
-            db = catocommon.new_conn()
-            sSQL = ""
-            sNewID = catocommon.new_guid()
-            sRegion = "'%s'" % sRegion if sRegion else "null"
-            sDefaultAccountID = "'%s'" % sDefaultAccountID if sDefaultAccountID else "null"
-            
-            sSQL = """insert into clouds (cloud_id, cloud_name, provider, api_url, api_protocol, region, default_account_id)
-                values ('%s', '%s', '%s', '%s', '%s', %s, %s)""" % (sNewID, sCloudName, sProvider, sAPIUrl, sAPIProtocol, sRegion, sDefaultAccountID)
-            if not db.exec_db_noexcep(sSQL):
-                if db.error == "key_violation":
-                    return None, "A Cloud with that name already exists.  Please select another name."
-                else:
-                    return None, db.error
-            
-            #now it's inserted and in the session... lets get it back from the db as a complete object for confirmation.
-            c = Cloud()
-            c.FromID(sNewID)
-            c.GetDefaultAccount()
-            
-            #yay!
-            return c, None
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+        db = catocommon.new_conn()
+        sSQL = ""
+        sNewID = catocommon.new_guid()
+        sRegion = "'%s'" % sRegion if sRegion else "null"
+        sDefaultAccountID = "'%s'" % sDefaultAccountID if sDefaultAccountID else "null"
+        
+        sSQL = """insert into clouds (cloud_id, cloud_name, provider, api_url, api_protocol, region, default_account_id)
+            values ('%s', '%s', '%s', '%s', '%s', %s, %s)""" % (sNewID, sCloudName, sProvider, sAPIUrl, sAPIProtocol, sRegion, sDefaultAccountID)
+        if not db.exec_db_noexcep(sSQL):
+            if db.error == "key_violation":
+                return None, "A Cloud with that name already exists.  Please select another name."
+            else:
+                return None, db.error
+        
+        #now it's inserted and in the session... lets get it back from the db as a complete object for confirmation.
+        c = Cloud()
+        c.FromID(sNewID)
+        c.GetDefaultAccount()
+        
+        #yay!
+        db.close()
+        return c, None
 
     #INSTANCE METHOD
     #updates the current Cloud object to the db
     def DBUpdate(self):
-        try:
-            db = catocommon.new_conn()
-            #of course we do nothing if this cloud was hardcoded in the xml
-            #just return success, which should never happen since the user can't get to edit a hardcoded Cloud anyway.
-            if not self.IsUserDefined:
-                return True
-            #what's the original name?
-            sSQL = "select cloud_name from clouds where cloud_id = '%s'" % self.ID
-            sOriginalName = db.select_col_noexcep(sSQL)
-            if not sOriginalName:
-                if db.error:
-                    raise Exception("Error getting original cloud name:" + db.error)
+        db = catocommon.new_conn()
+        #of course we do nothing if this cloud was hardcoded in the xml
+        #just return success, which should never happen since the user can't get to edit a hardcoded Cloud anyway.
+        if not self.IsUserDefined:
+            return True
+        #what's the original name?
+        sSQL = "select cloud_name from clouds where cloud_id = '%s'" % self.ID
+        sOriginalName = db.select_col_noexcep(sSQL)
+        if not sOriginalName:
+            if db.error:
+                raise Exception("Error getting original cloud name:" + db.error)
+        
+        
+        sDefaultAccountID = "null"
+        if self.DefaultAccount:
+            sDefaultAccountID = "'%s'" % self.DefaultAccount.ID
             
-            
-            sDefaultAccountID = "null"
-            if self.DefaultAccount:
-                sDefaultAccountID = "'%s'" % self.DefaultAccount.ID
-                
-            sSQL = """update clouds set cloud_name = '%s',
-                provider = '%s',
-                api_protocol = '%s',
-                api_url = '%s',
-                default_account_id = %s
-                where cloud_id = '%s'""" % (self.Name, self.Provider.Name, self.APIProtocol, self.APIUrl, sDefaultAccountID, self.ID)
-            if not db.exec_db_noexcep(sSQL):
-                if db.error == "key_violation":
-                    return False, "A Cloud with that name already exists.  Please select another name."
-                else:
-                    return False, db.error
+        sSQL = """update clouds set cloud_name = '%s',
+            provider = '%s',
+            api_protocol = '%s',
+            api_url = '%s',
+            default_account_id = %s
+            where cloud_id = '%s'""" % (self.Name, self.Provider.Name, self.APIProtocol, self.APIUrl, sDefaultAccountID, self.ID)
+        if not db.exec_db_noexcep(sSQL):
+            if db.error == "key_violation":
+                return False, "A Cloud with that name already exists.  Please select another name."
+            else:
+                return False, db.error
 
-            return True, None
-        except Exception as ex:
-            raise Exception(ex)
-        finally:
-            db.close()
+        db.close()
+        return True, None
 
 
 # Note: this is not a container for CloudAccount objects - it's just a rowset from the database
@@ -292,41 +261,38 @@ class CloudAccounts(object):
     rows = {}
         
     def __init__(self, sFilter="", sProvider=""):
-        try:
-            db = catocommon.new_conn()
-            sWhereString = ""
-            if sFilter:
-                aSearchTerms = sFilter.split()
-                for term in aSearchTerms:
-                    if term:
-                        sWhereString += " and (ca.account_name like '%%" + term + "%%' " \
-                            "or ca.account_number like '%%" + term + "%%' " \
-                            "or ca.provider like '%%" + term + "%%' " \
-                            "or c.cloud_name like '%%" + term + "%%' " \
-                            "or ca.login_id like '%%" + term + "%%') "
-    
-            # if a sProvider arg is passed, we explicitly limit to this provider
-            if sProvider:
-                sWhereString += " and ca.provider = '%s'" % sProvider
-                
-            sSQL = """select 
-                ca.account_id as ID, 
-                ca.account_name as Name, 
-                ca.account_number as AccountNumber, 
-                ca.provider as Provider, 
-                ca.login_id as LoginID, 
-                c.cloud_name as DefaultCloud,
-                case is_default when 1 then 'Yes' else 'No' end as IsDefault,
-                (select count(*) from deployment_service_inst where cloud_account_id = ca.account_id) as has_services
-                from cloud_account ca
-                left outer join clouds c on ca.default_cloud_id = c.cloud_id
-                where 1=1 %s order by ca.is_default desc, ca.account_name""" % sWhereString
+        db = catocommon.new_conn()
+        sWhereString = ""
+        if sFilter:
+            aSearchTerms = sFilter.split()
+            for term in aSearchTerms:
+                if term:
+                    sWhereString += " and (ca.account_name like '%%" + term + "%%' " \
+                        "or ca.account_number like '%%" + term + "%%' " \
+                        "or ca.provider like '%%" + term + "%%' " \
+                        "or c.cloud_name like '%%" + term + "%%' " \
+                        "or ca.login_id like '%%" + term + "%%') "
+
+        # if a sProvider arg is passed, we explicitly limit to this provider
+        if sProvider:
+            sWhereString += " and ca.provider = '%s'" % sProvider
             
-            self.rows = db.select_all_dict(sSQL)
-        except Exception as ex:
-            raise Exception(ex)
-        finally:
-            db.close()
+        sSQL = """select 
+            ca.account_id as ID, 
+            ca.account_name as Name, 
+            ca.account_number as AccountNumber, 
+            ca.provider as Provider, 
+            ca.login_id as LoginID, 
+            c.cloud_name as DefaultCloud,
+            case is_default when 1 then 'Yes' else 'No' end as IsDefault,
+            (select count(*) from deployment_service_inst where cloud_account_id = ca.account_id) as has_services
+            from cloud_account ca
+            left outer join clouds c on ca.default_cloud_id = c.cloud_id
+            where 1=1 %s order by ca.is_default desc, ca.account_name""" % sWhereString
+        
+        rows = db.select_all_dict(sSQL)
+        self.rows = rows if rows else {}
+        db.close()
 
     def AsJSON(self):
         return catocommon.ObjectOutput.IterableAsJSON(self.rows)
@@ -350,86 +316,74 @@ class CloudAccount(object):
 
     def FromName(self, sAccountName):
         """Will get a Cloud Account given either a name OR an id."""
-        try:
-            db = catocommon.new_conn()
-            sSQL = "select account_id from cloud_account where account_name = '{0}' or account_id = '{0}'".format(sAccountName)
-            
-            caid = db.select_col_noexcep(sSQL)
-            if db.error:
-                raise Exception("Cloud Account Object: Unable to get Cloud Account from database. " + db.error)
+        db = catocommon.new_conn()
+        sSQL = "select account_id from cloud_account where account_name = '{0}' or account_id = '{0}'".format(sAccountName)
+        
+        caid = db.select_col_noexcep(sSQL)
+        if db.error:
+            raise Exception("Cloud Account Object: Unable to get Cloud Account from database. " + db.error)
 
-            if caid:
-                self.FromID(caid)
-            else: 
-                raise Exception("Error getting Cloud Account ID for Name [%s] - no record found. %s" % (sAccountName, db.error))
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+        if caid:
+            self.FromID(caid)
+        else: 
+            raise Exception("Error getting Cloud Account ID for Name [%s] - no record found. %s" % (sAccountName, db.error))
+
+        db.close()
 
     def FromID(self, sAccountID):
-        try:
-            db = catocommon.new_conn()
-            if not sAccountID:
-                raise Exception("Error building Cloud Account object: Cloud Account ID is required.");    
-            
-            sSQL = """select account_id, account_name, account_number, provider, login_id, login_password, is_default, default_cloud_id
-                from cloud_account
-                where account_id = '%s'""" % sAccountID
-            dr = db.select_row_dict(sSQL)
-            
-            if dr is not None:
-                self.Populate(dr)
-            else: 
-                raise Exception("Unable to build Cloud Account object. Either no Cloud Accounts are defined, or no Account with ID [%s] could be found." % sAccountID)
-        except Exception as ex:
-            raise Exception(ex)
-        finally:
-            db.close()
+        db = catocommon.new_conn()
+        if not sAccountID:
+            raise Exception("Error building Cloud Account object: Cloud Account ID is required.");    
+        
+        sSQL = """select account_id, account_name, account_number, provider, login_id, login_password, is_default, default_cloud_id
+            from cloud_account
+            where account_id = '%s'""" % sAccountID
+        dr = db.select_row_dict(sSQL)
+        
+        if dr is not None:
+            self.Populate(dr)
+        else: 
+            raise Exception("Unable to build Cloud Account object. Either no Cloud Accounts are defined, or no Account with ID [%s] could be found." % sAccountID)
+
+        db.close()
 
     def FromRow(self, dr):
-        try:
-            if dr is not None:
-                self.Populate(dr)
-            else: 
-                raise Exception("Unable to build Cloud Account object from row - row not provider.")
-        except Exception as ex:
-            raise Exception(ex)
+        if dr is not None:
+            self.Populate(dr)
+        else: 
+            raise Exception("Unable to build Cloud Account object from row - row not provider.")
 
     def Populate(self, dr):
-        try:
-            if dr is not None:
-                self.ID = dr["account_id"]
-                self.Name = dr["account_name"]
-                self.AccountNumber = ("" if not dr["account_number"] else dr["account_number"])
-                self.LoginID = ("" if not dr["login_id"] else dr["login_id"])
-                self.LoginPassword = ("" if not dr["login_password"] else catocommon.cato_decrypt(dr["login_password"]))
-                self.IsDefault = (True if dr["is_default"] == 1 else False)
+        if dr is not None:
+            self.ID = dr["account_id"]
+            self.Name = dr["account_name"]
+            self.AccountNumber = ("" if not dr["account_number"] else dr["account_number"])
+            self.LoginID = ("" if not dr["login_id"] else dr["login_id"])
+            self.LoginPassword = ("" if not dr["login_password"] else catocommon.cato_decrypt(dr["login_password"]))
+            self.IsDefault = (True if dr["is_default"] == 1 else False)
 
-                c = Cloud()
-                c.FromID(dr["default_cloud_id"])
-                if not c:
-                    raise Exception("Error building Cloud Account object: Unable to get Default Cloud.")
-                    return
-                    
-                self.DefaultCloud = c
+            c = Cloud()
+            c.FromID(dr["default_cloud_id"])
+            if not c:
+                raise Exception("Error building Cloud Account object: Unable to get Default Cloud.")
+                return
                 
-                # find a provider object
-                cp = CloudProviders()
-                if not cp:
-                    raise Exception("Error building Cloud Account object: Unable to get CloudProviders.")
-                    return
+            self.DefaultCloud = c
+            
+            # find a provider object
+            cp = CloudProviders()
+            if not cp:
+                raise Exception("Error building Cloud Account object: Unable to get CloudProviders.")
+                return
 
-                #check the CloudProvider class first ... it *should be there unless something is wrong.
-                if cp.has_key(dr["provider"]):
-                    self.Provider = cp[dr["provider"]]
-                else:
-                    raise Exception("Provider [%s] does not exist in the cloud_providers session xml." % dr["provider"])
+            #check the CloudProvider class first ... it *should be there unless something is wrong.
+            if cp.has_key(dr["provider"]):
+                self.Provider = cp[dr["provider"]]
+            else:
+                raise Exception("Provider [%s] does not exist in the cloud_providers session xml." % dr["provider"])
 
-            else: 
-                raise Exception("Unable to build Cloud Account object. Either no Cloud Accounts are defined, or no Account could be found.")
-        except Exception as ex:
-            raise Exception(ex)
+        else: 
+            raise Exception("Unable to build Cloud Account object. Either no Cloud Accounts are defined, or no Account could be found.")
 
     def IsValidForCalls(self):
         if self.LoginID and self.LoginPassword:
@@ -437,131 +391,120 @@ class CloudAccount(object):
         return False
 
     def AsJSON(self):
-        try:
-            sb = []
-            sb.append("{")
-            sb.append("\"%s\" : \"%s\"," % ("ID", self.ID))
-            sb.append("\"%s\" : \"%s\"," % ("Name", self.Name))
-            sb.append("\"%s\" : \"%s\"," % ("Provider", self.Provider.Name))
-            sb.append("\"%s\" : \"%s\"," % ("AccountNumber", self.AccountNumber))
-            sb.append("\"%s\" : \"%s\"," % ("LoginID", self.LoginID))
-            sb.append("\"%s\" : \"%s\"," % ("LoginPassword", self.LoginPassword))
-            sb.append("\"%s\" : \"%s\"," % ("IsDefault", self.IsDefault))
+        sb = []
+        sb.append("{")
+        sb.append("\"%s\" : \"%s\"," % ("ID", self.ID))
+        sb.append("\"%s\" : \"%s\"," % ("Name", self.Name))
+        sb.append("\"%s\" : \"%s\"," % ("Provider", self.Provider.Name))
+        sb.append("\"%s\" : \"%s\"," % ("AccountNumber", self.AccountNumber))
+        sb.append("\"%s\" : \"%s\"," % ("LoginID", self.LoginID))
+        sb.append("\"%s\" : \"%s\"," % ("LoginPassword", self.LoginPassword))
+        sb.append("\"%s\" : \"%s\"," % ("IsDefault", self.IsDefault))
 
-            sb.append("\"%s\" : %s," % ("DefaultCloud", self.DefaultCloud.AsJSON()))
-            
-            # what are all the other available clouds for this provider?
-            sb.append("\"ProviderClouds\" : {")
-            lst = []
-            for c in self.Provider.Clouds:
-                #stick em all in a list for now
-                s = "\"%s\" : %s" % (c.ID, c.AsJSON())
-                lst.append(s)
-            #join the list using commas!
-            sb.append(",".join(lst))
-            sb.append("}")
+        sb.append("\"%s\" : %s," % ("DefaultCloud", self.DefaultCloud.AsJSON()))
+        
+        # what are all the other available clouds for this provider?
+        sb.append("\"ProviderClouds\" : {")
+        lst = []
+        for c in self.Provider.Clouds:
+            #stick em all in a list for now
+            s = "\"%s\" : %s" % (c.ID, c.AsJSON())
+            lst.append(s)
+        #join the list using commas!
+        sb.append(",".join(lst))
+        sb.append("}")
 
-    
-            sb.append("}")
-            return "".join(sb)
-        except Exception as ex:
-            raise ex
+
+        sb.append("}")
+        return "".join(sb)
 
     #STATIC METHOD
     #creates this Cloud as a new record in the db
     #and returns the object
     @staticmethod
     def DBCreateNew(sAccountName, sAccountNumber, sProvider, sLoginID, sLoginPassword, sIsDefault, sDefaultCloudID):
-        try:
-            db = catocommon.new_conn()
+        db = catocommon.new_conn()
 
-            # if there are no rows yet, make this one the default even if the box isn't checked.
-            if sIsDefault == "0":
-                iExists = -1
-                
-                sSQL = "select count(*) as cnt from cloud_account"
-                iExists = db.select_col_noexcep(sSQL)
-                if iExists == None:
-                    if db.error:
-                        db.tran_rollback()
-                        return None, "Unable to count Cloud Accounts: %s" % db.error
-                
-                if iExists == 0:
-                    sIsDefault = "1"
-
-            sNewID = catocommon.new_guid()
-            sPW = (catocommon.cato_encrypt(sLoginPassword) if sLoginPassword else "")
+        # if there are no rows yet, make this one the default even if the box isn't checked.
+        if sIsDefault == "0":
+            iExists = -1
             
-            sSQL = """insert into cloud_account
-                (account_id, account_name, account_number, provider, is_default, 
-                default_cloud_id, login_id, login_password, auto_manage_security)
-                values ('%s','%s','%s','%s','%s','%s','%s','%s',0)""" % (sNewID, sAccountName, sAccountNumber, sProvider, sIsDefault,
-                                                                         sDefaultCloudID, sLoginID, sPW)
+            sSQL = "select count(*) as cnt from cloud_account"
+            iExists = db.select_col_noexcep(sSQL)
+            if iExists == None:
+                if db.error:
+                    db.tran_rollback()
+                    return None, "Unable to count Cloud Accounts: %s" % db.error
+            
+            if iExists == 0:
+                sIsDefault = "1"
+
+        sNewID = catocommon.new_guid()
+        sPW = (catocommon.cato_encrypt(sLoginPassword) if sLoginPassword else "")
         
+        sSQL = """insert into cloud_account
+            (account_id, account_name, account_number, provider, is_default, 
+            default_cloud_id, login_id, login_password, auto_manage_security)
+            values ('%s','%s','%s','%s','%s','%s','%s','%s',0)""" % (sNewID, sAccountName, sAccountNumber, sProvider, sIsDefault,
+                                                                     sDefaultCloudID, sLoginID, sPW)
+    
+        if not db.tran_exec_noexcep(sSQL):
+            if db.error == "key_violation":
+                sErr = "A Cloud Account with that name already exists.  Please select another name."
+                return None, sErr
+            else: 
+                return None, db.error
+        
+        # if "default" was selected, unset all the others
+        if sIsDefault == "1":
+            sSQL = "update cloud_account set is_default = 0 where account_id <> '%s'" % sNewID
             if not db.tran_exec_noexcep(sSQL):
-                if db.error == "key_violation":
-                    sErr = "A Cloud Account with that name already exists.  Please select another name."
-                    return None, sErr
-                else: 
-                    return None, db.error
-            
-            # if "default" was selected, unset all the others
-            if sIsDefault == "1":
-                sSQL = "update cloud_account set is_default = 0 where account_id <> '%s'" % sNewID
-                if not db.tran_exec_noexcep(sSQL):
-                    raise Exception(db.error)
+                raise Exception(db.error)
 
-            db.tran_commit()
-            
-            # now it's inserted... lets get it back from the db as a complete object for confirmation.
-            ca = CloudAccount()
-            ca.FromID(sNewID)
+        db.tran_commit()
+        db.close()
+        
+        # now it's inserted... lets get it back from the db as a complete object for confirmation.
+        ca = CloudAccount()
+        ca.FromID(sNewID)
 
-            # yay!
-            return ca, None
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+        # yay!
+        return ca, None
 
     def DBUpdate(self):
-        try:
-            db = catocommon.new_conn()
-            
-            #  only update the passwword if it has changed
-            sNewPassword = ""
-            if self.LoginPassword != "($%#d@x!&":
-                sNewPassword = (", login_password = '" + catocommon.cato_encrypt(self.LoginPassword) + "'" if self.LoginPassword else "")
+        db = catocommon.new_conn()
+        
+        #  only update the passwword if it has changed
+        sNewPassword = ""
+        if self.LoginPassword != "($%#d@x!&":
+            sNewPassword = (", login_password = '" + catocommon.cato_encrypt(self.LoginPassword) + "'" if self.LoginPassword else "")
 
-            sSQL = "update cloud_account set" \
-                    " account_name = '" + self.Name + "'," \
-                    " account_number = '" + self.AccountNumber + "'," \
-                    " provider = '" + self.Provider.Name + "'," \
-                    " default_cloud_id = '" + self.DefaultCloud.ID + "'," \
-                    " is_default = '" + ("1" if self.IsDefault else "0") + "'," \
-                    " auto_manage_security = 0," \
-                    " login_id = '" + self.LoginID + "'" + \
-                    sNewPassword + \
-                    " where account_id = '" + self.ID + "'"
-            
-            if not db.exec_db_noexcep(sSQL):
-                if db.error == "key_violation":
-                    sErr = "A Cloud Account with that name already exists.  Please select another name."
-                    return False, sErr
-                else: 
-                    return False, db.error
-            
-            # if "default" was selected, unset all the others
-            if self.IsDefault:
-                sSQL = "update cloud_account set is_default = 0 where account_id <> '%s'" % self.ID
-                # not worth failing... we'll just end up with two defaults.
-                db.exec_db_noexcep(sSQL)
+        sSQL = "update cloud_account set" \
+                " account_name = '" + self.Name + "'," \
+                " account_number = '" + self.AccountNumber + "'," \
+                " provider = '" + self.Provider.Name + "'," \
+                " default_cloud_id = '" + self.DefaultCloud.ID + "'," \
+                " is_default = '" + ("1" if self.IsDefault else "0") + "'," \
+                " auto_manage_security = 0," \
+                " login_id = '" + self.LoginID + "'" + \
+                sNewPassword + \
+                " where account_id = '" + self.ID + "'"
+        
+        if not db.exec_db_noexcep(sSQL):
+            if db.error == "key_violation":
+                sErr = "A Cloud Account with that name already exists.  Please select another name."
+                return False, sErr
+            else: 
+                return False, db.error
+        
+        # if "default" was selected, unset all the others
+        if self.IsDefault:
+            sSQL = "update cloud_account set is_default = 0 where account_id <> '%s'" % self.ID
+            # not worth failing... we'll just end up with two defaults.
+            db.exec_db_noexcep(sSQL)
 
-            return True, None
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+        db.close()
+        return True, None
 
 class CloudProviders(dict):
     """
@@ -581,105 +524,101 @@ class CloudProviders(dict):
     
     #the constructor requires an ET Document
     def __init__(self, include_products=True, include_clouds=True):
-        try:
-            db = catocommon.new_conn()
-            filename = os.path.join(catoconfig.BASEPATH, "conf/cloud_providers.xml")
-            if not os.path.isfile(filename):
-                raise Exception("conf/cloud_providers.xml file does not exist.")
-            xRoot = ET.parse(filename)
-            if not xRoot:
-                raise Exception("Error: Invalid or missing Cloud Providers XML.")
-            else:
-                xProviders = xRoot.findall("providers/provider")
-                for xProvider in xProviders:
-                    p_name = xProvider.get("name", None)
+        db = catocommon.new_conn()
+        filename = os.path.join(catoconfig.BASEPATH, "conf/cloud_providers.xml")
+        if not os.path.isfile(filename):
+            raise Exception("conf/cloud_providers.xml file does not exist.")
+        xRoot = ET.parse(filename)
+        if not xRoot:
+            raise Exception("Error: Invalid or missing Cloud Providers XML.")
+        else:
+            xProviders = xRoot.findall("providers/provider")
+            for xProvider in xProviders:
+                p_name = xProvider.get("name", None)
 
-                    if p_name == None:
-                        raise Exception("Cloud Providers XML: All Providers must have the 'name' attribute.")
-                    
-                    test_product = xProvider.get("test_product", None)
-                    test_object = xProvider.get("test_object", None)
-                    user_defined_clouds = xProvider.get("user_defined_clouds", True)
-                    user_defined_clouds = (False if user_defined_clouds == "false" else True)
-                     
-                    pv = Provider(p_name, test_product, test_object, user_defined_clouds)
-                    
-                    if include_clouds:
-                        sSQL = """select cloud_id, cloud_name, api_url, api_protocol, region
-                            from clouds where provider = '%s' order by cloud_name""" % pv.Name
-                        dt = db.select_all_dict(sSQL)
-                        if dt:
-                            for dr in dt:
-                                c = Cloud()
-                                c.FromArgs(pv, True, dr["cloud_id"], dr["cloud_name"], dr["api_url"], dr["api_protocol"], dr["region"])
-                                if c:
-                                    pv.Clouds.append(c)
-                        else:
-                            # DO NOT raise an exception here - user defined clouds are not required.
-                            # but print a debug message
-                            logger.debug("Cloud Providers XML: Warning - Provider [%s] allows user defined Clouds, but none exist in the database." % pv.Name)
-                    
-                    if include_products:
-                        #get the cloudobjecttypes for this provider.                    
-                        xProducts = xProvider.findall("products/product")
-                        for xProduct in xProducts:
-                            p_name = xProduct.get("name", None)
+                if p_name == None:
+                    raise Exception("Cloud Providers XML: All Providers must have the 'name' attribute.")
+                
+                test_product = xProvider.get("test_product", None)
+                test_object = xProvider.get("test_object", None)
+                user_defined_clouds = xProvider.get("user_defined_clouds", True)
+                user_defined_clouds = (False if user_defined_clouds == "false" else True)
+                 
+                pv = Provider(p_name, test_product, test_object, user_defined_clouds)
+                
+                if include_clouds:
+                    sSQL = """select cloud_id, cloud_name, api_url, api_protocol, region
+                        from clouds where provider = '%s' order by cloud_name""" % pv.Name
+                    dt = db.select_all_dict(sSQL)
+                    if dt:
+                        for dr in dt:
+                            c = Cloud()
+                            c.FromArgs(pv, True, dr["cloud_id"], dr["cloud_name"], dr["api_url"], dr["api_protocol"], dr["region"])
+                            if c:
+                                pv.Clouds.append(c)
+                    else:
+                        # DO NOT raise an exception here - user defined clouds are not required.
+                        # but print a debug message
+                        logger.debug("Cloud Providers XML: Warning - Provider [%s] allows user defined Clouds, but none exist in the database." % pv.Name)
+                
+                if include_products:
+                    #get the cloudobjecttypes for this provider.                    
+                    xProducts = xProvider.findall("products/product")
+                    for xProduct in xProducts:
+                        p_name = xProduct.get("name", None)
 
-                            if p_name == None:
-                                raise Exception("Cloud Providers XML: All Products must have the 'name' attribute.")
-        
-                            p = Product(pv)
-                            p.Name = xProduct.get("name", None)
-                            #use the name for the label if it doesn't exist.
-                            p.Label = xProduct.get("label", p_name)
-                            p.Type = xProduct.get("type", None)
-                            p.APIUrlPrefix = xProduct.get("api_url_prefix", None)
-                            p.APIUri = xProduct.get("api_uri", None)
-                            p.APIVersion = xProduct.get("api_version", None)
-                            
-                            #the product contains object type definitions
-                            xTypes = xProduct.findall("object_types/type")
-                            for xType in xTypes:
-                                if xType.get("id", None) == None:
-                                    raise Exception("Cloud Providers XML: All Object Types must have the 'id' attribute.")
-                                if xType.get("label", None) == None:
-                                    raise Exception("Cloud Providers XML: All Object Types must have the 'label' attribute.")
-                                
-                                cot = CloudObjectType(p)
-                                cot.ID = xType.get("id")
-                                cot.Label = xType.get("label")
-                                cot.APICall = xType.get("api_call", None)
-                                cot.APIRequestGroupFilter = xType.get("request_group_filter", None)
-                                cot.APIRequestRecordFilter = xType.get("request_record_filter", None)
-                                cot.XMLRecordXPath = xType.get("xml_record_xpath", None)
+                        if p_name == None:
+                            raise Exception("Cloud Providers XML: All Products must have the 'name' attribute.")
     
-                                #the type contains property definitions
-                                xProperties = xType.findall("property")
-                                for xProperty in xProperties:
-                                    # name="ImageId" label="" xpath="imageId" id_field="1" has_icon="0" short_list="1" sort_order="1"
-                                    if xProperty.get("name", None) == None:
-                                        raise Exception("Cloud Providers XML: All Object Type Properties must have the 'name' attribute.")
-                                    
-                                    cotp = CloudObjectTypeProperty(cot)
-                                    cotp.Name = xProperty.get("name")
-                                    cotp.XPath = xProperty.get("xpath", None)
-                                    lbl = xProperty.get("label", None)
-                                    cotp.Label = (lbl if lbl else cotp.Name)
-                                    cotp.SortOrder = xProperty.get("sort_order", None)
-                                    cotp.IsID = (True if xProperty.get("id_field", False) == "1" else False)
-                                    cotp.HasIcon = (True if xProperty.get("has_icon") == "1" else False)
-                                    cotp.ShortList = (True if xProperty.get("short_list") == "1" else False)
-                                    cotp.ValueIsXML = (True if xProperty.get("value_is_xml") == "1" else False)
-                                    
-                                    cot.Properties.append(cotp)
-                                p.CloudObjectTypes[cot.ID] = cot
-                            pv.Products[p.Name] = p
+                        p = Product(pv)
+                        p.Name = xProduct.get("name", None)
+                        #use the name for the label if it doesn't exist.
+                        p.Label = xProduct.get("label", p_name)
+                        p.Type = xProduct.get("type", None)
+                        p.APIUrlPrefix = xProduct.get("api_url_prefix", None)
+                        p.APIUri = xProduct.get("api_uri", None)
+                        p.APIVersion = xProduct.get("api_version", None)
+                        
+                        #the product contains object type definitions
+                        xTypes = xProduct.findall("object_types/type")
+                        for xType in xTypes:
+                            if xType.get("id", None) == None:
+                                raise Exception("Cloud Providers XML: All Object Types must have the 'id' attribute.")
+                            if xType.get("label", None) == None:
+                                raise Exception("Cloud Providers XML: All Object Types must have the 'label' attribute.")
+                            
+                            cot = CloudObjectType(p)
+                            cot.ID = xType.get("id")
+                            cot.Label = xType.get("label")
+                            cot.APICall = xType.get("api_call", None)
+                            cot.APIRequestGroupFilter = xType.get("request_group_filter", None)
+                            cot.APIRequestRecordFilter = xType.get("request_record_filter", None)
+                            cot.XMLRecordXPath = xType.get("xml_record_xpath", None)
 
-                    self[pv.Name] = pv
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+                            #the type contains property definitions
+                            xProperties = xType.findall("property")
+                            for xProperty in xProperties:
+                                # name="ImageId" label="" xpath="imageId" id_field="1" has_icon="0" short_list="1" sort_order="1"
+                                if xProperty.get("name", None) == None:
+                                    raise Exception("Cloud Providers XML: All Object Type Properties must have the 'name' attribute.")
+                                
+                                cotp = CloudObjectTypeProperty(cot)
+                                cotp.Name = xProperty.get("name")
+                                cotp.XPath = xProperty.get("xpath", None)
+                                lbl = xProperty.get("label", None)
+                                cotp.Label = (lbl if lbl else cotp.Name)
+                                cotp.SortOrder = xProperty.get("sort_order", None)
+                                cotp.IsID = (True if xProperty.get("id_field", False) == "1" else False)
+                                cotp.HasIcon = (True if xProperty.get("has_icon") == "1" else False)
+                                cotp.ShortList = (True if xProperty.get("short_list") == "1" else False)
+                                cotp.ValueIsXML = (True if xProperty.get("value_is_xml") == "1" else False)
+                                
+                                cot.Properties.append(cotp)
+                            p.CloudObjectTypes[cot.ID] = cot
+                        pv.Products[p.Name] = p
+
+                self[pv.Name] = pv
+        db.close()
 
 class Provider(object):
     def __init__(self, sName, sTestProduct, sTestObject, bUserDefinedClouds):
@@ -692,28 +631,22 @@ class Provider(object):
 
     @staticmethod
     def FromName(sProvider):
-        try:
-            cp = CloudProviders()
-            if cp == None:
-                raise Exception("Error building Provider object: Unable to get CloudProviders.")
-            if cp.has_key(sProvider):
-                return cp[sProvider]
-            else:
-                raise Exception("Provider [%s] does not exist in the cloud_providers session xml." % sProvider)
-        except Exception as ex:
-            raise ex
+        cp = CloudProviders()
+        if cp == None:
+            raise Exception("Error building Provider object: Unable to get CloudProviders.")
+        if cp.has_key(sProvider):
+            return cp[sProvider]
+        else:
+            raise Exception("Provider [%s] does not exist in the cloud_providers session xml." % sProvider)
 
     def GetAllObjectTypes(self):
-        try:
-            cots = {}
-            
-            for p in self.Products.itervalues():
-                for cot in p.CloudObjectTypes.itervalues():
-                    if cot is not None:
-                        cots[cot.ID] = cot
-            return cots
-        except Exception as ex:
-            raise ex
+        cots = {}
+        
+        for p in self.Products.itervalues():
+            for cot in p.CloudObjectTypes.itervalues():
+                if cot is not None:
+                    cots[cot.ID] = cot
+        return cots
 
 
     def GetObjectTypeByName(self, sObjectType):
@@ -741,41 +674,38 @@ class Provider(object):
         return None
 
     def AsJSON(self):
-        try:
-            # this is built manually, because clouds have a provider object, which would be recursive.
-            sb = []
-            sb.append("{")
-            sb.append("\"%s\" : \"%s\"," % ("Name", self.Name))
-            sb.append("\"%s\" : \"%s\"," % ("TestProduct", self.TestProduct))
-            sb.append("\"%s\" : \"%s\"," % ("UserDefinedClouds", self.UserDefinedClouds))
-            sb.append("\"%s\" : \"%s\"," % ("TestObject", self.TestObject))
-            
-            # the clouds for this provider
-            sb.append("\"Clouds\" : {")
-            if self.Clouds:
-                lst = []
-                for c in self.Clouds:
-                    s = "\"%s\" : %s" % (c.ID, c.AsJSON())
-                    lst.append(s)
-                sb.append(",".join(lst))
-            sb.append("}, ")
+        # this is built manually, because clouds have a provider object, which would be recursive.
+        sb = []
+        sb.append("{")
+        sb.append("\"%s\" : \"%s\"," % ("Name", self.Name))
+        sb.append("\"%s\" : \"%s\"," % ("TestProduct", self.TestProduct))
+        sb.append("\"%s\" : \"%s\"," % ("UserDefinedClouds", self.UserDefinedClouds))
+        sb.append("\"%s\" : \"%s\"," % ("TestObject", self.TestObject))
+        
+        # the clouds for this provider
+        sb.append("\"Clouds\" : {")
+        if self.Clouds:
+            lst = []
+            for c in self.Clouds:
+                s = "\"%s\" : %s" % (c.ID, c.AsJSON())
+                lst.append(s)
+            sb.append(",".join(lst))
+        sb.append("}, ")
 
-            
-            # the products and object types
-            sb.append("\"Products\" : {")
-            if self.Products:
-                lst = []
-                for prod in self.Products.itervalues():
-                    s = "\"%s\" : %s" % (prod.Name, prod.AsJSON())
-                    lst.append(s)
-                sb.append(",".join(lst))
-            sb.append("}")
+        
+        # the products and object types
+        sb.append("\"Products\" : {")
+        if self.Products:
+            lst = []
+            for prod in self.Products.itervalues():
+                s = "\"%s\" : %s" % (prod.Name, prod.AsJSON())
+                lst.append(s)
+            sb.append(",".join(lst))
+        sb.append("}")
 
-            
-            sb.append("}")
-            return "".join(sb)
-        except Exception as ex:
-            raise ex
+        
+        sb.append("}")
+        return "".join(sb)
 
 class Product(object):
     def __init__(self, parent):
@@ -794,30 +724,27 @@ class Product(object):
         return False
     
     def AsJSON(self):
-        try:
-            # this is built manually, because clouds have a provider object, which would be recursive.
-            sb = []
-            sb.append("{")
-            sb.append("\"%s\" : \"%s\"," % ("Name", self.Name))
-            sb.append("\"%s\" : \"%s\"," % ("Label", self.Label))
-            sb.append("\"%s\" : \"%s\"," % ("Type", self.Type))
-            sb.append("\"%s\" : \"%s\"," % ("APIUrlPrefix", self.APIUrlPrefix))
-            sb.append("\"%s\" : \"%s\"," % ("APIUri", self.APIUri))
-            sb.append("\"%s\" : \"%s\"," % ("APIVersion", self.APIVersion))
-            
-            # the clouds for this provider
-            sb.append("\"CloudObjectTypes\" : {")
-            lst = []
-            for c in self.CloudObjectTypes.itervalues():
-                s = "\"%s\" : %s" % (c.ID, c.AsJSON())
-                lst.append(s)
-            sb.append(",".join(lst))
-            sb.append("}")
+        # this is built manually, because clouds have a provider object, which would be recursive.
+        sb = []
+        sb.append("{")
+        sb.append("\"%s\" : \"%s\"," % ("Name", self.Name))
+        sb.append("\"%s\" : \"%s\"," % ("Label", self.Label))
+        sb.append("\"%s\" : \"%s\"," % ("Type", self.Type))
+        sb.append("\"%s\" : \"%s\"," % ("APIUrlPrefix", self.APIUrlPrefix))
+        sb.append("\"%s\" : \"%s\"," % ("APIUri", self.APIUri))
+        sb.append("\"%s\" : \"%s\"," % ("APIVersion", self.APIVersion))
+        
+        # the clouds for this provider
+        sb.append("\"CloudObjectTypes\" : {")
+        lst = []
+        for c in self.CloudObjectTypes.itervalues():
+            s = "\"%s\" : %s" % (c.ID, c.AsJSON())
+            lst.append(s)
+        sb.append(",".join(lst))
+        sb.append("}")
 
-            sb.append("}")
-            return "".join(sb)
-        except Exception as ex:
-            raise ex
+        sb.append("}")
+        return "".join(sb)
        
 class CloudObjectType(object):
     def __init__(self, parent):
@@ -837,27 +764,24 @@ class CloudObjectType(object):
         return False
 
     def AsJSON(self):
-        try:
-            sb = []
-            sb.append("{")
-            sb.append("\"%s\" : \"%s\"," % ("ID", self.ID))
-            sb.append("\"%s\" : \"%s\"," % ("Label", self.Label))
-            sb.append("\"%s\" : \"%s\"," % ("APICall", self.APICall))
-            sb.append("\"%s\" : \"%s\"," % ("APIRequestGroupFilter", self.APIRequestGroupFilter))
-            sb.append("\"%s\" : \"%s\"," % ("APIRequestRecordFilter", self.APIRequestRecordFilter))
-            sb.append("\"%s\" : \"%s\"," % ("XMLRecordXPath", self.XMLRecordXPath))
-            
-            sb.append("\"Properties\" : [")
-            lst = []
-            for p in self.Properties:
-                lst.append(p.AsJSON())
-            sb.append(",".join(lst))
-            sb.append("]")
+        sb = []
+        sb.append("{")
+        sb.append("\"%s\" : \"%s\"," % ("ID", self.ID))
+        sb.append("\"%s\" : \"%s\"," % ("Label", self.Label))
+        sb.append("\"%s\" : \"%s\"," % ("APICall", self.APICall))
+        sb.append("\"%s\" : \"%s\"," % ("APIRequestGroupFilter", self.APIRequestGroupFilter))
+        sb.append("\"%s\" : \"%s\"," % ("APIRequestRecordFilter", self.APIRequestRecordFilter))
+        sb.append("\"%s\" : \"%s\"," % ("XMLRecordXPath", self.XMLRecordXPath))
+        
+        sb.append("\"Properties\" : [")
+        lst = []
+        for p in self.Properties:
+            lst.append(p.AsJSON())
+        sb.append(",".join(lst))
+        sb.append("]")
 
-            sb.append("}")
-            return "".join(sb)
-        except Exception as ex:
-            raise ex
+        sb.append("}")
+        return "".join(sb)
    
 class CloudObjectTypeProperty:
     def __init__(self, parent):

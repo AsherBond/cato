@@ -341,6 +341,44 @@ class depMethods:
             logger.error(traceback.format_exc())
             return R(err_code=R.Codes.Exception, err_detail=ex)
         
+    def get_service_instances(self, args):        
+        """
+        Gets Service Instances from an Deployment Service.
+        
+        Required Arguments: 
+            deployment - Value can be either an Deployment ID or Name.
+            service - can be either a Service ID or Name.
+        
+        Returns: A list of Service Instances.
+        """
+        try:
+            # define the required parameters for this call
+            required_params = ["deployment", "service"]
+            has_required, resp = api.check_required_params(required_params, args)
+            if not has_required:
+                return resp
+
+            obj = deployment.Deployment()
+            obj.FromName(args["deployment"])
+            if obj:
+                service = obj.GetService(args["service"])
+                if service:
+                    if args["output_format"] == "json":
+                        return R(response=service.InstancesAsJSON())
+                    elif args["output_format"] == "text":
+                        return R(response=service.InstancesAsText())
+                    else:
+                        return R(response=service.InstancesAsXML())
+                else:
+                    return R(err_code=R.Codes.GetError, err_detail="Unable to get Service for identifier [%s]." % args["service"])
+            else:
+                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+            
+
+        except Exception as ex:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception, err_detail=ex)
+        
     def create_deployment_service(self, args):        
         """
         Create a new Deployment Service.
@@ -1015,7 +1053,7 @@ class depMethods:
                     else:
                         return R(err_code=R.Codes.CreateError, err_detail=msg)
                 else:
-                    return R(err_code=R.Codes.CreateError, err_detail="Unable to get Service for identifier [%s]." % args["service"])
+                    return R(err_code=R.Codes.GetError, err_detail="Unable to get Service for identifier [%s]." % args["service"])
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
             

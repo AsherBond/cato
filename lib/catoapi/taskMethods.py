@@ -225,7 +225,7 @@ class taskMethods:
         Runs a Cato Task.
         
         Required Arguments: 
-            task - Either the Task ID, Code or Name.
+            task - Either the Task ID or Name.
             version - The Task Version.  (Unnecessary if 'task' is an ID.)
             
         Optional Arguments:
@@ -364,6 +364,42 @@ class taskMethods:
             logger.error(traceback.format_exc())
             return R(err_code=R.Codes.Exception, err_detail=ex)
 
+    def delete_task(self, args):
+        """
+        Deletes all versions of a Task.
+        
+        Required Arguments: 
+            task - Either the Task ID or Name.
+
+        Returns: Nothing if successful, error messages on failure.
+        """
+        try:
+            # this is a admin function
+            if not args["_admin"]:
+                return R(err_code=R.Codes.Forbidden)
+            
+            required_params = ["task"]
+            has_required, resp = api.check_required_params(required_params, args)
+            if not has_required:
+                return resp
+
+            obj = task.Task()
+            obj.FromNameVersion(name=args["task"], include_code=False)
+            if obj.ID:
+                result, msg = task.Tasks.Delete(["'%s'" % obj.ID], args["_user_id"])
+                
+                if result:
+                    catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.Task, obj.ID, obj.Name, "Deleted via API.")
+                    return R(response="[%s] successfully deleted." % obj.Name)
+                else:
+                    return R(err_code=R.Codes.DeleteError, err_detail=msg)
+            else:
+                return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name [%s]." % args["task"])
+            
+        except Exception as ex:
+            logger.error(traceback.format_exc())
+            return R(err_code=R.Codes.Exception, err_detail=ex)
+
     def list_tasks(self, args):        
         """
         Lists all Tasks.
@@ -438,7 +474,7 @@ class taskMethods:
         Gets a Task object.
         
         Required Arguments: 
-            task - Value can be either a Task ID, Code or Name.
+            task - Value can be either a Task ID or Name.
         
         Optional Arguments:
             version - A specific version.  ('Default' if omitted.)

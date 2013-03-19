@@ -160,7 +160,7 @@ def QuoteUp(sString):
     for s in sString.split(","):
         retval += "'" + s + "',"
     
-    return retval[:-1] #whack the last comma 
+    return retval[:-1]  # whack the last comma 
 
 def LastIndexOf(s, pat):
     if not s:
@@ -319,7 +319,7 @@ def GetSessionObject(category, key):
             else:
                 return ""
         else:
-            #no category?  try the session root
+            # no category?  try the session root
             val = uiGlobals.session.get(key, False)
             if val:
                 return val
@@ -336,7 +336,7 @@ def SetSessionObject(key, obj, category=""):
     else:
         uiGlobals.session[key] = obj
     
-#this one returns just one specific function
+# this one returns just one specific function
 def GetTaskFunction(sFunctionName):
     funcs = uiGlobals.FunctionCategories.Functions
     if funcs:
@@ -381,9 +381,9 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
         
         if c.Provider.Name.lower() == "openstack":
             """not yet implemented"""
-            #ACWebMethods.openstackMethods acOS = new ACWebMethods.openstackMethods()
-            #sXML = acOS.GetCloudObjectsAsXML(c.ID, cot, 0000BYREF_ARG0000sErr, null)
-        else: #Amazon aws, Eucalyptus, and OpenStackAws
+            # ACWebMethods.openstackMethods acOS = new ACWebMethods.openstackMethods()
+            # sXML = acOS.GetCloudObjectsAsXML(c.ID, cot, 0000BYREF_ARG0000sErr, null)
+        else:  # Amazon aws, Eucalyptus, and OpenStackAws
             awsi = aws.awsInterface()
             sXML, err = awsi.GetCloudObjectsAsXML(sAccountID, sCloudID, cot)
 
@@ -523,7 +523,7 @@ def AddTaskInstance(sUserID, sTaskID, sScopeID, sAccountID, sAssetID, sParameter
         else:
             log("Unable to run task. Missing or invalid task [" + sTaskID + "] or user [" + sUserID + "] id.")
 
-        #uh oh, return nothing
+        # uh oh, return nothing
         return ""
     except Exception:
         log_nouser(traceback.format_exc(), 0)
@@ -773,7 +773,7 @@ def AttemptLogin(app_name):
 #            return "{\"info\" : \"Your account isn't authorized for this application.\"}"
 
         
-        #all good, put a few key things in the session, not the whole object
+        # all good, put a few key things in the session, not the whole object
         # yes, I said SESSION not a cookie, otherwise it could be hacked client side
         
         current_user = {}
@@ -789,7 +789,7 @@ def AttemptLogin(app_name):
         log("Login granted for: ", 4)
         log(uiGlobals.session.user, 4)
 
-        #update the security log
+        # update the security log
         catocommon.add_security_log(u.ID, catocommon.SecurityLogTypes.Security,
             catocommon.SecurityLogActions.UserLogin, catocommon.CatoObjectTypes.User, "",
             "Login to [%s] from [%s] granted." % (app_name, address))
@@ -818,7 +818,7 @@ def GetQuestion():
 
 def UpdateHeartbeat():
     try:
-        #NOTE: this needs all the kick and warn stuff
+        # NOTE: this needs all the kick and warn stuff
         uid = GetSessionUserID()
         ip = GetSessionObject("user", "ip_address")
         
@@ -835,8 +835,8 @@ def UpdateHeartbeat():
 def WriteClientLog(msg, debuglevel=2):
     try:
         if msg:
-            #logger.warning("TODO: this should write to the client logfile...")
-            log("CLIENT - %s" % (msg)) #, debuglevel, "%s_client.log" % app)
+            # logger.warning("TODO: this should write to the client logfile...")
+            log("CLIENT - %s" % (msg))  # , debuglevel, "%s_client.log" % app)
 
         return ""
     except Exception:
@@ -877,17 +877,17 @@ def GetPager(rowcount, maxrows, page):
 
 def LoadTaskCommands():
     from catotask import taskCommands
-    #we load two classes here...
-    #first, the category/function hierarchy
+    # we load two classes here...
+    # first, the category/function hierarchy
     cats = taskCommands.FunctionCategories()
     cats.Load(os.path.join(os.environ["CATO_HOME"], "lib/catotask/task_commands.xml"))
 
     # we've got the AWS commands in our controlled source.  They're not extensions.
     cats.Load(os.path.join(os.environ["CATO_HOME"], "lib/catotask/aws_commands.xml"))
 
-    #try to append any extension files
-    #this will read all the xml files in /extensions
-    #and append to sErr if it failed, but not crash or die.
+    # try to append any extension files
+    # this will read all the xml files in /extensions
+    # and append to sErr if it failed, but not crash or die.
     
     # extension paths are defined in config.
     expath = []
@@ -962,7 +962,14 @@ def GetLog():
         except:
             pass
 
-    l = os.popen("tail -%s %s" % (lines, catolog.LOGFILE)).readlines()
+    # if 'process' is omitted, return the logfile for this process
+    process = getAjaxArg("process")
+    if process:
+        process = os.path.join(catolog.LOGPATH, "%s.log" % process)
+    else:
+        process = catolog.LOGFILE
+    
+    l = os.popen("tail -%s %s" % (lines, process)).readlines()
     html = """<!DOCTYPE html>
     <html>
         <head>
