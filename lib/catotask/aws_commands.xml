@@ -960,6 +960,17 @@
 					<result_name label="Result Variable" break_before="true" input_type="text" />
 				</function>
 			</command>
+			<command name="aws_ec2_CopyImage" label="CopyImage" description="" help="&lt;a href='http://docs.amazonwebservices.com/AWSEC2/latest/APIReference/ApiReference-query-CopyImage.html' target='_blank'&gt;AWS documentation for CopyImage&lt;/a&gt;" icon="static/images/icons/aws/ec2.png">
+				<function name="aws_ec2_CopyImage">
+					<aws_region input_type="dropdown" label="AWS Region" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAWSClouds" />
+					<SourceRegion input_type="text" />
+					<SourceImageId input_type="text" />
+					<Name input_type="text" />
+					<Description input_type="text" />
+					<ClientToken input_type="text" />
+					<result_name label="Result Variable" break_before="true" input_type="text" />
+				</function>
+			</command>
 			<command name="aws_ec2_CreateImage" label="CreateImage" description="" help="&lt;a href='http://docs.amazonwebservices.com/AWSEC2/latest/APIReference/ApiReference-query-CreateImage.html' target='_blank'&gt;AWS documentation for CreateImage&lt;/a&gt;" icon="static/images/icons/aws/ec2.png">
 				<function name="aws_ec2_CreateImage">
 					<aws_region input_type="dropdown" label="AWS Region" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAWSClouds" />
