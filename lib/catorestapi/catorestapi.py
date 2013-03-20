@@ -260,6 +260,20 @@ class index:
             return "\n".join(out)
 
 
+class ExceptionHandlingApplication(web.application):
+    def handle(self):
+        try:
+            return web.application.handle(self)
+        except (web.HTTPError, KeyboardInterrupt, SystemExit):
+            raise
+        except Exception as ex:
+            args = web.input()
+            output_format = args["output_format"] if args.has_key("output_format") else ""
+            web.ctx.status = "400 Bad Request"
+            logger.exception(ex.__str__())
+            response = api.response(err_code=api.response.Codes.Exception)
+            return response.Write(output_format)
+        
 def main():
 
     server = catoprocess.CatoService(app_name)
@@ -283,7 +297,7 @@ def main():
         '/(.*)', 'wmHandler'
     )
 
-    app = web.application(urls, globals(), autoreload=True)
+    app = ExceptionHandlingApplication(urls, globals(), autoreload=True)
 
     uiGlobals.web = web
     
