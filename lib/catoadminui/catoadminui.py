@@ -504,10 +504,9 @@ def Housekeeping():
                                 raise Exception("Cloud Providers XML: All Clouds must have the 'api_protocol' attribute.")
                             
                             from catocloud import cloud
-                            c, err = cloud.Cloud.DBCreateNew(cloud_name, p_name, xCloud.get("api_url", ""), xCloud.get("api_protocol", ""), xCloud.get("region", ""))
-                            
+                            c = cloud.Cloud.DBCreateNew(cloud_name, p_name, xCloud.get("api_url", ""), xCloud.get("api_protocol", ""), xCloud.get("region", ""))
                             if not c:
-                                logger.warning("Could not create Cloud from cloud_providers.xml definition.\n%s" % err)
+                                logger.warning("Could not create Cloud from cloud_providers.xml definition.\n%s")
                         
 
     except Exception as ex:
@@ -515,7 +514,18 @@ def Housekeeping():
     finally:
         db.close()
     
-    
+class ExceptionHandlingApplication(web.application):
+    def handle(self):
+        try:
+            return web.application.handle(self)
+        except (web.HTTPError, KeyboardInterrupt, SystemExit):
+            raise
+        except Exception as ex:
+            # web.ctx.env.get('HTTP_X_REQUESTED_WITH')
+            web.ctx.status = "400 Bad Request"
+            logger.exception(ex.__str__())
+            return ex.__str__()
+        
 """
     Main Startup
 """
@@ -601,7 +611,7 @@ if __name__ != app_name:
     render_popup = web.template.render('templates', base='popup')
     render_plain = web.template.render('templates')
     
-    app = web.application(urls, globals(), autoreload=True)
+    app = ExceptionHandlingApplication(urls, globals(), autoreload=True)
     web.config.session_parameters["cookie_name"] = app_name
     
     if "uicache" in catoconfig.CONFIG:
