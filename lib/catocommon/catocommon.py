@@ -75,10 +75,10 @@ def new_mongo_conn():
         db = conn[mongodb_dbname]
 
         if mongodb_user:
-            logger.debug("Authenticating with MongoDB using user [%s]" % mongodb_user)
+            # logger.debug("Authenticating with MongoDB using user [%s]" % mongodb_user)
             db.authenticate(mongodb_user, mongodb_pw)
         else:
-            logger.debug("Mongo credentials not defined in cato.conf... skipping authentication.")
+            # logger.debug("Mongo credentials not defined in cato.conf... skipping authentication.")
             pass
     except Exception as e:
         raise DatastoreError("Couldn't create a Mongo connection to database [%s]" % mongodb_dbname, e)
