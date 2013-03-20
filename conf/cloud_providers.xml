@@ -284,7 +284,7 @@
 				</product>
 			</products>
 		</provider>
-		<provider name="VWmare" test_product="" test_object="" user_defined_clouds="true">
+		<provider name="VMware" test_product="" test_object="" user_defined_clouds="true">
 		<products>
 		<product name="VMware" label="VMware" type="compute" api_version="" api_url_prefix="" api_uri="">
 		<object_types>

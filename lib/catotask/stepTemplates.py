@@ -1143,6 +1143,24 @@ def ddDataSource_GetAWSClouds():
 
     return data
 
+def ddDataSource_GetVMwareClouds():
+    data = {}
+    p = cloud.Provider.FromName("VMware")
+    if p is not None:
+        for c in p.Clouds:
+            data[c.Name] = c.Name
+
+    return data
+
+def ddDataSource_GetAllClouds():
+    data = {}
+    cp = cloud.CloudProviders(include_clouds = True, include_products = False)
+    for p in cp.itervalues():
+        for c in p.Clouds:
+            data[c.Name] = c.Name
+
+    return data
+
 def AddToCommandXML(sStepID, sXPath, sXMLToAdd):
     try:
         if not catocommon.is_guid(sStepID):
