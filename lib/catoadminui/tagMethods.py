@@ -29,226 +29,177 @@ class tagMethods:
     db = None
     
     def wmGetTagsTable(self):
-        try:
-            table_html = ""
-            pager_html = ""
-            sFilter = uiCommon.getAjaxArg("sFilter")
-            sPage = uiCommon.getAjaxArg("sPage")
-            maxrows = 25
+        table_html = ""
+        pager_html = ""
+        sFilter = uiCommon.getAjaxArg("sFilter")
+        sPage = uiCommon.getAjaxArg("sPage")
+        maxrows = 25
 
-            t = tag.Tags(sFilter)
-            if t.rows:
-                start, end, pager_html = uiCommon.GetPager(len(t.rows), maxrows, sPage)
+        t = tag.Tags(sFilter)
+        if t.rows:
+            start, end, pager_html = uiCommon.GetPager(len(t.rows), maxrows, sPage)
 
-                for row in t.rows[start:end]:
-                    table_html += "<tr tag_name=\"" + row["tag_name"] + "\">"
-                    table_html += "<td class=\"chkboxcolumn\">"
-                    table_html += "<input type=\"checkbox\" class=\"chkbox\"" \
-                    " id=\"chk_" + row["tag_name"] + "\"" \
-                    " tag=\"chk\" />"
-                    table_html += "</td>"
-                    
-                    table_html += "<td class=\"selectable\">%s</td>" % row["tag_name"]
-                    table_html += "<td class=\"selectable desc\">%s</td>" % (row["tag_desc"] if row["tag_desc"] else "")
-                    table_html += "<td class=\"selectable\">%s</td>" % str(row["in_use"])
-                    
-                    table_html += "</tr>"
+            for row in t.rows[start:end]:
+                table_html += "<tr tag_name=\"" + row["tag_name"] + "\">"
+                table_html += "<td class=\"chkboxcolumn\">"
+                table_html += "<input type=\"checkbox\" class=\"chkbox\"" \
+                " id=\"chk_" + row["tag_name"] + "\"" \
+                " tag=\"chk\" />"
+                table_html += "</td>"
+                
+                table_html += "<td class=\"selectable\">%s</td>" % row["tag_name"]
+                table_html += "<td class=\"selectable desc\">%s</td>" % (row["tag_desc"] if row["tag_desc"] else "")
+                table_html += "<td class=\"selectable\">%s</td>" % str(row["in_use"])
+                
+                table_html += "</tr>"
 
-            out = {}
-            out["pager"] = pager_html
-            out["rows"] = table_html
-            return json.dumps(out)    
-        except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
-            return traceback.format_exc()           
+        out = {}
+        out["pager"] = pager_html
+        out["rows"] = table_html
+        return json.dumps(out)    
         
     def wmCreateTag(self):
-        try:
-            sTagName = uiCommon.getAjaxArg("sTagName")
-            sDesc = uiCommon.getAjaxArg("sDescription")
-                
-            t = tag.Tag(sTagName, sDesc)
-            t, err = t.DBCreateNew()
-            if err:
-                return json.dumps({"error":err})
-            if t == None:
-                return json.dumps({"error":"Unable to create Tag."})
+        sTagName = uiCommon.getAjaxArg("sTagName")
+        sDesc = uiCommon.getAjaxArg("sDescription")
+            
+        t = tag.Tag(sTagName, sDesc)
+        t.DBCreateNew()
+        uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Tag, t.Name, t.Name, "Tag Created")
 
-            uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Tag, t.Name, t.Name, "Tag Created")
-
-            return t.AsJSON()
-        
-        except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
-            return traceback.format_exc()
+        return t.AsJSON()
 
     def wmDeleteTags(self):
-        try:
-            sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
-            if not sDeleteArray:
-                return json.dumps({"info" : "Unable to delete - no selection."})
+        sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
+        if not sDeleteArray:
+            return json.dumps({"info" : "Unable to delete - no selection."})
 
-            sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
-            
-            sSQL = """delete from object_tags where tag_name in (%s)""" % sDeleteArray
-            if not self.db.tran_exec_noexcep(sSQL):
-                uiCommon.log_nouser(self.db.error, 0)
+        sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
+        
+        sSQL = """delete from object_tags where tag_name in (%s)""" % sDeleteArray
+        self.db.tran_exec(sSQL)
 
-            sSQL = """delete from tags where tag_name in (%s)""" % sDeleteArray
-            if not self.db.tran_exec_noexcep(sSQL):
-                uiCommon.log_nouser(self.db.error, 0)
+        sSQL = """delete from tags where tag_name in (%s)""" % sDeleteArray
+        self.db.tran_exec(sSQL)
 
-            uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Tag, "", sDeleteArray, "Tag(s) Deleted")
+        uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Tag, "", sDeleteArray, "Tag(s) Deleted")
 
-            return json.dumps({"result" : "success"})
-                
-        except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+        return json.dumps({"result" : "success"})
  
     def wmUpdateTag(self):
-        try:
-            sTagName = uiCommon.getAjaxArg("sTagName")
-            sNewTagName = uiCommon.getAjaxArg("sNewTagName")
-            sDesc = uiCommon.unpackJSON(uiCommon.getAjaxArg("sDescription"))
-                
-            t = tag.Tag(sTagName, sDesc)
+        sTagName = uiCommon.getAjaxArg("sTagName")
+        sNewTagName = uiCommon.getAjaxArg("sNewTagName")
+        sDesc = uiCommon.getAjaxArg("sDescription")
             
-            # update the description
-            if sDesc:
-                result, err = t.DBUpdate()
-                if err:
-                    return json.dumps({"error":err})
-                if t == None:
-                    return json.dumps({"error":"Unable to update Tag."})
-
-            # and possibly rename it
-            if sNewTagName:
-                result, err = t.DBRename(sNewTagName)
-                if err:
-                    return json.dumps({"error":err})
-                if not result:
-                    return json.dumps({"error":"Unable to r Tag."})
-
-            return json.dumps({"result" : "success"})
+        t = tag.Tag(sTagName, sDesc)
         
-        except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
-            return traceback.format_exc()
+        # update the description
+        if sDesc:
+            t.DBUpdate()
+
+        # and possibly rename it
+        if sNewTagName:
+            t.DBRename(sNewTagName)
+
+        return json.dumps({"result" : "success"})
 
     def wmGetObjectsTags(self):
-        try:
-            sHTML = ""
-            oid = uiCommon.getAjaxArg("sObjectID")
+        sHTML = ""
+        oid = uiCommon.getAjaxArg("sObjectID")
 
-            t = tag.Tags(sFilter="", sObjectID=oid)
-            if t.rows:
-                for row in t.rows:
-                    sHTML += " <li id=\"ot_" + row["tag_name"].replace(" ", "") + "\" val=\"" + row["tag_name"] + "\" class=\"tag\">"
-                    
-                    sHTML += "<table class=\"object_tags_table\"><tr>"
-                    sHTML += "<td style=\"vertical-align: middle;\">" + row["tag_name"] + "</td>"
-                    sHTML += "<td width=\"1px\"><span class=\"ui-icon ui-icon-close forceinline tag_remove_btn\" remove_id=\"ot_" + row["tag_name"].replace(" ", "") + "\"></span></td>"
-                    sHTML += "</tr></table>"
-                    
-                    sHTML += " </li>"
-            return sHTML    
-        except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
-            return traceback.format_exc()           
+        t = tag.Tags(sFilter="", sObjectID=oid)
+        if t.rows:
+            for row in t.rows:
+                sHTML += " <li id=\"ot_" + row["tag_name"].replace(" ", "") + "\" val=\"" + row["tag_name"] + "\" class=\"tag\">"
+                
+                sHTML += "<table class=\"object_tags_table\"><tr>"
+                sHTML += "<td style=\"vertical-align: middle;\">" + row["tag_name"] + "</td>"
+                sHTML += "<td width=\"1px\"><span class=\"ui-icon ui-icon-close forceinline tag_remove_btn\" remove_id=\"ot_" + row["tag_name"].replace(" ", "") + "\"></span></td>"
+                sHTML += "</tr></table>"
+                
+                sHTML += " </li>"
+        return sHTML    
         
     def wmGetTagList(self):
-        try:
-            sObjectID = uiCommon.getAjaxArg("sObjectID")
-            sHTML = ""
-    
-            # # this will be from lu_tags table
-            # if the passed in objectid is empty, get them all, otherwise filter by it
-            if sObjectID:
-                sSQL = "select tag_name, tag_desc" \
-                    " from tags " \
-                    " where tag_name not in (" \
-                    " select tag_name from object_tags where object_id = '" + sObjectID + "'" \
-                    ")" \
-                    " order by tag_name"
-            else:
-                sSQL = "select tag_name, tag_desc" \
-                    " from tags" \
-                    " order by tag_name"
+        sObjectID = uiCommon.getAjaxArg("sObjectID")
+        sHTML = ""
 
-            dt = self.db.select_all_dict(sSQL)
-            if self.db.error:
-                return self.db.error
+        # # this will be from lu_tags table
+        # if the passed in objectid is empty, get them all, otherwise filter by it
+        if sObjectID:
+            sSQL = "select tag_name, tag_desc" \
+                " from tags " \
+                " where tag_name not in (" \
+                " select tag_name from object_tags where object_id = '" + sObjectID + "'" \
+                ")" \
+                " order by tag_name"
+        else:
+            sSQL = "select tag_name, tag_desc" \
+                " from tags" \
+                " order by tag_name"
 
-            if dt:                
-                sHTML += "<ul>"
-                for dr in dt:
-                    desc = (dr["tag_desc"].replace("\"", "").replace("'", "") if dr["tag_desc"] else "")
-                    sHTML += " <li class=\"tag_picker_tag\"" \
-                       " id=\"tpt_" + dr["tag_name"] + "\"" \
-                       " desc=\"" + desc + "\"" \
-                       ">"
-                    sHTML += dr["tag_name"]
-                    sHTML += " </li>"
-                sHTML += "</ul>"
-            else:
-                sHTML += "No Unassociated Tags exist."
+        dt = self.db.select_all_dict(sSQL)
+        if self.db.error:
+            return self.db.error
 
-            return sHTML
-        except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+        if dt:                
+            sHTML += "<ul>"
+            for dr in dt:
+                desc = (dr["tag_desc"].replace("\"", "").replace("'", "") if dr["tag_desc"] else "")
+                sHTML += " <li class=\"tag_picker_tag\"" \
+                   " id=\"tpt_" + dr["tag_name"] + "\"" \
+                   " desc=\"" + desc + "\"" \
+                   ">"
+                sHTML += dr["tag_name"]
+                sHTML += " </li>"
+            sHTML += "</ul>"
+        else:
+            sHTML += "No Unassociated Tags exist."
+
+        return sHTML
 
     def wmAddObjectTag(self):
-        try:
-            sObjectID = uiCommon.getAjaxArg("sObjectID")
-            sObjectType = uiCommon.getAjaxArg("sObjectType")
-            sTagName = uiCommon.getAjaxArg("sTagName")
-    
-    
-            iObjectType = int(sObjectType)
-    
-            # fail on missing values
-            if iObjectType < 0:
-                return json.dumps({"error":"Invalid Object Type."})
-            if not sObjectID or not sTagName:
-                return json.dumps({"error":"Missing or invalid Object ID or Tag Name."})
-    
-            sSQL = """insert into object_tags
-                (object_id, object_type, tag_name)
-                values ('%s', '%d', '%s')""" % (sObjectID, iObjectType, sTagName)
-    
-            if not self.db.exec_db_noexcep(sSQL):
-                uiCommon.log_nouser(self.db.error, 0)
-    
-            uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [%s] added." % sTagName)
-    
-            return json.dumps({"result" : "success"})
-        except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+        sObjectID = uiCommon.getAjaxArg("sObjectID")
+        sObjectType = uiCommon.getAjaxArg("sObjectType")
+        sTagName = uiCommon.getAjaxArg("sTagName")
+
+
+        iObjectType = int(sObjectType)
+
+        # fail on missing values
+        if iObjectType < 0:
+            raise Exception("Invalid Object Type.")
+        if not sObjectID or not sTagName:
+            raise Exception("Missing or invalid Object ID or Tag Name.")
+
+        sSQL = """insert into object_tags
+            (object_id, object_type, tag_name)
+            values ('%s', '%d', '%s')""" % (sObjectID, iObjectType, sTagName)
+
+        if not self.db.exec_db_noexcep(sSQL):
+            uiCommon.log_nouser(self.db.error, 0)
+
+        uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [%s] added." % sTagName)
+
+        return json.dumps({"result" : "success"})
 
     def wmRemoveObjectTag(self):
-        try:
-            sObjectID = uiCommon.getAjaxArg("sObjectID")
-            sObjectType = uiCommon.getAjaxArg("sObjectType")
-            sTagName = uiCommon.getAjaxArg("sTagName")
-    
-    
-            iObjectType = int(sObjectType)
-    
-            # fail on missing values
-            if iObjectType < 0:
-                return json.dumps({"error":"Invalid Object Type."})
-            if not sObjectID or not sTagName:
-                return json.dumps({"error":"Missing or invalid Object ID or Tag Name."})
-    
-            sSQL = """delete from object_tags where object_id = '%s' and tag_name = '%s'""" % (sObjectID, sTagName)
-    
-            if not self.db.exec_db_noexcep(sSQL):
-                uiCommon.log_nouser(self.db.error, 0)
-    
-            uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [%s] removed." % sTagName)
-    
-            return json.dumps({"result" : "success"})
-        except Exception:
-            uiCommon.log_nouser(traceback.format_exc(), 0)
+        sObjectID = uiCommon.getAjaxArg("sObjectID")
+        sObjectType = uiCommon.getAjaxArg("sObjectType")
+        sTagName = uiCommon.getAjaxArg("sTagName")
+        iObjectType = int(sObjectType)
+
+        # fail on missing values
+        if iObjectType < 0:
+            raise Exception("Invalid Object Type.")
+        if not sObjectID or not sTagName:
+            raise Exception("Missing or invalid Object ID or Tag Name.")
+
+        sSQL = """delete from object_tags where object_id = '%s' and tag_name = '%s'""" % (sObjectID, sTagName)
+
+        self.db.exec_db(sSQL)
+
+        uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [%s] removed." % sTagName)
+
+        return json.dumps({"result" : "success"})
 
            

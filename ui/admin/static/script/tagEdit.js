@@ -98,30 +98,16 @@ function SaveTag() {
 	var desc = $("#txtDescription").val();
 	if ($("#hidMode").val() == 'edit') {
 		//edit an existing tag
-		var response = catoAjax.tags.createTag(new_tag, desc);
-		if (response.error) {
-			showAlert(response.error);
-		}
-		if (response.info) {
-			showInfo(response.info);
-		}
-		if (response.result) {
-			if (response.result == "success") {
-				$("#hidCurrentEditID").val("");
-				$("#txtSearch").val("");
-				GetItems();
-				$("#edit_dialog").dialog("close");
-			}
+		var response = catoAjax.tags.updateTag(old_tag, new_tag, desc);
+		if (response) {
+			$("#hidCurrentEditID").val("");
+			$("#txtSearch").val("");
+			GetItems();
+			$("#edit_dialog").dialog("close");
 		}
 	} else if ($("#hidMode").val() == 'add') {
 		//add a new tag
 		var tag = catoAjax.tags.createTag(new_tag, desc);
-		if (tag.error) {
-			showAlert(response.error);
-		}
-		if (tag.info) {
-			showInfo(response.info);
-		}
 		if (tag.Name) {
 			$("#hidCurrentEditID").val("");
 			$("#txtSearch").val("");

@@ -30,32 +30,28 @@ class Tags(object):
     rows = {}
 
     def __init__(self, sFilter="", sObjectID=""):
-        try:
-            db = catocommon.new_conn()
-            sWhereString = ""
-            if sFilter:
-                aSearchTerms = sFilter.split()
-                for term in aSearchTerms:
-                    if term:
-                        sWhereString += " and (t.tag_name like '%%" + term + "%%' " \
-                            "or t.tag_desc like '%%" + term + "%%') "
-    
-            # if an object id arg is passed, we explicitly limit to that object
-            if sObjectID:
-                sWhereString += " and ot.object_id = '%s'" % sObjectID
-                
-            sSQL = """select t.tag_name, t.tag_desc, count(ot.tag_name) as in_use
-                from tags t
-                left outer join object_tags ot on t.tag_name = ot.tag_name
-                where (1=1) %s
-                group by t.tag_name, t.tag_desc
-                order by t.tag_name""" % sWhereString
+        db = catocommon.new_conn()
+        sWhereString = ""
+        if sFilter:
+            aSearchTerms = sFilter.split()
+            for term in aSearchTerms:
+                if term:
+                    sWhereString += " and (t.tag_name like '%%" + term + "%%' " \
+                        "or t.tag_desc like '%%" + term + "%%') "
+
+        # if an object id arg is passed, we explicitly limit to that object
+        if sObjectID:
+            sWhereString += " and ot.object_id = '%s'" % sObjectID
             
-            self.rows = db.select_all_dict(sSQL)
-        except Exception, ex:
-            raise Exception(ex)
-        finally:
-            db.close()
+        sSQL = """select t.tag_name, t.tag_desc, count(ot.tag_name) as in_use
+            from tags t
+            left outer join object_tags ot on t.tag_name = ot.tag_name
+            where (1=1) %s
+            group by t.tag_name, t.tag_desc
+            order by t.tag_name""" % sWhereString
+        
+        self.rows = db.select_all_dict(sSQL)
+        db.close()
 
     def AsJSON(self):
         return catocommon.ObjectOutput.IterableAsJSON(self.rows)
@@ -69,73 +65,48 @@ class Tag(object):
         """
         Creates a new Tag.
         """
-        try:
-            db = catocommon.new_conn()
+        db = catocommon.new_conn()
 
-            sSQL = """insert into tags (tag_name, tag_desc) values ('%s', '%s')""" % (self.Name, catocommon.tick_slash(self.Description))
-            if not db.exec_db_noexcep(sSQL):
-                print db.error
-                if db.error == "key_violation":
-                    return None, "Tag Name '" + self.Name + "' already in use, choose another."
-                else: 
-                    return None, db.error
+        sSQL = """insert into tags (tag_name, tag_desc) values ('%s', '%s')""" % (self.Name, catocommon.tick_slash(self.Description))
+        if not db.exec_db_noexcep(sSQL):
+            if db.error == "key_violation":
+                raise Exception("Tag Name '%s' already in use, choose another." % self.Name)
+            else: 
+                raise Exception(db.error)
 
-            # now it's inserted... lets get it back from the db as a complete object for confirmation.
-            t = Tag(self.Name, self.Description)
-            return t, None
-
-        except Exception, ex:
-            raise ex
-        finally:
-            db.close()
+        db.close()
+        return True
 
     def DBUpdate(self):
-        try:
-            db = catocommon.new_conn()
-
-            # do the description no matter what just to be quick
-            sSQL = "update tags set tag_desc = '%s' where tag_name = '%s'" % (catocommon.tick_slash(self.Description), self.Name)
-            if not db.exec_db_noexcep(sSQL):
-                print db.error
-                return False, db.error
-
-            return True, ""
-        
-        except Exception, ex:
-            raise ex
-        finally:
-            db.close()
+        db = catocommon.new_conn()
+        # do the description no matter what just to be quick
+        sql = "update tags set tag_desc = %s where tag_name = %s"
+        db.exec_db(sql, (self.Description, self.Name))
+        db.close()
+        return True
 
     def DBRename(self, sNewName):
         """
         Tags are different than other objects, because they don't have an additional 'id'.
         The tag name IS it's id, so we need a special case to update that name.
         """
-        try:
-            db = catocommon.new_conn()
+        db = catocommon.new_conn()
 
-            # do the description no matter what just to be quick
-            sSQL = "update object_tags set tag_name = '%s' where tag_name = '%s'" % (sNewName, self.Name)
-            if not db.tran_exec_noexcep(sSQL):
-                print db.error
-                return False, db.error
+        # do the description no matter what just to be quick
+        sSQL = "update object_tags set tag_name = %s where tag_name = %s"
+        db.tran_exec(sSQL, (sNewName, self.Name))
 
-            sSQL = "update tags set tag_name = '%s' where tag_name = '%s'" % (sNewName, self.Name)
-            if not db.tran_exec_noexcep(sSQL):
-                print db.error
-                if db.error == "key_violation":
-                    return None, "Tag Name '" + sNewName + "' already in use, choose another."
-                else: 
-                    return None, db.error
+        sSQL = "update tags set tag_name = %s where tag_name = %s"
+        if not db.tran_exec_noexcep(sSQL, (sNewName, self.Name)):
+            if db.error == "key_violation":
+                raise Exception("Tag Name '%s' already in use, choose another." % self.Name)
+            else: 
+                raise Exception(db.error)
 
-            db.tran_commit()
+        db.tran_commit()
+        db.close()
 
-            return True, ""
-        
-        except Exception, ex:
-            raise ex
-        finally:
-            db.close()
+        return True
 
     def AsJSON(self):
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
