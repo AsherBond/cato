@@ -271,7 +271,7 @@ class ExceptionHandlingApplication(web.application):
             output_format = args["output_format"] if args.has_key("output_format") else ""
             web.ctx.status = "400 Bad Request"
             logger.exception(ex.__str__())
-            response = api.response(err_code=api.response.Codes.Exception)
+            response = api.response(err_code=api.response.Codes.Exception, err_detail=ex.__str__())
             return response.Write(output_format)
         
 def main():

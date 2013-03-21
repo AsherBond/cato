@@ -53,25 +53,17 @@ class dsMethods:
         
         Returns: A list of Document IDs.
         """
-        try:
-            collection = args["collection"] if args.has_key("collection") else ""
-            fltr = args["filter"] if args.has_key("filter") else ""
+        collection = args["collection"] if args.has_key("collection") else ""
+        fltr = args["filter"] if args.has_key("filter") else ""
 
-            obj = datastore.Documents(collection, fltr)
-            if obj:
-                if args["output_format"] == "json" or args["output_format"] == "text" :
-                    return R(response=obj.AsJSON())
+        obj = datastore.Documents(collection, fltr)
+        if args["output_format"] == "json" or args["output_format"] == "text" :
+            return R(response=obj.AsJSON())
 #                elif args["output_format"] == "text":
 #                    return R(response=obj.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=obj.AsXML())
-            else:
-                return R(err_code=R.Codes.ListError, err_detail="Unable to list Documents.")
+        else:
+            return R(response=obj.AsXML())
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-
     def list_document_collections(self, args):        
         """
         Lists all Datastore Document Collections.
@@ -81,23 +73,15 @@ class dsMethods:
         
         Returns: A list of Document Collections.
         """
-        try:
             fltr = args["filter"] if args.has_key("filter") else ""
 
             obj = datastore.Collections(fltr)
-            if obj:
-                if args["output_format"] == "json":
-                    return R(response=obj.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=obj.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=obj.AsXML())
+            if args["output_format"] == "json":
+                return R(response=obj.AsJSON())
+            elif args["output_format"] == "text":
+                return R(response=obj.AsText(args["output_delimiter"]))
             else:
-                return R(err_code=R.Codes.ListError, err_detail="Unable to list Document Collections.")
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
+                return R(response=obj.AsXML())
 
     def create_document(self, args):        
         """
@@ -109,25 +93,20 @@ class dsMethods:
             
         Returns: A Datastore document.
         """
-        try:
-            collection = args["collection"] if args.has_key("collection") else ""
-            template = args["template"] if args.has_key("template") else ""
+        collection = args["collection"] if args.has_key("collection") else ""
+        template = args["template"] if args.has_key("template") else ""
 
-            doc, msg = datastore.create_document(template, collection)
-            if doc:
-                if args["output_format"] == "json":
-                    return R(response=doc.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=doc.AsText())
-                else:
-                    return R(response=doc.AsXML())
+        doc, msg = datastore.create_document(template, collection)
+        if doc:
+            if args["output_format"] == "json":
+                return R(response=doc.AsJSON())
+            elif args["output_format"] == "text":
+                return R(response=doc.AsText())
             else:
-                return R(err_code=R.Codes.GetError, err_detail=msg)
+                return R(response=doc.AsXML())
+        else:
+            return R(err_code=R.Codes.GetError, err_detail=msg)
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-
     def get_document(self, args):        
         """
         Gets a Datastore document.
@@ -140,31 +119,26 @@ class dsMethods:
 
         Returns: A Datastore document.
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["query"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["query"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            collection = args["collection"] if args.has_key("collection") else ""
-            query = json.loads(args["query"])
-            doc = datastore.Document(query, collection)
+        collection = args["collection"] if args.has_key("collection") else ""
+        query = json.loads(args["query"])
+        doc = datastore.Document(query, collection)
 
-            if doc.ID:
-                if args["output_format"] == "json":
-                    return R(response=doc.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=doc.AsText())
-                else:
-                    return R(response=doc.AsXML())
+        if doc.ID:
+            if args["output_format"] == "json":
+                return R(response=doc.AsJSON())
+            elif args["output_format"] == "text":
+                return R(response=doc.AsText())
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to find Data Document using query %s." % args["query"])
+                return R(response=doc.AsXML())
+        else:
+            return R(err_code=R.Codes.GetError, err_detail="Unable to find Data Document using query %s." % args["query"])
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-
     def get_document_value(self, args):        
         """
         Gets the value of a key in a Datastore document.
@@ -178,21 +152,20 @@ class dsMethods:
 
         Returns: A text value.
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["query", "lookupkey"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["query", "lookupkey"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            collection = args["collection"] if args.has_key("collection") else ""
-            query = json.loads(args["query"])
-            doc = datastore.Document(query, collection)
-            if doc.ID:
-                # we have a document!  let's dig in to it.
-                result = doc.Lookup(args["lookupkey"])
-                if result:
-                    return R(response=result)
+        collection = args["collection"] if args.has_key("collection") else ""
+        query = json.loads(args["query"])
+        doc = datastore.Document(query, collection)
+        if doc.ID:
+            # we have a document!  let's dig in to it.
+            result = doc.Lookup(args["lookupkey"])
+            if result:
+                return R(response=result)
 #                    # now, the section we obtained might be a document itself...
 #                    # so let's serialize it.
 #                    if args["output_format"] == "json":
@@ -201,16 +174,12 @@ class dsMethods:
 #                        return R(response=doc.AsText())
 #                    else:
 #                        return R(response=doc.AsXML())
-                else:
-                    return R(response="Lookup found no match.")
-                    
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to find Document for Cato Object ID [%s]." % args["doc_id"])
+                return R(response="Lookup found no match.")
+                
+        else:
+            return R(err_code=R.Codes.GetError, err_detail="Unable to find Document for Cato Object ID [%s]." % args["doc_id"])
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-
     def set_document_value(self, args):        
         """
         Sets the value of a key in a Datastore document.
@@ -225,28 +194,24 @@ class dsMethods:
             
         Returns: A success message, or error messages on failure.
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["query", "lookupkey"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["query", "lookupkey"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            collection = args["collection"] if args.has_key("collection") else ""
-            value = args["value"] if args.has_key("value") else ""
-            query = json.loads(args["query"])
-            doc = datastore.Document(query, collection)
-            if doc.ID:
-                # we have a document!  let's dig in to it.
-                result = doc.Set(args["lookupkey"], value)
-                if result:
-                    return R(response="Value successfully set.")
-                else:
-                    return R(err_code=R.Codes.CreateError, err_detail="Value was not set, see logfile for details.")
-                    
+        collection = args["collection"] if args.has_key("collection") else ""
+        value = args["value"] if args.has_key("value") else ""
+        query = json.loads(args["query"])
+        doc = datastore.Document(query, collection)
+        if doc.ID:
+            # we have a document!  let's dig in to it.
+            result = doc.Set(args["lookupkey"], value)
+            if result:
+                return R(response="Value successfully set.")
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to find Document for Cato Object ID [%s]." % args["cato_object_id"])
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
+                return R(err_code=R.Codes.CreateError, err_detail="Value was not set, see logfile for details.")
+                
+        else:
+            return R(err_code=R.Codes.GetError, err_detail="Unable to find Document for Cato Object ID [%s]." % args["cato_object_id"])
+        

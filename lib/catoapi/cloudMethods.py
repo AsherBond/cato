@@ -37,23 +37,15 @@ class cloudMethods:
         
         Returns: An list of all Clouds.
         """
-        try:
-            fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args["filter"] if args.has_key("filter") else ""
 
-            obj = cloud.Clouds(sFilter=fltr)
-            if obj:
-                if args["output_format"] == "json":
-                    return R(response=obj.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=obj.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=obj.AsXML())
-            else:
-                return R(err_code=R.Codes.ListError, err_detail="Unable to list Clouds.")
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
+        obj = cloud.Clouds(sFilter=fltr)
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML())
 
     def list_cloud_accounts(self, args):        
         """
@@ -64,21 +56,12 @@ class cloudMethods:
         
         Returns: An list of all Cloud Accounts.
         """
-        try:
-            fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args["filter"] if args.has_key("filter") else ""
 
-            obj = cloud.CloudAccounts(sFilter=fltr)
-            if obj:
-                if args["output_format"] == "json":
-                    return R(response=obj.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=obj.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=obj.AsXML())
-            else:
-                return R(err_code=R.Codes.ListError, err_detail="Unable to list Cloud Accounts.")
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-
+        obj = cloud.CloudAccounts(sFilter=fltr)
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML())

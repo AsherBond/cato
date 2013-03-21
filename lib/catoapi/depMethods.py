@@ -53,23 +53,15 @@ class depMethods:
         
         Returns: An array of all Deployments with basic attributes.
         """
-        try:
-            fltr = args["filter"] if args.has_key("filter") else ""
-            
-            obj = deployment.Deployments(sFilter=fltr)
-            if obj:
-                if args["output_format"] == "json":
-                    return R(response=obj.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=obj.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=obj.AsXML())
-            else:
-                return R(err_code=R.Codes.ListError, err_detail="Unable to list Deployments.")
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
+        fltr = args["filter"] if args.has_key("filter") else ""
+        
+        obj = deployment.Deployments(sFilter=fltr)
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML())
         
 #    def import_deployment(self, args):        
 #        """
@@ -123,51 +115,44 @@ class depMethods:
 #            owner - the name or id of a Cato user to be the owner of this Deployment.
 #        
 
-        try:
-            # define the required parameters for this call
-            required_params = ["name", "template", "version"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["name", "template", "version"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            name = args["name"]
-            template = args["template"]
-            version = args["version"]
+        name = args["name"]
+        template = args["template"]
+        version = args["version"]
+        
+        # owner = args["owner"] if args.has_key("owner") else ""
+        desc = args["desc"] if args.has_key("desc") else ""
+
+        # two steps
+        # 1) get the template 
+        # 2) use it to create a new deployment
+
+        # 1)
+        t = deployment.DeploymentTemplate()
+        t.FromNameVersion(template, version)
+        
+        if not t.Text:
+            msg = "Deployment Template [%s/%s] has no JSON document." % (template, version)
+            return R(err_code=R.Codes.CreateError, err_detail=msg)
             
-            # owner = args["owner"] if args.has_key("owner") else ""
-            desc = args["desc"] if args.has_key("desc") else ""
-
-            # two steps
-            # 1) get the template 
-            # 2) use it to create a new deployment
-
-            # 1)
-            t = deployment.DeploymentTemplate()
-            t.FromNameVersion(template, version)
-            if not t.ID:
-                msg = "Failed to get Deployment Template for Name/Version [%s/%s]." % (template, version)
-                return R(err_code=R.Codes.CreateError, err_detail=msg)
-            
-            if not t.Text:
-                msg = "Deployment Template [%s/%s] has no JSON document." % (template, version)
-                return R(err_code=R.Codes.CreateError, err_detail=msg)
-                
-            # 2)
-            obj, msg = deployment.Deployment.FromJSON(name, t.Text, desc)
-            if obj:
-                catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Deployment, obj.ID, obj.Name, "Deployment created.")
-                if args["output_format"] == "json":
-                    return R(response=obj.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=obj.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=obj.AsXML())
+        # 2)
+        obj, msg = deployment.Deployment.FromJSON(name, t.Text, desc)
+        if obj:
+            catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Deployment, obj.ID, obj.Name, "Deployment created.")
+            if args["output_format"] == "json":
+                return R(response=obj.AsJSON())
+            elif args["output_format"] == "text":
+                return R(response=obj.AsText(args["output_delimiter"]))
             else:
-                return R(err_code=R.Codes.CreateError, err_detail=msg)
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
+                return R(response=obj.AsXML())
+        else:
+            return R(err_code=R.Codes.CreateError, err_detail=msg)
+
 
     def delete_deployment(self, args):        
         """
@@ -178,32 +163,25 @@ class depMethods:
         
         Returns: Nothing if successful, or an error message.
         """
-        try:
-            # this is an admin function
-            if not args["_admin"]:
-                return R(err_code=R.Codes.Forbidden)
-            
-            # define the required parameters for this call
-            required_params = ["deployment"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # this is an admin function
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        # define the required parameters for this call
+        required_params = ["deployment"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
 
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                success, msg = obj.DBDelete()
-                if success:
-                    return R(response="Successfully deleted the Deployment.")
-                else:
-                    return R(err_code=R.Codes.DeleteError, err_detail=msg)
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        success, msg = obj.DBDelete()
+        if success:
+            return R(response="Successfully deleted the Deployment.")
+        else:
+            return R(err_code=R.Codes.DeleteError, err_detail=msg)
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def describe_deployment(self, args):        
         """
@@ -214,41 +192,34 @@ class depMethods:
         
         Returns: A complete Deployment object.
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["deployment"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["deployment"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
 
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                # kindof a pain... we gotta get the services and steps, then render them properly below
-                if args["output_format"] == "json":
-                    obj.Services = json.loads(obj.ServicesAsJSON())
-                    obj.Sequences = json.loads(obj.SequencesAsJSON())
-                    
-                    return R(response=obj.AsJSON())
-                elif args["output_format"] == "text":
-                    out = []
-                    out.append("DEPLOYMENT")
-                    out.append(obj.AsText(args["output_delimiter"]))
-                    out.append("\nSERVICES")
-                    out.append(obj.ServicesAsText())
-                    out.append("\nSEQUENCES")
-                    out.append(obj.SequencesAsText())
-                    
-                    return R(response="\n".join(out))
-                else:
-                    return R(response=obj.AsXML())
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        # kindof a pain... we gotta get the services and steps, then render them properly below
+        if args["output_format"] == "json":
+            obj.Services = json.loads(obj.ServicesAsJSON())
+            obj.Sequences = json.loads(obj.SequencesAsJSON())
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            out = []
+            out.append("DEPLOYMENT")
+            out.append(obj.AsText(args["output_delimiter"]))
+            out.append("\nSERVICES")
+            out.append(obj.ServicesAsText())
+            out.append("\nSEQUENCES")
+            out.append(obj.SequencesAsText())
+            
+            return R(response="\n".join(out))
+        else:
+            return R(response=obj.AsXML())
+            
 
     def get_deployment(self, args):        
         """
@@ -259,29 +230,22 @@ class depMethods:
         
         Returns: A Deployment object.
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["deployment"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["deployment"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
 
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                if args["output_format"] == "json":
-                    return R(response=obj.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=obj.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=obj.AsXML())
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML())
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_deployment_document(self, args):        
         """
@@ -292,23 +256,16 @@ class depMethods:
         
         Returns: A Deployment Datastore Document.
         """
-        try:
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj.ID:
-                # the data document is in json format, so "text" mode returns json
-                # but "xml" format will be translated.
-                if args["output_format"] in ["json", "text"]:
-                    return R(response=catocommon.ObjectOutput.AsJSON(obj.Datastore.doc))
-                else:
-                    xml = catocommon.ObjectOutput.AsXML(obj.Datastore.doc, "deployment_data")
-                    return R(response=xml)
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        # the data document is in json format, so "text" mode returns json
+        # but "xml" format will be translated.
+        if args["output_format"] in ["json", "text"]:
+            return R(response=catocommon.ObjectOutput.AsJSON(obj.Datastore.doc))
+        else:
+            xml = catocommon.ObjectOutput.AsXML(obj.Datastore.doc, "deployment_data")
+            return R(response=xml)
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
         
     def get_deployment_services(self, args):        
         """
@@ -322,24 +279,17 @@ class depMethods:
         
         Returns: All Deployment Services.
         """
-        try:
-            fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args["filter"] if args.has_key("filter") else ""
+        
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        if args["output_format"] == "json":
+            return R(response=obj.ServicesAsJSON(fltr))
+        elif args["output_format"] == "text":
+            return R(response=obj.ServicesAsText(fltr, args["output_delimiter"]))
+        else:
+            return R(response=obj.ServicesAsXML(fltr))
             
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                if args["output_format"] == "json":
-                    return R(response=obj.ServicesAsJSON(fltr))
-                elif args["output_format"] == "text":
-                    return R(response=obj.ServicesAsText(fltr, args["output_delimiter"]))
-                else:
-                    return R(response=obj.ServicesAsXML(fltr))
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
         
     def get_service_instances(self, args):        
         """
@@ -351,33 +301,22 @@ class depMethods:
         
         Returns: A list of Service Instances.
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["deployment", "service"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["deployment", "service"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                service = obj.GetService(args["service"])
-                if service:
-                    if args["output_format"] == "json":
-                        return R(response=service.InstancesAsJSON())
-                    elif args["output_format"] == "text":
-                        return R(response=service.InstancesAsText())
-                    else:
-                        return R(response=service.InstancesAsXML())
-                else:
-                    return R(err_code=R.Codes.GetError, err_detail="Unable to get Service for identifier [%s]." % args["service"])
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
-            
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        service = obj.GetService(args["service"])
+        if args["output_format"] == "json":
+            return R(response=service.InstancesAsJSON())
+        elif args["output_format"] == "text":
+            return R(response=service.InstancesAsText())
+        else:
+            return R(response=service.InstancesAsXML())
 
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
         
     def create_deployment_service(self, args):        
         """
@@ -392,35 +331,28 @@ class depMethods:
         
         Returns: A Deployment Service object.
         """
-        try:
-            # this is an admin function
-            if not args["_admin"]:
-                return R(err_code=R.Codes.Forbidden)
-            
-            # define the required parameters for this call
-            required_params = ["deployment", "name"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # this is an admin function
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        # define the required parameters for this call
+        required_params = ["deployment", "name"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            desc = args["desc"] if args.has_key("desc") else ""
+        desc = args["desc"] if args.has_key("desc") else ""
 
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                service, msg = deployment.DeploymentService.DBCreateNew(deployment=obj, name=args["name"], desc=desc)
-                if service:
-                    catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.DeploymentService, obj.ID, service.Name, "Deployment Service created.")
-                    # call the other method that returns the list.
-                    return self.get_deployment_services(args)
-                else:
-                    return R(err_code=R.Codes.CreateError, err_detail=msg)
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        service, msg = deployment.DeploymentService.DBCreateNew(deployment=obj, name=args["name"], desc=desc)
+        if service:
+            catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.DeploymentService, obj.ID, service.Name, "Deployment Service created.")
+            # call the other method that returns the list.
+            return self.get_deployment_services(args)
+        else:
+            return R(err_code=R.Codes.CreateError, err_detail=msg)
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_deployment_sequence(self, args):        
         """
@@ -433,27 +365,17 @@ class depMethods:
         
         Returns: A Deployment Sequence with Steps.
         """
-        try:
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj.ID:
-                seq = deployment.DeploymentSequence(obj)
-                seq.FromName(args["sequence"])
-                if seq.Name:
-                    if args["output_format"] == "json":
-                        return R(response=seq.AsJSON())
-                    elif args["output_format"] == "text":
-                        return R(response=seq.AsText(args["output_delimiter"]))
-                    else:
-                        return R(response=seq.AsXML())
-                else:
-                    return R(err_code=R.Codes.GetError, err_detail="Unable to get Sequence for identifier [%s]." % args["sequence"])
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        seq = deployment.DeploymentSequence(obj)
+        seq.FromName(args["sequence"])
+        if args["output_format"] == "json":
+            return R(response=seq.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=seq.AsText(args["output_delimiter"]))
+        else:
+            return R(response=seq.AsXML())
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
         
     def get_deployment_sequences(self, args):        
         """
@@ -467,24 +389,17 @@ class depMethods:
         
         Returns: All Deployment Sequences.
         """
-        try:
-            fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args["filter"] if args.has_key("filter") else ""
+        
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        if args["output_format"] == "json":
+            return R(response=obj.SequencesAsJSON(fltr))
+        elif args["output_format"] == "text":
+            return R(response=obj.SequencesAsText(fltr, args["output_delimiter"]))
+        else:
+            return R(response=obj.SequencesAsXML(fltr))
             
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                if args["output_format"] == "json":
-                    return R(response=obj.SequencesAsJSON(fltr))
-                elif args["output_format"] == "text":
-                    return R(response=obj.SequencesAsText(fltr, args["output_delimiter"]))
-                else:
-                    return R(response=obj.SequencesAsXML(fltr))
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
         
     def add_sequence_step(self, args):        
         """
@@ -499,40 +414,30 @@ class depMethods:
         
         Returns: The selected Sequence.
         """
-        try:
-            # this is an admin function
-            if not args["_admin"]:
-                return R(err_code=R.Codes.Forbidden)
+        # this is an admin function
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        # define the required parameters for this call
+        required_params = ["deployment", "sequence"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+
+        before = args["before"] if args.has_key("before") else ""
+
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        seq = deployment.DeploymentSequence(obj)
+        seq.FromName(args["sequence"])
+        step, msg = seq.AddStep(before)
+        if step:
+            # call the other method that returns the list.
+            return self.get_deployment_sequence(args)
+        else:
+            return R(err_code=R.Codes.CreateError, err_detail=msg)
             
-            # define the required parameters for this call
-            required_params = ["deployment", "sequence"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
-
-
-            before = args["before"] if args.has_key("before") else ""
-
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                seq = deployment.DeploymentSequence(obj)
-                seq.FromName(args["sequence"])
-                if seq.Name:
-                    step, msg = seq.AddStep(before)
-                    if step:
-                        # call the other method that returns the list.
-                        return self.get_deployment_sequence(args)
-                    else:
-                        return R(err_code=R.Codes.CreateError, err_detail=msg)
-                else:
-                    return R(err_code=R.Codes.GetError, err_detail="Unable to get Sequence for identifier [%s]." % args["sequence"])
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def add_service_to_sequence_step(self, args):        
         """
@@ -548,44 +453,34 @@ class depMethods:
             
         Returns: The selected Sequence.
         """
-        try:
-            # this is an admin function
-            if not args["_admin"]:
-                return R(err_code=R.Codes.Forbidden)
-            
-            # define the required parameters for this call
-            required_params = ["deployment", "sequence", "step", "service", "desired"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # this is an admin function
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        # define the required parameters for this call
+        required_params = ["deployment", "sequence", "step", "service", "desired"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
 
-            initial = args["initial"] if args.has_key("initial") else ""
+        initial = args["initial"] if args.has_key("initial") else ""
 
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                seq = deployment.DeploymentSequence(obj)
-                seq.FromName(args["sequence"])
-                if seq.Name:
-                    step, msg = seq.GetStep(args["step"])
-                    if step:
-                        success, msg = step.AddService(args["service"], args["desired"], initial)
-                        if success:
-                            # call the other method that returns the list.
-                            return self.get_deployment_sequence(args)
-                        else:
-                            return R(err_code=R.Codes.CreateError, err_detail=msg)
-                    else:
-                        return R(err_code=R.Codes.GetError, err_detail=msg)
-                else:
-                    return R(err_code=R.Codes.GetError, err_detail="Unable to get Sequence for identifier [%s]." % args["sequence"])
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        seq = deployment.DeploymentSequence(obj)
+        seq.FromName(args["sequence"])
+        step, msg = seq.GetStep(args["step"])
+        if step:
+            success, msg = step.AddService(args["service"], args["desired"], initial)
+            if success:
+                # call the other method that returns the list.
+                return self.get_deployment_sequence(args)
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+                return R(err_code=R.Codes.CreateError, err_detail=msg)
+        else:
+            return R(err_code=R.Codes.GetError, err_detail=msg)
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def remove_service_from_sequence_step(self, args):        
         """
@@ -599,41 +494,31 @@ class depMethods:
         
         Returns: The selected Sequence.
         """
-        try:
-            # this is an admin function
-            if not args["_admin"]:
-                return R(err_code=R.Codes.Forbidden)
-            
-            # define the required parameters for this call
-            required_params = ["deployment", "sequence", "step", "service"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # this is an admin function
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        # define the required parameters for this call
+        required_params = ["deployment", "sequence", "step", "service"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                seq = deployment.DeploymentSequence(obj)
-                seq.FromName(args["sequence"])
-                if seq.Name:
-                    step, msg = seq.GetStep(args["step"])
-                    if step:
-                        success, msg = step.RemoveService(args["service"])
-                        if success:
-                            # call the other method that returns the list.
-                            return self.get_deployment_sequence(args)
-                        else:
-                            return R(err_code=R.Codes.CreateError, err_detail=msg)
-                    else:
-                        return R(err_code=R.Codes.GetError, err_detail=msg)
-                else:
-                    return R(err_code=R.Codes.GetError, err_detail="Unable to get Sequence for identifier [%s]." % args["sequence"])
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        seq = deployment.DeploymentSequence(obj)
+        seq.FromName(args["sequence"])
+        step, msg = seq.GetStep(args["step"])
+        if step:
+            success, msg = step.RemoveService(args["service"])
+            if success:
+                # call the other method that returns the list.
+                return self.get_deployment_sequence(args)
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+                return R(err_code=R.Codes.CreateError, err_detail=msg)
+        else:
+            return R(err_code=R.Codes.GetError, err_detail=msg)
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def delete_sequence_step(self, args):        
         """
@@ -646,38 +531,28 @@ class depMethods:
         
         Returns: The selected Sequence.
         """
-        try:
-            # this is an admin function
-            if not args["_admin"]:
-                return R(err_code=R.Codes.Forbidden)
-            
-            # define the required parameters for this call
-            required_params = ["deployment", "sequence", "step"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # this is an admin function
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        # define the required parameters for this call
+        required_params = ["deployment", "sequence", "step"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
 
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                seq = deployment.DeploymentSequence(obj)
-                seq.FromName(args["sequence"])
-                if seq.Name:
-                    success, msg = seq.DeleteStep(args["step"])
-                    if success:
-                        # call the other method that returns the list.
-                        return self.get_deployment_sequence(args)
-                    else:
-                        return R(err_code=R.Codes.DeleteError, err_detail=msg)
-                else:
-                    return R(err_code=R.Codes.GetError, err_detail="Unable to get Sequence for identifier [%s]." % args["sequence"])
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        seq = deployment.DeploymentSequence(obj)
+        seq.FromName(args["sequence"])
+        success, msg = seq.DeleteStep(args["step"])
+        if success:
+            # call the other method that returns the list.
+            return self.get_deployment_sequence(args)
+        else:
+            return R(err_code=R.Codes.DeleteError, err_detail=msg)
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def run_action(self, args):        
         """
@@ -695,76 +570,69 @@ class depMethods:
 
         Returns: A Task Instance object.
         """
-        try:
-            required_params = ["deployment", "action"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        required_params = ["deployment", "action"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            svc = args["service"] if args.has_key("service") else None
-            inst = args["service_instance"] if args.has_key("service_instance") else None
-            debug = args["log_level"] if args.has_key("log_level") else None
-            params = args["params"] if args.has_key("params") else None
-            if params:
-                try:
-                    params = json.loads(params)
-                except Exception as ex:
-                    return R(err_code=R.Codes.Exception, err_detail="Parameters template is not valid JSON. %s" % ex)
+        svc = args["service"] if args.has_key("service") else None
+        inst = args["service_instance"] if args.has_key("service_instance") else None
+        debug = args["log_level"] if args.has_key("log_level") else None
+        params = args["params"] if args.has_key("params") else None
+        if params:
+            try:
+                params = json.loads(params)
+            except Exception as ex:
+                return R(err_code=R.Codes.Exception, err_detail="Parameters template is not valid JSON. %s" % ex)
 
-            # we're trying this with one command at the moment.
-            dep = deployment.Deployment()
-            dep.FromName(args["deployment"])
-            if dep.ID:
-    
-                action = deployment.Action()
+        # we're trying this with one command at the moment.
+        dep = deployment.Deployment()
+        dep.FromName(args["deployment"])
+        action = deployment.Action()
 
-                if svc:            
-                    service = dep.GetService(svc)
-                    if service:
-                        action.FromName(args["action"], dep.ID, service.ID)
+        if svc:            
+            service = dep.GetService(svc)
+            if service:
+                action.FromName(args["action"], dep.ID, service.ID)
 
-                        # if an 'inst' was passed, see if we can reconcile an existing instance
-                        if inst:
-                            instance = dep.GetServiceInstance(inst)
-                            inst = instance.InstanceID
-                            
-                        # the action is for a service so check the scope.
-                        # kick back an error if it's scoped for 'instance only' or 'service only' but the args don't agree.
-                        # 0 = action is visible on both Services AND Instances - allow
-                        # 1 = action is Service Level only, doesn't appear on Instances
-                        # 2 = Instance level only, doesn't appear at the Service level
-                        if action.Scope == 1 and inst:
-                            return R(err_code=R.Codes.StartFailure, 
-                                     err_detail="This Action is defined to run on Services only - do not supply a Service Instance.")
-                        if action.Scope == 2 and not inst:
-                            return R(err_code=R.Codes.StartFailure, 
-                                     err_detail="This Action is defined to run on Service Instances only - please provide a Service Instance.")
-                else:    
-                    action.FromName(args["action"], dep.ID)
-                
-                
-                if not action.ID:
-                    return R(err_code=R.Codes.GetError, 
-                             err_detail="Unable to get Action for [%s - %s]." % (args["action"], args["deployment"], svc))
+                # if an 'inst' was passed, see if we can reconcile an existing instance
+                if inst:
+                    instance = dep.GetServiceInstance(inst)
+                    inst = instance.InstanceID
                     
-                
-                # the Run command will figure out what to run on... just give it the args we have
-                taskinstances, msg = action.Run(user_id=args["_user_id"], instance_id=inst, parameters=params, log_level=debug)
-                
-                if not taskinstances:
-                    return R(err_code=R.Codes.StartFailure, err_detail=msg)
-                
-
-                if args["output_format"] == "json":
-                    return R(response=catocommon.ObjectOutput.IterableAsJSON(taskinstances))
-                elif args["output_format"] == "text":
-                    return R(response=catocommon.ObjectOutput.IterableAsText(taskinstances, ["Instance"], args["output_delimiter"]))
-                else:
-                    return R(response=catocommon.ObjectOutput.IterableAsXML(taskinstances, "instances", "instance"))
+                # the action is for a service so check the scope.
+                # kick back an error if it's scoped for 'instance only' or 'service only' but the args don't agree.
+                # 0 = action is visible on both Services AND Instances - allow
+                # 1 = action is Service Level only, doesn't appear on Instances
+                # 2 = Instance level only, doesn't appear at the Service level
+                if action.Scope == 1 and inst:
+                    return R(err_code=R.Codes.StartFailure, 
+                             err_detail="This Action is defined to run on Services only - do not supply a Service Instance.")
+                if action.Scope == 2 and not inst:
+                    return R(err_code=R.Codes.StartFailure, 
+                             err_detail="This Action is defined to run on Service Instances only - please provide a Service Instance.")
+        else:    
+            action.FromName(args["action"], dep.ID)
+        
+        
+        if not action.ID:
+            return R(err_code=R.Codes.GetError, 
+                     err_detail="Unable to get Action for [%s - %s]." % (args["action"], args["deployment"], svc))
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
+        
+        # the Run command will figure out what to run on... just give it the args we have
+        taskinstances, msg = action.Run(user_id=args["_user_id"], instance_id=inst, parameters=params, log_level=debug)
+        
+        if not taskinstances:
+            return R(err_code=R.Codes.StartFailure, err_detail=msg)
+        
+
+        if args["output_format"] == "json":
+            return R(response=catocommon.ObjectOutput.IterableAsJSON(taskinstances))
+        elif args["output_format"] == "text":
+            return R(response=catocommon.ObjectOutput.IterableAsText(taskinstances, ["Instance"], args["output_delimiter"]))
+        else:
+            return R(response=catocommon.ObjectOutput.IterableAsXML(taskinstances, "instances", "instance"))
             
 
     def get_action_parameters(self, args):        
@@ -780,48 +648,40 @@ class depMethods:
 
         Returns: A Parameters document template.
         """
-        try:
-            required_params = ["deployment", "action"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        required_params = ["deployment", "action"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            svc = args["service"] if args.has_key("service") else None
-            basic = args["basic"] if args.has_key("basic") else None
+        svc = args["service"] if args.has_key("service") else None
+        basic = args["basic"] if args.has_key("basic") else None
 
-            # we're trying this with one command at the moment.
-            dep = deployment.Deployment()
-            dep.FromName(args["deployment"])
-            if dep.ID:
-    
-                action = deployment.Action()
+        # we're trying this with one command at the moment.
+        dep = deployment.Deployment()
+        dep.FromName(args["deployment"])
 
-                if svc:            
-                    service = dep.GetService(svc)
-                    if service:
-                        action.FromName(args["action"], dep.ID, service.ID)
-                    else:
-                        return R(err_code=R.Codes.GetError, err_detail="Unable to get Service for identifier [%s]." % svc)
+        action = deployment.Action()
 
-                else:    
-                    action.FromName(args["action"], dep.ID)
-                
-                
-                if not action.ID:
-                    return R(err_code=R.Codes.GetError, err_detail="Unable to get Action for [%s - %s]." % (args["action"], args["deployment"], svc))
-                    
-                # now we have the action, what are it's task parameters?
-                if action.TaskParameterXML:
-                    lst = catocommon.paramxml2json(action.TaskParameterXML, basic)      
-                    return R(response=catocommon.ObjectOutput.AsJSON(lst))              
-                else:
-                    return R(err_code=R.Codes.GetError, err_detail="Action has no parameters defined.")
+        if svc:            
+            service = dep.GetService(svc)
+            if service:
+                action.FromName(args["action"], dep.ID, service.ID)
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+                return R(err_code=R.Codes.GetError, err_detail="Unable to get Service for identifier [%s]." % svc)
+
+        else:    
+            action.FromName(args["action"], dep.ID)
+        
+        
+        if not action.ID:
+            return R(err_code=R.Codes.GetError, err_detail="Unable to get Action for [%s - %s]." % (args["action"], args["deployment"], svc))
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
+        # now we have the action, what are it's task parameters?
+        if action.TaskParameterXML:
+            lst = catocommon.paramxml2json(action.TaskParameterXML, basic)      
+            return R(response=catocommon.ObjectOutput.AsJSON(lst))              
+        else:
+            return R(err_code=R.Codes.GetError, err_detail="Action has no parameters defined.")
             
     
     def run_sequence(self, args):        
@@ -838,47 +698,34 @@ class depMethods:
 
         Returns: A Sequence Instance object.
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["deployment", "sequence"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["deployment", "sequence"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            oe = args["onerror"] if args.has_key("onerror") else None
-            pms = args["params"] if args.has_key("params") else None
-            if pms:
-                try:
-                    pms = json.loads(pms)
-                except Exception as ex:
-                    return R(err_code=R.Codes.Exception, err_detail="Parameters template is not valid JSON. %s" % ex)
+        oe = args["onerror"] if args.has_key("onerror") else None
+        pms = args["params"] if args.has_key("params") else None
+        if pms:
+            try:
+                pms = json.loads(pms)
+            except Exception as ex:
+                return R(err_code=R.Codes.Exception, err_detail="Parameters template is not valid JSON. %s" % ex)
 
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj.Status:
-                si, msg = obj.RunSequence(sequence_id=args["sequence"], on_error=oe, params=pms, user_id=args["_user_id"])
-                if si:
-                    instance = deployment.SequenceInstance(si)
-                    if instance.Instance:
-                        msg = "API: Sequence [%s] ran by [%s]." % (instance.Instance["SequenceName"], args["_user_full_name"])
-                        deployment.WriteDeploymentLog(msg, dep_id=obj.ID)
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        si = obj.RunSequence(sequence_id=args["sequence"], on_error=oe, params=pms, user_id=args["_user_id"])
+        instance = deployment.SequenceInstance(si)
+        msg = "API: Sequence [%s] ran by [%s]." % (instance.Instance["SequenceName"], args["_user_full_name"])
+        deployment.WriteDeploymentLog(msg, dep_id=obj.ID)
+
+        if args["output_format"] == "json":
+            return R(response=instance.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=instance.AsText(args["output_delimiter"]))
+        else:
+            return R(response=instance.AsXML())
             
-                        if args["output_format"] == "json":
-                            return R(response=instance.AsJSON())
-                        elif args["output_format"] == "text":
-                            return R(response=instance.AsText(args["output_delimiter"]))
-                        else:
-                            return R(response=instance.AsXML())
-                    else:
-                        return R(err_code=R.Codes.StartFailure, err_detail="Sequence Instance not found using ID [%s]." % si)
-                else:
-                    return R(err_code=R.Codes.StartFailure, err_detail="Sequence Instance was not started. %s" % msg)
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_sequence_instance(self, args):        
         """
@@ -889,26 +736,23 @@ class depMethods:
 
         Returns: A Sequence Instance object.
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["instance"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["instance"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            instance = deployment.SequenceInstance(args["instance"])
-            if instance.Instance:
-                if args["output_format"] == "json":
-                    return R(response=instance.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=instance.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=instance.AsXML())
+        instance = deployment.SequenceInstance(args["instance"])
+        if instance.Instance:
+            if args["output_format"] == "json":
+                return R(response=instance.AsJSON())
+            elif args["output_format"] == "text":
+                return R(response=instance.AsText(args["output_delimiter"]))
             else:
-                return R(err_code=R.Codes.StartFailure, err_detail="Sequence Instance not found using ID [%s]." % args["instance"])
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
+                return R(response=instance.AsXML())
+        else:
+            return R(err_code=R.Codes.StartFailure, err_detail="Sequence Instance not found using ID [%s]." % args["instance"])
+
 
     def get_sequence_instance_status(self, args):        
         """
@@ -919,26 +763,23 @@ class depMethods:
 
         Returns: A Sequence Instance status.
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["instance"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["instance"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            instance = deployment.SequenceInstance(args["instance"])
-            if instance.Instance:
-                if args["output_format"] == "json":
-                    return R(response='{"status":"%s"}' % instance.Instance["Status"])
-                elif args["output_format"] == "xml":
-                    return R(response='<status>%s</status>' % instance.Instance["Status"])
-                else:
-                    return R(response=instance.Instance["Status"])
+        instance = deployment.SequenceInstance(args["instance"])
+        if instance.Instance:
+            if args["output_format"] == "json":
+                return R(response='{"status":"%s"}' % instance.Instance["Status"])
+            elif args["output_format"] == "xml":
+                return R(response='<status>%s</status>' % instance.Instance["Status"])
             else:
-                return R(err_code=R.Codes.StartFailure, err_detail="Sequence Instance not found using ID [%s]." % args["instance"])
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
+                return R(response=instance.Instance["Status"])
+        else:
+            return R(err_code=R.Codes.StartFailure, err_detail="Sequence Instance not found using ID [%s]." % args["instance"])
+
 
     def stop_sequence(self, args):
         """
@@ -949,28 +790,25 @@ class depMethods:
 
         Returns: Nothing if successful, error messages on failure.
         """
-        try:
-            required_params = ["instance"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        required_params = ["instance"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
 
-            si = deployment.SequenceInstance(args["instance"])
-            if si.Instance:
-                msg = "API: Sequence [%s] Instance [%s] stopped by [%s]." % (si.Instance["SequenceName"], si.Instance["Instance"], args["_user_full_name"])
-                deployment.WriteDeploymentLog(msg, dep_id=si.Instance["DeploymentID"], seq_inst=si.Instance["Instance"])
-    
-                result = si.Stop()
-                if result:
-                    return R(response="Instance [%s] successfully stopped." % args["instance"])
-                else:
-                    return R(err_code=R.Codes.StopFailure, err_detail="Unable to stop Sequence Instance [%s]." % args["instance"])
+        si = deployment.SequenceInstance(args["instance"])
+        if si.Instance:
+            msg = "API: Sequence [%s] Instance [%s] stopped by [%s]." % (si.Instance["SequenceName"], si.Instance["Instance"], args["_user_full_name"])
+            deployment.WriteDeploymentLog(msg, dep_id=si.Instance["DeploymentID"], seq_inst=si.Instance["Instance"])
+
+            result = si.Stop()
+            if result:
+                return R(response="Instance [%s] successfully stopped." % args["instance"])
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Sequence Instance [%s]." % args["instance"])
+                return R(err_code=R.Codes.StopFailure, err_detail="Unable to stop Sequence Instance [%s]." % args["instance"])
+        else:
+            return R(err_code=R.Codes.GetError, err_detail="Unable to get Sequence Instance [%s]." % args["instance"])
             
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
 
     def resubmit_sequence(self, args):
         """
@@ -981,28 +819,25 @@ class depMethods:
 
         Returns: Nothing if successful, error messages on failure.
         """
-        try:
-            required_params = ["instance"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        required_params = ["instance"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
 
-            si = deployment.SequenceInstance(args["instance"])
-            if si.Instance:
-                msg = "API: Sequence [%s] Instance [%s] resubmitted by [%s]." % (si.Instance["SequenceName"], si.Instance["Instance"], args["_user_full_name"])
-                deployment.WriteDeploymentLog(msg, dep_id=si.Instance["DeploymentID"], seq_inst=si.Instance["Instance"])
-    
-                result = si.Resubmit()
-                if result:
-                    return R(response="Instance [%s] successfully resubmitted." % args["instance"])
-                else:
-                    return R(err_code=R.Codes.StopFailure, err_detail="Unable to resubmit Sequence Instance [%s]." % args["instance"])
+        si = deployment.SequenceInstance(args["instance"])
+        if si.Instance:
+            msg = "API: Sequence [%s] Instance [%s] resubmitted by [%s]." % (si.Instance["SequenceName"], si.Instance["Instance"], args["_user_full_name"])
+            deployment.WriteDeploymentLog(msg, dep_id=si.Instance["DeploymentID"], seq_inst=si.Instance["Instance"])
+
+            result = si.Resubmit()
+            if result:
+                return R(response="Instance [%s] successfully resubmitted." % args["instance"])
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Sequence Instance [%s]." % args["instance"])
+                return R(err_code=R.Codes.StopFailure, err_detail="Unable to resubmit Sequence Instance [%s]." % args["instance"])
+        else:
+            return R(err_code=R.Codes.GetError, err_detail="Unable to get Sequence Instance [%s]." % args["instance"])
             
-        except Exception as ex:
-            return R(err_code=R.Codes.Exception, err_detail=ex.__str__())
 
     def add_deployment_service_state(self, args):        
         """
@@ -1021,45 +856,35 @@ class depMethods:
         
         Returns: A list of Deployment Service States.
         """
-        try:
-            # this is an admin function
-            if not args["_admin"]:
-                return R(err_code=R.Codes.Forbidden)
-            
-            # define the required parameters for this call
-            required_params = ["deployment", "service", "state"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # this is an admin function
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        # define the required parameters for this call
+        required_params = ["deployment", "service", "state"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
 
-            nextstate = args["nextstate"] if args.has_key("nextstate") else ""
-            task = args["task"] if args.has_key("task") else ""
-            ver = args["version"] if args.has_key("version") else ""
+        nextstate = args["nextstate"] if args.has_key("nextstate") else ""
+        task = args["task"] if args.has_key("task") else ""
+        ver = args["version"] if args.has_key("version") else ""
 
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                service = obj.GetService(args["service"])
-                if service:
-                    state, msg = service.AddState(args["state"], nextstate, task, ver)
-                    if state:
-                        if args["output_format"] == "json":
-                            return R(response=service.StatesAsJSON())
-                        elif args["output_format"] == "text":
-                            return R(response=service.StatesAsText())
-                        else:
-                            return R(response=service.StatesAsXML())
-                    else:
-                        return R(err_code=R.Codes.CreateError, err_detail=msg)
-                else:
-                    return R(err_code=R.Codes.GetError, err_detail="Unable to get Service for identifier [%s]." % args["service"])
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        service = obj.GetService(args["service"])
+        state, msg = service.AddState(args["state"], nextstate, task, ver)
+        if state:
+            if args["output_format"] == "json":
+                return R(response=service.StatesAsJSON())
+            elif args["output_format"] == "text":
+                return R(response=service.StatesAsText())
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+                return R(response=service.StatesAsXML())
+        else:
+            return R(err_code=R.Codes.CreateError, err_detail=msg)
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def delete_deployment_service_state(self, args):        
         """
@@ -1072,40 +897,30 @@ class depMethods:
             
         Returns: A list of Deployment Service States.
         """
-        try:
-            # this is an admin function
-            if not args["_admin"]:
-                return R(err_code=R.Codes.Forbidden)
-            
-            # define the required parameters for this call
-            required_params = ["deployment", "service", "state"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # this is an admin function
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        # define the required parameters for this call
+        required_params = ["deployment", "service", "state"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                service = obj.GetService(args["service"])
-                if service:
-                    state, msg = service.RemoveState(args["state"])
-                    if state:
-                        if args["output_format"] == "json":
-                            return R(response=service.StatesAsJSON())
-                        elif args["output_format"] == "text":
-                            return R(response=service.StatesAsText())
-                        else:
-                            return R(response=service.StatesAsXML())
-                    else:
-                        return R(err_code=R.Codes.CreateError, err_detail=msg)
-                else:
-                    return R(err_code=R.Codes.CreateError, err_detail="Unable to get Service for identifier [%s]." % args["service"])
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        service = obj.GetService(args["service"])
+        state, msg = service.RemoveState(args["state"])
+        if state:
+            if args["output_format"] == "json":
+                return R(response=service.StatesAsJSON())
+            elif args["output_format"] == "text":
+                return R(response=service.StatesAsText())
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+                return R(response=service.StatesAsXML())
+        else:
+            return R(err_code=R.Codes.CreateError, err_detail=msg)
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_deployment_service_states(self, args):        
         """
@@ -1120,28 +935,18 @@ class depMethods:
         
         Returns: A list of Deployment Service States.
         """
-        try:
-            fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args["filter"] if args.has_key("filter") else ""
+        
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        service = obj.GetService(args["service"])
+        if args["output_format"] == "json":
+            return R(response=service.StatesAsJSON(fltr))
+        elif args["output_format"] == "text":
+            return R(response=service.StatesAsText(fltr, args["output_delimiter"]))
+        else:
+            return R(response=service.StatesAsXML(fltr))
             
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                service = obj.GetService(args["service"])
-                if service:
-                    if args["output_format"] == "json":
-                        return R(response=service.StatesAsJSON(fltr))
-                    elif args["output_format"] == "text":
-                        return R(response=service.StatesAsText(fltr, args["output_delimiter"]))
-                    else:
-                        return R(response=service.StatesAsXML(fltr))
-                else:
-                    return R(err_code=R.Codes.CreateError, err_detail="Unable to get Service for identifier [%s]." % args["service"])
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
         
     def get_sequence_instances(self, args):
         """
@@ -1159,31 +964,27 @@ class depMethods:
             
         Returns: A list of Sequence Instances.
         """
-        try:
-            fltr = args["filter"] if args.has_key("filter") else ""
-            status = args["status"] if args.has_key("status") else ""
-            frm = args["from"] if args.has_key("from") else ""
-            to = args["to"] if args.has_key("to") else ""
-            records = args["records"] if args.has_key("records") else ""
+        fltr = args["filter"] if args.has_key("filter") else ""
+        status = args["status"] if args.has_key("status") else ""
+        frm = args["from"] if args.has_key("from") else ""
+        to = args["to"] if args.has_key("to") else ""
+        records = args["records"] if args.has_key("records") else ""
 
-            obj = deployment.SequenceInstances(fltr=fltr,
-                                     status=status,
-                                     frm=frm,
-                                     to=to,
-                                     records=records)
-            if obj:
-                if args["output_format"] == "json":
-                    return R(response=obj.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=obj.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=obj.AsXML())
+        obj = deployment.SequenceInstances(fltr=fltr,
+                                 status=status,
+                                 frm=frm,
+                                 to=to,
+                                 records=records)
+        if obj:
+            if args["output_format"] == "json":
+                return R(response=obj.AsJSON())
+            elif args["output_format"] == "text":
+                return R(response=obj.AsText(args["output_delimiter"]))
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Sequence Instances.")
+                return R(response=obj.AsXML())
+        else:
+            return R(err_code=R.Codes.GetError, err_detail="Unable to get Sequence Instances.")
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_deployment_log(self, args):
         """
@@ -1200,40 +1001,33 @@ class depMethods:
 
         Returns: A JSON array of log entries.
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["deployment"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["deployment"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj:
-                # a little different that other functions that return a rowset
-                # in this one the filters are sent in a 'criteria' dictionary
-                criteria = {}
-                criteria["_filter"] = args["filter"] if args.has_key("filter") else ""
-                criteria["_from"] = args["from"] if args.has_key("from") else ""
-                criteria["_to"] = args["to"] if args.has_key("to") else ""
-                criteria["num_records"] = args["records"] if args.has_key("records") else ""
-                
-                results = obj.GetLog(criteria)
-                if results:
-                    if args["output_format"] == "json":
-                        return R(response=catocommon.ObjectOutput.IterableAsJSON(results))
-                    elif args["output_format"] == "text":
-                        return R(response=catocommon.ObjectOutput.IterableAsText(results, ["log_dt", "log_msg"], args["output_delimiter"]))
-                    else:
-                        return R(response=catocommon.ObjectOutput.IterableAsXML(results, "log", "item"))
-                else:
-                    return R(err_code=R.Codes.GetError, err_detail="Error retrieving Deployment Log.")
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        # a little different that other functions that return a rowset
+        # in this one the filters are sent in a 'criteria' dictionary
+        criteria = {}
+        criteria["_filter"] = args["filter"] if args.has_key("filter") else ""
+        criteria["_from"] = args["from"] if args.has_key("from") else ""
+        criteria["_to"] = args["to"] if args.has_key("to") else ""
+        criteria["num_records"] = args["records"] if args.has_key("records") else ""
+        
+        results = obj.GetLog(criteria)
+        if results:
+            if args["output_format"] == "json":
+                return R(response=catocommon.ObjectOutput.IterableAsJSON(results))
+            elif args["output_format"] == "text":
+                return R(response=catocommon.ObjectOutput.IterableAsText(results, ["log_dt", "log_msg"], args["output_delimiter"]))
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+                return R(response=catocommon.ObjectOutput.IterableAsXML(results, "log", "item"))
+        else:
+            return R(err_code=R.Codes.GetError, err_detail="Error retrieving Deployment Log.")
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
 
     def get_sequence_parameters(self, args):
         """
@@ -1248,32 +1042,21 @@ class depMethods:
             
         Returns: A JSON parameters template.
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["deployment", "sequence"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["deployment", "sequence"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            basic = args["basic"] if args.has_key("basic") else None
+        basic = args["basic"] if args.has_key("basic") else None
 
-            obj = deployment.Deployment()
-            obj.FromName(args["deployment"])
-            if obj.ID:
-                seq = deployment.DeploymentSequence(obj)
-                seq.FromName(args["sequence"])
-                if seq.Name:
-                    t = seq.GetParametersTemplate(basic)
-                    if t:
-                        return R(response=t)
-                    else:
-                        return R(response="{}")
-                else:
-                    return R(err_code=R.Codes.GetError, err_detail="Unable to get Sequence for identifier [%s]." % args["sequence"])
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Deployment for identifier [%s]." % args["deployment"])
+        obj = deployment.Deployment()
+        obj.FromName(args["deployment"])
+        seq = deployment.DeploymentSequence(obj)
+        seq.FromName(args["sequence"])
+        t = seq.GetParametersTemplate(basic)
+        if t:
+            return R(response=t)
+        else:
+            return R(response="{}")
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-

@@ -50,39 +50,31 @@ class taskMethods:
         
         Returns: A Task object.
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["name"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["name"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            code = args["code"] if args.has_key("code") else ""
-            desc = args["desc"] if args.has_key("desc") else ""
+        code = args["code"] if args.has_key("code") else ""
+        desc = args["desc"] if args.has_key("desc") else ""
 
-            t = task.Task()
-            t.FromArgs(args["name"], code, desc)
+        t = task.Task()
+        t.FromArgs(args["name"], code, desc)
 
-            if not t.Name:
-                return R(err_code=R.Codes.Exception, err_detail="Unable to create Task.")
+        result, msg = t.DBSave()
 
-            result, msg = t.DBSave()
-
-            if result:
-                catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Task created.")
-                if args["output_format"] == "json":
-                    return R(response=t.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=t.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=t.AsXML())
+        if result:
+            catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Task created.")
+            if args["output_format"] == "json":
+                return R(response=t.AsJSON())
+            elif args["output_format"] == "text":
+                return R(response=t.AsText(args["output_delimiter"]))
             else:
-                return R(err_code=R.Codes.CreateError, err_detail=msg)
+                return R(response=t.AsXML())
+        else:
+            return R(err_code=R.Codes.CreateError, err_detail=msg)
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-
     def get_task_instance_status(self, args):
         """
         Gets just the Status of a Task Instance.
@@ -92,30 +84,22 @@ class taskMethods:
 
         Returns: The Instance Status.
         """
-        try:
-            required_params = ["instance"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        required_params = ["instance"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            obj = task.TaskInstance(args["instance"])
-            if obj:
-                if obj.Error:
-                    return R(err_code=R.Codes.GetError, err_detail=obj.Error)
+        obj = task.TaskInstance(args["instance"])
+        if obj.Error:
+            return R(err_code=R.Codes.GetError, err_detail=obj.Error)
 
-                if args["output_format"] == "json":
-                    return R(response='{"task_status":"%s"}' % obj.task_status)
-                elif args["output_format"] == "xml":
-                    return R(response='<task_status>%s</task_status>' % obj.task_status)
-                else:
-                    return R(response=obj.task_status)
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Status for Task Instance [%s]." % args["instance"])
+        if args["output_format"] == "json":
+            return R(response='{"task_status":"%s"}' % obj.task_status)
+        elif args["output_format"] == "xml":
+            return R(response='<task_status>%s</task_status>' % obj.task_status)
+        else:
+            return R(response=obj.task_status)
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-
     def get_task_instance(self, args):
         """
         Gets the details of a Task Instance.
@@ -125,30 +109,22 @@ class taskMethods:
 
         Returns: A Task Instance object.
         """
-        try:
-            required_params = ["instance"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        required_params = ["instance"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            obj = task.TaskInstance(args["instance"])
-            if obj:
-                if obj.Error:
-                    return R(err_code=R.Codes.GetError, err_detail=obj.Error)
+        obj = task.TaskInstance(args["instance"])
+        if obj.Error:
+            return R(err_code=R.Codes.GetError, err_detail=obj.Error)
 
-                if args["output_format"] == "json":
-                    return R(response=obj.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=obj.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=obj.AsXML())
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Task Instance [%s]." % args["instance"])
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML())
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-
     def resubmit_task_instance(self, args):
         """
         Resubmits a completed,errored or cancelled Task Instance.
@@ -158,7 +134,6 @@ class taskMethods:
 
         Returns: Returns: Nothing if successful, error messages on failure.
         """
-        try:
             # this is a developer function
             if not args["_developer"]:
                 return R(err_code=R.Codes.Forbidden)
@@ -169,25 +144,18 @@ class taskMethods:
                 return resp
 
             obj = task.TaskInstance(args["instance"])
-            if obj:
-                if obj.Error:
-                    return R(err_code=R.Codes.GetError, err_detail=obj.Error)
+            if obj.Error:
+                return R(err_code=R.Codes.GetError, err_detail=obj.Error)
 
 #                if deployment_id and sequence_instance:
 #                    msg = "Task [%s] Instance [%s] resubmitted by [%s]." % (ti.task_name_label, ti.task_instance, username)
 #                    deployment.WriteDeploymentLog(msg, dep_id=deployment_id, seq_inst=sequence_instance)
-    
-                result, err = obj.Resubmit(args["_user_id"])
-                if result:
-                    return R(response="Instance [%s] successfully resubmitted." % args["instance"])
-                else:
-                    return R(err_code=R.Codes.StartFailure, err_detail=err)
+
+            result, err = obj.Resubmit(args["_user_id"])
+            if result:
+                return R(response="Instance [%s] successfully resubmitted." % args["instance"])
             else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Task Instance [%s]." % args["instance"])
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
+                return R(err_code=R.Codes.StartFailure, err_detail=err)
 
     def get_task_log(self, args):
         """
@@ -198,27 +166,18 @@ class taskMethods:
 
         Returns: A JSON array of log entries.
         """
-        try:
-            required_params = ["instance"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        required_params = ["instance"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-
-            obj = task.TaskRunLog(args["instance"])
-            if obj:
-                if args["output_format"] == "json":
-                    return R(response=obj.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=obj.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=obj.AsXML())
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Run Log for Task Instance [%s]." % args["instance"])
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
+        obj = task.TaskRunLog(args["instance"])
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML())
 
     def run_task(self, args):
         """
@@ -237,102 +196,91 @@ class taskMethods:
         Returns: A JSON object, the Task Instance.
             If 'output_format' is set to 'text', returns only a Task Instance ID.
         """
-        try:
-            # this is a developer function
-            if not args["_developer"]:
-                return R(err_code=R.Codes.Forbidden)
-            
-            required_params = ["task"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
-            
-            ver = args["version"] if args.has_key("version") else ""
+        # this is a developer function
+        if not args["_developer"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        required_params = ["task"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+        
+        ver = args["version"] if args.has_key("version") else ""
 
-            # find the task
-            obj = task.Task()
-            obj.FromNameVersion(args["task"], ver)
-            if obj.ID:
-                task_id = obj.ID
-                debug = args["log_level"] if args.has_key("log_level") else "2"
-                
-                # not verifying this optional value because that would require importing a maestro lib
-                # just use it as-is
-                service_instance_id = args["service_instance"] if args.has_key("service_instance") else ""
-                
-                # same for account
-                account_id = ""
-                account = args["account"] if args.has_key("account") else ""
-                if account:
-                    ca = cloud.CloudAccount()
-                    ca.FromName(args["account"])
-                    if ca:
-                        account_id = ca.ID
+        # find the task
+        obj = task.Task()
+        obj.FromNameVersion(args["task"], ver)
+        task_id = obj.ID
+        debug = args["log_level"] if args.has_key("log_level") else "2"
+        
+        # not verifying this optional value because that would require importing a maestro lib
+        # just use it as-is
+        service_instance_id = args["service_instance"] if args.has_key("service_instance") else ""
+        
+        # same for account
+        account_id = ""
+        account = args["account"] if args.has_key("account") else ""
+        if account:
+            ca = cloud.CloudAccount()
+            ca.FromName(args["account"])
+            if ca:
+                account_id = ca.ID
 
-                parameters = args["parameters"] if args.has_key("parameters") else ""
-                pxml = ""
-                # are the parameters json?
-                if parameters:
-                    try:
-                        # the add_task_instance command requires parameter XML...
-                        # we accept json or xml from the client
-                        # convert as necessary
-                        logger.info("Checking for JSON parameters...")
-                        pjson = json.loads(parameters)
-                        if pjson:
-                            for p in pjson:
-                                vals = ""
-                                if p["values"]:
-                                    for v in p["values"]:
-                                        vals += "<value>%s</value>" % v
-                                pxml += "<parameter><name>%s</name><values>%s</values></parameter>" % (p["name"], vals)
-                            
-                            pxml = "<parameters>%s</parameters>" % pxml
-                    except Exception as ex:
-                        logger.info("Trying to parse parameters as JSON failed. %s" % ex)
+        parameters = args["parameters"] if args.has_key("parameters") else ""
+        pxml = ""
+        # are the parameters json?
+        if parameters:
+            try:
+                # the add_task_instance command requires parameter XML...
+                # we accept json or xml from the client
+                # convert as necessary
+                logger.info("Checking for JSON parameters...")
+                pjson = json.loads(parameters)
+                if pjson:
+                    for p in pjson:
+                        vals = ""
+                        if p["values"]:
+                            for v in p["values"]:
+                                vals += "<value>%s</value>" % v
+                        pxml += "<parameter><name>%s</name><values>%s</values></parameter>" % (p["name"], vals)
                     
-                    # not json, maybe xml?
-                    if not pxml:
-                        try:
-                            logger.info("Parameters are not JSON... trying XML...")
-                            # just test to see if it's valid so we can throw an error if not.
-                            test = ET.fromstring(parameters)
-                            pxml = parameters # an xml STRING!!! - it gets parsed by the Task Engine
-                        except Exception as ex:
-                            logger.info("Trying to parse parameters as XML failed. %s" % ex)
-                
+                    pxml = "<parameters>%s</parameters>" % pxml
+            except Exception as ex:
+                logger.info("Trying to parse parameters as JSON failed. %s" % ex)
+            
+            # not json, maybe xml?
+            if not pxml:
+                try:
+                    logger.info("Parameters are not JSON... trying XML...")
+                    # just test to see if it's valid so we can throw an error if not.
+                    test = ET.fromstring(parameters)
+                    pxml = parameters # an xml STRING!!! - it gets parsed by the Task Engine
+                except Exception as ex:
+                    logger.info("Trying to parse parameters as XML failed. %s" % ex)
+        
 
-                    # parameters were provided, but could not be validated
-                    if not pxml:
-                        return R(err_code=R.Codes.Exception, err_detail="Parameters template could not be parsed as valid JSON or XML.")
-    
+            # parameters were provided, but could not be validated
+            if not pxml:
+                return R(err_code=R.Codes.Exception, err_detail="Parameters template could not be parsed as valid JSON or XML.")
 
 
-                # try to launch it
-                ti = catocommon.add_task_instance(task_id, args["_user_id"], debug, pxml, service_instance_id, account_id, "", "")
-                
-                if ti:
-                    if args["output_format"] == "text":
-                        return ti
-                    else:
-                        instance = task.TaskInstance(ti)
-                        if instance:
-                            if args["output_format"] == "json":
-                                return R(response=instance.AsJSON())
-                            elif args["output_format"] == "xml":
-                                return R(response=instance.AsXML())
 
-                # uh oh, something went wrong but we don't know what.
-                return R(err_code=R.Codes.GetError, err_detail="Unable to run Task [%s %s].  Check the log for details." % (args["task"], ver))
-                
+        # try to launch it
+        ti = catocommon.add_task_instance(task_id, args["_user_id"], debug, pxml, service_instance_id, account_id, "", "")
+        
+        if ti:
+            if args["output_format"] == "text":
+                return ti
             else:
-                identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
-                return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
+                instance = task.TaskInstance(ti)
+                if args["output_format"] == "json":
+                    return R(response=instance.AsJSON())
+                elif args["output_format"] == "xml":
+                    return R(response=instance.AsXML())
 
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-
+        # uh oh, something went wrong but we don't know what.
+        return R(err_code=R.Codes.GetError, err_detail="Unable to run Task [%s %s].  Check the log for details." % (args["task"], ver))
+        
     def stop_task(self, args):
         """
         Stops a running Task Instance.
@@ -342,28 +290,19 @@ class taskMethods:
 
         Returns: Nothing if successful, error messages on failure.
         """
-        try:
-            # this is a developer function
-            if not args["_developer"]:
-                return R(err_code=R.Codes.Forbidden)
+        # this is a developer function
+        if not args["_developer"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        required_params = ["instance"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        ti = task.TaskInstance(args["instance"])
+        ti.Stop()
+        return R(response="Instance [%s] successfully stopped." % args["instance"])
             
-            required_params = ["instance"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
-
-
-            ti = task.TaskInstance(args["instance"])
-            if ti:
-                ti.Stop()
-                return R(response="Instance [%s] successfully stopped." % args["instance"])
-            else:
-                return R(err_code=R.Codes.StopFailure, err_detail="Unable to stop Task Instance [%s]." % args["instance"])
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-
     def delete_task(self, args):
         """
         Deletes all versions of a Task.
@@ -373,33 +312,25 @@ class taskMethods:
 
         Returns: Nothing if successful, error messages on failure.
         """
-        try:
-            # this is a admin function
-            if not args["_admin"]:
-                return R(err_code=R.Codes.Forbidden)
-            
-            required_params = ["task"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # this is a admin function
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        required_params = ["task"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            obj = task.Task()
-            obj.FromNameVersion(name=args["task"], include_code=False)
-            if obj.ID:
-                result, msg = task.Tasks.Delete(["'%s'" % obj.ID], args["_user_id"])
-                
-                if result:
-                    catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.Task, obj.ID, obj.Name, "Deleted via API.")
-                    return R(response="[%s] successfully deleted." % obj.Name)
-                else:
-                    return R(err_code=R.Codes.DeleteError, err_detail=msg)
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name [%s]." % args["task"])
+        obj = task.Task()
+        obj.FromNameVersion(name=args["task"], include_code=False)
+        result, msg = task.Tasks.Delete(["'%s'" % obj.ID], args["_user_id"])
+        
+        if result:
+            catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.Task, obj.ID, obj.Name, "Deleted via API.")
+            return R(response="[%s] successfully deleted." % obj.Name)
+        else:
+            return R(err_code=R.Codes.DeleteError, err_detail=msg)
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-
     def list_tasks(self, args):        
         """
         Lists all Tasks.
@@ -411,24 +342,17 @@ class taskMethods:
         
         Returns: An array of all Tasks with basic attributes.
         """
-        try:
-            fltr = args["filter"] if args.has_key("filter") else ""
-            showall = True if args.has_key("show_all_versions") else False
+        fltr = args["filter"] if args.has_key("filter") else ""
+        showall = True if args.has_key("show_all_versions") else False
 
-            obj = task.Tasks(sFilter=fltr, show_all_versions=showall)
-            if obj:
-                if args["output_format"] == "json":
-                    return R(response=obj.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=obj.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=obj.AsXML())
-            else:
-                return R(err_code=R.Codes.ListError, err_detail="Unable to list Tasks.")
-            
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
+        obj = task.Tasks(sFilter=fltr, show_all_versions=showall)
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML())
+
 
     def get_task_instances(self, args):
         """
@@ -443,32 +367,25 @@ class taskMethods:
             
         Returns: A list of Task Instances.
         """
-        try:
-            fltr = args["filter"] if args.has_key("filter") else ""
-            status = args["status"] if args.has_key("status") else ""
-            frm = args["from"] if args.has_key("from") else ""
-            to = args["to"] if args.has_key("to") else ""
-            records = args["records"] if args.has_key("records") else ""
+        fltr = args["filter"] if args.has_key("filter") else ""
+        status = args["status"] if args.has_key("status") else ""
+        frm = args["from"] if args.has_key("from") else ""
+        to = args["to"] if args.has_key("to") else ""
+        records = args["records"] if args.has_key("records") else ""
 
-            obj = task.TaskInstances(sFilter=fltr,
-                                     sStatus=status,
-                                     sFrom=frm,
-                                     sTo=to,
-                                     sRecords=records)
-            if obj:
-                if args["output_format"] == "json":
-                    return R(response=obj.AsJSON())
-                elif args["output_format"] == "text":
-                    return R(response=obj.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=obj.AsXML())
-            else:
-                return R(err_code=R.Codes.GetError, err_detail="Unable to get Task Instances.")
+        obj = task.TaskInstances(sFilter=fltr,
+                                 sStatus=status,
+                                 sFrom=frm,
+                                 sTo=to,
+                                 sRecords=records)
+
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML())
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-
     def get_task(self, args):        
         """
         Gets a Task object.
@@ -482,33 +399,24 @@ class taskMethods:
             
         Returns: A Task object.
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["task"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["task"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            ver = args["version"] if args.has_key("version") else ""
-            ic = True if args.has_key("include_code") else False
+        ver = args["version"] if args.has_key("version") else ""
+        ic = True if args.has_key("include_code") else False
 
-            obj = task.Task()
-            obj.FromNameVersion(args["task"], ver)
-            if obj.ID:
-                if args["output_format"] == "json":
-                    return R(response=obj.AsJSON(include_code=ic))
-                elif args["output_format"] == "text":
-                    return R(response=obj.AsText(args["output_delimiter"]))
-                else:
-                    return R(response=obj.AsXML(include_code=ic))
-            else:
-                identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
-                return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
+        obj = task.Task()
+        obj.FromNameVersion(args["task"], ver)
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON(include_code=ic))
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML(include_code=ic))
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-
     def describe_task_parameters(self, args):        
         """
         Describes the Parameters for a Task.
@@ -521,70 +429,64 @@ class taskMethods:
             
         Returns: A help document describing the Task Parameters.
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["task"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["task"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            ver = args["version"] if args.has_key("version") else ""
+        ver = args["version"] if args.has_key("version") else ""
 
-            obj = task.Task()
-            obj.FromNameVersion(args["task"], ver)
-            if obj.ParameterXDoc:
-                """
-                    Describe the parameters for the Task in a text (help) format.
-                    Used for the command line tools and API.
-                    The UI has it's own more complex logic for presentation and interaction.
-                """
-                out = []
-                
-                xParams = obj.ParameterXDoc.findall("parameter")
-                out.append("Number of Parameters: " + str(len(xParams)))
-                for xParam in xParams:
-                    out.append("Parameter: %s" % xParam.findtext("name"))
-                    if xParam.findtext("desc"):
-                        out.append("%s" % xParam.findtext("desc"))
-                    if xParam.get("required", ""):
-                        out.append("\tRequired: %s" % xParam.get("required", ""))
-                    if xParam.get("constraint", ""):
-                        out.append("\tConstraint: %s" % xParam.get("constraint", ""))
-                    if xParam.get("constraint_msg", ""):
-                        out.append("\tConstraint Message: %s" % xParam.get("constraint_msg", ""))
-                    if xParam.get("minlength", ""):
-                        out.append("\tMin Length: %s" % xParam.get("minlength", ""))
-                    if xParam.get("maxlength", ""):
-                        out.append("\tMax Length: %s" % xParam.get("maxlength", ""))
-                    if xParam.get("minvalue", ""):
-                        out.append("\tMin Value: %s" % xParam.get("minvalue", ""))
-                    if xParam.get("maxvalue", ""):
-                        out.append("\tMax Value: %s" % xParam.get("maxvalue", ""))
-                    
-                    # analyze the value definitions
-                    xValues = xParam.find("values")
-                    if xValues is not None:
-                        if xValues.get("present_as", ""):
-                            if xValues.get("present_as", "") == "list":
-                                # if it's a list type, say so
-                                out.append("\tType: List (Can have more than one value.)")
-                            elif xValues.get("present_as", "") == "dropdown":
-                                # if it's a dropdown type, show the allowed values.
-                                xValue = xValues.findall("value")
-                                if xValue is not None:
-                                    out.append("\tAllowed Values:")
-                                    for val in xValue:
-                                        out.append("\t\t%s" % val.text)
-                                        
-                return R(response="\n".join(out))
-            else:
-                identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
-                return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
+        obj = task.Task()
+        obj.FromNameVersion(args["task"], ver)
+        if obj.ParameterXDoc:
+            """
+                Describe the parameters for the Task in a text (help) format.
+                Used for the command line tools and API.
+                The UI has it's own more complex logic for presentation and interaction.
+            """
+            out = []
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-
+            xParams = obj.ParameterXDoc.findall("parameter")
+            out.append("Number of Parameters: " + str(len(xParams)))
+            for xParam in xParams:
+                out.append("Parameter: %s" % xParam.findtext("name"))
+                if xParam.findtext("desc"):
+                    out.append("%s" % xParam.findtext("desc"))
+                if xParam.get("required", ""):
+                    out.append("\tRequired: %s" % xParam.get("required", ""))
+                if xParam.get("constraint", ""):
+                    out.append("\tConstraint: %s" % xParam.get("constraint", ""))
+                if xParam.get("constraint_msg", ""):
+                    out.append("\tConstraint Message: %s" % xParam.get("constraint_msg", ""))
+                if xParam.get("minlength", ""):
+                    out.append("\tMin Length: %s" % xParam.get("minlength", ""))
+                if xParam.get("maxlength", ""):
+                    out.append("\tMax Length: %s" % xParam.get("maxlength", ""))
+                if xParam.get("minvalue", ""):
+                    out.append("\tMin Value: %s" % xParam.get("minvalue", ""))
+                if xParam.get("maxvalue", ""):
+                    out.append("\tMax Value: %s" % xParam.get("maxvalue", ""))
+                
+                # analyze the value definitions
+                xValues = xParam.find("values")
+                if xValues is not None:
+                    if xValues.get("present_as", ""):
+                        if xValues.get("present_as", "") == "list":
+                            # if it's a list type, say so
+                            out.append("\tType: List (Can have more than one value.)")
+                        elif xValues.get("present_as", "") == "dropdown":
+                            # if it's a dropdown type, show the allowed values.
+                            xValue = xValues.findall("value")
+                            if xValue is not None:
+                                out.append("\tAllowed Values:")
+                                for val in xValue:
+                                    out.append("\t\t%s" % val.text)
+                                    
+            return R(response="\n".join(out))
+        else:
+            return R(response="Task has no parameters defined.")
+            
     def get_task_parameters(self, args):        
         """
         Gets a Parameters template for a Task.
@@ -599,60 +501,51 @@ class taskMethods:
         Returns: An XML template defining the Parameters for a Task.
             (Used for calling run_task or run_action.)
         """
-        try:
-            # define the required parameters for this call
-            required_params = ["task"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # define the required parameters for this call
+        required_params = ["task"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            ver = args["version"] if args.has_key("version") else ""
-            basic = args["basic"] if args.has_key("basic") else None
+        ver = args["version"] if args.has_key("version") else ""
+        basic = args["basic"] if args.has_key("basic") else None
 
-            obj = task.Task()
-            obj.FromNameVersion(args["task"], ver)
-            if obj.ID:
-                if obj.ParameterXDoc:
-                    """
-                        Build a template for a parameter xml document, suitable for editing and submission.
-                        Used for the command line tools and API.
-                        The UI has it's own more complex logic for presentation and interaction.
-                    """
-                    
-                    # provide XML params if requested... the default is json.
-                    if args["output_format"] == "xml":
-                        # the xml document is *almost* suitable for this purpose.
-                        # we just wanna strip out the presentation metadata
-                        xdoc = obj.ParameterXDoc
-                        # all we need to do is remove the additional dropdown values.
-                        # they're "allowed values", NOT an array.
-                        xParamValues = xdoc.findall("parameter/values")
-                        if xParamValues is not None:
-                            for xValues in xParamValues: 
-                                if xValues.get("present_as", ""):
-                                    if xValues.get("present_as", "") == "dropdown":
-                                        # if it's a dropdown type, show the allowed values.
-                                        xValue = xValues.findall("value")
-                                        if xValue is not None:
-                                            if len(xValue) > 1:
-                                                for val in xValue[1:]:
-                                                    xValues.remove(val)
-                                                
-                        xmlstr = catocommon.pretty_print_xml(ET.tostring(xdoc))
-                                                
-                        return R(response=xmlstr)
-                    else:
-                        # the deployment module has a function that will convert this xml to suitable json
-                        pxml = ET.tostring(obj.ParameterXDoc)
-                        lst = catocommon.paramxml2json(pxml, basic)
-                        return R(response=catocommon.ObjectOutput.AsJSON(lst))
-                        
-                else:
-                    return R(err_code=R.Codes.GetError, err_detail="Task has no parameters defined.")
-            else:
-                identifier ="%s/%s" % (args["task"], ver) if ver else args["task"]
-                return R(err_code=R.Codes.GetError, err_detail="Unable to find Task for ID or Name/Version [%s]." % identifier)
+        obj = task.Task()
+        obj.FromNameVersion(args["task"], ver)
+        if obj.ParameterXDoc:
+            """
+                Build a template for a parameter xml document, suitable for editing and submission.
+                Used for the command line tools and API.
+                The UI has it's own more complex logic for presentation and interaction.
+            """
             
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
+            # provide XML params if requested... the default is json.
+            if args["output_format"] == "xml":
+                # the xml document is *almost* suitable for this purpose.
+                # we just wanna strip out the presentation metadata
+                xdoc = obj.ParameterXDoc
+                # all we need to do is remove the additional dropdown values.
+                # they're "allowed values", NOT an array.
+                xParamValues = xdoc.findall("parameter/values")
+                if xParamValues is not None:
+                    for xValues in xParamValues: 
+                        if xValues.get("present_as", ""):
+                            if xValues.get("present_as", "") == "dropdown":
+                                # if it's a dropdown type, show the allowed values.
+                                xValue = xValues.findall("value")
+                                if xValue is not None:
+                                    if len(xValue) > 1:
+                                        for val in xValue[1:]:
+                                            xValues.remove(val)
+                                        
+                xmlstr = catocommon.pretty_print_xml(ET.tostring(xdoc))
+                                        
+                return R(response=xmlstr)
+            else:
+                # the deployment module has a function that will convert this xml to suitable json
+                pxml = ET.tostring(obj.ParameterXDoc)
+                lst = catocommon.paramxml2json(pxml, basic)
+                return R(response=catocommon.ObjectOutput.AsJSON(lst))
+                
+        else:
+            return R(err_code=R.Codes.GetError, err_detail="Task has no parameters defined.")

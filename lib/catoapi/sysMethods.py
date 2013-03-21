@@ -100,49 +100,42 @@ class sysMethods:
         """
         Lists all Cato Processes.
         """
-        try:
-            db = catocommon.new_conn()
-            sSQL = """select app_instance as Instance,
-                app_name as Component,
-                heartbeat as Heartbeat,
-                case master when 1 then 'Yes' else 'No' end as Enabled,
-                timestampdiff(MINUTE, heartbeat, now()) as MinutesIdle,
-                load_value as LoadValue, platform, hostname
-                from application_registry
-                order by component, master desc"""
-            
-            rows = db.select_all_dict(sSQL)
-            db.close()
+        db = catocommon.new_conn()
+        sSQL = """select app_instance as Instance,
+            app_name as Component,
+            heartbeat as Heartbeat,
+            case master when 1 then 'Yes' else 'No' end as Enabled,
+            timestampdiff(MINUTE, heartbeat, now()) as MinutesIdle,
+            load_value as LoadValue, platform, hostname
+            from application_registry
+            order by component, master desc"""
+        
+        rows = db.select_all_dict(sSQL)
+        db.close()
 
-            if rows:
-                if args["output_format"] == "json":
-                    resp = catocommon.ObjectOutput.IterableAsJSON(rows)
-                    return R(response=resp)
-                elif args["output_format"] == "text":
-                    keys = ['Instance', 'Component', 'Heartbeat', 'Enabled', 'LoadValue', 'MinutesIdle']
-                    outrows = []
-                    if rows:
-                        for row in rows:
-                            cols = []
-                            for key in keys:
-                                cols.append(str(row[key]))
-                            outrows.append("\t".join(cols))
-                          
-                    return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
-                else:
-                    dom = ET.fromstring('<Processes />')
-                    if rows:
-                        for row in rows:
-                            xml = catocommon.dict2xml(row, "Process")
-                            node = ET.fromstring(xml.tostring())
-                            dom.append(node)
-                    
-                    return R(response=ET.tostring(dom))
+        if rows:
+            if args["output_format"] == "json":
+                resp = catocommon.ObjectOutput.IterableAsJSON(rows)
+                return R(response=resp)
+            elif args["output_format"] == "text":
+                keys = ['Instance', 'Component', 'Heartbeat', 'Enabled', 'LoadValue', 'MinutesIdle']
+                outrows = []
+                if rows:
+                    for row in rows:
+                        cols = []
+                        for key in keys:
+                            cols.append(str(row[key]))
+                        outrows.append("\t".join(cols))
+                      
+                return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
             else:
-                return R(err_code=R.Codes.ListError, err_detail="Unable to list Processes.")
-        except Exception as ex:
-            logger.error(traceback.format_exc())
-            return R(err_code=R.Codes.Exception, err_detail=ex)
-            
-
-
+                dom = ET.fromstring('<Processes />')
+                if rows:
+                    for row in rows:
+                        xml = catocommon.dict2xml(row, "Process")
+                        node = ET.fromstring(xml.tostring())
+                        dom.append(node)
+                
+                return R(response=ET.tostring(dom))
+        else:
+            return R(err_code=R.Codes.ListError, err_detail="Unable to list Processes.")
