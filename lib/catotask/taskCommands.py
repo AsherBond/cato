@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
  
+from catolog import catolog
+logger = catolog.get_logger(__name__)
+
 try:
     import xml.etree.cElementTree as ET
 except (AttributeError, ImportError):
@@ -24,8 +27,6 @@ except AttributeError as ex:
     import catoxml.etree.ElementTree as ET
 
 
-from catoui import uiCommon as UI
-
 # FunctionCategories contains a list of all Category objects, 
 # as well as a dictionary of function objects.
 # it's useful for spinning categories and functions hierarchically, as when building the command toolbox
@@ -35,18 +36,15 @@ class FunctionCategories(object):
     
     # method to load from the disk
     def Load(self, sFileName):
-        try:
-            UI.log_nouser("Loading commands from extension file [%s]" % sFileName, 4)
-            xRoot = ET.parse(sFileName)
-            if xRoot == None:
-                # crash... we can't do anything if the XML is busted
-                UI.log_nouser("Invalid XML [%s]" % sFileName, 3)
-            else:
-                xCategories = xRoot.findall(".//category")
-                for xCategory in xCategories:
-                    self.BuildCategory(xCategory)
-        except Exception as ex:
-            UI.log_nouser("WARNING: Error parsing extension command file [" + sFileName + "]. " + ex.__str__(), 0)
+        logger.debug("Loading commands from extension file [%s]" % sFileName)
+        xRoot = ET.parse(sFileName)
+        if xRoot == None:
+            # crash... we can't do anything if the XML is busted
+            logger.warning("Invalid XML [%s]" % sFileName)
+        else:
+            xCategories = xRoot.findall(".//category")
+            for xCategory in xCategories:
+                self.BuildCategory(xCategory)
 
     def BuildCategory(self, xCategory):
 
@@ -59,7 +57,7 @@ class FunctionCategories(object):
         cat = None
         for c in self.Categories:
             if c.Name == xCategory.get("name"):
-                UI.log_nouser("Appending extension category = [%s]" % c.Name, 4)
+                logger.debug("Appending extension category = [%s]" % c.Name)
                 cat = c
 
         if not cat:
@@ -69,7 +67,7 @@ class FunctionCategories(object):
             cat.Label = xCategory.get("label", cat.Name)
             cat.Description = xCategory.get("description", "")
             cat.Icon = xCategory.get("icon", "")
-            UI.log_nouser("Creating extension category = [%s]" % cat.Name, 4)
+            logger.debug("Creating extension category = [%s]" % cat.Name)
             self.Categories.append(cat)
 
 

@@ -224,31 +224,28 @@ def WriteObjectPropertyChangeLog(oType, sObjectID, sLabel, sFrom, sTo):
     catocommon.write_property_change_log(GetSessionUserID(), oType, sObjectID, sLabel, sFrom, sTo)
 
 def PrepareAndEncryptParameterXML(sParameterXML):
-    try:
-        if sParameterXML:
-            xDoc = ET.fromstring(sParameterXML)
-            if xDoc is None:
-                log("Parameter XML data is invalid.")
-    
-            # now, all we're doing here is:
-            #  a) encrypting any new values
-            #  b) moving any oev values from an attribute to a value
-            
-            #  a) encrypt new values
-            for xToEncrypt in xDoc.findall("parameter/values/value[@do_encrypt='true']"):
-                xToEncrypt.text = CatoEncrypt(xToEncrypt.text)
-                del xToEncrypt.attrib["do_encrypt"]
-    
-            # b) unbase64 any oev's and move them to values
-            for xToEncrypt in xDoc.findall("parameter/values/value[@oev='true']"):
-                xToEncrypt.text = unpackJSON(xToEncrypt.text)
-                del xToEncrypt.attrib["oev"]
-            
-            return ET.tostring(xDoc)
-        else:
-            return ""
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
+    if sParameterXML:
+        xDoc = ET.fromstring(sParameterXML)
+        if xDoc is None:
+            log("Parameter XML data is invalid.")
+
+        # now, all we're doing here is:
+        #  a) encrypting any new values
+        #  b) moving any oev values from an attribute to a value
+        
+        #  a) encrypt new values
+        for xToEncrypt in xDoc.findall("parameter/values/value[@do_encrypt='true']"):
+            xToEncrypt.text = CatoEncrypt(xToEncrypt.text)
+            del xToEncrypt.attrib["do_encrypt"]
+
+        # b) unbase64 any oev's and move them to values
+        for xToEncrypt in xDoc.findall("parameter/values/value[@oev='true']"):
+            xToEncrypt.text = unpackJSON(xToEncrypt.text)
+            del xToEncrypt.attrib["oev"]
+        
+        return ET.tostring(xDoc)
+    else:
+        return ""
 
 def ForceLogout(sMsg=""):
     if not sMsg:
@@ -261,75 +258,57 @@ def ForceLogout(sMsg=""):
     raise web.seeother('/static/login.html')
 
 def GetSessionUserID():
-    try:
-        uid = GetSessionObject("user", "user_id")
-        if uid:
-            return uid
-        else:
-            ForceLogout("Server Session has expired (1). Please log in again.")
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
+    uid = GetSessionObject("user", "user_id")
+    if uid:
+        return uid
+    else:
+        ForceLogout("Server Session has expired (1). Please log in again.")
 
 def GetSessionUserName():
-    try:
-        un = GetSessionObject("user", "user_name")
-        if un:
-            return un
-        else:
-            ForceLogout("Server Session has expired (1a). Please log in again.")
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
+    un = GetSessionObject("user", "user_name")
+    if un:
+        return un
+    else:
+        ForceLogout("Server Session has expired (1a). Please log in again.")
 
 def GetSessionUserFullName():
-    try:
-        fn = GetSessionObject("user", "full_name")
-        if fn:
-            return fn
-        else:
-            ForceLogout("Server Session has expired (1b). Please log in again.")
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
+    fn = GetSessionObject("user", "full_name")
+    if fn:
+        return fn
+    else:
+        ForceLogout("Server Session has expired (1b). Please log in again.")
 
 def GetSessionUserRole():
-    try:
-        role = GetSessionObject("user", "role")
-        if role:
-            return role
-        else:
-            ForceLogout("Server Session has expired (2). Please log in again.")
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
+    role = GetSessionObject("user", "role")
+    if role:
+        return role
+    else:
+        ForceLogout("Server Session has expired (2). Please log in again.")
 
 def GetSessionUserTags():
-    try:
-        tags = GetSessionObject("user", "tags")
-        if tags:
-            return tags
-        else:
-            ForceLogout("Server Session has expired (3). Please log in again.")
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
+    tags = GetSessionObject("user", "tags")
+    if tags:
+        return tags
+    else:
+        ForceLogout("Server Session has expired (3). Please log in again.")
 
 def GetSessionObject(category, key):
-    try:
-        cat = uiGlobals.session.get(category, False)
-        if cat:
-            val = cat.get(key, None)
-            if val:
-                return val
-            else:
-                return ""
+    cat = uiGlobals.session.get(category, False)
+    if cat:
+        val = cat.get(key, None)
+        if val:
+            return val
         else:
-            # no category?  try the session root
-            val = uiGlobals.session.get(key, False)
-            if val:
-                return val
-            else:
-                return ""
-        
-        return ""
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
+            return ""
+    else:
+        # no category?  try the session root
+        val = uiGlobals.session.get(key, False)
+        if val:
+            return val
+        else:
+            return ""
+    
+    return ""
 
 def SetSessionObject(key, obj, category=""):
     if category:
@@ -397,540 +376,483 @@ def IsObjectAllowed(object_id, object_type):
 def GetTaskFunction(sFunctionName):
     funcs = uiGlobals.FunctionCategories.Functions
     if funcs:
-        try:
-            fn = funcs[sFunctionName]
-            if fn:
-                return fn
-            else:
-                return None
-        except Exception:
-            return None
+        return funcs.get(sFunctionName)
     else:
         return None
 
 def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
-    try:
-        log("Querying the cloud for %s" % sObjectType, 4)
-        
-        from catocloud import cloud
-        
-        # first, get the cloud
-        c = cloud.Cloud()
-        c.FromID(sCloudID)
-        if c is None:
-            return None, "Unable to get Cloud for ID [" + sCloudID + "]"
-        
-        cot = c.Provider.GetObjectTypeByName(sObjectType)
-        if cot is not None:
-            if not cot.ID:
-                return None, "Cannot find definition for requested object type [" + sObjectType + "]"
-        else:
-            return None, "GetCloudObjectType failed for [" + sObjectType + "]"
-
-        # ok, kick out if there are no properties for this type
-        if not cot.Properties:
-            return None, "No properties defined for type [" + sObjectType + "]"
-        
-        # All good, let's hit the API
-        sXML = ""
-        
-        from catocloud import aws
-        
-        if c.Provider.Name.lower() == "openstack":
-            """not yet implemented"""
-            # ACWebMethods.openstackMethods acOS = new ACWebMethods.openstackMethods()
-            # sXML = acOS.GetCloudObjectsAsXML(c.ID, cot, 0000BYREF_ARG0000sErr, null)
-        else:  # Amazon aws, Eucalyptus, and OpenStackAws
-            awsi = aws.awsInterface()
-            sXML, err = awsi.GetCloudObjectsAsXML(sAccountID, sCloudID, cot)
-
-        if err:
-            return None, err
-        
-        if not sXML:
-            return None, "GetCloudObjectsAsXML returned an empty document."
-        
-
-        # Got results, objectify them.
-
-        # OK look, all this namespace nonsense is annoying.  Every AWS result I've witnessed HAS a namespace
-        #  (which messes up all our xpaths)
-        #  but I've yet to see a result that actually has two namespaces 
-        #  which is the only scenario I know of where you'd need them at all.
-
-        # So... to eliminate all namespace madness
-        # brute force... parse this text and remove anything that looks like [ xmlns="<crud>"] and it's contents.
-        sXML = RemoveDefaultNamespacesFromXML(sXML)
-
-        xDoc = ET.fromstring(sXML)
-        if xDoc is None:
-            return None, "API Response XML document is invalid."
-        
-        log(sXML, 4)
-
-        # FIRST ,we have to find which properties are the 'id' value.  That'll be the key for our dictionary.
-        # an id can be a composite of several property values
-        # this is just so we can kick back an error if no IsID exists.  
-        # we build the actual id from values near the end
-        sIDColumnName = ""
-        for prop in cot.Properties:
-            if prop.IsID:
-                sIDColumnName += prop.Name
-
-        # no sIDColumnName means we can't continue
-        if not sIDColumnName:
-            return None, "ID column(s) not defined for Cloud Object Type" + cot.Name
-
-        # for each result in the xml
-        #     for each column
-        xRecords = xDoc.findall(cot.XMLRecordXPath)
-        if len(xRecords):
-            for xRecord in xRecords:
-                record_id = ""
-                row = []
-                for prop in cot.Properties:
-                    # NOW PAY ATTENTION.
-                    # the CloudObjectTypeProperty class has a 'Value' attribute.
-                    # but, we obviously can't set that property of THIS instance (prop)
-                    # because it's gonna get changed each time.
-                    
-                    # so, we create a clone of that property here, and give that copy the actual value,
-                    # then append the copy to 'row', not the one we're looping here.
-                    
-                    # cosmic?  yes... it is.
-                    newprop = copy.copy(prop)
-                    log("looking for property [%s]" % newprop.Name, 4)
+    log("Querying the cloud for %s" % sObjectType, 4)
     
-                    # ok look, the property may be an xml attribute, or it might be an element.
-                    # if there is an XPath value on the column, that means it's an element.
-                    # the absence of an XPath means we'll look for an attribute.
-                    # NOTE: the attribute we're looking for is the 'name' of this property
-                    # which is the DataColumn.name.
-                    if not newprop.XPath:
-                        xa = xRecord.attrib[newprop.Name]
-                        if xa is not None:
-                            log(" -- found (attribute) - [%s]" % xa, 4)
-                            newprop.Value = xa
-                            row.append(newprop)
-                    else:
-                        # if it's a tagset column put the tagset xml in it
-                        #  for all other columns, they get a lookup
-                        xeProp = xRecord.find(newprop.XPath)
-                        if xeProp is not None:
-                            # does this column have the extended property "ValueIsXML"?
-                            bAsXML = (True if newprop.ValueIsXML else False)
-                            
-                            if bAsXML:
-                                newprop.Value = ET.tostring(xeProp)
-                                log(" -- found (as xml) - [%s]" % newprop.Value, 4)
-                            else:
-                                newprop.Value = xeProp.text
-                                log(" -- found - [%s]" % newprop.Value, 4)
+    from catocloud import cloud
+    
+    # first, get the cloud
+    c = cloud.Cloud()
+    c.FromID(sCloudID)
+    if c is None:
+        return None, "Unable to get Cloud for ID [" + sCloudID + "]"
+    
+    cot = c.Provider.GetObjectTypeByName(sObjectType)
+    if cot is not None:
+        if not cot.ID:
+            return None, "Cannot find definition for requested object type [" + sObjectType + "]"
+    else:
+        return None, "GetCloudObjectType failed for [" + sObjectType + "]"
 
-                        # just because it's missing from the data doesn't mean we can omit the property
-                        # it just has an empty value.    
+    # ok, kick out if there are no properties for this type
+    if not cot.Properties:
+        return None, "No properties defined for type [" + sObjectType + "]"
+    
+    # All good, let's hit the API
+    sXML = ""
+    
+    from catocloud import aws
+    
+    if c.Provider.Name.lower() == "openstack":
+        """not yet implemented"""
+        # ACWebMethods.openstackMethods acOS = new ACWebMethods.openstackMethods()
+        # sXML = acOS.GetCloudObjectsAsXML(c.ID, cot, 0000BYREF_ARG0000sErr, null)
+    else:  # Amazon aws, Eucalyptus, and OpenStackAws
+        awsi = aws.awsInterface()
+        sXML, err = awsi.GetCloudObjectsAsXML(sAccountID, sCloudID, cot)
+
+    if err:
+        return None, err
+    
+    if not sXML:
+        return None, "GetCloudObjectsAsXML returned an empty document."
+    
+
+    # Got results, objectify them.
+
+    # OK look, all this namespace nonsense is annoying.  Every AWS result I've witnessed HAS a namespace
+    #  (which messes up all our xpaths)
+    #  but I've yet to see a result that actually has two namespaces 
+    #  which is the only scenario I know of where you'd need them at all.
+
+    # So... to eliminate all namespace madness
+    # brute force... parse this text and remove anything that looks like [ xmlns="<crud>"] and it's contents.
+    sXML = RemoveDefaultNamespacesFromXML(sXML)
+
+    xDoc = ET.fromstring(sXML)
+    if xDoc is None:
+        return None, "API Response XML document is invalid."
+    
+    log(sXML, 4)
+
+    # FIRST ,we have to find which properties are the 'id' value.  That'll be the key for our dictionary.
+    # an id can be a composite of several property values
+    # this is just so we can kick back an error if no IsID exists.  
+    # we build the actual id from values near the end
+    sIDColumnName = ""
+    for prop in cot.Properties:
+        if prop.IsID:
+            sIDColumnName += prop.Name
+
+    # no sIDColumnName means we can't continue
+    if not sIDColumnName:
+        return None, "ID column(s) not defined for Cloud Object Type" + cot.Name
+
+    # for each result in the xml
+    #     for each column
+    xRecords = xDoc.findall(cot.XMLRecordXPath)
+    if len(xRecords):
+        for xRecord in xRecords:
+            record_id = ""
+            row = []
+            for prop in cot.Properties:
+                # NOW PAY ATTENTION.
+                # the CloudObjectTypeProperty class has a 'Value' attribute.
+                # but, we obviously can't set that property of THIS instance (prop)
+                # because it's gonna get changed each time.
+                
+                # so, we create a clone of that property here, and give that copy the actual value,
+                # then append the copy to 'row', not the one we're looping here.
+                
+                # cosmic?  yes... it is.
+                newprop = copy.copy(prop)
+                log("looking for property [%s]" % newprop.Name, 4)
+
+                # ok look, the property may be an xml attribute, or it might be an element.
+                # if there is an XPath value on the column, that means it's an element.
+                # the absence of an XPath means we'll look for an attribute.
+                # NOTE: the attribute we're looking for is the 'name' of this property
+                # which is the DataColumn.name.
+                if not newprop.XPath:
+                    xa = xRecord.attrib[newprop.Name]
+                    if xa is not None:
+                        log(" -- found (attribute) - [%s]" % xa, 4)
+                        newprop.Value = xa
                         row.append(newprop)
-    
-                    if newprop.IsID:
-                        if not newprop.Value:
-                            return None, "A property [%s] cannot be defined as an 'ID', and have an empty value." % newprop.Name
+                else:
+                    # if it's a tagset column put the tagset xml in it
+                    #  for all other columns, they get a lookup
+                    xeProp = xRecord.find(newprop.XPath)
+                    if xeProp is not None:
+                        # does this column have the extended property "ValueIsXML"?
+                        bAsXML = (True if newprop.ValueIsXML else False)
+                        
+                        if bAsXML:
+                            newprop.Value = ET.tostring(xeProp)
+                            log(" -- found (as xml) - [%s]" % newprop.Value, 4)
                         else:
-                            log("[%s] is part of the ID... so [%s] becomes part of the ID" % (newprop.Name, newprop.Value), 4)
-                            record_id += (newprop.Value if newprop.Value else "")
-                    
-                    # an id is required
-                    if not record_id:
-                        return None, "Unable to construct an 'id' from property values."
+                            newprop.Value = xeProp.text
+                            log(" -- found - [%s]" % newprop.Value, 4)
 
-                cot.Instances[record_id] = row 
+                    # just because it's missing from the data doesn't mean we can omit the property
+                    # it just has an empty value.    
+                    row.append(newprop)
 
-            return cot.Instances, None
-        else:
-            return None, ""
-    except Exception:
-        log_nouser(traceback.format_exc(), 4)
-        return None, None
+                if newprop.IsID:
+                    if not newprop.Value:
+                        return None, "A property [%s] cannot be defined as an 'ID', and have an empty value." % newprop.Name
+                    else:
+                        log("[%s] is part of the ID... so [%s] becomes part of the ID" % (newprop.Name, newprop.Value), 4)
+                        record_id += (newprop.Value if newprop.Value else "")
+                
+                # an id is required
+                if not record_id:
+                    return None, "Unable to construct an 'id' from property values."
+
+            cot.Instances[record_id] = row 
+
+        return cot.Instances, None
+    else:
+        return None, ""
 
 def RemoveDefaultNamespacesFromXML(xml):
-    try:
-        p = re.compile("xmlns=*[\"\"][^\"\"]*[\"\"]")
-        allmatches = p.finditer(xml)
-        for match in allmatches:
-            xml = xml.replace(match.group(), "")
-            
-        return xml
-    except Exception:
-        log_nouser(traceback.format_exc(), 4)
-        return ""
+    p = re.compile("xmlns=*[\"\"][^\"\"]*[\"\"]")
+    allmatches = p.finditer(xml)
+    xml = ""
+    for match in allmatches:
+        xml = xml.replace(match.group(), "")
+        
+    return xml
     
 def AddTaskInstance(sUserID, sTaskID, sScopeID, sAccountID, sAssetID, sParameterXML, sDebugLevel):
-    try:
-        if not sUserID: return ""
-        if not sTaskID: return ""
-        
-        sParameterXML = unpackJSON(sParameterXML)
-                        
-        # we gotta peek into the XML and encrypt any newly keyed values
-        sParameterXML = PrepareAndEncryptParameterXML(sParameterXML);                
+    if not sUserID: return ""
+    if not sTaskID: return ""
     
-        if catocommon.is_guid(sTaskID) and catocommon.is_guid(sUserID):
-            ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, sScopeID, sAccountID, "", "")
-            log("Starting Task [%s] ... Instance is [%s]" % (sTaskID, ti), 3)
-            return ti
-        else:
-            log("Unable to run task. Missing or invalid task [" + sTaskID + "] or user [" + sUserID + "] id.")
+    sParameterXML = unpackJSON(sParameterXML)
+                    
+    # we gotta peek into the XML and encrypt any newly keyed values
+    sParameterXML = PrepareAndEncryptParameterXML(sParameterXML);                
 
-        # uh oh, return nothing
-        return ""
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
-        return ""
+    if catocommon.is_guid(sTaskID) and catocommon.is_guid(sUserID):
+        ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, sScopeID, sAccountID, "", "")
+        log("Starting Task [%s] ... Instance is [%s]" % (sTaskID, ti), 3)
+        return ti
+    else:
+        log("Unable to run task. Missing or invalid task [" + sTaskID + "] or user [" + sUserID + "] id.")
+
+    # uh oh, return nothing
+    return ""
     
 def AddNodeToXMLColumn(sTable, sXMLColumn, sWhereClause, sXPath, sXMLToAdd):
     # BE WARNED! this function is shared by many things, and should not be enhanced
     # with sorting or other niceties.  If you need that stuff, build your own function.
     # AddRegistry:Node is a perfect example... we wanted sorting on the registries, and also we don't allow array.
     # but parameters for example are by definition arrays of parameter nodes.
-    try:
-        db = catocommon.new_conn()
-        log("Adding node [%s] to [%s] in [%s.%s where %s]." % (sXMLToAdd, sXPath, sTable, sXMLColumn, sWhereClause), 4)
-        sSQL = "select " + sXMLColumn + " from " + sTable + " where " + sWhereClause
-        sXML = db.select_col_noexcep(sSQL)
-        if not sXML:
-            log("Unable to get xml." + db.error)
+    db = catocommon.new_conn()
+    log("Adding node [%s] to [%s] in [%s.%s where %s]." % (sXMLToAdd, sXPath, sTable, sXMLColumn, sWhereClause), 4)
+    sSQL = "select " + sXMLColumn + " from " + sTable + " where " + sWhereClause
+    sXML = db.select_col_noexcep(sSQL)
+    if not sXML:
+        log("Unable to get xml." + db.error)
+    else:
+        # parse the doc from the table
+        log(sXML, 4)
+        xd = ET.fromstring(sXML)
+        if xd is None:
+            log("Error: Unable to parse XML.")
+
+        # get the specified node from the doc, IF IT'S NOT THE ROOT
+        # either a blank xpath, or a single word that matches the root, both match the root.
+        # any other path DOES NOT require the root prefix.
+        if sXPath == "":
+            xNodeToEdit = xd
+        elif xd.tag == sXPath:
+            xNodeToEdit = xd
         else:
-            # parse the doc from the table
-            log(sXML, 4)
-            xd = ET.fromstring(sXML)
-            if xd is None:
-                log("Error: Unable to parse XML.")
+            xNodeToEdit = xd.find(sXPath)
+        
+        if xNodeToEdit is None:
+            log("Error: XML does not contain path [" + sXPath + "].")
+            return
 
-            # get the specified node from the doc, IF IT'S NOT THE ROOT
-            # either a blank xpath, or a single word that matches the root, both match the root.
-            # any other path DOES NOT require the root prefix.
-            if sXPath == "":
-                xNodeToEdit = xd
-            elif xd.tag == sXPath:
-                xNodeToEdit = xd
-            else:
-                xNodeToEdit = xd.find(sXPath)
-            
-            if xNodeToEdit is None:
-                log("Error: XML does not contain path [" + sXPath + "].")
-                return
+        # now parse the new section from the text passed in
+        xNew = ET.fromstring(sXMLToAdd)
+        if xNew is None:
+            log("Error: XML to be added cannot be parsed.")
 
-            # now parse the new section from the text passed in
-            xNew = ET.fromstring(sXMLToAdd)
-            if xNew is None:
-                log("Error: XML to be added cannot be parsed.")
-
-            # if the node we are adding to has a text value, sadly it has to go.
-            # we can't detect that, as the Value property shows the value of all children.
-            # but this works, even if it seems backwards.
-            # if the node does not have any children, then clear it.  that will safely clear any
-            # text but not stomp the text of the children.
-            if len(xNodeToEdit) == 0:
-                xNodeToEdit.text = ""
-            # add it to the doc
-            xNodeToEdit.append(xNew)
+        # if the node we are adding to has a text value, sadly it has to go.
+        # we can't detect that, as the Value property shows the value of all children.
+        # but this works, even if it seems backwards.
+        # if the node does not have any children, then clear it.  that will safely clear any
+        # text but not stomp the text of the children.
+        if len(xNodeToEdit) == 0:
+            xNodeToEdit.text = ""
+        # add it to the doc
+        xNodeToEdit.append(xNew)
 
 
-            # then send the whole doc back to the database
-            sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "'" \
-                " where " + sWhereClause
-            if not db.exec_db_noexcep(sSQL):
-                log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
+        # then send the whole doc back to the database
+        sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "'" \
+            " where " + sWhereClause
+        if not db.exec_db_noexcep(sSQL):
+            log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
 
-        return
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
-    finally:
-        if db.conn.socket:
-            db.close()
+    return
 
 def SetNodeValueinXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToSet, sValue):
-    try:
-        db = catocommon.new_conn()
-        log("Setting node [%s] to [%s] in [%s.%s where %s]." % (sNodeToSet, sValue, sTable, sXMLColumn, sWhereClause), 4)
-        sSQL = "select " + sXMLColumn + " from " + sTable + " where " + sWhereClause
-        sXML = db.select_col_noexcep(sSQL)
-        if not sXML:
-            log("Unable to get xml." + db.error)
+    db = catocommon.new_conn()
+    log("Setting node [%s] to [%s] in [%s.%s where %s]." % (sNodeToSet, sValue, sTable, sXMLColumn, sWhereClause), 4)
+    sSQL = "select " + sXMLColumn + " from " + sTable + " where " + sWhereClause
+    sXML = db.select_col_noexcep(sSQL)
+    if not sXML:
+        log("Unable to get xml." + db.error)
+    else:
+        # parse the doc from the table
+        xd = ET.fromstring(sXML)
+        if xd is None:
+            log("Error: Unable to parse XML.")
+
+        # get the specified node from the doc, IF IT'S NOT THE ROOT
+        if xd.tag == sNodeToSet:
+            xNodeToSet = xd
         else:
-            # parse the doc from the table
-            xd = ET.fromstring(sXML)
-            if xd is None:
-                log("Error: Unable to parse XML.")
+            xNodeToSet = xd.find(sNodeToSet)
 
-            # get the specified node from the doc, IF IT'S NOT THE ROOT
-            if xd.tag == sNodeToSet:
-                xNodeToSet = xd
-            else:
-                xNodeToSet = xd.find(sNodeToSet)
+        if xNodeToSet is not None:
+            xNodeToSet.text = sValue
 
-            if xNodeToSet is not None:
-                xNodeToSet.text = sValue
+            # then send the whole doc back to the database
+            sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "' where " + sWhereClause
+            if not db.exec_db_noexcep(sSQL):
+                log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
+        else:
+            log("Unable to update XML Column ... [" + sNodeToSet + "] not found.")
 
-                # then send the whole doc back to the database
-                sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "' where " + sWhereClause
-                if not db.exec_db_noexcep(sSQL):
-                    log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
-            else:
-                log("Unable to update XML Column ... [" + sNodeToSet + "] not found.")
-
-        return
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
-    finally:
-        if db.conn.socket:
-            db.close()
+    return
 
 def SetNodeAttributeinXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToSet, sAttribute, sValue):
     # THIS ONE WILL do adds if the attribute doesn't exist, or update it if it does.
-    try:
-        db = catocommon.new_conn()
-        log("Setting [%s] attribute [%s] to [%s] in [%s.%s where %s]" % (sNodeToSet, sAttribute, sValue, sTable, sXMLColumn, sWhereClause), 4)
-
-        sXML = ""
-
-        sSQL = "select " + sXMLColumn + " from " + sTable + " where " + sWhereClause
-        sXML = db.select_col_noexcep(sSQL)
-        if db.error:
-            log("Unable to get xml." + db.error)
-            return ""
- 
-        if sXML:
-            # parse the doc from the table
-            xd = ET.fromstring(sXML)
-            if xd is None:
-                log("Unable to parse xml." + db.error)
-                return ""
-
-            # get the specified node from the doc
-            # here's the rub - the request might be or the "root" node,
-            # which "find" will not, er ... find.
-            # so let's first check if the root node is the name we want.
-            xNodeToSet = None
-            
-            if xd.tag == sNodeToSet:
-                xNodeToSet = xd
-            else:
-                xNodeToSet = xd.find(sNodeToSet)
-            
-            if xNodeToSet is None:
-            # do nothing if we didn't find the node
-                return ""
-            else:
-                # set it
-                xNodeToSet.attrib[sAttribute] = sValue
-
-
-            # then send the whole doc back to the database
-            sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "'" \
-                " where " + sWhereClause
-            if not db.exec_db_noexcep(sSQL):
-                log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
-
+    db = catocommon.new_conn()
+    log("Setting [%s] attribute [%s] to [%s] in [%s.%s where %s]" % (sNodeToSet, sAttribute, sValue, sTable, sXMLColumn, sWhereClause), 4)
+    
+    sXML = ""
+    
+    sSQL = "select " + sXMLColumn + " from " + sTable + " where " + sWhereClause
+    sXML = db.select_col_noexcep(sSQL)
+    if db.error:
+        log("Unable to get xml." + db.error)
         return ""
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
-    finally:
-        if db.conn.socket:
-            db.close()
+    
+    if sXML:
+        # parse the doc from the table
+        xd = ET.fromstring(sXML)
+        if xd is None:
+            log("Unable to parse xml." + db.error)
+            return ""
+    
+        # get the specified node from the doc
+        # here's the rub - the request might be or the "root" node,
+        # which "find" will not, er ... find.
+        # so let's first check if the root node is the name we want.
+        xNodeToSet = None
+        
+        if xd.tag == sNodeToSet:
+            xNodeToSet = xd
+        else:
+            xNodeToSet = xd.find(sNodeToSet)
+        
+        if xNodeToSet is None:
+        # do nothing if we didn't find the node
+            return ""
+        else:
+            # set it
+            xNodeToSet.attrib[sAttribute] = sValue
+    
+    
+        # then send the whole doc back to the database
+        sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "'" \
+            " where " + sWhereClause
+        if not db.exec_db_noexcep(sSQL):
+            log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
+    
+    return ""
 
 def RemoveNodeFromXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToRemove):
-    try:
-        db = catocommon.new_conn()
-        log("Removing node [%s] from [%s.%s where %s]." % (sNodeToRemove, sTable, sXMLColumn, sWhereClause), 4)
-        sSQL = "select " + sXMLColumn + " from " + sTable + " where " + sWhereClause
-        sXML = db.select_col_noexcep(sSQL)
-        if not sXML:
-            log("Unable to get xml." + db.error)
-        else:
-            # parse the doc from the table
-            xd = ET.fromstring(sXML)
-            if xd is None:
-                log("Error: Unable to parse XML.")
+    db = catocommon.new_conn()
+    log("Removing node [%s] from [%s.%s where %s]." % (sNodeToRemove, sTable, sXMLColumn, sWhereClause), 4)
+    sSQL = "select " + sXMLColumn + " from " + sTable + " where " + sWhereClause
+    sXML = db.select_col_noexcep(sSQL)
+    if not sXML:
+        log("Unable to get xml." + db.error)
+    else:
+        # parse the doc from the table
+        xd = ET.fromstring(sXML)
+        if xd is None:
+            log("Error: Unable to parse XML.")
 
-            # get the specified node from the doc
-            xNodeToWhack = xd.find(sNodeToRemove)
-            if xNodeToWhack is None:
-                log("INFO: attempt to remove [%s] - the element was not found." % sNodeToRemove, 4)
-                # no worries... what you want to delete doesn't exist?  perfect!
-                return
+        # get the specified node from the doc
+        xNodeToWhack = xd.find(sNodeToRemove)
+        if xNodeToWhack is None:
+            log("INFO: attempt to remove [%s] - the element was not found." % sNodeToRemove, 4)
+            # no worries... what you want to delete doesn't exist?  perfect!
+            return
 
-            # OK, here's the deal...
-            # we have found the node we want to delete, but we found it using an xpath,
-            # ElementTree doesn't support deleting by xpath.
-            # so, we'll use a parent map to find the immediate parent of the node we found,
-            # and on the parent we can call ".remove"
-            parent_map = dict((c, p) for p in xd.getiterator() for c in p)
-            xParentOfNodeToWhack = parent_map[xNodeToWhack]
-            
-            # whack it
-            if xParentOfNodeToWhack is not None:
-                xParentOfNodeToWhack.remove(xNodeToWhack)
+        # OK, here's the deal...
+        # we have found the node we want to delete, but we found it using an xpath,
+        # ElementTree doesn't support deleting by xpath.
+        # so, we'll use a parent map to find the immediate parent of the node we found,
+        # and on the parent we can call ".remove"
+        parent_map = dict((c, p) for p in xd.getiterator() for c in p)
+        xParentOfNodeToWhack = parent_map[xNodeToWhack]
+        
+        # whack it
+        if xParentOfNodeToWhack is not None:
+            xParentOfNodeToWhack.remove(xNodeToWhack)
 
-            sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "'" \
-                " where " + sWhereClause
-            if not db.exec_db_noexcep(sSQL):
-                log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
+        sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "'" \
+            " where " + sWhereClause
+        if not db.exec_db_noexcep(sSQL):
+            log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
 
-        return
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
-    finally:
-        if db.conn.socket:
-            db.close()
+    return
 
 def AttemptLogin(app_name):
-    try:
-        if not app_name:
-            return "{\"error\" : \"Missing Application Name.\"}"
-        if not web.ctx.ip:
-            return "{\"error\" : \"Unable to determine client address.\"}"
+    if not app_name:
+        return "{\"error\" : \"Missing Application Name.\"}"
+    if not web.ctx.ip:
+        return "{\"error\" : \"Unable to determine client address.\"}"
 
-        address = "%s (%s)" % (web.ctx.ip, app_name)
+    address = "%s (%s)" % (web.ctx.ip, app_name)
+    
+    in_name = getAjaxArg("username")
+    in_pwd = getAjaxArg("password")
+    in_pwd = unpackJSON(in_pwd)
+    new_pwd = getAjaxArg("change_password")
+    new_pwd = unpackJSON(new_pwd)
+    answer = getAjaxArg("answer")
+    answer = unpackJSON(answer)
+
+    u = catouser.User()
+    
+    # Authenticate will return the codes so we will know
+    # how to respond to the login page
+    # (must change password, password expired, etc)
+    result, code = u.Authenticate(in_name, in_pwd, address, new_pwd, answer)
+    if not result:
+        if code == "disabled":
+            return "{\"info\" : \"Your account has been suspended.  Please contact an Adminstrator.\"}"
+        if code == "failures":
+            return "{\"info\" : \"Your account has been temporarily locked due to excessive password failures.\"}"
+        if code == "change":
+            return "{\"result\" : \"change\"}"
         
-        in_name = getAjaxArg("username")
-        in_pwd = getAjaxArg("password")
-        in_pwd = unpackJSON(in_pwd)
-        new_pwd = getAjaxArg("change_password")
-        new_pwd = unpackJSON(new_pwd)
-        answer = getAjaxArg("answer")
-        answer = unpackJSON(answer)
+        # no codes matched, but there is a message in there...
+        if code:
+            return "{\"info\" : \"%s\"}" % code
 
-        u = catouser.User()
-        
-        # Authenticate will return the codes so we will know
-        # how to respond to the login page
-        # (must change password, password expired, etc)
-        result, code = u.Authenticate(in_name, in_pwd, address, new_pwd, answer)
-        if not result:
-            if code == "disabled":
-                return "{\"info\" : \"Your account has been suspended.  Please contact an Adminstrator.\"}"
-            if code == "failures":
-                return "{\"info\" : \"Your account has been temporarily locked due to excessive password failures.\"}"
-            if code == "change":
-                return "{\"result\" : \"change\"}"
-            
-            # no codes matched, but there is a message in there...
-            if code:
-                return "{\"info\" : \"%s\"}" % code
+        # failed with no code returned
+        return "{\"info\" : \"Invalid Username or Password.\"}"
 
-            # failed with no code returned
-            return "{\"info\" : \"Invalid Username or Password.\"}"
-
-        # So... they authenticated, but based on the users 'role' (Administrator, Developer, User) ...
-        # they may not be allowed to log in to certain "app_name"s.
-        # specifically, the User role cannot log in to the "Cato Admin UI" app.
-        
-        # TODO: enable this when the Cato EE Portal is released.
+    # So... they authenticated, but based on the users 'role' (Administrator, Developer, User) ...
+    # they may not be allowed to log in to certain "app_name"s.
+    # specifically, the User role cannot log in to the "Cato Admin UI" app.
+    
+    # TODO: enable this when the Cato EE Portal is released.
 #        if u.Role == "User" and "Admin" in app_name:
 #            return "{\"info\" : \"Your account isn't authorized for this application.\"}"
 
-        
-        # all good, put a few key things in the session, not the whole object
-        # yes, I said SESSION not a cookie, otherwise it could be hacked client side
-        
-        current_user = {}
-        current_user["user_id"] = u.ID
-        current_user["user_name"] = u.LoginID
-        current_user["full_name"] = u.FullName
-        current_user["role"] = u.Role
-        current_user["tags"] = u.Tags
-        current_user["email"] = u.Email
-        current_user["ip_address"] = address
-        SetSessionObject("user", current_user)
+    
+    # all good, put a few key things in the session, not the whole object
+    # yes, I said SESSION not a cookie, otherwise it could be hacked client side
+    
+    current_user = {}
+    current_user["user_id"] = u.ID
+    current_user["user_name"] = u.LoginID
+    current_user["full_name"] = u.FullName
+    current_user["role"] = u.Role
+    current_user["tags"] = u.Tags
+    current_user["email"] = u.Email
+    current_user["ip_address"] = address
+    SetSessionObject("user", current_user)
 
-        log("Login granted for: ", 4)
-        log(uiGlobals.session.user, 4)
+    log("Login granted for: ", 4)
+    log(uiGlobals.session.user, 4)
 
-        # update the security log
-        catocommon.add_security_log(u.ID, catocommon.SecurityLogTypes.Security,
-            catocommon.SecurityLogActions.UserLogin, catocommon.CatoObjectTypes.User, "",
-            "Login to [%s] from [%s] granted." % (app_name, address))
+    # update the security log
+    catocommon.add_security_log(u.ID, catocommon.SecurityLogTypes.Security,
+        catocommon.SecurityLogActions.UserLogin, catocommon.CatoObjectTypes.User, "",
+        "Login to [%s] from [%s] granted." % (app_name, address))
 
-        return "{\"result\" : \"success\"}"
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)    
+    return "{\"result\" : \"success\"}"
             
 def GetQuestion():
-    try:
-        in_name = getAjaxArg("username")
+    in_name = getAjaxArg("username")
 
-        u = catouser.User()
-        u.FromName(in_name)
+    u = catouser.User()
+    u.FromName(in_name)
 
-        # again with the generic messages.
-        if not u.ID:
-            return "{\"info\" : \"Unable to reset password for user.\"}"
-        if not u.SecurityQuestion:
-            return "{\"info\" : \"Unable to reset password.  Contact an Administrator.\"}"
+    # again with the generic messages.
+    if not u.ID:
+        return "{\"info\" : \"Unable to reset password for user.\"}"
+    if not u.SecurityQuestion:
+        return "{\"info\" : \"Unable to reset password.  Contact an Administrator.\"}"
 
 
-        return "{\"result\" : \"%s\"}" % packJSON(u.SecurityQuestion)
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)    
+    return "{\"result\" : \"%s\"}" % packJSON(u.SecurityQuestion)
 
 def UpdateHeartbeat():
-    try:
-        # NOTE: this needs all the kick and warn stuff
-        uid = GetSessionUserID()
-        ip = GetSessionObject("user", "ip_address")
-        
-        if uid and ip:
-            sSQL = "update user_session set heartbeat = now() where user_id = '%s' and address = '%s'" % (uid, ip)
-            db = catocommon.new_conn()
-            if not db.exec_db_noexcep(sSQL):
-                log_nouser(db.error, 0)
-            db.close()
-        return ""
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
+    # NOTE: this needs all the kick and warn stuff
+    uid = GetSessionUserID()
+    ip = GetSessionObject("user", "ip_address")
+    
+    if uid and ip:
+        sSQL = "update user_session set heartbeat = now() where user_id = '%s' and address = '%s'" % (uid, ip)
+        db = catocommon.new_conn()
+        if not db.exec_db_noexcep(sSQL):
+            log_nouser(db.error, 0)
+        db.close()
+    return ""
 
 def WriteClientLog(msg, debuglevel=2):
-    try:
-        if msg:
-            # logger.warning("TODO: this should write to the client logfile...")
-            log("CLIENT - %s" % (msg))  # , debuglevel, "%s_client.log" % app)
+    if msg:
+        # logger.warning("TODO: this should write to the client logfile...")
+        log("CLIENT - %s" % (msg))  # , debuglevel, "%s_client.log" % app)
 
-        return ""
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
+    return ""
 
 def GetPager(rowcount, maxrows, page):
+    # no pager if there's not enough rows
+    if rowcount <= maxrows:
+        return 0, None, ""
+    
+    maxrows = maxrows if maxrows else 25
     try:
-        # no pager if there's not enough rows
-        if rowcount <= maxrows:
-            return 0, None, ""
+        page = int(page)
+    except:
+        page = 1
+    
+    mod = rowcount % maxrows
+    numpages = (rowcount / maxrows) + 1 if mod else (rowcount / maxrows)
+    start = (maxrows * page) - maxrows
+    end = start + maxrows
+    
+    pager_html = ""
+    if numpages:
+        pager = []
+        for i in range(numpages):
+            i += 1
+            selected = "pager_button_selected" if i == page else ""
+            pager.append("<span class=\"pager_button %s\">%d</span>" % (selected, i))
         
-        maxrows = maxrows if maxrows else 25
-        try:
-            page = int(page)
-        except:
-            page = 1
-        
-        mod = rowcount % maxrows
-        numpages = (rowcount / maxrows) + 1 if mod else (rowcount / maxrows)
-        start = (maxrows * page) - maxrows
-        end = start + maxrows
-        
-        pager_html = ""
-        if numpages:
-            pager = []
-            for i in range(numpages):
-                i += 1
-                selected = "pager_button_selected" if i == page else ""
-                pager.append("<span class=\"pager_button %s\">%d</span>" % (selected, i))
-            
-            pager_html = "".join(pager)
-        
-        # log("showing page %d items %d to %d" % (page, start, end), 3)
-          
-        return start, end, pager_html      
-    except Exception:
-        log_nouser(traceback.format_exc(), 0)
+        pager_html = "".join(pager)
+    
+    # log("showing page %d items %d to %d" % (page, start, end), 3)
+      
+    return start, end, pager_html      
 
 def LoadTaskCommands():
     from catotask import taskCommands

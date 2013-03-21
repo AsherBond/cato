@@ -1162,48 +1162,28 @@ def ddDataSource_GetAllClouds():
     return data
 
 def AddToCommandXML(sStepID, sXPath, sXMLToAdd):
-    try:
-        if not catocommon.is_guid(sStepID):
-            UI.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "].")
+    if not catocommon.is_guid(sStepID):
+        UI.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "].")
 
-        UI.AddNodeToXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sXPath, sXMLToAdd)
-
-        return
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
+    UI.AddNodeToXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sXPath, sXMLToAdd)
 
 def SetNodeValueinCommandXML(sStepID, sNodeToSet, sValue):
-    try:
-        if not catocommon.is_guid(sStepID):
-            UI.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "] ")
+    if not catocommon.is_guid(sStepID):
+        UI.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "] ")
 
-        UI.SetNodeValueinXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToSet, sValue)
-
-        return
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
+    UI.SetNodeValueinXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToSet, sValue)
 
 def SetNodeAttributeinCommandXML(sStepID, sNodeToSet, sAttribute, sValue):
-    try:
-        if not catocommon.is_guid(sStepID):
-            UI.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "] ")
+    if not catocommon.is_guid(sStepID):
+        UI.log("Unable to modify step. Invalid or missing Step ID. [" + sStepID + "] ")
 
-        UI.SetNodeAttributeinXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToSet, sAttribute, sValue)
-
-        return
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
+    UI.SetNodeAttributeinXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToSet, sAttribute, sValue)
 
 def RemoveFromCommandXML(sStepID, sNodeToRemove):
-    try:
-        if not catocommon.is_guid(sStepID):
-            UI.log("Unable to modify step.<br />Invalid or missing Step ID. [" + sStepID + "]<br />")
-        
-        UI.RemoveNodeFromXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToRemove)
-
-        return
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
+    if not catocommon.is_guid(sStepID):
+        UI.log("Unable to modify step.<br />Invalid or missing Step ID. [" + sStepID + "]<br />")
+    
+    UI.RemoveNodeFromXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sNodeToRemove)
 
 def DrawDropZone(oStep, xEmbeddedFunction, sXPath, sLabel, bRequired):
     # drop zones are common for all the steps that can contain embedded steps.
@@ -1691,1484 +1671,1396 @@ def SqlExec(oStep):
     """
         This should return a tuple, the html and a flag of whether or not to draw the variable button
     """
-    try:
-        sStepID = oStep.ID
-        xd = oStep.FunctionXDoc
+    sStepID = oStep.ID
+    xd = oStep.FunctionXDoc
 
-        """TAKE NOTE:
-        * 
-        * Similar to the windows command...
-        * ... we are updating a record here when we GET the data.
-        * 
-        * Why?  Because this command has modes.
-        * The data has different meaning depending on the 'mode'.
-        * 
-        * So, on the client if the user changes the 'mode', the new command may not need all the fields
-        * that the previous selection needed.
-        * 
-        * So, we just wipe any unused fields based on the current mode.
-        * """
-        sCommand = xd.findtext("sql", "")
-        sConnName = xd.findtext("conn_name", "")
-        sMode = xd.findtext("mode", "")
-        sHandle = xd.findtext("handle", "")
+    """TAKE NOTE:
+    * 
+    * Similar to the windows command...
+    * ... we are updating a record here when we GET the data.
+    * 
+    * Why?  Because this command has modes.
+    * The data has different meaning depending on the 'mode'.
+    * 
+    * So, on the client if the user changes the 'mode', the new command may not need all the fields
+    * that the previous selection needed.
+    * 
+    * So, we just wipe any unused fields based on the current mode.
+    * """
+    sCommand = xd.findtext("sql", "")
+    sConnName = xd.findtext("conn_name", "")
+    sMode = xd.findtext("mode", "")
+    sHandle = xd.findtext("handle", "")
 
-        sHTML = ""
-        sElementID = catocommon.new_guid()
-        sFieldID = catocommon.new_guid()
-        bDrawVarButton = False
-        bDrawSQLBox = False
-        bDrawHandle = False
-        bDrawKeyValSection = False
+    sHTML = ""
+    sElementID = catocommon.new_guid()
+    sFieldID = catocommon.new_guid()
+    bDrawVarButton = False
+    bDrawSQLBox = False
+    bDrawHandle = False
+    bDrawKeyValSection = False
 
-        sHTML += "Connection:\n"
-        sHTML += "<input type=\"text\" " + CommonAttribsWithID(oStep, True, "conn_name", sElementID, "")
-        sHTML += " help=\"Enter an active connection where this SQL will be executed.\" value=\"" + sConnName + "\" />"
-        sHTML += "<span class=\"ui-icon ui-icon-search forceinline conn_picker_btn pointer\" link_to=\"" + sElementID + "\"></span>\n"
+    sHTML += "Connection:\n"
+    sHTML += "<input type=\"text\" " + CommonAttribsWithID(oStep, True, "conn_name", sElementID, "")
+    sHTML += " help=\"Enter an active connection where this SQL will be executed.\" value=\"" + sConnName + "\" />"
+    sHTML += "<span class=\"ui-icon ui-icon-search forceinline conn_picker_btn pointer\" link_to=\"" + sElementID + "\"></span>\n"
 
-        sHTML += "Mode:\n"
-        sHTML += "<select " + CommonAttribs(oStep, True, "mode", "") + " reget_on_change=\"true\">\n"
-        sHTML += "  <option " + SetOption("SQL", sMode) + " value=\"SQL\">SQL</option>\n"
-        sHTML += "  <option " + SetOption("BEGIN", sMode) + " value=\"BEGIN\">BEGIN</option>\n"
-        sHTML += "  <option " + SetOption("COMMIT", sMode) + " value=\"COMMIT\">COMMIT</option>\n"
-        # sHTML += "  <option " + SetOption("COMMIT / BEGIN", sMode) + " value=\"COMMIT / BEGIN\">COMMIT / BEGIN</option>\n"
-        sHTML += "  <option " + SetOption("ROLLBACK", sMode) + " value=\"ROLLBACK\">ROLLBACK</option>\n"
-        sHTML += "  <option " + SetOption("EXEC", sMode) + " value=\"EXEC\">EXEC</option>\n"
-        sHTML += "  <option " + SetOption("PL/SQL", sMode) + " value=\"PL/SQL\">PL/SQL</option>\n"
-        sHTML += "  <option " + SetOption("PREPARE", sMode) + " value=\"PREPARE\">PREPARE</option>\n"
-        sHTML += "  <option " + SetOption("RUN", sMode) + " value=\"RUN\">RUN</option>\n"
-        sHTML += "</select>\n"
+    sHTML += "Mode:\n"
+    sHTML += "<select " + CommonAttribs(oStep, True, "mode", "") + " reget_on_change=\"true\">\n"
+    sHTML += "  <option " + SetOption("SQL", sMode) + " value=\"SQL\">SQL</option>\n"
+    sHTML += "  <option " + SetOption("BEGIN", sMode) + " value=\"BEGIN\">BEGIN</option>\n"
+    sHTML += "  <option " + SetOption("COMMIT", sMode) + " value=\"COMMIT\">COMMIT</option>\n"
+    # sHTML += "  <option " + SetOption("COMMIT / BEGIN", sMode) + " value=\"COMMIT / BEGIN\">COMMIT / BEGIN</option>\n"
+    sHTML += "  <option " + SetOption("ROLLBACK", sMode) + " value=\"ROLLBACK\">ROLLBACK</option>\n"
+    sHTML += "  <option " + SetOption("EXEC", sMode) + " value=\"EXEC\">EXEC</option>\n"
+    sHTML += "  <option " + SetOption("PL/SQL", sMode) + " value=\"PL/SQL\">PL/SQL</option>\n"
+    sHTML += "  <option " + SetOption("PREPARE", sMode) + " value=\"PREPARE\">PREPARE</option>\n"
+    sHTML += "  <option " + SetOption("RUN", sMode) + " value=\"RUN\">RUN</option>\n"
+    sHTML += "</select>\n"
 
 
-        # here we go!
-        # certain modes show different fields.
+    # here we go!
+    # certain modes show different fields.
 
-        if sMode == "BEGIN" or sMode == "COMMIT" or sMode == "ROLLBACK":
-            # these modes have no SQL or pairs or variables
-            SetNodeValueinCommandXML(sStepID, "sql", "")
-            SetNodeValueinCommandXML(sStepID, "handle", "")
-            RemoveFromCommandXML(sStepID, "pair")
-            RemoveStepVars(sStepID)
-        elif sMode == "PREPARE":
-            bDrawSQLBox = True
-            bDrawHandle = True
+    if sMode == "BEGIN" or sMode == "COMMIT" or sMode == "ROLLBACK":
+        # these modes have no SQL or pairs or variables
+        SetNodeValueinCommandXML(sStepID, "sql", "")
+        SetNodeValueinCommandXML(sStepID, "handle", "")
+        RemoveFromCommandXML(sStepID, "pair")
+        RemoveStepVars(sStepID)
+    elif sMode == "PREPARE":
+        bDrawSQLBox = True
+        bDrawHandle = True
 
-            # this mode has no pairs or variables
-            RemoveFromCommandXML(sStepID, "pair")
-            RemoveStepVars(sStepID)
-        elif sMode == "RUN":
-            bDrawVarButton = True
-            bDrawHandle = True
-            bDrawKeyValSection = True
+        # this mode has no pairs or variables
+        RemoveFromCommandXML(sStepID, "pair")
+        RemoveStepVars(sStepID)
+    elif sMode == "RUN":
+        bDrawVarButton = True
+        bDrawHandle = True
+        bDrawKeyValSection = True
 
-            # this mode has no SQL
-            SetNodeValueinCommandXML(sStepID, "sql", "")
-        else:
-            bDrawVarButton = True
-            bDrawSQLBox = True
+        # this mode has no SQL
+        SetNodeValueinCommandXML(sStepID, "sql", "")
+    else:
+        bDrawVarButton = True
+        bDrawSQLBox = True
 
-            SetNodeValueinCommandXML(sStepID, "handle", "")
-            # the default mode has no pairs
-            RemoveFromCommandXML(sStepID, "pair")
+        SetNodeValueinCommandXML(sStepID, "handle", "")
+        # the default mode has no pairs
+        RemoveFromCommandXML(sStepID, "pair")
 
-        if bDrawHandle:
-            sHTML += "Handle:\n"
-            sHTML += "<input type=\"text\" " + CommonAttribs(oStep, True, "handle", "")
-            sHTML += " help=\"Enter a handle for this prepared statement.\" value=\"" + sHandle + "\" />"
+    if bDrawHandle:
+        sHTML += "Handle:\n"
+        sHTML += "<input type=\"text\" " + CommonAttribs(oStep, True, "handle", "")
+        sHTML += " help=\"Enter a handle for this prepared statement.\" value=\"" + sHandle + "\" />"
 
-        if bDrawKeyValSection:
-            sHTML += DrawKeyValueSection(oStep, False, False, "Bind", "Value")
+    if bDrawKeyValSection:
+        sHTML += DrawKeyValueSection(oStep, False, False, "Bind", "Value")
 
-        if bDrawSQLBox:
-            #  we gotta get the field id first, but don't show the textarea until after
-            sCommonAttribsForTA = CommonAttribsWithID(oStep, True, "sql", sFieldID, "")
+    if bDrawSQLBox:
+        #  we gotta get the field id first, but don't show the textarea until after
+        sCommonAttribsForTA = CommonAttribsWithID(oStep, True, "sql", sFieldID, "")
 
-            sHTML += "<br />SQL:\n"
-            # big box button
-            sHTML += "<img class=\"big_box_btn pointer\" alt=\"\"" \
-                " src=\"static/images/icons/edit_16.png\"" \
-                " link_to=\"" + sFieldID + "\" /><br />\n"
+        sHTML += "<br />SQL:\n"
+        # big box button
+        sHTML += "<img class=\"big_box_btn pointer\" alt=\"\"" \
+            " src=\"static/images/icons/edit_16.png\"" \
+            " link_to=\"" + sFieldID + "\" /><br />\n"
 
-            sHTML += "<textarea " + sCommonAttribsForTA + " help=\"Enter a SQL query or procedure.\">" + sCommand + "</textarea>"
-        return sHTML, bDrawVarButton
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+        sHTML += "<textarea " + sCommonAttribsForTA + " help=\"Enter a SQL query or procedure.\">" + sCommand + "</textarea>"
+    return sHTML, bDrawVarButton
 
 def SqlExec_View(oStep):
-    try:
-        xd = oStep.FunctionXDoc
+    xd = oStep.FunctionXDoc
 
-        """TAKE NOTE:
-        * 
-        * Similar to the windows command...
-        * ... we are updating a record here when we GET the data.
-        * 
-        * Why?  Because this command has modes.
-        * The data has different meaning depending on the 'mode'.
-        * 
-        * So, on the client if the user changes the 'mode', the new command may not need all the fields
-        * that the previous selection needed.
-        * 
-        * So, we just wipe any unused fields based on the current mode.
-        * """
-        sCommand = xd.findtext("sql", "")
-        sConnName = xd.findtext("conn_name", "")
-        sMode = xd.findtext("mode", "")
-        sHandle = xd.findtext("handle", "")
+    """TAKE NOTE:
+    * 
+    * Similar to the windows command...
+    * ... we are updating a record here when we GET the data.
+    * 
+    * Why?  Because this command has modes.
+    * The data has different meaning depending on the 'mode'.
+    * 
+    * So, on the client if the user changes the 'mode', the new command may not need all the fields
+    * that the previous selection needed.
+    * 
+    * So, we just wipe any unused fields based on the current mode.
+    * """
+    sCommand = xd.findtext("sql", "")
+    sConnName = xd.findtext("conn_name", "")
+    sMode = xd.findtext("mode", "")
+    sHandle = xd.findtext("handle", "")
 
-        sHTML = ""
-        bDrawSQLBox = False
-        bDrawHandle = False
-        bDrawKeyValSection = False
+    sHTML = ""
+    bDrawSQLBox = False
+    bDrawHandle = False
+    bDrawKeyValSection = False
 
-        sHTML += "Connection:\n"
-        sHTML += "<span class=\"code\">" + sConnName + "</span>"
+    sHTML += "Connection:\n"
+    sHTML += "<span class=\"code\">" + sConnName + "</span>"
 
-        sHTML += "Mode:\n"
-        sHTML += "<span class=\"code\">" + sMode + "</span>"
+    sHTML += "Mode:\n"
+    sHTML += "<span class=\"code\">" + sMode + "</span>"
 
 
-        if sMode == "BEGIN" or sMode == "COMMIT" or sMode == "ROLLBACK":
-            """Does nothing special"""
-        elif sMode == "PREPARE":
-            bDrawSQLBox = True
-            bDrawHandle = True
-        elif sMode == "RUN":
-            bDrawHandle = True
-            bDrawKeyValSection = True
-        else:
-            bDrawSQLBox = True
+    if sMode == "BEGIN" or sMode == "COMMIT" or sMode == "ROLLBACK":
+        """Does nothing special"""
+    elif sMode == "PREPARE":
+        bDrawSQLBox = True
+        bDrawHandle = True
+    elif sMode == "RUN":
+        bDrawHandle = True
+        bDrawKeyValSection = True
+    else:
+        bDrawSQLBox = True
 
-        if bDrawHandle:
-            sHTML += "Handle:\n"
-            sHTML += "<span class=\"code\">" + sHandle + "</span>"
+    if bDrawHandle:
+        sHTML += "Handle:\n"
+        sHTML += "<span class=\"code\">" + sHandle + "</span>"
 
-        if bDrawKeyValSection:
-            sHTML += DrawReadOnlyKeyValueSection(oStep, False, False, "Bind", "Value")
+    if bDrawKeyValSection:
+        sHTML += DrawReadOnlyKeyValueSection(oStep, False, False, "Bind", "Value")
 
-        if bDrawSQLBox:
-            sHTML += "<br />SQL:\n"
-            sHTML += "<div class=\"codebox\">" + UI.SafeHTML(sCommand) + "</div>"
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+    if bDrawSQLBox:
+        sHTML += "<br />SQL:\n"
+        sHTML += "<div class=\"codebox\">" + UI.SafeHTML(sCommand) + "</div>"
+    return sHTML
 
 def RunTask(oStep):
-    try:
-        db = catocommon.new_conn()
+    db = catocommon.new_conn()
 
-        sStepID = oStep.ID
-        xd = oStep.FunctionXDoc
+    sStepID = oStep.ID
+    xd = oStep.FunctionXDoc
+
+    sActualTaskID = ""
+    # sOnSuccess = ""
+    # sOnError = ""
+    sAssetID = ""
+    sAssetName = ""
+    sLabel = ""
+    sHTML = ""
+    sParameterXML = ""
     
-        sActualTaskID = ""
-        # sOnSuccess = ""
-        # sOnError = ""
-        sAssetID = ""
-        sAssetName = ""
-        sLabel = ""
-        sHTML = ""
-        sParameterXML = ""
-        
-        sTaskName = xd.findtext("task_name", "")
-        sVersion = xd.findtext("version")
-        sHandle = xd.findtext("handle", "")
-        sTime = xd.findtext("time_to_wait", "")
-        sAssetID = xd.findtext("asset_id", "")
-        sOriginalTaskID = ""
-    
-        # xSuccess = xd.find("# on_success")
-        # if xSuccess is None) return "Error: XML does not contain on_success:
-        # sOnSuccess = xSuccess.findtext(value, "")
-    
-        # xError = xd.find("# on_error")
-        # if xError is None) return "Error: XML does not contain on_error:
-        # sOnError = xError.findtext(value, "")
-    
-        # get the name and code for belonging to this otid and version
-        if sTaskName:
+    sTaskName = xd.findtext("task_name", "")
+    sVersion = xd.findtext("version")
+    sHandle = xd.findtext("handle", "")
+    sTime = xd.findtext("time_to_wait", "")
+    sAssetID = xd.findtext("asset_id", "")
+    sOriginalTaskID = ""
+
+    # xSuccess = xd.find("# on_success")
+    # if xSuccess is None) return "Error: XML does not contain on_success:
+    # sOnSuccess = xSuccess.findtext(value, "")
+
+    # xError = xd.find("# on_error")
+    # if xError is None) return "Error: XML does not contain on_error:
+    # sOnError = xError.findtext(value, "")
+
+    # get the name and code for belonging to this otid and version
+    if sTaskName:
+        sSQL = "select original_task_id, task_id, task_code, task_name, parameter_xml from task" \
+            " where task_name = '" + sTaskName + "'" + \
+            (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
+
+        dr = db.select_row_dict(sSQL)
+        if db.error:
+            UI.log_nouser(db.error, 0)
+            return "Error retrieving target Task.(1)" + db.error
+
+        if dr is not None:
+            sLabel = dr["task_code"] + " : " + dr["task_name"]
+            sOriginalTaskID = dr["original_task_id"]
+            sActualTaskID = dr["task_id"]
+            sParameterXML = (dr["parameter_xml"] if dr["parameter_xml"] else "")
+        else:
+            # It's possible that the user changed the task from the picker but had 
+            # selected a version, which is still there now but may not apply to the new task.
+            # so, if the above SQL failed, try: again by resetting the version box to the default.
             sSQL = "select original_task_id, task_id, task_code, task_name, parameter_xml from task" \
                 " where task_name = '" + sTaskName + "'" + \
-                (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
-    
+                " and default_version = 1"
+
             dr = db.select_row_dict(sSQL)
             if db.error:
                 UI.log_nouser(db.error, 0)
-                return "Error retrieving target Task.(1)" + db.error
-    
+                return "Error retrieving target Task.(2)<br />" + db.error
+
             if dr is not None:
                 sLabel = dr["task_code"] + " : " + dr["task_name"]
                 sOriginalTaskID = dr["original_task_id"]
                 sActualTaskID = dr["task_id"]
                 sParameterXML = (dr["parameter_xml"] if dr["parameter_xml"] else "")
-            else:
-                # It's possible that the user changed the task from the picker but had 
-                # selected a version, which is still there now but may not apply to the new task.
-                # so, if the above SQL failed, try: again by resetting the version box to the default.
-                sSQL = "select original_task_id, task_id, task_code, task_name, parameter_xml from task" \
-                    " where task_name = '" + sTaskName + "'" + \
-                    " and default_version = 1"
-    
-                dr = db.select_row_dict(sSQL)
-                if db.error:
-                    UI.log_nouser(db.error, 0)
-                    return "Error retrieving target Task.(2)<br />" + db.error
-    
-                if dr is not None:
-                    sLabel = dr["task_code"] + " : " + dr["task_name"]
-                    sOriginalTaskID = dr["original_task_id"]
-                    sActualTaskID = dr["task_id"]
-                    sParameterXML = (dr["parameter_xml"] if dr["parameter_xml"] else "")
-    
-                    # oh yeah, and set the version field to null since it was wrong.
-                    SetNodeValueinCommandXML(sStepID, "//version", "")
-                else:
-                    # a default doesnt event exist, really fail...
-                    sLabel = "Unable to find [%s]" % sTaskName
-    
-    
-        # IF IT's A GUID...
-        #  get the asset name belonging to this asset_id
-        #  OTHERWISE
-        #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
-        if catocommon.is_guid(sAssetID):
-            sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
-    
-            sAssetName = db.select_col_noexcep(sSQL)
-            if db.error:
-                return "Error retrieving Run Task Asset Name." + db.error
-    
-            if sAssetName == "":
-                return "Unable to find Asset by ID - [" + sAssetID + "]." + db.error
-        else:
-            sAssetName = sAssetID
-    
-    
-    
-    
-        # all good, draw the widget
-        sTNField = catocommon.new_guid()
-    
-        sHTML += "<input type=\"text\" " + \
-            CommonAttribsWithID(oStep, True, "task_name", sTNField, "hidden") + \
-            " value=\"" + sTaskName + "\"" + " reget_on_change=\"true\" />"
-    
-        sHTML += "Task: \n"
-        sHTML += "<input type=\"text\"" \
-            " onkeydown=\"return false;\"" \
-            " onkeypress=\"return false;\"" \
-            " is_required=\"true\"" \
-            " step_id=\"" + sStepID + "\"" \
-            " class=\"code w75pct\"" \
-            " id=\"fn_run_task_taskname_" + sStepID + "\"" \
-            " value=\"" + sLabel + "\" />\n"
-        sHTML += "<span class=\"ui-icon ui-icon-search forceinline task_picker_btn pointer\" title=\"Pick Task\"" \
-            " target_field_id=\"" + sTNField + "\"" \
-            " step_id=\"" + sStepID + "\"></span>\n"
-        if sActualTaskID != "":
-            sHTML += "<span class=\"ui-icon ui-icon-pencil forceinline task_open_btn pointer\" title=\"Edit Task\"" \
-                " task_id=\"" + sActualTaskID + "\"></span>\n"
-            sHTML += "<span class=\"ui-icon ui-icon-print forceinline task_print_btn pointer\" title=\"View Task\"" \
-                " task_id=\"" + sActualTaskID + "\"></span>\n"
-    
-        # versions
-        if catocommon.is_guid(sOriginalTaskID):
-            sHTML += "<br />"
-            sHTML += "Version: \n"
-            sHTML += "<select " + CommonAttribs(oStep, False, "version", "") + " reget_on_change=\"true\">\n"
-            # default
-            sHTML += "<option " + SetOption("", sVersion) + " value=\"\">Default</option>\n"
-    
-            sSQL = "select version from task" \
-                " where original_task_id = '" + sOriginalTaskID + "'" \
-                " order by version"
-            dt = db.select_all_dict(sSQL)
-            if db.error:
-                UI.log_nouser(db.error, 0)
-                return "Database Error:" + db.error
-    
-            if dt:
-                for dr in dt:
-                    sHTML += "<option " + SetOption(str(dr["version"]), sVersion) + " value=\"" + str(dr["version"]) + "\">" + str(dr["version"]) + "</option>\n"
-            else:
-                return "Unable to continue - Cannot find Version for Task [" + sOriginalTaskID + "]."
-    
-            sHTML += "</select></span>\n"
-    
-    
-    
-        sHTML += "<br />"
 
-        #  asset
-        sAssetField = catocommon.new_guid()
-        sHTML += "<input type=\"text\" " + \
-            CommonAttribsWithID(oStep, False, "asset_id", sAssetField, "hidden") + \
-            " value=\"" + sAssetID + "\" />"
-    
-        sHTML += "Asset: \n"
-        sHTML += "<input type=\"text\"" \
-            " help=\"Select an Asset or enter a variable.\"" + \
-            ("" if catocommon.is_guid(sAssetID) else " syntax=\"variable\"") + \
-            " step_id=\"" + sStepID + "\"" \
-            " class=\"code w75pct\"" \
-            " id=\"fn_run_task_assetname_" + sStepID + "\"" + \
-            (" disabled=\"disabled\"" if catocommon.is_guid(sAssetID) else "") + \
-            " onchange=\"javascript:pushStepFieldChangeVia(this, '" + sAssetField + "');\"" \
-            " value=\"" + sAssetName + "\" />\n"
-    
-        sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_field_clear_btn pointer\" clear_id=\"fn_run_task_assetname_" + sStepID + "\"" \
-            " title=\"Clear\"></span>"
-    
-        sHTML += "<span class=\"ui-icon ui-icon-search forceinline asset_picker_btn pointer\" title=\"Select\"" \
-            " link_to=\"" + sAssetField + "\"" \
-            " target_field_id=\"fn_run_task_assetname_" + sStepID + "\"" \
-            " step_id=\"" + sStepID + "\"></span>\n"
-    
+                # oh yeah, and set the version field to null since it was wrong.
+                SetNodeValueinCommandXML(sStepID, "//version", "")
+            else:
+                # a default doesnt event exist, really fail...
+                sLabel = "Unable to find [%s]" % sTaskName
+
+
+    # IF IT's A GUID...
+    #  get the asset name belonging to this asset_id
+    #  OTHERWISE
+    #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
+    if catocommon.is_guid(sAssetID):
+        sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
+
+        sAssetName = db.select_col_noexcep(sSQL)
+        if db.error:
+            return "Error retrieving Run Task Asset Name." + db.error
+
+        if sAssetName == "":
+            return "Unable to find Asset by ID - [" + sAssetID + "]." + db.error
+    else:
+        sAssetName = sAssetID
+
+
+
+
+    # all good, draw the widget
+    sTNField = catocommon.new_guid()
+
+    sHTML += "<input type=\"text\" " + \
+        CommonAttribsWithID(oStep, True, "task_name", sTNField, "hidden") + \
+        " value=\"" + sTaskName + "\"" + " reget_on_change=\"true\" />"
+
+    sHTML += "Task: \n"
+    sHTML += "<input type=\"text\"" \
+        " onkeydown=\"return false;\"" \
+        " onkeypress=\"return false;\"" \
+        " is_required=\"true\"" \
+        " step_id=\"" + sStepID + "\"" \
+        " class=\"code w75pct\"" \
+        " id=\"fn_run_task_taskname_" + sStepID + "\"" \
+        " value=\"" + sLabel + "\" />\n"
+    sHTML += "<span class=\"ui-icon ui-icon-search forceinline task_picker_btn pointer\" title=\"Pick Task\"" \
+        " target_field_id=\"" + sTNField + "\"" \
+        " step_id=\"" + sStepID + "\"></span>\n"
+    if sActualTaskID != "":
+        sHTML += "<span class=\"ui-icon ui-icon-pencil forceinline task_open_btn pointer\" title=\"Edit Task\"" \
+            " task_id=\"" + sActualTaskID + "\"></span>\n"
+        sHTML += "<span class=\"ui-icon ui-icon-print forceinline task_print_btn pointer\" title=\"View Task\"" \
+            " task_id=\"" + sActualTaskID + "\"></span>\n"
+
+    # versions
+    if catocommon.is_guid(sOriginalTaskID):
         sHTML += "<br />"
-        sHTML += "Task Handle: <input type=\"text\" " + CommonAttribs(oStep, True, "handle", "") + \
-            " value=\"" + sHandle + "\" />\n"
+        sHTML += "Version: \n"
+        sHTML += "<select " + CommonAttribs(oStep, False, "version", "") + " reget_on_change=\"true\">\n"
+        # default
+        sHTML += "<option " + SetOption("", sVersion) + " value=\"\">Default</option>\n"
+
+        sSQL = "select version from task" \
+            " where original_task_id = '" + sOriginalTaskID + "'" \
+            " order by version"
+        dt = db.select_all_dict(sSQL)
+        if db.error:
+            UI.log_nouser(db.error, 0)
+            return "Database Error:" + db.error
+
+        if dt:
+            for dr in dt:
+                sHTML += "<option " + SetOption(str(dr["version"]), sVersion) + " value=\"" + str(dr["version"]) + "\">" + str(dr["version"]) + "</option>\n"
+        else:
+            return "Unable to continue - Cannot find Version for Task [" + sOriginalTaskID + "]."
+
+        sHTML += "</select></span>\n"
+
+
+
+    sHTML += "<br />"
+
+    #  asset
+    sAssetField = catocommon.new_guid()
+    sHTML += "<input type=\"text\" " + \
+        CommonAttribsWithID(oStep, False, "asset_id", sAssetField, "hidden") + \
+        " value=\"" + sAssetID + "\" />"
+
+    sHTML += "Asset: \n"
+    sHTML += "<input type=\"text\"" \
+        " help=\"Select an Asset or enter a variable.\"" + \
+        ("" if catocommon.is_guid(sAssetID) else " syntax=\"variable\"") + \
+        " step_id=\"" + sStepID + "\"" \
+        " class=\"code w75pct\"" \
+        " id=\"fn_run_task_assetname_" + sStepID + "\"" + \
+        (" disabled=\"disabled\"" if catocommon.is_guid(sAssetID) else "") + \
+        " onchange=\"javascript:pushStepFieldChangeVia(this, '" + sAssetField + "');\"" \
+        " value=\"" + sAssetName + "\" />\n"
+
+    sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_field_clear_btn pointer\" clear_id=\"fn_run_task_assetname_" + sStepID + "\"" \
+        " title=\"Clear\"></span>"
+
+    sHTML += "<span class=\"ui-icon ui-icon-search forceinline asset_picker_btn pointer\" title=\"Select\"" \
+        " link_to=\"" + sAssetField + "\"" \
+        " target_field_id=\"fn_run_task_assetname_" + sStepID + "\"" \
+        " step_id=\"" + sStepID + "\"></span>\n"
+
+    sHTML += "<br />"
+    sHTML += "Task Handle: <input type=\"text\" " + CommonAttribs(oStep, True, "handle", "") + \
+        " value=\"" + sHandle + "\" />\n"
+
+    sHTML += "Time to Wait: <input type=\"text\" " + CommonAttribs(oStep, False, "time_to_wait", "") + \
+        " value=\"" + sTime + "\" />\n"
+
+    # sHTML += "<br />"
+    # sHTML += "The following Command will be executed on Success:<br />\n"
+    # # enable the dropzone for the Success action
+    # sHTML += DrawDropZone(sStepID, sOnSuccess, sFunction, "on_success", "", False)
+
+    # sHTML += "The following Command will be executed on Error:<br />\n"
+    # # enable the dropzone for the Error action
+    # sHTML += DrawDropZone(sStepID, sOnError, sFunction, "on_error", "", False)
     
-        sHTML += "Time to Wait: <input type=\"text\" " + CommonAttribs(oStep, False, "time_to_wait", "") + \
-            " value=\"" + sTime + "\" />\n"
     
-        # sHTML += "<br />"
-        # sHTML += "The following Command will be executed on Success:<br />\n"
-        # # enable the dropzone for the Success action
-        # sHTML += DrawDropZone(sStepID, sOnSuccess, sFunction, "on_success", "", False)
+    # edit parameters link - not available unless a task is selected
+    if sActualTaskID:
+        # this is cheating but it's faster than parsing xml
+        # count the occurences of "</parameter>" in the parameter_xml
+        x = sParameterXML.count("</parameter>")
+        r = sParameterXML.count("required=\"true\"")
+        if x:
+            # we need to make sure the parameters are saved on the run_task command,
+            # even if it's embedded in another command.
+            sBaseXPath = (oStep.XPathPrefix if oStep.XPathPrefix else "")
+            icon = ("alert" if r else "pencil")
+            sHTML += "<hr />"
+            sHTML += "<div class=\"fn_runtask_edit_parameters_btn pointer\"" \
+                " base_xpath=\"" + sBaseXPath + "\"" \
+                " task_id=\"" + sActualTaskID + "\"" \
+                " step_id=\"" + sStepID + "\">" \
+                "<span class=\"ui-icon ui-icon-%s forceinline \"></span> Edit Parameters (%s)</div>" % (icon, str(x))
     
-        # sHTML += "The following Command will be executed on Error:<br />\n"
-        # # enable the dropzone for the Error action
-        # sHTML += DrawDropZone(sStepID, sOnError, sFunction, "on_error", "", False)
-        
-        
-        # edit parameters link - not available unless a task is selected
-        if sActualTaskID:
-            # this is cheating but it's faster than parsing xml
-            # count the occurences of "</parameter>" in the parameter_xml
-            x = sParameterXML.count("</parameter>")
-            r = sParameterXML.count("required=\"true\"")
-            if x:
-                # we need to make sure the parameters are saved on the run_task command,
-                # even if it's embedded in another command.
-                sBaseXPath = (oStep.XPathPrefix if oStep.XPathPrefix else "")
-                icon = ("alert" if r else "pencil")
-                sHTML += "<hr />"
-                sHTML += "<div class=\"fn_runtask_edit_parameters_btn pointer\"" \
-                    " base_xpath=\"" + sBaseXPath + "\"" \
-                    " task_id=\"" + sActualTaskID + "\"" \
-                    " step_id=\"" + sStepID + "\">" \
-                    "<span class=\"ui-icon ui-icon-%s forceinline \"></span> Edit Parameters (%s)</div>" % (icon, str(x))
-        
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
-    finally:
-        if db.conn.socket:
-            db.close()
+    db.close()
+    return sHTML
 
 def RunTask_View(oStep):
-    try:
-        db = catocommon.new_conn()
+    db = catocommon.new_conn()
 
-        xd = oStep.FunctionXDoc
-        
-        sOriginalTaskID = ""
-        sActualTaskID = ""
-        # sOnSuccess = ""
-        # sOnError = ""
-        sAssetID = ""
-        sAssetName = ""
-        sLabel = ""
-        sHTML = ""
-        sParameterXML = ""
-        
-        sTaskName = xd.findtext("task_name", "")
-        sVersion = xd.findtext("version")
-        sHandle = xd.findtext("handle", "")
-        sTime = xd.findtext("time_to_wait", "")
-        sAssetID = xd.findtext("asset_id", "")
+    xd = oStep.FunctionXDoc
     
-        # get the name and code for belonging to this otid and version
-        if sTaskName:
-            sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
-                " where task_name = '" + sTaskName + "'" + \
-                (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
+    sOriginalTaskID = ""
+    sActualTaskID = ""
+    # sOnSuccess = ""
+    # sOnError = ""
+    sAssetID = ""
+    sAssetName = ""
+    sLabel = ""
+    sHTML = ""
+    sParameterXML = ""
     
-            dr = db.select_row_dict(sSQL)
-            if db.error:
-                UI.log_nouser(db.error, 0)
-                return "Error retrieving target Task.(1)" + db.error
-    
-            if dr is not None:
-                sLabel = dr["task_code"] + " : " + dr["task_name"]
-                sOriginalTaskID = dr["original_task_id"]
-                sActualTaskID = dr["task_id"]
-                sParameterXML = (dr["parameter_xml"] if dr["parameter_xml"] else "")
-            else:
-                sLabel = "Unable to find [%s]" % sTaskName
-    
-    
-        # IF IT's A GUID...
-        #  get the asset name belonging to this asset_id
-        #  OTHERWISE
-        #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
-        if catocommon.is_guid(sAssetID):
-            sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
-    
-            sAssetName = db.select_col_noexcep(sSQL)
-            if db.error:
-                return "Error retrieving Run Task Asset Name." + db.error
-    
-            if sAssetName == "":
-                return "Unable to find Asset by ID - [" + sAssetID + "]." + db.error
+    sTaskName = xd.findtext("task_name", "")
+    sVersion = xd.findtext("version")
+    sHandle = xd.findtext("handle", "")
+    sTime = xd.findtext("time_to_wait", "")
+    sAssetID = xd.findtext("asset_id", "")
+
+    # get the name and code for belonging to this otid and version
+    if sTaskName:
+        sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
+            " where task_name = '" + sTaskName + "'" + \
+            (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
+
+        dr = db.select_row_dict(sSQL)
+        if db.error:
+            UI.log_nouser(db.error, 0)
+            return "Error retrieving target Task.(1)" + db.error
+
+        if dr is not None:
+            sLabel = dr["task_code"] + " : " + dr["task_name"]
+            sOriginalTaskID = dr["original_task_id"]
+            sActualTaskID = dr["task_id"]
+            sParameterXML = (dr["parameter_xml"] if dr["parameter_xml"] else "")
         else:
-            sAssetName = sAssetID
-    
-    
-    
-    
-        # all good, draw the widget
-        sHTML += "Task: \n"
-        sHTML += "<span class=\"code\">" + sLabel + "</span>"
-    
-        # versions
-        if catocommon.is_guid(sOriginalTaskID):
-            sHTML += "<br />"
-            sHTML += "Version: \n"
-            sHTML += "<span class=\"code\">" + (sVersion if sVersion else "Default") + "</span>"
-    
-    
-    
-        sHTML += "<br />"
+            sLabel = "Unable to find [%s]" % sTaskName
 
-        #  asset
-        sHTML += "Asset: \n"
-        sHTML += "<span class=\"code\">" + sAssetName + "</span>"
-    
+
+    # IF IT's A GUID...
+    #  get the asset name belonging to this asset_id
+    #  OTHERWISE
+    #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
+    if catocommon.is_guid(sAssetID):
+        sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
+
+        sAssetName = db.select_col_noexcep(sSQL)
+        if db.error:
+            return "Error retrieving Run Task Asset Name." + db.error
+
+        if sAssetName == "":
+            return "Unable to find Asset by ID - [" + sAssetID + "]." + db.error
+    else:
+        sAssetName = sAssetID
+
+
+
+
+    # all good, draw the widget
+    sHTML += "Task: \n"
+    sHTML += "<span class=\"code\">" + sLabel + "</span>"
+
+    # versions
+    if catocommon.is_guid(sOriginalTaskID):
         sHTML += "<br />"
-        sHTML += "Task Handle:\n"
-        sHTML += "<span class=\"code\">" + sHandle + "</span>"
+        sHTML += "Version: \n"
+        sHTML += "<span class=\"code\">" + (sVersion if sVersion else "Default") + "</span>"
+
+
+
+    sHTML += "<br />"
+
+    #  asset
+    sHTML += "Asset: \n"
+    sHTML += "<span class=\"code\">" + sAssetName + "</span>"
+
+    sHTML += "<br />"
+    sHTML += "Task Handle:\n"
+    sHTML += "<span class=\"code\">" + sHandle + "</span>"
+
+    sHTML += " Time to Wait:\n"
+    sHTML += "<span class=\"code\">" + sTime + "</span>"
+
+    if sActualTaskID:
+        if sParameterXML:
+            sHTML += "<hr />"
+            sHTML += "Parameters:"
+            sHTML += DrawCommandParameterSection(sParameterXML, False, True)
     
-        sHTML += " Time to Wait:\n"
-        sHTML += "<span class=\"code\">" + sTime + "</span>"
-    
-        if sActualTaskID:
-            if sParameterXML:
-                sHTML += "<hr />"
-                sHTML += "Parameters:"
-                sHTML += DrawCommandParameterSection(sParameterXML, False, True)
-        
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
-    finally:
-        if db.conn.socket:
-            db.close()
+    db.close()
+    return sHTML
 
 def Subtask(oStep):
-    try:
-        db = catocommon.new_conn()
+    db = catocommon.new_conn()
 
-        sStepID = oStep.ID
-        xd = oStep.FunctionXDoc
+    sStepID = oStep.ID
+    xd = oStep.FunctionXDoc
+
+    sActualTaskID = ""
+    sLabel = ""
+    sHTML = ""
+
+    sTaskName = xd.findtext("task_name", "")
+    sVersion = xd.findtext("version", "")
     
-        sActualTaskID = ""
-        sLabel = ""
-        sHTML = ""
-    
-        sTaskName = xd.findtext("task_name", "")
-        sVersion = xd.findtext("version", "")
-        
-        sOriginalTaskID = ""
-    
-        # get the name and code for belonging to this otid and version
-        if sTaskName:
+    sOriginalTaskID = ""
+
+    # get the name and code for belonging to this otid and version
+    if sTaskName:
+        sSQL = "select original_task_id, task_id, task_code, task_name from task" \
+            " where task_name = '" + sTaskName + "'" + \
+            (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
+
+        dr = db.select_row_dict(sSQL)
+        if db.error:
+            UI.log("Error retrieving subtask.(1)<br />" + db.error)
+            return "Error retrieving subtask.(1)<br />" + db.error
+
+        if dr is not None:
+            sLabel = dr["task_code"] + " : " + dr["task_name"]
+            sOriginalTaskID = dr["original_task_id"]
+            sActualTaskID = dr["task_id"]
+        else:
+            # It's possible that the user changed the task from the picker but had 
+            # selected a version, which is still there now but may not apply to the new task.
+            # so, if the above SQL failed, try: again by resetting the version box to the default.
             sSQL = "select original_task_id, task_id, task_code, task_name from task" \
-                " where task_name = '" + sTaskName + "'" + \
-                (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
-    
+                " where task_name = '" + sTaskName + "'" \
+                " and default_version = 1"
+
             dr = db.select_row_dict(sSQL)
             if db.error:
-                UI.log("Error retrieving subtask.(1)<br />" + db.error)
-                return "Error retrieving subtask.(1)<br />" + db.error
+                UI.log("Error retrieving subtask.(2)<br />" + db.error)
+                return "Error retrieving subtask.(2)<br />" + db.error
 
             if dr is not None:
                 sLabel = dr["task_code"] + " : " + dr["task_name"]
                 sOriginalTaskID = dr["original_task_id"]
                 sActualTaskID = dr["task_id"]
+
+                # oh yeah, and set the version field to null since it was wrong.
+                SetNodeValueinCommandXML(sStepID, "version", "")
             else:
-                # It's possible that the user changed the task from the picker but had 
-                # selected a version, which is still there now but may not apply to the new task.
-                # so, if the above SQL failed, try: again by resetting the version box to the default.
-                sSQL = "select original_task_id, task_id, task_code, task_name from task" \
-                    " where task_name = '" + sTaskName + "'" \
-                    " and default_version = 1"
-    
-                dr = db.select_row_dict(sSQL)
-                if db.error:
-                    UI.log("Error retrieving subtask.(2)<br />" + db.error)
-                    return "Error retrieving subtask.(2)<br />" + db.error
-    
-                if dr is not None:
-                    sLabel = dr["task_code"] + " : " + dr["task_name"]
-                    sOriginalTaskID = dr["original_task_id"]
-                    sActualTaskID = dr["task_id"]
-    
-                    # oh yeah, and set the version field to null since it was wrong.
-                    SetNodeValueinCommandXML(sStepID, "version", "")
-                else:
-                    # set the name anyway, but mark the field
-                    sLabel = "Unable to find [" + sTaskName + "]."
-    
+                # set the name anyway, but mark the field
+                sLabel = "Unable to find [" + sTaskName + "]."
+
 #        # if we didn't get the full details, we bail...
 #        if not sOriginalTaskID:
 #            UI.log("Unable to resolve original id of task [" + sTaskName + "] version [" + sVersion + "].")
 #            return "Unable to resolve original id of  task [" + sTaskName + "] version [" + sVersion + "]."
-            
         
-        # all good, draw the widget
-        sTNField = catocommon.new_guid()
     
-        sHTML += "<input type=\"text\" " + \
-            CommonAttribsWithID(oStep, True, "task_name", sTNField, "hidden") + \
-            " value=\"" + sOriginalTaskID + "\" reget_on_change=\"true\" />\n"
-    
-        sHTML += "Task: \n"
-        sHTML += "<input type=\"text\"" \
-            " onkeydown=\"return false;\"" \
-            " onkeypress=\"return false;\"" \
-            " is_required=\"true\"" \
-            " step_id=\"" + sStepID + "\"" \
-            " class=\"code w75pct\"" \
-            " id=\"fn_subtask_taskname_" + sStepID + "\"" \
-            " value=\"" + sLabel + "\" />\n"
-        sHTML += "<span class=\"ui-icon ui-icon-search forceinline task_picker_btn pointer\"" \
-            " target_field_id=\"" + sTNField + "\"" \
-            " step_id=\"" + sStepID + "\"></span>\n"
-        if sActualTaskID != "":
-            sHTML += "<span class=\"ui-icon ui-icon-pencil forceinline task_open_btn pointer\" title=\"Edit Task\"" \
-                " task_id=\"" + sActualTaskID + "\"></span>\n"
-            sHTML += "<span class=\"ui-icon ui-icon-print forceinline task_print_btn pointer\" title=\"View Task\"" \
-                " task_id=\"" + sActualTaskID + "\"></span>\n"
-        # versions
-        if catocommon.is_guid(sOriginalTaskID):
-            sHTML += "<br />"
-            sHTML += "Version: \n"
-            sHTML += "<select " + CommonAttribs(oStep, False, "version", "") + \
-                " reget_on_change=\"true\">\n"
-            # default
-            sHTML += "<option " + SetOption("", sVersion) + " value=\"\">Default</option>\n"
-    
-            sSQL = "select version from task" \
-                " where original_task_id = '" + sOriginalTaskID + "'" \
-                " order by version"
-            dt = db.select_all_dict(sSQL)
-            if db.error:
-                UI.log_nouser(db.error, 0)
-            if dt:
-                for dr in dt:
-                    sHTML += "<option " + SetOption(str(dr["version"]), sVersion) + " value=\"" + str(dr["version"]) + "\">" + str(dr["version"]) + "</option>\n"
-            else:
-                return "Unable to continue - Cannot find Version for Task [" + sOriginalTaskID + "]."
-    
-            sHTML += "</select></span>\n"
-    
-        # let's display a div for the parameters
-        sHTML += "<div>"
-        sHTML += "<span class=\"subtask_view_parameters_btn pointer\" id=\"stvp_" + sActualTaskID + "\">"
-        sHTML += "<span class=\"ui-icon ui-icon-document forceinline\"></span> ( click to view parameters )</span>"
-        sHTML += "<div class=\"subtask_view_parameters\"></div>"
-        sHTML += "</div>"
-    
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
-    finally:
-        if db.conn.socket:
-            db.close()
+    # all good, draw the widget
+    sTNField = catocommon.new_guid()
+
+    sHTML += "<input type=\"text\" " + \
+        CommonAttribsWithID(oStep, True, "task_name", sTNField, "hidden") + \
+        " value=\"" + sOriginalTaskID + "\" reget_on_change=\"true\" />\n"
+
+    sHTML += "Task: \n"
+    sHTML += "<input type=\"text\"" \
+        " onkeydown=\"return false;\"" \
+        " onkeypress=\"return false;\"" \
+        " is_required=\"true\"" \
+        " step_id=\"" + sStepID + "\"" \
+        " class=\"code w75pct\"" \
+        " id=\"fn_subtask_taskname_" + sStepID + "\"" \
+        " value=\"" + sLabel + "\" />\n"
+    sHTML += "<span class=\"ui-icon ui-icon-search forceinline task_picker_btn pointer\"" \
+        " target_field_id=\"" + sTNField + "\"" \
+        " step_id=\"" + sStepID + "\"></span>\n"
+    if sActualTaskID != "":
+        sHTML += "<span class=\"ui-icon ui-icon-pencil forceinline task_open_btn pointer\" title=\"Edit Task\"" \
+            " task_id=\"" + sActualTaskID + "\"></span>\n"
+        sHTML += "<span class=\"ui-icon ui-icon-print forceinline task_print_btn pointer\" title=\"View Task\"" \
+            " task_id=\"" + sActualTaskID + "\"></span>\n"
+    # versions
+    if catocommon.is_guid(sOriginalTaskID):
+        sHTML += "<br />"
+        sHTML += "Version: \n"
+        sHTML += "<select " + CommonAttribs(oStep, False, "version", "") + \
+            " reget_on_change=\"true\">\n"
+        # default
+        sHTML += "<option " + SetOption("", sVersion) + " value=\"\">Default</option>\n"
+
+        sSQL = "select version from task" \
+            " where original_task_id = '" + sOriginalTaskID + "'" \
+            " order by version"
+        dt = db.select_all_dict(sSQL)
+        if db.error:
+            UI.log_nouser(db.error, 0)
+        if dt:
+            for dr in dt:
+                sHTML += "<option " + SetOption(str(dr["version"]), sVersion) + " value=\"" + str(dr["version"]) + "\">" + str(dr["version"]) + "</option>\n"
+        else:
+            return "Unable to continue - Cannot find Version for Task [" + sOriginalTaskID + "]."
+
+        sHTML += "</select></span>\n"
+
+    # let's display a div for the parameters
+    sHTML += "<div>"
+    sHTML += "<span class=\"subtask_view_parameters_btn pointer\" id=\"stvp_" + sActualTaskID + "\">"
+    sHTML += "<span class=\"ui-icon ui-icon-document forceinline\"></span> ( click to view parameters )</span>"
+    sHTML += "<div class=\"subtask_view_parameters\"></div>"
+    sHTML += "</div>"
+
+    db.close()
+    return sHTML
 
 def Subtask_View(oStep):
-    try:
-        db = catocommon.new_conn()
+    db = catocommon.new_conn()
 
-        xd = oStep.FunctionXDoc
-    
-        sActualTaskID = ""
-        sLabel = ""
-        sHTML = ""
-    
-        sTaskName = xd.findtext("task_name", "")
-        sVersion = xd.findtext("version", "")
-        sOriginalTaskID = ""
-        
-        # get the name and code for belonging to this otid and version
-        if sTaskName:
-            sSQL = "select original_task_id, task_id, task_code, task_name, parameter_xml from task" \
-                " where task_name = '" + sTaskName + "'" + \
-                (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
-    
-            dr = db.select_row_dict(sSQL)
-            if db.error:
-                UI.log("Error retrieving subtask.(1)<br />" + db.error)
-                return "Error retrieving subtask.(1)<br />" + db.error
+    xd = oStep.FunctionXDoc
 
-            if dr is not None:
-                sLabel = dr["task_code"] + " : " + dr["task_name"]
-                sOriginalTaskID = dr["original_task_id"]
-                sActualTaskID = dr["task_id"]
-                sParameterXML = (dr["parameter_xml"] if dr["parameter_xml"] else "")
-            else:
-                sLabel = "Unable to find [%s]" % sTaskName
+    sActualTaskID = ""
+    sLabel = ""
+    sHTML = ""
+
+    sTaskName = xd.findtext("task_name", "")
+    sVersion = xd.findtext("version", "")
+    sOriginalTaskID = ""
     
-        # all good, draw the widget
-        sHTML += "Task: \n"
-        sHTML += "<span class=\"code\">" + sLabel + "</span>"
-        # versions
-        if catocommon.is_guid(sOriginalTaskID):
-            sHTML += "<br />"
-            sHTML += "Version: \n"
-            sHTML += "<span class=\"code\">" + (sVersion if sVersion else "Default") + "</span>"
-    
-        # let's display a div for the parameters
-        if sActualTaskID:
-            if sParameterXML:
-                sHTML += "<hr />"
-                sHTML += "Parameters:"
-                sHTML += DrawCommandParameterSection(sParameterXML, False, True)
-    
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
-    finally:
-        if db.conn.socket:
-            db.close()
+    # get the name and code for belonging to this otid and version
+    if sTaskName:
+        sSQL = "select original_task_id, task_id, task_code, task_name, parameter_xml from task" \
+            " where task_name = '" + sTaskName + "'" + \
+            (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
+
+        dr = db.select_row_dict(sSQL)
+        if db.error:
+            UI.log("Error retrieving subtask.(1)<br />" + db.error)
+            return "Error retrieving subtask.(1)<br />" + db.error
+
+        if dr is not None:
+            sLabel = dr["task_code"] + " : " + dr["task_name"]
+            sOriginalTaskID = dr["original_task_id"]
+            sActualTaskID = dr["task_id"]
+            sParameterXML = (dr["parameter_xml"] if dr["parameter_xml"] else "")
+        else:
+            sLabel = "Unable to find [%s]" % sTaskName
+
+    # all good, draw the widget
+    sHTML += "Task: \n"
+    sHTML += "<span class=\"code\">" + sLabel + "</span>"
+    # versions
+    if catocommon.is_guid(sOriginalTaskID):
+        sHTML += "<br />"
+        sHTML += "Version: \n"
+        sHTML += "<span class=\"code\">" + (sVersion if sVersion else "Default") + "</span>"
+
+    # let's display a div for the parameters
+    if sActualTaskID:
+        if sParameterXML:
+            sHTML += "<hr />"
+            sHTML += "Parameters:"
+            sHTML += DrawCommandParameterSection(sParameterXML, False, True)
+
+    return sHTML
 
 def WaitForTasks(oStep):
-    try:
-        # the base xpath of this command (will be '' unless this is embedded)
-        # NOTE: do not append the base_path on any CommonAttribs calls, it's done inside that function.
-        base_xpath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "")  
-    
-        sStepID = oStep.ID
-        xd = oStep.FunctionXDoc
-    
-        sHTML = ""
-    
-        sHTML += "<div id=\"v" + sStepID + "_handles\">"
-        sHTML += "Task Handles:<br />"
-    
-        xPairs = xd.findall("handles/handle")
-        i = 1
-        for xe in xPairs:
-            sKey = xe.findtext("name", "")
-    
-            sHTML += "&nbsp;&nbsp;&nbsp;<input type=\"text\" " + CommonAttribs(oStep, True, "handles/handle[" + str(i) + "]/name", "") + \
-                " validate_as=\"variable\"" \
-                " value=\"" + sKey + "\"" \
-                " help=\"Enter a Handle name.\"" \
-                " />\n"
-    
-            # can't delete the first one
-            if i > 1:
-                sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + "handles/handle[" + str(i) + "]\" step_id=\"" + sStepID + "\"></span>"
-    
-            # break it every three fields
-            if i % 3 == 0 and i >= 3:
-                sHTML += "<br />"
-    
-            i += 1
-    
-        sHTML += "<div class=\"fn_node_add_btn pointer\"" \
-            " function_name=\"" + oStep.FunctionName + "\"" \
-            " template_path=\"handles\"" \
-            " add_to_node=\"" + base_xpath + "handles\"" \
-            " step_id=\"" + sStepID + "\">" \
-            "<span class=\"ui-icon ui-icon-plus forceinline\"></span> ( click to add another )</div>"
-        sHTML += "</div>"
-    
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+    # the base xpath of this command (will be '' unless this is embedded)
+    # NOTE: do not append the base_path on any CommonAttribs calls, it's done inside that function.
+    base_xpath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "")  
+
+    sStepID = oStep.ID
+    xd = oStep.FunctionXDoc
+
+    sHTML = ""
+
+    sHTML += "<div id=\"v" + sStepID + "_handles\">"
+    sHTML += "Task Handles:<br />"
+
+    xPairs = xd.findall("handles/handle")
+    i = 1
+    for xe in xPairs:
+        sKey = xe.findtext("name", "")
+
+        sHTML += "&nbsp;&nbsp;&nbsp;<input type=\"text\" " + CommonAttribs(oStep, True, "handles/handle[" + str(i) + "]/name", "") + \
+            " validate_as=\"variable\"" \
+            " value=\"" + sKey + "\"" \
+            " help=\"Enter a Handle name.\"" \
+            " />\n"
+
+        # can't delete the first one
+        if i > 1:
+            sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + "handles/handle[" + str(i) + "]\" step_id=\"" + sStepID + "\"></span>"
+
+        # break it every three fields
+        if i % 3 == 0 and i >= 3:
+            sHTML += "<br />"
+
+        i += 1
+
+    sHTML += "<div class=\"fn_node_add_btn pointer\"" \
+        " function_name=\"" + oStep.FunctionName + "\"" \
+        " template_path=\"handles\"" \
+        " add_to_node=\"" + base_xpath + "handles\"" \
+        " step_id=\"" + sStepID + "\">" \
+        "<span class=\"ui-icon ui-icon-plus forceinline\"></span> ( click to add another )</div>"
+    sHTML += "</div>"
+
+    return sHTML
 
 def ClearVariable(oStep):
-    try:
-        # the base xpath of this command (will be '' unless this is embedded)
-        # NOTE: do not append the base_path on any CommonAttribs calls, it's done inside that function.
-        base_xpath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "")  
-    
-        sStepID = oStep.ID
-        xd = oStep.FunctionXDoc
-    
-        sHTML = ""
-    
-        sHTML += "<div id=\"v" + sStepID + "_vars\">"
-        sHTML += "Variables to Clear:<br />"
-    
-        xPairs = xd.findall("variables/variable")
-        i = 1
-        for xe in xPairs:
-            sKey = xe.findtext("name", "")
-    
-            # Trac#389 - Make sure variable names are trimmed of whitespace if it exists
-            # hokey, but doing it here because the field update function is global.
-            if sKey.strip() != sKey:
-                SetNodeValueinCommandXML(sStepID, base_xpath + "variables/variable[" + str(i) + "]/name", sKey.strip())
-    
-            sHTML += "&nbsp;&nbsp;&nbsp;<input type=\"text\" " + CommonAttribs(oStep, True, "variables/variable[" + str(i) + "]/name", "") + \
-                " validate_as=\"variable\"" \
-                " value=\"" + sKey + "\"" \
-                " help=\"Enter a Variable name.\"" \
-                " />\n"
-    
-            # can't delete the first one
-            if i > 1:
-                sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + "variables/variable[" + str(i) + "]\" step_id=\"" + sStepID + "\" title=\"Remove\"></span>"
-    
-            # break it every three fields
-            if i % 3 == 0 and i >= 3:
-                sHTML += "<br />"
-    
-            i += 1
-    
-        sHTML += "<div class=\"fn_node_add_btn pointer\"" \
-            " function_name=\"" + oStep.FunctionName + "\"" \
-            " template_path=\"variables\"" \
-            " add_to_node=\"" + base_xpath + "variables\"" \
-            " step_id=\"" + sStepID + "\">" \
-            "<span class=\"ui-icon ui-icon-plus forceinline\" title=\"Add another.\"></span>( click to add another )</div>"
-        sHTML += "</div>"
-    
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+    # the base xpath of this command (will be '' unless this is embedded)
+    # NOTE: do not append the base_path on any CommonAttribs calls, it's done inside that function.
+    base_xpath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "")  
+
+    sStepID = oStep.ID
+    xd = oStep.FunctionXDoc
+
+    sHTML = ""
+
+    sHTML += "<div id=\"v" + sStepID + "_vars\">"
+    sHTML += "Variables to Clear:<br />"
+
+    xPairs = xd.findall("variables/variable")
+    i = 1
+    for xe in xPairs:
+        sKey = xe.findtext("name", "")
+
+        # Trac#389 - Make sure variable names are trimmed of whitespace if it exists
+        # hokey, but doing it here because the field update function is global.
+        if sKey.strip() != sKey:
+            SetNodeValueinCommandXML(sStepID, base_xpath + "variables/variable[" + str(i) + "]/name", sKey.strip())
+
+        sHTML += "&nbsp;&nbsp;&nbsp;<input type=\"text\" " + CommonAttribs(oStep, True, "variables/variable[" + str(i) + "]/name", "") + \
+            " validate_as=\"variable\"" \
+            " value=\"" + sKey + "\"" \
+            " help=\"Enter a Variable name.\"" \
+            " />\n"
+
+        # can't delete the first one
+        if i > 1:
+            sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + "variables/variable[" + str(i) + "]\" step_id=\"" + sStepID + "\" title=\"Remove\"></span>"
+
+        # break it every three fields
+        if i % 3 == 0 and i >= 3:
+            sHTML += "<br />"
+
+        i += 1
+
+    sHTML += "<div class=\"fn_node_add_btn pointer\"" \
+        " function_name=\"" + oStep.FunctionName + "\"" \
+        " template_path=\"variables\"" \
+        " add_to_node=\"" + base_xpath + "variables\"" \
+        " step_id=\"" + sStepID + "\">" \
+        "<span class=\"ui-icon ui-icon-plus forceinline\" title=\"Add another.\"></span>( click to add another )</div>"
+    sHTML += "</div>"
+
+    return sHTML
 
 def SetVariable(oStep):
-    try:
-        # the base xpath of this command (will be '' unless this is embedded)
-        # NOTE: do not append the base_path on any CommonAttribs calls, it's done inside that function.
-        base_xpath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "")  
-    
-        sStepID = oStep.ID
-        xd = oStep.FunctionXDoc
-    
-        sHTML = ""
-    
-        sHTML += "<div id=\"v" + sStepID + "_vars\">"
-        sHTML += "<table border=\"0\" class=\"w99pct\" cellpadding=\"0\" cellspacing=\"0\">\n"
-    
-        xPairs = xd.findall("variables/variable")
-        i = 1
-        for xe in xPairs:
-    
-            sKey = xe.findtext("name", "")
-            sVal = xe.findtext("value", "")
-            sMod = xe.findtext("modifier", "")
-    
-            # Trac#389 - Make sure variable names are trimmed of whitespace if it exists
-            # hokey, but doing it here because the field update function is global.
-            if sKey.strip() != sKey:
-                SetNodeValueinCommandXML(sStepID, base_xpath + "variables/variable[" + str(i) + "]/name", sKey.strip())
-    
-            sHTML += "<tr>\n"
-            sHTML += "<td class=\"w1pct\">&nbsp;Variable:&nbsp;</td>\n"
-            sHTML += "<td class=\"w1pct\"><input type=\"text\" " + CommonAttribs(oStep, True, "variables/variable[" + str(i) + "]/name", "") + \
-                " validate_as=\"variable\"" \
-                " value=\"" + sKey + "\"" \
-                " help=\"Enter a Variable name.\"" \
-                " /></td>\n"
-            sHTML += "<td class=\"w1pct\">&nbsp;Value:&nbsp;</td>"
-    
-            #  we gotta get the field id first, but don't show the textarea until after
-            sValueFieldID = catocommon.new_guid()
-            sCommonAttribs = CommonAttribsWithID(oStep, True, "variables/variable[" + str(i) + "]/value", sValueFieldID, "w90pct")
-    
-            sHTML += "<td class=\"w75pct\" style=\"vertical-align: bottom;\"><textarea rows=\"1\" style=\"height: 18px;\" " + sCommonAttribs + \
-                " help=\"Enter a value for the Variable.\"" \
-                ">" + UI.SafeHTML(sVal) + "</textarea>\n"
-    
-            # big box button
-            sHTML += "<span class=\"ui-icon ui-icon-pencil forceinline big_box_btn pointer\" link_to=\"" + sValueFieldID + "\"></span></td>\n"
-    
-    
-            sHTML += "<td class=\"w1pct\">&nbsp;Modifier:&nbsp;</td>"
-            sHTML += "<td class=\"w75pct\">"
-            sHTML += "<select " + CommonAttribs(oStep, False, "variables/variable[" + str(i) + "]/modifier", "") + ">\n"
-            sHTML += "  <option " + SetOption("", sMod) + " value=\"\">--None--</option>\n"
-            sHTML += "  <option " + SetOption("TO_UPPER", sMod) + " value=\"TO_UPPER\">UPPERCASE</option>\n"
-            sHTML += "  <option " + SetOption("TO_LOWER", sMod) + " value=\"TO_LOWER\">lowercase</option>\n"
-            sHTML += "  <option " + SetOption("TO_BASE64", sMod) + " value=\"TO_BASE64\">base64 encode</option>\n"
-            sHTML += "  <option " + SetOption("TO_BASE64_UTF16", sMod) + " value=\"TO_BASE64_UTF16\">base64 utf16 encode</option>\n"
-            sHTML += "  <option " + SetOption("FROM_BASE64", sMod) + " value=\"FROM_BASE64\">base64 decode</option>\n"
-            sHTML += "  <option " + SetOption("TO_JSON", sMod) + " value=\"TO_JSON\">Write JSON</option>\n"
-            sHTML += "  <option " + SetOption("FROM_JSON", sMod) + " value=\"FROM_JSON\">Read JSON</option>\n"
-            sHTML += "  <option " + SetOption("Math", sMod) + " value=\"Math\">Math</option>\n"
-            sHTML += "</select></td>\n"
-    
-            sHTML += "<td class=\"w1pct\">"
-            # can't delete the first one
-            if i > 1:
-                sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + "variables/variable[" + str(i) + "]\" step_id=\"" + sStepID + "\"></span>"
-            sHTML += "</td>"
-    
-            sHTML += "</tr>\n"
-    
-            i += 1
-    
-        sHTML += "</table>\n"
-    
-        sHTML += "<div class=\"fn_node_add_btn pointer\"" \
-            " function_name=\"" + oStep.FunctionName + "\"" \
-            " template_path=\"variables\"" \
-            " add_to_node=\"" + base_xpath + "variables\"" \
-            " step_id=\"" + sStepID + "\">" \
-            "<span class=\"ui-icon ui-icon-plus forceinline\" title=\"Add another.\" />( click to add another )</div>"
-        sHTML += "</div>"
-    
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+    # the base xpath of this command (will be '' unless this is embedded)
+    # NOTE: do not append the base_path on any CommonAttribs calls, it's done inside that function.
+    base_xpath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "")  
+
+    sStepID = oStep.ID
+    xd = oStep.FunctionXDoc
+
+    sHTML = ""
+
+    sHTML += "<div id=\"v" + sStepID + "_vars\">"
+    sHTML += "<table border=\"0\" class=\"w99pct\" cellpadding=\"0\" cellspacing=\"0\">\n"
+
+    xPairs = xd.findall("variables/variable")
+    i = 1
+    for xe in xPairs:
+
+        sKey = xe.findtext("name", "")
+        sVal = xe.findtext("value", "")
+        sMod = xe.findtext("modifier", "")
+
+        # Trac#389 - Make sure variable names are trimmed of whitespace if it exists
+        # hokey, but doing it here because the field update function is global.
+        if sKey.strip() != sKey:
+            SetNodeValueinCommandXML(sStepID, base_xpath + "variables/variable[" + str(i) + "]/name", sKey.strip())
+
+        sHTML += "<tr>\n"
+        sHTML += "<td class=\"w1pct\">&nbsp;Variable:&nbsp;</td>\n"
+        sHTML += "<td class=\"w1pct\"><input type=\"text\" " + CommonAttribs(oStep, True, "variables/variable[" + str(i) + "]/name", "") + \
+            " validate_as=\"variable\"" \
+            " value=\"" + sKey + "\"" \
+            " help=\"Enter a Variable name.\"" \
+            " /></td>\n"
+        sHTML += "<td class=\"w1pct\">&nbsp;Value:&nbsp;</td>"
+
+        #  we gotta get the field id first, but don't show the textarea until after
+        sValueFieldID = catocommon.new_guid()
+        sCommonAttribs = CommonAttribsWithID(oStep, True, "variables/variable[" + str(i) + "]/value", sValueFieldID, "w90pct")
+
+        sHTML += "<td class=\"w75pct\" style=\"vertical-align: bottom;\"><textarea rows=\"1\" style=\"height: 18px;\" " + sCommonAttribs + \
+            " help=\"Enter a value for the Variable.\"" \
+            ">" + UI.SafeHTML(sVal) + "</textarea>\n"
+
+        # big box button
+        sHTML += "<span class=\"ui-icon ui-icon-pencil forceinline big_box_btn pointer\" link_to=\"" + sValueFieldID + "\"></span></td>\n"
+
+
+        sHTML += "<td class=\"w1pct\">&nbsp;Modifier:&nbsp;</td>"
+        sHTML += "<td class=\"w75pct\">"
+        sHTML += "<select " + CommonAttribs(oStep, False, "variables/variable[" + str(i) + "]/modifier", "") + ">\n"
+        sHTML += "  <option " + SetOption("", sMod) + " value=\"\">--None--</option>\n"
+        sHTML += "  <option " + SetOption("TO_UPPER", sMod) + " value=\"TO_UPPER\">UPPERCASE</option>\n"
+        sHTML += "  <option " + SetOption("TO_LOWER", sMod) + " value=\"TO_LOWER\">lowercase</option>\n"
+        sHTML += "  <option " + SetOption("TO_BASE64", sMod) + " value=\"TO_BASE64\">base64 encode</option>\n"
+        sHTML += "  <option " + SetOption("TO_BASE64_UTF16", sMod) + " value=\"TO_BASE64_UTF16\">base64 utf16 encode</option>\n"
+        sHTML += "  <option " + SetOption("FROM_BASE64", sMod) + " value=\"FROM_BASE64\">base64 decode</option>\n"
+        sHTML += "  <option " + SetOption("TO_JSON", sMod) + " value=\"TO_JSON\">Write JSON</option>\n"
+        sHTML += "  <option " + SetOption("FROM_JSON", sMod) + " value=\"FROM_JSON\">Read JSON</option>\n"
+        sHTML += "  <option " + SetOption("Math", sMod) + " value=\"Math\">Math</option>\n"
+        sHTML += "</select></td>\n"
+
+        sHTML += "<td class=\"w1pct\">"
+        # can't delete the first one
+        if i > 1:
+            sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + "variables/variable[" + str(i) + "]\" step_id=\"" + sStepID + "\"></span>"
+        sHTML += "</td>"
+
+        sHTML += "</tr>\n"
+
+        i += 1
+
+    sHTML += "</table>\n"
+
+    sHTML += "<div class=\"fn_node_add_btn pointer\"" \
+        " function_name=\"" + oStep.FunctionName + "\"" \
+        " template_path=\"variables\"" \
+        " add_to_node=\"" + base_xpath + "variables\"" \
+        " step_id=\"" + sStepID + "\">" \
+        "<span class=\"ui-icon ui-icon-plus forceinline\" title=\"Add another.\" />( click to add another )</div>"
+    sHTML += "</div>"
+
+    return sHTML
 
 def NewConnection(oStep):
-    try:
-        UI.log("New Connection command:", 4)
-        sStepID = oStep.ID
-        xd = oStep.FunctionXDoc
-        xAsset = xd.find("asset")
-        xConnName = xd.find("conn_name")
-        xConnType = xd.find("conn_type")
-        xCloudName = xd.find("cloud_name")
-        sAssetID = ("" if xAsset is None else ("" if xAsset.text is None else xAsset.text))
-        sConnType = ("ssh" if xConnType is None else ("ssh" if xConnType.text is None else xConnType.text))
-        sCloudName = ("" if xCloudName is None else ("" if xCloudName.text is None else xCloudName.text))
-    
-        sHTML = ""
-        sHTML += "Connect via: \n"
-        sHTML += "<select " + CommonAttribs(oStep, True, "conn_type", "") + " reget_on_change=\"true\">\n"
-    
-        for ct in uiGlobals.ConnectionTypes:
-            sHTML += "<option " + SetOption(ct, sConnType) + " value=\"" + ct + "\">" + ct + "</option>\n"
-    
-        sHTML += "</select>\n"
+    UI.log("New Connection command:", 4)
+    sStepID = oStep.ID
+    xd = oStep.FunctionXDoc
+    xAsset = xd.find("asset")
+    xConnName = xd.find("conn_name")
+    xConnType = xd.find("conn_type")
+    xCloudName = xd.find("cloud_name")
+    sAssetID = ("" if xAsset is None else ("" if xAsset.text is None else xAsset.text))
+    sConnType = ("ssh" if xConnType is None else ("ssh" if xConnType.text is None else xConnType.text))
+    sCloudName = ("" if xCloudName is None else ("" if xCloudName.text is None else xCloudName.text))
 
-        # nothing special here, just draw the field.
-        sHTML += DrawField(xConnName, "conn_name", oStep)
+    sHTML = ""
+    sHTML += "Connect via: \n"
+    sHTML += "<select " + CommonAttribs(oStep, True, "conn_type", "") + " reget_on_change=\"true\">\n"
+
+    for ct in uiGlobals.ConnectionTypes:
+        sHTML += "<option " + SetOption(ct, sConnType) + " value=\"" + ct + "\">" + ct + "</option>\n"
+
+    sHTML += "</select>\n"
+
+    # nothing special here, just draw the field.
+    sHTML += DrawField(xConnName, "conn_name", oStep)
+
+    sHTML += "<br />\n"
+
+    # now, based on the type, we might show or hide certain things
+    if sConnType == "ssh - ec2":
+        # if the assetid is a guid, it means the user switched from another connection type... wipe it.
+        if catocommon.is_guid(sAssetID):
+            SetNodeValueinCommandXML(sStepID, "asset", "")
+            sAssetID = ""
+        
+        sHTML += " to Instance \n"
+        sHTML += "<input type=\"text\" " + \
+            CommonAttribs(oStep, True, "asset", "w300px code") + \
+            " is_required=\"true\"" \
+            " value=\"" + sAssetID + "\"" + " />\n"
+
+        sHTML += " in Cloud \n"
+        
+        sHTML += "<select " + CommonAttribs(oStep, False, "cloud_name", "combo") + ">\n"
+        # empty one
+        sHTML += "<option " + SetOption("", sCloudName) + " value=\"\"></option>\n"
+        
+        bValueWasInData = False
+        data = ddDataSource_GetAWSClouds()
+
+        if data is not None:
+            for k, v in data.iteritems():
+                sHTML += "<option " + SetOption(k, sCloudName) + " value=\"" + k + "\">" + v + "</option>\n"
+
+                if k == sCloudName: bValueWasInData = True
+        
+        # NOTE: we're allowing the user to enter a value that may not be 
+        # in the dataset.  If that's the case, we must add the actual saved value to the list too. 
+        if not bValueWasInData: #we didn't find it in the data ..:
+            if sCloudName: #and it's a combo and not empty
+                sHTML += "<option " + SetOption(sCloudName, sCloudName) + " value=\"" + sCloudName + "\">" + sCloudName + "</option>\n";            
+        
+        sHTML += "</select>"
+
+    else:
+        # clear out the cloud_name property... it's not relevant for these types
+        if sCloudName:
+            SetNodeValueinCommandXML(sStepID, "cloud_name", "")
+        
+        # ASSET
+        # IF IT's A GUID...
+        #  get the asset name belonging to this asset_id
+        #  OTHERWISE
+        #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
+        if catocommon.is_guid(sAssetID):
+            sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
+            db = catocommon.new_conn()
+            sAssetName = db.select_col_noexcep(sSQL)
+            if not sAssetName:
+                sAssetName = sAssetID
+                if db.error:
+                    UI.log("Unable to look up Asset name." + db.error)
+                else:
+                    SetNodeValueinCommandXML(sStepID, "asset", "")
+            db.close()
+        else:
+            sAssetName = sAssetID
+
+        sElementID = catocommon.new_guid()
+
+        sHTML += " to Asset: \n"
+        sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_field_clear_btn pointer\" clear_id=\"fn_new_connection_assetname_" + sStepID + "\"" \
+            " title=\"Clear\"></span>"
+
+        sHTML += "<span class=\"ui-icon ui-icon-search forceinline asset_picker_btn pointer\"" \
+            " link_to=\"" + sElementID + "\"" \
+            " target_field_id=\"fn_new_connection_assetname_" + sStepID + "\"" \
+            " step_id=\"" + sStepID + "\"></span>\n"
 
         sHTML += "<br />\n"
-    
-        # now, based on the type, we might show or hide certain things
-        if sConnType == "ssh - ec2":
-            # if the assetid is a guid, it means the user switched from another connection type... wipe it.
-            if catocommon.is_guid(sAssetID):
-                SetNodeValueinCommandXML(sStepID, "asset", "")
-                sAssetID = ""
-            
-            sHTML += " to Instance \n"
-            sHTML += "<input type=\"text\" " + \
-                CommonAttribs(oStep, True, "asset", "w300px code") + \
-                " is_required=\"true\"" \
-                " value=\"" + sAssetID + "\"" + " />\n"
-    
-            sHTML += " in Cloud \n"
-            
-            sHTML += "<select " + CommonAttribs(oStep, False, "cloud_name", "combo") + ">\n"
-            # empty one
-            sHTML += "<option " + SetOption("", sCloudName) + " value=\"\"></option>\n"
-            
-            bValueWasInData = False
-            data = ddDataSource_GetAWSClouds()
 
-            if data is not None:
-                for k, v in data.iteritems():
-                    sHTML += "<option " + SetOption(k, sCloudName) + " value=\"" + k + "\">" + v + "</option>\n"
-    
-                    if k == sCloudName: bValueWasInData = True
-            
-            # NOTE: we're allowing the user to enter a value that may not be 
-            # in the dataset.  If that's the case, we must add the actual saved value to the list too. 
-            if not bValueWasInData: #we didn't find it in the data ..:
-                if sCloudName: #and it's a combo and not empty
-                    sHTML += "<option " + SetOption(sCloudName, sCloudName) + " value=\"" + sCloudName + "\">" + sCloudName + "</option>\n";            
-            
-            sHTML += "</select>"
-    
-        else:
-            # clear out the cloud_name property... it's not relevant for these types
-            if sCloudName:
-                SetNodeValueinCommandXML(sStepID, "cloud_name", "")
-            
-            # ASSET
-            # IF IT's A GUID...
-            #  get the asset name belonging to this asset_id
-            #  OTHERWISE
-            #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
-            if catocommon.is_guid(sAssetID):
-                sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
-                db = catocommon.new_conn()
-                sAssetName = db.select_col_noexcep(sSQL)
-                if not sAssetName:
-                    sAssetName = sAssetID
-                    if db.error:
-                        UI.log("Unable to look up Asset name." + db.error)
-                    else:
-                        SetNodeValueinCommandXML(sStepID, "asset", "")
-                db.close()
-            else:
-                sAssetName = sAssetID
-    
-            sElementID = catocommon.new_guid()
-    
-            sHTML += " to Asset: \n"
-            sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_field_clear_btn pointer\" clear_id=\"fn_new_connection_assetname_" + sStepID + "\"" \
-                " title=\"Clear\"></span>"
-    
-            sHTML += "<span class=\"ui-icon ui-icon-search forceinline asset_picker_btn pointer\"" \
-                " link_to=\"" + sElementID + "\"" \
-                " target_field_id=\"fn_new_connection_assetname_" + sStepID + "\"" \
-                " step_id=\"" + sStepID + "\"></span>\n"
+        sHTML += "<input type=\"text\" " + \
+            CommonAttribsWithID(oStep, False, "asset", sElementID, "hidden") + \
+            " value=\"" + sAssetID + "\"" + " />\n"
+        sHTML += "<textarea" \
+            " help=\"Select an Asset or enter a variable.\"" \
+            " step_id=\"" + sStepID + "\"" \
+            " class=\"code\"" \
+            " is_required=\"true\"" \
+            " id=\"fn_new_connection_assetname_" + sStepID + "\"" \
+            " onchange=\"javascript:pushStepFieldChangeVia(this, '" + sElementID + "');\"" \
+            " >" + sAssetName + "</textarea>\n"
+        
 
-            sHTML += "<br />\n"
-
-            sHTML += "<input type=\"text\" " + \
-                CommonAttribsWithID(oStep, False, "asset", sElementID, "hidden") + \
-                " value=\"" + sAssetID + "\"" + " />\n"
-            sHTML += "<textarea" \
-                " help=\"Select an Asset or enter a variable.\"" \
-                " step_id=\"" + sStepID + "\"" \
-                " class=\"code\"" \
-                " is_required=\"true\"" \
-                " id=\"fn_new_connection_assetname_" + sStepID + "\"" \
-                " onchange=\"javascript:pushStepFieldChangeVia(this, '" + sElementID + "');\"" \
-                " >" + sAssetName + "</textarea>\n"
-            
-    
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+    return sHTML
 
 def NewConnection_View(oStep):
-    try:
-        UI.log("New Connection command:", 4)
-        sStepID = oStep.ID
-        xd = oStep.FunctionXDoc
-        xAsset = xd.find("asset")
-        xConnName = xd.find("conn_name")
-        xConnType = xd.find("conn_type")
-        xCloudName = xd.find("cloud_name")
-        sAssetID = ("" if xAsset is None else ("" if xAsset.text is None else xAsset.text))
-        sConnType = ("ssh" if xConnType is None else ("ssh" if xConnType.text is None else xConnType.text))
-        sCloudName = ("" if xCloudName is None else ("" if xCloudName.text is None else xCloudName.text))
-    
-        sHTML = ""
-        sHTML += "Connect via: \n"
-        sHTML += "<span class=\"code\">" + sConnType + "</span>"
+    UI.log("New Connection command:", 4)
+    sStepID = oStep.ID
+    xd = oStep.FunctionXDoc
+    xAsset = xd.find("asset")
+    xConnName = xd.find("conn_name")
+    xConnType = xd.find("conn_type")
+    xCloudName = xd.find("cloud_name")
+    sAssetID = ("" if xAsset is None else ("" if xAsset.text is None else xAsset.text))
+    sConnType = ("ssh" if xConnType is None else ("ssh" if xConnType.text is None else xConnType.text))
+    sCloudName = ("" if xCloudName is None else ("" if xCloudName.text is None else xCloudName.text))
 
-        # now, based on the type, we might show or hide certain things
-        if sConnType == "ssh - ec2":
-            sHTML += " to Instance \n"
-            sHTML += "<span class=\"code\">" + sAssetID + "</span>"
-    
-            sHTML += " in Cloud \n"
-            sHTML += "<span class=\"code\">" + sCloudName + "</span>"
-        else:
-            # ASSET
-            # IF IT's A GUID...
-            #  get the asset name belonging to this asset_id
-            #  OTHERWISE
-            #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
-            if catocommon.is_guid(sAssetID):
-                sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
-                db = catocommon.new_conn()
-                sAssetName = db.select_col_noexcep(sSQL)
-                if not sAssetName:
-                    sAssetName = sAssetID
-                    if db.error:
-                        UI.log("Unable to look up Asset name." + db.error)
-                    else:
-                        SetNodeValueinCommandXML(sStepID, "asset", "")
-                db.close()
-            else:
+    sHTML = ""
+    sHTML += "Connect via: \n"
+    sHTML += "<span class=\"code\">" + sConnType + "</span>"
+
+    # now, based on the type, we might show or hide certain things
+    if sConnType == "ssh - ec2":
+        sHTML += " to Instance \n"
+        sHTML += "<span class=\"code\">" + sAssetID + "</span>"
+
+        sHTML += " in Cloud \n"
+        sHTML += "<span class=\"code\">" + sCloudName + "</span>"
+    else:
+        # ASSET
+        # IF IT's A GUID...
+        #  get the asset name belonging to this asset_id
+        #  OTHERWISE
+        #  make the sAssetName value be what's in sAssetID (a literal value in [[variable]] format)
+        if catocommon.is_guid(sAssetID):
+            sSQL = "select asset_name from asset where asset_id = '" + sAssetID + "'"
+            db = catocommon.new_conn()
+            sAssetName = db.select_col_noexcep(sSQL)
+            if not sAssetName:
                 sAssetName = sAssetID
-    
-            sHTML += " to Asset \n"
-            sHTML += "<span class=\"code\">" + sAssetName + "</span>"
-           
-        # nothing special here, just draw the field.
-        sHTML += DrawReadOnlyField(xConnName, "conn_name", oStep)
-    
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+                if db.error:
+                    UI.log("Unable to look up Asset name." + db.error)
+                else:
+                    SetNodeValueinCommandXML(sStepID, "asset", "")
+            db.close()
+        else:
+            sAssetName = sAssetID
+
+        sHTML += " to Asset \n"
+        sHTML += "<span class=\"code\">" + sAssetName + "</span>"
+       
+    # nothing special here, just draw the field.
+    sHTML += DrawReadOnlyField(xConnName, "conn_name", oStep)
+
+    return sHTML
 
 def If(oStep):
-    try:
-        # the base xpath of this command (will be '' unless this is embedded)
-        # NOTE: do not append the base_path on any CommonAttribs calls, it's done inside that function.
-        base_xpath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "")  
-    
-        sStepID = oStep.ID
-        xd = oStep.FunctionXDoc
-    
-        sHTML = ""
-    
-        xTests = xd.findall("tests/test")
-        sHTML += "<div id=\"if_" + sStepID + "_conditions\" number=\"" + str(len(xTests)) + "\">"
-    
-        i = 1 # because XPath starts at "1"
-        for xTest in xTests:
-            sEval = xTest.findtext("eval", None)
-            xAction = xTest.find("action", None)
-    
-            #  we gotta get the field id first, but don't show the textarea until after
-            sFieldID = catocommon.new_guid()
-            sCol = "tests/test[" + str(i) + "]/eval"
-            sCommonAttribsForTA = CommonAttribsWithID(oStep, True, sCol, sFieldID, "")
-    
-            # a way to delete the section you just added
-            if i == 1:
-                xGlobals = ET.parse("luCompareTemplates.xml")
-    
-                if xGlobals is None:
-                    sHTML += "(No Compare templates file available)<br />"
-                else:
-                    sHTML += "Comparison Template: <select class=\"compare_templates\" textarea_id=\"" + sFieldID + "\">\n"
-                    sHTML += "  <option value=\"\"></option>\n"
-    
-                    xTemplates = xGlobals.findall("template")
-                    for xEl in xTemplates:
-                        sHTML += "  <option value=\"" + xEl.findtext("value", "") + "\">" + xEl.findtext("name", "") + "</option>\n"
-                    sHTML += "</select> <br />\n"
-    
-    
-                sHTML += "If:<br />"
-            else:
-                sHTML += "<div id=\"if_" + sStepID + "_else_" + str(i) + "\" class=\"fn_if_else_section\">"
-                sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + "tests/test[" + str(i) + "]\" step_id=\"" + sStepID + "\" title=\"Remove this Else If condition.\"></span> "
-                sHTML += "&nbsp;&nbsp;&nbsp;Else If:<br />"
-    
-    
-            if sEval is not None:
-                sHTML += "<textarea " + sCommonAttribsForTA + " help=\"Enter a test condition.\">" + sEval + "</textarea><br />\n"
-            else:
-                sHTML += "ERROR: Malformed XML for Step ID [" + sStepID + "].  Missing '" + sCol + "' element."
-    
-    
-            # here's the embedded content
-            sCol = "tests/test[" + str(i) + "]/action"
+    # the base xpath of this command (will be '' unless this is embedded)
+    # NOTE: do not append the base_path on any CommonAttribs calls, it's done inside that function.
+    base_xpath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "")  
 
-            if xAction is not None:
-                xEmbeddedFunction = xAction.find("function")
-                # xEmbeddedFunction might be None, but we pass it anyway to get the empty zone drawn
-                sHTML += DrawDropZone(oStep, xEmbeddedFunction, sCol, "Action:<br />", True)
-            else:
-                sHTML += "ERROR: Malformed XML for Step ID [" + sStepID + "].  Missing '" + sCol + "' element."
-    
-    
-            if i != 1:
-                sHTML += "</div>"
-    
-            i += 1
-    
-        sHTML += "</div>"
-    
-    
-        # draw an add link.  The rest will happen on the client.
-        sHTML += "<div class=\"fn_if_add_btn pointer\"" \
-            " add_to_node=\"" + oStep.XPathPrefix + "\"" \
-            " step_id=\"" + sStepID + "\"" \
-            " next_index=\"" + str(i) + "\">" \
-            "<span class=\"ui-icon ui-icon-plus forceinline\" title=\"Add another Else If section.\"></span>( click to add another 'Else If' section )</div>"
-    
-    
-        sHTML += "<div id=\"if_" + sStepID + "_else\" class=\"fn_if_else_section\">"
-    
-        # the final 'else' area
-        xElse = xd.find("else", "")
-        if xElse is not None:
-            sHTML += "<span class=\"fn_node_remove_btn pointer\" step_id=\"" + sStepID + "\" remove_path=\"" + base_xpath + "else\">" \
-               "<span class=\"ui-icon ui-icon-close forceinline\" title=\"Remove this Else condition.\"></span></span> "
-            sHTML += "Else (no 'If' conditions matched):"
+    sStepID = oStep.ID
+    xd = oStep.FunctionXDoc
 
-            xEmbeddedFunction = xElse.find("function")
-            # xEmbeddedFunction might be None, but we pass it anyway to get the empty zone drawn
-            sHTML += DrawDropZone(oStep, xEmbeddedFunction, "else", "", True)
+    sHTML = ""
+
+    xTests = xd.findall("tests/test")
+    sHTML += "<div id=\"if_" + sStepID + "_conditions\" number=\"" + str(len(xTests)) + "\">"
+
+    i = 1 # because XPath starts at "1"
+    for xTest in xTests:
+        sEval = xTest.findtext("eval", None)
+        xAction = xTest.find("action", None)
+
+        #  we gotta get the field id first, but don't show the textarea until after
+        sFieldID = catocommon.new_guid()
+        sCol = "tests/test[" + str(i) + "]/eval"
+        sCommonAttribsForTA = CommonAttribsWithID(oStep, True, sCol, sFieldID, "")
+
+        # a way to delete the section you just added
+        if i == 1:
+            xGlobals = ET.parse("luCompareTemplates.xml")
+
+            if xGlobals is None:
+                sHTML += "(No Compare templates file available)<br />"
+            else:
+                sHTML += "Comparison Template: <select class=\"compare_templates\" textarea_id=\"" + sFieldID + "\">\n"
+                sHTML += "  <option value=\"\"></option>\n"
+
+                xTemplates = xGlobals.findall("template")
+                for xEl in xTemplates:
+                    sHTML += "  <option value=\"" + xEl.findtext("value", "") + "\">" + xEl.findtext("name", "") + "</option>\n"
+                sHTML += "</select> <br />\n"
+
+
+            sHTML += "If:<br />"
         else:
-            # draw an add link.  The rest will happen on the client.
-            sHTML += "<div class=\"fn_if_addelse_btn pointer\"" \
-                " add_to_node=\"" + oStep.XPathPrefix + "\"" \
-                " step_id=\"" + sStepID + "\">" \
-                "<span class=\"ui-icon ui-icon-plus forceinline\" title=\"Add an Else section.\"></span>( click to add a final 'Else' section )</div>"
-    
-        sHTML += "</div>"
-    
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+            sHTML += "<div id=\"if_" + sStepID + "_else_" + str(i) + "\" class=\"fn_if_else_section\">"
+            sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + "tests/test[" + str(i) + "]\" step_id=\"" + sStepID + "\" title=\"Remove this Else If condition.\"></span> "
+            sHTML += "&nbsp;&nbsp;&nbsp;Else If:<br />"
+
+
+        if sEval is not None:
+            sHTML += "<textarea " + sCommonAttribsForTA + " help=\"Enter a test condition.\">" + sEval + "</textarea><br />\n"
+        else:
+            sHTML += "ERROR: Malformed XML for Step ID [" + sStepID + "].  Missing '" + sCol + "' element."
+
+
+        # here's the embedded content
+        sCol = "tests/test[" + str(i) + "]/action"
+
+        if xAction is not None:
+            xEmbeddedFunction = xAction.find("function")
+            # xEmbeddedFunction might be None, but we pass it anyway to get the empty zone drawn
+            sHTML += DrawDropZone(oStep, xEmbeddedFunction, sCol, "Action:<br />", True)
+        else:
+            sHTML += "ERROR: Malformed XML for Step ID [" + sStepID + "].  Missing '" + sCol + "' element."
+
+
+        if i != 1:
+            sHTML += "</div>"
+
+        i += 1
+
+    sHTML += "</div>"
+
+
+    # draw an add link.  The rest will happen on the client.
+    sHTML += "<div class=\"fn_if_add_btn pointer\"" \
+        " add_to_node=\"" + oStep.XPathPrefix + "\"" \
+        " step_id=\"" + sStepID + "\"" \
+        " next_index=\"" + str(i) + "\">" \
+        "<span class=\"ui-icon ui-icon-plus forceinline\" title=\"Add another Else If section.\"></span>( click to add another 'Else If' section )</div>"
+
+
+    sHTML += "<div id=\"if_" + sStepID + "_else\" class=\"fn_if_else_section\">"
+
+    # the final 'else' area
+    xElse = xd.find("else", "")
+    if xElse is not None:
+        sHTML += "<span class=\"fn_node_remove_btn pointer\" step_id=\"" + sStepID + "\" remove_path=\"" + base_xpath + "else\">" \
+           "<span class=\"ui-icon ui-icon-close forceinline\" title=\"Remove this Else condition.\"></span></span> "
+        sHTML += "Else (no 'If' conditions matched):"
+
+        xEmbeddedFunction = xElse.find("function")
+        # xEmbeddedFunction might be None, but we pass it anyway to get the empty zone drawn
+        sHTML += DrawDropZone(oStep, xEmbeddedFunction, "else", "", True)
+    else:
+        # draw an add link.  The rest will happen on the client.
+        sHTML += "<div class=\"fn_if_addelse_btn pointer\"" \
+            " add_to_node=\"" + oStep.XPathPrefix + "\"" \
+            " step_id=\"" + sStepID + "\">" \
+            "<span class=\"ui-icon ui-icon-plus forceinline\" title=\"Add an Else section.\"></span>( click to add a final 'Else' section )</div>"
+
+    sHTML += "</div>"
+
+    return sHTML
 
 def If_View(oStep):
-    try:
-        sStepID = oStep.ID
-        xd = oStep.FunctionXDoc
-    
-        sHTML = ""
-    
-        xTests = xd.findall("tests/test")
-        sHTML += "<div id=\"if_" + sStepID + "_conditions\" number=\"" + str(len(xTests)) + "\">"
-    
-        i = 1 # because XPath starts at "1"
-        for xTest in xTests:
-            sEval = xTest.findtext("eval", None)
-            xAction = xTest.find("action", None)
-    
-            if i == 1:
-                sHTML += "If:<br />"
-            else:
-                sHTML += "Else If:<br />"
-    
-            if sEval is not None:
-                sHTML += "<div class=\"codebox\">" + UI.SafeHTML(sEval) + "</div>"
-            else:
-                sHTML += "ERROR: Malformed XML for Step ID [" + sStepID + "].  Missing 'eval' element."
-    
-    
-            if xAction is not None:
-                xEmbeddedFunction = xAction.find("function")
-                sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
-            else:
-                sHTML += "ERROR: Malformed XML for Step ID [" + sStepID + "].  Missing 'action' element."
-    
-    
-            if i != 1:
-                sHTML += "</div>"
-    
-            i += 1
-    
-        sHTML += "</div>"
-    
-    
-        sHTML += "<div>"
-    
-        # the final 'else' area
-        xElse = xd.find("else", "")
-        if xElse is not None:
-            sHTML += "Else (no 'If' conditions matched):"
+    sStepID = oStep.ID
+    xd = oStep.FunctionXDoc
 
-            xEmbeddedFunction = xElse.find("function")
+    sHTML = ""
+
+    xTests = xd.findall("tests/test")
+    sHTML += "<div id=\"if_" + sStepID + "_conditions\" number=\"" + str(len(xTests)) + "\">"
+
+    i = 1 # because XPath starts at "1"
+    for xTest in xTests:
+        sEval = xTest.findtext("eval", None)
+        xAction = xTest.find("action", None)
+
+        if i == 1:
+            sHTML += "If:<br />"
+        else:
+            sHTML += "Else If:<br />"
+
+        if sEval is not None:
+            sHTML += "<div class=\"codebox\">" + UI.SafeHTML(sEval) + "</div>"
+        else:
+            sHTML += "ERROR: Malformed XML for Step ID [" + sStepID + "].  Missing 'eval' element."
+
+
+        if xAction is not None:
+            xEmbeddedFunction = xAction.find("function")
             sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
         else:
-            sHTML += "<div class=\"no_step\">No 'Else' action defined.</div>"
-            
-        sHTML += "</div>"
-    
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+            sHTML += "ERROR: Malformed XML for Step ID [" + sStepID + "].  Missing 'action' element."
+
+
+        if i != 1:
+            sHTML += "</div>"
+
+        i += 1
+
+    sHTML += "</div>"
+
+
+    sHTML += "<div>"
+
+    # the final 'else' area
+    xElse = xd.find("else", "")
+    if xElse is not None:
+        sHTML += "Else (no 'If' conditions matched):"
+
+        xEmbeddedFunction = xElse.find("function")
+        sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
+    else:
+        sHTML += "<div class=\"no_step\">No 'Else' action defined.</div>"
+        
+    sHTML += "</div>"
+
+    return sHTML
 
 def Loop(oStep):
-    try:
-        xd = oStep.FunctionXDoc
-    
-        sStart = xd.findtext("start", "")
-        sIncrement = xd.findtext("increment", "")
-        sCounter = xd.findtext("counter", "")
-        sTest = xd.findtext("test", "")
-        sCompareTo = xd.findtext("compare_to", "")
-        sMax = xd.findtext("max", "")
-    
-        xAction = xd.find("action")
-    
-        sHTML = ""
-    
-    
-        sHTML += "Counter variable \n"
-        sHTML += "<input type=\"text\" " + CommonAttribs(oStep, True, "counter", "") + \
-            " validate_as=\"variable\" help=\"Variable to increment.\" value=\"" + sCounter + "\" />\n"
-    
-        sHTML += " begins at\n"
-        sHTML += "<input type=\"text\" " + CommonAttribs(oStep, True, "start", "w100px")
-        sHTML += " help=\"Enter an integer value where the loop will begin.\" value=\"" + sStart + "\" />\n"
-    
-        sHTML += " and increments by \n"
-        sHTML += "<input type=\"text\" " + CommonAttribs(oStep, True, "increment", "w100px") + \
-            " help=\"The integer value to increment the counter after each loop.\" value=\"" + sIncrement + "\" />.<br />\n"
-    
-        sHTML += "Loop will continue while variable is \n"
-        sHTML += "<select " + CommonAttribs(oStep, False, "test", "") + ">\n"
-        sHTML += "  <option " + SetOption("==", sTest) + " value=\"==\">==</option>\n"
-        sHTML += "  <option " + SetOption("!=", sTest) + " value=\"!=\">!=</option>\n"
-        sHTML += "  <option " + SetOption("<=", sTest) + " value=\"<=\">&lt;=</option>\n"
-        sHTML += "  <option " + SetOption("<", sTest) + " value=\"<\">&lt;</option>\n"
-        sHTML += "  <option " + SetOption(">=", sTest) + " value=\">=\">&gt;=</option>\n"
-        sHTML += "  <option " + SetOption(">", sTest) + " value=\">\">&gt;</option>\n"
-        sHTML += "</select>\n"
-    
-        sHTML += "<input type=\"text\" " + CommonAttribs(oStep, True, "compare_to", "w400px") + \
-            " help=\"Loop until variable compared with this value becomes 'false'.\" value=\"" + sCompareTo + "\" />\n"
-    
-    
-        sHTML += "<br /> or \n"
-        sHTML += "<input type=\"text\" " + CommonAttribs(oStep, False, "max", "w50px") + \
-            " help=\"For safety, enter a maximum number of times to loop before aborting.\" value=\"" + sMax + "\" /> loops have occured.\n"
-    
-        sHTML += "<hr />\n"
-    
-        # enable the dropzone for the Action
-        if xAction is not None:
-            xEmbeddedFunction = xAction.find("function")
-            # xEmbeddedFunction might be None, but we pass it anyway to get the empty zone drawn
-            sHTML += DrawDropZone(oStep, xEmbeddedFunction, "action", "Action:<br />", True)
-        else:
-            sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing 'action' element."
-    
-    
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+    xd = oStep.FunctionXDoc
+
+    sStart = xd.findtext("start", "")
+    sIncrement = xd.findtext("increment", "")
+    sCounter = xd.findtext("counter", "")
+    sTest = xd.findtext("test", "")
+    sCompareTo = xd.findtext("compare_to", "")
+    sMax = xd.findtext("max", "")
+
+    xAction = xd.find("action")
+
+    sHTML = ""
+
+
+    sHTML += "Counter variable \n"
+    sHTML += "<input type=\"text\" " + CommonAttribs(oStep, True, "counter", "") + \
+        " validate_as=\"variable\" help=\"Variable to increment.\" value=\"" + sCounter + "\" />\n"
+
+    sHTML += " begins at\n"
+    sHTML += "<input type=\"text\" " + CommonAttribs(oStep, True, "start", "w100px")
+    sHTML += " help=\"Enter an integer value where the loop will begin.\" value=\"" + sStart + "\" />\n"
+
+    sHTML += " and increments by \n"
+    sHTML += "<input type=\"text\" " + CommonAttribs(oStep, True, "increment", "w100px") + \
+        " help=\"The integer value to increment the counter after each loop.\" value=\"" + sIncrement + "\" />.<br />\n"
+
+    sHTML += "Loop will continue while variable is \n"
+    sHTML += "<select " + CommonAttribs(oStep, False, "test", "") + ">\n"
+    sHTML += "  <option " + SetOption("==", sTest) + " value=\"==\">==</option>\n"
+    sHTML += "  <option " + SetOption("!=", sTest) + " value=\"!=\">!=</option>\n"
+    sHTML += "  <option " + SetOption("<=", sTest) + " value=\"<=\">&lt;=</option>\n"
+    sHTML += "  <option " + SetOption("<", sTest) + " value=\"<\">&lt;</option>\n"
+    sHTML += "  <option " + SetOption(">=", sTest) + " value=\">=\">&gt;=</option>\n"
+    sHTML += "  <option " + SetOption(">", sTest) + " value=\">\">&gt;</option>\n"
+    sHTML += "</select>\n"
+
+    sHTML += "<input type=\"text\" " + CommonAttribs(oStep, True, "compare_to", "w400px") + \
+        " help=\"Loop until variable compared with this value becomes 'false'.\" value=\"" + sCompareTo + "\" />\n"
+
+
+    sHTML += "<br /> or \n"
+    sHTML += "<input type=\"text\" " + CommonAttribs(oStep, False, "max", "w50px") + \
+        " help=\"For safety, enter a maximum number of times to loop before aborting.\" value=\"" + sMax + "\" /> loops have occured.\n"
+
+    sHTML += "<hr />\n"
+
+    # enable the dropzone for the Action
+    if xAction is not None:
+        xEmbeddedFunction = xAction.find("function")
+        # xEmbeddedFunction might be None, but we pass it anyway to get the empty zone drawn
+        sHTML += DrawDropZone(oStep, xEmbeddedFunction, "action", "Action:<br />", True)
+    else:
+        sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing 'action' element."
+
+
+    return sHTML
 
 def Loop_View(oStep):
-    try:
-        xd = oStep.FunctionXDoc
-    
-        sStart = xd.findtext("start", "")
-        sIncrement = xd.findtext("increment", "")
-        sCounter = xd.findtext("counter", "")
-        sTest = xd.findtext("test", "")
-        sCompareTo = xd.findtext("compare_to", "")
-        sMax = xd.findtext("max", "")
-    
-        xAction = xd.find("action")
-    
-        sHTML = ""
-    
-    
-        sHTML += "Counter variable"
-        sHTML += "<span class=\"code\">" + sCounter + "</span>"
-    
-        sHTML += " begins at"
-        sHTML += "<span class=\"code\">" + sStart + "</span>"
-    
-        sHTML += " and increments by"
-        sHTML += "<span class=\"code\">" + sIncrement + "</span>."
-    
-        sHTML += "<br />Loop will continue while variable is"
-        sHTML += " <span class=\"code\">" + sTest + "</span>"
-        sHTML += " <span class=\"code\">" + sCompareTo + "</span>"    
-    
-        sHTML += " or"
-        sHTML += "<span class=\"code\">" + sMax + "</span>"
-        sHTML += " loops have occured."
-    
-        sHTML += "<hr />"
-    
-        # enable the dropzone for the Action
-        if xAction is not None:
-            xEmbeddedFunction = xAction.find("function")
-            sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
-        else:
-            sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing 'action' element."
-    
-    
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+    xd = oStep.FunctionXDoc
+
+    sStart = xd.findtext("start", "")
+    sIncrement = xd.findtext("increment", "")
+    sCounter = xd.findtext("counter", "")
+    sTest = xd.findtext("test", "")
+    sCompareTo = xd.findtext("compare_to", "")
+    sMax = xd.findtext("max", "")
+
+    xAction = xd.find("action")
+
+    sHTML = ""
+
+
+    sHTML += "Counter variable"
+    sHTML += "<span class=\"code\">" + sCounter + "</span>"
+
+    sHTML += " begins at"
+    sHTML += "<span class=\"code\">" + sStart + "</span>"
+
+    sHTML += " and increments by"
+    sHTML += "<span class=\"code\">" + sIncrement + "</span>."
+
+    sHTML += "<br />Loop will continue while variable is"
+    sHTML += " <span class=\"code\">" + sTest + "</span>"
+    sHTML += " <span class=\"code\">" + sCompareTo + "</span>"    
+
+    sHTML += " or"
+    sHTML += "<span class=\"code\">" + sMax + "</span>"
+    sHTML += " loops have occured."
+
+    sHTML += "<hr />"
+
+    # enable the dropzone for the Action
+    if xAction is not None:
+        xEmbeddedFunction = xAction.find("function")
+        sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
+    else:
+        sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing 'action' element."
+
+
+    return sHTML
 
 def While(oStep):
-    try:
-        xd = oStep.FunctionXDoc
-    
-        sTest = xd.findtext("test", "")
-        xAction = xd.find("action")
-    
-        sHTML = ""
-        sHTML += "While: \n"
-        sHTML += "<td class=\"w75pct\" style=\"vertical-align: bottom;\"><textarea rows=\"10\" style=\"height: 18px;\" " + \
-            CommonAttribs(oStep, False, "test", "") + " help=\"\"" \
-            ">" + UI.SafeHTML(sTest) + "</textarea>\n"
-    
-    
-        # enable the dropzone for the Action
-        if xAction is not None:
-            xEmbeddedFunction = xAction.find("function")
-            # xEmbeddedFunction might be None, but we pass it anyway to get the empty zone drawn
-            sHTML += DrawDropZone(oStep, xEmbeddedFunction, "action", "<hr />Action:<br />", True)
-        else:
-            sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing 'action' element."
-    
-    
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+    xd = oStep.FunctionXDoc
+
+    sTest = xd.findtext("test", "")
+    xAction = xd.find("action")
+
+    sHTML = ""
+    sHTML += "While: \n"
+    sHTML += "<td class=\"w75pct\" style=\"vertical-align: bottom;\"><textarea rows=\"10\" style=\"height: 18px;\" " + \
+        CommonAttribs(oStep, False, "test", "") + " help=\"\"" \
+        ">" + UI.SafeHTML(sTest) + "</textarea>\n"
+
+
+    # enable the dropzone for the Action
+    if xAction is not None:
+        xEmbeddedFunction = xAction.find("function")
+        # xEmbeddedFunction might be None, but we pass it anyway to get the empty zone drawn
+        sHTML += DrawDropZone(oStep, xEmbeddedFunction, "action", "<hr />Action:<br />", True)
+    else:
+        sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing 'action' element."
+
+
+    return sHTML
 
 def While_View(oStep):
-    try:
-        xd = oStep.FunctionXDoc
-    
-        sTest = xd.findtext("test", "")
-        xAction = xd.find("action")
-    
-        sHTML = ""
-        sHTML += "While: \n"
-        sHTML += "<span class=\"code\">" + sTest + "</span>"    
-    
-        # enable the dropzone for the Action
-        if xAction is not None:
-            sHTML += "<hr />Action:<br />"
-            xEmbeddedFunction = xAction.find("function")
-            sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
-        else:
-            sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing 'action' element."
-    
-    
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+    xd = oStep.FunctionXDoc
+
+    sTest = xd.findtext("test", "")
+    xAction = xd.find("action")
+
+    sHTML = ""
+    sHTML += "While: \n"
+    sHTML += "<span class=\"code\">" + sTest + "</span>"    
+
+    # enable the dropzone for the Action
+    if xAction is not None:
+        sHTML += "<hr />Action:<br />"
+        xEmbeddedFunction = xAction.find("function")
+        sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
+    else:
+        sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing 'action' element."
+
+
+    return sHTML
 
 def Exists(oStep):
-    try:
-        # the base xpath of this command (will be '' unless this is embedded)
-        # NOTE: do not append the base_path on any CommonAttribs calls, it's done inside that function.
-        base_xpath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "")  
-    
-        xd = oStep.FunctionXDoc
-    
-        sHTML = ""
-        sHTML += "<div id=\"v" + oStep.ID + "_vars\">"
-        sHTML += "Variables to Test:<br />"
-    
-        xPairs = xd.findall("variables/variable")
-        i = 1
-        for xe in xPairs:
-            sKey = xe.findtext("name", "")
-            sIsTrue = xe.findtext("is_true", "")
-    
-            # Trac#389 - Make sure variable names are trimmed of whitespace if it exists
-            # hokey, but doing it here because the field update function is global.
-            if sKey.strip() != sKey:
-                SetNodeValueinCommandXML(oStep.ID, base_xpath + "variables/variable[" + str(i) + "]/name", sKey.strip())
-    
-            sHTML += "&nbsp;&nbsp;&nbsp;<input type=\"text\" " + \
-                CommonAttribs(oStep, True, "variables/variable[" + str(i) + "]/name", "") + \
-                " validate_as=\"variable\"" \
-                " value=\"" + sKey + "\"" \
-                " help=\"Enter a Variable name.\"" \
-                " />"
-    
-            sHTML += "&nbsp; Is True:<input type=\"checkbox\" " + \
-                CommonAttribs(oStep, True, "variables/variable[" + str(i) + "]/is_true", "") + " " + SetCheckRadio("1", sIsTrue) + " />\n"
-    
-            # can't delete the first one
-            if i > 1:
-                sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + "variables/variable[" + str(i) + "]\" step_id=\"" + oStep.ID + "\" title=\"Remove\"></span>"
-    
-            # break it every three fields
-            # if i % 3 == 0 and i >= 3:
-            sHTML += "<br />"
-    
-            i += 1
-    
-        sHTML += "<div class=\"fn_node_add_btn pointer\"" \
-            " function_name=\"" + oStep.FunctionName + "\"" \
-            " template_path=\"variables\"" \
-            " add_to_node=\"" + base_xpath + "variables\"" \
-            " step_id=\"" + oStep.ID + "\">" \
-            "<span class=\"ui-icon ui-icon-plus forceinline\" title=\"Add another.\"></span>( click to add another )</div>"
-        sHTML += "</div>"
-    
-        #  Exists have a Positive and Negative action
-        xPositiveAction = xd.find("actions/positive_action")
-        if xPositiveAction is None:
-            return "Error: XML does not contain positive_action"
-    
-        xNegativeAction = xd.find("actions/negative_action")
-        if xNegativeAction is None:
-            return "Error: XML does not contain negative_action"
-    
-        sCol = ""
-    
-        # here's the embedded content
-        sCol = "actions/positive_action"
-    
-        if xPositiveAction is not None:
-            xEmbeddedFunction = xPositiveAction.find("function")
-            sHTML += DrawDropZone(oStep, xEmbeddedFunction, sCol, "Positive Action:<br />", True)
-        else:
-            sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing '" + sCol + "' element."
-    
-    
-        sCol = "actions/negative_action"
-    
-        if xNegativeAction is not None:
-            xEmbeddedFunction = xNegativeAction.find("function")
-            sHTML += DrawDropZone(oStep, xEmbeddedFunction, sCol, "Negative Action:<br />", True)
-        else:
-            sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing '" + sCol + "' element."
-    
-        #  The End.
-        return sHTML
+    # the base xpath of this command (will be '' unless this is embedded)
+    # NOTE: do not append the base_path on any CommonAttribs calls, it's done inside that function.
+    base_xpath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "")  
 
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+    xd = oStep.FunctionXDoc
+
+    sHTML = ""
+    sHTML += "<div id=\"v" + oStep.ID + "_vars\">"
+    sHTML += "Variables to Test:<br />"
+
+    xPairs = xd.findall("variables/variable")
+    i = 1
+    for xe in xPairs:
+        sKey = xe.findtext("name", "")
+        sIsTrue = xe.findtext("is_true", "")
+
+        # Trac#389 - Make sure variable names are trimmed of whitespace if it exists
+        # hokey, but doing it here because the field update function is global.
+        if sKey.strip() != sKey:
+            SetNodeValueinCommandXML(oStep.ID, base_xpath + "variables/variable[" + str(i) + "]/name", sKey.strip())
+
+        sHTML += "&nbsp;&nbsp;&nbsp;<input type=\"text\" " + \
+            CommonAttribs(oStep, True, "variables/variable[" + str(i) + "]/name", "") + \
+            " validate_as=\"variable\"" \
+            " value=\"" + sKey + "\"" \
+            " help=\"Enter a Variable name.\"" \
+            " />"
+
+        sHTML += "&nbsp; Is True:<input type=\"checkbox\" " + \
+            CommonAttribs(oStep, True, "variables/variable[" + str(i) + "]/is_true", "") + " " + SetCheckRadio("1", sIsTrue) + " />\n"
+
+        # can't delete the first one
+        if i > 1:
+            sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + "variables/variable[" + str(i) + "]\" step_id=\"" + oStep.ID + "\" title=\"Remove\"></span>"
+
+        # break it every three fields
+        # if i % 3 == 0 and i >= 3:
+        sHTML += "<br />"
+
+        i += 1
+
+    sHTML += "<div class=\"fn_node_add_btn pointer\"" \
+        " function_name=\"" + oStep.FunctionName + "\"" \
+        " template_path=\"variables\"" \
+        " add_to_node=\"" + base_xpath + "variables\"" \
+        " step_id=\"" + oStep.ID + "\">" \
+        "<span class=\"ui-icon ui-icon-plus forceinline\" title=\"Add another.\"></span>( click to add another )</div>"
+    sHTML += "</div>"
+
+    #  Exists have a Positive and Negative action
+    xPositiveAction = xd.find("actions/positive_action")
+    if xPositiveAction is None:
+        return "Error: XML does not contain positive_action"
+
+    xNegativeAction = xd.find("actions/negative_action")
+    if xNegativeAction is None:
+        return "Error: XML does not contain negative_action"
+
+    sCol = ""
+
+    # here's the embedded content
+    sCol = "actions/positive_action"
+
+    if xPositiveAction is not None:
+        xEmbeddedFunction = xPositiveAction.find("function")
+        sHTML += DrawDropZone(oStep, xEmbeddedFunction, sCol, "Positive Action:<br />", True)
+    else:
+        sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing '" + sCol + "' element."
+
+
+    sCol = "actions/negative_action"
+
+    if xNegativeAction is not None:
+        xEmbeddedFunction = xNegativeAction.find("function")
+        sHTML += DrawDropZone(oStep, xEmbeddedFunction, sCol, "Negative Action:<br />", True)
+    else:
+        sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "].  Missing '" + sCol + "' element."
+
+    #  The End.
+    return sHTML
 
 def Exists_View(oStep):
-    try:
-        xd = oStep.FunctionXDoc
-    
-        sHTML = ""
-        sHTML += "<div id=\"v" + oStep.ID + "_vars\">"
-        sHTML += "Variables to Test:<br />"
-    
-        xPairs = xd.findall("variables/variable")
-        i = 1
-        for xe in xPairs:
-            sKey = xe.findtext("name", "")
-            sIsTrue = xe.findtext("is_true", "")
-    
-            if sIsTrue == "1":
-                sHTML += "<span class=\"code\">" + UI.SafeHTML(sKey) + " (IsTrue) </span>"
-            else:
-                sHTML += "<span class=\"code\">" + UI.SafeHTML(sKey) + "</span>"
-        sHTML += "</div>"
-    
-        #  Exists have a Positive and Negative action
-        xPositiveAction = xd.find("actions/positive_action")
-        xNegativeAction = xd.find("actions/negative_action")
+    xd = oStep.FunctionXDoc
 
-        sHTML += "<br />Positive Action:<br />"
-        if xPositiveAction is not None:
-            xEmbeddedFunction = xPositiveAction.find("function")
-            sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
-        else:
-            sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "]."
-    
-        sHTML += "<br />Negative Action:<br />"
-        if xNegativeAction is not None:
-            xEmbeddedFunction = xNegativeAction.find("function")
-            sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
-        else:
-            sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "]."
-    
-        #  The End.
-        return sHTML
+    sHTML = ""
+    sHTML += "<div id=\"v" + oStep.ID + "_vars\">"
+    sHTML += "Variables to Test:<br />"
 
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
-        return "Unable to draw Step - see log for details."
+    xPairs = xd.findall("variables/variable")
+    i = 1
+    for xe in xPairs:
+        sKey = xe.findtext("name", "")
+        sIsTrue = xe.findtext("is_true", "")
+
+        if sIsTrue == "1":
+            sHTML += "<span class=\"code\">" + UI.SafeHTML(sKey) + " (IsTrue) </span>"
+        else:
+            sHTML += "<span class=\"code\">" + UI.SafeHTML(sKey) + "</span>"
+    sHTML += "</div>"
+
+    #  Exists have a Positive and Negative action
+    xPositiveAction = xd.find("actions/positive_action")
+    xNegativeAction = xd.find("actions/negative_action")
+
+    sHTML += "<br />Positive Action:<br />"
+    if xPositiveAction is not None:
+        xEmbeddedFunction = xPositiveAction.find("function")
+        sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
+    else:
+        sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "]."
+
+    sHTML += "<br />Negative Action:<br />"
+    if xNegativeAction is not None:
+        xEmbeddedFunction = xNegativeAction.find("function")
+        sHTML += DrawEmbeddedReadOnlyStep(xEmbeddedFunction)
+    else:
+        sHTML += "ERROR: Malformed XML for Step ID [" + oStep.ID + "]."
+
+    return sHTML
 
 def Codeblock(oStep):
     xd = oStep.FunctionXDoc
@@ -3267,17 +3159,14 @@ def DrawCommandParameterSection(sParameterXML, bEditable, bSnipValues):
     return sHTML
     
 def BuildReadOnlySteps(oTask, sCodeblockName):
-    try:
-        sHTML = ""
+    sHTML = ""
 
-        if oTask.Codeblocks[sCodeblockName].Steps:
-            for order, oStep in oTask.Codeblocks[sCodeblockName].Steps.iteritems():
-                UI.log("Building %s - %d : %s" % (sCodeblockName, order, oStep.FunctionName), 4)
-                sHTML += DrawReadOnlyStep(oStep, True)
-        else:
-            sHTML = "<li class=\"no_step\">No Commands defined for this Codeblock.</li>"
-        
-        return sHTML
-    except Exception:
-        UI.log_nouser(traceback.format_exc(), 0)
+    if oTask.Codeblocks[sCodeblockName].Steps:
+        for order, oStep in oTask.Codeblocks[sCodeblockName].Steps.iteritems():
+            UI.log("Building %s - %d : %s" % (sCodeblockName, order, oStep.FunctionName), 4)
+            sHTML += DrawReadOnlyStep(oStep, True)
+    else:
+        sHTML = "<li class=\"no_step\">No Commands defined for this Codeblock.</li>"
+    
+    return sHTML
 

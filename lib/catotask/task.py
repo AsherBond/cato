@@ -185,142 +185,120 @@ class Task(object):
 
     def FromID(self, sTaskID, bIncludeUserSettings=False, include_code=True):
         sErr = ""
-        try:
-            db = catocommon.new_conn()
-            sSQL = "select task_id, original_task_id, task_name, task_code, task_status, version, default_version," \
-                    " task_desc, use_connector_system, concurrent_instances, queue_depth, parameter_xml" \
-                    " from task" \
-                    " where task_id = '" + sTaskID + "'"
+        db = catocommon.new_conn()
+        sSQL = "select task_id, original_task_id, task_name, task_code, task_status, version, default_version," \
+                " task_desc, use_connector_system, concurrent_instances, queue_depth, parameter_xml" \
+                " from task" \
+                " where task_id = '" + sTaskID + "'"
 
-            dr = db.select_row_dict(sSQL)
+        dr = db.select_row_dict(sSQL)
+        
+        if dr:
+            sErr = self.PopulateTask(db, dr, include_code)
 
-            if dr:
-                sErr = self.PopulateTask(db, dr, include_code)
-
-            if self.ID:
-                return ""
-            else:
-                return sErr
-            
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+        if self.ID:
+            return ""
+        else:
+            return sErr
 
     def FromNameVersion(self, name, version=None, include_code=True):
         sErr = ""
-        try:
-            db = catocommon.new_conn()
-            version_clause = ""
-            if version:
-                version_clause = " and version = %s" % version
-            else:
-                version_clause = " and default_version = 1"
-                
-            sSQL = """select task_id, original_task_id, task_name, task_code, task_status, version, default_version,
-                    task_desc, use_connector_system, concurrent_instances, queue_depth, parameter_xml
-                    from task
-                    where (task_name = '%s' or task_code = '%s') %s""" % (name, name, version_clause)
-            dr = db.select_row_dict(sSQL)
-
-            if dr:
-                sErr = self.PopulateTask(db, dr, include_code)
-
-            if self.ID:
-                return ""
-            else:
-                return sErr
+        db = catocommon.new_conn()
+        version_clause = ""
+        if version:
+            version_clause = " and version = %s" % version
+        else:
+            version_clause = " and default_version = 1"
             
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+        sSQL = """select task_id, original_task_id, task_name, task_code, task_status, version, default_version,
+                task_desc, use_connector_system, concurrent_instances, queue_depth, parameter_xml
+                from task
+                where (task_name = '%s' or task_code = '%s') %s""" % (name, name, version_clause)
+        dr = db.select_row_dict(sSQL)
+
+        if dr:
+            sErr = self.PopulateTask(db, dr, include_code)
+
+        if self.ID:
+            return ""
+        else:
+            return sErr
 
     def FromOriginalIDVersion(self, otid, version=None, include_code=True):
         sErr = ""
-        try:
-            db = catocommon.new_conn()
-            version_clause = ""
-            if version:
-                version_clause = " and version = %s" % version
-            else:
-                version_clause = " and default_version = 1"
-                
-            sSQL = """select task_id, original_task_id, task_name, task_code, task_status, version, default_version,
-                    task_desc, use_connector_system, concurrent_instances, queue_depth, parameter_xml
-                    from task
-                    where original_task_id = '%s' %s""" % (otid, version_clause)
-            dr = db.select_row_dict(sSQL)
-
-            if dr:
-                sErr = self.PopulateTask(db, dr, include_code)
-
-            if self.ID:
-                return ""
-            else:
-                return sErr
+        db = catocommon.new_conn()
+        version_clause = ""
+        if version:
+            version_clause = " and version = %s" % version
+        else:
+            version_clause = " and default_version = 1"
             
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+        sSQL = """select task_id, original_task_id, task_name, task_code, task_status, version, default_version,
+                task_desc, use_connector_system, concurrent_instances, queue_depth, parameter_xml
+                from task
+                where original_task_id = '%s' %s""" % (otid, version_clause)
+        dr = db.select_row_dict(sSQL)
+
+        if dr:
+            sErr = self.PopulateTask(db, dr, include_code)
+
+        if self.ID:
+            return ""
+        else:
+            return sErr
 
     def FromXML(self, sTaskXML=""):
-        try:
-            if sTaskXML == "": return None
+        if sTaskXML == "": return None
+        
+        xmlerr = "XML Error: Attribute not found."
+        
+        logger.debug("Creating Task object from XML")
+        xTask = ET.fromstring(sTaskXML)
+        
+        # attributes of the <task> node
+        
+        # NOTE: id is ALWAYS NEW from xml.  If it matches an existing task by name, that'll be figured out
+        # in CheckDBExists below.
+        self.ID = str(uuid.uuid4())
+        
+        # original task id is specific to the system where this was originally created.
+        # for xml imports, this is a NEW task by default.
+        # if the user changes 'on_conflict' to either replace or version up
+        # the proper original task id will be resolved by that branch of DBSave
+        self.OriginalTaskID = self.ID
+        
+        self.Name = xTask.get("name", xmlerr)
+        self.Code = xTask.get("code", xmlerr)
+        self.OnConflict = xTask.get("on_conflict", "cancel")  # cancel is the default action if on_conflict isn't specified
+        
+        # these, if not provided, have initial defaults
+        self.Version = xTask.get("version", "1.000")
+        self.Status = xTask.get("status", "Development")
+        self.IsDefaultVersion = True
+        self.ConcurrentInstances = xTask.get("concurrent_instances", "")
+        self.QueueDepth = xTask.get("queue_depth", "")
+        
+        # text nodes in the <task> node
+        _desc = xTask.find("description", xmlerr).text
+        self.Description = _desc if _desc is not None else ""
+        
+        # do we have a conflict?
+        self.CheckDBExists()
+        
+        # CODEBLOCKS
+        xCodeblocks = xTask.findall("codeblocks/codeblock")
+        logger.debug("Number of Codeblocks: " + str(len(xCodeblocks)))
+        for xCB in xCodeblocks:
+            cbname = xTask.get("name", "")
+            if not cbname:
+                logger.error("Codeblock 'name' attribute is required.", 1)
+        
+            newcb = Codeblock(cbname)
+            newcb.FromXML(ET.tostring(xCB))
+            self.Codeblocks[newcb.Name] = newcb
             
-            xmlerr = "XML Error: Attribute not found."
-            
-            logger.debug("Creating Task object from XML")
-            xTask = ET.fromstring(sTaskXML)
-            
-            # attributes of the <task> node
-            
-            # NOTE: id is ALWAYS NEW from xml.  If it matches an existing task by name, that'll be figured out
-            # in CheckDBExists below.
-            self.ID = str(uuid.uuid4())
-            
-            # original task id is specific to the system where this was originally created.
-            # for xml imports, this is a NEW task by default.
-            # if the user changes 'on_conflict' to either replace or version up
-            # the proper original task id will be resolved by that branch of DBSave
-            self.OriginalTaskID = self.ID
-
-            self.Name = xTask.get("name", xmlerr)
-            self.Code = xTask.get("code", xmlerr)
-            self.OnConflict = xTask.get("on_conflict", "cancel")  # cancel is the default action if on_conflict isn't specified
-            
-            # these, if not provided, have initial defaults
-            self.Version = xTask.get("version", "1.000")
-            self.Status = xTask.get("status", "Development")
-            self.IsDefaultVersion = True
-            self.ConcurrentInstances = xTask.get("concurrent_instances", "")
-            self.QueueDepth = xTask.get("queue_depth", "")
-            
-            # text nodes in the <task> node
-            _desc = xTask.find("description", xmlerr).text
-            self.Description = _desc if _desc is not None else ""
-            
-            # do we have a conflict?
-            self.CheckDBExists()
- 
-            # CODEBLOCKS
-            xCodeblocks = xTask.findall("codeblocks/codeblock")
-            logger.debug("Number of Codeblocks: " + str(len(xCodeblocks)))
-            for xCB in xCodeblocks:
-                cbname = xTask.get("name", "")
-                if not cbname:
-                    logger.error("Codeblock 'name' attribute is required.", 1)
-
-                newcb = Codeblock(cbname)
-                newcb.FromXML(ET.tostring(xCB))
-                self.Codeblocks[newcb.Name] = newcb
-                
-            # PARAMETERS
-            self.ParameterXDoc = xTask.find("parameters")
-
-        except Exception as ex:
-            raise ex
+        # PARAMETERS
+        self.ParameterXDoc = xTask.find("parameters")
 
     def AsText(self, delimiter=None):
         return catocommon.ObjectOutput.AsText(self, ["Code", "Name", "Version", "Description", "Status", "IsDefaultVersion"], delimiter)
@@ -370,61 +348,54 @@ class Task(object):
         return ET.tostring(root)
 
     def AsJSON(self, include_code=False):
-        try:
-            sb = []
-            sb.append("{")
-            sb.append("\"%s\" : \"%s\"," % ("ID", self.ID))
-            sb.append("\"%s\" : \"%s\"," % ("Name", self.Name))
-            sb.append("\"%s\" : \"%s\"," % ("Code", self.Code))
-            sb.append("\"%s\" : \"%s\"," % ("Version", self.Version))
-            sb.append("\"%s\" : \"%s\"," % ("Status", self.Status))
-            sb.append("\"%s\" : \"%s\"," % ("OriginalTaskID", self.OriginalTaskID))
-            sb.append("\"%s\" : \"%s\"," % ("IsDefaultVersion", self.IsDefaultVersion))
-            sb.append("\"%s\" : \"%s\"," % ("Description", self.Description))
-            sb.append("\"%s\" : \"%s\"," % ("ConcurrentInstances", self.ConcurrentInstances))
-            sb.append("\"%s\" : \"%s\"," % ("QueueDepth", self.QueueDepth))
-            sb.append("\"%s\" : \"%s\"," % ("NumberOfApprovedVersions", self.NumberOfApprovedVersions))
-            sb.append("\"%s\" : \"%s\"," % ("MaxVersion", self.MaxVersion))
-            sb.append("\"%s\" : \"%s\"," % ("NextMinorVersion", self.NextMinorVersion))
-            sb.append("\"%s\" : \"%s\"," % ("NextMajorVersion", self.NextMajorVersion))
-            sb.append("\"%s\" : \"%s\"" % ("UseConnectorSystem", self.UseConnectorSystem))
-            
-            if include_code:
-                # codeblocks
-                sb.append(", \"Codeblocks\" : {")
-                codeblocks = []
-                for name, cb in self.Codeblocks.items():
-                    steps = []
-                    for order, st in cb.Steps.iteritems():
-                        steps.append(" \"%s\" : %s" % (order, st.AsJSON()))
-                    codeblocks.append(" \"%s\" : {\"Steps\" : {%s} }" % (name, ",".join(steps)))
+        sb = []
+        sb.append("{")
+        sb.append("\"%s\" : \"%s\"," % ("ID", self.ID))
+        sb.append("\"%s\" : \"%s\"," % ("Name", self.Name))
+        sb.append("\"%s\" : \"%s\"," % ("Code", self.Code))
+        sb.append("\"%s\" : \"%s\"," % ("Version", self.Version))
+        sb.append("\"%s\" : \"%s\"," % ("Status", self.Status))
+        sb.append("\"%s\" : \"%s\"," % ("OriginalTaskID", self.OriginalTaskID))
+        sb.append("\"%s\" : \"%s\"," % ("IsDefaultVersion", self.IsDefaultVersion))
+        sb.append("\"%s\" : \"%s\"," % ("Description", self.Description))
+        sb.append("\"%s\" : \"%s\"," % ("ConcurrentInstances", self.ConcurrentInstances))
+        sb.append("\"%s\" : \"%s\"," % ("QueueDepth", self.QueueDepth))
+        sb.append("\"%s\" : \"%s\"," % ("NumberOfApprovedVersions", self.NumberOfApprovedVersions))
+        sb.append("\"%s\" : \"%s\"," % ("MaxVersion", self.MaxVersion))
+        sb.append("\"%s\" : \"%s\"," % ("NextMinorVersion", self.NextMinorVersion))
+        sb.append("\"%s\" : \"%s\"," % ("NextMajorVersion", self.NextMajorVersion))
+        sb.append("\"%s\" : \"%s\"" % ("UseConnectorSystem", self.UseConnectorSystem))
+        
+        if include_code:
+            # codeblocks
+            sb.append(", \"Codeblocks\" : {")
+            codeblocks = []
+            for name, cb in self.Codeblocks.items():
+                steps = []
+                for order, st in cb.Steps.iteritems():
+                    steps.append(" \"%s\" : %s" % (order, st.AsJSON()))
+                codeblocks.append(" \"%s\" : {\"Steps\" : {%s} }" % (name, ",".join(steps)))
 
-                sb.append(",".join(codeblocks))
-                sb.append("}")
-
+            sb.append(",".join(codeblocks))
             sb.append("}")
-            return "".join(sb)
-        except Exception as ex:
-            raise ex
+
+        sb.append("}")
+        return "".join(sb)
 
     def CheckDBExists(self):
-        try:
-            db = catocommon.new_conn()
-            sSQL = """select task_id, original_task_id from task
-                where (task_name = %s and version = %s)
-                or task_id = %s"""
-            dr = db.select_row_dict(sSQL, (self.Name, self.Version, self.ID))
-            if dr:
-                # PAY ATTENTION! 
-                # if the task exists... it might have been by name/version, so...
-                # we're setting the ids to the same as the database so it's more accurate.
-                self.ID = dr["task_id"]
-                self.OriginalTaskID = dr["original_task_id"]
-                self.DBExists = True
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+        db = catocommon.new_conn()
+        sSQL = """select task_id, original_task_id from task
+            where (task_name = %s and version = %s)
+            or task_id = %s"""
+        dr = db.select_row_dict(sSQL, (self.Name, self.Version, self.ID))
+        db.close()
+        if dr:
+            # PAY ATTENTION! 
+            # if the task exists... it might have been by name/version, so...
+            # we're setting the ids to the same as the database so it's more accurate.
+            self.ID = dr["task_id"]
+            self.OriginalTaskID = dr["original_task_id"]
+            self.DBExists = True
     
     def GetReferencedTasks(self):
         """
@@ -486,474 +457,458 @@ class Task(object):
     @staticmethod    
     def SetAsDefault(task_id):
         """A static method, because it's not worth instantiating a whole task just to flip a switch."""
-        try:
-            db = catocommon.new_conn()
-            
-            sSQL = "select original_task_id from task where task_id = '%s'" % task_id
-            otid = db.select_col_noexcep(sSQL)
-            if db.error:
-                raise Exception("Unable to get original task ID for [%s] %s" % (task_id, db.error))
-            
-            sSQL = "update task set default_version = 0 where original_task_id = '%s'" % otid
-            if not db.tran_exec_noexcep(sSQL):
-                return False, db.error
-            
-            sSQL = """update task set default_version = 1 where task_id = '%s'""" % task_id
-            if not db.tran_exec_noexcep(sSQL):
-                return False, db.error
-
-            db.tran_commit()
-
-            return True, ""
+        db = catocommon.new_conn()
         
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+        sSQL = "select original_task_id from task where task_id = '%s'" % task_id
+        otid = db.select_col_noexcep(sSQL)
+        if db.error:
+            raise Exception("Unable to get original task ID for [%s] %s" % (task_id, db.error))
+        
+        sSQL = "update task set default_version = 0 where original_task_id = '%s'" % otid
+        if not db.tran_exec_noexcep(sSQL):
+            return False, db.error
+        
+        sSQL = """update task set default_version = 1 where task_id = '%s'""" % task_id
+        if not db.tran_exec_noexcep(sSQL):
+            return False, db.error
+
+        db.tran_commit()
+        db.close()
+
+        return True, ""
         
     def DBSave(self, db=None):
-        try:
-            # if a db connection is passed, use it, else create one
-            bLocalTransaction = True
-            if db:
-                bLocalTransaction = False
-            else:
-                db = catocommon.new_conn()
+        # if a db connection is passed, use it, else create one
+        bLocalTransaction = True
+        if db:
+            bLocalTransaction = False
+        else:
+            db = catocommon.new_conn()
 
-            if not self.Name or not self.ID:
+        if not self.Name or not self.ID:
+            if bLocalTransaction:
+                db.tran_rollback()
+            return False, "ID and Name are required Task properties."
+
+        # this could be used in many cases below...
+        parameter_clause = " ''"
+        if self.ParameterXDoc is not None:
+            parameter_clause = " '" + catocommon.tick_slash(ET.tostring(self.ParameterXDoc)) + "'"
+        
+        
+        if self.DBExists:
+            # uh oh... this task exists.  unless told to do so, we stop here.
+            if self.OnConflict == "cancel":
+                sErr = """Another Task with that ID or Name/Version exists.
+                    [%s / %s / %s]
+                    Conflict directive set to 'cancel'. (Default is 'cancel' if omitted.  Valid options are 'cancel', 'replace', 'minor', 'major'.)
+                    New version numbers *cannot* be explicitly specified, and 1.000 is assumed if omitted.  
+                    Use 'minor' or 'major' to create a new version.""" % (self.ID, self.Name, self.Version)
                 if bLocalTransaction:
                     db.tran_rollback()
-                return False, "ID and Name are required Task properties."
 
-            # this could be used in many cases below...
-            parameter_clause = " ''"
-            if self.ParameterXDoc is not None:
-                parameter_clause = " '" + catocommon.tick_slash(ET.tostring(self.ParameterXDoc)) + "'"
-            
-            
-            if self.DBExists:
-                # uh oh... this task exists.  unless told to do so, we stop here.
-                if self.OnConflict == "cancel":
-                    sErr = """Another Task with that ID or Name/Version exists.
-                        [%s / %s / %s]
-                        Conflict directive set to 'cancel'. (Default is 'cancel' if omitted.  Valid options are 'cancel', 'replace', 'minor', 'major'.)
-                        New version numbers *cannot* be explicitly specified, and 1.000 is assumed if omitted.  
-                        Use 'minor' or 'major' to create a new version.""" % (self.ID, self.Name, self.Version)
-                    if bLocalTransaction:
-                        db.tran_rollback()
-
-                    return False, sErr
-                else:
-                    # ok, what are we supposed to do then?
-                    if self.OnConflict == "replace":
-                        # whack it all so we can re-insert
-                        # but by name or ID?  which was the conflict?
-                        # no worries! the _DBExists function called when we created the object
-                        # will have resolved any name/id issues.
-                        # if the ID existed it doesn't matter, we'll be plowing it anyway.
-                        # by "plow" I mean drop and recreate the codeblocks and steps... the task row will be UPDATED
-                        sSQL = "delete from task_step_user_settings" \
-                            " where step_id in" \
-                            " (select step_id from task_step where task_id = '" + self.ID + "')"
-                        if not db.tran_exec_noexcep(sSQL):
-                            return False, db.error
-                        sSQL = "delete from task_step where task_id = '" + self.ID + "'"
-                        if not db.tran_exec_noexcep(sSQL):
-                            return False, db.error
-                        sSQL = "delete from task_codeblock where task_id = '" + self.ID + "'"
-                        if not db.tran_exec_noexcep(sSQL):
-                            return False, db.error
-                        
-                        # update the task row
-                        sSQL = "update task set" \
-                            " task_name = '" + catocommon.tick_slash(self.Name) + "'," \
-                            " task_code = '" + catocommon.tick_slash(self.Code) + "'," \
-                            " task_desc = '" + catocommon.tick_slash(self.Description) + "'," \
-                            " task_status = '" + self.Status + "'," \
-                            " concurrent_instances = '" + str(self.ConcurrentInstances) + "'," \
-                            " queue_depth = '" + str(self.QueueDepth) + "'," \
-                            " created_dt = now()," \
-                            " parameter_xml = " + parameter_clause + \
-                            " where task_id = '" + self.ID + "'"
-                        if not db.tran_exec_noexcep(sSQL):
-                            return False, db.error
-                    elif self.OnConflict == "minor":   
-                        self.IncrementMinorVersion()
-                        self.DBExists = False
-                        self.ID = catocommon.new_guid()
-                        self.IsDefaultVersion = False
-                        # insert the new version
-                        sSQL = "insert task" \
-                            " (task_id, original_task_id, version, default_version," \
-                            " task_name, task_code, task_desc, task_status, parameter_xml, created_dt)" \
-                            " values " \
-                            " ('" + self.ID + "'," \
-                            " '" + self.OriginalTaskID + "'," \
-                            " " + self.Version + "," + " " \
-                            " " + ("1" if self.IsDefaultVersion else "0") + "," \
-                            " '" + catocommon.tick_slash(self.Name) + "'," \
-                            " '" + catocommon.tick_slash(self.Code) + "'," \
-                            " '" + catocommon.tick_slash(self.Description) + "'," \
-                            " '" + self.Status + "'," + \
-                            parameter_clause + "," \
-                            " now())"
-                        if not db.tran_exec_noexcep(sSQL):
-                            return False, db.error
-                    elif self.OnConflict == "major":
-                        self.IncrementMajorVersion()
-                        self.DBExists = False
-                        self.ID = catocommon.new_guid()
-                        self.IsDefaultVersion = False
-                        # insert the new version
-                        sSQL = "insert task" \
-                            " (task_id, original_task_id, version, default_version," \
-                            " task_name, task_code, task_desc, task_status, parameter_xml, created_dt)" \
-                            " values " \
-                            " ('" + self.ID + "'," \
-                            " '" + self.OriginalTaskID + "'," \
-                            " " + self.Version + "," \
-                            " " + ("1" if self.IsDefaultVersion else "0") + "," \
-                            " '" + catocommon.tick_slash(self.Name) + "'," \
-                            " '" + catocommon.tick_slash(self.Code) + "'," \
-                            " '" + catocommon.tick_slash(self.Description) + "'," \
-                            " '" + self.Status + "'," + \
-                            parameter_clause + "," \
-                            " now())"
-                        if not db.tran_exec_noexcep(sSQL):
-                            return False, db.error
-                    else:
-                        # there is no default action... if the on_conflict didn't match we have a problem... bail.
-                        return False, "There is an ID or Name/Version conflict, and the on_conflict directive isn't a valid option. (replace/major/minor/cancel)"
+                return False, sErr
             else:
-                # the default action is to ADD the new task row... nothing
-                sSQL = "insert task" \
-                    " (task_id, original_task_id, version, default_version," \
-                    " task_name, task_code, task_desc, task_status, parameter_xml, created_dt)" \
-                    " values " + " ('" + self.ID + "'," \
-                    "'" + self.OriginalTaskID + "'," \
-                    " " + self.Version + "," \
-                    " 1," \
-                    " '" + catocommon.tick_slash(self.Name) + "'," \
-                    " '" + catocommon.tick_slash(self.Code) + "'," \
-                    " '" + catocommon.tick_slash(self.Description) + "'," \
-                    " '" + self.Status + "'," \
-                    + parameter_clause + "," \
-                    " now())"
-                if not db.tran_exec_noexcep(sSQL):
-                    return False, db.error
+                # ok, what are we supposed to do then?
+                if self.OnConflict == "replace":
+                    # whack it all so we can re-insert
+                    # but by name or ID?  which was the conflict?
+                    # no worries! the _DBExists function called when we created the object
+                    # will have resolved any name/id issues.
+                    # if the ID existed it doesn't matter, we'll be plowing it anyway.
+                    # by "plow" I mean drop and recreate the codeblocks and steps... the task row will be UPDATED
+                    sSQL = "delete from task_step_user_settings" \
+                        " where step_id in" \
+                        " (select step_id from task_step where task_id = '" + self.ID + "')"
+                    if not db.tran_exec_noexcep(sSQL):
+                        return False, db.error
+                    sSQL = "delete from task_step where task_id = '" + self.ID + "'"
+                    if not db.tran_exec_noexcep(sSQL):
+                        return False, db.error
+                    sSQL = "delete from task_codeblock where task_id = '" + self.ID + "'"
+                    if not db.tran_exec_noexcep(sSQL):
+                        return False, db.error
+                    
+                    # update the task row
+                    sSQL = "update task set" \
+                        " task_name = '" + catocommon.tick_slash(self.Name) + "'," \
+                        " task_code = '" + catocommon.tick_slash(self.Code) + "'," \
+                        " task_desc = '" + catocommon.tick_slash(self.Description) + "'," \
+                        " task_status = '" + self.Status + "'," \
+                        " concurrent_instances = '" + str(self.ConcurrentInstances) + "'," \
+                        " queue_depth = '" + str(self.QueueDepth) + "'," \
+                        " created_dt = now()," \
+                        " parameter_xml = " + parameter_clause + \
+                        " where task_id = '" + self.ID + "'"
+                    if not db.tran_exec_noexcep(sSQL):
+                        return False, db.error
+                elif self.OnConflict == "minor":   
+                    self.IncrementMinorVersion()
+                    self.DBExists = False
+                    self.ID = catocommon.new_guid()
+                    self.IsDefaultVersion = False
+                    # insert the new version
+                    sSQL = "insert task" \
+                        " (task_id, original_task_id, version, default_version," \
+                        " task_name, task_code, task_desc, task_status, parameter_xml, created_dt)" \
+                        " values " \
+                        " ('" + self.ID + "'," \
+                        " '" + self.OriginalTaskID + "'," \
+                        " " + self.Version + "," + " " \
+                        " " + ("1" if self.IsDefaultVersion else "0") + "," \
+                        " '" + catocommon.tick_slash(self.Name) + "'," \
+                        " '" + catocommon.tick_slash(self.Code) + "'," \
+                        " '" + catocommon.tick_slash(self.Description) + "'," \
+                        " '" + self.Status + "'," + \
+                        parameter_clause + "," \
+                        " now())"
+                    if not db.tran_exec_noexcep(sSQL):
+                        return False, db.error
+                elif self.OnConflict == "major":
+                    self.IncrementMajorVersion()
+                    self.DBExists = False
+                    self.ID = catocommon.new_guid()
+                    self.IsDefaultVersion = False
+                    # insert the new version
+                    sSQL = "insert task" \
+                        " (task_id, original_task_id, version, default_version," \
+                        " task_name, task_code, task_desc, task_status, parameter_xml, created_dt)" \
+                        " values " \
+                        " ('" + self.ID + "'," \
+                        " '" + self.OriginalTaskID + "'," \
+                        " " + self.Version + "," \
+                        " " + ("1" if self.IsDefaultVersion else "0") + "," \
+                        " '" + catocommon.tick_slash(self.Name) + "'," \
+                        " '" + catocommon.tick_slash(self.Code) + "'," \
+                        " '" + catocommon.tick_slash(self.Description) + "'," \
+                        " '" + self.Status + "'," + \
+                        parameter_clause + "," \
+                        " now())"
+                    if not db.tran_exec_noexcep(sSQL):
+                        return False, db.error
+                else:
+                    # there is no default action... if the on_conflict didn't match we have a problem... bail.
+                    return False, "There is an ID or Name/Version conflict, and the on_conflict directive isn't a valid option. (replace/major/minor/cancel)"
+        else:
+            # the default action is to ADD the new task row... nothing
+            sSQL = "insert task" \
+                " (task_id, original_task_id, version, default_version," \
+                " task_name, task_code, task_desc, task_status, parameter_xml, created_dt)" \
+                " values " + " ('" + self.ID + "'," \
+                "'" + self.OriginalTaskID + "'," \
+                " " + self.Version + "," \
+                " 1," \
+                " '" + catocommon.tick_slash(self.Name) + "'," \
+                " '" + catocommon.tick_slash(self.Code) + "'," \
+                " '" + catocommon.tick_slash(self.Description) + "'," \
+                " '" + self.Status + "'," \
+                + parameter_clause + "," \
+                " now())"
+            if not db.tran_exec_noexcep(sSQL):
+                return False, db.error
 
-            # by the time we get here, there should for sure be a task row, either new or updated.                
-            # now, codeblocks
-            for c in self.Codeblocks.itervalues():
-                sSQL = "insert task_codeblock (task_id, codeblock_name)" \
-                    " values ('" + self.ID + "', '" + c.Name + "')"
-                if not db.tran_exec_noexcep(sSQL):
-                    return False, db.error
+        # by the time we get here, there should for sure be a task row, either new or updated.                
+        # now, codeblocks
+        for c in self.Codeblocks.itervalues():
+            sSQL = "insert task_codeblock (task_id, codeblock_name)" \
+                " values ('" + self.ID + "', '" + c.Name + "')"
+            if not db.tran_exec_noexcep(sSQL):
+                return False, db.error
 
-                # and steps
-                if c.Steps:
-                    order = 1
-                    for s in c.Steps.itervalues():
-                        sSQL = "insert into task_step (step_id, task_id, codeblock_name, step_order," \
-                            " commented, locked," \
-                            " function_name, function_xml)" \
-                            " values ('" + s.ID + "'," \
-                            "'" + self.ID + "'," \
-                            "'" + s.Codeblock + "'," \
-                            + str(order) + "," \
-                            " " + ("1" if s.Commented else "0") + "," \
-                            "0," \
-                            "'" + s.FunctionName + "'," \
-                            "'" + catocommon.tick_slash(ET.tostring(s.FunctionXDoc)) + "'" \
-                            ")"
-                        if not db.tran_exec_noexcep(sSQL):
-                            return False, db.error
-                        order += 1
+            # and steps
+            if c.Steps:
+                order = 1
+                for s in c.Steps.itervalues():
+                    sSQL = "insert into task_step (step_id, task_id, codeblock_name, step_order," \
+                        " commented, locked," \
+                        " function_name, function_xml)" \
+                        " values ('" + s.ID + "'," \
+                        "'" + self.ID + "'," \
+                        "'" + s.Codeblock + "'," \
+                        + str(order) + "," \
+                        " " + ("1" if s.Commented else "0") + "," \
+                        "0," \
+                        "'" + s.FunctionName + "'," \
+                        "'" + catocommon.tick_slash(ET.tostring(s.FunctionXDoc)) + "'" \
+                        ")"
+                    if not db.tran_exec_noexcep(sSQL):
+                        return False, db.error
+                    order += 1
 
-            if bLocalTransaction:
-                db.tran_commit()
-                db.close()
+        if bLocalTransaction:
+            db.tran_commit()
+            db.close()
 
-            return True, ""
-
-        except Exception as ex:
-            return False, "Error updating the DB. " + ex.__str__()
+        return True, ""
 
     def Copy(self, iMode, sNewTaskName, sNewTaskCode):
         # iMode 0=new task, 1=new major version, 2=new minor version
-        try:
-            # do it all in a transaction
-            db = catocommon.new_conn()
+        # do it all in a transaction
+        db = catocommon.new_conn()
 
-            # NOTE: this routine is not very object-aware.  It works and was copied in here
-            # so it can live with other relevant code.
-            # may update it later to be more object friendly
-            sSQL = ""
-            sNewTaskID = catocommon.new_guid()
-            iIsDefault = 0
-            sTaskName = ""
-            sOTID = ""
+        # NOTE: this routine is not very object-aware.  It works and was copied in here
+        # so it can live with other relevant code.
+        # may update it later to be more object friendly
+        sSQL = ""
+        sNewTaskID = catocommon.new_guid()
+        iIsDefault = 0
+        sTaskName = ""
+        sOTID = ""
 
+        # figure out the new name and selected version
+        sTaskName = self.Name
+        sOTID = self.OriginalTaskID
+
+        # figure out the new version
+        if iMode == 0:
             # figure out the new name and selected version
-            sTaskName = self.Name
-            sOTID = self.OriginalTaskID
-
-            # figure out the new version
-            if iMode == 0:
-                # figure out the new name and selected version
-                sSQL = "select count(*) from task where task_name = '" + sNewTaskName + "'"
-                iExists = db.select_col_noexcep(sSQL)
-                if db.error:
-                    raise Exception("Unable to check name conflicts for  [" + sNewTaskName + "]." + db.error)
-                sTaskName = (sNewTaskName + " (" + str(datetime.now()) + ")" if iExists > 0 else sNewTaskName)
-
-                iIsDefault = 1
-                self.Version = "1.000"
-                sOTID = sNewTaskID
-            elif iMode == 1:
-                self.IncrementMajorVersion()
-            elif iMode == 2:
-                self.IncrementMinorVersion()
-            else:  # a iMode is required
-                raise Exception("A mode required for this copy operation.")
-
-            # if we are versioning, AND there are not yet any 'Approved' versions,
-            # we set this new version to be the default
-            # (that way it's the one that you get taken to when you pick it from a list)
-            if iMode > 0:
-                sSQL = "select case when count(*) = 0 then 1 else 0 end" \
-                    " from task where original_task_id = '" + sOTID + "'" \
-                    " and task_status = 'Approved'"
-                iExists = db.select_col_noexcep(sSQL)
-                if db.error:
-                    db.tran_rollback()
-                    raise Exception(db.error)
-
-            # string sTaskName = (iExists > 0 ? sNewTaskName + " (" + DateTime.Now + ")" : sNewTaskName);
-            # drop the temp tables.
-            sSQL = "drop temporary table if exists _copy_task"
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
-            sSQL = "drop temporary table if exists _step_ids"
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
-            sSQL = "drop temporary table if exists _copy_task_codeblock"
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
-            sSQL = "drop temporary table if exists _copy_task_step"
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
-
-            # start copying
-            sSQL = "create temporary table _copy_task select * from task where task_id = '" + self.ID + "'"
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
-
-            # update the task_id
-            sSQL = "update _copy_task set" \
-                " task_id = '" + sNewTaskID + "'," \
-                " original_task_id = '" + sOTID + "'," \
-                " version = '" + str(self.Version) + "'," \
-                " task_name = '" + sTaskName + "'," \
-                " task_code = '" + (sNewTaskCode if sNewTaskCode else self.Code) + "'," \
-                " default_version = " + str(iIsDefault) + "," \
-                " task_status = 'Development'," \
-                " created_dt = now()"
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
-
-            # codeblocks
-            sSQL = "create temporary table _copy_task_codeblock" \
-                " select '" + sNewTaskID + "' as task_id, codeblock_name" \
-                " from task_codeblock where task_id = '" + self.ID + "'"
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
-
-            # USING TEMPORARY TABLES... need a place to hold step ids while we manipulate them
-            sSQL = "create temporary table _step_ids" \
-                " select distinct step_id, uuid() as newstep_id" \
-                " from task_step where task_id = '" + self.ID + "'"
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
-
-            # steps temp table
-            sSQL = "create temporary table _copy_task_step" \
-                " select step_id, '" + sNewTaskID + "' as task_id, codeblock_name, step_order, commented," \
-                " locked, function_name, function_xml, step_desc" \
-                " from task_step where task_id = '" + self.ID + "'"
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
-
-            # update the step id
-            sSQL = "update _copy_task_step a, _step_ids b" \
-                " set a.step_id = b.newstep_id" \
-                " where a.step_id = b.step_id"
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
-
-            # update steps with codeblocks that reference a step (embedded steps)
-            sSQL = "update _copy_task_step a, _step_ids b" \
-                " set a.codeblock_name = b.newstep_id" \
-                " where b.step_id = a.codeblock_name"
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
-
-            # spin the steps and update any embedded step id's in the commands
-            sSQL = "select step_id, newstep_id from _step_ids"
-            dtStepIDs = db.select_all_dict(sSQL)
+            sSQL = "select count(*) from task where task_name = '" + sNewTaskName + "'"
+            iExists = db.select_col_noexcep(sSQL)
             if db.error:
-                raise Exception("Unable to get step ids." + db.error)
+                raise Exception("Unable to check name conflicts for  [" + sNewTaskName + "]." + db.error)
+            sTaskName = (sNewTaskName + " (" + str(datetime.now()) + ")" if iExists > 0 else sNewTaskName)
 
-            if dtStepIDs:
-                for drStepIDs in dtStepIDs:
-                    sSQL = "update _copy_task_step" \
-                        " set function_xml = replace(lower(function_xml)," \
-                        " '" + drStepIDs["step_id"].lower() + "'," \
-                        " '" + drStepIDs["newstep_id"] + "')" \
-                        " where function_name in ('if','loop','exists','while')"
-                    if not db.tran_exec_noexcep(sSQL):
-                        raise Exception(db.error)
+            iIsDefault = 1
+            self.Version = "1.000"
+            sOTID = sNewTaskID
+        elif iMode == 1:
+            self.IncrementMajorVersion()
+        elif iMode == 2:
+            self.IncrementMinorVersion()
+        else:  # a iMode is required
+            raise Exception("A mode required for this copy operation.")
 
-            # finally, put the temp steps table in the real steps table
-            sSQL = "insert into task select * from _copy_task"
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
-            sSQL = "insert into task_codeblock select * from _copy_task_codeblock"
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
-            sSQL = "insert into task_step" \
-                " (step_id, task_id, codeblock_name, step_order, commented," \
-                " locked, function_name, function_xml, step_desc)" \
-                " select step_id, task_id, codeblock_name, step_order, commented," \
-                " locked, function_name, function_xml, step_desc" \
-                " from _copy_task_step"
-            if not db.tran_exec_noexcep(sSQL):
+        # if we are versioning, AND there are not yet any 'Approved' versions,
+        # we set this new version to be the default
+        # (that way it's the one that you get taken to when you pick it from a list)
+        if iMode > 0:
+            sSQL = "select case when count(*) = 0 then 1 else 0 end" \
+                " from task where original_task_id = '" + sOTID + "'" \
+                " and task_status = 'Approved'"
+            iExists = db.select_col_noexcep(sSQL)
+            if db.error:
+                db.tran_rollback()
                 raise Exception(db.error)
 
-            # finally, if we versioned up and we set this one as the new default_version,
-            # we need to unset the other row
-            if iMode > 0 and iIsDefault == 1:
-                sSQL = "update task set default_version = 0 where original_task_id = '" + sOTID + "' and task_id <> '" + sNewTaskID + "'"
+        # string sTaskName = (iExists > 0 ? sNewTaskName + " (" + DateTime.Now + ")" : sNewTaskName);
+        # drop the temp tables.
+        sSQL = "drop temporary table if exists _copy_task"
+        if not db.tran_exec_noexcep(sSQL):
+            raise Exception(db.error)
+        sSQL = "drop temporary table if exists _step_ids"
+        if not db.tran_exec_noexcep(sSQL):
+            raise Exception(db.error)
+        sSQL = "drop temporary table if exists _copy_task_codeblock"
+        if not db.tran_exec_noexcep(sSQL):
+            raise Exception(db.error)
+        sSQL = "drop temporary table if exists _copy_task_step"
+        if not db.tran_exec_noexcep(sSQL):
+            raise Exception(db.error)
+
+        # start copying
+        sSQL = "create temporary table _copy_task select * from task where task_id = '" + self.ID + "'"
+        if not db.tran_exec_noexcep(sSQL):
+            raise Exception(db.error)
+
+        # update the task_id
+        sSQL = "update _copy_task set" \
+            " task_id = '" + sNewTaskID + "'," \
+            " original_task_id = '" + sOTID + "'," \
+            " version = '" + str(self.Version) + "'," \
+            " task_name = '" + sTaskName + "'," \
+            " task_code = '" + (sNewTaskCode if sNewTaskCode else self.Code) + "'," \
+            " default_version = " + str(iIsDefault) + "," \
+            " task_status = 'Development'," \
+            " created_dt = now()"
+        if not db.tran_exec_noexcep(sSQL):
+            raise Exception(db.error)
+
+        # codeblocks
+        sSQL = "create temporary table _copy_task_codeblock" \
+            " select '" + sNewTaskID + "' as task_id, codeblock_name" \
+            " from task_codeblock where task_id = '" + self.ID + "'"
+        if not db.tran_exec_noexcep(sSQL):
+            raise Exception(db.error)
+
+        # USING TEMPORARY TABLES... need a place to hold step ids while we manipulate them
+        sSQL = "create temporary table _step_ids" \
+            " select distinct step_id, uuid() as newstep_id" \
+            " from task_step where task_id = '" + self.ID + "'"
+        if not db.tran_exec_noexcep(sSQL):
+            raise Exception(db.error)
+
+        # steps temp table
+        sSQL = "create temporary table _copy_task_step" \
+            " select step_id, '" + sNewTaskID + "' as task_id, codeblock_name, step_order, commented," \
+            " locked, function_name, function_xml, step_desc" \
+            " from task_step where task_id = '" + self.ID + "'"
+        if not db.tran_exec_noexcep(sSQL):
+            raise Exception(db.error)
+
+        # update the step id
+        sSQL = "update _copy_task_step a, _step_ids b" \
+            " set a.step_id = b.newstep_id" \
+            " where a.step_id = b.step_id"
+        if not db.tran_exec_noexcep(sSQL):
+            raise Exception(db.error)
+
+        # update steps with codeblocks that reference a step (embedded steps)
+        sSQL = "update _copy_task_step a, _step_ids b" \
+            " set a.codeblock_name = b.newstep_id" \
+            " where b.step_id = a.codeblock_name"
+        if not db.tran_exec_noexcep(sSQL):
+            raise Exception(db.error)
+
+        # spin the steps and update any embedded step id's in the commands
+        sSQL = "select step_id, newstep_id from _step_ids"
+        dtStepIDs = db.select_all_dict(sSQL)
+        if db.error:
+            raise Exception("Unable to get step ids." + db.error)
+
+        if dtStepIDs:
+            for drStepIDs in dtStepIDs:
+                sSQL = "update _copy_task_step" \
+                    " set function_xml = replace(lower(function_xml)," \
+                    " '" + drStepIDs["step_id"].lower() + "'," \
+                    " '" + drStepIDs["newstep_id"] + "')" \
+                    " where function_name in ('if','loop','exists','while')"
                 if not db.tran_exec_noexcep(sSQL):
                     raise Exception(db.error)
 
-            db.tran_commit()
+        # finally, put the temp steps table in the real steps table
+        sSQL = "insert into task select * from _copy_task"
+        if not db.tran_exec_noexcep(sSQL):
+            raise Exception(db.error)
+        sSQL = "insert into task_codeblock select * from _copy_task_codeblock"
+        if not db.tran_exec_noexcep(sSQL):
+            raise Exception(db.error)
+        sSQL = "insert into task_step" \
+            " (step_id, task_id, codeblock_name, step_order, commented," \
+            " locked, function_name, function_xml, step_desc)" \
+            " select step_id, task_id, codeblock_name, step_order, commented," \
+            " locked, function_name, function_xml, step_desc" \
+            " from _copy_task_step"
+        if not db.tran_exec_noexcep(sSQL):
+            raise Exception(db.error)
 
-            return sNewTaskID
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+        # finally, if we versioned up and we set this one as the new default_version,
+        # we need to unset the other row
+        if iMode > 0 and iIsDefault == 1:
+            sSQL = "update task set default_version = 0 where original_task_id = '" + sOTID + "' and task_id <> '" + sNewTaskID + "'"
+            if not db.tran_exec_noexcep(sSQL):
+                raise Exception(db.error)
+
+        db.tran_commit()
+        db.close()
+
+        return sNewTaskID
 
     def PopulateTask(self, db, dr, IncludeCode=True):
         # only called from inside this class, so the caller passed in a db conn pointer too
-        try:
-            # of course it exists...
-            self.DBExists = True
+        # of course it exists...
+        self.DBExists = True
 
-            self.ID = dr["task_id"]
-            self.Name = dr["task_name"]
-            self.Code = dr["task_code"]
-            self.Version = dr["version"]
-            self.Status = dr["task_status"]
-            self.OriginalTaskID = dr["original_task_id"]
-            self.IsDefaultVersion = (True if dr["default_version"] == 1 else False)
-            self.Description = (dr["task_desc"] if dr["task_desc"] else "")
-            self.ConcurrentInstances = (dr["concurrent_instances"] if dr["concurrent_instances"] else "")
-            self.QueueDepth = (dr["queue_depth"] if dr["queue_depth"] else "")
-            self.UseConnectorSystem = (True if dr["use_connector_system"] == 1 else False)
+        self.ID = dr["task_id"]
+        self.Name = dr["task_name"]
+        self.Code = dr["task_code"]
+        self.Version = dr["version"]
+        self.Status = dr["task_status"]
+        self.OriginalTaskID = dr["original_task_id"]
+        self.IsDefaultVersion = (True if dr["default_version"] == 1 else False)
+        self.Description = (dr["task_desc"] if dr["task_desc"] else "")
+        self.ConcurrentInstances = (dr["concurrent_instances"] if dr["concurrent_instances"] else "")
+        self.QueueDepth = (dr["queue_depth"] if dr["queue_depth"] else "")
+        self.UseConnectorSystem = (True if dr["use_connector_system"] == 1 else False)
+        
+        # parameters - always available (for other processes)
+        if dr["parameter_xml"]:
+            xParameters = ET.fromstring(dr["parameter_xml"])
+            if xParameters is not None:
+                self.ParameterXDoc = xParameters
+
+        if IncludeCode:
+            # 
+            # * ok, this is important.
+            # * there are some rules for the process of 'Approving' a task and other things.
+            # * so, we'll need to know some count information
+            # 
+            sSQL = """select count(*) from task
+                where original_task_id = '%s'
+                and task_status = 'Approved'""" % self.OriginalTaskID
+            iCount = db.select_col_noexcep(sSQL)
+            if db.error:
+                return "Error counting Approved versions:" + db.error
+            self.NumberOfApprovedVersions = iCount
+
+            sSQL = "select count(*) from task where original_task_id = '%s'" % self.OriginalTaskID
+            iCount = db.select_col_noexcep(sSQL)
+            if db.error:
+                return "Error counting Approved versions:" + db.error
+            self.NumberOfOtherVersions = iCount
+
+            sSQL = "select max(version) from task where original_task_id = '%s'" % self.OriginalTaskID
+            sMax = db.select_col_noexcep(sSQL)
+            if db.error:
+                return "Error getting max version:" + db.error
+            self.MaxVersion = sMax
+            self.NextMinorVersion = str(float(self.MaxVersion) + .001)
+            self.NextMajorVersion = str(int(float(self.MaxVersion) + 1)) + ".000"
+
+            # now, the fun stuff
+            # 1 get all the codeblocks and populate that dictionary
+            # 2 then get all the steps... ALL the steps in one sql
+            # ..... and while spinning them put them in the appropriate codeblock
+            # GET THE CODEBLOCKS
+            sSQL = "select codeblock_name from task_codeblock where task_id = '%s' order by codeblock_name" % self.ID
+            dtCB = db.select_all_dict(sSQL)
+            if dtCB:
+                for drCB in dtCB:
+                    cb = Codeblock(drCB["codeblock_name"])
+                    self.Codeblocks[cb.Name] = cb
+            else:
+                # uh oh... there are no codeblocks!
+                # since all tasks require a MAIN codeblock... if it's missing,
+                # we can just repair it right here.
+                sSQL = "insert task_codeblock (task_id, codeblock_name) values ('%s', 'MAIN')" % self.ID
+                if not db.exec_db_noexcep(sSQL):
+                    raise Exception(db.error)
+                self.Codeblocks["MAIN"] = Codeblock("MAIN")
+
+
+            # NOTE: it may seem like STEP sorting will be an issue, but it shouldn't.
+            # sorting ALL the steps by their order here will ensure they get added to their respective 
+            # codeblocks in the right order.
             
-            # parameters - always available (for other processes)
-            if dr["parameter_xml"]:
-                xParameters = ET.fromstring(dr["parameter_xml"])
-                if xParameters is not None:
-                    self.ParameterXDoc = xParameters
+            # GET THE STEPS
+            # we need the userID to get the user settings in some cases
+            if self.IncludeSettingsForUser:
+                sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name,
+                    us.visible, us.breakpoint, us.skip, us.button
+                    from task_step s
+                    left outer join task_step_user_settings us on us.user_id = '%s' and s.step_id = us.step_id
+                    where s.task_id = '%s'
+                    order by s.step_order""" % (self.IncludeSettingsForUser, self.ID)
+            else:
+                sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name,
+                    0 as visible, 0 as breakpoint, 0 as skip, '' as button
+                    from task_step s
+                    where s.task_id = '%s'
+                    order by s.step_order""" % self.ID
 
-            if IncludeCode:
-                # 
-                # * ok, this is important.
-                # * there are some rules for the process of 'Approving' a task and other things.
-                # * so, we'll need to know some count information
-                # 
-                sSQL = """select count(*) from task
-                    where original_task_id = '%s'
-                    and task_status = 'Approved'""" % self.OriginalTaskID
-                iCount = db.select_col_noexcep(sSQL)
-                if db.error:
-                    return "Error counting Approved versions:" + db.error
-                self.NumberOfApprovedVersions = iCount
-    
-                sSQL = "select count(*) from task where original_task_id = '%s'" % self.OriginalTaskID
-                iCount = db.select_col_noexcep(sSQL)
-                if db.error:
-                    return "Error counting Approved versions:" + db.error
-                self.NumberOfOtherVersions = iCount
-    
-                sSQL = "select max(version) from task where original_task_id = '%s'" % self.OriginalTaskID
-                sMax = db.select_col_noexcep(sSQL)
-                if db.error:
-                    return "Error getting max version:" + db.error
-                self.MaxVersion = sMax
-                self.NextMinorVersion = str(float(self.MaxVersion) + .001)
-                self.NextMajorVersion = str(int(float(self.MaxVersion) + 1)) + ".000"
-    
-                # now, the fun stuff
-                # 1 get all the codeblocks and populate that dictionary
-                # 2 then get all the steps... ALL the steps in one sql
-                # ..... and while spinning them put them in the appropriate codeblock
-                # GET THE CODEBLOCKS
-                sSQL = "select codeblock_name from task_codeblock where task_id = '%s' order by codeblock_name" % self.ID
-                dtCB = db.select_all_dict(sSQL)
-                if dtCB:
-                    for drCB in dtCB:
-                        cb = Codeblock(drCB["codeblock_name"])
-                        self.Codeblocks[cb.Name] = cb
-                else:
-                    # uh oh... there are no codeblocks!
-                    # since all tasks require a MAIN codeblock... if it's missing,
-                    # we can just repair it right here.
-                    sSQL = "insert task_codeblock (task_id, codeblock_name) values ('%s', 'MAIN')" % self.ID
-                    if not db.exec_db_noexcep(sSQL):
-                        raise Exception(db.error)
-                    self.Codeblocks["MAIN"] = Codeblock("MAIN")
-    
-
-                # NOTE: it may seem like STEP sorting will be an issue, but it shouldn't.
-                # sorting ALL the steps by their order here will ensure they get added to their respective 
-                # codeblocks in the right order.
-                
-                # GET THE STEPS
-                # we need the userID to get the user settings in some cases
-                if self.IncludeSettingsForUser:
-                    sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name,
-                        us.visible, us.breakpoint, us.skip, us.button
-                        from task_step s
-                        left outer join task_step_user_settings us on us.user_id = '%s' and s.step_id = us.step_id
-                        where s.task_id = '%s'
-                        order by s.step_order""" % (self.IncludeSettingsForUser, self.ID)
-                else:
-                    sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name,
-                        0 as visible, 0 as breakpoint, 0 as skip, '' as button
-                        from task_step s
-                        where s.task_id = '%s'
-                        order by s.step_order""" % self.ID
-    
-                dtSteps = db.select_all_dict(sSQL)
-                if dtSteps:
-                    for drSteps in dtSteps:
-                        oStep = Step.FromRow(drSteps, self)
-                        # the steps dictionary for each codeblock uses the ORDER, not the STEP ID, as the key
-                        # this way, we can order the dictionary.
-                        
-                        # maybe this should just be a list?
-                        if oStep:
-                            # just double check that the codeblocks match
-                            if self.Codeblocks.has_key(oStep.Codeblock):
-                                self.Codeblocks[oStep.Codeblock].Steps[oStep.Order] = oStep
-                            else:
-                                raise Exception("WARNING: Step thinks it belongs in codeblock [%s] but this task doesn't have that codeblock." % (oStep.Codeblock if oStep.Codeblock else "NONE"))
-        except Exception as ex:
-            raise ex
+            dtSteps = db.select_all_dict(sSQL)
+            if dtSteps:
+                for drSteps in dtSteps:
+                    oStep = Step.FromRow(drSteps, self)
+                    # the steps dictionary for each codeblock uses the ORDER, not the STEP ID, as the key
+                    # this way, we can order the dictionary.
+                    
+                    # maybe this should just be a list?
+                    if oStep:
+                        # just double check that the codeblocks match
+                        if self.Codeblocks.has_key(oStep.Codeblock):
+                            self.Codeblocks[oStep.Codeblock].Steps[oStep.Order] = oStep
+                        else:
+                            raise Exception("WARNING: Step thinks it belongs in codeblock [%s] but this task doesn't have that codeblock." % (oStep.Codeblock if oStep.Codeblock else "NONE"))
 
     def IncrementMajorVersion(self):
         self.Version = str(int(float(self.MaxVersion) + 1)) + ".000"
@@ -1018,23 +973,20 @@ class Step(object):
         self.IsValid = True
         
     def AsJSON(self):
-        try:
-            sb = []
-            sb.append("{")
-            sb.append("\"%s\" : \"%s\"," % ("ID", self.ID))
-            sb.append("\"%s\" : \"%s\"," % ("Codeblock", self.Codeblock))
-            sb.append("\"%s\" : \"%s\"," % ("Order", self.Order))
-            sb.append("\"%s\" : \"%s\"," % ("Description", self.Description))
-            sb.append("\"%s\" : \"%s\"," % ("Commented", self.Commented))
-            sb.append("\"%s\" : \"%s\"," % ("Locked", self.Locked))
-            sb.append("\"%s\" : \"%s\"," % ("OutputParseType", self.OutputParseType))
-            sb.append("\"%s\" : \"%s\"," % ("OutputRowDelimiter", self.OutputRowDelimiter))
-            sb.append("\"%s\" : \"%s\"," % ("OutputColumnDelimiter", self.OutputColumnDelimiter))
-            sb.append("\"%s\" : \"%s\"" % ("FunctionName", self.FunctionName))
-            sb.append("}")
-            return "".join(sb)        
-        except Exception as ex:
-            raise ex
+        sb = []
+        sb.append("{")
+        sb.append("\"%s\" : \"%s\"," % ("ID", self.ID))
+        sb.append("\"%s\" : \"%s\"," % ("Codeblock", self.Codeblock))
+        sb.append("\"%s\" : \"%s\"," % ("Order", self.Order))
+        sb.append("\"%s\" : \"%s\"," % ("Description", self.Description))
+        sb.append("\"%s\" : \"%s\"," % ("Commented", self.Commented))
+        sb.append("\"%s\" : \"%s\"," % ("Locked", self.Locked))
+        sb.append("\"%s\" : \"%s\"," % ("OutputParseType", self.OutputParseType))
+        sb.append("\"%s\" : \"%s\"," % ("OutputRowDelimiter", self.OutputRowDelimiter))
+        sb.append("\"%s\" : \"%s\"," % ("OutputColumnDelimiter", self.OutputColumnDelimiter))
+        sb.append("\"%s\" : \"%s\"" % ("FunctionName", self.FunctionName))
+        sb.append("}")
+        return "".join(sb)        
 
     def FromXML(self, sStepXML="", sCodeblockName=""):
         if sStepXML == "": return None
@@ -1076,24 +1028,17 @@ class Step(object):
         This is called by functions *on* the task page where we don't need
         the associated task object.
         """
-        try:
-            db = catocommon.new_conn()
-            sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, s.codeblock_name
-                from task_step s
-                where s.step_id = '%s' limit 1""" % sStepID
-            row = db.select_row_dict(sSQL)
-            if row:
-                oStep = Step.FromRow(row, None)
-                return oStep
+        db = catocommon.new_conn()
+        sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, s.codeblock_name
+            from task_step s
+            where s.step_id = '%s' limit 1""" % sStepID
+        row = db.select_row_dict(sSQL)
+        db.close()
+        if row:
+            oStep = Step.FromRow(row, None)
+            return oStep
 
-            if db.error:
-                logger.error("Error getting Step by ID: %s" % db.error)
-            
-            return None
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+        return None
         
     @staticmethod
     def FromIDWithSettings(sStepID, sUserID):
@@ -1102,119 +1047,109 @@ class Step(object):
         This is called by the AddStep methods, and other functions *on* the task page where we don't need
         the associated task object
         """
-        try:
-            db = catocommon.new_conn()
-            sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, s.codeblock_name,
-                us.visible, us.breakpoint, us.skip, us.button
-                from task_step s
-                left outer join task_step_user_settings us on us.user_id = '%s' and s.step_id = us.step_id
-                where s.step_id = '%s' limit 1""" % (sUserID, sStepID)
-            row = db.select_row_dict(sSQL)
-            if row:
-                oStep = Step.FromRow(row, None)
-                return oStep
+        db = catocommon.new_conn()
+        sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, s.codeblock_name,
+            us.visible, us.breakpoint, us.skip, us.button
+            from task_step s
+            left outer join task_step_user_settings us on us.user_id = '%s' and s.step_id = us.step_id
+            where s.step_id = '%s' limit 1""" % (sUserID, sStepID)
+        row = db.select_row_dict(sSQL)
+        db.close()
+        if row:
+            oStep = Step.FromRow(row, None)
+            return oStep
 
-            if db.error:
-                logger.error("Error getting Step by ID: " + db.error)
-            
-            return None
-        except Exception as ex:
-            raise ex
-        finally:
-            db.close()
+        return None
         
     def PopulateStep(self, dr, oTask):
-        try:
-            self.ID = dr["step_id"]
-            self.Codeblock = ("" if not dr["codeblock_name"] else dr["codeblock_name"])
-            self.Order = dr["step_order"]
-            self.Description = ("" if not dr["step_desc"] else dr["step_desc"])
-            self.Commented = (True if dr["commented"] == 1 else False)
-            self.Locked = (True if dr["locked"] == 1 else False)
-            func_xml = ("" if not dr["function_xml"] else dr["function_xml"])
-            # once parsed, it's cleaner.  update the object with the cleaner xml
-            if func_xml:
+        self.ID = dr["step_id"]
+        self.Codeblock = ("" if not dr["codeblock_name"] else dr["codeblock_name"])
+        self.Order = dr["step_order"]
+        self.Description = ("" if not dr["step_desc"] else dr["step_desc"])
+        self.Commented = (True if dr["commented"] == 1 else False)
+        self.Locked = (True if dr["locked"] == 1 else False)
+        func_xml = ("" if not dr["function_xml"] else dr["function_xml"])
+        # once parsed, it's cleaner.  update the object with the cleaner xml
+        if func_xml:
+            try:
+                self.FunctionXDoc = ET.fromstring(func_xml)
+                
+                # what's the output parse type?
                 try:
-                    self.FunctionXDoc = ET.fromstring(func_xml)
-                    
-                    # what's the output parse type?
-                    try:
-                        opt = int(self.FunctionXDoc.get("parse_method", 0))
-                    except:
-                        logger.error("parse_method on step xml isn't a valid integer.")
-                        opt = 0
-                    self.OutputParseType = opt
-                    
-                    # if the output parse type is "2", we need row and column delimiters too!
-                    # if self.OutputParseType == 2:
-                    # but hey! why bother checking, just read 'em anyway.  Won't hurt anything.
-                    try:
-                        rd = int(self.FunctionXDoc.get("row_delimiter", 0))
-                    except:
-                        logger.error("row_delimiter on step xml isn't a valid integer.")
-                        rd = 0
-                    self.OutputRowDelimiter = rd
-                    
-                    try:
-                        cd = int(self.FunctionXDoc.get("col_delimiter", 0))
-                    except:
-                        logger.error("row_delimiter on step xml isn't a valid integer.")
-                        cd = 0
-                    self.OutputColumnDelimiter = cd
-                except ET.ParseError:
-                    self.IsValid = False
-                    logger.error(traceback.format_exc())    
-                    raise Exception("CRITICAL: Unable to parse function xml in step [%s]." % self.ID)
-                except Exception:
-                    self.IsValid = False
-                    logger.error(traceback.format_exc())  
-                    raise Exception("CRITICAL: Exception in processing step [%s]." % self.ID)
-                    
-                # if there's no description, and the function_xml says so, we can snip
-                # a bit of a value as the description
-                if self.FunctionXDoc.get("snip"):
-                    xpath = self.FunctionXDoc.get("snip")
-                    val = self.FunctionXDoc.findtext(xpath)
-                    if val:
-                        if len(val) > 75:
-                            self.ValueSnip = val[:75]
-                        else:
-                            self.ValueSnip = val
+                    opt = int(self.FunctionXDoc.get("parse_method", 0))
+                except:
+                    logger.error("parse_method on step xml isn't a valid integer.")
+                    opt = 0
+                self.OutputParseType = opt
+                
+                # if the output parse type is "2", we need row and column delimiters too!
+                # if self.OutputParseType == 2:
+                # but hey! why bother checking, just read 'em anyway.  Won't hurt anything.
+                try:
+                    rd = int(self.FunctionXDoc.get("row_delimiter", 0))
+                except:
+                    logger.error("row_delimiter on step xml isn't a valid integer.")
+                    rd = 0
+                self.OutputRowDelimiter = rd
+                
+                try:
+                    cd = int(self.FunctionXDoc.get("col_delimiter", 0))
+                except:
+                    logger.error("row_delimiter on step xml isn't a valid integer.")
+                    cd = 0
+                self.OutputColumnDelimiter = cd
+            except ET.ParseError:
+                self.IsValid = False
+                logger.error(traceback.format_exc())    
+                raise Exception("CRITICAL: Unable to parse function xml in step [%s]." % self.ID)
+            except Exception:
+                self.IsValid = False
+                logger.error(traceback.format_exc())  
+                raise Exception("CRITICAL: Exception in processing step [%s]." % self.ID)
+                
+            # if there's no description, and the function_xml says so, we can snip
+            # a bit of a value as the description
+            if self.FunctionXDoc.get("snip"):
+                xpath = self.FunctionXDoc.get("snip")
+                val = self.FunctionXDoc.findtext(xpath)
+                if val:
+                    if len(val) > 75:
+                        self.ValueSnip = val[:75]
+                    else:
+                        self.ValueSnip = val
 
-            # this.Function = Function.GetFunctionByName(dr["function_name"]);
-            self.FunctionName = dr["function_name"]
+        # this.Function = Function.GetFunctionByName(dr["function_name"]);
+        self.FunctionName = dr["function_name"]
 
-            # user settings, if available
-            if dr.has_key("button"):
-                self.UserSettings.Button = (dr["button"] if dr["button"] else "")
-            if dr.has_key("skip"):
-                self.UserSettings.Skip = (True if dr["skip"] == 1 else False)
-            if dr.has_key("visible"):
-                self.UserSettings.Visible = (False if dr["visible"] == 0 else True)
+        # user settings, if available
+        if dr.has_key("button"):
+            self.UserSettings.Button = (dr["button"] if dr["button"] else "")
+        if dr.has_key("skip"):
+            self.UserSettings.Skip = (True if dr["skip"] == 1 else False)
+        if dr.has_key("visible"):
+            self.UserSettings.Visible = (False if dr["visible"] == 0 else True)
 
-            # NOTE!! :oTask can possibly be null, in lots of cases where we are just getting a step and don't know the task.
-            # if it's null, it will not populate the parent object.
-            # this happens all over the place in the HTMLTemplates stuff, and we don't need the extra overhead of the same task
-            # object being created hundreds of times.
-            if oTask:
-                self.Task = oTask
-            else:
-                # NOTE HACK TODO - this is bad and wrong
-                # we shouldn't assume the datarow was a join to the task table... but in a few places it was.
-                # so we're populating some stuff here.
-                # the right approach is to create a full Task object from the ID, but we need to analyze
-                # how it's working, so we don't create a bunch more database hits.
-                # I THINK THIS is only happening on GetSingleStep and taskStepVarsEdit, but double check.
-                self.Task = Task()
-                if dr.has_key("task_id"):
-                    self.Task.ID = dr["task_id"]
-                if dr.has_key("task_name"):
-                    self.Task.Name = dr["task_name"]
-                if dr.has_key("version"):
-                    self.Task.Version = dr["version"]
-            return self
-        except Exception as ex:
-            raise ex
+        # NOTE!! :oTask can possibly be null, in lots of cases where we are just getting a step and don't know the task.
+        # if it's null, it will not populate the parent object.
+        # this happens all over the place in the HTMLTemplates stuff, and we don't need the extra overhead of the same task
+        # object being created hundreds of times.
+        if oTask:
+            self.Task = oTask
+        else:
+            # NOTE HACK TODO - this is bad and wrong
+            # we shouldn't assume the datarow was a join to the task table... but in a few places it was.
+            # so we're populating some stuff here.
+            # the right approach is to create a full Task object from the ID, but we need to analyze
+            # how it's working, so we don't create a bunch more database hits.
+            # I THINK THIS is only happening on GetSingleStep and taskStepVarsEdit, but double check.
+            self.Task = Task()
+            if dr.has_key("task_id"):
+                self.Task.ID = dr["task_id"]
+            if dr.has_key("task_name"):
+                self.Task.Name = dr["task_name"]
+            if dr.has_key("version"):
+                self.Task.Version = dr["version"]
+        return self
         
 class StepUserSettings(object):
     def __init__(self):
@@ -1229,54 +1164,47 @@ class TaskRunLog(object):
     summary_rows = {}
     numrows = 0
     def __init__(self, sTaskInstance, sRows=""):
-        try:
-            db = catocommon.new_conn()
-            sLimitClause = " limit 200"
+        db = catocommon.new_conn()
+        sLimitClause = " limit 200"
 
-            if sRows:
-                if sRows == "all":
-                    sLimitClause = ""
-                else:
-                    try:
-                        sRows = int(sRows)
-                    except:
-                        sRows = 200
-                        
-                    sLimitClause = " limit " + str(sRows)
+        if sRows:
+            if sRows == "all":
+                sLimitClause = ""
+            else:
+                try:
+                    sRows = int(sRows)
+                except:
+                    sRows = 200
                     
-            # how many log rows are there?
-            sSQL = "select count(*) from task_instance_log where task_instance = %s"
-            self.numrows = db.select_col_noexcep(sSQL, (sTaskInstance))
-            
-            # result summary rows
-            sSQL = """select log from task_instance_log 
-                where task_instance = %s 
-                and command_text = 'result_summary'
-                order by id"""
-
-            self.summary_rows = db.select_all_dict(sSQL, (sTaskInstance))
-            if db.error:
-                logger.error(db.error)
-
-            # NOW carry on with the regular rows
-            sSQL = """select til.task_instance, til.entered_dt, til.connection_name, til.log,
-                til.step_id, s.step_order, s.function_name, s.function_name as function_label, s.codeblock_name,
-                til.command_text,
-                '' as variable_name,  '' as variable_value,
-                case when length(til.log) > 256 then 1 else 0 end as large_text
-                from task_instance_log til
-                left outer join task_step s on til.step_id = s.step_id
-                where til.task_instance = %s
-                order by til.id %s""" % (str(sTaskInstance), sLimitClause)
+                sLimitClause = " limit " + str(sRows)
                 
-            self.log_rows = db.select_all_dict(sSQL)
-            if db.error:
-                logger.error(db.error)
+        # how many log rows are there?
+        sSQL = "select count(*) from task_instance_log where task_instance = %s"
+        self.numrows = db.select_col_noexcep(sSQL, (sTaskInstance))
+        
+        # result summary rows
+        sSQL = """select log from task_instance_log 
+            where task_instance = %s 
+            and command_text = 'result_summary'
+            order by id"""
 
-        except Exception as ex:
-            raise Exception(ex)
-        finally:
-            db.close()
+        self.summary_rows = db.select_all_dict(sSQL, (sTaskInstance))
+        if db.error:
+            logger.error(db.error)
+
+        # NOW carry on with the regular rows
+        sSQL = """select til.task_instance, til.entered_dt, til.connection_name, til.log,
+            til.step_id, s.step_order, s.function_name, s.function_name as function_label, s.codeblock_name,
+            til.command_text,
+            '' as variable_name,  '' as variable_value,
+            case when length(til.log) > 256 then 1 else 0 end as large_text
+            from task_instance_log til
+            left outer join task_step s on til.step_id = s.step_id
+            where til.task_instance = %s
+            order by til.id %s""" % (str(sTaskInstance), sLimitClause)
+            
+        self.log_rows = db.select_all_dict(sSQL)
+        db.close()
 
     def AsJSON(self):
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
@@ -1293,158 +1221,131 @@ class TaskInstance(object):
     """
     Error = None
     def __init__(self, sTaskInstance, sTaskID="", sAssetID=""):
+        self.Instance = sTaskInstance
+        
+        db = catocommon.new_conn()
+        # we could define a whole model here, but it's not necessary... all we want is the data
+        # since this won't be acted on as an object.
+        
+        # different things happen depending on the page args
+
+        # if an instance was provided... it overrides all other args 
+        # otherwise we need to figure out which instance we want
+        if not sTaskInstance:
+            sSQL = "select max(task_instance) from task_instance where task_id = '%s'" % sTaskID
+
+            if catocommon.is_guid(sAssetID):
+                sSQL += " and asset_id = '%s'" % sAssetID
+
+            sTaskInstance = str(db.select_col_noexcep(sSQL))
+        
+        # the task instance must be a number, die if it isn't
         try:
-            self.Instance = sTaskInstance
-            
-            db = catocommon.new_conn()
-            # we could define a whole model here, but it's not necessary... all we want is the data
-            # since this won't be acted on as an object.
-            
-            # different things happen depending on the page args
-    
-            # if an instance was provided... it overrides all other args 
-            # otherwise we need to figure out which instance we want
-            if not sTaskInstance:
-                if catocommon.is_guid(sTaskID):
-                    sSQL = "select max(task_instance) from task_instance where task_id = '%s'" % sTaskID
-    
-                    if catocommon.is_guid(sAssetID):
-                        sSQL += " and asset_id = '%s'" % sAssetID
-    
-                    sTaskInstance = str(db.select_col_noexcep(sSQL))
-                    if db.error:
-                        self.Error = "Unable to get task_instance from task/asset id. %s" % db.error
-                        return
-            
-            if sTaskInstance:
-                # the task instance must be a number, die if it isn't
-                try:
-                    int(sTaskInstance)
-                except:
-                    self.Error = "Task Instance must be an integer. [%s]." % (sTaskInstance)
-                    return
-                
-                # all good... continue...
-                self.task_instance = sTaskInstance
-
-                sSQL = """select ti.task_instance, ti.task_id, '' as asset_id, ti.task_status, ti.submitted_by_instance,
-                    ti.submitted_dt, ti.started_dt, ti.completed_dt, ti.ce_node, ti.pid, ti.debug_level,
-                    t.task_name, t.version, '' as asset_name, u.full_name,
-                    ar.app_instance, ar.platform, ar.hostname,
-                    t.concurrent_instances, t.queue_depth,
-                    d.instance_id, d.instance_label, ti.account_id, ca.account_name
-                    from task_instance ti
-                    join task t on ti.task_id = t.task_id
-                    left outer join users u on ti.submitted_by = u.user_id
-                    left outer join application_registry ar on ti.ce_node = ar.id
-                    left outer join cloud_account ca on ti.account_id = ca.account_id
-                    left outer join deployment_service_inst d on ti.ecosystem_id = d.instance_id
-                    where ti.task_instance = %s""" % sTaskInstance
-    
-                dr = db.select_row_dict(sSQL)
-                if db.error:
-                    self.Error = "Unable to get instance details for task instance. %s" % db.error
-                    return
-
-                if dr is not None:
-                    self.task_id = dr["task_id"]
-                    self.asset_id = (dr["asset_id"] if dr["asset_id"] else "")
-                    self.debug_level = (dr["debug_level"] if dr["debug_level"] else "")
-    
-                    self.task_name = dr["task_name"]
-                    self.task_name_label = "%s - Version %s" % (dr["task_name"], str(dr["version"]))
-                    self.task_status = dr["task_status"]
-                    self.asset_name = ("N/A" if not dr["asset_name"] else dr["asset_name"])
-                    self.submitted_dt = ("" if not dr["submitted_dt"] else str(dr["submitted_dt"]))
-                    self.started_dt = ("" if not dr["started_dt"] else str(dr["started_dt"]))
-                    self.completed_dt = ("" if not dr["completed_dt"] else str(dr["completed_dt"]))
-                    self.ce_node = ("" if not dr["ce_node"] else "%s - (%s)" % (str(dr["app_instance"]), dr["platform"]))
-                    self.pid = ("" if not dr["pid"] else str(dr["pid"]))
-    
-                    self.submitted_by_instance = ("" if not dr["submitted_by_instance"] else dr["submitted_by_instance"])
-    
-                    self.instance_id = (dr["instance_id"] if dr["instance_id"] else "")
-                    self.instance_label = (dr["instance_label"] if dr["instance_label"] else "")
-                    self.account_id = (dr["account_id"] if dr["account_id"] else "")
-                    self.account_name = (dr["account_name"] if dr["account_name"] else "")
-    
-                    self.submitted_by = (dr["full_name"] if dr["full_name"] else "Scheduler")
-
-    
-                    # if THIS instance is 'active', show additional warning info on the resubmit confirmation.
-                    # and if it's not, don't show the "cancel" button
-                    if dr["task_status"].lower() in ["processing", "queued", "submitted", "pending", "aborting", "queued", "staged"]:
-                        self.resubmit_message = "This Task is currently active.  You have requested to start another instance."
-                    else:
-                        self.allow_cancel = "false"
-    
-    
-                    # check for OTHER active instances
-                    sSQL = """select count(*) from task_instance where task_id = '%s'
-                        and task_instance <> '%s'
-                        and task_status in ('processing','submitted','pending','aborting','queued','staged')""" % (dr["task_id"], sTaskInstance)
-                    iActiveCount = db.select_col_noexcep(sSQL)
-                    if db.error:
-                        self.Error = "Unable to get active instance count. %s" % db.error
-                        return
-    
-                    # and hide the resubmit button if we're over the limit
-                    # if active < concurrent do nothing
-                    # if active >= concurrent but there's room in the queue, change the message
-                    # if this one would pop the queue, hide the button
-                    aOtherInstances = []
-                    if iActiveCount > 0:
-                        try:
-                            iConcurrent = int(dr["concurrent_instances"])
-                        except:
-                            iConcurrent = 0
-    
-                        try:
-                            iQueueDepth = int(dr["queue_depth"])
-                        except:
-                            iQueueDepth = 0
-    
-                        if iConcurrent + iQueueDepth > 0:
-                            if iActiveCount >= iConcurrent and (iActiveCount + 1) <= iQueueDepth:
-                                self.resubmit_message = "The maximum concurrent instances for this Task are running.  This request will be queued."
-                            else:
-                                self.allow_resubmit = "false"
-    
-                        # neato... show the user a list of all the other instances!
-                        sSQL = """select task_instance, task_status from task_instance
-                            where task_id = '%s'
-                            and task_instance <> '%s'
-                            and task_status in ('processing','submitted','pending','aborting','queued','staged')
-                            order by task_status""" % (dr["task_id"], sTaskInstance)
-    
-                        dt = db.select_all_dict(sSQL)
-                        if db.error:
-                            self.Error = db.error
-                            return
-    
-                        # build a list of the other instances
-                        for dr in dt:
-                            d = {}
-                            d["task_instance"] = str(dr["task_instance"])
-                            d["task_status"] = dr["task_status"]
-                            aOtherInstances.append(d)
-    
-                        self.other_instances = aOtherInstances
-                    
-                    
-                    # all done, serialize our output dictionary
-                    return
-    
-                else:
-                    self.Error = "Did not find any data for Instance [%s]." % (sTaskInstance)
-
-            self.Error = "Unable to find any Instances for this Task.  Possibly it has never executed."
+            int(sTaskInstance)
+        except:
+            self.Error = "Task Instance must be an integer. [%s]." % (sTaskInstance)
             return
         
-        except Exception as ex:
-            raise Exception(ex)
-        finally:
-            db.close()
+        # all good... continue...
+        self.task_instance = sTaskInstance
+
+        sSQL = """select ti.task_instance, ti.task_id, '' as asset_id, ti.task_status, ti.submitted_by_instance,
+            ti.submitted_dt, ti.started_dt, ti.completed_dt, ti.ce_node, ti.pid, ti.debug_level,
+            t.task_name, t.version, '' as asset_name, u.full_name,
+            ar.app_instance, ar.platform, ar.hostname,
+            t.concurrent_instances, t.queue_depth,
+            d.instance_id, d.instance_label, ti.account_id, ca.account_name
+            from task_instance ti
+            join task t on ti.task_id = t.task_id
+            left outer join users u on ti.submitted_by = u.user_id
+            left outer join application_registry ar on ti.ce_node = ar.id
+            left outer join cloud_account ca on ti.account_id = ca.account_id
+            left outer join deployment_service_inst d on ti.ecosystem_id = d.instance_id
+            where ti.task_instance = %s""" % sTaskInstance
+
+        dr = db.select_row_dict(sSQL)
+        if dr is not None:
+            self.task_id = dr["task_id"]
+            self.asset_id = (dr["asset_id"] if dr["asset_id"] else "")
+            self.debug_level = (dr["debug_level"] if dr["debug_level"] else "")
+
+            self.task_name = dr["task_name"]
+            self.task_name_label = "%s - Version %s" % (dr["task_name"], str(dr["version"]))
+            self.task_status = dr["task_status"]
+            self.asset_name = ("N/A" if not dr["asset_name"] else dr["asset_name"])
+            self.submitted_dt = ("" if not dr["submitted_dt"] else str(dr["submitted_dt"]))
+            self.started_dt = ("" if not dr["started_dt"] else str(dr["started_dt"]))
+            self.completed_dt = ("" if not dr["completed_dt"] else str(dr["completed_dt"]))
+            self.ce_node = ("" if not dr["ce_node"] else "%s - (%s)" % (str(dr["app_instance"]), dr["platform"]))
+            self.pid = ("" if not dr["pid"] else str(dr["pid"]))
+
+            self.submitted_by_instance = ("" if not dr["submitted_by_instance"] else dr["submitted_by_instance"])
+
+            self.instance_id = (dr["instance_id"] if dr["instance_id"] else "")
+            self.instance_label = (dr["instance_label"] if dr["instance_label"] else "")
+            self.account_id = (dr["account_id"] if dr["account_id"] else "")
+            self.account_name = (dr["account_name"] if dr["account_name"] else "")
+
+            self.submitted_by = (dr["full_name"] if dr["full_name"] else "Scheduler")
+
+
+            # if THIS instance is 'active', show additional warning info on the resubmit confirmation.
+            # and if it's not, don't show the "cancel" button
+            if dr["task_status"].lower() in ["processing", "queued", "submitted", "pending", "aborting", "queued", "staged"]:
+                self.resubmit_message = "This Task is currently active.  You have requested to start another instance."
+            else:
+                self.allow_cancel = "false"
+
+
+            # check for OTHER active instances
+            sSQL = """select count(*) from task_instance where task_id = '%s'
+                and task_instance <> '%s'
+                and task_status in ('processing','submitted','pending','aborting','queued','staged')""" % (dr["task_id"], sTaskInstance)
+            iActiveCount = db.select_col_noexcep(sSQL)
+
+            # and hide the resubmit button if we're over the limit
+            # if active < concurrent do nothing
+            # if active >= concurrent but there's room in the queue, change the message
+            # if this one would pop the queue, hide the button
+            aOtherInstances = []
+            if iActiveCount > 0:
+                try:
+                    iConcurrent = int(dr["concurrent_instances"])
+                except:
+                    iConcurrent = 0
+
+                try:
+                    iQueueDepth = int(dr["queue_depth"])
+                except:
+                    iQueueDepth = 0
+
+                if iConcurrent + iQueueDepth > 0:
+                    if iActiveCount >= iConcurrent and (iActiveCount + 1) <= iQueueDepth:
+                        self.resubmit_message = "The maximum concurrent instances for this Task are running.  This request will be queued."
+                    else:
+                        self.allow_resubmit = "false"
+
+                # neato... show the user a list of all the other instances!
+                sSQL = """select task_instance, task_status from task_instance
+                    where task_id = '%s'
+                    and task_instance <> '%s'
+                    and task_status in ('processing','submitted','pending','aborting','queued','staged')
+                    order by task_status""" % (dr["task_id"], sTaskInstance)
+
+                dt = db.select_all_dict(sSQL)
+
+                # build a list of the other instances
+                for dr in dt:
+                    d = {}
+                    d["task_instance"] = str(dr["task_instance"])
+                    d["task_status"] = dr["task_status"]
+                    aOtherInstances.append(d)
+
+                self.other_instances = aOtherInstances
+
+        else:
+            raise Exception("Did not find any data for Instance [%s]." % sTaskInstance)
+        
         
     def AsJSON(self):
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
@@ -1456,30 +1357,25 @@ class TaskInstance(object):
         return catocommon.ObjectOutput.AsText(self, ["task_instance", "task_status", "task_name_label", "submitted_dt", "completed_dt"], delimiter)
 
     def Stop(self):
-        try:
-            db = catocommon.new_conn()
-            if self.Instance:
-                sSQL = """update task_instance set task_status = 'Aborting'
-                    where task_instance = '%s'
-                    and task_status in ('Processing')""" % self.Instance
+        db = catocommon.new_conn()
+        if self.Instance:
+            sSQL = """update task_instance set task_status = 'Aborting'
+                where task_instance = '%s'
+                and task_status in ('Processing')""" % self.Instance
 
-                if not db.exec_db_noexcep(sSQL):
-                    raise Exception("Unable to stop task instance [%s]. %s" % (self.Instance, db.error))
+            if not db.exec_db_noexcep(sSQL):
+                raise Exception("Unable to stop task instance [%s]. %s" % (self.Instance, db.error))
 
-                sSQL = """update task_instance set task_status = 'Cancelled'
-                    where task_instance = '%s'
-                    and task_status in ('Submitted','Queued','Staged')""" % self.Instance
+            sSQL = """update task_instance set task_status = 'Cancelled'
+                where task_instance = '%s'
+                and task_status in ('Submitted','Queued','Staged')""" % self.Instance
 
-                if not db.exec_db_noexcep(sSQL):
-                    raise Exception("Unable to stop task instance [%s]. %s" % (self.Instance, db.error))
+            if not db.exec_db_noexcep(sSQL):
+                raise Exception("Unable to stop task instance [%s]. %s" % (self.Instance, db.error))
 
-                return ""
-            else:
-                raise Exception("Unable to stop task. Missing or invalid task_instance.")
-        except Exception as ex:
-            raise Exception(ex)
-        finally:
-            db.close()
+            return ""
+        else:
+            raise Exception("Unable to stop task. Missing or invalid task_instance.")
 
     def Resubmit(self, user_id):
         """
@@ -1511,110 +1407,106 @@ class TaskInstance(object):
 class TaskInstances(object):
     rows = {}
     def __init__(self, sTaskID=None, sTaskInstance=None, sFilter="", sStatus="", sFrom="", sTo="", sRecords=""):
-        try:
-            db = catocommon.new_conn()
-            
-            # # of records must be numeric
-            if sRecords:
-                try:
-                    sRecords = str(int(sRecords))
-                except TypeError:
-                    sRecords = "200"
-            else:
+        db = catocommon.new_conn()
+        
+        # # of records must be numeric
+        if sRecords:
+            try:
+                sRecords = str(int(sRecords))
+            except TypeError:
                 sRecords = "200"
-                
-            sWhereString = " where (1=1) "
+        else:
+            sRecords = "200"
             
-            # if sTaskID or sTaskInstance are defined, they are hard filters, not like clauses.
-            if sTaskInstance:
-                sWhereString += " and ti.task_instance = '%s'" % sTaskInstance
-            if sTaskID:
-                sWhereString += " and ti.task_id = '%s'" % sTaskID
+        sWhereString = " where (1=1) "
+        
+        # if sTaskID or sTaskInstance are defined, they are hard filters, not like clauses.
+        if sTaskInstance:
+            sWhereString += " and ti.task_instance = '%s'" % sTaskInstance
+        if sTaskID:
+            sWhereString += " and ti.task_id = '%s'" % sTaskID
 
-            if sFilter:
-                aSearchTerms = sFilter.split(",")
-                for term in aSearchTerms:
-                    if term:
-                        sWhereString += " and (ti.task_instance like '%%" + term + "%%' " \
-                            "or ti.task_id like '%%" + term + "%%' " \
-                            "or ti.asset_id like '%%" + term + "%%' " \
-                            "or ti.pid like '%%" + term + "%%' " \
-                            "or ti.task_status like '%%" + term + "%%' " \
-                            "or ar.hostname like '%%" + term + "%%' " \
-                            "or a.asset_name like '%%" + term + "%%' " \
-                            "or t.task_code like '%%" + term + "%%' " \
-                            "or t.task_name like '%%" + term + "%%' " \
-                            "or t.version like '%%" + term + "%%' " \
-                            "or u.username like '%%" + term + "%%' " \
-                            "or u.full_name like '%%" + term + "%%' " \
-                            "or d.ecosystem_name like '%%" + term + "%%') "
-    
-            sDateSearchString = ""
+        if sFilter:
+            aSearchTerms = sFilter.split(",")
+            for term in aSearchTerms:
+                if term:
+                    sWhereString += " and (ti.task_instance like '%%" + term + "%%' " \
+                        "or ti.task_id like '%%" + term + "%%' " \
+                        "or ti.asset_id like '%%" + term + "%%' " \
+                        "or ti.pid like '%%" + term + "%%' " \
+                        "or ti.task_status like '%%" + term + "%%' " \
+                        "or ar.hostname like '%%" + term + "%%' " \
+                        "or a.asset_name like '%%" + term + "%%' " \
+                        "or t.task_code like '%%" + term + "%%' " \
+                        "or t.task_name like '%%" + term + "%%' " \
+                        "or t.version like '%%" + term + "%%' " \
+                        "or u.username like '%%" + term + "%%' " \
+                        "or u.full_name like '%%" + term + "%%' " \
+                        "or d.ecosystem_name like '%%" + term + "%%') "
 
-            if sFrom:
-                sDateSearchString += " and (submitted_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')" \
-                " or started_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')" \
-                " or completed_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')) "
-            if sTo:
-                sDateSearchString += " and (submitted_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')" \
-                " or started_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')" \
-                " or completed_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')) "
+        sDateSearchString = ""
+
+        if sFrom:
+            sDateSearchString += " and (submitted_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')" \
+            " or started_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')" \
+            " or completed_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')) "
+        if sTo:
+            sDateSearchString += " and (submitted_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')" \
+            " or started_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')" \
+            " or completed_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')) "
 
 
 
-            # there may be a list of statuses passed in, if so, build out the where clause for them too
-            if sStatus:
-                l = []
-                # status might be a comma delimited list.  but to prevent sql injection, parse it.
-                for s in sStatus.split(","):
-                    l.append("'%s'" % s)
-                # I love python!
-                if l:
-                    sWhereString += " and ti.task_status in (%s)" % ",".join(map(str, l)) 
-                
-            # NOT CURRENTLY CHECKING PERMISSIONS
-            sTagString = ""
-            """
-            if !uiCommon.UserIsInRole("Developer") and !uiCommon.UserIsInRole("Administrator"):
-                sTagString+= " join object_tags tt on t.original_task_id = tt.object_id" \
-                    " join object_tags ut on ut.tag_name = tt.tag_name" \
-                    " and ut.object_type = 1 and tt.object_type = 3" \
-                    " and ut.object_id = '" + uiCommon.GetSessionUserID() + "'"
-            """
+        # there may be a list of statuses passed in, if so, build out the where clause for them too
+        if sStatus:
+            l = []
+            # status might be a comma delimited list.  but to prevent sql injection, parse it.
+            for s in sStatus.split(","):
+                l.append("'%s'" % s)
+            # I love python!
+            if l:
+                sWhereString += " and ti.task_status in (%s)" % ",".join(map(str, l)) 
             
-            sSQL = """select 
-                ti.task_instance as Instance, 
-                t.task_id as TaskID, 
-                t.task_code as TaskCode, 
-                a.asset_name as AssetName,
-                ti.pid as ProcessID, 
-                ti.task_status as Status, 
-                t.task_name as TaskName,
-                ifnull(u.full_name, '') as StartedBy,
-                t.version as Version, 
-                ar.hostname as CEName, 
-                ar.platform as CEType,
-                d.instance_label as ServiceInstanceLabel, 
-                d.instance_id as ServiceInstanceID,
-                convert(ti.submitted_dt, CHAR(20)) as SubmittedDate,
-                convert(ti.started_dt, CHAR(20)) as StartedDate,
-                convert(ti.completed_dt, CHAR(20)) as CompletedDate
-                from task_instance ti
-                left join task t on t.task_id = ti.task_id
-                %s
-                left outer join application_registry ar on ti.ce_node = ar.id
-                left outer join deployment_service_inst d on ti.ecosystem_id = d.instance_id
-                left join users u on u.user_id = ti.submitted_by
-                left join asset a on a.asset_id = ti.asset_id
-                %s %s
-                order by ti.task_instance desc
-                limit %s""" % (sTagString, sWhereString, sDateSearchString, sRecords)
-            
-            self.rows = db.select_all_dict(sSQL)
-        except Exception as ex:
-            raise Exception(ex)
-        finally:
-            db.close()
+        # NOT CURRENTLY CHECKING PERMISSIONS
+        sTagString = ""
+        """
+        if !uiCommon.UserIsInRole("Developer") and !uiCommon.UserIsInRole("Administrator"):
+            sTagString+= " join object_tags tt on t.original_task_id = tt.object_id" \
+                " join object_tags ut on ut.tag_name = tt.tag_name" \
+                " and ut.object_type = 1 and tt.object_type = 3" \
+                " and ut.object_id = '" + uiCommon.GetSessionUserID() + "'"
+        """
+        
+        sSQL = """select 
+            ti.task_instance as Instance, 
+            t.task_id as TaskID, 
+            t.task_code as TaskCode, 
+            a.asset_name as AssetName,
+            ti.pid as ProcessID, 
+            ti.task_status as Status, 
+            t.task_name as TaskName,
+            ifnull(u.full_name, '') as StartedBy,
+            t.version as Version, 
+            ar.hostname as CEName, 
+            ar.platform as CEType,
+            d.instance_label as ServiceInstanceLabel, 
+            d.instance_id as ServiceInstanceID,
+            convert(ti.submitted_dt, CHAR(20)) as SubmittedDate,
+            convert(ti.started_dt, CHAR(20)) as StartedDate,
+            convert(ti.completed_dt, CHAR(20)) as CompletedDate
+            from task_instance ti
+            left join task t on t.task_id = ti.task_id
+            %s
+            left outer join application_registry ar on ti.ce_node = ar.id
+            left outer join deployment_service_inst d on ti.ecosystem_id = d.instance_id
+            left join users u on u.user_id = ti.submitted_by
+            left join asset a on a.asset_id = ti.asset_id
+            %s %s
+            order by ti.task_instance desc
+            limit %s""" % (sTagString, sWhereString, sDateSearchString, sRecords)
+        
+        self.rows = db.select_all_dict(sSQL)
+        db.close()
 
     def AsJSON(self):
         return catocommon.ObjectOutput.IterableAsJSON(self.rows)
