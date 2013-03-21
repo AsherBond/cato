@@ -64,9 +64,9 @@
 			</item>
 			</menu>
 		<menu roles="all" label="Help" icon="static/images/icons/help_24.png">
-			<item roles="all" label="Read the Documentation" icon="static/images/icons/documentation_24.png" target="_blank" href="http://projects.cloudsidekick.com/projects/cato/wiki/Guide?utm_source=cato_app&amp;utm_medium=menu&amp;utm_campaign=app">
+						<item roles="all" label="Read the Documentation" icon="static/images/icons/documentation_24.png" target="_blank" href="https://github.com/cloudsidekick/cato/wiki">
 			</item>
-			<item roles="all" label="Browse the Forums" icon="static/images/icons/forums_24.png" target="_blank" href="http://projects.cloudsidekick.com/projects/cato/boards?utm_source=cato_app&amp;utm_medium=menu&amp;utm_campaign=app">
+			<item roles="all" label="Browse the Forums" icon="static/images/icons/forums_24.png" target="_blank" href="https://groups.google.com/forum/#!forum/cato-users">
 			</item>
 			<item roles="all" label="Report an Issue" icon="static/images/icons/issue_24.png" onclick="openWindow('http://community.cloudsidekick.com/report-an-issue?utm_source=cato_app&amp;utm_medium=menu&amp;utm_campaign=app', 'ask', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');">
 			</item>
