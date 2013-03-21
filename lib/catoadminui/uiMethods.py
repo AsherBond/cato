@@ -58,33 +58,14 @@ class uiMethods:
         return ""
     
     def wmSetApplicationSetting(self):
-        try:
-            category = uiCommon.getAjaxArg("sCategory")
-            setting = uiCommon.getAjaxArg("sSetting")
-            value = uiCommon.getAjaxArg("sValue")
-
-            result, err = settings.settings.set_application_setting(category, setting, value)
-            if not result:
-                return err
-            
-            return ""
-            
-        except Exception:
-            uiCommon.log(traceback.format_exc())    
+        category = uiCommon.getAjaxArg("sCategory")
+        setting = uiCommon.getAjaxArg("sSetting")
+        value = uiCommon.getAjaxArg("sValue")
+        settings.settings.set_application_setting(category, setting, value)
             
     def wmLicenseAgree(self):
-        try:
-            result, err = settings.settings.set_application_setting("general", "license_status", "agreed")
-            if not result:
-                return err
-            result, err = settings.settings.set_application_setting("general", "license_datetime", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
-            if not result:
-                return err
-            
-            return ""
-            
-        except Exception:
-            uiCommon.log(traceback.format_exc())    
+        settings.settings.set_application_setting("general", "license_status", "agreed")
+        settings.settings.set_application_setting("general", "license_datetime", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
             
     def wmGetDBInfo(self):
         try:
@@ -743,51 +724,32 @@ class uiMethods:
             uiCommon.log(traceback.format_exc())
 
     def wmGetSettings(self):
-        try:
-            s = settings.settings()
-            if s:
-                return s.AsJSON()
-            
-            #should not get here if all is well
-            return "{\"result\":\"fail\",\"error\":\"Error getting settings.\"}"
-        except Exception:
-            uiCommon.log(traceback.format_exc())
-            return traceback.format_exc()
+        s = settings.settings()
+        return s.AsJSON()
 
     def wmSaveSettings(self):
         """
             In this method, the values come from the browser in a jQuery serialized array of name/value pairs.
         """
-        try:
-            sType = uiCommon.getAjaxArg("sType")
-            sValues = uiCommon.getAjaxArg("sValues")
+        sType = uiCommon.getAjaxArg("sType")
+        sValues = uiCommon.getAjaxArg("sValues")
+    
+        # sweet, use getattr to actually get the class we want!
+        objname = getattr(settings.settings, sType.lower())
+        obj = objname()
+        if obj:
+            # spin the sValues array and set the appropriate properties.
+            # setattr is so awesome
+            for pair in sValues:
+                setattr(obj, pair["name"], pair["value"])
+                # print  "setting %s to %s" % (pair["name"], pair["value"])
+            # of course all of our settings classes must have a DBSave method
+            obj.DBSave()
+            catocommon.add_security_log(uiCommon.GetSessionUserID(), catocommon.SecurityLogTypes.Security,
+                catocommon.SecurityLogActions.ConfigChange, catocommon.CatoObjectTypes.NA, "",
+                "%s settings changed." % sType.capitalize())
         
-            # sweet, use getattr to actually get the class we want!
-            objname = getattr(settings.settings, sType.lower())
-            obj = objname()
-            if obj:
-                # spin the sValues array and set the appropriate properties.
-                # setattr is so awesome
-                for pair in sValues:
-                    setattr(obj, pair["name"], pair["value"])
-                    # print  "setting %s to %s" % (pair["name"], pair["value"])
-                # of course all of our settings classes must have a DBSave method
-                result, msg = obj.DBSave()
-                
-                if result:
-                    catocommon.add_security_log(uiCommon.GetSessionUserID(), catocommon.SecurityLogTypes.Security,
-                        catocommon.SecurityLogActions.ConfigChange, catocommon.CatoObjectTypes.NA, "",
-                        "%s settings changed." % sType.capitalize())
-                    
-                    return "{\"result\":\"success\"}"
-                else:
-                    return "{\"result\":\"fail\",\"error\":\"%s\"}" % msg
-            
-            #should not get here if all is well
-            return "{\"result\":\"fail\",\"error\":\"Error saving settings - no type provided.\"}"
-        except Exception:
-            uiCommon.log(traceback.format_exc())
-            return traceback.format_exc()
+        return "{}"
 
     def wmGetMyAccount(self):
         try:

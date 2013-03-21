@@ -31,6 +31,17 @@ catoAjax.getConfig = function(username) {"use strict";
 	return ajaxPost("uiMethods/wmGetConfig", args);
 }
 
+catoAjax.getSettings = function() {"use strict";
+	return ajaxPost("uiMethods/wmGetSettings");
+}
+
+catoAjax.saveSettings = function(type, values) {"use strict";
+	var args = {};
+	args.sType = type;
+	args.sValues = values;
+	return ajaxPost("uiMethods/wmSaveSettings", args);
+}
+
 catoAjax.getQuestion = function(username) {"use strict";
 	var args = {};
 	args.username = username;

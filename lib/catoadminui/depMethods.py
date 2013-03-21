@@ -21,7 +21,6 @@
     this class is hopefully simply wrappers around those calls.
 """
 
-import traceback
 import os
 import sys
 import json
