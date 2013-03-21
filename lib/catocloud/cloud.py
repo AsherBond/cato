@@ -195,7 +195,6 @@ class Cloud(object):
     @staticmethod
     def DBCreateNew(sCloudName, sProvider, sAPIUrl, sAPIProtocol, sRegion="", sDefaultAccountID=""):
         db = catocommon.new_conn()
-        sSQL = ""
         sNewID = catocommon.new_guid()
         sRegion = "'%s'" % sRegion if sRegion else "null"
         sDefaultAccountID = "'%s'" % sDefaultAccountID if sDefaultAccountID else "null"
@@ -204,9 +203,9 @@ class Cloud(object):
             values ('%s', '%s', '%s', '%s', '%s', %s, %s)""" % (sNewID, sCloudName, sProvider, sAPIUrl, sAPIProtocol, sRegion, sDefaultAccountID)
         if not db.exec_db_noexcep(sSQL):
             if db.error == "key_violation":
-                return None, "A Cloud with that name already exists.  Please select another name."
+                raise Exception("A Cloud with that name already exists.  Please select another name.")
             else:
-                return None, db.error
+                raise Exception(db.error)
         
         #now it's inserted and in the session... lets get it back from the db as a complete object for confirmation.
         c = Cloud()
@@ -215,7 +214,7 @@ class Cloud(object):
         
         #yay!
         db.close()
-        return c, None
+        return c
 
     #INSTANCE METHOD
     #updates the current Cloud object to the db
@@ -245,12 +244,12 @@ class Cloud(object):
             where cloud_id = '%s'""" % (self.Name, self.Provider.Name, self.APIProtocol, self.APIUrl, sDefaultAccountID, self.ID)
         if not db.exec_db_noexcep(sSQL):
             if db.error == "key_violation":
-                return False, "A Cloud with that name already exists.  Please select another name."
+                raise Exception("A Cloud with that name already exists.  Please select another name.")
             else:
-                return False, db.error
+                raise Exception(db.error)
 
         db.close()
-        return True, None
+        return True
 
 
 # Note: this is not a container for CloudAccount objects - it's just a rowset from the database
@@ -427,16 +426,9 @@ class CloudAccount(object):
 
         # if there are no rows yet, make this one the default even if the box isn't checked.
         if sIsDefault == "0":
-            iExists = -1
-            
             sSQL = "select count(*) as cnt from cloud_account"
-            iExists = db.select_col_noexcep(sSQL)
-            if iExists == None:
-                if db.error:
-                    db.tran_rollback()
-                    return None, "Unable to count Cloud Accounts: %s" % db.error
-            
-            if iExists == 0:
+            iExists = db.select_col(sSQL)
+            if not iExists:
                 sIsDefault = "1"
 
         sNewID = catocommon.new_guid()
@@ -450,16 +442,14 @@ class CloudAccount(object):
     
         if not db.tran_exec_noexcep(sSQL):
             if db.error == "key_violation":
-                sErr = "A Cloud Account with that name already exists.  Please select another name."
-                return None, sErr
+                raise Exception("A Cloud Account with that name already exists.  Please select another name.")
             else: 
-                return None, db.error
+                raise Exception(db.error)
         
         # if "default" was selected, unset all the others
         if sIsDefault == "1":
-            sSQL = "update cloud_account set is_default = 0 where account_id <> '%s'" % sNewID
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
+            sSQL = "update cloud_account set is_default = 0 where account_id <> %s"
+            db.tran_exec_noexcep(sSQL, (sNewID))
 
         db.tran_commit()
         db.close()
@@ -469,7 +459,7 @@ class CloudAccount(object):
         ca.FromID(sNewID)
 
         # yay!
-        return ca, None
+        return ca
 
     def DBUpdate(self):
         db = catocommon.new_conn()
@@ -492,19 +482,18 @@ class CloudAccount(object):
         
         if not db.exec_db_noexcep(sSQL):
             if db.error == "key_violation":
-                sErr = "A Cloud Account with that name already exists.  Please select another name."
-                return False, sErr
+                raise Exception("A Cloud Account with that name already exists.  Please select another name.")
             else: 
-                return False, db.error
+                raise Exception(db.error)
         
         # if "default" was selected, unset all the others
         if self.IsDefault:
-            sSQL = "update cloud_account set is_default = 0 where account_id <> '%s'" % self.ID
+            sSQL = "update cloud_account set is_default = 0 where account_id <> %s"
             # not worth failing... we'll just end up with two defaults.
-            db.exec_db_noexcep(sSQL)
+            db.exec_db_noexcep(sSQL, (self.ID))
 
         db.close()
-        return True, None
+        return True
 
 class CloudProviders(dict):
     """
