@@ -49,8 +49,6 @@ $(document).ready(function() {
 		}]
 	});
 
-
-
 	//this onchange event will test the json text entry
 	//and display a little warning if it couldn't be parsed.
 	$("#txtTemplateFile").change(function() {
@@ -99,7 +97,6 @@ $(document).ready(function() {
 	});
 	$("#url_to_text_btn").hide();
 
-
 	ManagePageLoad();
 	GetItems();
 });
@@ -107,37 +104,26 @@ $(document).ready(function() {
 function GetItems(page) {
 	if (!page)
 		page = "1"
-	$.ajax({
-		type : "POST",
-		async : true,
-		url : "depMethods/wmGetTemplatesTable",
-		data : '{"sSearch":"' + $("#txtSearch").val() + '", "sPage":"' + page + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			pager = unpackJSON(response.pager);
-			html = unpackJSON(response.rows);
+	var response = catoAjax.deployment.getTemplatesTable($("#txtSearch").val(), page);
+	if (response) {
+		pager = unpackJSON(response.pager);
+		html = unpackJSON(response.rows);
 
-			$("#pager").html(pager);
-			$("#pager .pager_button").click(function() {
-				GetItems($(this).text());
-			});
+		$("#pager").html(pager);
+		$("#pager .pager_button").click(function() {
+			GetItems($(this).text());
+		});
 
-			$("#templates").html(html);
-			//gotta restripe the table
-			initJtable(true, true);
+		$("#templates").html(html);
+		//gotta restripe the table
+		initJtable(true, true);
 
-			//what happens when you click a row?
-			$(".selectable").click(function() {
-				showPleaseWait();
-				location.href = '/depTemplateEdit?template_id=' + $(this).parent().attr("template_id");
-			});
-
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+		//what happens when you click a row?
+		$(".selectable").click(function() {
+			showPleaseWait();
+			location.href = '/depTemplateEdit?template_id=' + $(this).parent().attr("template_id");
+		});
+	}
 }
 
 function ShowItemAdd() {
@@ -153,46 +139,14 @@ function ShowItemAdd() {
 }
 
 function DeleteItems() {
-	var ArrayString = $("#hidSelectedArray").val();
-	$.ajax({
-		type : "POST",
-		url : "depMethods/wmDeleteTemplates",
-		data : '{"sDeleteArray":"' + ArrayString + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			if (response.info) {
-				showInfo(response.info);
-			} else if (response.error) {
-				showAlert(response.error);
-			} else if (response.result == "success") {
-				$("#hidSelectedArray").val("");
-				$("#delete_dialog").dialog("close");
-
-				// clear the search field and fire a search click, should reload the grid
-				$("#txtSearch").val("");
-				GetItems();
-
-				hidePleaseWait();
-				showInfo('Delete Successful');
-			} else {
-				showAlert(response);
-
-				$("#delete_dialog").dialog("close");
-
-				// reload the list, some may have been deleted.
-				// clear the search field and fire a search click, should reload the grid
-				$("#txtSearch").val("");
-				GetItems();
-			}
-
-			$("#hidSelectedArray").val("");
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
-
+	var response = catoAjax.deployment.deleteTemplates($("#hidSelectedArray").val());
+	if (response) {
+		$("#hidSelectedArray").val("");
+		$("#txtSearch").val("");
+		GetItems();
+		$("#update_success_msg").text("Delete Successful").show().fadeOut(2000);
+	}
+	$("#delete_dialog").dialog("close");
 }
 
 function Save() {
@@ -224,63 +178,35 @@ function Save() {
 	args.desc = packJSON($("#txtTemplateDesc").val());
 	args.template = packJSON($("#txtTemplateFile").val());
 
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "depMethods/wmCreateTemplate",
-		data : JSON.stringify(args),
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			if (response.info) {
-				showInfo(response.info);
-			} else if (response.error) {
-				showAlert(response.error);
-			} else if (response.template_id) {
-				showPleaseWait();
+	var response = catoAjax.deployment.createTemplate(args);
+	if (response) {
+		showPleaseWait();
 
-				location.href = "depTemplateEdit?template_id=" + response.template_id;
-			} else {
-				showInfo(response, "", true);
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+		location.href = "depTemplateEdit?template_id=" + response.template_id;
+	}
 }
 
 function GetTemplateFromURL() {
 	var url = $("#txtTemplateFile").val();
 
-	if(url.length == 0)
+	if (url.length == 0)
 		return;
 
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "depMethods/wmGetTemplateFromURL",
-		data : '{"sURL":"' + packJSON(url) + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "text",
-		success : function(response) {
-			if(response.length > 0) {
-				try {
-					$("#ddlTemplateSource").val("Text");
-					$("#txtTemplateFile").val(unpackJSON(response));
-					$("#url_to_text_btn").hide();
-					validateTemplateJSON();
-				} catch(err) {
-					showAlert(err.message);
-				}
-			} else {
-				showAlert("Nothing returned from url [" + url + "].");
+	var response = catoAjax.deployment.getTemplateFromURL(url);
+	if (response) {
+		if (response.length > 0) {
+			try {
+				$("#ddlTemplateSource").val("Text");
+				$("#txtTemplateFile").val(unpackJSON(response));
+				$("#url_to_text_btn").hide();
+				validateTemplateJSON();
+			} catch(err) {
+				showAlert(err.message);
 			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
+		} else {
+			showAlert("Nothing returned from url [" + url + "].");
 		}
-	});
+	}
 }
 
 function fileWasSaved(filename) {
@@ -302,11 +228,11 @@ function validateTemplateJSON() {
 	$("#edit_dialog_create_btn").hide();
 
 	//each source type has a slightly different behavior
-	if($("#ddlTemplateSource").val() == "URL") {
+	if ($("#ddlTemplateSource").val() == "URL") {
 		$(".validation").hide();
 		$("#edit_dialog_create_btn").show();
 		return;
-	} else if($("#ddlTemplateSource").val() == "File") {
+	} else if ($("#ddlTemplateSource").val() == "File") {
 		$(".validation").hide();
 		return;
 	} else {
@@ -315,7 +241,7 @@ function validateTemplateJSON() {
 		jsl.interactions.validate($("#txtTemplateFile"), $("#json_parse_msg"), reformat, false);
 
 		//if the validation failed (the box has the error class), disable the create button
-		if($("#json_parse_msg").hasClass("ui-state-happy")) {
+		if ($("#json_parse_msg").hasClass("ui-state-happy")) {
 			$("#edit_dialog_create_btn").show();
 		}
 

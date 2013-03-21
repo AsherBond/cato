@@ -181,63 +181,40 @@ $(document).ready(function() {"use strict";
 });
 
 function getDetails() {"use strict";
-	$.ajax({
-		type : "POST",
-		async : false,
-		url : "depMethods/wmGetTemplate",
-		data : '{"id":"' + g_id + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(template) {
-			try {
-				$("#hidTemplateID").val(template.ID);
-				$("#txtTemplateName").val(template.Name);
-				$("#txtTemplateVersion").val(template.Version);
-				$("#txtDescription").val(template.Description);
-				$("#txtTemplate").val(template.Text);
+	var template = catoAjax.deployment.getTemplate(g_id);
+	if (template) {
+		$("#hidTemplateID").val(template.ID);
+		$("#txtTemplateName").val(template.Name);
+		$("#txtTemplateVersion").val(template.Version);
+		$("#txtDescription").val(template.Description);
+		$("#txtTemplate").val(template.Text);
 
-				editor.set(JSON.parse(template.Text));
+		editor.set(JSON.parse(template.Text));
 
-				validateTemplateJSON();
-			} catch (ex) {
-				showAlert(ex.message);
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+		validateTemplateJSON();
+	}
+
 }
 
 function getDeployments() {
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "depMethods/wmGetTemplateDeployments",
-		data : '{"template_id":"' + g_id + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "html",
-		success : function(response) {
-			$("#deployment_results").html(response);
+	var response = catoAjax.deployment.getTemplateDeployments(g_id);
+	if (response) {
+		$("#deployment_results").html(response);
 
-			//task description tooltips on the task picker dialog
-			$("#deployment_results .deployment_tooltip").tipTip({
-				defaultPosition : "right",
-				keepAlive : false,
-				activation : "hover",
-				maxWidth : "500px",
-				fadeIn : 100
-			});
+		//task description tooltips on the task picker dialog
+		$("#deployment_results .deployment_tooltip").tipTip({
+			defaultPosition : "right",
+			keepAlive : false,
+			activation : "hover",
+			maxWidth : "500px",
+			fadeIn : 100
+		});
 
-			// $(".deployment_name").click(function() {
-			// showPleaseWait();
-			// location.href = 'deploymentEdit?deployment_id=' + $(this).parents("li").attr('deployment_id');
-			// });
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+		// $(".deployment_name").click(function() {
+		// showPleaseWait();
+		// location.href = 'deploymentEdit?deployment_id=' + $(this).parents("li").attr('deployment_id');
+		// });
+	}
 }
 
 function tabWasClicked(tab) {"use strict";
@@ -251,10 +228,10 @@ function tabWasClicked(tab) {"use strict";
 		getDeployments();
 	} else if (tab === "details") {
 		getDetails();
-    } else if (tab == "tags") {
-        if (typeof(GetObjectsTags) != 'undefined') {
-	        GetObjectsTags(g_id);
-        }
+	} else if (tab == "tags") {
+		if ( typeof (GetObjectsTags) != 'undefined') {
+			GetObjectsTags(g_id);
+		}
 	}
 
 	//hide 'em all
@@ -264,31 +241,7 @@ function tabWasClicked(tab) {"use strict";
 }
 
 function doAnalyze(template) {"use strict";
-	var args = {};
-	args.template = template;
-
-	var is_valid = false;
-
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "depMethods/wmValidateTemplate",
-		data : JSON.stringify(args),
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			if (response.error) {
-				showAlert(response.error);
-			} else if (response.result === "success") {
-				is_valid = true;
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
-
-	return is_valid;
+	return catoAjax.deployment.validateTemplate(template);
 }
 
 function doDetailFieldUpdate(ctl) {"use strict";
@@ -307,95 +260,27 @@ function doDetailFieldUpdate(ctl) {"use strict";
 		}
 	}
 
-	var args = {};
-	args.id = g_id;
-	args.column = column;
-	//escape it
-	args.value = packJSON(value);
-
 	if (column.length > 0) {
 		$("#update_success_msg").text("Updating...").show();
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "depMethods/wmUpdateTemplateDetail",
-			data : JSON.stringify(args),
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(response) {
-				if (response.error) {
-					showAlert(response.error);
-				} else if (response.info) {
-					showInfo(response.info);
-				} else if (response.result === "success") {
-					$("#update_success_msg").text("Update Successful").fadeOut(2000);
-					showInfo("Update Successful");
-				} else {
-					showInfo(response);
-				}
-			},
-			error : function(response) {
-				$("#update_success_msg").fadeOut(2000);
-				showAlert(response.responseText);
-			}
-		});
+
+		var args = {};
+		args.id = g_id;
+		args.column = column;
+		//escape it
+		args.value = packJSON(value);
+
+		var response = catoAjax.deployment.updateTemplateDetail(args);
+		if (response) {
+			$("#update_success_msg").text("Update Successful").fadeOut(2000);
+			showInfo("Update Successful");
+		}
 	}
+
 }
 
 function newDeployment() {"use strict";
 	alert("Not implemented in Cato.\n\nUse the Maestro application to create Deployments.");
 	return;
-
-	// var bSave = true;
-	// var strValidationError = '';
-// 
-	// //name is required
-	// if ($("#new_deployment_name").val() === "") {
-		// bSave = false;
-		// strValidationError += 'Please enter a Deployment Name.';
-		// return false;
-	// }
-// 
-	// //we will test it, but really we're not gonna use it rather we'll get it server side
-	// //this just traps if there isn't one.
-	// if ($("#header_cloud_accounts").val() === "") {
-		// bSave = false;
-		// strValidationError += 'Error: Unable to determine Cloud Account.';
-	// }
-// 
-	// if (bSave !== true) {
-		// showAlert(strValidationError);
-		// return false;
-	// }
-// 
-	// var account_id = $("#header_cloud_accounts").val();
-	// var name = packJSON($("#new_deployment_name").val());
-	// var desc = packJSON($("#new_deployment_desc").val());
-// 
-	// $.ajax({
-		// async : false,
-		// type : "POST",
-		// url : "ecoMethods/wmCreateDeployment",
-		// data : '{"sName":"' + name + '","sDescription":"' + desc + '","sDeploymentID":"' + g_id + '", "sAccountID":"' + account_id + '"}',
-		// contentType : "application/json; charset=utf-8",
-		// dataType : "json",
-		// success : function(response) {
-			// if (response.error) {
-				// showAlert(response.error);
-			// } else if (response.info) {
-				// showInfo(response.info);
-			// } else if (response.id) {
-				// //just add it to the list here
-				// GetDeployments();
-				// $("#deployment_add_dialog").dialog("close");
-			// } else {
-				// showAlert(response);
-			// }
-		// },
-		// error : function(response) {
-			// showAlert(response.responseText);
-		// }
-	// });
 }
 
 function validateTemplateJSON() {"use strict";

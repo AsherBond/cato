@@ -36,10 +36,57 @@ catoAjax.getQuestion = function(username) {"use strict";
 	args.username = username;
 	return ajaxPost("uiMethods/wmGetQuestion", args);
 }
+// Deployment SPECIFIC FUNCTIONS
+catoAjax.deployment = function() {
+}
+
+catoAjax.deployment.getTemplatesTable = function(filter, page) {"use strict";
+	var args = {};
+	args.sFilter = filter;
+	args.sPage = page;
+	return ajaxPost("depMethods/wmGetTemplatesTable", args);
+}
+
+catoAjax.deployment.deleteTemplates = function(template_list) {"use strict";
+	var args = {};
+	args.sDeleteArray = template_list;
+	return ajaxPost("depMethods/wmDeleteTemplates", args);
+}
+
+catoAjax.deployment.getTemplateFromURL = function(url) {"use strict";
+	var args = {};
+	args.sURL = url;
+	return ajaxPost("depMethods/wmGetTemplateFromURL", args);
+}
+
+catoAjax.deployment.getTemplate = function(id) {"use strict";
+	var args = {};
+	args.id = id;
+	return ajaxPost("depMethods/wmGetTemplate", args);
+}
+
+catoAjax.deployment.getTemplateDeployments = function(id) {"use strict";
+	var args = {};
+	args.template_id = id;
+	return ajaxPost("depMethods/wmGetTemplateDeployments", args, "html");
+}
+
+catoAjax.deployment.createTemplate = function(args) {"use strict";
+	return ajaxPost("depMethods/wmCreateTemplate", args);
+}
+
+catoAjax.deployment.updateTemplateDetail = function(args) {"use strict";
+	return ajaxPost("depMethods/wmUpdateTemplateDetail", args);
+}
+
+catoAjax.deployment.validateTemplate = function(template) {"use strict";
+	var args = {};
+	args.template = template;
+	return ajaxPost("depMethods/wmValidateTemplate", args);
+}
 
 // TAG SPECIFIC FUNCTIONS
 catoAjax.tags = function() {
-	// a class for tagging specific calls
 }
 
 catoAjax.tags.getTagsTable = function(filter, page) {"use strict";
@@ -97,7 +144,6 @@ catoAjax.tags.deleteTags = function(taglist) {"use strict";
 	args.sDeleteArray = taglist;
 	return ajaxPost("tagMethods/wmDeleteTags", args);
 }
-
 /*
  * This generic function is used by anything that needs to do an AJAX POST
  * to get back a JSON object.
@@ -128,6 +174,9 @@ function ajaxPost(apiurl, args, datatype, synchronous) {"use strict";
 			if (response.responseText == "None" || response.status == 500) {
 				//only show info, as the real message will already be in the server log
 				showInfo("An exception occurred - please check the server logfiles for details.");
+			} else if (response.status == 280) {
+				// 280 is our custom response code to indicate we want an 'info' message
+				showInfo(response.responseText);
 			} else {
 				showAlert(response.responseText);
 			}
