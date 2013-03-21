@@ -142,7 +142,7 @@ class Tasks(object):
             db.close()
 
         if len(sTaskNames) > 0:
-            return False, "Task(s) (%s) have history rows and could not be deleted." % sTaskNames
+            raise Exception("Task(s) (%s) have history rows and could not be deleted." % sTaskNames)
         
         return True, None
         
