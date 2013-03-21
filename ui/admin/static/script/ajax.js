@@ -47,6 +47,42 @@ catoAjax.getQuestion = function(username) {"use strict";
 	args.username = username;
 	return ajaxPost("uiMethods/wmGetQuestion", args);
 }
+
+catoAjax.getCloudAccountsForHeader = function(selected) {"use strict";
+	var args = {};
+	args.sSelected = selected;
+	// NOTE: This is not async for a reason - other 'page load' ajax calls depend on it.
+	return ajaxPost("uiMethods/wmGetCloudAccountsForHeader", args, "html");
+}
+
+catoAjax.getProcessLogfile = function(component) {"use strict";
+	var args = {};
+	args.component = component;
+	return ajaxPost("uiMethods/wmGetProcessLogfile", args, "text");
+}
+
+catoAjax.getLog = function(args) {"use strict";
+	return ajaxPost("uiMethods/wmGetLog", args);
+}
+
+catoAjax.saveMyAccount = function(values) {"use strict";
+	var args = {};
+	args.sValues = values;
+	return ajaxPost("uiMethods/wmSaveMyAccount", args);
+}
+
+// TASK SPECIFIC FUNCTIONS
+catoAjax.task = function() {
+}
+
+catoAjax.task.getTaskStatusCounts = function() {"use strict";
+	return ajaxPost("taskMethods/wmGetTaskStatusCounts");
+}
+
+catoAjax.task.getTaskInstances = function() {"use strict";
+	return ajaxPost("taskMethods/wmGetTaskInstances", args, "html");
+}
+
 // Deployment SPECIFIC FUNCTIONS
 catoAjax.deployment = function() {
 }
@@ -162,15 +198,14 @@ catoAjax.tags.deleteTags = function(taglist) {"use strict";
  * the datatype defaults to json unless explicitly set
  * if explicitly set, must be html, text or xml
  */
-function ajaxPost(apiurl, args, datatype, synchronous) {"use strict";
+function ajaxPost(apiurl, args, datatype) {"use strict";
 	datatype = typeof datatype !== 'undefined' ? datatype : 'json';
-	synchronous = typeof synchronous !== 'undefined' ? synchronous : false;
 
 	// args: a javascript object
 	// url: the url of the web api call
 	var result;
 	$.ajax({
-		async : synchronous,
+		async : false,
 		type : "POST",
 		url : apiurl,
 		data : JSON.stringify(args),
@@ -203,10 +238,12 @@ function ajaxPost(apiurl, args, datatype, synchronous) {"use strict";
  * the datatype defaults to json unless explicitly set
  * if explicitly set, must be html, text or xml
  */
-function ajaxGet(apiurl, datatype) {"use strict";
+function ajaxGet(apiurl, on_success, datatype) {"use strict";
+	// NOTE: this get type takes an on_success() function.
+	// async calls can't return values --- there's no telling when they'll be done.
+	// but when it is done, we'll call the on_success function!
 	datatype = typeof datatype !== 'undefined' ? datatype : 'json';
-
-	// url: the url of the web api call
+	
 	var result;
 	$.ajax({
 		type : "GET",
@@ -214,10 +251,10 @@ function ajaxGet(apiurl, datatype) {"use strict";
 		contentType : "application/json; charset=utf-8",
 		dataType : datatype,
 		success : function(response) {
-			result = response;
+			on_success(response);
 		},
 		error : function(response) {
-			showAlert(response.responseText);
+			showAlert(response);
 		}
 	});
 	return result;

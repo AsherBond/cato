@@ -262,7 +262,7 @@ class uiMethods:
                     "</tr>"
                 
         
-        return "{ \"processes\" : \"%s\", \"users\" : \"%s\", \"messages\" : \"%s\" }" % (sProcessHTML, sUserHTML, uiCommon.packJSON(sMessageHTML))
+        return json.dumps({"processes" : sProcessHTML, "users" : sUserHTML, "messages" : sMessageHTML})
 
     def wmGetProcessLogfile(self):
         component = uiCommon.getAjaxArg("component")

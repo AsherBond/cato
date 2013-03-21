@@ -106,23 +106,12 @@ function updateHeartbeat() {
 }
 
 function getCloudAccounts() {
-	// NOTE: This is not async for a reason - other 'page load' ajax calls depend on it.
-    $.ajax({
-        type: "POST",
-        async: false,
-        url: "uiMethods/wmGetCloudAccountsForHeader",
-        data: '{"sSelected":"' + $("#selected_cloud_account").val() + '"}',
-        contentType: "application/json; charset=utf-8",
-        dataType: "html",
-        success: function (response) {
-            $("#header_cloud_accounts").empty().append(response)
-        	$.cookie("selected_cloud_account", $("#header_cloud_accounts option:selected").val());
-	    	$.cookie("selected_cloud_provider", $("#header_cloud_accounts option:selected").attr("provider"));
-        },
-        error: function (response) {
-            showAlert(response.responseText);
-        }
-    });
+	var response = catoAjax.getCloudAccountsForHeader($("#selected_cloud_account").val());
+	if (response) {
+		$("#header_cloud_accounts").empty().append(response);
+		$.cookie("selected_cloud_account", $("#header_cloud_accounts option:selected").val());
+		$.cookie("selected_cloud_provider", $("#header_cloud_accounts option:selected").attr("provider"));
+	}
 }
 
 function registerCato()

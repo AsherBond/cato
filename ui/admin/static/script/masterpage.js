@@ -13,16 +13,15 @@
 //limitations under the License.
 //
 
-
 // THIS IS CRITICAL
 // different browsers cache ajax different ways.
 // this app doesn't require ajax caching - our content is different every time it's requested.
 // this should make all ajax requests use the jquery cache buster.
 // (this only applies to GET calls)
-$.ajaxSetup({ cache : false });
+$.ajaxSetup({
+	cache : false
+});
 // this file *should* always be the first script file loaded, and this block isn't in document.ready.
-
-
 
 $(document).ready(function() {
 	//there are datepickers all over the app.  Anything with a class of "datepicker" will get initialized.
@@ -92,34 +91,14 @@ $(document).ready(function() {
 					return false;
 				}
 
-				args = JSON.stringify($("#my_account_dialog :input").serializeArray());
-				args = args.replace(pw1, packJSON(pw1));
-				$.ajax({
-					async : false,
-					type : "POST",
-					url : "uiMethods/wmSaveMyAccount",
-					data : '{"sValues":' + args + '}',
-					contentType : "application/json; charset=utf-8",
-					dataType : "json",
-					success : function(response) {
-						if (response.error) {
-							showAlert(response.error);
-						}
-						if (response.info) {
-							showInfo(response.info);
-						}
-						if (response.result) {
-							if (response.result == "success") {
-								$("#update_success_msg").text("Update Successful").fadeOut(2000);
-								$("#my_account_dialog").dialog("close");
-							}
-						}
-					},
-					error : function(response) {
-						$("#update_success_msg").fadeOut(2000);
-						showAlert(response.responseText);
-					}
-				});
+				pw1 = packJSON(pw1);
+				args = $("#my_account_dialog :input").serializeArray();
+
+				var response = catoAjax.saveMyAccount(args);
+				if (response) {
+					$("#update_success_msg").text("Update Successful").fadeOut(2000);
+					$("#my_account_dialog").dialog("close");
+				}
 			},
 			"Cancel" : function() {
 				$(this).dialog("close");
@@ -143,30 +122,20 @@ $(document).ready(function() {
 
 });
 function showMyAccount() {
-	$.ajax({
-		type : "GET",
-		url : "uiMethods/wmGetMyAccount",
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(account) {
-			$("#my_password").val("");
-			$("#my_password_confirm").val("");
-			$("#my_question").val("");
-			$("#my_answer").val("");
-			if (account) {
-				$("#my_fullname").html(account.full_name);
-				$("#my_username").html(account.username);
-				$("#my_email").val(account.email);
-				$("#my_question").val(account.security_question);
-			}
-		},
-		error : function(response) {
-			showAlert(response);
+	ajaxGet("uiMethods/wmGetMyAccount", function(account) {
+		$("#my_password").val("");
+		$("#my_password_confirm").val("");
+		$("#my_question").val("");
+		$("#my_answer").val("");
+		if (account) {
+			$("#my_fullname").html(account.full_name);
+			$("#my_username").html(account.username);
+			$("#my_email").val(account.email);
+			$("#my_question").val(account.security_question);
 		}
+		//finally, show the dialog
+		$("#my_account_dialog").dialog("open");
 	});
-
-	//finally, show the dialog
-	$("#my_account_dialog").dialog("open");
 }
 
 function showAbout() {
