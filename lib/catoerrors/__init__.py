@@ -65,3 +65,17 @@ class InternalError(CatoError):
     pass
 
 
+class WebmethodInfo(StandardError):
+    """A specific handler used to identify messages that are 'info' and not 'error', for the UI."""
+    def __init__(self, reason, *args):
+        StandardError.__init__(self, reason, *args)
+        self.reason = reason
+
+    def __repr__(self):
+        return self.reason
+
+    def __str__(self):
+        return self.reason
+    
+
+
