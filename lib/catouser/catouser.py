@@ -288,30 +288,24 @@ class User(object):
                 if sPassword:
                     result, msg = User.ValidatePassword(None, sPassword)
                     if result:
-                        sEncPW = "'%s'" % catocommon.cato_encrypt(sPassword)
+                        sEncPW = catocommon.cato_encrypt(sPassword)
                     else:
-                        return None, msg
+                        raise Exception(msg)
             elif catocommon.is_true(sGeneratePW):
-                sEncPW = "'%s'" % catocommon.cato_encrypt(catocommon.generate_password())
+                sEncPW = catocommon.cato_encrypt(catocommon.generate_password())
             else:
-                return None, "A password must be provided, or check the box to generate one."
-        elif sAuthType == "ldap":
-            sEncPW = " null"
+                raise Exception("A password must be provided, or check the box to generate one.")
         
-        sSQL = "insert into users" \
-            " (user_id, username, full_name, authentication_type, force_change, email, status, user_role, user_password)" \
-            " values ('" + sNewID + "'," \
-            "'" + sUsername + "'," \
-            "'" + sFullName + "'," \
-            "'" + sAuthType + "'," \
-            "'" + sForcePasswordChange + "'," \
-            "'" + (sEmail if sEmail else "") + "'," \
-            "'" + sStatus + "'," \
-            "'" + sUserRole + "'," \
-            "" + sEncPW + "" \
-            ")"
+        pw2insert = "'%s'" % sEncPW if sEncPW else " null"
+        sSQL = """insert into users
+            (user_id, username, full_name, authentication_type, force_change, email, status, user_role, user_password)
+            values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
         
-        if not db.tran_exec_noexcep(sSQL):
+        params = (sNewID, sUsername, sFullName, sAuthType, sForcePasswordChange, 
+                (sEmail if sEmail else ""), sStatus,
+                sUserRole, pw2insert)
+
+        if not db.tran_exec_noexcep(sSQL, params):
             if db.error == "key_violation":
                 raise Exception("A User with that Login ID already exists.  Please select another.")
             else: 
@@ -332,7 +326,7 @@ class User(object):
         u.AddPWToHistory(sEncPW)
         
         db.close()
-        return u, None
+        return u
 
     @staticmethod
     def HasHistory(user_id):
@@ -356,7 +350,7 @@ class User(object):
 
     def AddPWToHistory(self, pw):
         db = catocommon.new_conn()
-        sql = "insert user_password_history (user_id, change_time, password) values ('%s', now(), '%s')" % (self.ID, pw)
-        db.exec_db(sql)
+        sql = "insert user_password_history (user_id, change_time, password) values (%s, now(), %s)"
+        db.exec_db(sql, (self.ID, pw))
         db.close()        
 

@@ -911,15 +911,10 @@ class uiMethods:
     def wmCreateUser(self):
         args = uiCommon.getAjaxArgs()
 
-        u, msg = catouser.User.DBCreateNew(args["LoginID"], args["FullName"], args["AuthenticationType"], uiCommon.unpackJSON(args["Password"]),
+        u = catouser.User.DBCreateNew(args["LoginID"], args["FullName"], args["AuthenticationType"], uiCommon.unpackJSON(args["Password"]),
                                         args["GeneratePW"], args["ForceChange"], args["Role"], args["Email"], args["Status"], args["Groups"])
-        if msg:
-            return "{\"error\" : \"" + msg + "\"}"
-        if u == None:
-            return "{\"error\" : \"Unable to create User.\"}"
 
         uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "User Created")
-
         return u.AsJSON()
         
     def wmDeleteUsers(self):
@@ -946,15 +941,16 @@ class uiMethods:
 
         #  delete some users...
         if now:
+            sSQL = "delete from user_password_history where user_id in (%s)" % "'%s'" % "','".join(now)
+            self.db.tran_exec(sSQL)
+
             sSQL = "delete from users where user_id in (%s)" % "'%s'" % "','".join(now)
-            if not self.db.tran_exec_noexcep(sSQL):
-                uiCommon.log_nouser(self.db.error, 0)
+            self.db.tran_exec(sSQL)
 
         #  flag the others...
         if later:
             sSQL = "update users set status = 86 where user_id in (%s)" % "'%s'" % "','".join(later)
-            if not self.db.tran_exec_noexcep(sSQL):
-                uiCommon.log_nouser(self.db.error, 0)
+            self.db.tran_exec(sSQL)
 
         self.db.tran_commit()
 
