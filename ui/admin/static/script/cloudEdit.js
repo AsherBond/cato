@@ -452,33 +452,19 @@ function ShowItemAdd() {
 }
 
 function DeleteItems() {
-    $("#update_success_msg").text("Deleting...").show().fadeOut(2000);
+	var args = {};
+	args.sDeleteArray = $("#hidSelectedArray").val();
+	var response = ajaxPost("cloudMethods/wmDeleteClouds", args);
+	if (response) {
+        $("#hidSelectedArray").val("");
+        $("#delete_dialog").dialog("close");
 
-    var ArrayString = $("#hidSelectedArray").val();
-    $.ajax({
-        type: "POST",
-        url: "cloudMethods/wmDeleteClouds",
-        data: '{"sDeleteArray":"' + ArrayString + '"}',
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-	        if (response) {
-                $("#hidSelectedArray").val("");
-                $("#delete_dialog").dialog("close");
+        // clear the search field and fire a search click, should reload the grid
+        $("#txtSearch").val("");
+		GetItems();
 
-                // clear the search field and fire a search click, should reload the grid
-                $("#txtSearch").val("");
-				GetItems();
-
-                $("#update_success_msg").text("Delete Successful").show().fadeOut(2000);
-            } else {
-                showAlert(response);
-            }
-        },
-        error: function (response) {
-            showAlert(response.responseText);
-        }
-    });
+        $("#update_success_msg").text("Delete Successful").show().fadeOut(2000);
+	}
 }
 
 function GetKeyPairs(sEditID) {

@@ -722,9 +722,9 @@ def RemoveNodeFromXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToRemove):
 
 def AttemptLogin(app_name):
     if not app_name:
-        return "{\"error\" : \"Missing Application Name.\"}"
+        raise Exception("Missing Application Name.")
     if not web.ctx.ip:
-        return "{\"error\" : \"Unable to determine client address.\"}"
+        raise Exception("Unable to determine client address.")
 
     address = "%s (%s)" % (web.ctx.ip, app_name)
     
@@ -787,7 +787,7 @@ def AttemptLogin(app_name):
         catocommon.SecurityLogActions.UserLogin, catocommon.CatoObjectTypes.User, "",
         "Login to [%s] from [%s] granted." % (app_name, address))
 
-    return "{\"result\" : \"success\"}"
+    return json.dumps({"result" : "success"})
             
 def GetQuestion():
     in_name = getAjaxArg("username")

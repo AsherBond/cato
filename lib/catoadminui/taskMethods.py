@@ -264,18 +264,15 @@ class taskMethods:
 
     def wmDeleteTasks(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
-        if len(sDeleteArray) < 36:
-            return "{\"info\" : \"Unable to delete - no selection.\"}"
-
         sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
 
         if not sDeleteArray:
-            return "{\"info\" : \"Unable to delete - no selection.\"}"
+            raise Exception("Unable to delete - no selection.")
             
-        result, msg = task.Tasks.Delete(sDeleteArray.split(","), uiCommon.GetSessionUserID())
+        task.Tasks.Delete(sDeleteArray.split(","), uiCommon.GetSessionUserID())
         
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Task, "Multiple", "Original Task IDs", sDeleteArray)
-        return "{\"result\" : \"success\"}"
+        return json.dumps({"result" : "success"})
         
     def wmUpdateTaskDetail(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
@@ -353,7 +350,7 @@ class taskMethods:
         else:
             uiCommon.log("Unable to update task. Missing or invalid task [%s] id." % sTaskID)
 
-        return "{\"result\" : \"success\"}"
+        return json.dumps({"result" : "success"})
             
     def wmCreateNewTaskVersion(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")

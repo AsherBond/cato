@@ -125,15 +125,10 @@ class Asset(object):
     def HasHistory(asset_id):
         """Returns True if the asset has historical data."""
         db = catocommon.new_conn()
-        #  history in user_session.
-        sql = "select count(*) from task_instance where asset_id = '" + asset_id + "'"
-        iResults = db.select_col(sql)
+        sql = "select count(*) from task_instance where asset_id = %s"
+        iResults = db.select_col(sql, (asset_id))
         db.close()        
-
-        if iResults:
-            return True
-
-        return False
+        return catocommon.is_true(iResults)
 
     @staticmethod
     def DBCreateNew(sAssetName, sStatus, sDbName, sPort, sAddress, sConnString, tags, credential_update_mode, credential=None):
@@ -438,7 +433,7 @@ class Credential(object):
         db.exec_db(sSQL)
         db.close()        
     
-        return True, None
+        return True
 
     def AsJSON(self):
         return catocommon.ObjectOutput.AsJSON(self.__dict__)

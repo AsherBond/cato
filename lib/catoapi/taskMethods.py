@@ -323,13 +323,10 @@ class taskMethods:
 
         obj = task.Task()
         obj.FromNameVersion(name=args["task"], include_code=False)
-        result, msg = task.Tasks.Delete(["'%s'" % obj.ID], args["_user_id"])
+        task.Tasks.Delete(["'%s'" % obj.ID], args["_user_id"])
         
-        if result:
-            catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.Task, obj.ID, obj.Name, "Deleted via API.")
-            return R(response="[%s] successfully deleted." % obj.Name)
-        else:
-            return R(err_code=R.Codes.DeleteError, err_detail=msg)
+        catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.Task, obj.ID, obj.Name, "Deleted via API.")
+        return R(response="[%s] successfully deleted." % obj.Name)
             
     def list_tasks(self, args):        
         """

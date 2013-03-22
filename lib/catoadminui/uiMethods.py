@@ -36,6 +36,7 @@ from catoasset import asset
 from catotask import task
 from catoregistry import registry
 from catosettings import settings
+from catoerrors import WebmethodInfo
 
 from catoui import uiCommon
 
@@ -954,7 +955,7 @@ class uiMethods:
 
         self.db.tran_commit()
 
-        return "{\"result\" : \"success\"}"
+        return json.dumps({"result" : "success"})
 
     def wmGetAssetsTable(self):
         sHTML = ""
@@ -1103,7 +1104,7 @@ class uiMethods:
             if not result:
                 return "{\"error\" : \"" + msg + "\"}"
 
-        return "{\"result\" : \"success\"}"
+        return json.dumps({"result" : "success"})
         
     def wmDeleteAssets(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
@@ -1126,29 +1127,26 @@ class uiMethods:
 
         # delete some now
         if now:
-            sSQL = """delete from asset_credential
+            sql = """delete from asset_credential
                 where shared_or_local = 1
                 and credential_id in (select credential_id from asset where asset_id in (%s))
                 """ % "'%s'" % "','".join(now)
-            if not self.db.tran_exec_noexcep(sSQL):
-                uiCommon.log_nouser(self.db.error, 0)
+            self.db.tran_exec(sql)
 
-            sSQL = "delete from asset where asset_id in (%s)" % "'%s'" % "','".join(now)
-            if not self.db.tran_exec_noexcep(sSQL):
-                uiCommon.log_nouser(self.db.error, 0)
+            sql = "delete from asset where asset_id in (%s)" % "'%s'" % "','".join(now)
+            self.db.tran_exec(sql)
 
         #  deactivate the others...
         if later:
-            sSQL = "update asset set asset_status = 'Inactive' where asset_id in (%s)" % "'%s'" % "','".join(later)
-            if not self.db.tran_exec_noexcep(sSQL):
-                uiCommon.log_nouser(self.db.error, 0)
+            sql = "update asset set asset_status = 'Inactive' where asset_id in (%s)" % "'%s'" % "','".join(later)
+            self.db.tran_exec(sql)
 
         self.db.tran_commit()
 
         if later:
-            return "{\"result\" : \"success\", \"info\" : \"One or more assets could not be deleted due to historical information.  These Assets have been marked as Inactive.\"}"
+            raise WebmethodInfo("One or more assets could not be deleted due to historical information.  These Assets have been marked as Inactive.")
         else:
-            return "{\"result\" : \"success\"}"
+            return json.dumps({"result" : "success"})
                 
     def wmCreateCredential(self):
         args = uiCommon.getAjaxArgs()
@@ -1172,36 +1170,31 @@ class uiMethods:
     def wmDeleteCredentials(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
         if len(sDeleteArray) < 36:
-            return "{\"info\" : \"Unable to delete - no selection.\"}"
+            raise Exception("Unable to delete - no selection.")
 
         sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
         
         sSQL = """delete from asset_credential where credential_id in (%s)
             and credential_id not in (select distinct credential_id from asset where credential_id is not null)
             """ % sDeleteArray
-        if not self.db.tran_exec_noexcep(sSQL):
-            uiCommon.log_nouser(self.db.error, 0)
+        self.db.tran_exec(sSQL)
 
-        return "{\"result\" : \"success\"}"
+        return json.dumps({"result" : "success"})
                 
     def wmUpdateCredential(self):
         args = uiCommon.getAjaxArgs()
 
         c = asset.Credential()
         c.FromID(args["ID"])
-        
-        if c:
-            # assuming the attribute names will match ... spin the post data and update the object
-            # only where asset attributes are pre-defined.
-            for k, v in args.items():
-                if hasattr(c, k):
-                    setattr(c, k, v)
+        # assuming the attribute names will match ... spin the post data and update the object
+        # only where asset attributes are pre-defined.
+        for k, v in args.items():
+            if hasattr(c, k):
+                setattr(c, k, v)
 
-            result, msg = c.DBUpdate()
-            if not result:
-                return "{\"error\" : \"" + msg + "\"}"
+        c.DBUpdate()
 
-        return "{\"result\" : \"success\"}"
+        return json.dumps({"result" : "success"})
         
     def wmCreateObjectFromXML(self):
         """Takes a properly formatted XML backup file, and imports each object."""
@@ -1307,7 +1300,7 @@ class uiMethods:
             return "{\"error\" : \"%s\"}" % msg
             
         
-        return "{\"result\" : \"success\"}"
+        return json.dumps({"result" : "success"})
    
     def wmUpdateRegistryValue(self):
         sObjectID = uiCommon.getAjaxArg("sObjectID")
@@ -1330,7 +1323,7 @@ class uiMethods:
             return "{\"error\" : \"%s\"}" % msg
             
         
-        return "{\"result\" : \"success\"}"
+        return json.dumps({"result" : "success"})
    
     def wmDeleteRegistryNode(self):
         sObjectID = uiCommon.getAjaxArg("sObjectID")
@@ -1349,7 +1342,7 @@ class uiMethods:
             return "{\"error\" : \"%s\"}" % msg
             
         
-        return "{\"result\" : \"success\"}"
+        return json.dumps({"result" : "success"})
    
     """
     Some Enterprise features require additional script files.  A CE install would show 

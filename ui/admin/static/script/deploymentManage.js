@@ -114,46 +114,21 @@ function ShowItemAdd() {
 }
 
 function DeleteItems() {
-	var ArrayString = $("#hidSelectedArray").val();
-	$.ajax({
-		type : "POST",
-		url : "depMethods/wmDeleteDeployments",
-		data : '{"sDeleteArray":"' + ArrayString + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			if (response.info) {
-				showInfo(response.info);
-			} else if (response.error) {
-				showAlert(response.error);
-			} else if (response.result == "success") {
-				$("#hidSelectedArray").val("");
-				$("#delete_dialog").dialog("close");
+	var args = {};
+	args.sDeleteArray = $("#hidSelectedArray").val();
+	var response = ajaxPost("depMethods/wmDeleteDeployments", args);
+	if (response) {
 
-				// clear the search field and fire a search click, should reload the grid
-				$("#txtSearch").val("");
-				GetItems();
+		$("#hidSelectedArray").val("");
+		$("#delete_dialog").dialog("close");
 
-				hidePleaseWait();
-				showInfo('Delete Successful');
-			} else {
-				showAlert(response);
+		// clear the search field and fire a search click, should reload the grid
+		$("#txtSearch").val("");
+		GetItems();
 
-				$("#delete_dialog").dialog("close");
-
-				// reload the list, some may have been deleted.
-				// clear the search field and fire a search click, should reload the grid
-				$("#txtSearch").val("");
-				GetItems();
-			}
-
-			$("#hidSelectedArray").val("");
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
-
+		hidePleaseWait();
+		showInfo('Delete Successful'); 
+	}
 }
 
 function Save() {

@@ -123,20 +123,16 @@ class Tasks(object):
             sql = """delete from task_step_user_settings
                 where step_id in
                 (select step_id from task_step where task_id in (%s))""" % task_ids
-            if not db.tran_exec_noexcep(sql):
-                logger.error(db.error)
+            db.tran_exec(sql)
 
             sql = "delete from task_step where task_id in (" + task_ids + ")"
-            if not db.tran_exec_noexcep(sql):
-                logger.error(db.error)
+            db.tran_exec(sql)
 
             sql = "delete from task_codeblock where task_id in (" + task_ids + ")"
-            if not db.tran_exec_noexcep(sql):
-                logger.error(db.error)
+            db.tran_exec(sql)
 
             sql = "delete from task where task_id in (" + task_ids + ")"
-            if not db.tran_exec_noexcep(sql):
-                logger.error(db.error)
+            db.tran_exec(sql)
 
             db.tran_commit()
             db.close()
@@ -144,7 +140,7 @@ class Tasks(object):
         if len(sTaskNames) > 0:
             raise Exception("Task(s) (%s) have history rows and could not be deleted." % sTaskNames)
         
-        return True, None
+        return True
         
 class Task(object):
     def __init__(self):
