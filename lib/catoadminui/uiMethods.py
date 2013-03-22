@@ -170,7 +170,7 @@ class uiMethods:
         return sHTML
 
     def wmGetMenu(self):
-        #NOTE: this needs all the kick and warn stuff
+        # NOTE: this needs all the kick and warn stuff
         role = uiCommon.GetSessionUserRole()
         
         if not role:
@@ -272,10 +272,10 @@ class uiMethods:
             logfile = "%s/%s.log" % (catolog.LOGPATH, component)
             if os.path.exists(logfile):
                 with open(logfile, 'r') as f:
-                    f.seek (0, 2)           # Seek @ EOF
-                    fsize = f.tell()        # Get Size
-                    f.seek (max (fsize - 102400, 0), 0) # Set pos @ last n chars
-                    tail = f.readlines()       # Read to end
+                    f.seek (0, 2)  # Seek @ EOF
+                    fsize = f.tell()  # Get Size
+                    f.seek (max (fsize - 102400, 0), 0)  # Set pos @ last n chars
+                    tail = f.readlines()  # Read to end
 
                     return uiCommon.packJSON("".join(tail))
         
@@ -294,10 +294,10 @@ class uiMethods:
             sWhereString += " and usl.object_id = '" + sObjectID + "'"
 
         if sObjectType:
-            if sObjectType > "0": # but a 0 object type means we want everything
+            if sObjectType > "0":  # but a 0 object type means we want everything
                 sWhereString += " and usl.object_type = '" + sObjectType + "'"
        
-        if not sObjectID and not sObjectType: # no arguments passed means we want a security log
+        if not sObjectID and not sObjectType:  # no arguments passed means we want a security log
             sWhereString += " and usl.log_type = 'Security'"
 
         sDateSearchString = ""
@@ -335,7 +335,7 @@ class uiMethods:
                 sb.append("\"%s\"" % (uiCommon.packJSON(uiCommon.SafeHTML(row["log_msg"]))))
                 sb.append("]")
             
-                #the last one doesn't get a trailing comma
+                # the last one doesn't get a trailing comma
                 if i < len(rows):
                     sb.append(",")
                     
@@ -487,7 +487,7 @@ class uiMethods:
         #  if we made it here, so save the logs
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Schedule, "", "", "Schedule [" + sScheduleID + "] deleted.")
 
-        return ""
+        return json.dumps({"result" : "success"})
 
     def wmDeleteActionPlan(self):
         iPlanID = uiCommon.getAjaxArg("iPlanID")
@@ -504,7 +504,7 @@ class uiMethods:
         #  if we made it here, so save the logs
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Schedule, "", "", "Action Plan [" + iPlanID + "] deleted.")
 
-        return ""
+        return json.dumps({"result" : "success"})
     
     def wmRunLater(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
@@ -755,7 +755,7 @@ class uiMethods:
 
         uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, user_id, user_id, "My Account settings updated.")
             
-        return "{\"result\":\"success\"}"
+        return json.dumps({"result" : "success"})
 
     def wmGetUsersTable(self):
         sHTML = ""
@@ -840,7 +840,7 @@ class uiMethods:
                     if result:
                         sql_bits.append("user_password = '%s'" % catocommon.cato_encrypt(newpw))
                     else:
-                        return "{\"info\":\"%s\"}" % msg
+                        raise WebmethodInfo(msg)
 
             # Here's something special...
             # If the arg "RandomPassword" was provided and is true...
@@ -856,7 +856,7 @@ class uiMethods:
                 if u:
                     u.FromID(args["ID"])
                     if not u.Email:
-                        return "{\"info\":\"Unable to reset password - User does not have an email address defined.\"}"
+                        raise WebmethodInfo("Unable to reset password - User does not have an email address defined.")
                     else:
                         sNewPassword = catocommon.generate_password()
                         sql_bits.append("user_password='%s'" % sNewPassword)
@@ -868,7 +868,7 @@ class uiMethods:
                         # would get the URL of the application, construct an email message
                         # and send using our SendEmail function (which puts a row in the message table)
                         
-                        #sURL = uiCommon.GetSessionObject("app_url", "user")
+                        # sURL = uiCommon.GetSessionObject("app_url", "user")
                         sURL = ""
                         # now, send out an email
                         s_set = settings.settings.security()
@@ -887,9 +887,7 @@ class uiMethods:
         
         sql = "update users set %s where user_id = '%s'" % (",".join(sql_bits), user_id)
 
-        if not self.db.exec_db_noexcep(sql):
-            uiCommon.log_nouser(self.db.error, 0)
-            "{\"error\":\"%s\"}" % self.db.error
+        self.db.exec_db(sql)
 
         uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, user_id, user_id, "User updated.")
            
@@ -898,16 +896,15 @@ class uiMethods:
             # if the Groups argument was empty, that means delete them all!
             # no matter what the case, we're doing a whack-n-add here.
             sql = "delete from object_tags where object_id = '%s'" % user_id
-            if not self.db.exec_db_noexcep(sql):
-                uiCommon.log_nouser(self.db.error, 0)
+            self.db.exec_db(sql)
+
             # now, lets do any groups that were passed in. 
             if args["Groups"]:
                 for tag in args["Groups"]:
                     sql = "insert object_tags (object_type, object_id, tag_name) values (1, '%s','%s')" % (user_id, tag)
-                    if not self.db.exec_db_noexcep(sql):
-                        uiCommon.log_nouser(self.db.error, 0)
+                    self.db.exec_db(sql)
         
-        return "{\"result\":\"success\"}"
+        return json.dumps({"result" : "success"})
 
     def wmCreateUser(self):
         args = uiCommon.getAjaxArgs()
@@ -929,7 +926,7 @@ class uiMethods:
 
         aUsers = sDeleteArray.split(",")
         for sUserID in aUsers:
-            if len(sUserID) == 36: # a guid + quotes
+            if len(sUserID) == 36:  # a guid + quotes
                 # you cannot delete yourself!!!
                 if sUserID != WhoAmI:
                     # this will flag a user for later deletion by the system
@@ -1064,7 +1061,7 @@ class uiMethods:
         ac = asset.Credentials(sFilter)
         if ac:
             return ac.AsJSON()
-        #should not get here if all is well
+        # should not get here if all is well
         return "{\"result\":\"fail\",\"error\":\"Failed to get Credentials using filter [" + sFilter + "].\"}"
 
     def wmGetCredential(self):
@@ -1117,7 +1114,7 @@ class uiMethods:
         later = []
         aAssets = sDeleteArray.split(",")
         for sAsset in aAssets:
-            if len(sAsset) == 36: # a guid + quotes
+            if len(sAsset) == 36:  # a guid + quotes
                 # this will mark an asset as Disabled if it has history
                 # it returns True if it's safe to delete now
                 if asset.Asset.HasHistory(sAsset):
@@ -1244,7 +1241,7 @@ class uiMethods:
         else:
             items.append({"info" : "Unable to create Task from backup XML."})
             
-            #TODO: for loop for Assets will go here, same logic as above
+            # TODO: for loop for Assets will go here, same logic as above
             # ASSETS
             
         return "{\"items\" : %s}" % json.dumps(items)

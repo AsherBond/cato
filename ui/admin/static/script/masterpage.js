@@ -18,9 +18,9 @@
 // this app doesn't require ajax caching - our content is different every time it's requested.
 // this should make all ajax requests use the jquery cache buster.
 // (this only applies to GET calls)
-$.ajaxSetup({
-	cache : false
-});
+// $.ajaxSetup({
+	// cache : false
+// });
 // this file *should* always be the first script file loaded, and this block isn't in document.ready.
 
 $(document).ready(function() {

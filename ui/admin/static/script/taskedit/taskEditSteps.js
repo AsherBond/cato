@@ -40,20 +40,11 @@ $(document).ready(function() {
 
 		//now persist it
 		$("#update_success_msg").text("Updating...").show();
-		$.ajax({
-			async : true,
-			type : "POST",
-			url : "taskMethods/wmToggleStep",
-			data : '{"sStepID":"' + step_id + '","sVisible":"' + visible + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(msg) {
-				$("#update_success_msg").text("Update Successful").fadeOut(2000);
-			},
-			error : function(response) {
-				$("#update_success_msg").fadeOut(2000);
-				showAlert(response.responseText);
-			}
+		ajaxPostAsync("taskMethods/wmToggleStep", {
+			sStepID : step_id,
+			sVisible : visible
+		}, function(msg) {
+			$("#update_success_msg").text("Update Successful").fadeOut(2000);
 		});
 	});
 
@@ -107,20 +98,12 @@ $(document).ready(function() {
 
 		//now persist it
 		$("#update_success_msg").text("Updating...").show();
-		$.ajax({
-			async : true,
-			type : "POST",
-			url : "taskMethods/wmToggleStepCommonSection",
-			data : '{"sStepID":"' + stp + '","sXPathPrefix":"' + xpp + '","sButton":"' + btn + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(msg) {
-				$("#update_success_msg").text("Update Successful").fadeOut(2000);
-			},
-			error : function(response) {
-				$("#update_success_msg").fadeOut(2000);
-				showAlert(response.responseText);
-			}
+		ajaxPostAsync("taskMethods/wmToggleStepCommonSection", {
+			sStepID : stp,
+			sXPathPrefix : xpp,
+			sButton : btn
+		}, function(msg) {
+			$("#update_success_msg").text("Update Successful").fadeOut(2000);
 		});
 	});
 
@@ -166,22 +149,12 @@ $(document).ready(function() {
 			$("#step_detail_" + step_id).addClass("step_collapsed");
 		}
 
-		$.ajax({
-			async : true,
-			type : "POST",
-			url : "taskMethods/wmToggleStepSkip",
-			data : '{"sStepID":"' + step_id + '", "sSkip":"' + skip + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(response) {
-				$("#update_success_msg").text("Update Successful").fadeOut(2000);
-			},
-			error : function(response) {
-				$("#update_success_msg").fadeOut(2000);
-				showAlert(response.responseText);
-			}
+		ajaxPostAsync("taskMethods/wmToggleStepSkip", {
+			sStepID : stp,
+			sSkip : skip
+		}, function(msg) {
+			$("#update_success_msg").text("Update Successful").fadeOut(2000);
 		});
-
 	});
 
 	//the onclick event of the 'delete' link of each step
@@ -195,21 +168,11 @@ $(document).ready(function() {
 		$("#update_success_msg").text("Copying...").show();
 		var step_id = $(this).attr("step_id");
 
-		$.ajax({
-			async : true,
-			type : "POST",
-			url : "taskMethods/wmCopyStepToClipboard",
-			data : '{"sStepID":"' + step_id + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(response) {
-				doGetClips();
-				$("#update_success_msg").text("Copy Successful").fadeOut(2000);
-			},
-			error : function(response) {
-				$("#update_success_msg").fadeOut(2000);
-				showAlert(response.responseText);
-			}
+		ajaxPostAsync("taskMethods/wmCopyStepToClipboard", {
+			sStepID : step_id
+		}, function(response) {
+			doGetClips();
+			$("#update_success_msg").text("Copy Successful").fadeOut(2000);
 		});
 	});
 
@@ -228,31 +191,23 @@ $(document).ready(function() {
 		var field = $("#" + $(this).attr("link_to"));
 
 		//first, populate the picker
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "taskMethods/wmGetTaskConnections",
-			data : '{"sTaskID":"' + g_task_id + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "html",
-			success : function(response) {
-				$("#conn_picker_connections").html(response);
-				$("#conn_picker_connections .value_picker_value").hover(function() {
-					$(this).toggleClass("value_picker_value_hover");
-				}, function() {
-					$(this).toggleClass("value_picker_value_hover");
-				});
-				$("#conn_picker_connections .value_picker_value").click(function() {
-					field.val($(this).text());
-					field.change();
+		var response = ajaxPost("taskMethods/wmGetTaskConnections", {
+			sTaskID : g_task_id
+		}, "html");
+		if (response) {
+			$("#conn_picker_connections").html(response);
+			$("#conn_picker_connections .value_picker_value").hover(function() {
+				$(this).toggleClass("value_picker_value_hover");
+			}, function() {
+				$(this).toggleClass("value_picker_value_hover");
+			});
+			$("#conn_picker_connections .value_picker_value").click(function() {
+				field.val($(this).text());
+				field.change();
 
-					$("#conn_picker").slideUp();
-				});
-			},
-			error : function(response) {
-				showAlert(response.responseText);
-			}
-		});
+				$("#conn_picker").slideUp();
+			});
+		}
 
 		//change the click event of this button to now close the dialog
 		//        $(this).die("click");
@@ -283,31 +238,25 @@ $(document).ready(function() {
 		stepid = $(this).attr("step_id");
 
 		//first, populate the picker
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "taskMethods/wmGetTaskCodeblockPicker",
-			data : '{"sTaskID":"' + g_task_id + '","sStepID":"' + stepid + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "html",
-			success : function(response) {
-				$("#codeblock_picker_codeblocks").html(response);
-				$("#codeblock_picker_codeblocks .value_picker_value").hover(function() {
-					$(this).toggleClass("value_picker_value_hover");
-				}, function() {
-					$(this).toggleClass("value_picker_value_hover");
-				});
-				$("#codeblock_picker_codeblocks .value_picker_value").click(function() {
-					field.val($(this).text());
-					field.change();
 
-					$("#codeblock_picker").slideUp();
-				});
-			},
-			error : function(response) {
-				showAlert(response.responseText);
-			}
-		});
+		var response = ajaxPost("taskMethods/wmGetTaskCodeblockPicker", {
+			sTaskID : g_task_id,
+			sStepID : stepid
+		}, "html");
+		if (response) {
+			$("#codeblock_picker_codeblocks").html(response);
+			$("#codeblock_picker_codeblocks .value_picker_value").hover(function() {
+				$(this).toggleClass("value_picker_value_hover");
+			}, function() {
+				$(this).toggleClass("value_picker_value_hover");
+			});
+			$("#codeblock_picker_codeblocks .value_picker_value").click(function() {
+				field.val($(this).text());
+				field.change();
+
+				$("#codeblock_picker").slideUp();
+			});
+		}
 
 		$("#codeblock_picker").css({
 			top : e.clientY,
@@ -347,46 +296,39 @@ $(document).ready(function() {
 			cursor : 'wait'
 		});
 		var search_text = $("#task_search_text").val();
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "taskMethods/wmTaskSearch",
-			data : '{"sSearch":"' + search_text + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "html",
-			success : function(response) {
-				$("#task_picker_results").html(response);
-				//bind the onclick event for the new results
-				$("#task_picker_results .task_picker_value").disableSelection();
-				$("#task_picker_dialog").unblock();
 
-				//gotta kill previously bound clicks or it will stack 'em! = bad.
-				$("#task_picker_results li[tag='task_picker_row']").die();
-				$("#task_picker_results li[tag='task_picker_row']").live("click", function() {
-					$("#task_steps").block({
-						message : null
-					});
+		var response = ajaxPost("taskMethods/wmTaskSearch", {
+			sSearch : search_text
+		}, "html");
+		if (response) {
+			$("#task_picker_results").html(response);
+			//bind the onclick event for the new results
+			$("#task_picker_results .task_picker_value").disableSelection();
+			$("#task_picker_dialog").unblock();
 
-					$("#task_picker_dialog").dialog("close");
-					$("#task_picker_results").empty();
-
-					field.val($(this).attr("task_name"));
-					field.change();
+			//gotta kill previously bound clicks or it will stack 'em! = bad.
+			$("#task_picker_results li[tag='task_picker_row']").die();
+			$("#task_picker_results li[tag='task_picker_row']").live("click", function() {
+				$("#task_steps").block({
+					message : null
 				});
 
-				//task description tooltips on the task picker dialog
-				$("#task_picker_results .search_dialog_tooltip").tipTip({
-					defaultPosition : "right",
-					keepAlive : false,
-					activation : "hover",
-					maxWidth : "500px",
-					fadeIn : 100
-				});
-			},
-			error : function(response) {
-				showAlert(response.responseText);
-			}
-		});
+				$("#task_picker_dialog").dialog("close");
+				$("#task_picker_results").empty();
+
+				field.val($(this).attr("task_name"));
+				field.change();
+			});
+
+			//task description tooltips on the task picker dialog
+			$("#task_picker_results .search_dialog_tooltip").tipTip({
+				defaultPosition : "right",
+				keepAlive : false,
+				activation : "hover",
+				maxWidth : "500px",
+				fadeIn : 100
+			});
+		}
 	});
 	//////END TASK PICKER
 
@@ -483,24 +425,19 @@ $(document).ready(function() {
 		});
 		$("#update_success_msg").text("Updating...").show();
 
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "taskMethods/wmFnNodeArrayAdd",
-			data : '{"sStepID":"' + step_id + '","sFunctionName":"' + func_name + '","sTemplateXPath":"' + template_path + '","sAddTo":"' + add_to + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(retval) {
-				//go get the step
-				getStep(step_id, step_id, true);
-				$("#task_steps").unblock();
-				$("#update_success_msg").text("Update Successful").fadeOut(2000);
-
-			},
-			error : function(response) {
-				showAlert(response.responseText);
-			}
+		var response = ajaxPost("taskMethods/wmFnNodeArrayAdd", {
+			sStepID : step_id,
+			sFunctionName : func_name,
+			sTemplateXPath : template_path,
+			sAddTo : add_to
 		});
+		if (response) {
+			//go get the step
+			getStep(step_id, step_id, true);
+			$("#task_steps").unblock();
+			$("#update_success_msg").text("Update Successful").fadeOut(2000);
+
+		}
 	});
 
 	// NODE DELETE
@@ -523,22 +460,13 @@ function doRemoveNode(step_id, remove_path) {
 	});
 	$("#update_success_msg").text("Updating...").show();
 
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "taskMethods/wmRemoveNodeFromStep",
-		data : '{"sStepID":"' + step_id + '","sRemovePath":"' + remove_path + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "text",
-		success : function(response) {
-			getStep(step_id, step_id, true);
-			$("#task_steps").unblock();
-			$("#update_success_msg").text("Update Successful").fadeOut(2000);
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+	var response = ajaxPost("taskMethods/wmRemoveNodeFromStep", {
+		sStepID : step_id,
+		sRemovePath : remove_path
+	}, "text");
+	getStep(step_id, step_id, true);
+	$("#task_steps").unblock();
+	$("#update_success_msg").text("Update Successful").fadeOut(2000);
 }
 
 //called in rare cases when the value entered in one field should push it's update through another field.
@@ -678,108 +606,100 @@ function showVarPicker(e) {
 	//hide any open pickers
 	$("div[id$='_picker']").hide();
 
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "taskMethods/wmGetTaskVarPickerPopup",
-		data : '{"sTaskID":"' + g_task_id + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "html",
-		success : function(response) {
-			$("#var_picker_variables").html(response);
+	var response = ajaxPost("taskMethods/wmGetTaskVarPickerPopup", {
+		sTaskID : g_task_id
+	}, "html");
+	if (response) {
+		$("#var_picker_variables").html(response);
 
-			$("#var_picker_variables .value_picker_group").click(function() {
-				$("#" + $(this).attr("target")).toggleClass("hidden");
-			});
+		$("#var_picker_variables .value_picker_group").click(function() {
+			$("#" + $(this).attr("target")).toggleClass("hidden");
+		});
 
-			$("#var_picker_variables .value_picker_value").hover(function() {
-				$(this).toggleClass("value_picker_value_hover");
-			}, function() {
-				$(this).toggleClass("value_picker_value_hover");
-			});
+		$("#var_picker_variables .value_picker_value").hover(function() {
+			$(this).toggleClass("value_picker_value_hover");
+		}, function() {
+			$(this).toggleClass("value_picker_value_hover");
+		});
 
-			$("#var_picker_variables .value_picker_group").hover(function() {
-				$(this).toggleClass("value_picker_value_hover");
-			}, function() {
-				$(this).toggleClass("value_picker_value_hover");
-			});
+		$("#var_picker_variables .value_picker_group").hover(function() {
+			$(this).toggleClass("value_picker_value_hover");
+		}, function() {
+			$(this).toggleClass("value_picker_value_hover");
+		});
 
-			$("#var_picker_variables .value_picker_value").click(function() {
-				var fjqo = $("#" + fieldWithFocus);
-				var f = $("#" + fieldWithFocus)[0];
-				var varname = "";
+		$("#var_picker_variables .value_picker_value").click(function() {
+			var fjqo = $("#" + fieldWithFocus);
+			var f = $("#" + fieldWithFocus)[0];
+			var varname = "";
 
-				//note: certain fields should get variable REPLACEMENT syntax [[foo]]
-				//others should get the actual name of the variable
-				//switch on the function_name to determine this
-				var func = fjqo.attr("function");
+			//note: certain fields should get variable REPLACEMENT syntax [[foo]]
+			//others should get the actual name of the variable
+			//switch on the function_name to determine this
+			var func = fjqo.attr("function");
 
-				switch (func) {
-					case "clear_variable":
+			switch (func) {
+				case "clear_variable":
+					varname = $(this).text();
+					break;
+				case "substring":
+					// bugzilla 1234 in substring only the variable_name field gets the value without the [[ ]]
+					var xpath = fjqo.attr("xpath");
+					if (xpath == "variable_name") {
 						varname = $(this).text();
-						break;
-					case "substring":
-						// bugzilla 1234 in substring only the variable_name field gets the value without the [[ ]]
-						var xpath = fjqo.attr("xpath");
-						if (xpath == "variable_name") {
-							varname = $(this).text();
-						} else {
-							varname = "[[" + $(this).text() + "]]";
-						}
-						break;
-					case "loop":
-						// bugzilla 1234 in substring only the variable_name field gets the value without the [[ ]]
-						var xpath = fjqo.attr("xpath");
-						if (xpath == "counter") {
-							varname = $(this).text();
-						} else {
-							varname = "[[" + $(this).text() + "]]";
-						}
-						break;
-					case "set_variable":
-						// bugzilla 1234 in substring only the variable_name field gets the value without the [[ ]]
-						var xpath = fjqo.attr("xpath");
-						if (xpath.indexOf("/name", 0) != -1) {
-							varname = $(this).text();
-						} else {
-							varname = "[[" + $(this).text() + "]]";
-						}
-						break;
-					default:
+					} else {
 						varname = "[[" + $(this).text() + "]]";
-						break;
-				}
+					}
+					break;
+				case "loop":
+					// bugzilla 1234 in substring only the variable_name field gets the value without the [[ ]]
+					var xpath = fjqo.attr("xpath");
+					if (xpath == "counter") {
+						varname = $(this).text();
+					} else {
+						varname = "[[" + $(this).text() + "]]";
+					}
+					break;
+				case "set_variable":
+					// bugzilla 1234 in substring only the variable_name field gets the value without the [[ ]]
+					var xpath = fjqo.attr("xpath");
+					if (xpath.indexOf("/name", 0) != -1) {
+						varname = $(this).text();
+					} else {
+						varname = "[[" + $(this).text() + "]]";
+					}
+					break;
+				default:
+					varname = "[[" + $(this).text() + "]]";
+					break;
+			}
 
-				//IE support
-				if (document.selection) {
-					f.focus();
-					sel = document.selection.createRange();
-					sel.text = varname;
-					f.focus();
-				}
-				//MOZILLA / NETSCAPE support
-				else if (f.selectionStart || f.selectionStart == '0') {
-					var startPos = f.selectionStart;
-					var endPos = f.selectionEnd;
-					var scrollTop = f.scrollTop;
-					f.value = f.value.substring(0, startPos) + varname + f.value.substring(endPos, f.value.length);
-					f.focus();
-					f.selectionStart = startPos + varname.length;
-					f.selectionEnd = startPos + varname.length;
-					f.scrollTop = scrollTop;
-				} else {
-					f.value = varname;
-					f.focus();
-				}
+			//IE support
+			if (document.selection) {
+				f.focus();
+				sel = document.selection.createRange();
+				sel.text = varname;
+				f.focus();
+			}
+			//MOZILLA / NETSCAPE support
+			else if (f.selectionStart || f.selectionStart == '0') {
+				var startPos = f.selectionStart;
+				var endPos = f.selectionEnd;
+				var scrollTop = f.scrollTop;
+				f.value = f.value.substring(0, startPos) + varname + f.value.substring(endPos, f.value.length);
+				f.focus();
+				f.selectionStart = startPos + varname.length;
+				f.selectionEnd = startPos + varname.length;
+				f.scrollTop = scrollTop;
+			} else {
+				f.value = varname;
+				f.focus();
+			}
 
-				fjqo.change();
-				$("#var_picker").slideUp();
-			});
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+			fjqo.change();
+			$("#var_picker").slideUp();
+		});
+	}
 
 	$("#var_picker").css({
 		top : e.clientY,
@@ -798,35 +718,26 @@ function doStepDelete() {
 	var step_id = $("#hidStepDelete").val();
 	//don't need to block, the dialog blocks.
 	$("#update_success_msg").text("Updating...").show();
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "taskMethods/wmDeleteStep",
-		data : '{"sStepID":"' + step_id + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(msg) {
-			//pull the step off the page
-			$("#" + step_id).remove();
-
-			if ($("#steps .step").length == 0) {
-				$("#no_step").removeClass("hidden");
-			} else {
-				//reorder the remaining steps
-				//BUT ONLY IN THE BROWSER... the ajax post we just did took care or renumbering in the db.
-				$("#steps .step_order_label").each(function(intIndex) {
-					$(this).html(intIndex + 1);
-					//+1 because we are a 1 based array on the page
-				});
-			}
-
-			$("#update_success_msg").text("Update Successful").fadeOut(2000);
-		},
-		error : function(response) {
-			$("#update_success_msg").fadeOut(2000);
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("taskMethods/wmDeleteStep", {
+		sStepID : step_id
 	});
+	if (response) {
+		//pull the step off the page
+		$("#" + step_id).remove();
+
+		if ($("#steps .step").length == 0) {
+			$("#no_step").removeClass("hidden");
+		} else {
+			//reorder the remaining steps
+			//BUT ONLY IN THE BROWSER... the ajax post we just did took care or renumbering in the db.
+			$("#steps .step_order_label").each(function(intIndex) {
+				$(this).html(intIndex + 1);
+				//+1 because we are a 1 based array on the page
+			});
+		}
+
+		$("#update_success_msg").text("Update Successful").fadeOut(2000);
+	}
 
 	$("#hidStepDelete").val("");
 }
@@ -844,50 +755,43 @@ function doStepAdd(new_step) {
 	});
 	$("#update_success_msg").text("Adding...").show();
 
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "taskMethods/wmAddStep",
-		data : '{"sTaskID":"' + task_id + '","sCodeblockName":"' + codeblock_name + '","sItem":"' + item + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			if (response.step_id) {
-				new_step_id = response.step_id;
-
-				$("#no_step").addClass("hidden");
-
-				new_step.replaceWith(unpackJSON(response.step_html));
-
-				//then reorder the other steps
-				doStepReorder();
-
-				//note we're not 'unblocking' the ui here... that will happen in stepReorder
-
-				//NOTE NOTE NOTE: this is temporary
-				//until I fix the copy command ... we will delete the clipboard item after pasting
-				//this is not permanent, but allows it to be checked in now
-
-				// 4-26-12 NSC: since embedded commands work differently, we no longer need to remove a
-				// clipboard step when it's used
-				// if (item.indexOf('clip_') != -1)
-				//    doClearClipboard(item.replace(/clip_/, ""))
-
-				//but we will change the sortable if this command has embedded commands.
-				//you have to add the embedded command NOW, or click cancel.
-				if (item == "fn_if" || item == "fn_loop" || item == "fn_exists" || item == "fn_while") {
-					doDropZoneEnable($("#" + new_step_id + " .step_nested_drop_target"));
-				} else {
-					initSortable();
-					validateStep(new_step_id);
-				}
-			}
-		},
-		error : function(response) {
-			$("#update_success_msg").fadeOut(2000);
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("taskMethods/wmAddStep", {
+		sTaskID : task_id,
+		sCodeblockName : codeblock_name,
+		sItem : item
 	});
+	if (response) {
+		if (response.step_id) {
+			new_step_id = response.step_id;
+
+			$("#no_step").addClass("hidden");
+
+			new_step.replaceWith(unpackJSON(response.step_html));
+
+			//then reorder the other steps
+			doStepReorder();
+
+			//note we're not 'unblocking' the ui here... that will happen in stepReorder
+
+			//NOTE NOTE NOTE: this is temporary
+			//until I fix the copy command ... we will delete the clipboard item after pasting
+			//this is not permanent, but allows it to be checked in now
+
+			// 4-26-12 NSC: since embedded commands work differently, we no longer need to remove a
+			// clipboard step when it's used
+			// if (item.indexOf('clip_') != -1)
+			//    doClearClipboard(item.replace(/clip_/, ""))
+
+			//but we will change the sortable if this command has embedded commands.
+			//you have to add the embedded command NOW, or click cancel.
+			if (item == "fn_if" || item == "fn_loop" || item == "fn_exists" || item == "fn_while") {
+				doDropZoneEnable($("#" + new_step_id + " .step_nested_drop_target"));
+			} else {
+				initSortable();
+				validateStep(new_step_id);
+			}
+		}
+	}
 }
 
 function doStepReorder() {
@@ -899,28 +803,19 @@ function doStepReorder() {
 	});
 	$("#update_success_msg").text("Updating...").show();
 
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "taskMethods/wmReorderSteps",
-		data : '{"sSteps":"' + steparray + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(msg) {
-			//renumber the step widget labels
-			$("#steps .step_order_label").each(function(intIndex) {
-				$(this).html(intIndex + 1);
-				//+1 because we are a 1 based array on the page
-			});
-
-			$("#task_steps").unblock();
-			$("#update_success_msg").text("Update Successful").fadeOut(2000);
-		},
-		error : function(response) {
-			$("#update_success_msg").fadeOut(2000);
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("taskMethods/wmReorderSteps", {
+		sSteps : steparray
 	});
+	if (response) {
+		//renumber the step widget labels
+		$("#steps .step_order_label").each(function(intIndex) {
+			$(this).html(intIndex + 1);
+			//+1 because we are a 1 based array on the page
+		});
+
+		$("#task_steps").unblock();
+		$("#update_success_msg").text("Update Successful").fadeOut(2000);
+	}
 }
 
 function doStepDetailUpdate(field, step_id, func, xpath) {
@@ -931,22 +826,16 @@ function doStepDetailUpdate(field, step_id, func, xpath) {
 		//on the web service we are using the actual javascript unescape to unpack this.
 		var val = packJSON($("#" + field).val());
 
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "taskMethods/wmUpdateStep",
-			data : '{"sStepID":"' + step_id + '","sFunction":"' + func + '","sXPath":"' + xpath + '","sValue":"' + val + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(msg) {
-				$("#task_steps").unblock();
-				$("#update_success_msg").text("Update Successful").fadeOut(2000);
-			},
-			error : function(response) {
-				$("#update_success_msg").fadeOut(2000);
-				showAlert(response.responseText);
-			}
+		var response = ajaxPost("taskMethods/wmUpdateStep", {
+			sStepID : step_id,
+			sFunction : func,
+			sXPath : xpath,
+			sValue : val
 		});
+		if (response) {
+			$("#task_steps").unblock();
+			$("#update_success_msg").text("Update Successful").fadeOut(2000);
+		}
 
 		//clear out the div of the stuff we just updated!
 		$("#step_update_array").empty()

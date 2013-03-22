@@ -144,30 +144,12 @@ function Save() {
 	args.desc = packJSON($("#txtDeploymentDesc").val());
 	args.owner = "";
 
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "depMethods/wmCreateDeployment",
-		data : JSON.stringify(args),
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			if (response.info) {
-				showInfo(response.info);
-			} else if (response.error) {
-				showAlert(response.error);
-			} else if (response.deployment_id) {
-				showPleaseWait();
+	var response = ajaxPost("depMethods/wmCreateDeployment", args);
+	if (response) {
+		showPleaseWait();
 
-				location.href = "deploymentEdit?deployment_id=" + response.deployment_id;
-			} else {
-				showInfo(response, "", true);
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+		location.href = "deploymentEdit?deployment_id=" + response.deployment_id;
+	}
 }
 
 function ShowItemCopy() {
@@ -185,43 +167,4 @@ function ShowItemCopy() {
 	}
 	$("#txtCopyDeploymentName").val("");
 	$("#copy_dialog").dialog("open");
-}
-
-function CopyDeployment() {
-	var sSelectedDeploymentID = $("#hidSelectedArray").val();
-	var sNewDeploymentName = $("#txtCopyDeploymentName").val();
-
-	// make sure we have all of the valid fields
-	if (sNewDeploymentName == '') {
-		showInfo('A new Name is required.');
-		return false;
-	}
-
-	$.ajax({
-		type : "POST",
-		url : "uiMethods/wmCopyDeployment",
-		data : '{"sDeploymentID":"' + sSelectedDeploymentID + '","sNewName":"' + sNewDeploymentName + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			if (response.info) {
-				showInfo(response.info);
-			} else if (response.error) {
-				showAlert(response.error);
-			} else if (response.deployment_id) {
-				showInfo('Copy Successful.');
-				// clear the search field and reload the grid
-				$("#txtSearch").val("");
-				GetItems();
-			} else {
-				showInfo(response);
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
-
-	hidePleaseWait();
-	$("#copy_dialog").dialog("close");
 }

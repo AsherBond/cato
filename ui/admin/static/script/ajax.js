@@ -70,7 +70,6 @@ catoAjax.saveMyAccount = function(values) {"use strict";
 	args.sValues = values;
 	return ajaxPost("uiMethods/wmSaveMyAccount", args);
 }
-
 // TASK SPECIFIC FUNCTIONS
 catoAjax.task = function() {
 }
@@ -82,7 +81,6 @@ catoAjax.task.getTaskStatusCounts = function() {"use strict";
 catoAjax.task.getTaskInstances = function() {"use strict";
 	return ajaxPost("taskMethods/wmGetTaskInstances", args, "html");
 }
-
 // Deployment SPECIFIC FUNCTIONS
 catoAjax.deployment = function() {
 }
@@ -131,7 +129,6 @@ catoAjax.deployment.validateTemplate = function(template) {"use strict";
 	args.template = template;
 	return ajaxPost("depMethods/wmValidateTemplate", args);
 }
-
 // TAG SPECIFIC FUNCTIONS
 catoAjax.tags = function() {
 }
@@ -214,21 +211,31 @@ function ajaxPost(apiurl, args, datatype) {"use strict";
 		success : function(response) {
 			result = response;
 		},
-		error : function(response) {
-			// if something goes wrong on the server, many times the response will be "None" or "internal server error"
-			// trap these two with a nicer error message
-			if (response.responseText == "None" || response.status == 500) {
-				//only show info, as the real message will already be in the server log
-				showInfo("An exception occurred - please check the server logfiles for details.");
-			} else if (response.status == 280) {
-				// 280 is our custom response code to indicate we want an 'info' message
-				showInfo(response.responseText);
-			} else {
-				showAlert(response.responseText);
-			}
-		}
+		error : ajaxErrorCallback
 	});
 	return result;
+}
+
+function ajaxPostAsync(apiurl, args, on_success, datatype) {"use strict";
+	// this method is like the ajaxGet - it's asynchronous.
+	// which means, the only way to handle it's results is by providing
+	// an on_success function.
+	datatype = typeof datatype !== 'undefined' ? datatype : 'json';
+
+	$.ajax({
+		async : false,
+		type : "POST",
+		url : apiurl,
+		data : JSON.stringify(args),
+		contentType : "application/json; charset=utf-8",
+		dataType : datatype,
+		success : function(response) {
+			if ( typeof (on_success) != 'undefined') {
+				on_success(response);
+			}
+		},
+		error : ajaxErrorCallback
+	});
 }
 
 /*
@@ -243,20 +250,35 @@ function ajaxGet(apiurl, on_success, datatype) {"use strict";
 	// async calls can't return values --- there's no telling when they'll be done.
 	// but when it is done, we'll call the on_success function!
 	datatype = typeof datatype !== 'undefined' ? datatype : 'json';
-	
-	var result;
+
 	$.ajax({
 		type : "GET",
 		url : apiurl,
 		contentType : "application/json; charset=utf-8",
 		dataType : datatype,
 		success : function(response) {
-			on_success(response);
+			if ( typeof (on_success) != 'undefined') {
+				on_success(response);
+			}
 		},
-		error : function(response) {
-			showAlert(response);
-		}
+		error : ajaxErrorCallback
 	});
-	return result;
 }
 
+ajaxErrorCallback = function(response) {
+	// if something goes wrong on the server, many times the response will be "None" or "internal server error"
+	// trap these two with a nicer error message
+	if (response.responseText == "None" || response.status == 500) {
+		//only show info, as the real message will already be in the server log
+		showInfo("An exception occurred - please check the server logfiles for details.");
+	} else if (response.status == 280) {
+		// 280 is our custom response code to indicate we want an 'info' message
+		showInfo(response.responseText);
+	} else {
+		showAlert(response.responseText);
+	}
+
+	// these might be necessary in many places
+	hidePleaseWait();
+	$("#update_success_msg").fadeOut(2000);
+}

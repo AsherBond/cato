@@ -163,7 +163,7 @@ $(document).ready(function() {
 
 				// this time we allow the user to select whether or not they want a new run log window.
 				$(".new_runlog_window").show();
-				
+
 				//NOTE: we *ARE* passing the account_id - we don't want the dialog to use the default
 				//this is a previous instance's log and we wanna use the same account as it did.
 				ShowTaskLaunchDialog(args);
@@ -183,91 +183,85 @@ $(document).ready(function() {
 });
 
 function doGetDetails() {
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "taskMethods/wmGetTaskRunLogDetails",
-		data : '{"sTaskInstance":"' + g_instance + '", "sTaskID":"' + g_task_id + '", "sAssetID":"' + g_asset_id + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(instance) {
-			if (instance.error)
-				showInfo(instance.error);
-
-			$("#hidInstanceID").val(instance.task_instance);
-			$("#hidTaskID").val(instance.task_id);
-			$("#hidAssetID").val(instance.asset_id);
-			$("#hidSubmittedByInstance").val(instance.submitted_by_instance);
-			$("#hidServiceInstanceID").val(instance.instance_id);
-			$("#hidAccountID").val(instance.account_id);
-			$("#hidDebugLevel").val(instance.debug_level);
-
-			$("#lblTaskInstance").text(instance.task_instance);
-			$("#lblTaskName").text(instance.task_name_label);
-			$("#lblStatus").text(instance.task_status);
-			$("#lblAssetName").text(instance.asset_name);
-			$("#lblSubmittedDT").text(instance.submitted_dt);
-			$("#lblStartedDT").text(instance.started_dt);
-			$("#lblCompletedDT").text(instance.completed_dt);
-			$("#lblSubmittedBy").text(instance.submitted_by);
-			$("#lblCENode").text(instance.ce_node);
-			$("#lblPID").text(instance.pid);
-			$("#lblSubmittedByInstance").text(instance.submitted_by_instance);
-			$("#lblServiceInstanceLabel").text(instance.instance_label);
-			$("#lblAccountName").text(instance.account_name);
-
-			if (instance.submitted_by_instance != "")
-				$("#lblSubmittedByInstance").addClass("link");
-
-			//if we got a "resubmit_message"...
-			if (instance.resubmit_message)
-				$("#lblResubmitMessage").text(instance.resubmit_message);
-			else
-				$("#lblResubmitMessage").text("");
-
-			//don't show the cancel button if it's not running
-			if (instance.allow_cancel == "false")
-				$("#phCancel").hide();
-			else
-				$("#phCancel").show();
-
-			//if the log file is local to this server, show a link
-			if (instance.logfile_name)
-				$("#view_logfile_btn").show();
-			else
-				$("#view_logfile_btn").hide();
-
-			//if the other instances array has stuff in it, then
-			if (instance.other_instances) {
-				if (instance.other_instances.length) {
-					html = ""
-					$(instance.other_instances).each(function(idx, row) {
-						html += '<tr task_instance="' + row.task_instance + '">' + '<td tag="selectable" class="pointer">' + row.task_instance + '</td>' + '<td tag="selectable" class="pointer">' + row.task_status + '</td>' + '</tr>';
-					});
-					$("#other_instances").empty().append(html);
-					initJtable();
-					//jump links
-					$("#other_instances tr").click(function() {
-						self.location.href = "taskRunLog?task_instance=" + $(this).attr("task_instance");
-						;
-					});
-
-					$("#pnlOtherInstances").show();
-				}
-			}
-
-			//we rely on the details to get the log
-			// and we get all rows if that's previously been selected.
-			if ($(".get_all").hasClass("vis_btn_off"))
-				doGetLog(200);
-			else
-				doGetLog("all");
-
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var instance = ajaxPost("taskMethods/wmGetTaskRunLogDetails", {
+		sTaskInstance : g_instance,
+		sTaskID : g_task_id,
+		sAssetID : g_asset_id
 	});
+	if (instance) {
+		if (instance.error)
+			showInfo(instance.error);
+
+		$("#hidInstanceID").val(instance.task_instance);
+		$("#hidTaskID").val(instance.task_id);
+		$("#hidAssetID").val(instance.asset_id);
+		$("#hidSubmittedByInstance").val(instance.submitted_by_instance);
+		$("#hidServiceInstanceID").val(instance.instance_id);
+		$("#hidAccountID").val(instance.account_id);
+		$("#hidDebugLevel").val(instance.debug_level);
+
+		$("#lblTaskInstance").text(instance.task_instance);
+		$("#lblTaskName").text(instance.task_name_label);
+		$("#lblStatus").text(instance.task_status);
+		$("#lblAssetName").text(instance.asset_name);
+		$("#lblSubmittedDT").text(instance.submitted_dt);
+		$("#lblStartedDT").text(instance.started_dt);
+		$("#lblCompletedDT").text(instance.completed_dt);
+		$("#lblSubmittedBy").text(instance.submitted_by);
+		$("#lblCENode").text(instance.ce_node);
+		$("#lblPID").text(instance.pid);
+		$("#lblSubmittedByInstance").text(instance.submitted_by_instance);
+		$("#lblServiceInstanceLabel").text(instance.instance_label);
+		$("#lblAccountName").text(instance.account_name);
+
+		if (instance.submitted_by_instance != "")
+			$("#lblSubmittedByInstance").addClass("link");
+
+		//if we got a "resubmit_message"...
+		if (instance.resubmit_message)
+			$("#lblResubmitMessage").text(instance.resubmit_message);
+		else
+			$("#lblResubmitMessage").text("");
+
+		//don't show the cancel button if it's not running
+		if (instance.allow_cancel == "false")
+			$("#phCancel").hide();
+		else
+			$("#phCancel").show();
+
+		//if the log file is local to this server, show a link
+		if (instance.logfile_name)
+			$("#view_logfile_btn").show();
+		else
+			$("#view_logfile_btn").hide();
+
+		//if the other instances array has stuff in it, then
+		if (instance.other_instances) {
+			if (instance.other_instances.length) {
+				html = ""
+				$(instance.other_instances).each(function(idx, row) {
+					html += '<tr task_instance="' + row.task_instance + '">' + '<td tag="selectable" class="pointer">' + row.task_instance + '</td>' + '<td tag="selectable" class="pointer">' + row.task_status + '</td>' + '</tr>';
+				});
+				$("#other_instances").empty().append(html);
+				initJtable();
+				//jump links
+				$("#other_instances tr").click(function() {
+					self.location.href = "taskRunLog?task_instance=" + $(this).attr("task_instance");
+					;
+				});
+
+				$("#pnlOtherInstances").show();
+			}
+		}
+
+		//we rely on the details to get the log
+		// and we get all rows if that's previously been selected.
+		if ($(".get_all").hasClass("vis_btn_off"))
+			doGetLog(200);
+		else
+			doGetLog("all");
+
+	}
 }
 
 function doGetLog(rows) {
@@ -279,35 +273,28 @@ function doGetLog(rows) {
 	$("#ltLog").empty();
 	$("#ltSummary").empty();
 
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "taskMethods/wmGetTaskRunLog",
-		data : '{"sTaskInstance":"' + instance + '", "sRows":"' + rows + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			if (response.log)
-				$("#ltLog").html(unpackJSON(response.log));
-
-			if (response.summary)
-				$("#ltSummary").replaceWith(unpackJSON(response.summary));
-
-			if (response.totalrows)
-				if (rows == "all") {
-					$("#row_count_lbl").text(" - all " + response.totalrows + " rows.");
-					$("#get_all_bottom").hide();
-				} else if (rows >= response.totalrows) {
-					$("#row_count_lbl").empty();
-				} else {
-					$("#row_count_lbl").text(" - " + rows + "/" + response.totalrows + " rows.");
-					$("#get_all_bottom").show();
-				}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("taskMethods/wmGetTaskRunLog", {
+		sTaskInstance : instance,
+		sRows : rows
 	});
+	if (response) {
+		if (response.log)
+			$("#ltLog").html(unpackJSON(response.log));
+
+		if (response.summary)
+			$("#ltSummary").replaceWith(unpackJSON(response.summary));
+
+		if (response.totalrows)
+			if (rows == "all") {
+				$("#row_count_lbl").text(" - all " + response.totalrows + " rows.");
+				$("#get_all_bottom").hide();
+			} else if (rows >= response.totalrows) {
+				$("#row_count_lbl").empty();
+			} else {
+				$("#row_count_lbl").text(" - " + rows + "/" + response.totalrows + " rows.");
+				$("#get_all_bottom").show();
+			}
+	}
 }
 
 function doGetLogfile() {
@@ -316,21 +303,11 @@ function doGetLogfile() {
 	if (instance == '')
 		return;
 
-	$.ajax({
-		async : true,
-		type : "POST",
-		url : "taskMethods/wmGetTaskLogfile",
-		data : '{"sTaskInstance":"' + instance + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "text",
-		success : function(response) {
-			$("#logfile_text").html(unpackJSON(response));
-			$("#logfile_dialog").dialog("open");
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+	var response = ajaxPost("taskMethods/wmGetTaskLogfile", {
+		sTaskInstance : instance
+	}, "text");
+	$("#logfile_text").html(unpackJSON(response));
+	$("#logfile_dialog").dialog("open");
 }
 
 function doDebugStop() {
@@ -339,18 +316,8 @@ function doDebugStop() {
 	if (instance == '')
 		return;
 
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "taskMethods/wmStopTask",
-		data : '{"sInstance":"' + instance + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "text",
-		success : function(response) {
-			location.reload();
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("taskMethods/wmStopTask", {
+		sInstance : instance
 	});
+	location.reload();
 }

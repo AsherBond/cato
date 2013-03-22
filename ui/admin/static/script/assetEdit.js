@@ -334,80 +334,43 @@ function SaveAsset() {
 	asset.Credential = cred;
 
 	if ($("#hidMode").val() == "edit") {
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "uiMethods/wmUpdateAsset",
-			data : JSON.stringify(asset),
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(response) {
-				if (response.error) {
-					showAlert(response.error);
-				}
-				if (response.info) {
-					showInfo(response.info);
-				}
-				if (response.result == "success") {
-					// remove this item from the array
-					var sEditID = $("#hidCurrentEditID").val();
-					var myArray = new Array();
-					var sArrHolder = $("#hidSelectedArray").val();
-					myArray = sArrHolder.split(',');
+		var response = ajaxPost("uiMethods/wmUpdateAsset", asset);
+		if (response) {
+			// remove this item from the array
+			var sEditID = $("#hidCurrentEditID").val();
+			var myArray = new Array();
+			var sArrHolder = $("#hidSelectedArray").val();
+			myArray = sArrHolder.split(',');
 
-					//how many in the array before you clicked Save?
-					var wereInArray = myArray.length;
+			//how many in the array before you clicked Save?
+			var wereInArray = myArray.length;
 
-					if (jQuery.inArray(sEditID, myArray) > -1) {
-						$("#chk_" + sEditID).attr("checked", false);
-						myArray.remove(sEditID);
-					}
-
-					$("#lblItemsSelected").html(myArray.length);
-					$("#hidSelectedArray").val(myArray.toString());
-
-					if (wereInArray == 1) {
-						// this was the last or only user edited so close
-						$("#hidCurrentEditID").val("");
-						$("#hidEditCount").val("");
-
-						CloseDialog();
-						GetItems();
-					} else {
-						CloseDialog();
-						GetItems();
-					}
-				}
-			},
-			error : function(response) {
-				showAlert(response.responseText);
+			if (jQuery.inArray(sEditID, myArray) > -1) {
+				$("#chk_" + sEditID).attr("checked", false);
+				myArray.remove(sEditID);
 			}
-		});
+
+			$("#lblItemsSelected").html(myArray.length);
+			$("#hidSelectedArray").val(myArray.toString());
+
+			if (wereInArray == 1) {
+				// this was the last or only user edited so close
+				$("#hidCurrentEditID").val("");
+				$("#hidEditCount").val("");
+
+				CloseDialog();
+				GetItems();
+			} else {
+				CloseDialog();
+				GetItems();
+			}
+		}
 	} else {
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "uiMethods/wmCreateAsset",
-			data : JSON.stringify(asset),
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(response) {
-				if (response.error) {
-					showAlert(response.error);
-				}
-				if (response.info) {
-					showInfo(response.info);
-				}
-				if (response.ID) {
-					CloseDialog();
-					GetItems();
-				}
-			},
-			error : function(response) {
-				showAlert(response.responseText);
-			}
-		});
-
+		var response = ajaxPost("uiMethods/wmCreateAsset", asset);
+		if (response) {
+			CloseDialog();
+			GetItems();
+		}
 	}
 }
 
@@ -441,89 +404,82 @@ function LoadEditDialog(editCount, editAssetID) {
 	$("#hidEditCount").val(editCount);
 	$("#hidCurrentEditID").val(editAssetID);
 
-	$.ajax({
-		type : "POST",
-		url : "uiMethods/wmGetAsset",
-		data : '{"sAssetID":"' + editAssetID + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(asset) {
-			// show the assets current values
-			$("#txtAssetName").val(asset.Name);
-			$("#ddlAssetStatus").val(asset.Status);
-			$("#txtPort").val(asset.Port)
-			$("#txtDbName").val(asset.DBName);
-			var sAddress = asset.Address.replace("||", "\\\\");
-			sAddress = sAddress.replace(/\|/g, "\\");
-			$("#txtAddress").val(sAddress);
-			$("#txtConnString").val(asset.ConnString);
-
-			$("#hidCredentialID").val(asset.CredentialID);
-			var sCredentialID = asset.CredentialID;
-			$("#hidCredentialID").val(sCredentialID);
-			$('#CredentialSelectorTabs').hide();
-			var CredentialUser = asset.UserName;
-
-			$('#btnCredAdd').hide();
-
-			if (sCredentialID == '') {
-				// no existing credential, just show the add dialog
-				$("#hidCredentialType").val("new");
-				$("#CredentialDetails").html("");
-				$('#SharedLocalDiv').show();
-				$('#EditCredential').show();
-				$('.SharedCredFields').hide();
-
-			} else {
-				// display the credentials if they exist, if not display only the add button
-				if (asset.UserName != '') {
-					var CredentialShared = asset.SharedOrLocal;
-					if (CredentialShared == 'Local') {
-						$("#CredentialDetails").html("");
-						$("#hidCredentialType").val("existing");
-						$("input[name=rbShared]:checked").val("1");
-						$('#txtCredUsername').val(asset.UserName);
-						$('#txtCredDomain').val(asset.Domain);
-						//$('#txtCredPassword').val(asset.Password);
-						//$('#txtCredPasswordConfirm').val(asset.Password);
-						//$('#txtPrivilegedPassword').val(asset.PriviledgedPassword);
-						//$('#txtPrivilegedConfirm').val(asset.PriviledgedPassword);
-						$('.SharedCredFields').hide();
-						$('#SharedLocalDiv').hide();
-						$('#EditCredential').show();
-					} else {
-						// display the existing shared credential
-						$("#CredentialDetails").html(CredentialShared + ' - ' + asset.UserName + '<br />Domain - ' + asset.Domain + '<br />Name - ' + asset.SharedCredName + '<br />Description - ' + asset.SharedCredDesc);
-						$('#CredentialRemove').show();
-						$('#CredentialDetails').show();
-						$('#imgCredClear').show();
-						$('#btnCredAdd').show();
-					}
-				} else {
-					$('#imgCredClear').hide();
-					$("#CredentialDetails").html("");
-					$('#CredentialRemove').hide();
-					$('#CredentialDetails').hide();
-				}
-			}
-
-			$("#CredentialSelectorLocal").empty();
-
-			// at load default to the first tab
-			$('#AddAssetTabs').tabs('select', 0);
-
-			if ( typeof (GetObjectsTags) != 'undefined') {
-				GetObjectsTags(asset.ID);
-			}
-
-			$("#edit_dialog").data("title.dialog", "Modify Asset");
-			$("#edit_dialog").dialog("open");
-
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var asset = ajaxPost("uiMethods/wmGetAsset", {
+		sAssetID : editAssetID
 	});
+	if (asset) {
+		// show the assets current values
+		$("#txtAssetName").val(asset.Name);
+		$("#ddlAssetStatus").val(asset.Status);
+		$("#txtPort").val(asset.Port)
+		$("#txtDbName").val(asset.DBName);
+		var sAddress = asset.Address.replace("||", "\\\\");
+		sAddress = sAddress.replace(/\|/g, "\\");
+		$("#txtAddress").val(sAddress);
+		$("#txtConnString").val(asset.ConnString);
+
+		$("#hidCredentialID").val(asset.CredentialID);
+		var sCredentialID = asset.CredentialID;
+		$("#hidCredentialID").val(sCredentialID);
+		$('#CredentialSelectorTabs').hide();
+		var CredentialUser = asset.UserName;
+
+		$('#btnCredAdd').hide();
+
+		if (sCredentialID == '') {
+			// no existing credential, just show the add dialog
+			$("#hidCredentialType").val("new");
+			$("#CredentialDetails").html("");
+			$('#SharedLocalDiv').show();
+			$('#EditCredential').show();
+			$('.SharedCredFields').hide();
+
+		} else {
+			// display the credentials if they exist, if not display only the add button
+			if (asset.UserName != '') {
+				var CredentialShared = asset.SharedOrLocal;
+				if (CredentialShared == 'Local') {
+					$("#CredentialDetails").html("");
+					$("#hidCredentialType").val("existing");
+					$("input[name=rbShared]:checked").val("1");
+					$('#txtCredUsername').val(asset.UserName);
+					$('#txtCredDomain').val(asset.Domain);
+					//$('#txtCredPassword').val(asset.Password);
+					//$('#txtCredPasswordConfirm').val(asset.Password);
+					//$('#txtPrivilegedPassword').val(asset.PriviledgedPassword);
+					//$('#txtPrivilegedConfirm').val(asset.PriviledgedPassword);
+					$('.SharedCredFields').hide();
+					$('#SharedLocalDiv').hide();
+					$('#EditCredential').show();
+				} else {
+					// display the existing shared credential
+					$("#CredentialDetails").html(CredentialShared + ' - ' + asset.UserName + '<br />Domain - ' + asset.Domain + '<br />Name - ' + asset.SharedCredName + '<br />Description - ' + asset.SharedCredDesc);
+					$('#CredentialRemove').show();
+					$('#CredentialDetails').show();
+					$('#imgCredClear').show();
+					$('#btnCredAdd').show();
+				}
+			} else {
+				$('#imgCredClear').hide();
+				$("#CredentialDetails").html("");
+				$('#CredentialRemove').hide();
+				$('#CredentialDetails').hide();
+			}
+		}
+
+		$("#CredentialSelectorLocal").empty();
+
+		// at load default to the first tab
+		$('#AddAssetTabs').tabs('select', 0);
+
+		if ( typeof (GetObjectsTags) != 'undefined') {
+			GetObjectsTags(asset.ID);
+		}
+
+		$("#edit_dialog").data("title.dialog", "Modify Asset");
+		$("#edit_dialog").dialog("open");
+
+	}
 }
 
 function ShowItemModify() {
@@ -546,28 +502,19 @@ function ShowItemModify() {
 function LoadCredentialSelector() {
 	$("#CredentialSelectorShared").html("Loading...");
 	// set the return t the default 'local' credentials
-	$.ajax({
-		type : "POST",
-		url : "uiMethods/wmGetCredentialsJSON",
-		data : '{}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(creds) {
-			$("#credentials").html("");
-			$.each(creds, function(index, cred) {
-				s = "<tr class=\"select_credential\" credential_id=\"" + cred.credential_id + "\">"
-				s += "<td class=\"selectablecrd row\">" + cred.username + "</td>"
-				s += "<td class=\"selectablecrd row\">" + cred.domain + "</td>"
-				s += "<td class=\"selectablecrd row\">" + cred.shared_cred_desc + "</td>"
-				s += "</tr>"
+	var creds = ajaxPost("uiMethods/wmGetCredentialsJSON");
+	if (creds) {
+		$("#credentials").html("");
+		$.each(creds, function(index, cred) {
+			s = "<tr class=\"select_credential\" credential_id=\"" + cred.credential_id + "\">"
+			s += "<td class=\"selectablecrd row\">" + cred.username + "</td>"
+			s += "<td class=\"selectablecrd row\">" + cred.domain + "</td>"
+			s += "<td class=\"selectablecrd row\">" + cred.shared_cred_desc + "</td>"
+			s += "</tr>"
 
-				$("#credentials").append(s);
-			});
-		},
-		error : function(response) {
-			showAlert('error ' + response.responseText);
-		}
-	});
+			$("#credentials").append(s);
+		});
+	}
 	$('#CredentialSelectorTabs').show();
 
 }

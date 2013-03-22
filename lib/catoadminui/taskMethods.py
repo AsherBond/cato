@@ -35,6 +35,7 @@ from catolog import catolog
 from catocommon import catocommon
 from catotask import task, stepTemplates as ST
 from catoconfig import catoconfig
+from catoerrors import WebmethodInfo
 
 # task-centric web methods
 
@@ -138,7 +139,7 @@ class taskMethods:
             uiCommon.log(err)
             return "{\"result\":\"fail\",\"error\":\"%s\"}" % err.replace('"', '\"')
         
-        return "{\"result\":\"success\"}"
+        return json.dumps({"result" : "success"})
 
     def wmGetTaskCodeFromID(self):
         sOriginalTaskID = uiCommon.getAjaxArg("sOriginalTaskID")
@@ -290,8 +291,7 @@ class taskMethods:
             sSQL = "select original_task_id, task_name from task where task_id = %s"
             row = self.db.select_row_dict(sSQL, (sTaskID))
             if not row:
-                uiCommon.log("ERROR: Unable to get original_task_id for [%s] %s" % (sTaskID, self.db.error))
-                return "{\"error\" : \"Unable to get original_task_id for [%s].\"}" % sTaskID
+                raise Exception("Unable to get original_task_id for [%s]." % sTaskID)
                 
             sOriginalTaskID = row["original_task_id"]
             sTaskName = row["task_name"]
@@ -304,17 +304,14 @@ class taskMethods:
             if sColumn == "task_code" or sColumn == "task_name":
                 sSQL = "select task_id from task where %s='%s' and original_task_id <> '%s'" % (sColumn, sValue, sOriginalTaskID)
 
-                sValueExists = self.db.select_col_noexcep(sSQL)
-                if self.db.error:
-                    uiCommon.log("ERROR: Unable to check for existing names [%s] %s" % (sTaskID, self.db.error))
+                sValueExists = self.db.select_col(sSQL)
 
                 if sValueExists:
-                    return "{\"info\" : \"%s exists, please choose another value.\"}" % sValue
+                    raise WebmethodInfo("%s exists, please choose another value." % sValue)
             
                 # changing the name or code updates ALL VERSIONS
                 sSQL = "update task set %s where original_task_id = '%s'" % (sSetClause, sOriginalTaskID)
-                if not self.db.exec_db_noexcep(sSQL):
-                    uiCommon.log("Unable to update task [%s] %s" % (sTaskID, self.db.error))
+                self.db.exec_db(sSQL)
                 
                 if sColumn == "task_name":
                     # changing the TASK NAME updates any references (run_task, subtask commands) on any other Tasks.
@@ -324,10 +321,7 @@ class taskMethods:
                         function_xml = replace(function_xml, '>{0}</', '>{1}</')
                         where function_xml like '%%>{0}</%%'
                         and function_name in ('run_task', 'subtask')""".format(sTaskName, sValue)
-                    uiCommon.log(sSQL)
-                    if not self.db.exec_db_noexcep(sSQL):
-                        uiCommon.log("Unable to update task name references [%s] %s" % (sTaskID, self.db.error))
-                
+                    self.db.exec_db(sSQL)
             else:
                 # some columns on this table allow nulls... in their case an empty sValue is a null
                 if sColumn == "concurrent_instances" or sColumn == "queue_depth":
@@ -342,13 +336,12 @@ class taskMethods:
                         sSetClause = sColumn + " = 0"
                 
                 sSQL = "update task set %s where task_id = '%s'" % (sSetClause, sTaskID)
-                if not self.db.exec_db_noexcep(sSQL):
-                    uiCommon.log("Unable to update task [%s] %s" % (sTaskID, self.db.error))
+                self.db.exec_db(sSQL)
 
             uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sColumn, sValue)
 
         else:
-            uiCommon.log("Unable to update task. Missing or invalid task [%s] id." % sTaskID)
+            raise Exception("Unable to update task. Missing or invalid task [%s] id." % sTaskID)
 
         return json.dumps({"result" : "success"})
             
@@ -831,8 +824,7 @@ class taskMethods:
     def wmReorderSteps(self):
         sSteps = uiCommon.getAjaxArg("sSteps")
         i = 1
-        aSteps = sSteps.split(",")
-        for step_id in aSteps:
+        for step_id in sSteps:
             sSQL = "update task_step set step_order = " + str(i) + " where step_id = '" + step_id + "'"
 
             # there will be no sSQL if there were no steps, so just skip it.
@@ -842,7 +834,7 @@ class taskMethods:
                 
             i += 1
 
-        return ""
+        return json.dumps({"result" : "success"})
 
     def wmDeleteStep(self):
         sStepID = uiCommon.getAjaxArg("sStepID")
@@ -897,7 +889,7 @@ class taskMethods:
 
         self.db.tran_commit()
         
-        return ""
+        return json.dumps({"result" : "success"})
         
     def wmUpdateStep(self):
         sStepID = uiCommon.getAjaxArg("sStepID")
@@ -2090,9 +2082,9 @@ class taskMethods:
             # Here's the real work ... do the whack
             uiCommon.RemoveNodeFromXMLColumn(sTable, "parameter_xml", sType + "_id = '" + sID + "'", "parameter[@id='" + sParamID + "']")
 
-            return ""
+            return json.dumps({"result" : "success"})
         else:
-            uiCommon.log("Invalid or missing Task or Parameter ID.")
+            raise Exception("Invalid or missing Task or Parameter ID.")
 
     def wmUpdateTaskParam(self):
         sType = uiCommon.getAjaxArg("sType")
@@ -2147,9 +2139,7 @@ class taskMethods:
 
             # does the task already have parameters?
             sSQL = "select parameter_xml from " + sTable + " where " + sType + "_id = '" + sID + "'"
-            sCurrentXML = self.db.select_col_noexcep(sSQL)
-            if self.db.error:
-                uiCommon.log_nouser(self.db.error, 0)
+            sCurrentXML = self.db.select_col(sSQL)
 
             sAddXML = "<parameter id=\"" + sParamID + "\"" \
                 " required=\"" + sRequired + "\" prompt=\"" + sPrompt + "\" encrypt=\"" + sEncrypt + "\"" \
@@ -2169,8 +2159,7 @@ class taskMethods:
                     " parameter_xml = '" + sAddXML + "'" \
                     " where " + sType + "_id = '" + sID + "'"
 
-                if not self.db.exec_db_noexcep(sSQL):
-                    uiCommon.log_nouser(self.db.error, 0)
+                self.db.exec_db(sSQL)
 
                 bParamAdd = True
             else:
@@ -2236,7 +2225,7 @@ class taskMethods:
         uiCommon.RemoveNodeFromXMLColumn(sTable, "parameter_xml", sType + "_id = '" + sID + "'", sParameterXPath + "/values")
         uiCommon.AddNodeToXMLColumn(sTable, "parameter_xml", sType + "_id = '" + sID + "'", sParameterXPath, sValueXML)
 
-        return ""
+        return json.dumps({"result" : "success"})
 
     def wmGetTaskRunLogDetails(self):
         sTaskInstance = str(uiCommon.getAjaxArg("sTaskInstance"))
@@ -2663,9 +2652,10 @@ class taskMethods:
             uiCommon.log("Unable to get connections for task. Missing or invalid task_id.")
             
     def wmStopTask(self):
-            sInstance = uiCommon.getAjaxArg("sInstance")
-            ti = task.TaskInstance(sInstance)
-            ti.Stop()
+        sInstance = uiCommon.getAjaxArg("sInstance")
+        ti = task.TaskInstance(sInstance)
+        ti.Stop()
+        return json.dumps({"result" : "success"})
 
     def wmApproveTask(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")

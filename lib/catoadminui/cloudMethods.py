@@ -435,15 +435,15 @@ class cloudMethods:
             awsi = aws.awsInterface()
             url, err = awsi.BuildURL(ca, c, cot);            
             if err:
-                return json.dumps({"result":"fail","error": uiCommon.packJSON(err)})
+                return json.dumps({"result":"fail", "error": uiCommon.packJSON(err)})
 
         if not url:
-            return json.dumps({"result":"fail","error":"Unable to build API URL."})
+            return json.dumps({"result":"fail", "error":"Unable to build API URL."})
         result, err = catocommon.http_get(url, 30)
         if err:
-            return json.dumps({"result":"fail","error": uiCommon.packJSON(err)})
+            return json.dumps({"result":"fail", "error": uiCommon.packJSON(err)})
         
-        return json.dumps({"result":"success","response": uiCommon.packJSON(result)})
+        return json.dumps({"result":"success", "response": uiCommon.packJSON(result)})
         
     def wmSaveKeyPair(self):
         sKeypairID = uiCommon.getAjaxArg("sKeypairID")
@@ -498,10 +498,11 @@ class cloudMethods:
                 " where keypair_id = '" + sKeypairID + "'"
 
         self.db.exec_db(sSQL)
-        return ""
+        return json.dumps({ "result": "success"})
 
     def wmDeleteKeyPair(self):
         sKeypairID = uiCommon.getAjaxArg("sKeypairID")
         sSQL = "delete from clouds_keypair where keypair_id = '" + sKeypairID + "'"
         self.db.exec_db(sSQL)
-        return ""
+        return json.dumps({ "result": "success"})
+    

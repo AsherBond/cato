@@ -118,52 +118,34 @@ $(document).ready(function() {
 });
 
 function GetProvidersList() {
-	$.ajax({
-		type : "POST",
-		async : false,
-		url : "cloudMethods/wmGetProvidersList",
-		data : '{"sUserDefinedOnly":"False"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "html",
-		success : function(response) {
-			$("#ddlProvider").html(response);
-			ClearTestResult();
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+	var response = ajaxPost("cloudMethods/wmGetProvidersList", {
+		"sUserDefinedOnly" : "False"
+	}, "html");
+	if (response) {
+		$("#ddlProvider").html(response);
+		ClearTestResult();
+	}
 }
 
 function GetProviderClouds() {
 	// when ADDING, we need to get the clouds for this provider
-	var provider = $("#ddlProvider").val();
-
-	$.ajax({
-		type : "POST",
-		async : false,
-		url : "cloudMethods/wmGetProvider",
-		data : '{"sProvider":"' + provider + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(provider) {
-			ClearTestResult();
-			// all we want here is to loop the clouds
-			$("#ddlDefaultCloud").empty();
-			$.each(provider.Clouds, function(id, cloud) {
-				$("#ddlDefaultCloud").append("<option value=\"" + id + "\">" + cloud.Name + "</option>");
-			});
-
-			//we can't allow testing the connection if there are no clouds
-			if ($("#ddlDefaultCloud option").length == 0)
-				$("#test_connection_btn").hide();
-			else
-				$("#test_connection_btn").show();
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var provider = ajaxPost("cloudMethods/wmGetProvider", {
+		sProvider : $("#ddlProvider").val()
 	});
+	if (provider) {
+		ClearTestResult();
+		// all we want here is to loop the clouds
+		$("#ddlDefaultCloud").empty();
+		$.each(provider.Clouds, function(id, cloud) {
+			$("#ddlDefaultCloud").append("<option value=\"" + id + "\">" + cloud.Name + "</option>");
+		});
+
+		//we can't allow testing the connection if there are no clouds
+		if ($("#ddlDefaultCloud option").length == 0)
+			$("#test_connection_btn").hide();
+		else
+			$("#test_connection_btn").show();
+	}
 }
 
 function TestConnection() {
@@ -176,36 +158,28 @@ function TestConnection() {
 		ClearTestResult();
 		$("#conn_test_result").text("Testing...");
 
-		$.ajax({
-			type : "POST",
-			async : false,
-			url : "cloudMethods/wmTestCloudConnection",
-			data : '{"sAccountID":"' + account_id + '","sCloudID":"' + cloud_id + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(response) {
-				try {
-					if (response != null) {
-						if (response.result == "success") {
-							$("#conn_test_result").css("color", "green");
-							$("#conn_test_result").text("Connection Successful.");
-						}
-						if (response.result == "fail") {
-							$("#conn_test_result").css("color", "red");
-							$("#conn_test_result").text("Connection Failed.");
-							$("#conn_test_error").text(unpackJSON(response.error));
-						}
+		var response = ajaxPost("cloudMethods/wmTestCloudConnection", {
+			sAccountID : account_id,
+			sCloudID : cloud_id
+		});
+		if (response) {
+			try {
+				if (response != null) {
+					if (response.result == "success") {
+						$("#conn_test_result").css("color", "green");
+						$("#conn_test_result").text("Connection Successful.");
 					}
-				} catch(err) {
-					alert(err);
-					ClearTestResult();
+					if (response.result == "fail") {
+						$("#conn_test_result").css("color", "red");
+						$("#conn_test_result").text("Connection Failed.");
+						$("#conn_test_error").text(unpackJSON(response.error));
+					}
 				}
-			},
-			error : function(response) {
-				showAlert(response.responseText);
+			} catch(err) {
+				alert(err);
 				ClearTestResult();
 			}
-		});
+		}
 	} else {
 		ClearTestResult();
 		$("#conn_test_result").css("color", "red");
@@ -265,62 +239,47 @@ function LoadEditDialog(sEditID) {
 
 	$("#hidCurrentEditID").val(sEditID);
 
-	$.ajax({
-		type : "POST",
-		async : false,
-		url : "cloudMethods/wmGetCloudAccount",
-		data : '{"sID":"' + sEditID + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(account) {
-			//update the list in the dialog
-			if (account.info) {
-				showInfo(account.info);
-			} else if (account.error) {
-				showAlert(account.error);
-			} else {
-				$("#txtAccountName").val(account.Name);
-				$("#txtAccountNumber").val(account.AccountNumber)
-				$("#ddlProvider").val(account.Provider);
-				$("#txtLoginID").val(account.LoginID);
-				$("#txtLoginPassword").val(account.LoginPassword);
-				$("#txtLoginPasswordConfirm").val(account.LoginPassword);
-
-				if (account.IsDefault == "True")
-					$("#chkDefault").attr('checked', true);
-				//if (account.AutoManage == "1") $("#chkAutoManageSecurity").attr('checked', true);
-
-				//the account result will have a list of all the clouds on this account.
-				$("#ddlDefaultCloud").empty();
-				$.each(account.ProviderClouds, function(id, cloud) {
-					// the 'default' one is selected here
-					if (id == account.DefaultCloud.ID)
-						$("#ddlDefaultCloud").append("<option value=\"" + id + "\" selected=\"selected\">" + cloud.Name + "</option>");
-					else
-						$("#ddlDefaultCloud").append("<option value=\"" + id + "\">" + cloud.Name + "</option>");
-				});
-
-				//we can't allow testing the connection if there are no clouds
-				if ($("#ddlDefaultCloud option").length == 0)
-					$("#test_connection_btn").hide();
-				else
-					$("#test_connection_btn").show();
-
-				setLabels();
-
-				//clear out any test results
-				ClearTestResult();
-
-				$('#edit_dialog_tabs').tabs('select', 0);
-				$('#edit_dialog_tabs').tabs("option", "disabled", []);
-				$("#edit_dialog").dialog("option", "title", "Modify Account");
-				$("#edit_dialog").dialog("open");
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var account = ajaxPost("cloudMethods/wmGetCloudAccount", {
+		sID : sEditID
 	});
+	if (account) {
+		$("#txtAccountName").val(account.Name);
+		$("#txtAccountNumber").val(account.AccountNumber)
+		$("#ddlProvider").val(account.Provider);
+		$("#txtLoginID").val(account.LoginID);
+		$("#txtLoginPassword").val(account.LoginPassword);
+		$("#txtLoginPasswordConfirm").val(account.LoginPassword);
+
+		if (account.IsDefault == "True")
+			$("#chkDefault").attr('checked', true);
+		//if (account.AutoManage == "1") $("#chkAutoManageSecurity").attr('checked', true);
+
+		//the account result will have a list of all the clouds on this account.
+		$("#ddlDefaultCloud").empty();
+		$.each(account.ProviderClouds, function(id, cloud) {
+			// the 'default' one is selected here
+			if (id == account.DefaultCloud.ID)
+				$("#ddlDefaultCloud").append("<option value=\"" + id + "\" selected=\"selected\">" + cloud.Name + "</option>");
+			else
+				$("#ddlDefaultCloud").append("<option value=\"" + id + "\">" + cloud.Name + "</option>");
+		});
+
+		//we can't allow testing the connection if there are no clouds
+		if ($("#ddlDefaultCloud option").length == 0)
+			$("#test_connection_btn").hide();
+		else
+			$("#test_connection_btn").show();
+
+		setLabels();
+
+		//clear out any test results
+		ClearTestResult();
+
+		$('#edit_dialog_tabs').tabs('select', 0);
+		$('#edit_dialog_tabs').tabs("option", "disabled", []);
+		$("#edit_dialog").dialog("option", "title", "Modify Account");
+		$("#edit_dialog").dialog("open");
+	}
 }
 
 function ClearTestResult() {

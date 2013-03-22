@@ -152,50 +152,35 @@ function ShowItemCopy() {
 	//alert(myArray[0]);
 	var task_code = '';
 
-	$.ajax({
-		type : "POST",
-		async : false,
-		url : "taskMethods/wmGetTaskCodeFromID",
-		data : '{"sOriginalTaskID":"' + task_copy_original_id + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			if (response.code) {
-				task_code = response.code;
-				$("#lblTaskCopy").html('<b>Copying Task ' + task_code + '</b><br />&nbsp;<br />');
-				$("[tag='chk']").attr("checked", false);
-				$("#hidSelectedArray").val('');
-				$("#hidCopyTaskID").val(task_copy_original_id);
-				$("#lblItemsSelected").html("0");
-				$("#txtCopyTaskName").val('');
-				$("#txtCopyTaskCode").val('');
-				// } else {
-				// showAlert('No task code returned.');
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("taskMethods/wmGetTaskCodeFromID", {
+		sOriginalTaskID : task_copy_original_id
 	});
+	if (response) {
+		if (response.code) {
+			task_code = response.code;
+			$("#lblTaskCopy").html('<b>Copying Task ' + task_code + '</b><br />&nbsp;<br />');
+			$("[tag='chk']").attr("checked", false);
+			$("#hidSelectedArray").val('');
+			$("#hidCopyTaskID").val(task_copy_original_id);
+			$("#lblItemsSelected").html("0");
+			$("#txtCopyTaskName").val('');
+			$("#txtCopyTaskCode").val('');
+			// } else {
+			// showAlert('No task code returned.');
+		}
+	}
 
-	// load the copy from versions drop down
-	$.ajax({
-		type : "POST",
-		url : "taskMethods/wmGetTaskVersionsDropdown",
-		data : '{"sOriginalTaskID":"' + task_copy_original_id + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "html",
-		success : function(msg) {
-			if (msg.length == 0) {
-				showAlert('No versions found for this task?');
-			} else {
-				$("#ddlTaskVersions").html(msg);
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var msg = ajaxPost("taskMethods/wmGetTaskVersionsDropdown", {
+		sOriginalTaskID : task_copy_original_id
 	});
+	if (msg) {
+		// load the copy from versions drop down
+		if (msg.length == 0) {
+			showAlert('No versions found for this task?');
+		} else {
+			$("#ddlTaskVersions").html(msg);
+		}
+	}
 
 	$("#copy_dialog").dialog("open");
 }
@@ -216,32 +201,18 @@ function CopyTask() {
 		return false;
 	}
 
-	$.ajax({
-		type : "POST",
-		url : "taskMethods/wmCopyTask",
-		data : '{"sCopyTaskID":"' + sCopyTaskID + '","sTaskCode":"' + sNewTaskCode + '","sTaskName":"' + sNewTaskName + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			if (response.error) {
-				showAlert(response.error);
-			} else if (response.info) {
-				showInfo(response.info);
-			} else if (response.id) {
-				$("#copy_dialog").dialog("close");
-				$("#txtSearch").val("");
-				GetItems();
-				hidePleaseWait();
-				showInfo('Task Copy Successful.');
-			} else {
-				showAlert(response);
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("taskMethods/wmCopyTask", {
+		sCopyTaskID : sCopyTaskID,
+		sTaskCode : sNewTaskCode,
+		sTaskName : sNewTaskName
 	});
-
+	if (response) {
+		$("#copy_dialog").dialog("close");
+		$("#txtSearch").val("");
+		GetItems();
+		hidePleaseWait();
+		showInfo('Task Copy Successful.');
+	}
 }
 
 function DeleteItems() {
@@ -272,42 +243,29 @@ function ExportTasks() {
 	args.sIncludeRefs = $("#export_dialog_include_refs").is(':checked')
 	args.sTaskArray = $("#hidSelectedArray").val();
 
-	$.ajax({
-		type : "POST",
-		url : "taskMethods/wmExportTasks",
-		data : JSON.stringify(args),
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			if (response.error) {
-				showAlert(response.error);
-			} else if (response.info) {
-				showInfo(response.info);
-			} else if (response.export_file) {
-				//developer utility for renaming the file
-				//note: only works with one task at a time.
-				//var filename = RenameBackupFile(msg.d, ArrayString);
-				//the NORMAL way
-				var filename = response.export_file;
+	var response = ajaxPost("taskMethods/wmExportTasks", args);
+	if (response) {
+		if (response.export_file) {
+			//developer utility for renaming the file
+			//note: only works with one task at a time.
+			//var filename = RenameBackupFile(msg.d, ArrayString);
+			//the NORMAL way
+			var filename = response.export_file;
 
-				$("#hidSelectedArray").val("");
-				$("#export_dialog").dialog("close");
+			$("#hidSelectedArray").val("");
+			$("#export_dialog").dialog("close");
 
-				//ok, we're gonna do an iframe in the dialog to force the
-				//file download
-				var html = "Click <a href='temp/" + filename + "' target='_blank'>here</a> to download your file.";
-				html += "<iframe id='file_iframe' width='0px' height=0px' src='temp/" + filename + "'>";
+			//ok, we're gonna do an iframe in the dialog to force the
+			//file download
+			var html = "Click <a href='temp/" + filename + "' target='_blank'>here</a> to download your file.";
+			html += "<iframe id='file_iframe' width='0px' height=0px' src='temp/" + filename + "'>";
 
-				hidePleaseWait();
-				showInfo('Export Successful', html, true);
-			} else {
-				showAlert(response);
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
+			hidePleaseWait();
+			showInfo('Export Successful', html, true);
+		} else {
+			showAlert(response);
 		}
-	});
+	}
 }
 
 function SaveNewTask() {
@@ -337,63 +295,12 @@ function SaveNewTask() {
 	sTaskCode = packJSON(sTaskCode);
 	sTaskDesc = packJSON(sTaskDesc);
 
-	$.ajax({
-		type : "POST",
-		async : false,
-		url : "taskMethods/wmCreateTask",
-		data : '{"sTaskName":"' + sTaskName + '","sTaskCode":"' + sTaskCode + '","sTaskDesc":"' + sTaskDesc + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			try {
-				if (response.error) {
-					showAlert(response.error);
-				} else if (response.info) {
-					showInfo(response.info);
-				} else if (response.id) {
-					location.href = "/taskEdit?task_id=" + response.id;
-				} else {
-					showAlert(response);
-				}
-			} catch (ex) {
-				showAlert(ex.message);
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("taskMethods/wmCreateTask", {
+		sTaskName : sTaskName,
+		sTaskCode : sTaskCode,
+		sTaskDesc : sTaskDesc
 	});
+	if (response) {
+		location.href = "/taskEdit?task_id=" + response.id;
+	}
 }
-
-// function RenameBackupFile(src_file_name, otid) {
-// //real simple... call our rename webmethod for the file we just exported
-//
-// //but first, build a new name from the task name.
-// x = $("tr[task_id='" + otid + "']").children()[2];
-// newname = $(x).text().trim().toLowerCase().replace(/ /g, "-");
-//
-// newname = newname + ".csk";
-//
-// $.ajax({
-// type: "POST",
-// async: false,
-// url: "taskMethods.asmx/wmRenameFile",
-// data: '{"sExistingName":"' + src_file_name + '","sNewFileName":"' + newname + '"}',
-// contentType: "application/json; charset=utf-8",
-// dataType: "json",
-// success: function (response) {
-// //the return code might be a filename or an error.
-// //if it's valid, it will have a ".csk" in it.
-// //otherwise we assume it's an error
-// if (response.indexOf(".csk") > -1) {
-// } else {
-// showAlertresponse);
-// }
-// },
-// error: function (response) {
-// showAlert(response.responseText);
-// }
-// });
-//
-// return newname;
-// }

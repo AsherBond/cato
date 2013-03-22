@@ -159,34 +159,27 @@ $(document).ready(function() {
 	$("#steps .variable_popup_btn").live("click", function() {
 		var step_id = $(this).attr("step_id");
 		var xppfx = $(this).attr("xpath_prefix");
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "taskMethods/wmGetStepVarsEdit",
-			data : '{"sStepID":"' + step_id + '", "sXPathPrefix":"' + xppfx + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(response) {
-				if (!response.parse_type || !response.row_delimiter || !response.col_delimiter || !response.html)
-					$("#step_var_edit_dialog #phVars").empty().html("ERROR (wmGetStepVarsEdit): unable to get the variables for this step.  One or more of the return values was missing.");
-
-				$("#step_var_edit_dialog #hidStepID").val(step_id);
-				$("#step_var_edit_dialog #hidXPathPrefix").val(xppfx);
-				$("#step_var_edit_dialog #hidOutputParseType").val(response.parse_type);
-				$("#step_var_edit_dialog #hidRowDelimiter").val(response.row_delimiter);
-				$("#step_var_edit_dialog #hidColDelimiter").val(response.col_delimiter);
-
-				$("#step_var_edit_dialog #phVars").empty().html(unpackJSON(response.html));
-
-				//we have to hook up all the bindings for the vars that were just added to the DOM
-				wireEmUp()
-
-				$("#step_var_edit_dialog").dialog("open");
-			},
-			error : function(response) {
-				showAlert(response.responseText);
-			}
+		var response = ajaxPost("taskMethods/wmGetStepVarsEdit", {
+			sStepID : step_id,
+			sXPathPrefix : xppfx
 		});
+		if (response) {
+			if (!response.parse_type || !response.row_delimiter || !response.col_delimiter || !response.html)
+				$("#step_var_edit_dialog #phVars").empty().html("ERROR (wmGetStepVarsEdit): unable to get the variables for this step.  One or more of the return values was missing.");
+
+			$("#step_var_edit_dialog #hidStepID").val(step_id);
+			$("#step_var_edit_dialog #hidXPathPrefix").val(xppfx);
+			$("#step_var_edit_dialog #hidOutputParseType").val(response.parse_type);
+			$("#step_var_edit_dialog #hidRowDelimiter").val(response.row_delimiter);
+			$("#step_var_edit_dialog #hidColDelimiter").val(response.col_delimiter);
+
+			$("#step_var_edit_dialog #phVars").empty().html(unpackJSON(response.html));
+
+			//we have to hook up all the bindings for the vars that were just added to the DOM
+			wireEmUp()
+
+			$("#step_var_edit_dialog").dialog("open");
+		}
 	});
 });
 
@@ -345,10 +338,10 @@ function validateParsedVar(ctl) {
 		if (isNaN(r_int)) {
 			// if it's not an integer, it could either be 'end' or 'end-1'
 			r_val = r_val.replace(/ /g, "").toLowerCase();
-			
+
 			// update the field directly...
 			$r.val(r_val);
-			
+
 			if (r_val != "end") {
 				var tmp = r_val.replace("end-", "");
 				if (r_val.indexOf("end-") == -1 || isNaN(tmp)) {
@@ -654,19 +647,16 @@ function doUpdate() {
 	//Doing the Microsoft ajax call because the jQuery one doesn't work for arrays.
 	//    PageMethods.wmUpdateVars(step_id, opm, rowd, cold, vars, OnSuccess, OnFailure);
 	//}
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "taskMethods/wmUpdateVars",
-		data : '{"sStepID":"' + step_id + '", "sXPathPrefix":"' + xpath_prefix + '", "sOPM":"' + opm + '", "sRowDelimiter":"' + rowd + '", "sColDelimiter":"' + cold + '", "oVarArray":' + vars + ' }',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			getStep(step_id, step_id, true);
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("taskMethods/wmUpdateVars", {
+		sStepID : step_id,
+		sXPathPrefix : xpath_prefix,
+		sOPM : opm,
+		sRowDelimiter : rowd,
+		sColDelimiter : cold,
+		oVarArray : vars
 	});
+	if (response) {
+		getStep(step_id, step_id, true);
+	}
 
 }

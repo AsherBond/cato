@@ -89,31 +89,19 @@ function LoadEditDialog(editID) {
 	clearEditDialog();
 	$("#hidCurrentEditID").val(editID);
 
-	$.ajax({
-		type : "POST",
-		url : "uiMethods/wmGetCredential",
-		data : '{"sCredentialID":"' + editID + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(cred) {
-			//update the list in the dialog
-			if (cred.length == 0) {
-				showAlert('error no response');
-			} else {
-				$("#txtCredName").val(cred.Name);
-				$("#txtCredUsername").val(cred.Username);
-				$("#txtCredDomain").val(cred.Domain)
-				$("#txtCredDescription").val(cred.Description);
-
-				$("#hidMode").val("edit");
-				$("#edit_dialog").dialog("option", "title", "Modify Credential");
-				$("#edit_dialog").dialog("open");
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var cred = ajaxPost("uiMethods/wmGetCredential", {
+		sCredentialID : editID
 	});
+	if (cred) {
+		$("#txtCredName").val(cred.Name);
+		$("#txtCredUsername").val(cred.Username);
+		$("#txtCredDomain").val(cred.Domain)
+		$("#txtCredDescription").val(cred.Description);
+
+		$("#hidMode").val("edit");
+		$("#edit_dialog").dialog("option", "title", "Modify Credential");
+		$("#edit_dialog").dialog("open");
+	}
 }
 
 function SaveCredential() {
@@ -158,57 +146,17 @@ function SaveCredential() {
 	cred.PrivilegedPassword = $("#txtPrivilegedPassword").val()
 
 	if ($("#hidMode").val() == "edit") {
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "uiMethods/wmUpdateCredential",
-			data : JSON.stringify(cred),
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(response) {
-				if (response.error) {
-					showAlert(response.error);
-				}
-				if (response.info) {
-					showInfo(response.info);
-				}
-				if (response.result == "success") {
-					GetItems();
-					$("#edit_dialog").dialog("close");
-				} else {
-					showInfo(response);
-				}
-			},
-			error : function(response) {
-				showAlert(response.responseText);
-			}
-		});
+		var response = ajaxPost("uiMethods/wmUpdateCredential", cred);
+		if (response) {
+			GetItems();
+			$("#edit_dialog").dialog("close");
+		}
 	} else {
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "uiMethods/wmCreateCredential",
-			data : JSON.stringify(cred),
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(response) {
-				if (response.error) {
-					showAlert(response.error);
-				}
-				if (response.info) {
-					showInfo(response.info);
-				}
-				if (response.ID) {
-					GetItems();
-					$("#edit_dialog").dialog("close");
-				} else {
-					showInfo(response);
-				}
-			},
-			error : function(response) {
-				showAlert(response.responseText);
-			}
-		});
+		var response = ajaxPost("uiMethods/wmCreateCredential", cred);
+		if (response) {
+			GetItems();
+			$("#edit_dialog").dialog("close");
+		}
 	}
 }
 

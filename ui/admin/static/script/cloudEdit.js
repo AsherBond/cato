@@ -77,20 +77,13 @@ $(document).ready(function() {
 
 			var kpid = $(this).parents(".keypair").attr("id").replace(/kp_/, "");
 
-			$.ajax({
-				type : "POST",
-				url : "cloudMethods/wmDeleteKeyPair",
-				data : '{"sKeypairID":"' + kpid + '"}',
-				contentType : "application/json; charset=utf-8",
-				dataType : "text",
-				success : function(response) {
-					$("#kp_" + kpid).remove();
-					$("#update_success_msg").text("Delete Successful").fadeOut(2000);
-				},
-				error : function(response) {
-					showAlert(response.responseText);
-				}
-			});
+			var response = ajaxPost("cloudMethods/wmDeleteKeyPair", {
+				sKeypairID : kpid
+			}, "text");
+			if (response) {
+				$("#kp_" + kpid).remove();
+				$("#update_success_msg").text("Delete Successful").fadeOut(2000);
+			}
 		}
 	});
 
@@ -190,52 +183,36 @@ $(document).ready(function() {
 });
 
 function GetProvidersList() {
-	$.ajax({
-		type : "POST",
-		async : false,
-		url : "cloudMethods/wmGetProvidersList",
-		data : '{"sUserDefinedOnly":"False"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "html",
-		success : function(response) {
-			$("#ddlProvider").html(response);
-			ClearTestResult();
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+	var response = ajaxPost("cloudMethods/wmGetProvidersList", {
+		"sUserDefinedOnly" : "False"
+	}, "html");
+	if (response) {
+		$("#ddlProvider").html(response);
+		ClearTestResult();
+	}
 }
 
 function GetProviderAccounts() {
 	var provider = $("#ddlProvider").val();
 
-	$.ajax({
-		type : "POST",
-		async : false,
-		url : "cloudMethods/wmGetCloudAccountsJSON",
-		data : '{"sProvider":"' + provider + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(accounts) {
-			// all we want here is to loop the clouds
-			$("#ddlDefaultAccount").empty();
-			if (accounts) {
-				$.each(accounts, function(index, account) {
-					$("#ddlDefaultAccount").append("<option value=\"" + account.ID + "\">" + account.Name + "</option>");
-				});
-			}
-
-			//we can't allow testing the connection if there are no clouds
-			if ($("#ddlDefaultAccount option").length == 0)
-				$("#test_connection_btn").hide();
-			else
-				$("#test_connection_btn").show();
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var accounts = ajaxPost("cloudMethods/wmGetCloudAccountsJSON", {
+		sProvider : provider
 	});
+	if (accounts) {
+		// all we want here is to loop the clouds
+		$("#ddlDefaultAccount").empty();
+		if (accounts) {
+			$.each(accounts, function(index, account) {
+				$("#ddlDefaultAccount").append("<option value=\"" + account.ID + "\">" + account.Name + "</option>");
+			});
+		}
+
+		//we can't allow testing the connection if there are no clouds
+		if ($("#ddlDefaultAccount option").length == 0)
+			$("#test_connection_btn").hide();
+		else
+			$("#test_connection_btn").show();
+	}
 }
 
 function TestConnection() {
@@ -248,36 +225,21 @@ function TestConnection() {
 		ClearTestResult();
 		$("#conn_test_result").text("Testing...");
 
-		$.ajax({
-			type : "POST",
-			async : false,
-			url : "cloudMethods/wmTestCloudConnection",
-			data : '{"sAccountID":"' + account_id + '","sCloudID":"' + cloud_id + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(response) {
-				try {
-					if (response != null) {
-						if (response.result == "success") {
-							$("#conn_test_result").css("color", "green");
-							$("#conn_test_result").text("Connection Successful.");
-						}
-						if (response.result == "fail") {
-							$("#conn_test_result").css("color", "red");
-							$("#conn_test_result").text("Connection Failed.");
-							$("#conn_test_error").text(unpackJSON(response.error));
-						}
-					}
-				} catch(err) {
-					alert(err);
-					ClearTestResult();
-				}
-			},
-			error : function(response) {
-				showAlert(response.responseText);
-				ClearTestResult();
-			}
+		var response = ajaxPost("cloudMethods/wmGetCloudAccountsJSON", {
+			sAccountID : account_id,
+			sCloudID : cloud_id
 		});
+		if (response) {
+			if (response.result == "success") {
+				$("#conn_test_result").css("color", "green");
+				$("#conn_test_result").text("Connection Successful.");
+			}
+			if (response.result == "fail") {
+				$("#conn_test_result").css("color", "red");
+				$("#conn_test_result").text("Connection Failed.");
+				$("#conn_test_error").text(unpackJSON(response.error));
+			}
+		}
 	} else {
 		ClearTestResult();
 		$("#conn_test_result").css("color", "red");
@@ -321,37 +283,23 @@ function LoadEditDialog(editID) {
 
 	$("#hidCurrentEditID").val(editID);
 
-	$.ajax({
-		type : "POST",
-		async : false,
-		url : "cloudMethods/wmGetCloud",
-		data : '{"sID":"' + editID + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(cloud) {
-			//update the list in the dialog
-			if (cloud.length == 0) {
-				showAlert('error no response');
-				// do we close the dialog, leave it open to allow adding more? what?
-			} else {
-				$("#txtCloudName").val(cloud.Name);
-				$("#ddlProvider").val(cloud.Provider.Name);
-				$("#txtAPIUrl").val(cloud.APIUrl);
-				$("#ddlAPIProtocol").val(cloud.APIProtocol);
-
-				GetProviderAccounts();
-				$("#ddlDefaultAccount").val(cloud.DefaultAccount.ID);
-
-				ClearTestResult();
-
-				$("#edit_dialog").dialog("option", "title", "Modify Cloud");
-				$("#edit_dialog").dialog("open");
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var cloud = ajaxPost("cloudMethods/wmGetCloud", {
+		sID : editID
 	});
+	if (cloud) {
+		$("#txtCloudName").val(cloud.Name);
+		$("#ddlProvider").val(cloud.Provider.Name);
+		$("#txtAPIUrl").val(cloud.APIUrl);
+		$("#ddlAPIProtocol").val(cloud.APIProtocol);
+
+		GetProviderAccounts();
+		$("#ddlDefaultAccount").val(cloud.DefaultAccount.ID);
+
+		ClearTestResult();
+
+		$("#edit_dialog").dialog("option", "title", "Modify Cloud");
+		$("#edit_dialog").dialog("open");
+	}
 
 	//get the keypairs
 	GetKeyPairs(editID);
@@ -456,20 +404,10 @@ function DeleteItems() {
 }
 
 function GetKeyPairs(sEditID) {
-	$.ajax({
-		type : "POST",
-		async : false,
-		url : "cloudMethods/wmGetKeyPairs",
-		data : '{"sID":"' + sEditID + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "html",
-		success : function(response) {
-			$('#keypairs').html(response);
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+	var response = ajaxPost("cloudMethods/wmGetKeyPairs", {
+		sID : sEditID
+	}, "html");
+	$('#keypairs').html(response);
 }
 
 function SaveKeyPair() {
@@ -492,29 +430,22 @@ function SaveKeyPair() {
 
 	$("#update_success_msg").text("Saving...").show().fadeOut(2000);
 
-	$.ajax({
-		type : "POST",
-		url : "cloudMethods/wmSaveKeyPair",
-		data : '{"sKeypairID" : "' + kpid + '","sCloudID" : "' + cloud_id + '","sName" : "' + name + '","sPK" : "' + pk + '","sPP" : "' + pp + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "text",
-		success : function(response) {
-			if (response == "") {
-				if (kpid) {
-					//find the label and update it
-					$("#kp_" + kpid + " .keypair_label").html(name);
-				} else {
-					//re-get the list
-					GetKeyPairs(cloud_id);
-				}
-				$("#update_success_msg").text("Save Successful").show().fadeOut(2000);
-				$("#keypair_dialog").dialog("close");
-			} else {
-				showAlert(response);
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("cloudMethods/wmSaveKeyPair", {
+		sKeypairID : kpid,
+		sCloudID : cloud_id,
+		sName : name,
+		sPK : pk,
+		sPP : pp
 	});
+	if (response) {
+		if (kpid) {
+			//find the label and update it
+			$("#kp_" + kpid + " .keypair_label").html(name);
+		} else {
+			//re-get the list
+			GetKeyPairs(cloud_id);
+		}
+		$("#update_success_msg").text("Save Successful").show().fadeOut(2000);
+		$("#keypair_dialog").dialog("close");
+	}
 }

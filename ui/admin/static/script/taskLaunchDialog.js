@@ -18,84 +18,11 @@
 $(document).ready(function() {
 	//any page that includes this script will get the following dialog inner code
 	//but the page requires a placeholder div... called "task_launch_dialog"
-    var d = '<div id="task_launch_dialog_task_name" class="floatleft"></div><div class="floatright">Server Time: <span class="current_time"></span></div><hr />' +
-                'Cloud Account: <span id="task_launch_dialog_account_name"></span>' +
-                '&nbsp;&nbsp;Logging Level:&nbsp;&nbsp;' +
-                '<select id="task_launch_dialog_debug_level">' +
-                '   <option value="0">None</option>' +
-                '   <option value="1">Minimal</option>' +
-                '   <option value="2" selected="selected">Normal</option>' +
-                '   <option value="3">Enhanced</option>' +
-                '   <option value="4">Verbose</option>' +
-                '</select>' +
-                '<hr />' +
-                '<div id="task_launch_dialog_parameters" class="floatleft task_launch_column ui-widget-content ui-tabs ui-corner-all">' +
-                '   <div id="task_launch_params_content">' +
-                '       <div class="task_launch_params_title ui-widget-header ui-corner-all">' +
-                '       Parameters' +
-                '       </div>' +
-                '       <span id="action_defaults_btn" class="hidden"><input type="radio" id="rbAction" name="radio" /><label for="rbAction">Action Defaults</label></span>' +
-                '       &nbsp;&nbsp;<input type="radio" id="rbDefault" name="radio" /><label for="rbDefault">Task Defaults</label>' +
-                '       &nbsp;&nbsp;<input type="radio" id="rbPrevious" name="radio" /><label for="rbPrevious">Previous Values</label>' +
-                '       <div id="task_launch_dialog_params"></div>' +
-                '   </div>' +
-                '</div>' +
-                '<div id="task_launch_dialog_schedule" class="floatright task_launch_column">' +
-                '   <ul>' +
-                '       <li><a href="#RunNowTab"><span>Run Now</span></a></li>' +
-                '       <li><a href="#RunLaterTab"><span>Run Later</span></a></li>' +
-                '       <li><a href="#RunRepeatedlyTab"><span>Run Repeatedly</span></a></li>' +
-                '       <li><a href="#PlanTab"><span>Plan</span></a></li>' +
-                '   </ul>' +
-                '   <div id="RunNowTab">' +
-                '       <div>Will be started immediately and run only once, using the Parameters selected on the left.</div>' +
-                '       <hr />' +
-                '       <label for="new_runlog_window" class="hidden new_runlog_window">New Window?</label><input type="checkbox" id="new_runlog_window" class="hidden new_runlog_window"/>' +
-                '       <span id="run_now_btn" class="floatright">Run Now</span>' +
-                '   </div>' +
-                '   <div id="RunLaterTab">' +
-                '       <div>Will be started in the future, and run only once, using the Parameters selected on the left.</div>' +
-                '       <hr />' +
-                '       Run On: <input type="text" id="run_on_date" class="datetimepicker" />' +
-                '       <hr />' +
-                '       <span id="run_later_btn" class="floatright">Plan</span>' +
-                '   </div>' +
-                '   <div id="RunRepeatedlyTab">' +
-                '       <div id="run_repeatedly_content">' +
-                '           <div>Will be scheduled to run on a repeating basis, using the criteria selected below, and the Parameters selected on the left.</div>' +
-                '           <hr />' +
-                drawRecurringPanel() +
-                '           <hr />' +
-                '       </div>' +
-                 '      <span id="run_repeatedly_btn" class="floatright">Schedule</span>' +
-               '   </div>' +
-                '   <div id="PlanTab">' +
-                '       <div>Actions will occur according to the Plans listed below.</div>' +
-                '       <p>Use one of the "Run" tabs to create a new plan.</p>' +
-                '       <p>Click a Plan to edit the Parameters or recurrence details.</p>' +
-                '       <hr />' +
-                '       Upcoming Plans' +
-                '       <div id="task_launch_dialog_plans"></div>' +
-                '       <hr />' +
-                '       Recurring Plans' +
-                '       <div id="task_launch_dialog_schedules"></div>' +
-                '   </div>' +
-                '</div>' +
-                '<input type="hidden" id="task_launch_dialog_task_id" />' +
-                '<input type="hidden" id="task_launch_dialog_account_id" />' +
-                '<input type="hidden" id="task_launch_dialog_asset_id" />' +
-                '<input type="hidden" id="task_launch_dialog_task_instance" />' +
-                '<input type="hidden" id="plan_edit_plan_id" />';
+	var d = '<div id="task_launch_dialog_task_name" class="floatleft"></div><div class="floatright">Server Time: <span class="current_time"></span></div><hr />' + 'Cloud Account: <span id="task_launch_dialog_account_name"></span>' + '&nbsp;&nbsp;Logging Level:&nbsp;&nbsp;' + '<select id="task_launch_dialog_debug_level">' + '   <option value="0">None</option>' + '   <option value="1">Minimal</option>' + '   <option value="2" selected="selected">Normal</option>' + '   <option value="3">Enhanced</option>' + '   <option value="4">Verbose</option>' + '</select>' + '<hr />' + '<div id="task_launch_dialog_parameters" class="floatleft task_launch_column ui-widget-content ui-tabs ui-corner-all">' + '   <div id="task_launch_params_content">' + '       <div class="task_launch_params_title ui-widget-header ui-corner-all">' + '       Parameters' + '       </div>' + '       <span id="action_defaults_btn" class="hidden"><input type="radio" id="rbAction" name="radio" /><label for="rbAction">Action Defaults</label></span>' + '       &nbsp;&nbsp;<input type="radio" id="rbDefault" name="radio" /><label for="rbDefault">Task Defaults</label>' + '       &nbsp;&nbsp;<input type="radio" id="rbPrevious" name="radio" /><label for="rbPrevious">Previous Values</label>' + '       <div id="task_launch_dialog_params"></div>' + '   </div>' + '</div>' + '<div id="task_launch_dialog_schedule" class="floatright task_launch_column">' + '   <ul>' + '       <li><a href="#RunNowTab"><span>Run Now</span></a></li>' + '       <li><a href="#RunLaterTab"><span>Run Later</span></a></li>' + '       <li><a href="#RunRepeatedlyTab"><span>Run Repeatedly</span></a></li>' + '       <li><a href="#PlanTab"><span>Plan</span></a></li>' + '   </ul>' + '   <div id="RunNowTab">' + '       <div>Will be started immediately and run only once, using the Parameters selected on the left.</div>' + '       <hr />' + '       <label for="new_runlog_window" class="hidden new_runlog_window">New Window?</label><input type="checkbox" id="new_runlog_window" class="hidden new_runlog_window"/>' + '       <span id="run_now_btn" class="floatright">Run Now</span>' + '   </div>' + '   <div id="RunLaterTab">' + '       <div>Will be started in the future, and run only once, using the Parameters selected on the left.</div>' + '       <hr />' + '       Run On: <input type="text" id="run_on_date" class="datetimepicker" />' + '       <hr />' + '       <span id="run_later_btn" class="floatright">Plan</span>' + '   </div>' + '   <div id="RunRepeatedlyTab">' + '       <div id="run_repeatedly_content">' + '           <div>Will be scheduled to run on a repeating basis, using the criteria selected below, and the Parameters selected on the left.</div>' + '           <hr />' + drawRecurringPanel() + '           <hr />' + '       </div>' + '      <span id="run_repeatedly_btn" class="floatright">Schedule</span>' + '   </div>' + '   <div id="PlanTab">' + '       <div>Actions will occur according to the Plans listed below.</div>' + '       <p>Use one of the "Run" tabs to create a new plan.</p>' + '       <p>Click a Plan to edit the Parameters or recurrence details.</p>' + '       <hr />' + '       Upcoming Plans' + '       <div id="task_launch_dialog_plans"></div>' + '       <hr />' + '       Recurring Plans' + '       <div id="task_launch_dialog_schedules"></div>' + '   </div>' + '</div>' + '<input type="hidden" id="task_launch_dialog_task_id" />' + '<input type="hidden" id="task_launch_dialog_account_id" />' + '<input type="hidden" id="task_launch_dialog_asset_id" />' + '<input type="hidden" id="task_launch_dialog_task_instance" />' + '<input type="hidden" id="plan_edit_plan_id" />';
 
 	$("#task_launch_dialog").prepend(d);
 
-    var plan_edit_content = '' +
-        'Editing <span id="plan_edit_mode"></span>: <span id="plan_edit_name"></span>' +
-        '<hr />' +
-        '<div id="plan_edit_parameters" class="floatleft task_launch_column ui-widget-content ui-tabs ui-corner-all">' +
-        '</div>' +
-        '<div id="plan_edit_schedule" class="floatright task_launch_column">' +
-        '</div>';
+	var plan_edit_content = '' + 'Editing <span id="plan_edit_mode"></span>: <span id="plan_edit_name"></span>' + '<hr />' + '<div id="plan_edit_parameters" class="floatleft task_launch_column ui-widget-content ui-tabs ui-corner-all">' + '</div>' + '<div id="plan_edit_schedule" class="floatright task_launch_column">' + '</div>';
 	$("#plan_edit_dialog").html(plan_edit_content);
 
 	//dialog was drawn dynamically, have to do some bindings
@@ -381,21 +308,11 @@ function getParamXML(id, type, filter_id) {
 	if (filter_id === undefined || filter_id === null)
 		filter_id = ""
 
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "taskMethods/wmGetParameterXML",
-		data : '{"sType":"' + type + '","sID":"' + id + '","sFilterID":"' + filter_id + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "xml",
-		success : function(response) {
-			if (response != "")
-				task_parameter_xml = response;
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+	var task_parameter_xml = ajaxPost("taskMethods/wmGetParameterXML", {
+		sType : type,
+		sID : id,
+		sFilterID : filter_id
+	}, "xml");
 
 	var output = DrawParameterEditForm(task_parameter_xml);
 
@@ -545,46 +462,38 @@ function RunNow() {
 	var parameter_xml = packJSON(buildXMLToSubmit());
 	//alert(parameter_xml);
 
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "taskMethods/wmRunTask",
-		data : '{"sTaskID":"' + task_id + '","sAssetID":"","sAccountID":"' + account_id + '","sParameterXML":"' + parameter_xml + '","iDebugLevel":"' + debug_level + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "text",
-		success : function(response) {
-			if (response.length > 0) {
-				// if the 'new window' box is checked...
-				if ($("#new_runlog_window").is(':visible')) {
-					if ($("#new_runlog_window").is(':checked')) {
-						openDialogWindow('taskRunLog?task_instance=' + response, 'TaskRunLog' + response, 950, 750, 'true');
-					} else {
-						location.href = 'taskRunLog?task_instance=' + response;
-					}
-				} else {
-					openDialogWindow('taskRunLog?task_instance=' + response, 'TaskRunLog' + response, 950, 750, 'true');
-				}
-
-				$("#update_success_msg").text("Start Successful").fadeOut(2000);
-
-				//hate sticking it here, but this is only for the task edit/view pages...
-				$("#debug_instance").val(response);
-				//does the page have this function?
-				if ( typeof doGetDebug == 'function') {
-					doGetDebug();
-				}
+	var response = ajaxPost("taskMethods/wmRunTask", {
+		sTaskID : task_id,
+		sAccountID : account_id,
+		sParameterXML : parameter_xml,
+		iDebugLevel : debug_level
+	}, "text");
+	if (response.length > 0) {
+		// if the 'new window' box is checked...
+		if ($("#new_runlog_window").is(':visible')) {
+			if ($("#new_runlog_window").is(':checked')) {
+				openDialogWindow('taskRunLog?task_instance=' + response, 'TaskRunLog' + response, 950, 750, 'true');
 			} else {
-				alert("The Task may not have started... no Task Instance was returned.")
+				location.href = 'taskRunLog?task_instance=' + response;
 			}
-
-			$("#update_success_msg").fadeOut(2000);
-			hidePleaseWait();
-		},
-		error : function(response) {
-			$("#update_success_msg").fadeOut(2000);
-			showAlert(response.responseText);
+		} else {
+			openDialogWindow('taskRunLog?task_instance=' + response, 'TaskRunLog' + response, 950, 750, 'true');
 		}
-	});
+
+		$("#update_success_msg").text("Start Successful").fadeOut(2000);
+
+		//hate sticking it here, but this is only for the task edit/view pages...
+		$("#debug_instance").val(response);
+		//does the page have this function?
+		if ( typeof doGetDebug == 'function') {
+			doGetDebug();
+		}
+	} else {
+		alert("The Task may not have started... no Task Instance was returned.")
+	}
+
+	$("#update_success_msg").fadeOut(2000);
+	hidePleaseWait();
 
 	CloseTaskLaunchDialog();
 
@@ -709,25 +618,12 @@ function RunRepeatedly() {
 		args.sParameterXML = parameter_xml;
 		args.iDebugLevel = debug_level;
 
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "uiMethods/wmRunRepeatedly",
-			data : JSON.stringify(args),
-			contentType : "application/json; charset=utf-8",
-			dataType : "text",
-			success : function(response) {
-				$("#update_success_msg").text("Schedule Successful").fadeOut(2000);
+		ajaxPost("uiMethods/wmRunRepeatedly", args, "text");
+		$("#update_success_msg").text("Schedule Successful").fadeOut(2000);
 
-				//refresh and change to the "Plan" tab so the user knows something happened
-				getPlans();
-				$('#task_launch_dialog_schedule').tabs('select', 3);
-			},
-			error : function(response) {
-				$("#update_success_msg").fadeOut(2000);
-				showAlert(response.responseText);
-			}
-		});
+		//refresh and change to the "Plan" tab so the user knows something happened
+		getPlans();
+		$('#task_launch_dialog_schedule').tabs('select', 3);
 	}
 }
 
@@ -749,25 +645,21 @@ function RunLater() {
 	//build the XML from the dialog
 	var parameter_xml = packJSON(buildXMLToSubmit());
 
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "uiMethods/wmRunLater",
-		data : '{"sTaskID":"' + task_id + '","sActionID":"' + action_id + '","sAccountID":"' + account_id + '","sRunOn":"' + run_on + '","sParameterXML":"' + parameter_xml + '","iDebugLevel":"' + debug_level + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "text",
-		success : function(response) {
-			$("#update_success_msg").text("Plan Successful").fadeOut(2000);
+	var response = ajaxPost("uiMethods/wmRunLater", {
+		sTaskID : task_id,
+		sActionID : action_id,
+		sAccountID : account_id,
+		sRunOn : run_on,
+		sParameterXML : parameter_xml,
+		iDebugLevel : debug_level
+	}, "text");
+	if (response) {
+		$("#update_success_msg").text("Plan Successful").fadeOut(2000);
 
-			//refresh and change to the "Plan" tab so the user knows something happened
-			getPlans();
-			$('#task_launch_dialog_schedule').tabs('select', 3);
-		},
-		error : function(response) {
-			$("#update_success_msg").fadeOut(2000);
-			showAlert(response.responseText);
-		}
-	});
+		//refresh and change to the "Plan" tab so the user knows something happened
+		getPlans();
+		$('#task_launch_dialog_schedule').tabs('select', 3);
+	}
 }
 
 function SaveRecurringPlan() {
@@ -781,36 +673,35 @@ function SaveRecurringPlan() {
 		//build the XML from the dialog
 		var parameter_xml = packJSON(buildXMLToSubmit());
 
-		var args = '{"sScheduleID":"' + schedule_id + '",' + '"sMonths":"' + tt.months + '",' + '"sDays":"' + tt.days + '",' + '"sHours":"' + tt.hrs + '",' + '"sMinutes":"' + tt.mins + '",' + '"sDaysOrWeeks":"' + tt.dorw + '",' + '"sParameterXML":"' + parameter_xml + '",' + '"iDebugLevel":"' + debug_level + '"}';
+		var args = {
+			sScheduleID : schedule_id,
+			sMonths : tt.months,
+			sDays : tt.days,
+			sHours : tt.hrs,
+			sMinutes : tt.mins,
+			sDaysOrWeeks : tt.dorw,
+			sParameterXML : parameter_xml,
+			iDebugLevel : debug_level
+		}
 
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "uiMethods/wmSaveSchedule",
-			data : args,
-			contentType : "application/json; charset=utf-8",
-			dataType : "text",
-			success : function(response) {
-				$("#update_success_msg").text("Update Successful").fadeOut(2000);
+		var response = ajaxPost("uiMethods/wmSaveSchedule", args, "text");
+		if (response) {
+			$("#update_success_msg").text("Update Successful").fadeOut(2000);
 
-				//change to the "Plan" tab so the user knows something happened
-				getPlans();
-				//this refreshes the plans tabs because labels have changed.
-				$('#task_launch_dialog_schedule').tabs('select', 3);
+			//change to the "Plan" tab so the user knows something happened
+			getPlans();
+			//this refreshes the plans tabs because labels have changed.
+			$('#task_launch_dialog_schedule').tabs('select', 3);
 
-				//will refresh the parent page, if it has an appropriate function
-				if ( typeof doGetPlans == 'function') {
-					doGetPlans();
-				}
-			},
-			error : function(response) {
-				$("#update_success_msg").fadeOut(2000);
-				showAlert(response.responseText);
+			//will refresh the parent page, if it has an appropriate function
+			if ( typeof doGetPlans == 'function') {
+				doGetPlans();
 			}
-		});
+		}
 
 		return true;
 	}
+
 	return false;
 }
 
@@ -821,73 +712,49 @@ function SavePlan() {
 	//build the XML from the dialog
 	var parameter_xml = packJSON(buildXMLToSubmit());
 
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "uiMethods/wmSavePlan",
-		data : '{"iPlanID":"' + plan_id + '","sParameterXML":"' + parameter_xml + '","iDebugLevel":"' + debug_level + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(msg) {
-			$("#update_success_msg").text("Update Successful").fadeOut(2000);
-
-			//change to the "Plan" tab so the user knows something happened
-			//unlike SaveRecurringPlan - no need to refresh the plan tab here
-			$('#task_launch_dialog_schedule').tabs('select', 3);
-
-			//will refresh the parent page, if it has an appropriate function
-			if ( typeof doGetPlans == 'function') {
-				doGetPlans();
-			}
-		},
-		error : function(response) {
-			$("#update_success_msg").fadeOut(2000);
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("uiMethods/wmSavePlan", {
+		iPlanID : plan_id,
+		sParameterXML : parameter_xml,
+		iDebugLevel : debug_level
 	});
+	if (response) {
+		$("#update_success_msg").text("Update Successful").fadeOut(2000);
 
+		//change to the "Plan" tab so the user knows something happened
+		//unlike SaveRecurringPlan - no need to refresh the plan tab here
+		$('#task_launch_dialog_schedule').tabs('select', 3);
+
+		//will refresh the parent page, if it has an appropriate function
+		if ( typeof doGetPlans == 'function') {
+			doGetPlans();
+		}
+	}
 	return true;
 }
 
 function getPlans() {
 	var task_id = $("#task_launch_dialog_task_id").val();
 
-	$.ajax({
-		async : true,
-		type : "POST",
-		url : "uiMethods/wmGetActionPlans",
-		data : '{"sTaskID":"' + task_id + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "html",
-		success : function(response) {
-			$("#task_launch_dialog_plans").html(response);
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
-	$.ajax({
-		async : true,
-		type : "POST",
-		url : "uiMethods/wmGetActionSchedules",
-		data : '{"sTaskID":"' + task_id + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "html",
-		success : function(response) {
-			$("#task_launch_dialog_schedules").html(response);
-			//schedule icon tooltips
-			$("#task_launch_dialog_schedules .schedule_tip").tipTip({
-				defaultPosition : "right",
-				keepAlive : false,
-				activation : "hover",
-				maxWidth : "500px",
-				fadeIn : 100
-			});
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+	ajaxPostAsync("uiMethods/wmGetActionPlans", {
+		sTaskID : task_id
+	}, function(response) {
+		$("#task_launch_dialog_plans").html(response);
+	}, "html");
+
+	ajaxPostAsync("uiMethods/wmGetActionSchedules", {
+		sTaskID : task_id
+	}, function(response) {
+		$("#task_launch_dialog_schedules").html(response);
+		//schedule icon tooltips
+		$("#task_launch_dialog_schedules .schedule_tip").tipTip({
+			defaultPosition : "right",
+			keepAlive : false,
+			activation : "hover",
+			maxWidth : "500px",
+			fadeIn : 100
+		});
+
+	}, "html");
 }
 
 function deleteSchedule(ctl) {
@@ -895,27 +762,18 @@ function deleteSchedule(ctl) {
 	var msg = "Are you sure you want to delete this Recurring Action Plan?";
 
 	if (confirm(msg)) {
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "uiMethods/wmDeleteSchedule",
-			data : '{"sScheduleID":"' + schedule_id + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "text",
-			success : function(response) {
-				$("#update_success_msg").text("Delete Successful").fadeOut(2000);
-
-				$(ctl).parents(".action_schedule").remove();
-				//might be some on the Schedules tab too
-				$(".action_schedule[id='as_" + schedule_id + "']").remove();
-				//remove any action plans too, directly from the page.
-				$(".action_plan[schedule_id='" + schedule_id + "']").remove();
-			},
-			error : function(response) {
-				$("#update_success_msg").fadeOut(2000);
-				showAlert(response.responseText);
-			}
+		var response = ajaxPost("uiMethods/wmDeleteSchedule", {
+			sScheduleID : schedule_id
 		});
+		if (response) {
+			$("#update_success_msg").text("Delete Successful").fadeOut(2000);
+
+			$(ctl).parents(".action_schedule").remove();
+			//might be some on the Schedules tab too
+			$(".action_schedule[id='as_" + schedule_id + "']").remove();
+			//remove any action plans too, directly from the page.
+			$(".action_plan[schedule_id='" + schedule_id + "']").remove();
+		}
 	}
 }
 
@@ -929,25 +787,16 @@ function deleteActionPlan(ctl) {
 		msg += "\n\nA plan added by the Scheduler and removed here cannot be rescheduled.";
 
 	if (confirm(msg)) {
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "uiMethods/wmDeleteActionPlan",
-			data : '{"iPlanID":"' + plan_id + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "text",
-			success : function(response) {
-				$("#update_success_msg").text("Delete Successful").fadeOut(2000);
-
-				$(ctl).parents(".action_plan").remove();
-				//might be some on the Schedules tab too
-				$(".action_plan[plan_id='" + plan_id + "']").remove();
-			},
-			error : function(response) {
-				$("#update_success_msg").fadeOut(2000);
-				showAlert(response.responseText);
-			}
+		var response = ajaxPost("uiMethods/wmDeleteActionPlan", {
+			iPlanID : plan_id
 		});
+		if (response) {
+			$("#update_success_msg").text("Delete Successful").fadeOut(2000);
+
+			$(ctl).parents(".action_plan").remove();
+			//might be some on the Schedules tab too
+			$(".action_plan[plan_id='" + plan_id + "']").remove();
+		}
 	}
 }
 
@@ -1010,28 +859,15 @@ function dismissRecurringPlan() {
 }
 
 function loadRecurringPlan(schedule_id) {
-	$.ajax({
-		type : "POST",
-		async : false,
-		url : "uiMethods/wmGetRecurringPlan",
-		data : '{"sScheduleID":"' + schedule_id + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			if (response.length == 0) {
-				showAlert('error no response');
-			} else {
-				populateTimetable(response);
-
-				//move it to the edit dialog
-				$("#run_repeatedly_content").appendTo("#plan_edit_schedule");
-
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("uiMethods/wmGetRecurringPlan", {
+		sScheduleID : schedule_id
 	});
+	if (response) {
+		populateTimetable(response);
+
+		//move it to the edit dialog
+		$("#run_repeatedly_content").appendTo("#plan_edit_schedule");
+	}
 }
 
 function populateTimetable(timetable) {
@@ -1133,70 +969,9 @@ function drawRecurringItem(howmany, idprefix, add) {
 }
 
 function drawRecurringPanel() {
-    //separated this out so the dynamic html block at the top of this file isn't stupid huge
+	//separated this out so the dynamic html block at the top of this file isn't stupid huge
 
-    var output = 'Months' +
-        '<div class="ui-dropslide ui-widget">' +
-        '   <ol id="olMonthsAll" class="ui-widget ui-helper-clearfix ui-helper-reset">' +
-        '       <li id="liMonthsAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li>' +
-        '   </ol>' +
-        '   <ol id="olMonths" class="ui-widget ui-helper-clearfix ui-helper-reset">' +
-        '       <li id="mo_0" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Jan</span></li>' +
-        '       <li id="mo_1" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Feb</span></li>' +
-        '       <li id="mo_2" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Mar</span></li>' +
-        '       <li id="mo_3" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Apr</span></li>' +
-        '       <li id="mo_4" class="plan_datepoint"><span class="ui-state-default ui-corner-all">May</span></li>' +
-        '       <li id="mo_5" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Jun</span></li>' +
-        '       <li id="mo_6" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Jul</span></li>' +
-        '       <li id="mo_7" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Aug</span></li>' +
-        '       <li id="mo_8" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Sep</span></li>' +
-        '       <li id="mo_9" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Oct</span></li>' +
-        '       <li id="mo_10" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Nov</span></li>' +
-        '       <li id="mo_11" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Dec</span></li>' +
-        '   </ol>' +
-        '</div>' +
-        'Days' +
-        '<div class="ui-dropslide ui-widget">' +
-        '    <ol id="olDaysType" class="ui-widget ui-helper-clearfix ui-helper-reset">' +
-        '        <li id="liDaysAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li>' +
-        '        <li style="width: 35px;" id="liDaysWeek" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Week</span></li>' +
-        '        <li style="width: 35px;" id="liDates" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Days</span></li>' +
-        '    </ol>' +
-        '    <ol id="olWeek" class="ui-widget ui-helper-clearfix ui-helper-reset hidden">' +
-        '        <li id="w_0" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Sun</span></li>' +
-        '        <li id="w_1" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Mon</span></li>' +
-        '        <li id="w_2" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Tue</span></li>' +
-        '        <li id="w_3" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Wed</span></li>' +
-        '        <li id="w_4" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Thu</span></li>' +
-        '        <li id="w_5" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Fri</span></li>' +
-        '        <li id="w_6" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Sat</span></li>' +
-        '    </ol>' +
-        '    <ol id="olDates" class="ui-widget ui-helper-clearfix ui-helper-reset">' +
-        drawRecurringItem(31, 'd', true) +
-        '    </ol>' +
-        '</div>' +
-        'Hours' +
-        '<div class="ui-dropslide ui-widget">' +
-        '    <ol id="olHoursAll" class="ui-widget ui-helper-clearfix ui-helper-reset">' +
-        '        <li id="liHoursAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li>' +
-        '    </ol>' +
-        '    <ol id="olHours" class="ui-widget ui-helper-clearfix ui-helper-reset">' +
-        drawRecurringItem(24, 'h', false) +
-        '    </ol>' +
-        '</div>' +
-        'Minutes' +
-        '<div class="ui-dropslide ui-widget">' +
-        '    <ol id="olMinutesAll" class="ui-widget ui-helper-clearfix ui-helper-reset">' +
-        '        <li id="liMinutesAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li>' +
-        '    </ol>' +
-        '    <ol id="olMinutes" class="ui-widget ui-helper-clearfix ui-helper-reset">' +
-        drawRecurringItem(60, 'm', false) +
-        '    </ol>' +
-        '</div>' +
-        '' +
-        '' +
-        '' +
-        '';
+	var output = 'Months' + '<div class="ui-dropslide ui-widget">' + '   <ol id="olMonthsAll" class="ui-widget ui-helper-clearfix ui-helper-reset">' + '       <li id="liMonthsAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li>' + '   </ol>' + '   <ol id="olMonths" class="ui-widget ui-helper-clearfix ui-helper-reset">' + '       <li id="mo_0" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Jan</span></li>' + '       <li id="mo_1" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Feb</span></li>' + '       <li id="mo_2" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Mar</span></li>' + '       <li id="mo_3" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Apr</span></li>' + '       <li id="mo_4" class="plan_datepoint"><span class="ui-state-default ui-corner-all">May</span></li>' + '       <li id="mo_5" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Jun</span></li>' + '       <li id="mo_6" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Jul</span></li>' + '       <li id="mo_7" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Aug</span></li>' + '       <li id="mo_8" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Sep</span></li>' + '       <li id="mo_9" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Oct</span></li>' + '       <li id="mo_10" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Nov</span></li>' + '       <li id="mo_11" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Dec</span></li>' + '   </ol>' + '</div>' + 'Days' + '<div class="ui-dropslide ui-widget">' + '    <ol id="olDaysType" class="ui-widget ui-helper-clearfix ui-helper-reset">' + '        <li id="liDaysAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li>' + '        <li style="width: 35px;" id="liDaysWeek" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Week</span></li>' + '        <li style="width: 35px;" id="liDates" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Days</span></li>' + '    </ol>' + '    <ol id="olWeek" class="ui-widget ui-helper-clearfix ui-helper-reset hidden">' + '        <li id="w_0" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Sun</span></li>' + '        <li id="w_1" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Mon</span></li>' + '        <li id="w_2" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Tue</span></li>' + '        <li id="w_3" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Wed</span></li>' + '        <li id="w_4" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Thu</span></li>' + '        <li id="w_5" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Fri</span></li>' + '        <li id="w_6" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Sat</span></li>' + '    </ol>' + '    <ol id="olDates" class="ui-widget ui-helper-clearfix ui-helper-reset">' + drawRecurringItem(31, 'd', true) + '    </ol>' + '</div>' + 'Hours' + '<div class="ui-dropslide ui-widget">' + '    <ol id="olHoursAll" class="ui-widget ui-helper-clearfix ui-helper-reset">' + '        <li id="liHoursAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li>' + '    </ol>' + '    <ol id="olHours" class="ui-widget ui-helper-clearfix ui-helper-reset">' + drawRecurringItem(24, 'h', false) + '    </ol>' + '</div>' + 'Minutes' + '<div class="ui-dropslide ui-widget">' + '    <ol id="olMinutesAll" class="ui-widget ui-helper-clearfix ui-helper-reset">' + '        <li id="liMinutesAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li>' + '    </ol>' + '    <ol id="olMinutes" class="ui-widget ui-helper-clearfix ui-helper-reset">' + drawRecurringItem(60, 'm', false) + '    </ol>' + '</div>' + '' + '' + '' + '';
 
-    return output;
+	return output;
 }

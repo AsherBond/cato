@@ -89,22 +89,14 @@ $(document).ready(function() {
 				if ($chk.is(':checked'))
 					make_default = 1;
 
-				$.ajax({
-					async : false,
-					type : "POST",
-					url : "taskMethods/wmApproveTask",
-					data : '{"sTaskID":"' + g_task_id + '","sMakeDefault":"' + make_default + '"}',
-					contentType : "application/json; charset=utf-8",
-					dataType : "text",
-					success : function(response) {
-						//now redirect (using replace so they can't go "back" to the editable version)
-						location.replace("taskView?task_id=" + g_task_id);
-					},
-					error : function(response) {
-						$("#update_success_msg").fadeOut(2000);
-						showAlert(response.responseText);
-					}
-				});
+				var response = ajaxPost("taskMethods/wmApproveTask", {
+					sTaskID : g_task_id,
+					sMakeDefault : make_default
+				}, "text");
+				if (response) {
+					//now redirect (using replace so they can't go "back" to the editable version)
+					location.replace("taskView?task_id=" + g_task_id);
+				}
 			},
 			Cancel : function() {
 				$(this).dialog("close");
@@ -218,80 +210,64 @@ $(document).ready(function() {
 });
 
 function doGetDetails() {
-	$.ajax({
-		type : "POST",
-		async : true,
-		url : "taskMethods/wmGetTask",
-		data : '{"sTaskID":"' + g_task_id + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(task) {
-			if (task.error) {
-				showAlert(task.error);
-				return;
-			}
-			try {
-				$("#hidOriginalTaskID").val(task.OriginalTaskID);
-				$("#txtTaskCode").val(task.Code);
-				$("#txtTaskName").val(task.Name);
-				$("#txtTaskName").data("original_name", task.Name);
-				$("#txtDescription").val(task.Description);
-				$("#txtConcurrentInstances").val(task.ConcurrentInstances);
-				$("#txtQueueDepth").val(task.QueueDepth);
-
-				//ATTENTION!
-				//Approved tasks CANNOT be edited.  So, if the status is approved... we redirect to the
-				//task 'view' page.
-				//this is to prevent any sort of attempts on the client to load an approved or otherwise 'locked'
-				// version into the edit page.
-				var pagename = window.location.pathname;
-				pagename = pagename.substring(pagename.lastIndexOf('/') + 1);
-				if (pagename != "taskView") {
-					if (task.Status == "Approved") {
-						location.href = "taskView?task_id=" + g_task_id;
-					}
-				}
-
-				$("#lblVersion").text(task.Version);
-				$("#lblCurrentVersion").text(task.Version);
-				$("#lblStatus2").text(task.Status);
-
-				$("#lblNewMinorVersion").text(task.NextMinorVersion);
-				$("#lblNewMajorVersion").text(task.NextMajorVersion);
-
-				/*
-				 * ok, this is important.
-				 * there are some rules for the process of 'Approving' a task.
-				 * specifically:
-				 * -- if there are no other approved tasks in this family, this one will become the default.
-				 * -- if there is another approved task in this family, we show the checkbox
-				 * -- allowing the user to decide whether or not to make this one the default
-				 */
-				if (task.NumberOfApprovedVersions > "0") {
-					$("#make_default_chk").show();
-					// you can't make a development version default if there is an approved version
-					$("#set_default_btn").hide();
-				} else {
-					$("#make_default_chk").hide();
-					if (task.IsDefaultVersion == "True") {
-						$("#set_default_btn").hide();
-					} else {
-						$("#set_default_btn").show();
-					}
-				}
-
-				//the header
-				$("#lblTaskNameHeader").text(task.Name);
-				$("#lblVersionHeader").text(task.Version + (task.IsDefaultVersion == "True" ? " (default)" : ""));
-
-			} catch (ex) {
-				showAlert(ex.message);
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var task = ajaxPost("taskMethods/wmGetTask", {
+		sTaskID : g_task_id
 	});
+	if (task) {
+		$("#hidOriginalTaskID").val(task.OriginalTaskID);
+		$("#txtTaskCode").val(task.Code);
+		$("#txtTaskName").val(task.Name);
+		$("#txtTaskName").data("original_name", task.Name);
+		$("#txtDescription").val(task.Description);
+		$("#txtConcurrentInstances").val(task.ConcurrentInstances);
+		$("#txtQueueDepth").val(task.QueueDepth);
+
+		//ATTENTION!
+		//Approved tasks CANNOT be edited.  So, if the status is approved... we redirect to the
+		//task 'view' page.
+		//this is to prevent any sort of attempts on the client to load an approved or otherwise 'locked'
+		// version into the edit page.
+		var pagename = window.location.pathname;
+		pagename = pagename.substring(pagename.lastIndexOf('/') + 1);
+		if (pagename != "taskView") {
+			if (task.Status == "Approved") {
+				location.href = "taskView?task_id=" + g_task_id;
+			}
+		}
+
+		$("#lblVersion").text(task.Version);
+		$("#lblCurrentVersion").text(task.Version);
+		$("#lblStatus2").text(task.Status);
+
+		$("#lblNewMinorVersion").text(task.NextMinorVersion);
+		$("#lblNewMajorVersion").text(task.NextMajorVersion);
+
+		/*
+		 * ok, this is important.
+		 * there are some rules for the process of 'Approving' a task.
+		 * specifically:
+		 * -- if there are no other approved tasks in this family, this one will become the default.
+		 * -- if there is another approved task in this family, we show the checkbox
+		 * -- allowing the user to decide whether or not to make this one the default
+		 */
+		if (task.NumberOfApprovedVersions > "0") {
+			$("#make_default_chk").show();
+			// you can't make a development version default if there is an approved version
+			$("#set_default_btn").hide();
+		} else {
+			$("#make_default_chk").hide();
+			if (task.IsDefaultVersion == "True") {
+				$("#set_default_btn").hide();
+			} else {
+				$("#set_default_btn").show();
+			}
+		}
+
+		//the header
+		$("#lblTaskNameHeader").text(task.Name);
+		$("#lblVersionHeader").text(task.Version + (task.IsDefaultVersion == "True" ? " (default)" : ""));
+
+	}
 }
 
 function doGetCommands() {
@@ -321,11 +297,12 @@ function doGetCommands() {
 			$("#" + $(this).attr("id") + "_functions").removeClass("hidden");
 		});
 	});
-	$("#div_commands #category_functions").load("uiMethods/wmGetFunctions", function() {
+	ajaxGet("uiMethods/wmGetFunctions", function(response) {
+		$("#div_commands #category_functions").html(response);
 		//init the draggable items (commands and the clipboard)
 		//this will also be called when items are added/removed from the clipboard.
 		initDraggable();
-	});
+	}, "html");
 }
 
 function doGetSteps() {
@@ -333,32 +310,18 @@ function doGetSteps() {
 	//for now, we're gonna try keeping the codeblock in a hidden field
 	var codeblock_name = $("#hidCodeblockName").val();
 
-	$.ajax({
-		type : "POST",
-		async : true,
-		url : "taskMethods/wmGetSteps",
-		data : '{"sTaskID":"' + g_task_id + '","sCodeblockName":"' + codeblock_name + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "html",
-		success : function(response) {
-			try {
-				//the result is an html snippet
-				//we have to redo the sortable for the new content
-				$("#steps").empty();
-				$("#steps").sortable("destroy");
-				$("#steps").append(response);
-				initSortable();
-				validateStep();
-				$("#codeblock_steps_title").text(codeblock_name);
-			} catch (ex) {
-				showAlert(ex.message);
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
-
+	ajaxPostAsync("taskMethods/wmGetSteps", {
+		sTaskID : g_task_id,
+		sCodeblockName : codeblock_name
+	}, function(response) {//the result is an html snippet
+		//we have to redo the sortable for the new content
+		$("#steps").empty();
+		$("#steps").sortable("destroy");
+		$("#steps").append(response);
+		initSortable();
+		validateStep();
+		$("#codeblock_steps_title").text(codeblock_name);
+	}, "html");
 }
 
 function doDetailFieldUpdate(ctl) {
@@ -382,41 +345,17 @@ function doDetailFieldUpdate(ctl) {
 
 	if (column.length > 0) {
 		$("#update_success_msg").text("Updating...").show();
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "taskMethods/wmUpdateTaskDetail",
-			data : '{"sTaskID":"' + g_task_id + '","sColumn":"' + column + '","sValue":"' + value + '"}',
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(response) {
-				try {
-					if (response.error) {
-						showAlert(response.error);
-					}
-					if (response.info) {
-						showInfo(response.info);
-					}
-					if (response.result) {
-						if (response.result == "success") {
-							$("#update_success_msg").text("Update Successful").fadeOut(2000);
-							// bugzilla 1037 Change the name in the header
-							if (column == "task_name") {
-								$("#lblTaskNameHeader").html(unpackJSON(value));
-							};
-						} else {
-							$("#update_success_msg").text("Update Failed").fadeOut(2000);
-							showInfo(response);
-						}
-					}
-				} catch (ex) {
-					showAlert(ex.message);
-				}
-			},
-			error : function(response) {
-				$("#update_success_msg").fadeOut(2000);
-				showAlert(response.responseText);
-			}
+
+		var response = ajaxPostAsync("taskMethods/wmUpdateTaskDetail", {
+			sTaskID : g_task_id,
+			sColumn : column,
+			sValue : value
+		}, function(response) {
+			$("#update_success_msg").text("Update Successful").fadeOut(2000);
+			// bugzilla 1037 Change the name in the header
+			if (column == "task_name") {
+				$("#lblTaskNameHeader").html(unpackJSON(value));
+			};
 		});
 	}
 }
@@ -431,52 +370,38 @@ function doEmbeddedStepAdd(func, droptarget) {
 	var drop_step_id = $("#" + droptarget).attr("step_id");
 	var drop_xpath = $("#" + droptarget).attr("xpath");
 
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "taskMethods/wmAddEmbeddedCommandToStep",
-		data : '{"sTaskID":"' + g_task_id + '","sStepID":"' + drop_step_id + '","sDropXPath":"' + drop_xpath + '","sItem":"' + item + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "html",
-		success : function(response) {
-			$("#" + droptarget).replaceWith(response);
+	var response = ajaxPost("taskMethods/wmAddEmbeddedCommandToStep", {
+		sTaskID : g_task_id,
+		sStepID : drop_step_id,
+		sDropXPath : drop_xpath,
+		sItem : item
+	}, "html");
+	if (response) {
+		$("#" + droptarget).replaceWith(response);
 
-			//you have to add the embedded command NOW, or click cancel.
-			// if (item == "fn_if" || item == "fn_loop" || item == "fn_exists" || item == "fn_while") {
-			// doDropZoneEnable($("#" + droptarget + " .step_nested_drop_target"));
-			// }
-			$("#task_steps").unblock();
-			$("#update_success_msg").fadeOut(2000);
-		},
-		error : function(response) {
-			$("#update_success_msg").fadeOut(2000);
-			showAlert(response.responseText);
-		}
-	});
+		//you have to add the embedded command NOW, or click cancel.
+		// if (item == "fn_if" || item == "fn_loop" || item == "fn_exists" || item == "fn_while") {
+		// doDropZoneEnable($("#" + droptarget + " .step_nested_drop_target"));
+		// }
+		$("#task_steps").unblock();
+		$("#update_success_msg").fadeOut(2000);
+	}
 }
 
 function getStep(step_id, target, init) {
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "taskMethods/wmGetStep",
-		data : '{"sStepID":"' + step_id + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "html",
-		success : function(retval) {
-			$("#" + target).replaceWith(retval);
+	var response = ajaxPost("taskMethods/wmGetStep", {
+		sStepID : step_id
+	}, "html");
+	if (response) {
+		$("#" + target).replaceWith(response);
 
-			if (init)
-				initSortable();
+		if (init)
+			initSortable();
 
-			validateStep(step_id);
+		validateStep(step_id);
 
-			$("#task_steps").unblock();
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+		$("#task_steps").unblock();
+	}
 }
 
 function doDropZoneEnable($ctl) {
@@ -530,45 +455,22 @@ function doDropZoneDisable(id) {
 }
 
 function doClearClipboard(id) {
-	$("#update_success_msg").text("Removing...").show();
-	$.ajax({
-		async : false,
-		type : "POST",
-		url : "taskMethods/wmRemoveFromClipboard",
-		data : '{"sStepID":"' + id + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			// we can just whack it from the dom
-			if (id == "ALL")
-				$("#clipboard").empty();
-			else
-				$("#clipboard #clip_" + id).remove();
-
-			$("#update_success_msg").text("Remove Successful").fadeOut(2000);
-		},
-		error : function(response) {
-			$("#update_success_msg").fadeOut(2000);
-			showAlert(response.responseText);
-		}
+	ajaxPostAsync("taskMethods/wmRemoveFromClipboard", {
+		sStepID : id
 	});
+	// we can just whack it from the dom
+	if (id == "ALL")
+		$("#clipboard").empty();
+	else
+		$("#clipboard #clip_" + id).remove();
 }
 
 function doGetClips() {
-	$.ajax({
-		async : false,
-		type : "GET",
-		url : "taskMethods/wmGetClips",
-		contentType : "application/json; charset=utf-8",
-		dataType : "html",
-		success : function(response) {
-			$("#clipboard").html(response);
-			initDraggable();
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+	ajaxPostAsync("taskMethods/wmGetClips", {}, function(response) {
+		$("#clipboard").html(response);
+		initDraggable();
+	}, "html");
+
 }
 
 function initDraggable() {

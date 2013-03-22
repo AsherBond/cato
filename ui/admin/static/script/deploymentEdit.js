@@ -42,27 +42,13 @@ function GetDetails() {
 	args = {}
 	args.id = g_id;
 
-	$.ajax({
-		type : "POST",
-		async : true,
-		url : "depMethods/wmGetDeployment",
-		data : JSON.stringify(args),
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(deployment) {
-			try {
-				$("#txtDeploymentName").val(deployment.Name);
-				$("#txtCurrentStatus").val(deployment.Status);
-				$("#lblDeploymentHeader").html(deployment.Name);
-				$("#txtDescription").val(deployment.Description);
-			} catch (ex) {
-				showAlert(ex.message);
-			}
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
+	var deployment = ajaxPost("depMethods/wmGetDeployment", args);
+	if (deployment) {
+		$("#txtDeploymentName").val(deployment.Name);
+		$("#txtCurrentStatus").val(deployment.Status);
+		$("#lblDeploymentHeader").html(deployment.Name);
+		$("#txtDescription").val(deployment.Description);
+	}
 }
 
 function tabWasClicked(tab) {
@@ -120,34 +106,15 @@ function doDetailFieldUpdate(ctl) {
 		args.column = column;
 		args.value = value;
 
-		$.ajax({
-			async : false,
-			type : "POST",
-			url : "depMethods/wmUpdateDeploymentDetail",
-			data : JSON.stringify(args),
-			contentType : "application/json; charset=utf-8",
-			dataType : "json",
-			success : function(response) {
-				if (response.error) {
-					showAlert(response.error);
-				} else if (response.info) {
-					showInfo(response.info);
-				} else if (response.result == "success") {
-					$("#update_success_msg").text("Update Successful").fadeOut(2000);
+		var response = ajaxPost("depMethods/wmUpdateDeploymentDetail", args);
+		if (response) {
+			$("#update_success_msg").text("Update Successful").fadeOut(2000);
 
-					// Change the name in the header
-					if (column == "Name") {
-						$("#lblDeploymentHeader").html(unpackJSON(value));
-					};
-				} else {
-					showInfo(response);
-				}
-			},
-			error : function(response) {
-				$("#update_success_msg").fadeOut(2000);
-				showAlert(response.responseText);
-			}
-		});
+			// Change the name in the header
+			if (column == "Name") {
+				$("#lblDeploymentHeader").html(unpackJSON(value));
+			};
+		}
 	}
 }
 
