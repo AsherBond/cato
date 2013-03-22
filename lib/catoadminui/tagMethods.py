@@ -138,9 +138,6 @@ class tagMethods:
                 " order by tag_name"
 
         dt = self.db.select_all_dict(sSQL)
-        if self.db.error:
-            return self.db.error
-
         if dt:                
             sHTML += "<ul>"
             for dr in dt:

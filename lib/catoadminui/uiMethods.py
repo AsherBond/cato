@@ -323,8 +323,6 @@ class uiMethods:
             
         sLog = ""
         rows = self.db.select_all_dict(sSQL)
-        if self.db.error:
-            return "{ \"error\" : \"Unable to get log. %s\" }" % (self.db.error)
         if rows:
             i = 1
             sb = []
@@ -346,10 +344,7 @@ class uiMethods:
         return "{ \"log\" : [ %s ] }" % (sLog)
 
     def wmGetDatabaseTime(self):
-        sNow = self.db.select_col_noexcep("select now()")
-        if self.db.error:
-            return self.db.error
-        
+        sNow = self.db.select_col("select now()")
         if sNow:
             return str(sNow)
         else:
@@ -366,32 +361,29 @@ class uiMethods:
                 where ap.task_id = %s 
                 order by ap.run_on_dt"""
             dt = self.db.select_all_dict(sSQL, (sTaskID))
-            if self.db.error:
-                uiCommon.log_nouser(self.db.error, 0)
-            else:
-                if dt:
-                    for dr in dt:
-                        sHTML += '''<div class="ui-widget-content ui-corner-all pointer clearfloat action_plan"
-                            id="ap_%s" plan_id="%s" run_on="%s" source="%s"
-                            schedule_id="%s">''' % (str(dr["plan_id"]), str(dr["plan_id"]), str(dr["run_on_dt"]), dr["source"], str(dr["schedule_id"]))
-                        sHTML += " <div class=\"floatleft action_plan_name\">"
-    
-                        # an icon denotes if it's manual or scheduled
-                        if dr["source"] == "schedule":
-                            sHTML += "<span class=\"floatleft ui-icon ui-icon-calculator\" title=\"Scheduled\"></span>"
-                        else:
-                            sHTML += "<span class=\"floatleft ui-icon ui-icon-document\" title=\"Run Later\"></span>"
-    
-                        sHTML += dr["run_on_dt"]
-    
-                        sHTML += " </div>"
-    
-                        sHTML += " <div class=\"floatright\">"
-                        sHTML += "<span class=\"ui-icon ui-icon-trash action_plan_remove_btn\" title=\"Delete Plan\"></span>"
-                        sHTML += " </div>"
-    
-    
-                        sHTML += " </div>"
+            if dt:
+                for dr in dt:
+                    sHTML += '''<div class="ui-widget-content ui-corner-all pointer clearfloat action_plan"
+                        id="ap_%s" plan_id="%s" run_on="%s" source="%s"
+                        schedule_id="%s">''' % (str(dr["plan_id"]), str(dr["plan_id"]), str(dr["run_on_dt"]), dr["source"], str(dr["schedule_id"]))
+                    sHTML += " <div class=\"floatleft action_plan_name\">"
+
+                    # an icon denotes if it's manual or scheduled
+                    if dr["source"] == "schedule":
+                        sHTML += "<span class=\"floatleft ui-icon ui-icon-calculator\" title=\"Scheduled\"></span>"
+                    else:
+                        sHTML += "<span class=\"floatleft ui-icon ui-icon-document\" title=\"Run Later\"></span>"
+
+                    sHTML += dr["run_on_dt"]
+
+                    sHTML += " </div>"
+
+                    sHTML += " <div class=\"floatright\">"
+                    sHTML += "<span class=\"ui-icon ui-icon-trash action_plan_remove_btn\" title=\"Delete Plan\"></span>"
+                    sHTML += " </div>"
+
+
+                    sHTML += " </div>"
 
             return sHTML
 
@@ -444,9 +436,6 @@ class uiMethods:
             " from action_schedule" \
             " where schedule_id = '" + sScheduleID + "'"
         dt = self.db.select_all_dict(sSQL)
-        if self.db.error:
-            uiCommon.log_nouser(self.db.error, 0)
-
         if dt:
             for dr in dt:
                 sMo = dr["months"]
@@ -477,12 +466,10 @@ class uiMethods:
             return "Missing Schedule ID."
 
         sSQL = "delete from action_plan where schedule_id = '" + sScheduleID + "'"
-        if not self.db.exec_db_noexcep(sSQL):
-            uiCommon.log_nouser(self.db.error, 0)
+        self.db.exec_db(sSQL)
 
         sSQL = "delete from action_schedule where schedule_id = '" + sScheduleID + "'"
-        if not self.db.exec_db_noexcep(sSQL):
-            uiCommon.log_nouser(self.db.error, 0)
+        self.db.exec_db(sSQL)
 
         #  if we made it here, so save the logs
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Schedule, "", "", "Schedule [" + sScheduleID + "] deleted.")
@@ -498,8 +485,7 @@ class uiMethods:
 
         sSQL = "delete from action_plan where plan_id = " + iPlanID
 
-        if not self.db.exec_db_noexcep(sSQL):
-            uiCommon.log_nouser(self.db.error, 0)
+        self.db.exec_db(sSQL)
 
         #  if we made it here, so save the logs
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Schedule, "", "", "Action Plan [" + iPlanID + "] deleted.")
@@ -644,8 +630,7 @@ class uiMethods:
 
         # whack all plans for this schedule, it's been changed
         sSQL = "delete from action_plan where schedule_id = '" + sScheduleID + "'"
-        if not self.db.exec_db_noexcep(sSQL):
-            uiCommon.log_nouser(self.db.error, 0)
+        self.db.exec_db(sSQL)
 
 
         # figure out a label
@@ -738,9 +723,7 @@ class uiMethods:
                     if result:
                         encpw = catocommon.cato_encrypt(newpw)
                         sql = "insert user_password_history (user_id, change_time, password) values ('%s', now(), '%s')" % (user_id, encpw)
-                        if not self.db.exec_db_noexcep(sql):
-                            uiCommon.log_nouser(self.db.error, 0)
-                            return self.db.error
+                        self.db.exec_db(sql)
 
                         sql_bits.append("user_password = '%s'" % encpw)
                     else:
@@ -749,9 +732,7 @@ class uiMethods:
 
         sql = "update users set %s where user_id = '%s'" % (",".join(sql_bits), user_id)
 
-        if not self.db.exec_db_noexcep(sql):
-            uiCommon.log_nouser(self.db.error, 0)
-            return self.db.error
+        self.db.exec_db(sql)
 
         uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, user_id, user_id, "My Account settings updated.")
             

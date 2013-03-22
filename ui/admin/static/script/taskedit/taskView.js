@@ -88,10 +88,10 @@ $(document).ready(function() {
 });
 
 function doGetViewDetails() {
-	var response = ajaxPost("taskMethods/wmGetTask", {
+	var task = ajaxPost("taskMethods/wmGetTask", {
 		sTaskID : g_task_id
 	});
-	if (response) {
+	if (task) {
 		$("#hidOriginalTaskID").val(task.OriginalTaskID);
 		$("#lblTaskCode").text(task.Code);
 		$("#lblDescription").text(task.Description);

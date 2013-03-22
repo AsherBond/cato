@@ -200,8 +200,8 @@ function doCodeblockUpdate(old_name) {
 		sTaskID : g_task_id,
 		sOldCodeblockName : old_name,
 		sNewCodeblockName : sNewCodeblockName
-	}, "text");
-	if (response.length == 0) {
+	});
+	if (response) {
 		$("#codeblock_edit_dialog").dialog("close");
 
 		//if we are looking at the codeblock we are changing... gotta reset the hidden field
@@ -214,10 +214,8 @@ function doCodeblockUpdate(old_name) {
 		doGetCodeblocks();
 
 		$("#update_success_msg").text("Update Successful").fadeOut(2000);
-	} else {
-		showInfo(response);
 	}
-
+	
 	// since we are reloading the codeblock list, remove the delete button again for the MAIN codeblock
 	$("#codeblock_delete_btn_MAIN").remove();
 	$("#codeblock_rename_btn_MAIN").remove();

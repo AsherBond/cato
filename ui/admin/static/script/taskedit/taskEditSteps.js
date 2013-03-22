@@ -150,7 +150,7 @@ $(document).ready(function() {
 		}
 
 		ajaxPostAsync("taskMethods/wmToggleStepSkip", {
-			sStepID : stp,
+			sStepID : step_id,
 			sSkip : skip
 		}, function(msg) {
 			$("#update_success_msg").text("Update Successful").fadeOut(2000);

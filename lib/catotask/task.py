@@ -456,22 +456,18 @@ class Task(object):
         db = catocommon.new_conn()
         
         sSQL = "select original_task_id from task where task_id = '%s'" % task_id
-        otid = db.select_col_noexcep(sSQL)
-        if db.error:
-            raise Exception("Unable to get original task ID for [%s] %s" % (task_id, db.error))
+        otid = db.select_col(sSQL)
         
         sSQL = "update task set default_version = 0 where original_task_id = '%s'" % otid
-        if not db.tran_exec_noexcep(sSQL):
-            return False, db.error
+        db.tran_exec(sSQL)
         
         sSQL = """update task set default_version = 1 where task_id = '%s'""" % task_id
-        if not db.tran_exec_noexcep(sSQL):
-            return False, db.error
+        db.tran_exec(sSQL)
 
         db.tran_commit()
         db.close()
 
-        return True, ""
+        return True
         
     def DBSave(self, db=None):
         # if a db connection is passed, use it, else create one
@@ -516,14 +512,11 @@ class Task(object):
                     sSQL = "delete from task_step_user_settings" \
                         " where step_id in" \
                         " (select step_id from task_step where task_id = '" + self.ID + "')"
-                    if not db.tran_exec_noexcep(sSQL):
-                        return False, db.error
+                    db.tran_exec(sSQL)
                     sSQL = "delete from task_step where task_id = '" + self.ID + "'"
-                    if not db.tran_exec_noexcep(sSQL):
-                        return False, db.error
+                    db.tran_exec(sSQL)
                     sSQL = "delete from task_codeblock where task_id = '" + self.ID + "'"
-                    if not db.tran_exec_noexcep(sSQL):
-                        return False, db.error
+                    db.tran_exec(sSQL)
                     
                     # update the task row
                     sSQL = "update task set" \
@@ -536,8 +529,7 @@ class Task(object):
                         " created_dt = now()," \
                         " parameter_xml = " + parameter_clause + \
                         " where task_id = '" + self.ID + "'"
-                    if not db.tran_exec_noexcep(sSQL):
-                        return False, db.error
+                    db.tran_exec(sSQL)
                 elif self.OnConflict == "minor":   
                     self.IncrementMinorVersion()
                     self.DBExists = False
@@ -558,8 +550,7 @@ class Task(object):
                         " '" + self.Status + "'," + \
                         parameter_clause + "," \
                         " now())"
-                    if not db.tran_exec_noexcep(sSQL):
-                        return False, db.error
+                    db.tran_exec(sSQL)
                 elif self.OnConflict == "major":
                     self.IncrementMajorVersion()
                     self.DBExists = False
@@ -580,8 +571,7 @@ class Task(object):
                         " '" + self.Status + "'," + \
                         parameter_clause + "," \
                         " now())"
-                    if not db.tran_exec_noexcep(sSQL):
-                        return False, db.error
+                    db.tran_exec(sSQL)
                 else:
                     # there is no default action... if the on_conflict didn't match we have a problem... bail.
                     return False, "There is an ID or Name/Version conflict, and the on_conflict directive isn't a valid option. (replace/major/minor/cancel)"
@@ -600,16 +590,14 @@ class Task(object):
                 " '" + self.Status + "'," \
                 + parameter_clause + "," \
                 " now())"
-            if not db.tran_exec_noexcep(sSQL):
-                return False, db.error
+            db.tran_exec(sSQL)
 
         # by the time we get here, there should for sure be a task row, either new or updated.                
         # now, codeblocks
         for c in self.Codeblocks.itervalues():
             sSQL = "insert task_codeblock (task_id, codeblock_name)" \
                 " values ('" + self.ID + "', '" + c.Name + "')"
-            if not db.tran_exec_noexcep(sSQL):
-                return False, db.error
+            db.tran_exec(sSQL)
 
             # and steps
             if c.Steps:
@@ -627,8 +615,7 @@ class Task(object):
                         "'" + s.FunctionName + "'," \
                         "'" + catocommon.tick_slash(ET.tostring(s.FunctionXDoc)) + "'" \
                         ")"
-                    if not db.tran_exec_noexcep(sSQL):
-                        return False, db.error
+                    db.tran_exec(sSQL)
                     order += 1
 
         if bLocalTransaction:
@@ -660,8 +647,6 @@ class Task(object):
             # figure out the new name and selected version
             sSQL = "select count(*) from task where task_name = '" + sNewTaskName + "'"
             iExists = db.select_col_noexcep(sSQL)
-            if db.error:
-                raise Exception("Unable to check name conflicts for  [" + sNewTaskName + "]." + db.error)
             sTaskName = (sNewTaskName + " (" + str(datetime.now()) + ")" if iExists > 0 else sNewTaskName)
 
             iIsDefault = 1
@@ -689,22 +674,17 @@ class Task(object):
         # string sTaskName = (iExists > 0 ? sNewTaskName + " (" + DateTime.Now + ")" : sNewTaskName);
         # drop the temp tables.
         sSQL = "drop temporary table if exists _copy_task"
-        if not db.tran_exec_noexcep(sSQL):
-            raise Exception(db.error)
+        db.tran_exec(sSQL)
         sSQL = "drop temporary table if exists _step_ids"
-        if not db.tran_exec_noexcep(sSQL):
-            raise Exception(db.error)
+        db.tran_exec(sSQL)
         sSQL = "drop temporary table if exists _copy_task_codeblock"
-        if not db.tran_exec_noexcep(sSQL):
-            raise Exception(db.error)
+        db.tran_exec(sSQL)
         sSQL = "drop temporary table if exists _copy_task_step"
-        if not db.tran_exec_noexcep(sSQL):
-            raise Exception(db.error)
+        db.tran_exec(sSQL)
 
         # start copying
         sSQL = "create temporary table _copy_task select * from task where task_id = '" + self.ID + "'"
-        if not db.tran_exec_noexcep(sSQL):
-            raise Exception(db.error)
+        db.tran_exec(sSQL)
 
         # update the task_id
         sSQL = "update _copy_task set" \
@@ -716,50 +696,42 @@ class Task(object):
             " default_version = " + str(iIsDefault) + "," \
             " task_status = 'Development'," \
             " created_dt = now()"
-        if not db.tran_exec_noexcep(sSQL):
-            raise Exception(db.error)
+        db.tran_exec(sSQL)
 
         # codeblocks
         sSQL = "create temporary table _copy_task_codeblock" \
             " select '" + sNewTaskID + "' as task_id, codeblock_name" \
             " from task_codeblock where task_id = '" + self.ID + "'"
-        if not db.tran_exec_noexcep(sSQL):
-            raise Exception(db.error)
+        db.tran_exec(sSQL)
 
         # USING TEMPORARY TABLES... need a place to hold step ids while we manipulate them
         sSQL = "create temporary table _step_ids" \
             " select distinct step_id, uuid() as newstep_id" \
             " from task_step where task_id = '" + self.ID + "'"
-        if not db.tran_exec_noexcep(sSQL):
-            raise Exception(db.error)
+        db.tran_exec(sSQL)
 
         # steps temp table
         sSQL = "create temporary table _copy_task_step" \
             " select step_id, '" + sNewTaskID + "' as task_id, codeblock_name, step_order, commented," \
             " locked, function_name, function_xml, step_desc" \
             " from task_step where task_id = '" + self.ID + "'"
-        if not db.tran_exec_noexcep(sSQL):
-            raise Exception(db.error)
+        db.tran_exec(sSQL)
 
         # update the step id
         sSQL = "update _copy_task_step a, _step_ids b" \
             " set a.step_id = b.newstep_id" \
             " where a.step_id = b.step_id"
-        if not db.tran_exec_noexcep(sSQL):
-            raise Exception(db.error)
+        db.tran_exec(sSQL)
 
         # update steps with codeblocks that reference a step (embedded steps)
         sSQL = "update _copy_task_step a, _step_ids b" \
             " set a.codeblock_name = b.newstep_id" \
             " where b.step_id = a.codeblock_name"
-        if not db.tran_exec_noexcep(sSQL):
-            raise Exception(db.error)
+        db.tran_exec(sSQL)
 
         # spin the steps and update any embedded step id's in the commands
         sSQL = "select step_id, newstep_id from _step_ids"
         dtStepIDs = db.select_all_dict(sSQL)
-        if db.error:
-            raise Exception("Unable to get step ids." + db.error)
 
         if dtStepIDs:
             for drStepIDs in dtStepIDs:
@@ -768,31 +740,26 @@ class Task(object):
                     " '" + drStepIDs["step_id"].lower() + "'," \
                     " '" + drStepIDs["newstep_id"] + "')" \
                     " where function_name in ('if','loop','exists','while')"
-                if not db.tran_exec_noexcep(sSQL):
-                    raise Exception(db.error)
+                db.tran_exec(sSQL)
 
         # finally, put the temp steps table in the real steps table
         sSQL = "insert into task select * from _copy_task"
-        if not db.tran_exec_noexcep(sSQL):
-            raise Exception(db.error)
+        db.tran_exec(sSQL)
         sSQL = "insert into task_codeblock select * from _copy_task_codeblock"
-        if not db.tran_exec_noexcep(sSQL):
-            raise Exception(db.error)
+        db.tran_exec(sSQL)
         sSQL = "insert into task_step" \
             " (step_id, task_id, codeblock_name, step_order, commented," \
             " locked, function_name, function_xml, step_desc)" \
             " select step_id, task_id, codeblock_name, step_order, commented," \
             " locked, function_name, function_xml, step_desc" \
             " from _copy_task_step"
-        if not db.tran_exec_noexcep(sSQL):
-            raise Exception(db.error)
+        db.tran_exec(sSQL)
 
         # finally, if we versioned up and we set this one as the new default_version,
         # we need to unset the other row
         if iMode > 0 and iIsDefault == 1:
             sSQL = "update task set default_version = 0 where original_task_id = '" + sOTID + "' and task_id <> '" + sNewTaskID + "'"
-            if not db.tran_exec_noexcep(sSQL):
-                raise Exception(db.error)
+            db.tran_exec(sSQL)
 
         db.tran_commit()
         db.close()
@@ -832,20 +799,15 @@ class Task(object):
                 where original_task_id = '%s'
                 and task_status = 'Approved'""" % self.OriginalTaskID
             iCount = db.select_col_noexcep(sSQL)
-            if db.error:
-                return "Error counting Approved versions:" + db.error
             self.NumberOfApprovedVersions = iCount
 
             sSQL = "select count(*) from task where original_task_id = '%s'" % self.OriginalTaskID
             iCount = db.select_col_noexcep(sSQL)
-            if db.error:
-                return "Error counting Approved versions:" + db.error
             self.NumberOfOtherVersions = iCount
 
             sSQL = "select max(version) from task where original_task_id = '%s'" % self.OriginalTaskID
             sMax = db.select_col_noexcep(sSQL)
-            if db.error:
-                return "Error getting max version:" + db.error
+            
             self.MaxVersion = sMax
             self.NextMinorVersion = str(float(self.MaxVersion) + .001)
             self.NextMajorVersion = str(int(float(self.MaxVersion) + 1)) + ".000"
@@ -866,8 +828,7 @@ class Task(object):
                 # since all tasks require a MAIN codeblock... if it's missing,
                 # we can just repair it right here.
                 sSQL = "insert task_codeblock (task_id, codeblock_name) values ('%s', 'MAIN')" % self.ID
-                if not db.exec_db_noexcep(sSQL):
-                    raise Exception(db.error)
+                db.exec_db(sSQL)
                 self.Codeblocks["MAIN"] = Codeblock("MAIN")
 
 
@@ -1185,8 +1146,6 @@ class TaskRunLog(object):
             order by id"""
 
         self.summary_rows = db.select_all_dict(sSQL, (sTaskInstance))
-        if db.error:
-            logger.error(db.error)
 
         # NOW carry on with the regular rows
         sSQL = """select til.task_instance, til.entered_dt, til.connection_name, til.log,
@@ -1218,7 +1177,6 @@ class TaskInstance(object):
     Error = None
     def __init__(self, sTaskInstance, sTaskID="", sAssetID=""):
         self.Instance = sTaskInstance
-        
         db = catocommon.new_conn()
         # we could define a whole model here, but it's not necessary... all we want is the data
         # since this won't be acted on as an object.
@@ -1239,8 +1197,7 @@ class TaskInstance(object):
         try:
             int(sTaskInstance)
         except:
-            self.Error = "Task Instance must be an integer. [%s]." % (sTaskInstance)
-            return
+            raise Exception("Task Instance must be an integer. [%s]." % (sTaskInstance))
         
         # all good... continue...
         self.task_instance = sTaskInstance
@@ -1358,17 +1315,13 @@ class TaskInstance(object):
             sSQL = """update task_instance set task_status = 'Aborting'
                 where task_instance = '%s'
                 and task_status in ('Processing')""" % self.Instance
-
-            if not db.exec_db_noexcep(sSQL):
-                raise Exception("Unable to stop task instance [%s]. %s" % (self.Instance, db.error))
+            db.exec_db(sSQL)
 
             sSQL = """update task_instance set task_status = 'Cancelled'
                 where task_instance = '%s'
                 and task_status in ('Submitted','Queued','Staged')""" % self.Instance
-
-            if not db.exec_db_noexcep(sSQL):
-                raise Exception("Unable to stop task instance [%s]. %s" % (self.Instance, db.error))
-
+            db.exec_db(sSQL)
+            
             return ""
         else:
             raise Exception("Unable to stop task. Missing or invalid task_instance.")
@@ -1391,8 +1344,7 @@ class TaskInstance(object):
                 task_status = 'Submitted',
                 submitted_by = %s
                 where task_instance = %s"""
-            if not db.exec_db_noexcep(sSQL, (user_id, self.Instance)):
-                raise Exception("Unable to restart task instance [%s]. %s" % (self.Instance, db.error))
+            db.exec_db(sSQL, (user_id, self.Instance))
 
             return True, ""
         else:
