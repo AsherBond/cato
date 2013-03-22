@@ -84,41 +84,34 @@ $(document).ready(function() {
 function GetItems(page) {
 	if (!page)
 		page = "1"
-	$.ajax({
-		type : "POST",
-		async : true,
-		url : "taskMethods/wmGetTasksTable",
-		data : '{"sSearch":"' + $("#txtSearch").val() + '", "sPage":"' + page + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			pager = unpackJSON(response.pager);
-			html = unpackJSON(response.rows);
-
-			$("#pager").html(pager);
-			$("#pager .pager_button").click(function() {
-				GetItems($(this).text());
-			});
-
-			$("#tasks").html(html);
-			//gotta restripe the table
-			initJtable(true, true);
-
-			//what happens when you click a row?
-			$(".selectable").click(function() {
-				showPleaseWait();
-				if ($(this).parent().attr("status") == "Approved") {
-					location.href = '/taskView?task_id=' + $(this).parent().attr("task_id");
-				} else {
-					location.href = '/taskEdit?task_id=' + $(this).parent().attr("task_id");
-				}
-			});
-
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("taskMethods/wmGetTasksTable", {
+		sSearch : $("#txtSearch").val(),
+		sPage : page
 	});
+	if (response) {
+		pager = unpackJSON(response.pager);
+		html = unpackJSON(response.rows);
+
+		$("#pager").html(pager);
+		$("#pager .pager_button").click(function() {
+			GetItems($(this).text());
+		});
+
+		$("#tasks").html(html);
+		//gotta restripe the table
+		initJtable(true, true);
+
+		//what happens when you click a row?
+		$(".selectable").click(function() {
+			showPleaseWait();
+			if ($(this).parent().attr("status") == "Approved") {
+				location.href = '/taskView?task_id=' + $(this).parent().attr("task_id");
+			} else {
+				location.href = '/taskEdit?task_id=' + $(this).parent().attr("task_id");
+			}
+		});
+
+	}
 }
 
 function ShowItemAdd() {

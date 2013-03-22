@@ -216,44 +216,37 @@ function TestConnection() {
 function GetItems(page) {
 	if (!page)
 		page = "1"
-	$.ajax({
-		type : "POST",
-		async : false,
-		url : "cloudMethods/wmGetCloudAccountsTable",
-		data : '{"sSearch":"' + $("#txtSearch").val() + '", "sPage":"' + page + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			pager = unpackJSON(response.pager);
-			html = unpackJSON(response.rows);
-
-			$("#pager").html(pager);
-			$("#pager .pager_button").click(function() {
-				GetItems($(this).text());
-			});
-
-			$("#accounts").html(html);
-
-			//gotta restripe the table
-			initJtable(true, true);
-
-			$(".account_help_btn").tipTip({
-				defaultPosition : "right",
-				keepAlive : false,
-				activation : "hover",
-				maxWidth : "400px",
-				fadeIn : 100
-			});
-
-			$("#accounts .selectable").click(function() {
-				LoadEditDialog($(this).parent().attr("account_id"));
-			});
-
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("cloudMethods/wmGetCloudAccountsTable", {
+		sSearch : $("#txtSearch").val(),
+		sPage : page
 	});
+	if (response) {
+		pager = unpackJSON(response.pager);
+		html = unpackJSON(response.rows);
+
+		$("#pager").html(pager);
+		$("#pager .pager_button").click(function() {
+			GetItems($(this).text());
+		});
+
+		$("#accounts").html(html);
+
+		//gotta restripe the table
+		initJtable(true, true);
+
+		$(".account_help_btn").tipTip({
+			defaultPosition : "right",
+			keepAlive : false,
+			activation : "hover",
+			maxWidth : "400px",
+			fadeIn : 100
+		});
+
+		$("#accounts .selectable").click(function() {
+			LoadEditDialog($(this).parent().attr("account_id"));
+		});
+
+	}
 }
 
 function setLabels() {
@@ -418,9 +411,8 @@ function SaveItem(close_after_save) {
 	} else {
 		$("#edit_dialog").dialog("close");
 	}
-}
 
-return bSaved;
+	return bSaved;
 }
 
 function ShowItemAdd() {

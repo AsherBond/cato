@@ -70,37 +70,30 @@ $(document).ready(function() {
 function GetItems(page) {
 	if (!page)
 		page = "1"
-	$.ajax({
-		type : "POST",
-		async : true,
-		url : "depMethods/wmGetDeploymentsTable",
-		data : '{"sSearch":"' + $("#txtSearch").val() + '", "sPage":"' + page + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			pager = unpackJSON(response.pager);
-			html = unpackJSON(response.rows);
-
-			$("#pager").html(pager);
-			$("#pager .pager_button").click(function() {
-				GetItems($(this).text());
-			});
-
-			$("#deployments").html(html);
-			//gotta restripe the table
-			initJtable(true, true);
-
-			//what happens when you click a row?
-			$(".selectable").click(function() {
-				showPleaseWait();
-				location.href = '/deploymentEdit?deployment_id=' + $(this).parent().attr("deployment_id");
-			});
-
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("depMethods/wmGetDeploymentsTable", {
+		sSearch : $("#txtSearch").val(),
+		sPage : page
 	});
+	if (response) {
+		pager = unpackJSON(response.pager);
+		html = unpackJSON(response.rows);
+
+		$("#pager").html(pager);
+		$("#pager .pager_button").click(function() {
+			GetItems($(this).text());
+		});
+
+		$("#deployments").html(html);
+		//gotta restripe the table
+		initJtable(true, true);
+
+		//what happens when you click a row?
+		$(".selectable").click(function() {
+			showPleaseWait();
+			location.href = '/deploymentEdit?deployment_id=' + $(this).parent().attr("deployment_id");
+		});
+
+	}
 }
 
 function ShowItemAdd() {
@@ -127,7 +120,7 @@ function DeleteItems() {
 		GetItems();
 
 		hidePleaseWait();
-		showInfo('Delete Successful'); 
+		showInfo('Delete Successful');
 	}
 }
 

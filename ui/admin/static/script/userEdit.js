@@ -111,33 +111,26 @@ $(document).ready(function() {
 function GetItems(page) {
 	if (!page)
 		page = "1"
-	$.ajax({
-		type : "POST",
-		async : false,
-		url : "uiMethods/wmGetUsersTable",
-		data : '{"sSearch":"' + $("#txtSearch").val() + '", "sPage":"' + page + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "json",
-		success : function(response) {
-			pager = unpackJSON(response.pager);
-			html = unpackJSON(response.rows);
-
-			$("#pager").html(pager);
-			$("#pager .pager_button").click(function() {
-				GetItems($(this).text());
-			});
-
-			$("#users").html(html);
-			//gotta restripe the table
-			initJtable(true, true);
-			$("#users .selectable").click(function() {
-				LoadEditDialog(0, $(this).parent().attr("user_id"));
-			});
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
+	var response = ajaxPost("uiMethods/wmGetUsersTable", {
+		sSearch : $("#txtSearch").val(),
+		sPage : page
 	});
+	if (response) {
+		pager = unpackJSON(response.pager);
+		html = unpackJSON(response.rows);
+
+		$("#pager").html(pager);
+		$("#pager .pager_button").click(function() {
+			GetItems($(this).text());
+		});
+
+		$("#users").html(html);
+		//gotta restripe the table
+		initJtable(true, true);
+		$("#users .selectable").click(function() {
+			LoadEditDialog(0, $(this).parent().attr("user_id"));
+		});
+	}
 }
 
 function SetPasswordControls() {
