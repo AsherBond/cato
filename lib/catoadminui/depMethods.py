@@ -157,7 +157,7 @@ class depMethods:
         if dt:
             return json.dumps({"result" : "success"})
             
-        raise WebmethodInfo(validation_err)
+        raise Exception(validation_err.replace("\n", "<br />"))
 
     def wmGetTemplateDeployments(self):
         template_id = uiCommon.getAjaxArg("template_id")
