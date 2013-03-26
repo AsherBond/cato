@@ -91,12 +91,12 @@ $(document).ready(function() {
 		//well, I have no idea why, but this ajax fires before the showPleaseWait can take effect.
 		//delaying it is the only solution I've found... :-(
 		setTimeout(function() {
-			var update_success_msg = ajaxPost("cloudMethods/wmGetCloudObjectList", {
+			var response = ajaxPost("cloudMethods/wmGetCloudObjectList", {
 				sAccountID : account_id,
 				sCloudID : cloud_id,
 				sObjectType : object_type
 			}, "html");
-			if (update_success_msg) {
+			if (response) {
 				$("#update_success_msg").fadeOut(2000);
 
 				$("#results_label").html(object_label);

@@ -225,7 +225,7 @@ function TestConnection() {
 		ClearTestResult();
 		$("#conn_test_result").text("Testing...");
 
-		var response = ajaxPost("cloudMethods/wmGetCloudAccountsJSON", {
+		var response = ajaxPost("cloudMethods/wmTestCloudConnection", {
 			sAccountID : account_id,
 			sCloudID : cloud_id
 		});
@@ -280,6 +280,8 @@ function LoadEditDialog(editID) {
 
 	clearEditDialog();
 	$("#hidMode").val("edit");
+	
+	$('#edit_dialog_tabs').tabs("enable", 1);
 
 	$("#hidCurrentEditID").val(editID);
 

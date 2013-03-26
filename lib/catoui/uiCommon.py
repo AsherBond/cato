@@ -431,6 +431,7 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
 
     # So... to eliminate all namespace madness
     # brute force... parse this text and remove anything that looks like [ xmlns="<crud>"] and it's contents.
+    
     sXML = RemoveDefaultNamespacesFromXML(sXML)
 
     xDoc = ET.fromstring(sXML)
@@ -522,10 +523,8 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
 def RemoveDefaultNamespacesFromXML(xml):
     p = re.compile("xmlns=*[\"\"][^\"\"]*[\"\"]")
     allmatches = p.finditer(xml)
-    xml = ""
     for match in allmatches:
         xml = xml.replace(match.group(), "")
-        
     return xml
     
 def AddTaskInstance(sUserID, sTaskID, sScopeID, sAccountID, sAssetID, sParameterXML, sDebugLevel):
