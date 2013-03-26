@@ -40,6 +40,7 @@ $(document).ready(function() {
 		autoOpen : false,
 		modal : true,
 		width : 600,
+		height: 600,
 		bgiframe : true,
 		buttons : {
 			"Save" : function() {
@@ -156,6 +157,7 @@ function ShowItemAdd() {
 	// clear all of the previous values
 	clearEditDialog();
 
+	$("#show_log_link").hide();
 	$('#edit_dialog').dialog('option', 'title', 'Create a New User');
 
 	SetPasswordControls();
@@ -426,6 +428,7 @@ function SaveNewUser() {
 }
 
 function LoadEditDialog(editCount, editUserID) {
+	$("#show_log_link").show();
 
 	$("#hidMode").val("edit");
 
