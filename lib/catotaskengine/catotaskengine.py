@@ -1080,6 +1080,7 @@ class TaskEngine():
         del(nodes)
 
         num_retries = 3
+        result = None
         for ii in range(1, num_retries + 1):
             try:
                 result = self.call_aws(cloud_name, product, action, params)
@@ -1093,11 +1094,13 @@ class TaskEngine():
                     raise Exception(msg)
                     
 
-        msg = "%s %s" % (step.function_name, params)
         if result:
-            msg = msg + "\n" + result
+            msg = "%s %s\n%s" % (step.function_name, params, result)
             self.rt.set(result_var, result)
-        self.insert_audit("aws_cmd", msg, "")
+            self.insert_audit("aws_cmd", msg, "")
+        else:
+            msg = "%s command %s failed." % (product, action)
+            raise Exception(msg)
         
 
     def process_step(self, task, step):
