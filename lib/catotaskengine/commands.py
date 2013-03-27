@@ -206,7 +206,7 @@ def log_msg_cmd(self, task, step):
 
     msg = self.get_command_params(step.command, "message")[0]
     msg = self.replace_variables(msg)
-    self.insert_audit("log_msg", msg, "")
+    self.insert_audit(step.function_name, msg, "")
 
 
 def subtask_cmd(self, task, step):
@@ -238,22 +238,21 @@ def run_task_cmd(self, task, step):
     parameters = self.replace_variables(parameters)
 
     if not task_name:
-        raise Exception("Handle name undefined. Run Task requires a Task Name.")
+        raise Exception("Run Task requires a Task Name.")
 
     if not handle:
-        raise Exception("Handle name undefined. Run Task requires a handle name.")
+        raise Exception("Run Task requires a handle name.")
 
     try:
         h = self.task_handles[handle]
         log = "Handle name already being used in this task. Overwriting..."
-        self.insert_audit("launch_run_task", log)
+        self.insert_audit(step.function_name, log)
         del(self.task_handles[handle])
         del(h)
     except KeyError as ex:
         pass
     except Exception as ex:
-        msg = "%s" % (ex)
-        raise Exception(msg)
+        raise Exception(ex)
         
     sql = """select task_id, version, default_version, parameter_xml, now() from task where task_name = %s"""
     if len(version):
@@ -300,8 +299,8 @@ def run_task_cmd(self, task, step):
     h.submitted_dt = submitted_dt
     h.status = "Submitted"
 
-    log = "Running Task Instance %s :: ID %s, Name %s, Version %s using handle %s." % (ti, task_id, task_name, task_version, handle)
-    cmd = "run_task %s" % (ti)
+    log = "Running Task Instance [%s] :: ID [%s], Name [%s], Version [%s] using handle [%s]." % (ti, task_id, task_name, task_version, handle)
+    cmd = "%s %s" % (step.function_name, ti)
     self.insert_audit(cmd, log)
     
     try:
@@ -313,12 +312,12 @@ def run_task_cmd(self, task, step):
     # if wait time is -1, wait until task completion
     # if wait time is > 0, wait x seconds and continue
     if sec_wait > 0:
-        log = "Waiting %s seconds before continuing" % (wait_time)
-        self.insert_audit("run_task", log)
+        log = "Waiting [%s] seconds before continuing..." % (wait_time)
+        self.insert_audit(step.function_name, log)
         time.sleep(sec_wait)
     elif sec_wait == -1:
-        log = "Waiting until task instance %s completes" % (ti)
-        self.insert_audit("run_task", log)
+        log = "Waiting until task instance [%s] completes..." % (ti)
+        self.insert_audit(step.function_name, log)
         while True:
             time.sleep(5)
             status = self.get_task_status(ti)
@@ -340,7 +339,7 @@ def sql_exec_cmd(self, task, step):
         # get the connection object
         c = self.connections[conn_name]
     except KeyError as ex:
-        msg = "A connection with the name of %s has not be established" % (conn_name)
+        msg = "A connection named [%s] has not been established." % (conn_name)
         raise Exception(msg)
 
     self.logger.debug("conn type is %s" % (c.conn_type))
@@ -355,8 +354,8 @@ def _sql_exec_dbi(self, sql, variables, conn):
     cursor = conn.cursor()
     try:
         cursor.execute(sql)
-    except Exception as e:
-        msg = "%s\n%s" % (sql, e)
+    except Exception as ex:
+        msg = "%s\n%s" % (sql, ex)
         raise Exception(msg)
 
     if cursor.description:
@@ -390,16 +389,16 @@ def store_private_key_cmd(self, task, step):
     private_key = self.replace_variables(private_key)
 
     if len(private_key) == 0:
-        raise Exception("Private Key value is required")
+        raise Exception("Private Key value is required.")
     if len(cloud_name) == 0:
-        raise Exception("Cloud Name is required")
+        raise Exception("Cloud Name is required.")
     if len(key_name) == 0:
-        raise Exception("Keyname is required")
+        raise Exception("Keyname is required.")
 
     sql = """select cloud_id from clouds where cloud_name = %s"""
     row = self.db.select_row(sql, (cloud_name))
     if not row:
-        msg = "Cloud Name %s is not configured in Cato" % (cloud_name)
+        msg = "Cloud [%s] is not defined in Cato." % (cloud_name)
         raise Exception(msg)
 
     cloud_id = row[0]
@@ -408,12 +407,12 @@ def store_private_key_cmd(self, task, step):
     sql = """insert into clouds_keypair (keypair_id, cloud_id, keypair_name, private_key) 
         values (uuid(),%s,%s,%s) ON DUPLICATE KEY UPDATE private_key = %s"""
     self.db.exec_db(sql, (cloud_id, key_name, private_key, private_key))
-    msg = "Stored private key named %s with cloud named %s" % (key_name, cloud_name)
-    self.insert_audit("store_private_key", msg, "")
+    msg = "Stored private key [%s] on Cloud [%s]." % (key_name, cloud_name)
+    self.insert_audit(step.function_name, msg, "")
 
 
 def comment_cmd(self, task, step):
-    self.logger.info("skipping comment")
+    self.logger.info("Skipping comment...")
 
 
 def clear_variable_cmd(self, task, step):
@@ -435,7 +434,7 @@ def set_variable_cmd(self, task, step):
         else:
             index = None
         # FIXUP - need to do modifers logic here
-        self.logger.info("v name is %s, value is %s" % (name, value))
+        self.logger.info("Setting variable [%s] to [%s]..." % (name, value))
 
         if modifier == "Math":
             value = self.math.eval_expr(value)
@@ -463,17 +462,17 @@ def cancel_task_cmd(self, task, step):
     tis = self.replace_variables(tis)
     for ti in tis.split(" "):
         if ti.isdigit():
-            msg = "Cancelling task instance %s" % (ti)
-            self.insert_audit("cancel_task", msg, "")
+            msg = "Cancelling task instance [%s]..." % (ti)
+            self.insert_audit(step.function_name, msg, "")
             sql = """update task_instance set task_status = 'Aborting' 
                 where task_instance = %s and task_status in ('Submitted','Staged','Processing')"""
             self.db.exec_db(sql, (ti))
-            log = """Cancelling task instance %s by other task instance number %s""" % (ti, self.task_instance)
+            log = """Cancelling task instance [%s] by other task instance number [%s]""" % (ti, self.task_instance)
             sql = """insert into task_instance_log (task_instance, step_id, entered_dt, connection_name, log, command_text) 
                 values (%s,'', now(),'',%s,'')"""
             self.db.exec_db(sql, (self.task_instance, log))
         else:
-            raise Exception("Cancel Task error: invalid task instance: %s. Value must be an integer." % (ti))
+            raise Exception("Cancel Task error: invalid Task instance: [%s]. Value must be an integer." % (ti))
 
 
 def wait_for_tasks_cmd(self, task, step):
@@ -488,8 +487,8 @@ def wait_for_tasks_cmd(self, task, step):
         # print handle_name
         handle_set.append(handle_name)
 
-    log = "Waiting for the following task handles to complete: %s, will check every 5 seconds." % (" ".join(handle_set))
-    self.insert_audit("wait_for_tasks", log)
+    log = "Waiting for the following task handles to complete: [%s]... will check every 5 seconds." % (" ".join(handle_set))
+    self.insert_audit(step.function_name, log)
 
     while len(handle_set) > 0:
 
@@ -499,20 +498,19 @@ def wait_for_tasks_cmd(self, task, step):
                 self.refresh_handle(h)
                 if h.status in ["Completed", "Error", "Cancelled"]:
                     handle_set.remove(handle)
-                    log = "Handle %s finished with a status of %s" % (handle, h.status)
-                    self.insert_audit("wait_for_tasks", log)
+                    log = "Handle [%s] finished with a status of [%s]." % (handle, h.status)
+                    self.insert_audit(step.function_name, log)
             except KeyError as ex:
-                log = "Handle %s does not exist, skipping" % (handle)
-                self.insert_audit("wait_for_tasks", log)
+                log = "Handle [%s] does not exist, skipping..." % (handle)
+                self.insert_audit(step.function_name, log)
                 handle_set.remove(handle)
             except Exception as ex:
-                msg = "%s" % (ex)
-                raise Exception(msg)
+                raise Exception(ex)
         if len(handle_set) > 0:
             time.sleep(5)
 
-    log = "All task handles have a finished status"
-    self.insert_audit("wait_for_tasks", log)
+    log = "All task handles have a finished status."
+    self.insert_audit(step.function_name, log)
 
 
 def substring_cmd(self, task, step):
@@ -524,19 +522,19 @@ def substring_cmd(self, task, step):
     end = self.replace_variables(end)
 
     if len(v_name) == 0:
-        raise Exception("Substring command requires a Variable Name")
+        raise Exception("Substring command requires a Variable Name.")
 
     if len(start) == 0:
-        raise Exception("Substring command requires a Start value")
+        raise Exception("Substring command requires a Start value.")
 
     if len(end) == 0:
-        raise Exception("Substring command requires an End value")
+        raise Exception("Substring command requires an End value.")
 
     if not start.isdigit():
-        raise Exception("Substring command start value must be an integer")
+        raise Exception("Substring command Start Value must be an integer.")
 
     if (not end.isdigit()) and (end[0] != "+") and (end[0:3] != "end"):
-        raise Exception("Substring error: end index must be integer, +integer, end or end-integer")
+        raise Exception("Substring error: end index must be integer, +integer, end or end-integer.")
 
     start = int(start) - 1
     if end.isdigit():
@@ -548,11 +546,11 @@ def substring_cmd(self, task, step):
     elif end[0:3] == "end" and end[3] == "-":
         end = int(end[3:])
 
-    self.logger.info("end is {%s}" % (end))
+    self.logger.debug("End is [%s]" % (end))
     s = source[start:end]
     
-    msg = "Substring set variable %s to {%s}" % (v_name, s)
-    self.insert_audit("substring", msg, "")
+    msg = "Substring set variable [%s] to [%s]." % (v_name, s)
+    self.insert_audit(step.function_name, msg, "")
     self.rt.set(v_name, s)
 
 
@@ -561,8 +559,8 @@ def drop_connection_cmd(self, task, step):
     conn_name = self.get_command_params(step.command, "conn_name")[0]
     conn_name = self.replace_variables(conn_name)
     if conn_name in self.connections.keys():
-        msg = "Dropping connection named %s" % (conn_name)
-        self.insert_audit("drop_connection", msg, "")
+        msg = "Dropping connection named [%s]..." % (conn_name)
+        self.insert_audit(step.function_name, msg, "")
         self.drop_connection(conn_name)
         
 
@@ -570,8 +568,8 @@ def end_cmd(self, task, step):
 
     message, status = self.get_command_params(step.command, "message", "status")[:]
     message = self.replace_variables(message)
-    msg = "Ending task with a status of %s, message:\n%s" % (status, message)
-    self.insert_audit("end_task", msg, "")
+    msg = "Ending task with a status of [%s], message:\n%s" % (status, message)
+    self.insert_audit(step.function_name, msg, "")
     if status == "Error":
         raise Exception("Erroring task with message:\n%s" % (message))
     self.release_all()
@@ -588,7 +586,7 @@ def new_connection_cmd(self, task, step):
     cloud_name = self.replace_variables(cloud_name)
 
     if len(asset) == 0:
-        raise Exception("New Connection command requires an asset to connect to")
+        raise Exception("New Connection command requires an Asset or connection details.")
 
     try:
         # we've used this conn name before without dropping it
@@ -598,8 +596,8 @@ def new_connection_cmd(self, task, step):
         pass
     else:
         # close the connection and reopen
-        msg = "A connection by the name %s already exists, closing the previous one and openning a new connection" % (conn_name)
-        self.insert_audit("new_connection", msg, "")
+        msg = "A connection by the name [%]s already exists, closing the previous one and openning a new connection..." % (conn_name)
+        self.insert_audit(step.function_name, msg, "")
 
         self.drop_connection(conn_name)
 
@@ -613,7 +611,7 @@ def new_connection_cmd(self, task, step):
         # cloud_name is not required, it will use the account default if not specified
 
         if "@" not in asset:
-            msg = "ssh - ec2 connection type requires the following format: username@instanceid, found %s" % asset
+            msg = "ssh - ec2 connection type requires the following format: username@instanceid, found [%s]." % asset
             raise Exception(msg)
         user_id, instance_id = asset.split("@")[:2]
 
@@ -668,7 +666,7 @@ def new_connection_cmd(self, task, step):
                 elif k == "db_name":
                     db_name = v
                 else:
-                    msg = "Unsupported key, value pair %s, skipping" % (pair)
+                    msg = "Unsupported key-value pair [%s], skipping..." % (pair)
                     self.logger.info(msg)
             
             s = classes.System(name, address=address, userid=userid, password=password,
@@ -683,8 +681,8 @@ def new_connection_cmd(self, task, step):
     # and make the connection. We'll store any connection handle we get back for later use
     self.connect_system(conn)
 
-    msg = "New connection named %s to asset %s created with a connection type %s" % (conn_name, s.address, conn_type)
-    self.insert_audit("new_connection", msg, "")
+    msg = "New connection named [%s] to asset [%s] created with a connection type [%s]." % (conn_name, s.address, conn_type)
+    self.insert_audit(step.function_name, msg, "")
 
 
 def send_email_cmd(self, task, step):
@@ -694,7 +692,7 @@ def send_email_cmd(self, task, step):
     sub = self.replace_variables(sub)
     body = self.replace_variables(body)
     msg = "Inserting into message queue : TO:{%s} SUBJECT:{%s} BODY:{%s}" % (to, sub, body)
-    self.insert_audit("send_email", msg, "")
+    self.insert_audit(step.function_name, msg, "")
 
     # note - this logic is skipping the file attachment piece, to do
     # also - there may need to be some additional processing to handle html, etc. messages
@@ -712,7 +710,7 @@ def http_cmd(self, task, step):
     url = self.replace_variables(url)
 
     if not len(url):
-        raise Exception("http command url is empty")
+        raise Exception("HTTP command url is empty.")
 
     pairs = self.get_node_list(step.command, "pairs/pair", "key", "value")
 
@@ -753,7 +751,7 @@ def http_cmd(self, task, step):
     self.http_response = response_ms
 
     log = "http %s %s\012%s\012%s\012Response time = %s ms" % (typ, url, data, buff, response_ms)
-    self.insert_audit("http", log)
+    self.insert_audit(step.function_name, log)
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
         "range_begin", "prefix", "range_end", "suffix", "regex")
     if len(variables):
@@ -791,8 +789,8 @@ def parse_text_cmd(self, task, step):
 
     buff = self.get_command_params(step.command, "text")[0]
     buff = self.replace_variables(buff)
-    log = "parse_text %s" % (buff)
-    self.insert_audit("parse_text", log)
+    log = "%s: %s" % (step.function_name, buff)
+    self.insert_audit(step.function_name, log)
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
         "range_begin", "prefix", "range_end", "suffix", "regex")
     if len(variables):
@@ -815,7 +813,7 @@ def set_debug_level_cmd(self, task, step):
 
     dl = self.get_command_params(step.command, "debug_level")[0]
     dl = self.replace_variables(dl)
-    self.logger.info("Setting the debug level to [%s]" % dl)
+    self.logger.info("Setting the debug level to [%s]..." % dl)
     
     self.set_debug(dl)
 
@@ -826,16 +824,16 @@ def sleep_cmd(self, task, step):
     try:
         seconds = int(seconds)
     except ValueError:
-        raise Exception("Sleep command requires seconds as an integer value. seconds = %s" % (seconds))
+        raise Exception("Sleep command requires seconds as an integer value... found [%s]." % (seconds))
 
     msg = "Sleeping {%s} seconds..." % (seconds)
-    self.insert_audit("sleep", msg, "")
+    self.insert_audit(step.function_name, msg, "")
     time.sleep(seconds)
 
 
 def break_loop_cmd(self, task, step):
     
-    self.insert_audit("break_loop", "Breaking out of loop.", "")
+    self.insert_audit(step.function_name, "Breaking out of loop.", "")
     self.loop_break = True
 
 
@@ -850,14 +848,14 @@ def winrm_cmd_cmd(self, task, step):
         # get the connection object
         c = self.connections[conn_name]
     except KeyError as ex:
-        msg = "A connection with the name of %s has not be established" % (conn_name)
+        msg = "A connection named [%s] has not been established." % (conn_name)
         raise Exception(msg)
 
     if timeout:
         to = int(timeout) 
         c.handle.timeout = c.handle.set_timeout(to)
 
-    self.logger.info(cmd)
+    self.logger.info("WinRM - executing:\n%s" % cmd)
     command_id = c.handle.run_command(c.shell_id, cmd)
     buff, err, return_code = c.handle.get_command_output(c.shell_id, command_id)
 
@@ -882,7 +880,7 @@ def winrm_cmd_cmd(self, task, step):
 
     
     msg = "%s\n%s" % (cmd, buff)
-    self.insert_audit("winrm_cmd", msg)
+    self.insert_audit(step.function_name, msg)
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
         "range_begin", "prefix", "range_end", "suffix", "regex")
     if len(variables):
@@ -903,7 +901,7 @@ def cmd_line_cmd(self, task, step):
         # get the connection object
         c = self.connections[conn_name]
     except KeyError as ex:
-        msg = "A connection with the name of %s has not be established" % (conn_name)
+        msg = "A connection named [%s] has not been established." % (conn_name)
         raise Exception(msg)
 
     if not len(pos):
@@ -915,9 +913,9 @@ def cmd_line_cmd(self, task, step):
     else:
         timeout = int(timeout)
 
-    self.logger.info("sending %s to the process" % (cmd))
+    self.logger.info("Issuing command:\n%s" % (cmd))
     buff = self.execute_expect(c.handle, cmd, pos, neg, timeout)
-    self.insert_audit("cmd_line", "%s\n%s" % (cmd, buff), conn_name)
+    self.insert_audit(step.function_name, "%s\n%s" % (cmd, buff), conn_name)
 
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
         "range_begin", "prefix", "range_end", "suffix", "regex")
