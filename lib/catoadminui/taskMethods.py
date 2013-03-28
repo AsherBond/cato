@@ -1258,7 +1258,7 @@ class taskMethods:
                 sHTML += "<li" \
                     " id=\"clip_" + sStepID + "\"" \
                         " name=\"clip_" + sStepID + "\"" \
-                        " class=\"command_item function clip\"" \
+                        " class=\"command_item function clip ui-widget-content ui-corner-all\"" \
                         ">"
                 
                 # a table for the label so the clear icon can right align

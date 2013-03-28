@@ -109,7 +109,7 @@ class tagMethods:
         t = tag.Tags(sFilter="", sObjectID=oid)
         if t.rows:
             for row in t.rows:
-                sHTML += " <li id=\"ot_" + row["tag_name"].replace(" ", "") + "\" val=\"" + row["tag_name"] + "\" class=\"tag\">"
+                sHTML += " <li id=\"ot_" + row["tag_name"].replace(" ", "") + "\" val=\"" + row["tag_name"] + "\" class=\"tag ui-widget-content ui-corner-all\">"
                 
                 sHTML += "<table class=\"object_tags_table\"><tr>"
                 sHTML += "<td style=\"vertical-align: middle;\">" + row["tag_name"] + "</td>"
@@ -142,7 +142,7 @@ class tagMethods:
             sHTML += "<ul>"
             for dr in dt:
                 desc = (dr["tag_desc"].replace("\"", "").replace("'", "") if dr["tag_desc"] else "")
-                sHTML += " <li class=\"tag_picker_tag\"" \
+                sHTML += " <li class=\"tag_picker_tag ui-widget-content ui-corner-all\"" \
                    " id=\"tpt_" + dr["tag_name"] + "\"" \
                    " desc=\"" + desc + "\"" \
                    ">"

@@ -332,23 +332,20 @@ body {
 
 /*tag picker*/
 .tag_picker_tag {
-    background: #f8f8f8;
     width: 95%;
-    border: solid 1px #404040;
     margin: 1px 1px 1px 1px;
     padding: 1px 1px 1px 1px;
     cursor: pointer;
     list-style: none;
 }
 .tag_picker_tag_selected {
-    background: #c5c5c5;
+    background: #eeeeee;
 }
 .tag_picker_tag_hover {
-    background: #c5c5c5;
+    background: #eeeeee;
 }
 .tag_description {
     height: 40px;
-    border: solid 1px #CCCCCC;
 }
 
 /*
@@ -452,9 +449,6 @@ td.row_over {
 
 /*"Tags" that show up on the various edit pages.*/
 .tag {
-    border: 1px solid #D3D3D3;
-    background: #FFF;
-    color: #555555;
     margin: 4px 4px 4px 4px;
     padding: 3px 3px 3px 3px;
 }

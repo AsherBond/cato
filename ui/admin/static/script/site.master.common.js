@@ -71,7 +71,7 @@ var d = '<!-- This is the popup error message dialog template.  -->' +
     '        </div>' +
     '    </div>' +
     '    <hr />' +
-    '    <div id="tag_picker_description" class="tag_description">' +
+    '    <div id="tag_picker_description" class="tag_description ui-widget-content ui-corner-all">' +
     '    </div>' +
     '</div>' +
     '<!-- End "tag picker" dialog. -->' +
