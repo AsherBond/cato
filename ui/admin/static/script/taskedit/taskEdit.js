@@ -295,6 +295,9 @@ function doGetCommands() {
 
 			//show the one you clicked
 			$("#" + $(this).attr("id") + "_functions").removeClass("hidden");
+			
+			// and scroll to the top
+			$('#div_commands').animate({scrollTop:0}, 'slow');
 		});
 	});
 	ajaxGet("uiMethods/wmGetFunctions", function(response) {
