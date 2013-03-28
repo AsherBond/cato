@@ -690,3 +690,16 @@ td.row_over {
 .forceinline {
     display: inline-block !important;
 }
+
+.datepicker {
+    width: 80px;
+    font-size: 0.8em !important;
+}
+
+.log_results
+{
+    font: .8em Courier New;
+    background: #FFF;
+    padding: 1px 8px 1px 8px;
+    min-height: 10px;
+}

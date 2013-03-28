@@ -23,11 +23,14 @@ $(document).ready(function() {
 
 	//any page that includes this script will get the following dialog inner code
 	//but the page requires a placeholder div... called "param_edit_dialog"
-	var d = '<div id="param_edit_dialog_detail"></div>' + '<input type="hidden" id="param_edit_param_id" />'
+	var d = '<div id="param_edit_dialog_detail"></div><input type="hidden" id="param_edit_param_id" />';
 	$("#param_edit_dialog").html(d);
 
 	//here's the delete confirmation dialog
-	var d = '<p>' + '<span class="ui-icon ui-icon-info" style="float: left; margin: 0 7px 50px 0;"></span>' + '<span>Are you sure?</span>' + '</p>'
+	var d = '<p> \
+		<span class="ui-icon ui-icon-info" style="float: left; margin: 0 7px 50px 0;"></span> \
+		<span>Are you sure?</span> \
+		</p>';
 	$("#param_delete_confirm_dialog").html(d);
 
 	$("#param_delete_confirm_dialog").dialog({

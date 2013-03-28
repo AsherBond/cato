@@ -18,11 +18,82 @@
 $(document).ready(function() {
 	//any page that includes this script will get the following dialog inner code
 	//but the page requires a placeholder div... called "task_launch_dialog"
-	var d = '<div id="task_launch_dialog_task_name" class="floatleft"></div><div class="floatright">Server Time: <span class="current_time"></span></div><hr />' + 'Cloud Account: <span id="task_launch_dialog_account_name"></span>' + '&nbsp;&nbsp;Logging Level:&nbsp;&nbsp;' + '<select id="task_launch_dialog_debug_level">' + '   <option value="0">None</option>' + '   <option value="1">Minimal</option>' + '   <option value="2" selected="selected">Normal</option>' + '   <option value="3">Enhanced</option>' + '   <option value="4">Verbose</option>' + '</select>' + '<hr />' + '<div id="task_launch_dialog_parameters" class="floatleft task_launch_column ui-widget-content ui-tabs ui-corner-all">' + '   <div id="task_launch_params_content">' + '       <div class="task_launch_params_title ui-widget-header ui-corner-all">' + '       Parameters' + '       </div>' + '       <span id="action_defaults_btn" class="hidden"><input type="radio" id="rbAction" name="radio" /><label for="rbAction">Action Defaults</label></span>' + '       &nbsp;&nbsp;<input type="radio" id="rbDefault" name="radio" /><label for="rbDefault">Task Defaults</label>' + '       &nbsp;&nbsp;<input type="radio" id="rbPrevious" name="radio" /><label for="rbPrevious">Previous Values</label>' + '       <div id="task_launch_dialog_params"></div>' + '   </div>' + '</div>' + '<div id="task_launch_dialog_schedule" class="floatright task_launch_column">' + '   <ul>' + '       <li><a href="#RunNowTab"><span>Run Now</span></a></li>' + '       <li><a href="#RunLaterTab"><span>Run Later</span></a></li>' + '       <li><a href="#RunRepeatedlyTab"><span>Run Repeatedly</span></a></li>' + '       <li><a href="#PlanTab"><span>Plan</span></a></li>' + '   </ul>' + '   <div id="RunNowTab">' + '       <div>Will be started immediately and run only once, using the Parameters selected on the left.</div>' + '       <hr />' + '       <label for="new_runlog_window" class="hidden new_runlog_window">New Window?</label><input type="checkbox" id="new_runlog_window" class="hidden new_runlog_window"/>' + '       <span id="run_now_btn" class="floatright">Run Now</span>' + '   </div>' + '   <div id="RunLaterTab">' + '       <div>Will be started in the future, and run only once, using the Parameters selected on the left.</div>' + '       <hr />' + '       Run On: <input type="text" id="run_on_date" class="datetimepicker" />' + '       <hr />' + '       <span id="run_later_btn" class="floatright">Plan</span>' + '   </div>' + '   <div id="RunRepeatedlyTab">' + '       <div id="run_repeatedly_content">' + '           <div>Will be scheduled to run on a repeating basis, using the criteria selected below, and the Parameters selected on the left.</div>' + '           <hr />' + drawRecurringPanel() + '           <hr />' + '       </div>' + '      <span id="run_repeatedly_btn" class="floatright">Schedule</span>' + '   </div>' + '   <div id="PlanTab">' + '       <div>Actions will occur according to the Plans listed below.</div>' + '       <p>Use one of the "Run" tabs to create a new plan.</p>' + '       <p>Click a Plan to edit the Parameters or recurrence details.</p>' + '       <hr />' + '       Upcoming Plans' + '       <div id="task_launch_dialog_plans"></div>' + '       <hr />' + '       Recurring Plans' + '       <div id="task_launch_dialog_schedules"></div>' + '   </div>' + '</div>' + '<input type="hidden" id="task_launch_dialog_task_id" />' + '<input type="hidden" id="task_launch_dialog_account_id" />' + '<input type="hidden" id="task_launch_dialog_asset_id" />' + '<input type="hidden" id="task_launch_dialog_task_instance" />' + '<input type="hidden" id="plan_edit_plan_id" />';
+	var d = '<div id="task_launch_dialog_task_name" class="floatleft"></div><div class="floatright">Server Time: <span class="current_time"></span></div><hr /> \
+		Cloud Account: <span id="task_launch_dialog_account_name"></span> \
+		&nbsp;&nbsp;Logging Level:&nbsp;&nbsp; \
+		<select id="task_launch_dialog_debug_level"> \
+		   <option value="0">None</option> \
+		   <option value="1">Minimal</option> \
+		   <option value="2" selected="selected">Normal</option> \
+		   <option value="3">Enhanced</option> \
+		   <option value="4">Verbose</option> \
+		</select> \
+		<hr /> \
+		<div id="task_launch_dialog_parameters" class="floatleft task_launch_column ui-widget-content ui-tabs ui-corner-all"> \
+		   <div id="task_launch_params_content"> \
+		       <div class="task_launch_params_title ui-widget-header ui-corner-all"> \
+		       Parameters \
+		       </div> \
+		       <span id="action_defaults_btn" class="hidden"><input type="radio" id="rbAction" name="radio" /><label for="rbAction">Action Defaults</label></span> \
+		       &nbsp;&nbsp;<input type="radio" id="rbDefault" name="radio" /><label for="rbDefault">Task Defaults</label> \
+		       &nbsp;&nbsp;<input type="radio" id="rbPrevious" name="radio" /><label for="rbPrevious">Previous Values</label> \
+		       <div id="task_launch_dialog_params"></div> \
+		   </div> \
+		</div> \
+		<div id="task_launch_dialog_schedule" class="floatright task_launch_column"> \
+		   <ul> \
+		       <li><a href="#RunNowTab"><span>Run Now</span></a></li> \
+		       <li><a href="#RunLaterTab"><span>Run Later</span></a></li> \
+		       <li><a href="#RunRepeatedlyTab"><span>Run Repeatedly</span></a></li> \
+		       <li><a href="#PlanTab"><span>Plan</span></a></li> \
+		   </ul> \
+		   <div id="RunNowTab"> \
+		       <div>Will be started immediately and run only once, using the Parameters selected on the left.</div> \
+		       <hr /> \
+		       <label for="new_runlog_window" class="hidden new_runlog_window">New Window?</label><input type="checkbox" id="new_runlog_window" class="hidden new_runlog_window"/> \
+		       <span id="run_now_btn" class="floatright">Run Now</span> \
+		   </div> \
+		   <div id="RunLaterTab"> \
+		       <div>Will be started in the future, and run only once, using the Parameters selected on the left.</div> \
+		       <hr /> \
+		       Run On: <input type="text" id="run_on_date" class="datetimepicker" /> \
+		       <hr /> \
+		       <span id="run_later_btn" class="floatright">Plan</span> \
+		   </div> \
+		   <div id="RunRepeatedlyTab"> \
+		       <div id="run_repeatedly_content"> \
+		           <div>Will be scheduled to run on a repeating basis, using the criteria selected below, and the Parameters selected on the left.</div> \
+		           <hr />' + drawRecurringPanel() + '           <hr /> \
+		       </div> \
+		      <span id="run_repeatedly_btn" class="floatright">Schedule</span> \
+		   </div> \
+		   <div id="PlanTab"> \
+		       <div>Actions will occur according to the Plans listed below.</div> \
+		       <p>Use one of the "Run" tabs to create a new plan.</p> \
+		       <p>Click a Plan to edit the Parameters or recurrence details.</p> \
+		       <hr /> \
+		       Upcoming Plans \
+		       <div id="task_launch_dialog_plans"></div> \
+		       <hr /> \
+		       Recurring Plans \
+		       <div id="task_launch_dialog_schedules"></div> \
+		   </div> \
+		</div> \
+		<input type="hidden" id="task_launch_dialog_task_id" /> \
+		<input type="hidden" id="task_launch_dialog_account_id" /> \
+		<input type="hidden" id="task_launch_dialog_asset_id" /> \
+		<input type="hidden" id="task_launch_dialog_task_instance" /> \
+		<input type="hidden" id="plan_edit_plan_id" />';
 
 	$("#task_launch_dialog").prepend(d);
 
-	var plan_edit_content = '' + 'Editing <span id="plan_edit_mode"></span>: <span id="plan_edit_name"></span>' + '<hr />' + '<div id="plan_edit_parameters" class="floatleft task_launch_column ui-widget-content ui-tabs ui-corner-all">' + '</div>' + '<div id="plan_edit_schedule" class="floatright task_launch_column">' + '</div>';
+	var plan_edit_content = ' \
+		Editing <span id="plan_edit_mode"></span>: <span id="plan_edit_name"></span> \
+		<hr /> \
+		<div id="plan_edit_parameters" class="floatleft task_launch_column ui-widget-content ui-tabs ui-corner-all"> \
+		</div> \
+		<div id="plan_edit_schedule" class="floatright task_launch_column"> \
+		</div>';
 	$("#plan_edit_dialog").html(plan_edit_content);
 
 	//dialog was drawn dynamically, have to do some bindings
@@ -971,7 +1042,58 @@ function drawRecurringItem(howmany, idprefix, add) {
 function drawRecurringPanel() {
 	//separated this out so the dynamic html block at the top of this file isn't stupid huge
 
-	var output = 'Months' + '<div class="ui-dropslide ui-widget">' + '   <ol id="olMonthsAll" class="ui-widget ui-helper-clearfix ui-helper-reset">' + '       <li id="liMonthsAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li>' + '   </ol>' + '   <ol id="olMonths" class="ui-widget ui-helper-clearfix ui-helper-reset">' + '       <li id="mo_0" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Jan</span></li>' + '       <li id="mo_1" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Feb</span></li>' + '       <li id="mo_2" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Mar</span></li>' + '       <li id="mo_3" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Apr</span></li>' + '       <li id="mo_4" class="plan_datepoint"><span class="ui-state-default ui-corner-all">May</span></li>' + '       <li id="mo_5" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Jun</span></li>' + '       <li id="mo_6" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Jul</span></li>' + '       <li id="mo_7" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Aug</span></li>' + '       <li id="mo_8" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Sep</span></li>' + '       <li id="mo_9" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Oct</span></li>' + '       <li id="mo_10" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Nov</span></li>' + '       <li id="mo_11" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Dec</span></li>' + '   </ol>' + '</div>' + 'Days' + '<div class="ui-dropslide ui-widget">' + '    <ol id="olDaysType" class="ui-widget ui-helper-clearfix ui-helper-reset">' + '        <li id="liDaysAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li>' + '        <li style="width: 35px;" id="liDaysWeek" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Week</span></li>' + '        <li style="width: 35px;" id="liDates" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Days</span></li>' + '    </ol>' + '    <ol id="olWeek" class="ui-widget ui-helper-clearfix ui-helper-reset hidden">' + '        <li id="w_0" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Sun</span></li>' + '        <li id="w_1" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Mon</span></li>' + '        <li id="w_2" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Tue</span></li>' + '        <li id="w_3" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Wed</span></li>' + '        <li id="w_4" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Thu</span></li>' + '        <li id="w_5" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Fri</span></li>' + '        <li id="w_6" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Sat</span></li>' + '    </ol>' + '    <ol id="olDates" class="ui-widget ui-helper-clearfix ui-helper-reset">' + drawRecurringItem(31, 'd', true) + '    </ol>' + '</div>' + 'Hours' + '<div class="ui-dropslide ui-widget">' + '    <ol id="olHoursAll" class="ui-widget ui-helper-clearfix ui-helper-reset">' + '        <li id="liHoursAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li>' + '    </ol>' + '    <ol id="olHours" class="ui-widget ui-helper-clearfix ui-helper-reset">' + drawRecurringItem(24, 'h', false) + '    </ol>' + '</div>' + 'Minutes' + '<div class="ui-dropslide ui-widget">' + '    <ol id="olMinutesAll" class="ui-widget ui-helper-clearfix ui-helper-reset">' + '        <li id="liMinutesAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li>' + '    </ol>' + '    <ol id="olMinutes" class="ui-widget ui-helper-clearfix ui-helper-reset">' + drawRecurringItem(60, 'm', false) + '    </ol>' + '</div>' + '' + '' + '' + '';
+	var output = 'Months \
+		<div class="ui-dropslide ui-widget"> \
+		   <ol id="olMonthsAll" class="ui-widget ui-helper-clearfix ui-helper-reset"> \
+		       <li id="liMonthsAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li> \
+		   </ol> \
+		   <ol id="olMonths" class="ui-widget ui-helper-clearfix ui-helper-reset"> \
+		       <li id="mo_0" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Jan</span></li> \
+		       <li id="mo_1" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Feb</span></li> \
+		       <li id="mo_2" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Mar</span></li> \
+		       <li id="mo_3" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Apr</span></li> \
+		       <li id="mo_4" class="plan_datepoint"><span class="ui-state-default ui-corner-all">May</span></li> \
+		       <li id="mo_5" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Jun</span></li> \
+		       <li id="mo_6" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Jul</span></li> \
+		       <li id="mo_7" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Aug</span></li> \
+		       <li id="mo_8" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Sep</span></li> \
+		       <li id="mo_9" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Oct</span></li> \
+		       <li id="mo_10" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Nov</span></li> \
+		       <li id="mo_11" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Dec</span></li> \
+		   </ol> \
+		</div> \
+		Days \
+		<div class="ui-dropslide ui-widget"> \
+		    <ol id="olDaysType" class="ui-widget ui-helper-clearfix ui-helper-reset"> \
+		        <li id="liDaysAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li> \
+		        <li style="width: 35px;" id="liDaysWeek" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Week</span></li> \
+		        <li style="width: 35px;" id="liDates" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Days</span></li> \
+		    </ol> \
+		    <ol id="olWeek" class="ui-widget ui-helper-clearfix ui-helper-reset hidden"> \
+		        <li id="w_0" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Sun</span></li> \
+		        <li id="w_1" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Mon</span></li> \
+		        <li id="w_2" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Tue</span></li> \
+		        <li id="w_3" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Wed</span></li> \
+		        <li id="w_4" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Thu</span></li> \
+		        <li id="w_5" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Fri</span></li> \
+		        <li id="w_6" class="plan_datepoint"><span class="ui-state-default ui-corner-all">Sat</span></li> \
+		    </ol> \
+		    <ol id="olDates" class="ui-widget ui-helper-clearfix ui-helper-reset">' + drawRecurringItem(31, 'd', true) + '</ol> \
+		</div> \
+		Hours \
+		<div class="ui-dropslide ui-widget"> \
+		    <ol id="olHoursAll" class="ui-widget ui-helper-clearfix ui-helper-reset"> \
+		        <li id="liHoursAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li> \
+		    </ol> \
+		    <ol id="olHours" class="ui-widget ui-helper-clearfix ui-helper-reset">' + drawRecurringItem(24, 'h', false) + '</ol> \
+		</div> \
+		Minutes \
+		<div class="ui-dropslide ui-widget"> \
+		    <ol id="olMinutesAll" class="ui-widget ui-helper-clearfix ui-helper-reset"> \
+		        <li id="liMinutesAll" class="plan_datepoint"><span class="ui-state-default ui-corner-all">All</span></li> \
+		    </ol> \
+		    <ol id="olMinutes" class="ui-widget ui-helper-clearfix ui-helper-reset">' + drawRecurringItem(60, 'm', false) + '</ol> \
+		</div>';
 
 	return output;
 }

@@ -240,7 +240,10 @@ function doGetDetails() {
 			if (instance.other_instances.length) {
 				html = ""
 				$(instance.other_instances).each(function(idx, row) {
-					html += '<tr task_instance="' + row.task_instance + '">' + '<td tag="selectable" class="pointer">' + row.task_instance + '</td>' + '<td tag="selectable" class="pointer">' + row.task_status + '</td>' + '</tr>';
+					html += '<tr task_instance="' + row.task_instance + '"> \
+						<td tag="selectable" class="pointer">' + row.task_instance + '</td> \
+						<td tag="selectable" class="pointer">' + row.task_status + '</td> \
+						</tr>';
 				});
 				$("#other_instances").empty().append(html);
 				initJtable();
