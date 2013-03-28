@@ -1,0 +1,153 @@
+[
+	{
+		"roles": "all",
+		"label": "Home",
+		"icon": "static/images/icons/home_24.png",
+		"onclick": "showPleaseWait();",
+		"href": "home"
+	}, {
+		"roles": "developer user",
+		"label": "Information",
+		"icon": "static/images/icons/info_24.png",
+		"items": [
+			{
+				"roles": "developer",
+				"label": "View System Status",
+				"icon": "static/images/icons/sys_stat_24.png",
+				"onclick": "showPleaseWait();",
+				"href": "systemStatus"
+			}, {
+				"roles": "developer user",
+				"label": "View Task Status",
+				"icon": "static/images/icons/task_stat_24.png",
+				"onclick": "showPleaseWait();",
+				"href": "taskStatus"
+			}, {
+				"roles": "developer user",
+				"label": "About Cato",
+				"icon": "static/images/icons/about_24.png",
+				"onclick": "showAbout();",
+				"href": "#"
+			}
+		]
+	}, {
+		"label": "Security",
+		"icon": "static/images/icons/password.png",
+		"items": [
+			{
+				"label": "Manage Users",
+				"icon": "static/images/icons/users_24.png",
+				"onclick": "showPleaseWait();",
+				"href": "userEdit"
+			}, {
+				"label": "Manage Shared Credentials",
+				"icon": "static/images/icons/shared_24.png",
+				"onclick": "showPleaseWait();",
+				"href": "credentialEdit"
+			}, {
+				"label": "Manage Tags",
+				"icon": "static/images/icons/tag_24.png",
+				"onclick": "showPleaseWait();",
+				"href": "tagEdit"
+			}, {
+				"roles": "developer",
+				"label": "View Security Log",
+				"icon": "static/images/icons/password.png",
+				"onclick": "ShowLogViewDialog(0, '', true);"
+			}
+		]
+	}, {
+		"roles": "developer",
+		"label": "Tasks",
+		"icon": "static/images/icons/manage_tasks_24.png",
+		"items": [
+			{
+				"roles": "developer",
+				"label": "Manage Tasks",
+				"icon": "static/images/icons/manage_tasks_24.png",
+				"onclick": "showPleaseWait();",
+				"href": "taskManage"
+			}, {
+				"roles": "developer",
+				"label": "Manage Assets",
+				"icon": "static/images/icons/manage_asset_24.png",
+				"onclick": "showPleaseWait();",
+				"href": "assetEdit"
+			}, {
+				"roles": "developer",
+				"label": "Import a Backup File",
+				"icon": "static/images/icons/import_24.png",
+				"onclick": "showPleaseWait();",
+				"href": "importObject"
+			}
+		]
+	}, {
+		"roles": "developer",
+		"label": "Configuration",
+		"icon": "static/images/icons/config_24.png",
+		"items": [
+			{
+				"label": "Manage Cloud Accounts",
+				"icon": "static/images/icons/cloud_accounts_24.png",
+				"onclick": "showPleaseWait();",
+				"href": "cloudAccountEdit"
+			}, {
+				"label": "Manage Clouds",
+				"icon": "static/images/icons/clouds_24.png",
+				"onclick": "showPleaseWait();",
+				"href": "cloudEdit"
+			}, {
+				"roles": "developer user",
+				"label": "Cloud Discovery",
+				"icon": "static/images/icons/cloud_discovery_24.png",
+				"onclick": "showPleaseWait();",
+				"href": "cloudDiscovery"
+			}, {
+				"roles": "developer",
+				"label": "Manage Settings",
+				"icon": "static/images/icons/login_24.png",
+				"onclick": "showPleaseWait();",
+				"href": "settings"
+			}
+		]
+	}, {
+		"roles": "all",
+		"label": "Help",
+		"icon": "static/images/icons/help_24.png",
+		"items": [
+			{
+				"roles": "all",
+				"label": "Read the Documentation",
+				"icon": "static/images/icons/documentation_24.png",
+				"target": "_blank",
+				"href": "https://github.com/cloudsidekick/cato/wiki"
+			}, {
+				"roles": "all",
+				"label": "Browse the Forums",
+				"icon": "static/images/icons/forums_24.png",
+				"target": "_blank",
+				"href": "https://groups.google.com/forum/#!forum/cato-users"
+			}, {
+				"roles": "all",
+				"label": "Report an Issue",
+				"icon": "static/images/icons/issue_24.png",
+				"onclick": "openWindow('http://community.cloudsidekick.com/report-an-issue?utm_source=cato_app&utm_medium=menu&utm_campaign=app', 'ask', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');"
+			}, {
+				"roles": "all",
+				"label": "Ask a Question",
+				"icon": "static/images/icons/ask_24.png",
+				"onclick": "openWindow('http://community.cloudsidekick.com/ask-a-question?utm_source=cato_app&utm_medium=menu&utm_campaign=app', 'ask', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');"
+			}, {
+				"roles": "all",
+				"label": "Register Cato",
+				"icon": "static/images/icons/register_24.png",
+				"onclick": "registerCato();"
+			}
+		]
+	}, {
+		"roles": "all",
+		"label": "Logout",
+		"icon": "static/images/icons/logout.png",
+		"href": "logout"
+	}
+]

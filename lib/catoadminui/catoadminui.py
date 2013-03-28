@@ -19,6 +19,7 @@ import web
 import os
 import sys
 import shelve
+import json
 
 app_name = "cato_admin_ui"
 logger = catolog.get_logger(app_name)
@@ -394,58 +395,71 @@ def CacheTaskCommands():
         logger.error(ex.__str__())
 
 def CacheMenu():
-    #put the site.master.xml in the session here
-    # this is a significant boost to performance
-    xRoot = ET.parse("%s/catoadminui/site.master.xml" % lib_path)
-    if not xRoot:
-        raise Exception("Critical: Unable to read/parse site.master.xml.")
-        
-    xMenus = xRoot.findall("mainmenu/menu") 
+    with open(os.path.join(lib_path, "catoadminui/menu.json"), 'r') as f:
+        menus = json.load(f)
+    
+    # so, we have the cato menu.  Are there any extensions with menu additions?
+    # extension paths are defined in config.
+    if catoconfig.CONFIG.has_key("extension_path"):
+        expath = catoconfig.CONFIG["extension_path"].split(";")
+        for p in expath:
+            logger.debug("Looking for extension menus in [%s]..." % p)
+            for root, subdirs, files in os.walk(p):
+                for f in files:
+                    if f == "menu.json":
+                        logger.debug("... found one! Loading...")
 
+                        with open(os.path.join(p, f), 'r') as f:
+                            extmenus = json.load(f)
+
+                        # now, let's manipulate our menu
+                        for extmenu in extmenus:
+                            pos = extmenu.get("insert_at")
+                            if pos is not None:
+                                menus.insert(pos, extmenu)
+    
     sAdminMenu = ""
     sDevMenu = ""
     sUserMenu = ""
 
-    for xMenu in xMenus:
-        sLabel = xMenu.get("label", "No Label Defined")
-        sHref = (" href=\"" + xMenu.get("href", "") + "\"" if xMenu.get("href") else "")
-        sOnClick = (" onclick=\"" + xMenu.get("onclick", "") + "\"" if xMenu.get("onclick") else "")
-        sIcon = ("<img src=\"" + xMenu.get("icon", "") + "\" alt=\"\" />" if xMenu.get("icon") else "")
-        sTarget = xMenu.get("target", "")
-        sClass = xMenu.get("class", "")
-        sRoles = xMenu.get("roles", "")
+    for menu in menus:
+        sLabel = menu.get("label", "No Label Defined")
+        sHref = (" href=\"" + menu.get("href", "") + "\"" if menu.get("href") else "")
+        sOnClick = (" onclick=\"" + menu.get("onclick", "") + "\"" if menu.get("onclick") else "")
+        sIcon = ("<img src=\"" + menu.get("icon", "") + "\" alt=\"\" />" if menu.get("icon") else "")
+        sTarget = menu.get("target", "")
+        sClass = menu.get("class", "")
+        sRoles = menu.get("roles", "")
         
         sAdminItems = ""
         sDevItems = ""
         sUserItems = ""
-    
-        xItems = xMenu.findall("item")
-        if str(len(xItems)) > 0:
-            for xItem in xItems:
-                sItemLabel = xItem.get("label", "No Label Defined")
-                sItemHref = (" href=\"" + xItem.get("href", "") + "\"" if xItem.get("href") else "")
-                sItemOnClick = (" onclick=\"" + xItem.get("onclick", "") + "\"" if xItem.get("onclick") else "")
-                sItemIcon = ("<img src=\"" + xItem.get("icon", "") + "\" alt=\"\" />" if xItem.get("icon") else "")
-                sItemTarget = xItem.get("target", "")
-                sItemClass = xItem.get("class", "")
-                sItemRoles = xItem.get("roles", "")
+        
+        for item in menu.get("items", []):
+            sItemLabel = item.get("label", "No Label Defined")
+            sItemHref = (" href=\"" + item.get("href", "") + "\"" if item.get("href") else "")
+            sItemOnClick = (" onclick=\"" + item.get("onclick", "") + "\"" if item.get("onclick") else "")
+            sItemIcon = ("<img src=\"" + item.get("icon", "") + "\" alt=\"\" />" if item.get("icon") else "")
+            sItemTarget = item.get("target", "")
+            sItemClass = item.get("class", "")
+            sItemRoles = item.get("roles", "")
 
-                sItem = "<li class=\"ui-widget-header %s\" style=\"cursor: pointer;\"><a %s %s %s> %s %s</a></li>" % (sItemClass, sItemOnClick, sItemHref, sItemTarget, sItemIcon, sItemLabel)
-                
-                sAdminItems += sItem
-                
-                if "all" in sItemRoles:
+            sItem = "<li class=\"ui-widget-header %s\" style=\"cursor: pointer;\"><a %s %s %s> %s %s</a></li>" % (sItemClass, sItemOnClick, sItemHref, sItemTarget, sItemIcon, sItemLabel)
+            
+            sAdminItems += sItem
+            
+            if "all" in sItemRoles:
+                sUserItems += sItem 
+                sDevItems += sItem 
+            else: 
+                if "user" in sItemRoles:
                     sUserItems += sItem 
+                if "developer" in sItemRoles:
                     sDevItems += sItem 
-                else: 
-                    if "user" in sItemRoles:
-                        sUserItems += sItem 
-                    if "developer" in sItemRoles:
-                        sDevItems += sItem 
 
-            sUserItems = "<ul>%s</ul>" % sUserItems
-            sDevItems = "<ul>%s</ul>" % sDevItems
-            sAdminItems = "<ul>%s</ul>" % sAdminItems
+        sUserItems = "<ul>%s</ul>" % sUserItems
+        sDevItems = "<ul>%s</ul>" % sDevItems
+        sAdminItems = "<ul>%s</ul>" % sAdminItems
 
         # cool use of .format :-)
         sMenu = "<li class=\"%s\" style=\"cursor: pointer;\"><a %s %s %s>%s %s</a>{0}</li>" % (sClass, sOnClick, sHref, sTarget, sIcon, sLabel)
@@ -477,7 +491,6 @@ def CacheMenu():
         if not f_out:
             logger.error("Unable to create %s/_umenu.html." % path)
         f_out.write(sUserMenu)
-
 
 def Housekeeping():
     # first, if they don't exist, move any hardcoded clouds from the cloud_providers.xml file
