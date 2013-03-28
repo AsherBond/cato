@@ -2192,11 +2192,11 @@ class taskMethods:
         """
         # superusers AND those tagged with this Task can see the stop and resubmit button
         if uiCommon.UserIsInRole("Developer") or uiCommon.UserIsInRole("Administrator") or uiCommon.UserAndObjectTagsMatch(dr["original_task_id"], 3):
-            phResubmit.Visible = true
-            phCancel.Visible = true
+            resubmit_btn.Visible = true
+            abort_btn.Visible = true
         else:
-            phResubmit.Visible = false
-            phCancel.Visible = false
+            resubmit_btn.Visible = false
+            abort_btn.Visible = false
         """
 
         # so, it's simple.  We get the object (a dictionary) from the task class
@@ -2204,7 +2204,7 @@ class taskMethods:
         
         ti = task.TaskInstance(sTaskInstance, sTaskID, sAssetID)
         if ti.Error:
-            return "{\"error\":\"%s\"}" % ti.Error
+            return json.dumps({"error" : ti.Error})
         
         # one last thing... does the logfile for this run exist on this server?
         if os.path.exists(r"%s/ce/%s.log" % (catolog.LOGPATH, sTaskInstance)):

@@ -34,6 +34,22 @@ $(document).ready(function() {
 		}
 	});
 
+	$("#debug_run_btn").button({
+		icons : {
+			primary : "ui-icon-play"
+		}
+	});
+	$("#debug_stop_btn").button({
+		icons : {
+			primary : "ui-icon-stop"
+		}
+	});
+	$("#debug_view_active_log").button({
+		icons : {
+			primary : "ui-icon-document"
+		}
+	});
+
 	//    //the visual effect for the 'debug' buttons, set on page load
 	//    if ($("[id$='lblCurrentStatus']").text() == "Aborting") {
 	//        $("#debug_stop_btn").addClass("debug_btn_dim")

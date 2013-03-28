@@ -11,149 +11,147 @@ $var cssfiles: registry.css taskEdit.css taskView.css
 	}); 
 </script>
 <div id="left_panel_te">
-    <div id="toolbox">
-        <div id="toolbox_tabs" class="toolbox_tabs_1row">
-            <span id="tab_versions" linkto="div_versions" class="ui-state-default ui-corner-top toolbox_tab ui-tabs-selected ui-state-active"> Versions&nbsp;</span><span id="tab_parameters" linkto="div_parameters" class="ui-state-default ui-corner-top toolbox_tab"
-            style="padding-left: 6px; padding-right: 6px;">Parameters</span><span id="tab_schedules"
-            linkto="div_schedules" class="ui-state-default ui-corner-top toolbox_tab"
-            style="padding-left: 6px; padding-right: 6px;">Schedules</span><span id="tab_debug"
-            linkto="div_debug" class="ui-state-default ui-corner-top toolbox_tab">Run</span><span
-            id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>
-            <!--<span
-            id="tab_registry" linkto="div_registry" class="ui-state-default ui-corner-top toolbox_tab"
-            style="padding-left: 7px; padding-right: 7px;">Registry</span>-->
-        </div>
-        <div id="div_versions" class="ui-widget-content ui-corner-top toolbox_panel">
-            <center>
-                <span id="show_log_link">View Change Log</span>
-                <span id="show_runlog_link">View Last Run Log</span>
-            </center>
-            <br />
-            <br />
-            <span class="detail_label">Selected Version:</span>
-            <span id="lblVersion" class="code"></span>
-            <br />
-            <span class="detail_label">Status: </span>
-            <span id="lblStatus2" class="code"></span>
-            <br />
-            <span id="set_default_btn">Set as Default</span>
-            <hr />
-            <span class="detail_label">All Versions:</span>
-            <ul id="versions"></ul>
-            <span id="new_version_btn">New Version</span>
-        </div>
-        <div id="div_debug" class="ui-widget-content ui-corner-top toolbox_panel hidden">
-            <!--<p>
-            Test Asset:<br />
-            <input type="text" id="txtTestAsset" Enabled="false" asset_id="" class="code"
-            Width="80%" />
-            <span class="asset_picker_btn ui-icon ui-icon-search forceinline pointer" link_to="txtTestAsset" title="Select"></span>
-            <span id="debug_asset_clear_btn" class="ui-icon ui-icon-close forceinline pointer" title="Clear"></span>
-            </p>-->
-            <div id="debug_last_run" class="hidden">
-                <h4>Last Run</h4>
-                Submitted:
-                <span id="debug_submitted"></span>
-                <br />
-                Completed:
-                <span id="debug_completed"></span>
-                <br />
-                Status:
-                <span id="debug_status"></span>
-                <br />
-                Instance:
-                <span id="debug_instance"></span>
-                <br />
-                Submitted By:
-                <span id="debug_submitted_by"></span>
-                <br />
+	<div id="toolbox">
+		<div id="toolbox_tabs" class="toolbox_tabs_1row">
+			<span id="tab_versions" linkto="div_versions" class="ui-state-default ui-corner-top toolbox_tab ui-tabs-selected ui-state-active"> Versions&nbsp;</span><span id="tab_parameters" linkto="div_parameters" class="ui-state-default ui-corner-top toolbox_tab"
+			style="padding-left: 6px; padding-right: 6px;">Parameters</span><span id="tab_schedules"
+			linkto="div_schedules" class="ui-state-default ui-corner-top toolbox_tab"
+			style="padding-left: 6px; padding-right: 6px;">Schedules</span><span id="tab_debug"
+			linkto="div_debug" class="ui-state-default ui-corner-top toolbox_tab">Run</span><span
+			id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>
+			<!--<span
+			id="tab_registry" linkto="div_registry" class="ui-state-default ui-corner-top toolbox_tab"
+			style="padding-left: 7px; padding-right: 7px;">Registry</span>-->
+		</div>
+		<div id="div_versions" class="ui-widget-content ui-corner-top toolbox_panel">
+			<center>
+				<span id="show_log_link">View Change Log</span>
+				<span id="show_runlog_link">View Last Run Log</span>
+			</center>
+			<br />
+			<br />
+			<span class="detail_label">Selected Version:</span>
+			<span id="lblVersion" class="code"></span>
+			<br />
+			<span class="detail_label">Status: </span>
+			<span id="lblStatus2" class="code"></span>
+			<br />
+			<span id="set_default_btn">Set as Default</span>
+			<hr />
+			<span class="detail_label">All Versions:</span>
+			<ul id="versions"></ul>
+			<span id="new_version_btn">New Version</span>
+		</div>
+		<div id="div_debug" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+			<!--<p>
+			Test Asset:<br />
+			<input type="text" id="txtTestAsset" Enabled="false" asset_id="" class="code"
+			Width="80%" />
+			<span class="asset_picker_btn ui-icon ui-icon-search forceinline pointer" link_to="txtTestAsset" title="Select"></span>
+			<span id="debug_asset_clear_btn" class="ui-icon ui-icon-close forceinline pointer" title="Clear"></span>
+			</p>-->
+			<div id="debug_last_run" class="hidden">
+				<h4>Last Run</h4>
+				Instance: <span id="debug_instance">N/A</span>
+				<br />
+				Status:
+				<span id="debug_status">Never Executed</span>
+				<br />
+				Submitted:
+				<span id="debug_submitted">N/A</span>
+				<br />
+				Completed:
+				<span id="debug_completed">N/A</span>
+				<br />
+				Submitted By:
+				<span id="debug_submitted_by">N/A</span>
+				<br />
+				View Log:
+				<span id="debug_view_latest_log" class="ui-icon ui-icon-search debug_btn" style="display: inline-block;"></span>
 
-                View Log:
-                <span id="debug_view_latest_log" class="ui-icon ui-icon-search debug_btn" style="display: inline-block;"></span>
-
-                <hr />
-            </div>
-            <div style="text-align: center;">
-                Current Status:
-                <span id="lblCurrentStatus"></span>
-                <br />
-                <img id="debug_stop_btn" class="debug_btn" src="static/images/icons/player_stop_32.png"
-                alt="" />
-                <img id="debug_run_btn" class="debug_btn" src="static/images/icons/player_play_32.png"
-                alt="" />
-                <img id="debug_view_active_log" class="debug_btn" src="static/images/icons/view_text_32.png"
-                alt="" />
-            </div>
-        </div>
-        <div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
-            <span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
-            <ul id="objects_tags"></ul>
-        </div>
-        <div id="div_registry" class="ui-widget-content ui-corner-top toolbox_panel hidden">
-            <div id="registry_content"></div>
-        </div>
-        <div id="div_parameters" class="ui-widget-content ui-corner-top toolbox_panel hidden">
-            <span id="parameter_add_btn">Add New</span>
-            <hr />
-            <div id="parameters"></div>
-        </div>
-        <div id="div_schedules" class="ui-widget-content ui-corner-top toolbox_panel hidden">
-            <div class="ui-state-default">
-                <span class="detail_label">Action Plans</span><div class="floatright"><span class="refresh_plans_btn ui-icon ui-icon-refresh pointer"></span></div>
-            </div>
-            <div id="toolbox_plans" class="ui-widget-content"></div>
-            <br />
-            <div class="ui-state-default">
-                <span class="detail_label">Schedules</span><div class="floatright"><span class="refresh_plans_btn ui-icon ui-icon-refresh pointer"></span></div>
-            </div>
-            <div id="toolbox_schedules" class="ui-widget-content"></div>
-        </div>
-    </div>
+				<hr />
+			</div>
+			<div style="text-align: center;">
+				<span id="debug_stop_btn" class="debug_btn">Stop</span>
+				<span id="debug_run_btn" class="debug_btn">Run</span>
+				<span id="debug_view_active_log" class="debug_btn">Log</span>
+			</div>
+		</div>
+		<div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+			<span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
+			<ul id="objects_tags"></ul>
+		</div>
+		<div id="div_registry" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+			<div id="registry_content"></div>
+		</div>
+		<div id="div_parameters" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+			<span id="parameter_add_btn">Add New</span>
+			<hr />
+			<div id="parameters"></div>
+		</div>
+		<div id="div_schedules" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+			<div class="ui-state-default">
+				<span class="detail_label">Action Plans</span>
+				<div class="floatright">
+					<span class="refresh_plans_btn ui-icon ui-icon-refresh pointer"></span>
+				</div>
+			</div>
+			<div id="toolbox_plans" class="ui-widget-content"></div>
+			<br />
+			<div class="ui-state-default">
+				<span class="detail_label">Schedules</span>
+				<div class="floatright">
+					<span class="refresh_plans_btn ui-icon ui-icon-refresh pointer"></span>
+				</div>
+			</div>
+			<div id="toolbox_schedules" class="ui-widget-content"></div>
+		</div>
+	</div>
 </div>
 <div id="content_te" class="display">
-    <center>
-        <h3><span id="lblTaskNameHeader"></span><span id="version_tag"> Version: <span id="lblVersionHeader"></span></span></h3>
-    </center>
-    <div class="ui-state-highlight">
-        <p>
-            <img src="static/images/icons/encrypted_32.png" alt="" />
-            This Task is "Approved". Changes are not permitted.
-        </p>
-    </div>
-    <br />
-    <div class="codebox">
-        <span class="detail_label">Code:</span>
-        <span id="lblTaskCode" class="code" Style="font-size: 1.2em;"></span>
-        <br />
-        <span class="detail_label">Status: </span>
-        <span id="lblStatus" class="code" Style="font-size: 1.2em;"></span>
-        <br />
-        <span class="detail_label">Concurrent Instances:</span>
-        <span id="lblConcurrentInstances" class="task_details code"
-        Style="font-size: 1.2em;"></span>
-        <br />
-        <span class="detail_label">Number to Queue:</span>
-        <span id="lblQueueDepth" class="task_details code" Style="font-size: 1.2em;"></span>
-        <br />
-        <span class="detail_label">Description:</span>
-        <br />
-        <span id="lblDescription" rows="10" class="code"
-        Style="font-size: 1.2em;"></span>
-        <!-- *** Commented out per Bug 1029 ***
-        <span id="lblDirect" class="code"></span>
-        Direct to Asset?<br />
-        -->
-    </div>
-    <hr />
-    <div id="div_steps" class="">
-        <h3>Steps</h3>
-        <ul id="codeblock_steps"></ul>
-    </div>
-    <hr />
+	<center>
+		<h3><span id="lblTaskNameHeader"></span><span id="version_tag"> Version: <span id="lblVersionHeader"></span></span></h3>
+	</center>
+	<div class="ui-state-highlight">
+		<p>
+			<img src="static/images/icons/encrypted_32.png" alt="" />
+			This Task is "Approved". Changes are not permitted.
+		</p>
+	</div>
+	<br />
+	<div class="codebox">
+		<span class="detail_label">Code:</span>
+		<span id="lblTaskCode" class="code" Style="font-size: 1.2em;"></span>
+		<br />
+		<span class="detail_label">Status: </span>
+		<span id="lblStatus" class="code" Style="font-size: 1.2em;"></span>
+		<br />
+		<span class="detail_label">Concurrent Instances:</span>
+		<span id="lblConcurrentInstances" class="task_details code"
+		Style="font-size: 1.2em;"></span>
+		<br />
+		<span class="detail_label">Number to Queue:</span>
+		<span id="lblQueueDepth" class="task_details code" Style="font-size: 1.2em;"></span>
+		<br />
+		<span class="detail_label">Description:</span>
+		<br />
+		<span id="lblDescription" rows="10" class="code"
+		Style="font-size: 1.2em;"></span>
+		<!-- *** Commented out per Bug 1029 ***
+		<span id="lblDirect" class="code"></span>
+		Direct to Asset?<br />
+		-->
+	</div>
+	<hr />
+	<div id="div_steps" class="">
+		<h3>Steps</h3>
+		<ul id="codeblock_steps"></ul>
+	</div>
+	<hr />
 </div>
 <!--DIALOGS-->
 <div id="task_launch_dialog" title="Run Task">
-    <div id="plan_edit_dialog" title="Edit Plan"></div>
+	<div id="plan_edit_dialog" title="Edit Plan"></div>
 </div>
 <div id="param_edit_dialog" title="Parameter"></div>
 <div id="param_delete_confirm_dialog" title="Remove Parameter"></div>
@@ -172,17 +170,17 @@ id="asset_search_btn" class=" ui-icon ui-icon-search forceinline pointer"></span
 </div>
 -->
 <div id="addVersion_dialog" class="hidden" title="Create Another Version">
-    Current Version Number:
-    <span id="lblCurrentVersion" Text=""></span>
-    <hr />
-    <center>
-        <input id="rbMinor" checked="checked" name="rbMinorMajor" value="Minor" type="radio" />
-        <label for="rbMinor">New Minor Version (<span id="lblNewMinorVersion"></span>)</label>
-        <br />
-        <input id="rbMajor" name="rbMinorMajor" value="Major" type="radio" />
-        <label for="rbMajor">New Major Version (<span id="lblNewMajorVersion"></span>)</label>
-        <br />
-    </center>
+	Current Version Number:
+	<span id="lblCurrentVersion" Text=""></span>
+	<hr />
+	<center>
+		<input id="rbMinor" checked="checked" name="rbMinorMajor" value="Minor" type="radio" />
+		<label for="rbMinor">New Minor Version (<span id="lblNewMinorVersion"></span>)</label>
+		<br />
+		<input id="rbMajor" name="rbMinorMajor" value="Major" type="radio" />
+		<label for="rbMajor">New Major Version (<span id="lblNewMajorVersion"></span>)</label>
+		<br />
+	</center>
 </div>
 <!-- Registry dialogs. -->
 <div id="reg_edit_dialog" class="hidden"></div>

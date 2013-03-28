@@ -35,8 +35,8 @@ $(document).ready(function() {
 		       Parameters \
 		       </div> \
 		       <span id="action_defaults_btn" class="hidden"><input type="radio" id="rbAction" name="radio" /><label for="rbAction">Action Defaults</label></span> \
-		       &nbsp;&nbsp;<input type="radio" id="rbDefault" name="radio" /><label for="rbDefault">Task Defaults</label> \
-		       &nbsp;&nbsp;<input type="radio" id="rbPrevious" name="radio" /><label for="rbPrevious">Previous Values</label> \
+		       &nbsp;&nbsp;<input type="radio" id="rbDefault" name="radio" /><label for="rbDefault">&nbsp;Task Defaults</label> \
+		       &nbsp;&nbsp;<input type="radio" id="rbPrevious" name="radio" /><label for="rbPrevious">&nbsp;Previous Values</label> \
 		       <div id="task_launch_dialog_params"></div> \
 		   </div> \
 		</div> \

@@ -1192,6 +1192,12 @@ class TaskInstance(object):
                 sSQL += " and asset_id = '%s'" % sAssetID
 
             sTaskInstance = str(db.select_col_noexcep(sSQL))
+            
+        # still no task instance???
+        # the task has never been run... just return
+        if not sTaskInstance:
+            return
+            #raise Exception("No Instance found.  Most likely this Task has never been run.") 
         
         # the task instance must be a number, die if it isn't
         try:

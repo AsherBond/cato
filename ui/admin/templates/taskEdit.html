@@ -92,37 +92,29 @@ $var cssfiles: registry.css taskEdit.css taskView.css
             </p>-->
             <div id="debug_last_run" class="hidden">
                 <h4>Last Run</h4>
-                Submitted:
-                <span id="debug_submitted"></span>
-                <br />
-                Completed:
-                <span id="debug_completed"></span>
-                <br />
-                Status:
-                <span id="debug_status"></span>
-                <br />
-                Instance:
-                <span id="debug_instance"></span>
-                <br />
-                Submitted By:
-                <span id="debug_submitted_by"></span>
-                <br />
-
+				Instance: <span id="debug_instance">N/A</span>
+				<br />
+				Status:
+				<span id="debug_status">Never Executed</span>
+				<br />
+				Submitted:
+				<span id="debug_submitted">N/A</span>
+				<br />
+				Completed:
+				<span id="debug_completed">N/A</span>
+				<br />
+				Submitted By:
+				<span id="debug_submitted_by">N/A</span>
+				<br />
                 View Log:
                 <span id="debug_view_latest_log" class="ui-icon ui-icon-search debug_btn" style="display: inline-block;"></span>
 
                 <hr />
             </div>
             <div style="text-align: center;">
-                Current Status:
-                <span id="lblCurrentStatus"></span>
-                <br />
-                <img id="debug_stop_btn" class="debug_btn" src="static/images/icons/player_stop_32.png"
-                alt="" />
-                <img id="debug_run_btn" class="debug_btn" src="static/images/icons/player_play_32.png"
-                alt="" />
-                <img id="debug_view_active_log" class="debug_btn" src="static/images/icons/view_text_32.png"
-                alt="" />
+                <span id="debug_stop_btn" class="debug_btn">Stop</span>
+                <span id="debug_run_btn" class="debug_btn">Run</span>
+                <span id="debug_view_active_log" class="debug_btn">Log</span>
             </div>
         </div>
         <div id="div_parameters" class="ui-widget-content ui-corner-top toolbox_panel hidden">

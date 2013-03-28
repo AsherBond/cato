@@ -21,6 +21,22 @@ $(document).ready(function() {
 
 	$(".link").disableSelection();
 
+	$("#resubmit_btn").button({
+		icons : {
+			primary : "ui-icon-play"
+		}
+	});
+	$("#abort_btn").button({
+		icons : {
+			primary : "ui-icon-stop"
+		}
+	});
+	$("#refresh_btn").button({
+		icons : {
+			primary : "ui-icon-refresh"
+		}, text: false
+	});
+
 	//refresh button
 	$("#refresh_btn").click(function() {
 		doGetDetails();
@@ -225,9 +241,9 @@ function doGetDetails() {
 
 		//don't show the cancel button if it's not running
 		if (instance.allow_cancel == "false")
-			$("#phCancel").hide();
+			$("#abort_btn").hide();
 		else
-			$("#phCancel").show();
+			$("#abort_btn").show();
 
 		//if the log file is local to this server, show a link
 		if (instance.logfile_name)
