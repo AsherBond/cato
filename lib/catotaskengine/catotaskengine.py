@@ -1476,11 +1476,11 @@ class TaskEngine():
                 ii = 0
                 for v_node in v_nodes:
                     ii += 1
-                    self.rt.set(name, v_node.text.strip(), ii)
+                    val = v_node.text.strip() if v_node.text is not None else ""
+                    self.rt.set(name, val, ii)
             del(root)
         except ET.ParseError:
-            self.logger.error("Invalid or missing XML for parameters.")
-            exit()
+            raise Exception("Invalid or missing XML for parameters.")
 
     def get_task_params(self):
 
@@ -1499,51 +1499,56 @@ class TaskEngine():
         
 
     def startup(self):
-        self.logger.info("""
-#######################################
-    Starting up %s
-#######################################""" % self.process_name)
-        self.db = catodb.Db()
-        self.db.connect_db(server=catoconfig.CONFIG["server"], port=catoconfig.CONFIG["port"],
-            user=catoconfig.CONFIG["user"],
-            password=catoconfig.CONFIG["password"], database=catoconfig.CONFIG["database"])
-        self.config = catoconfig.CONFIG
-
-
-        self.logger.info("Task Instance: %s - PID: %s" % 
-            (self.task_instance, os.getpid()))
-        self.update_ti_pid()
-        self.get_task_instance()
-        self.get_task_params()
-        self.logger.info("Task Name: %s - Version: %s, DEBUG LEVEL: %s, Service Instance id: %s" % 
-            (self.task_name, self.task_version, self.debug_level, self.instance_id))
-
-
-        self.cloud_name = None
-        if self.cloud_account:
-            self.gather_account_info(self.cloud_account)
-        if self.cloud_id:
-            self.cloud_name = self.get_cloud_name(self.cloud_id)
-        elif self.cloud_account:
-            self.cloud_id = self.get_default_cloud_for_account(self.cloud_account)
-            self.cloud_name = self.get_cloud_name(self.cloud_id)
+        try:
+            self.logger.info("""
+    #######################################
+        Starting up %s
+    #######################################""" % self.process_name)
+            self.db = catodb.Db()
+            self.db.connect_db(server=catoconfig.CONFIG["server"], port=catoconfig.CONFIG["port"],
+                user=catoconfig.CONFIG["user"],
+                password=catoconfig.CONFIG["password"], database=catoconfig.CONFIG["database"])
+            self.config = catoconfig.CONFIG
+    
+    
+            self.logger.info("Task Instance: %s - PID: %s" % 
+                (self.task_instance, os.getpid()))
+            self.update_ti_pid()
+            self.get_task_instance()
+            self.get_task_params()
+            self.logger.info("Task Name: %s - Version: %s, DEBUG LEVEL: %s, Service Instance id: %s" % 
+                (self.task_name, self.task_version, self.debug_level, self.instance_id))
+    
+    
+            self.cloud_name = None
+            if self.cloud_account:
+                self.gather_account_info(self.cloud_account)
+            if self.cloud_id:
+                self.cloud_name = self.get_cloud_name(self.cloud_id)
+            elif self.cloud_account:
+                self.cloud_id = self.get_default_cloud_for_account(self.cloud_account)
+                self.cloud_name = self.get_cloud_name(self.cloud_id)
+                
+    
+            self.logger.info("cloud_account is %s, cloud_name is %s " % (self.cloud_account, self.cloud_name))
+    
             
-
-        self.logger.info("cloud_account is %s, cloud_name is %s " % (self.cloud_account, self.cloud_name))
-
-        
-
-        # extension paths are defined in config.
-        if catoconfig.CONFIG.has_key("extension_path"):
-            expath = catoconfig.CONFIG["extension_path"].split(";")
-            for p in expath:
-                self.logger.info("Appending extension path [%s]" % p)
-                sys.path.append(p)
-        
-                for root, subdirs, files in os.walk(p):
-                    for f in files:
-                        if f == "augment_te.py":
-                            self.augment("%s.augment_te" % os.path.basename(root))
+    
+            # extension paths are defined in config.
+            if catoconfig.CONFIG.has_key("extension_path"):
+                expath = catoconfig.CONFIG["extension_path"].split(";")
+                for p in expath:
+                    self.logger.info("Appending extension path [%s]" % p)
+                    sys.path.append(p)
+            
+                    for root, subdirs, files in os.walk(p):
+                        for f in files:
+                            if f == "augment_te.py":
+                                self.augment("%s.augment_te" % os.path.basename(root))
+        except Exception as e:
+            self.logger.info(e)
+            self.update_status('Error')
+            raise Exception(e)
         
 
     def augment(self, modname):
