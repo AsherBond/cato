@@ -209,7 +209,7 @@ class Task(object):
         sSQL = """select task_id, original_task_id, task_name, task_code, task_status, version, default_version,
                 task_desc, use_connector_system, concurrent_instances, queue_depth, parameter_xml
                 from task
-                where (task_name = '%s' or task_code = '%s') %s""" % (name, name, version_clause)
+                where (task_name = '%s') %s""" % (name, version_clause)
         dr = db.select_row_dict(sSQL)
 
         if dr:
