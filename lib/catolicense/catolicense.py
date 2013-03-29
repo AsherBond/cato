@@ -1,4 +1,4 @@
-def check_license():
+def check_license(app):
     # this is important... if anything fails on the license check...
     # we ALLOW access.  Don't want any bugs to limit the ability to use the software.
     try:
@@ -19,7 +19,7 @@ def check_license():
             
         # the value will either be 'agreed' or ''
         from catosettings import settings
-        license_status = settings.settings.get_application_setting("general/license_status")
+        license_status = settings.settings.get_application_setting("general/%slicense_status" % ("%s_" % app if app else ""))
         
         # the value will either be 'agreed' or ''
         if license_status == "agreed":
