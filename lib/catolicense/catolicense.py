@@ -1,4 +1,4 @@
-def check_license(app):
+def check_license(app=""):
     # this is important... if anything fails on the license check...
     # we ALLOW access.  Don't want any bugs to limit the ability to use the software.
     try:

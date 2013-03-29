@@ -972,18 +972,18 @@ class TaskEngine():
                     ok_flag = True
                     break
                 elif state == "pending":
-                    msg = "Instance id %s state is pending, sleeping and retrying" % (instance_id)
+                    msg = "Instance id [%s] state is pending. Sleeping and retrying..." % (instance_id)
                     self.logger.info(msg)
                     time.sleep(10)
                 else:
-                    msg = "Instance id %s state is neither running or pending, state found is %s, cannot connect" % (instance_id, state)
+                    msg = "Instance ID [%s] state is neither running or pending, state found is [%s], cannot connect." % (instance_id, state)
                     raise Exception(msg)
             except Exception as ex:
                 if ii == num_retries:
-                    msg = "DescribeInstances returned -> %s, exiting" % (ex)
+                    msg = "DescribeInstances returned -> [%s]. Exiting..." % (ex)
                     self.logger.info(msg)
                 else:
-                    msg = "DescribeInstances returned -> %s, sleeping and retrying" % (ex)
+                    msg = "DescribeInstances returned -> [%s]. Sleeping and retrying..." % (ex)
                     self.logger.info(msg)
                     time.sleep(10)
 
@@ -1220,7 +1220,7 @@ class TaskEngine():
     def gather_account_info(self, account_id):
 
         sql = """select ca.provider, ca.login_id, ca.login_password from cloud_account ca 
-            where ca.account_id= %s"""
+            where ca.account_id=%s"""
         row = self.db.select_row(sql, (account_id))
         if row:
             self.provider, self.cloud_login_id, password = row[:]

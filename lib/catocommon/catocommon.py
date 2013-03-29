@@ -352,7 +352,7 @@ def tick_slash(s):
     
     return ""
 
-def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id, account_id, schedule_instance, submitted_by_instance, cloud_id=False):
+def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id, account_id, schedule_instance, submitted_by_instance, cloud_id=None):
     """This *should* be the only place where rows are added to task_instance."""
     try:
         user_id = "'%s'" % user_id if user_id else "null"
