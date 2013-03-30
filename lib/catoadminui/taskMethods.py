@@ -128,11 +128,11 @@ class taskMethods:
                 return t.AsJSON()
         
         # should not get here if all is well
-        return "{\"result\":\"fail\",\"error\":\"Failed to get Task details for Task ID [%s].\"}" % sID
+        return json.dumps({"result":"fail", "error":"Failed to get Task details for Task ID [%s]." % sID})
 
     def wmTaskSetDefault(self):
         sID = uiCommon.getAjaxArg("sTaskID")
-        result = task.Task.SetAsDefault(sID)
+        task.Task.SetAsDefault(sID)
         return json.dumps({"result" : "success"})
 
     def wmGetTaskCodeFromID(self):
@@ -144,6 +144,7 @@ class taskMethods:
             sSQL = "select task_code from task where original_task_id = %s and default_version = 1"
             sTaskCode = self.db.select_col(sSQL, sOriginalTaskID)
             return json.dumps({"code" : sTaskCode})
+        return "{}"
 
     @staticmethod
     def IsTaskAllowed(task_id):

@@ -150,29 +150,18 @@ function ShowItemCopy() {
 	var task_copy_original_id = myArray[0];
 
 	//alert(myArray[0]);
-	var task_code = '';
-
-	var response = ajaxPost("taskMethods/wmGetTaskCodeFromID", {
-		sOriginalTaskID : task_copy_original_id
-	});
-	if (response) {
-		if (response.code) {
-			task_code = response.code;
-			$("#lblTaskCopy").html('<b>Copying Task ' + task_code + '</b><br />&nbsp;<br />');
-			$("[tag='chk']").attr("checked", false);
-			$("#hidSelectedArray").val('');
-			$("#hidCopyTaskID").val(task_copy_original_id);
-			$("#lblItemsSelected").html("0");
-			$("#txtCopyTaskName").val('');
-			$("#txtCopyTaskCode").val('');
-			// } else {
-			// showAlert('No task code returned.');
-		}
-	}
+	var task_name = $("[task_id=" + task_copy_original_id +"] td")[2].innerHTML;
+	$("#lblTaskCopy").html('<b>Copying Task ' + task_name + '</b><br />&nbsp;<br />');
+	$("[tag='chk']").attr("checked", false);
+	$("#hidSelectedArray").val('');
+	$("#hidCopyTaskID").val(task_copy_original_id);
+	$("#lblItemsSelected").html("0");
+	$("#txtCopyTaskName").val('');
+	$("#txtCopyTaskCode").val('');
 
 	var msg = ajaxPost("taskMethods/wmGetTaskVersionsDropdown", {
 		sOriginalTaskID : task_copy_original_id
-	});
+	}, "html");
 	if (msg) {
 		// load the copy from versions drop down
 		if (msg.length == 0) {
