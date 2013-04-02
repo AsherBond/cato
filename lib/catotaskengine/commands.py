@@ -35,9 +35,6 @@ except AttributeError as ex:
 from catocommon import catocommon
 from . import classes
 
-
-from catodatastore import datastore
-
 RESERVED_COLLECTIONS = ["deployments", "services", "default", "system.indexes"]
 
 def datastore_drop_collection_cmd(self, task, step):
