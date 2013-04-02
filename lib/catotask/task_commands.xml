@@ -233,6 +233,68 @@
 					</actions>
 				</function>
 			</command>
+			<command name="datastore_insert" label="Datastore Insert" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+				<function name="datastore_insert">
+                    <collection input_type="text" label="Collection" />
+					<pairs is_array="true">
+						<pair>
+							<name input_type="text" label="Name" />
+							<value input_type="text" label="Value" />
+						</pair>
+					</pairs>
+				</function>
+			</command>
+			<command name="datastore_query" label="Datastore Query" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+				<function name="datastore_query">
+                    <collection input_type="text" label="Collection" />
+                    <query input_type="text" label="Query" />
+					<columns is_array="true">
+						<column>
+							<name input_type="text" label="Column Name" />
+							<variable input_type="text" label="Variable Name" />
+						</column>
+					</columns>
+				</function>
+			</command>
+			<command name="datastore_update" label="Datastore Update" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+				<function name="datastore_update">
+                    <collection input_type="text" label="Collection" />
+                    <query input_type="text" label="Query" />
+					<columns is_array="true">
+						<column>
+							<name input_type="text" label="Name" />
+							<value input_type="text" label="Value" />
+						</column>
+					</columns>
+				</function>
+			</command>
+			<command name="datastore_delete" label="Datastore Delete" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+				<function name="datastore_delete">
+                    <collection input_type="text" label="Collection" />
+                    <query input_type="text" label="Query" />
+				</function>
+			</command>
+			<command name="datastore_create_collection" label="Datastore Create Collection" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+				<function name="datastore_create_collection">
+                    <collection input_type="text" label="Collection" />
+				</function>
+			</command>
+			<command name="datastore_drop_collection" label="Datastore Drop Collection" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+				<function name="datastore_drop_collection">
+                    <collection input_type="text" label="Collection" />
+				</function>
+			</command>
+			<command name="datastore_create_index" label="Datastore Create Index" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+				<function name="datastore_create_index">
+                    <collection input_type="text" label="Collection" />
+                    <unique input_type="dropdown" label="Unique?" datasource="local" dataset="no|yes">no</unique>
+					<columns is_array="true">
+						<column>
+							<name input_type="text" label="Name" />
+						</column>
+					</columns>
+				</function>
+			</command>
 		</commands>
 	</category>
 	<category name="cloud" label="Cloud" description="Commands for deployment management" icon="static/images/icons/clouds_32.png">

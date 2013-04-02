@@ -19,6 +19,7 @@ import base64
 import urllib
 import urllib2
 import httplib
+import json
 from datetime import datetime
 
 try:
@@ -33,6 +34,284 @@ except AttributeError as ex:
 
 from catocommon import catocommon
 from . import classes
+
+
+from catodatastore import datastore
+
+RESERVED_COLLECTIONS = ["deployments", "services", "default", "system.indexes"]
+
+def datastore_drop_collection_cmd(self, task, step):
+
+    collection = self.get_command_params(step.command, "collection")[0]
+    collection = self.replace_variables(collection)
+
+    if len(collection) == 0:
+        raise Exception("Datastore Drop Collection command requires a collection name")
+
+    if collection in RESERVED_COLLECTIONS:
+        msg = "Datastore Drop Collection error: %s is a reserved collection name" % (collection)
+        raise Exception(msg)
+
+    db = catocommon.new_mongo_conn()
+    if collection not in db.collection_names():
+        msg = "Datastore Drop Collection error: a collection named %s does not exist" % (collection)
+        raise Exception(msg)
+
+    db.drop_collection(collection)
+    msg = "Collection %s dropped" % (collection)
+    self.insert_audit(step.function_name, msg, "")
+
+    catocommon.mongo_disconnect(db)
+
+
+def datastore_create_collection_cmd(self, task, step):
+
+    collection = self.get_command_params(step.command, "collection")[0]
+    collection = self.replace_variables(collection)
+
+    if len(collection) == 0:
+        raise Exception("Datastore Create Collection command requires a collection name")
+
+    if collection in RESERVED_COLLECTIONS:
+        msg = "Datastore Create Collection error: %s is a reserved collection name" % (collection)
+        raise Exception(msg)
+
+    db = catocommon.new_mongo_conn()
+    if collection in db.collection_names():
+        msg = "Datastore Create Collection error: a collection named %s already exists" % (collection)
+        raise Exception(msg)
+
+    db.create_collection(collection)
+    msg = "Collection %s created" % (collection)
+    self.insert_audit(step.function_name, msg, "")
+
+    catocommon.mongo_disconnect(db)
+
+
+def datastore_insert_cmd(self, task, step):
+
+    collection = self.get_command_params(step.command, "collection")[0]
+    pairs = self.get_node_list(step.command, "pairs/pair", "name", "value")
+    collection = self.replace_variables(collection)
+
+    if len(collection) == 0:
+        raise Exception("Set Datastore Value requires a collection name")
+
+    if collection in RESERVED_COLLECTIONS:
+        msg = "Datastore Insert Collection error: %s is a reserved collection name" % (collection)
+        raise Exception(msg)
+
+    db = catocommon.new_mongo_conn()
+    try:
+        coll = db[collection]
+    except InvalidName:
+        db.create_collection(collection)
+    except Exception as e:
+        raise Exception(e)
+
+    document = {}
+    #document["timestamp"] = datetime.now()
+
+    for p in pairs:
+        name = self.replace_variables(p[0])
+        value = self.replace_variables(p[1])
+        document[name] = value
+
+    self.logger.debug(document)
+    ret = coll.insert(document)
+    msg = "Collection %s, Insert %s" % (collection, str(document))
+    self.insert_audit(step.function_name, msg, "")
+
+    catocommon.mongo_disconnect(db)
+
+def datastore_delete_cmd(self, task, step):
+
+    collection, query_string = self.get_command_params(step.command, "collection", "query")[:]
+    collection = self.replace_variables(collection)
+    query_string = self.replace_variables(query_string)
+
+    if len(query_string):
+        try:
+            query = json.loads(query_string)
+        except ValueError as e:
+            msg = "Datastore Delete error: query not properly formed json: %s, %s" % (query_string, str(e))
+            raise Exception(msg)
+        except Exception as e:
+            raise Exception(e)
+        print type(query)
+        if not isinstance(query, dict):
+            msg = "Datastore Delete error: query is not properly formed json key, value pair object %s" % (query_string)
+            raise Exception(msg)
+    else:
+        query = {}
+
+    if len(collection) == 0:
+        raise Exception("Datastore Delete requires a collection name")
+
+    if collection in RESERVED_COLLECTIONS:
+        msg = "Datastore Delete Collection error: %s is a reserved collection name" % (collection)
+        raise Exception(msg)
+
+    db = catocommon.new_mongo_conn()
+    if collection in db.collection_names():
+        coll = db[collection]
+    else:
+        msg = "Datastore Delete error: a collection named %s does not exist" % (collection)
+        raise Exception(msg)
+
+    msg = "Collection %s, Delete %s" % (collection, query_string)
+    ret = coll.remove(query)
+    catocommon.mongo_disconnect(db)
+    self.insert_audit(step.function_name, msg, "")
+
+
+def datastore_create_index_cmd(self, task, step):
+
+    collection, unique = self.get_command_params(step.command, "collection", "unique")[:]
+    columns = self.get_node_list(step.command, "columns/column", "name")
+    collection = self.replace_variables(collection)
+
+    if len(collection) == 0:
+        raise Exception("Datastore Create Index requires a collection name")
+
+    if len(columns) == 0:
+        msg = "Datastore Create Index error: a list of columns is required"
+        raise Exception(msg)
+
+    if collection in RESERVED_COLLECTIONS:
+        msg = "Datastore Create Index error: %s is a reserved collection name" % (collection)
+        raise Exception(msg)
+
+    db = catocommon.new_mongo_conn()
+    if collection in db.collection_names():
+        coll = db[collection]
+    else:
+        msg = "Datastore Create Index error: a collection named %s does not exist" % (collection)
+        raise Exception(msg)
+
+    index = []
+    for column in columns:
+        index.append((column[0], 1))
+
+    msg = "Collection %s, Columns %s, Unique %s" % (collection, str(columns), unique)
+    if unique == "yes":
+        unique = True
+    else:
+        unique = False
+    ret = coll.create_index(index, unique=unique)
+    catocommon.mongo_disconnect(db)
+    self.insert_audit(step.function_name, msg, "")
+
+
+def datastore_update_cmd(self, task, step):
+
+    collection, query_string = self.get_command_params(step.command, "collection", "query")[:]
+    pairs = self.get_node_list(step.command, "columns/column", "name", "value")
+    collection = self.replace_variables(collection)
+    query_string = self.replace_variables(query_string)
+
+    if len(query_string):
+        try:
+            query = json.loads(query_string)
+        except ValueError as e:
+            msg = "Datastore Update error: query not properly formed json: %s, %s" % (query_string, str(e))
+            raise Exception(msg)
+        except Exception as e:
+            raise Exception(e)
+        print type(query)
+        if not isinstance(query, dict):
+            msg = "Datastore Update error: query is not properly formed json key, value pair object %s" % (query_string)
+            raise Exception(msg)
+    else:
+        query = {}
+
+    if len(collection) == 0:
+        raise Exception("Datastore Update requires a collection name")
+
+    if collection in RESERVED_COLLECTIONS:
+        msg = "Datastore Update error: %s is a reserved collection name" % (collection)
+        raise Exception(msg)
+
+    db = catocommon.new_mongo_conn()
+    if collection in db.collection_names():
+        coll = db[collection]
+    else:
+        msg = "Datastore Update error: a collection named %s does not exist" % (collection)
+        raise Exception(msg)
+
+    vars = {}
+    for p in pairs:
+        name = self.replace_variables(p[0])
+        vars[name] = p[1]
+    msg = "Collection %s, Update %s, Set %s" % (collection, query_string, json.dumps(vars))
+    ret = coll.update(query, {"$set" : vars}, multi=True)
+    catocommon.mongo_disconnect(db)
+    self.insert_audit(step.function_name, msg, "")
+
+
+def datastore_query_cmd(self, task, step):
+
+    collection, query_string = self.get_command_params(step.command, "collection", "query")[:]
+    pairs = self.get_node_list(step.command, "columns/column", "name", "variable")
+    collection = self.replace_variables(collection)
+    query_string = self.replace_variables(query_string)
+
+    if len(query_string):
+        try:
+            query = json.loads(query_string)
+        except ValueError as e:
+            msg = "Datastore Query error: query not properly formed json: %s, %s" % (query_string, str(e))
+            raise Exception(msg)
+        except Exception as e:
+            raise Exception(e)
+        print type(query)
+        if not isinstance(query, dict):
+            msg = "Datastore Query error: query is not properly formed json key, value pair object %s" % (query_string)
+            raise Exception(msg)
+    else:
+        query = {}
+
+    if len(collection) == 0:
+        raise Exception("Datastore Query requires a collection name")
+
+    db = catocommon.new_mongo_conn()
+    if collection in db.collection_names():
+        coll = db[collection]
+    else:
+        msg = "Datastore Query error: a collection named %s does not exist" % (collection)
+        raise Exception(msg)
+
+    vars = []
+    cols = {}
+    for p in pairs:
+        name = self.replace_variables(p[0])
+        vars.append([name, p[1]])
+        cols[name] = True
+    msg = "Collection %s, Query %s, Columns %s" % (collection, query_string, cols.keys())
+    if "_id" not in cols.keys():
+        cols["_id"] = False
+    cur = coll.find(query, fields=cols)
+    if cur:
+        rows = list(cur)
+    index = 0
+    for row in rows:
+        index += 1
+        msg = "%s\n%s" % (msg, json.dumps(row))
+        print row
+        for v in vars:
+            name = v[0]
+            variable = v[1]
+            try:
+                value = row[name]
+            except KeyError:
+                value = ""
+            except Exception as e:
+                raise Exception(e)
+            print "name %s, value %s" % (name, value)
+            self.rt.set(variable, value, index)
+
+    catocommon.mongo_disconnect(db)
+    self.insert_audit(step.function_name, msg, "")
 
 
 
