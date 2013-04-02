@@ -175,7 +175,7 @@ def http_get_nofail(url):
         logger.warning(ex)
         return ""
 
-def http_post(url, args, timeout=30, headers={}):
+def http_post(url, args, tout=30, headers={}):
     """
     Make an HTTP GET request, with a configurable timeout and optional headers.
     """
@@ -187,7 +187,8 @@ def http_post(url, args, timeout=30, headers={}):
 
     try:
         data = json.dumps(args)
-        response = urllib2.urlopen(url, data, timeout)
+        req = urllib2.Request(url, data=data, headers={"Content-type": "text/plain"})
+        response = urllib2.urlopen(req)
         result = response.read()
         if result:
             return result, None

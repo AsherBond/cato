@@ -22,6 +22,7 @@
 import web
 import sys
 import os
+import json
 
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 lib_path = os.path.join(base_path, "lib")
@@ -50,8 +51,24 @@ class wmHandler:
     #the GET and POST methods here are hooked by web.py.
     #whatever method is requested, that function is called.
     def GET(self, method):
+        return self.go(method)
+    
+    def POST(self, method):
+        return self.go(method)
+    
+    def go(self, method):
         args = web.input()
         # web.header('Content-Type', 'text/xml')
+
+        # here's the rub - if this was a POST, there might be lots of additional data in web.data().
+        # but the keys in web.input() are valid too.
+        # so, merge them.
+        if web.data():
+            postargs = json.loads(web.data())
+            logger.info("Post Data: %s" % postargs)
+            for k, v in postargs.iteritems():
+                args[k] = v
+    
 
         logger.info("Request: %s" % method)
         logger.info("Args: %s" % args)

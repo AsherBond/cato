@@ -135,7 +135,7 @@ def read_config():
     if os.path.isfile(verfilename):
         with open(verfilename, "r") as version_file:
             ver = version_file.read()
-            cfg["version"] = ver
+            cfg["version"] = ver.strip()
     else:
         raise Exception("Info: VERSION file does not exist.", 0)
  
