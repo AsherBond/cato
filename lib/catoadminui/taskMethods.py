@@ -35,7 +35,7 @@ from catolog import catolog
 from catocommon import catocommon
 from catotask import task, stepTemplates as ST
 from catoconfig import catoconfig
-from catoerrors import WebmethodInfo
+from catoerrors import InfoException
 
 # task-centric web methods
 
@@ -284,7 +284,7 @@ class taskMethods:
                 sValueExists = self.db.select_col(sSQL)
 
                 if sValueExists:
-                    raise WebmethodInfo("%s exists, please choose another value." % sValue)
+                    raise InfoException("%s exists, please choose another value." % sValue)
             
                 # changing the name or code updates ALL VERSIONS
                 sSQL = "update task set %s where original_task_id = '%s'" % (sSetClause, sOriginalTaskID)

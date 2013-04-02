@@ -34,6 +34,7 @@ except AttributeError as ex:
 
 from catocommon import catocommon
 from datetime import datetime
+from catoerrors import InfoException
 
 # Note: this is not a container for Task objects - it's just a rowset from the database
 # with an AsJSON method.
@@ -138,7 +139,7 @@ class Tasks(object):
             db.close()
 
         if len(sTaskNames) > 0:
-            raise Exception("Task(s) (%s) have history rows and could not be deleted." % sTaskNames)
+            raise InfoException("Task(s) (%s) have history rows and could not be deleted." % sTaskNames)
         
         return True
         
@@ -170,7 +171,7 @@ class Task(object):
 
     def FromArgs(self, sName, sCode, sDesc):
         if not sName:
-            raise Exception("Error building Task object: Name is required.")
+            raise InfoException("Error building Task object: Name is required.")
 
         self.ID = str(uuid.uuid4())
         self.OriginalTaskID = self.ID
@@ -180,7 +181,6 @@ class Task(object):
         self.CheckDBExists()
 
     def FromID(self, sTaskID, bIncludeUserSettings=False, include_code=True):
-        sErr = ""
         db = catocommon.new_conn()
         sSQL = "select task_id, original_task_id, task_name, task_code, task_status, version, default_version," \
                 " task_desc, use_connector_system, concurrent_instances, queue_depth, parameter_xml" \
@@ -189,18 +189,15 @@ class Task(object):
 
         dr = db.select_row_dict(sSQL)
         
-        if dr:
-            sErr = self.PopulateTask(db, dr, include_code)
+        if not dr:
+            raise InfoException("Unable to find Task for ID [%s]" % sTaskID)
 
-        if self.ID:
-            return ""
-        else:
-            return sErr
+        self.PopulateTask(db, dr, include_code)
 
     def FromNameVersion(self, name, version=None, include_code=True):
-        sErr = ""
         db = catocommon.new_conn()
         version_clause = ""
+
         if version:
             version_clause = " and version = %s" % version
         else:
@@ -212,16 +209,12 @@ class Task(object):
                 where (task_name = '%s') %s""" % (name, version_clause)
         dr = db.select_row_dict(sSQL)
 
-        if dr:
-            sErr = self.PopulateTask(db, dr, include_code)
-
-        if self.ID:
-            return ""
-        else:
-            return sErr
+        if not dr:
+            raise InfoException("Unable to find Task for [%s / %s]" % (name, version))
+        
+        self.PopulateTask(db, dr, include_code)
 
     def FromOriginalIDVersion(self, otid, version=None, include_code=True):
-        sErr = ""
         db = catocommon.new_conn()
         version_clause = ""
         if version:
@@ -235,13 +228,10 @@ class Task(object):
                 where original_task_id = '%s' %s""" % (otid, version_clause)
         dr = db.select_row_dict(sSQL)
 
-        if dr:
-            sErr = self.PopulateTask(db, dr, include_code)
-
-        if self.ID:
-            return ""
-        else:
-            return sErr
+        if not dr:
+            raise InfoException("Unable to find Task for Original ID/Version [%s/%s]" % (otid, version))
+        
+        self.PopulateTask(db, dr, include_code)
 
     def FromXML(self, sTaskXML=""):
         if sTaskXML == "": return None
@@ -657,7 +647,7 @@ class Task(object):
         elif iMode == 2:
             self.IncrementMinorVersion()
         else:  # a iMode is required
-            raise Exception("A mode required for this copy operation.")
+            raise InfoException("A mode required for this copy operation.")
 
         # if we are versioning, AND there are not yet any 'Approved' versions,
         # we set this new version to be the default
@@ -1203,7 +1193,7 @@ class TaskInstance(object):
         try:
             int(sTaskInstance)
         except:
-            raise Exception("Task Instance must be an integer. [%s]." % (sTaskInstance))
+            raise InfoException("Task Instance must be an integer. [%s]." % (sTaskInstance))
         
         # all good... continue...
         self.task_instance = sTaskInstance
@@ -1303,7 +1293,7 @@ class TaskInstance(object):
                 self.other_instances = aOtherInstances
 
         else:
-            raise Exception("Did not find any data for Instance [%s]." % sTaskInstance)
+            raise InfoException("Did not find any data for Instance [%s]." % sTaskInstance)
         
         
     def AsJSON(self):
@@ -1330,7 +1320,7 @@ class TaskInstance(object):
             
             return ""
         else:
-            raise Exception("Unable to stop task. Missing or invalid task_instance.")
+            raise InfoException("Unable to stop task. Missing or invalid task_instance.")
 
     def Resubmit(self, user_id):
         """

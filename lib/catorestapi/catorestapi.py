@@ -34,6 +34,7 @@ from catoui import uiGlobals, uiCommon
 from catoapi import api
 from catolog import catolog
 from catouser import catouser
+from catoerrors import InfoException
 
 app_name = "cato_rest_api"
 logger = catolog.get_logger(app_name)
@@ -283,6 +284,11 @@ class ExceptionHandlingApplication(web.application):
             return web.application.handle(self)
         except (web.HTTPError, KeyboardInterrupt, SystemExit):
             raise
+        except InfoException as ex:
+            # we're using a custom HTTP status code to indicate 'information' back to the user.
+            web.ctx.status = "280 Informational Response"
+            logger.exception(ex.__str__())
+            return ex.__str__()
         except Exception as ex:
             args = web.input()
             output_format = args["output_format"] if args.has_key("output_format") else ""
