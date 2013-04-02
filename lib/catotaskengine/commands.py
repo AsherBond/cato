@@ -925,7 +925,7 @@ def new_connection_cmd(self, task, step):
         except KeyError:
             # we haven't loaded it before, let's disect the asset string
 
-            address = userid = password = port = db_name = protocol = None
+            address = userid = password = port = db_name = protocol = shared_cred = None
 
             for pair in asset.split(" "):
                 k, v = pair.split("=")
@@ -941,10 +941,17 @@ def new_connection_cmd(self, task, step):
                     protocol = v
                 elif k == "db_name":
                     db_name = v
+                elif k == "shared_cred":
+                    shared_cred = v
                 else:
                     msg = "Unsupported key-value pair [%s], skipping..." % (pair)
                     self.logger.info(msg)
-            
+            if shared_cred:
+                c = catocommon.lookup_shared_cred(shared_cred)
+                print c
+                userid = c[0]
+                password = c[1]
+                 
             s = classes.System(name, address=address, userid=userid, password=password,
                 port=port, db_name=db_name, protocol=protocol)
 
