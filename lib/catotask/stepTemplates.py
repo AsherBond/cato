@@ -781,6 +781,11 @@ def DrawField(xe, sXPath, oStep):
             " value=\"" + sNodeValue + "\" />"
         
     else: #input is the default
+        # NOTE NOTE NOTE: 
+        # this is an input type='text', which means the value goes in a value attribute,
+        # but may very likely have a " in it.  So, we gotta escape the " with \".
+        sNodeValue = sNodeValue.replace('"', '&quot;')
+        
         sElementID = catocommon.new_guid() #some special cases below may need this.
         sHTML += sNodeLabel + " <input type=\"text\" " + \
             CommonAttribsWithID(oStep, bRequired, sXPath, sElementID, sCSSClasses, opts) + \
