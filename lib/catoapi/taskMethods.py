@@ -209,7 +209,7 @@ class taskMethods:
 
         # find the task
         obj = task.Task()
-        obj.FromNameVersion(args["task"], ver)
+        obj.FromNameVersion(args["task"], ver, False)
         task_id = obj.ID
         debug = args["log_level"] if args.has_key("log_level") else "2"
         

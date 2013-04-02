@@ -204,7 +204,7 @@ def http_post(url, args, tout=30, headers={}):
             return None, ex.__str__()
     
     # if all was well, we won't get here.
-    return None
+    return None, None
 
 def paramxml2json(pxml, basic=False):
     """
