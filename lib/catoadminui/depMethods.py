@@ -40,7 +40,7 @@ sys.path.insert(0, os.path.join(MAESTRO_HOME, "lib"))
 from catoui import uiCommon
 from catocommon import catocommon
 from catodeployment import deployment
-from catoerrors import WebmethodInfo
+from catoerrors import InfoException
 
 class depMethods:
     db = None
@@ -81,13 +81,15 @@ class depMethods:
 
         t = deployment.DeploymentTemplate.DBCreateNew(name, version, uiCommon.unpackJSON(template), uiCommon.unpackJSON(desc))
         if t is not None:
+            # create matching tags... this template gets all the tags this user has.
+            
             uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Deployment, t.ID, t.Name, "Deployment Template created.")
             return json.dumps({"template_id" : t.ID})
 
     def wmDeleteTemplates(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
         if len(sDeleteArray) < 36:
-            raise WebmethodInfo("Unable to delete - no selection.")
+            raise InfoException("Unable to delete - no selection.")
 
         sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
         
@@ -107,7 +109,7 @@ class depMethods:
             # if we made it here, save the logs
             uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.DeploymentTemplate, "", "", "Templates(s) Deleted [" + sDeleteArray + "]")
         else:
-            raise WebmethodInfo("Unable to delete - %d Deployments are referencing these templates." % iResults)
+            raise InfoException("Unable to delete - %d Deployments are referencing these templates." % iResults)
             
         return json.dumps({"result" : "success"})
 

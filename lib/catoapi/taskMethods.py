@@ -134,28 +134,28 @@ class taskMethods:
 
         Returns: Returns: Nothing if successful, error messages on failure.
         """
-            # this is a developer function
-            if not args["_developer"]:
-                return R(err_code=R.Codes.Forbidden)
-            
-            required_params = ["instance"]
-            has_required, resp = api.check_required_params(required_params, args)
-            if not has_required:
-                return resp
+        # this is a developer function
+        if not args["_developer"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        required_params = ["instance"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-            obj = task.TaskInstance(args["instance"])
-            if obj.Error:
-                return R(err_code=R.Codes.GetError, err_detail=obj.Error)
+        obj = task.TaskInstance(args["instance"])
+        if obj.Error:
+            return R(err_code=R.Codes.GetError, err_detail=obj.Error)
 
 #                if deployment_id and sequence_instance:
 #                    msg = "Task [%s] Instance [%s] resubmitted by [%s]." % (ti.task_name_label, ti.task_instance, username)
 #                    deployment.WriteDeploymentLog(msg, dep_id=deployment_id, seq_inst=sequence_instance)
 
-            result, err = obj.Resubmit(args["_user_id"])
-            if result:
-                return R(response="Instance [%s] successfully resubmitted." % args["instance"])
-            else:
-                return R(err_code=R.Codes.StartFailure, err_detail=err)
+        result, err = obj.Resubmit(args["_user_id"])
+        if result:
+            return R(response="Instance [%s] successfully resubmitted." % args["instance"])
+        else:
+            return R(err_code=R.Codes.StartFailure, err_detail=err)
 
     def get_task_log(self, args):
         """
@@ -209,7 +209,7 @@ class taskMethods:
 
         # find the task
         obj = task.Task()
-        obj.FromNameVersion(args["task"], ver)
+        obj.FromNameVersion(args["task"], ver, False)
         task_id = obj.ID
         debug = args["log_level"] if args.has_key("log_level") else "2"
         
@@ -228,14 +228,20 @@ class taskMethods:
 
         parameters = args["parameters"] if args.has_key("parameters") else ""
         pxml = ""
-        # are the parameters json?
         if parameters:
+            # are the parameters json?
             try:
                 # the add_task_instance command requires parameter XML...
                 # we accept json or xml from the client
                 # convert as necessary
                 logger.info("Checking for JSON parameters...")
-                pjson = json.loads(parameters)
+
+                # are the parameters already a dict?
+                if isinstance({}, dict):
+                    pjson = parameters
+                else:
+                    pjson = json.loads(parameters)
+                    
                 if pjson:
                     for p in pjson:
                         vals = ""

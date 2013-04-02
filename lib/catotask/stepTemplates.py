@@ -773,14 +773,21 @@ def DrawField(xe, sXPath, oStep):
 
         sHTML += "</select>"
     elif sInputType == "checkbox":
+        checked = " checked=\"checked\"" if catocommon.is_true(sNodeValue) else ""
+        
         sElementID = catocommon.new_guid() #some special cases below may need this.
         sHTML += "<label for=\"" + sElementID + "\">" + sNodeLabel + "</label> <input type=\"checkbox\" " + \
             CommonAttribsWithID(oStep, bRequired, sXPath, sElementID, sCSSClasses) + \
             " style=\"" + sStyle + "\"" \
             " help=\"" + sHelp + "\"" \
-            " value=\"" + sNodeValue + "\" />"
+            " value=\"" + sNodeValue + "\"" + checked + " />"
         
     else: #input is the default
+        # NOTE NOTE NOTE: 
+        # this is an input type='text', which means the value goes in a value attribute,
+        # but may very likely have a " in it.  So, we gotta escape the " with \".
+        sNodeValue = sNodeValue.replace('"', '&quot;')
+        
         sElementID = catocommon.new_guid() #some special cases below may need this.
         sHTML += sNodeLabel + " <input type=\"text\" " + \
             CommonAttribsWithID(oStep, bRequired, sXPath, sElementID, sCSSClasses, opts) + \

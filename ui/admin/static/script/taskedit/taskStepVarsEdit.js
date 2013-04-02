@@ -577,42 +577,15 @@ function doUpdate() {
 	var opm = $("#step_var_edit_dialog #hidOutputParseType").val();
 	var rowd = $("#step_var_edit_dialog #hidRowDelimiter").val();
 	var cold = $("#step_var_edit_dialog #hidColDelimiter").val();
-	var vars = "[";
 
-	//build the variable array
-	// if ($("#edit_variables .variable").length > 0) {
-	// //we can select the variables by class
-	// //and we have put all the
-	// $("#edit_variables .variable").each(
-	// function (intIndex) {
-	// vars[intIndex] = new Array();
-	//
-	// var rowid = $(this).attr("id");
-	//
-	// //some types have only one property, others have two, here we're just grabbing both
-	// //handle missing elements
-	// var lprop = ($("#" + rowid + "_l_prop").length > 0 ? $("#" + rowid + "_l_prop").val() : "");
-	// var rprop = ($("#" + rowid + "_r_prop").length > 0 ? $("#" + rowid + "_r_prop").val() : "");
-	//
-	// //if it happens to be 'parsed' type, there will be two 'type' indicators on each var.
-	// //                var l_mode = $("[name=parsed_lmode_rb]:checked").val();
-	// var ltype = ($("[name=" + rowid + "_l_mode]").length > 0 ? $("[name=" + rowid + "_l_mode]:checked").val() : "");
-	// var rtype = ($("[name=" + rowid + "_r_mode]").length > 0 ? $("[name=" + rowid + "_r_mode]:checked").val() : "");
-	//
-	// vars[intIndex][0] = $("#" + rowid + "_name").val();
-	// vars[intIndex][1] = $(this).attr("var_type");
-	// vars[intIndex][2] = lprop;
-	// vars[intIndex][3] = rprop;
-	// vars[intIndex][4] = ltype;
-	// vars[intIndex][5] = rtype;
-	// });
-	// }
+	var vars = [];
+
 	if ($("#edit_variables .variable").length > 0) {
 		var iCount = $("#edit_variables .variable").length - 1;
 		//we can select the variables by class
 		//and we have put all the
 		$("#edit_variables .variable").each(function(intIndex) {
-			var thisvar = "[";
+			var thisvar = [];
 
 			var rowid = $(this).attr("id");
 
@@ -626,27 +599,17 @@ function doUpdate() {
 			var ltype = ($("[name=" + rowid + "_l_mode]").length > 0 ? $("[name=" + rowid + "_l_mode]:checked").val() : null);
 			var rtype = ($("[name=" + rowid + "_r_mode]").length > 0 ? $("[name=" + rowid + "_r_mode]:checked").val() : null);
 
-			thisvar += '"' + $("#" + rowid + "_name").val() + '",';
-			thisvar += '"' + $(this).attr("var_type") + '",';
-			thisvar += '"' + packJSON(lprop) + '",';
-			thisvar += '"' + packJSON(rprop) + '",';
-			thisvar += '"' + ltype + '",';
-			thisvar += '"' + rtype + '"';
+			thisvar.push($("#" + rowid + "_name").val());
+			thisvar.push($(this).attr("var_type"));
+			thisvar.push(packJSON(lprop));
+			thisvar.push(packJSON(rprop));
+			thisvar.push(ltype);
+			thisvar.push(rtype);
 
-			thisvar += "]"
-			if (intIndex < iCount)
-				thisvar += ","
-
-			vars += thisvar;
+			vars.push(thisvar);
 		});
 	}
-	vars += "]";
 
-	//do it!
-	//if (vars.length > 0) {
-	//Doing the Microsoft ajax call because the jQuery one doesn't work for arrays.
-	//    PageMethods.wmUpdateVars(step_id, opm, rowd, cold, vars, OnSuccess, OnFailure);
-	//}
 	var response = ajaxPost("taskMethods/wmUpdateVars", {
 		sStepID : step_id,
 		sXPathPrefix : xpath_prefix,

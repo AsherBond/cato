@@ -35,7 +35,7 @@ from catolog import catolog
 from catocommon import catocommon
 from catotask import task, stepTemplates as ST
 from catoconfig import catoconfig
-from catoerrors import WebmethodInfo
+from catoerrors import InfoException
 
 # task-centric web methods
 
@@ -284,7 +284,7 @@ class taskMethods:
                 sValueExists = self.db.select_col(sSQL)
 
                 if sValueExists:
-                    raise WebmethodInfo("%s exists, please choose another value." % sValue)
+                    raise InfoException("%s exists, please choose another value." % sValue)
             
                 # changing the name or code updates ALL VERSIONS
                 sSQL = "update task set %s where original_task_id = '%s'" % (sSetClause, sOriginalTaskID)
@@ -868,7 +868,7 @@ class taskMethods:
         # (sometimes the javascript and .net libs don't translate exactly, google it.)
         sValue = uiCommon.unpackJSON(sValue)
 
-        uiCommon.log("Updating step [%s (%s)] setting [%s] to [%s]." % (sFunction, sStepID, sXPath, sValue))
+        uiCommon.log("Updating step [%s (%s)] setting [%s] to [%s]." % (sFunction, sStepID, sXPath, sValue), 3)
         
         # Some xpaths are hardcoded because they're on the step table and not in the xml.
         # this currently only applies to the step_desc column ("notes" field).
@@ -891,7 +891,7 @@ class taskMethods:
                 raise Exception("XML data for step [" + sStepID + "] is invalid.")
 
             try:
-                uiCommon.log("... looking for [%s]" % sXPath)
+                uiCommon.log("... looking for [%s]" % sXPath, 4)
                 xNode = xDoc.find(sXPath)
 
                 if xNode is None:
@@ -1222,8 +1222,8 @@ class taskMethods:
             xVars[:] = [item[-1] for item in data]
 
         
-        uiCommon.log("Saving variables ...")
-        uiCommon.log(ET.tostring(xVars))
+        uiCommon.log("Saving variables ...", 3)
+        uiCommon.log(ET.tostring(xVars), 4)
         
         # add and remove using the xml wrapper functions
         removenode = "%s/step_variables" % sXPathPrefix if sXPathPrefix else "step_variables"
@@ -1231,7 +1231,7 @@ class taskMethods:
 
         ST.AddToCommandXML(sStepID, xpath, catocommon.tick_slash(ET.tostring(xVars)))
 
-        return ""
+        return json.dumps({"result" : "success"})
 
     def wmGetClips(self):
         sUserID = uiCommon.GetSessionUserID()
@@ -2661,13 +2661,13 @@ class taskMethods:
         
         # yeah, this wicked single line aggregates the value of each node
         sNewXML = "".join(ET.tostring(x) for x in list(xGroupNode))
-        uiCommon.log(sNewXML)
+        uiCommon.log(sNewXML, 4)
         
         if sNewXML != "":
             ST.AddToCommandXML(sStepID, sAddTo, sNewXML.strip())
             # uiCommon.AddNodeToXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sTemplateXPath, sNewXML)
 
-        return ""
+        return json.dumps({"result" : "success"})
 
     def wmRemoveNodeFromStep(self):
         # NOTE: this function is capable of removing data from any command.
@@ -2676,6 +2676,6 @@ class taskMethods:
         sRemovePath = uiCommon.getAjaxArg("sRemovePath")
         if sRemovePath:
             ST.RemoveFromCommandXML(sStepID, sRemovePath)
-            return ""
+            return json.dumps({"result" : "success"})
         else:
             raise Exception("Unable to modify step. Invalid remove path.")

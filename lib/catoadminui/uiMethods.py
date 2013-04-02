@@ -36,7 +36,7 @@ from catoasset import asset
 from catotask import task
 from catoregistry import registry
 from catosettings import settings
-from catoerrors import WebmethodInfo
+from catoerrors import InfoException
 
 from catoui import uiCommon
 
@@ -821,7 +821,7 @@ class uiMethods:
                     if result:
                         sql_bits.append("user_password = '%s'" % catocommon.cato_encrypt(newpw))
                     else:
-                        raise WebmethodInfo(msg)
+                        raise InfoException(msg)
 
             # Here's something special...
             # If the arg "RandomPassword" was provided and is true...
@@ -837,7 +837,7 @@ class uiMethods:
                 if u:
                     u.FromID(args["ID"])
                     if not u.Email:
-                        raise WebmethodInfo("Unable to reset password - User does not have an email address defined.")
+                        raise InfoException("Unable to reset password - User does not have an email address defined.")
                     else:
                         sNewPassword = catocommon.generate_password()
                         sql_bits.append("user_password='%s'" % sNewPassword)
@@ -1122,7 +1122,7 @@ class uiMethods:
         self.db.tran_commit()
 
         if later:
-            raise WebmethodInfo("One or more assets could not be deleted due to historical information.  These Assets have been marked as Inactive.")
+            raise InfoException("One or more assets could not be deleted due to historical information.  These Assets have been marked as Inactive.")
         else:
             return json.dumps({"result" : "success"})
                 

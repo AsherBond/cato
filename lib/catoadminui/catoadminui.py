@@ -42,7 +42,7 @@ except AttributeError as ex:
 
 from catocommon import catocommon, catoprocess
 from catolicense import catolicense
-from catoerrors import WebmethodInfo
+from catoerrors import InfoException
 from catoui import uiGlobals
 from taskMethods import taskMethods
 
@@ -550,7 +550,7 @@ class ExceptionHandlingApplication(web.application):
             return web.application.handle(self)
         except (web.HTTPError, KeyboardInterrupt, SystemExit):
             raise
-        except WebmethodInfo as ex:
+        except InfoException as ex:
             # we're using a custom HTTP status code to indicate 'information' back to the user.
             web.ctx.status = "280 Informational Response"
             logger.exception(ex.__str__())

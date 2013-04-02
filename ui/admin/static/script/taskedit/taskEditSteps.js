@@ -425,19 +425,18 @@ $(document).ready(function() {
 		});
 		$("#update_success_msg").text("Updating...").show();
 
-		var response = ajaxPost("taskMethods/wmFnNodeArrayAdd", {
+		ajaxPostAsync("taskMethods/wmFnNodeArrayAdd", {
 			sStepID : step_id,
 			sFunctionName : func_name,
 			sTemplateXPath : template_path,
 			sAddTo : add_to
-		});
-		if (response) {
+		}, function(response) {
 			//go get the step
 			getStep(step_id, step_id, true);
 			$("#task_steps").unblock();
 			$("#update_success_msg").text("Update Successful").fadeOut(2000);
 
-		}
+		});
 	});
 
 	// NODE DELETE
@@ -460,13 +459,15 @@ function doRemoveNode(step_id, remove_path) {
 	});
 	$("#update_success_msg").text("Updating...").show();
 
-	var response = ajaxPost("taskMethods/wmRemoveNodeFromStep", {
+	var response = ajaxPostAsync("taskMethods/wmRemoveNodeFromStep", {
 		sStepID : step_id,
 		sRemovePath : remove_path
+	}, function(response) {
+		getStep(step_id, step_id, true);
+		$("#task_steps").unblock();
+		$("#update_success_msg").text("Update Successful").fadeOut(2000);
 	}, "text");
-	getStep(step_id, step_id, true);
-	$("#task_steps").unblock();
-	$("#update_success_msg").text("Update Successful").fadeOut(2000);
+
 }
 
 //called in rare cases when the value entered in one field should push it's update through another field.
