@@ -1231,7 +1231,7 @@ class taskMethods:
 
         ST.AddToCommandXML(sStepID, xpath, catocommon.tick_slash(ET.tostring(xVars)))
 
-        return ""
+        return json.dumps({"result" : "success"})
 
     def wmGetClips(self):
         sUserID = uiCommon.GetSessionUserID()
