@@ -239,7 +239,7 @@ def datastore_update_cmd(self, task, step):
     vars = {}
     for p in pairs:
         name = self.replace_variables(p[0])
-        vars[name] = p[1]
+        vars[name] = self.replace_variables(p[1])
     msg = "Collection %s, Update %s, Set %s" % (collection, query_string, json.dumps(vars))
     ret = coll.update(query, {"$set" : vars}, multi=True)
     catocommon.mongo_disconnect(db)
