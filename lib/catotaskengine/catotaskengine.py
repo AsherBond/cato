@@ -257,7 +257,6 @@ class TaskEngine():
                 elif index == 7:
                     msg = "The connection to %s closed unexpectedly." % (host)
                 if msg:
-                    print msg
                     try: 
                         msg = msg + "\n" + c.before + c.match.group() + c.after
                     except:
