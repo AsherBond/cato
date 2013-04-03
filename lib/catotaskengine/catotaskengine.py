@@ -561,7 +561,16 @@ class TaskEngine():
                             value = self.rt.count(new_found_var)
                         else:
                             # not a count, so set value based on var name and index
-                            value = self.rt.get(new_found_var, int(index))
+                            # if the index is not a valid integer, error
+                            try:
+                                int_index = int(index)
+                            except ValueError:
+                                msg = "The array index '%s' for variable %s is not a valid integer" % (index, new_found_var)
+                                raise Exception(msg)
+                            except Exception as ex:
+                                raise Exception(ex)
+
+                            value = self.rt.get(new_found_var, int_index)
                     else:
                         # no index, set the value based on var name
                         value = self.rt.get(new_found_var)
