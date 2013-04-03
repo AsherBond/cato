@@ -3,10 +3,23 @@
  *
  *	Ted Devito - http://teddevito.com/demos/textarea.html
  *
- *	You should have received a copy of the GNU General Public License
- *	along with Easy Widgets. If not, see <http://www.gnu.org/licenses/>
- *
- *	Plugin development pattern based on:	http://www.learningjquery.com/2007/10/a-plugin-development-pattern
+ *	Copyright (c) 2009 Ted Devito
+ *	 
+ *	Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following 
+ *	conditions are met:
+ *	
+ *		1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *		2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer  
+ *			in the documentation and/or other materials provided with the distribution.
+ *		3. The name of the author may not be used to endorse or promote products derived from this software without specific prior written 
+ *			permission. 
+ *	 
+ *	THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ *	IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE 
+ *	LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+ *	PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ *	THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+ *	OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
  
@@ -90,13 +103,13 @@
 			// SHIFT+TAB
 			if (shft) {
 				// check to the left of the caret first
-				if ("\t" == o.value.substring(ss-options.tabString.length, ss)) {
+				if (ss-options.tabString == o.value.substring(ss-options.tabString.length, ss)) {
 					o.value = o.value.substring(0, ss-options.tabString.length) + o.value.substring(ss); // put it back together omitting one character to the left
 					o.focus();
 					o.setSelectionRange(ss - options.tabString.length, ss - options.tabString.length);
 				} 
 				// then check to the right of the caret
-				else if ("\t" == o.value.substring(ss, ss + options.tabString.length)) {
+				else if (ss-options.tabString == o.value.substring(ss, ss + options.tabString.length)) {
 					o.value = o.value.substring(0, ss) + o.value.substring(ss + options.tabString.length); // put it back together omitting one character to the right
 					o.focus();
 					o.setSelectionRange(ss,ss);
@@ -111,6 +124,7 @@
 		} 
 		// selections will always add/remove tabs from the start of the line
 		else {
+      while (ss < o.value.length && o.value.charAt(ss).match(/[ \t]/)) ss++;
 			// split the textarea up into lines and figure out which lines are included in the selection
 			var lines = o.value.split("\n");
 			var indices = new Array();
