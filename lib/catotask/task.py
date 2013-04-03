@@ -984,7 +984,7 @@ class Step(object):
         the associated task object
         """
         db = catocommon.new_conn()
-        sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, s.codeblock_name,
+        sSQL = """select s.task_id, s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, s.codeblock_name,
             us.visible, us.breakpoint, us.skip, us.button
             from task_step s
             left outer join task_step_user_settings us on us.user_id = '%s' and s.step_id = us.step_id

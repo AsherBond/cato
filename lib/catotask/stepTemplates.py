@@ -3084,16 +3084,14 @@ def Codeblock(oStep):
     sHTML += "<span class=\"ui-icon ui-icon-search forceinline codeblock_picker_btn pointer\" title=\"Pick a Codeblock\"" \
         " link_to=\"" + sElementID + "\"></span>\n"
 
-    if sCB != "":
+    if sCB:
         # don't enable the jump link if it isn't a valid codeblock on this task.
-        # and DON'T CRASH if there isn't a list of codeblocks. (sometimes step objects may not have a full task parent)
-        if oStep.Task:
-            if oStep.Task.Codeblocks:
-                for cb in oStep.Task.Codeblocks.itervalues():
-                    if sCB == cb.Name:
-                        sHTML += """<span class=\"ui-icon ui-icon-link forceinline codeblock_goto_btn pointer\" title=\"Go To Codeblock\"
-                            codeblock=\"%s\"></span>\n""" % sCB
-                        break
+        db = catocommon.new_conn()
+        sql = "select 1 from task_codeblock where task_id = %s and codeblock_name = %s"
+        exists = db.select_col_noexcep(sql, (oStep.Task.ID, sCB))
+        if exists:
+            sHTML += """<span class=\"ui-icon ui-icon-link forceinline codeblock_goto_btn pointer\" title=\"Go To Codeblock\"
+                codeblock=\"%s\"></span>\n""" % sCB
 
     return sHTML
 
