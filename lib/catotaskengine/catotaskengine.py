@@ -1069,7 +1069,7 @@ class TaskEngine():
                 params = self.aws_drill_in(node, node.tag, params, node_names)
         del(nodes)
 
-        num_retries = 3
+        num_retries = 5
         result = None
         for ii in range(1, num_retries + 1):
             try:
@@ -1078,6 +1078,9 @@ class TaskEngine():
             except Exception as ex:
                 if "<Code>InvalidInstanceID.NotFound</Code>" in str(ex) and ii <= num_retries:
                     self.logger.info("Instance ID not found. Sleeping and retrying")
+                    time.sleep(ii * 2)
+                elif "<Code>ServiceUnavailable</Code>" in str(ex) and ii <= num_retries:
+                    self.logger.info("Amazon Service unavailable. Sleeping and retrying")
                     time.sleep(ii * 2)
                 else:
                     msg = "%s command %s failed: %s" % (product, action, ex)
