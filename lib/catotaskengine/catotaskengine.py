@@ -257,7 +257,6 @@ class TaskEngine():
                 elif index == 7:
                     msg = "The connection to %s closed unexpectedly." % (host)
                 if msg:
-                    print msg
                     try: 
                         msg = msg + "\n" + c.before + c.match.group() + c.after
                     except:
@@ -561,7 +560,16 @@ class TaskEngine():
                             value = self.rt.count(new_found_var)
                         else:
                             # not a count, so set value based on var name and index
-                            value = self.rt.get(new_found_var, int(index))
+                            # if the index is not a valid integer, error
+                            try:
+                                int_index = int(index)
+                            except ValueError:
+                                msg = "The array index '%s' for variable %s is not a valid integer" % (index, new_found_var)
+                                raise Exception(msg)
+                            except Exception as ex:
+                                raise Exception(ex)
+
+                            value = self.rt.get(new_found_var, int_index)
                     else:
                         # no index, set the value based on var name
                         value = self.rt.get(new_found_var)
@@ -1069,7 +1077,7 @@ class TaskEngine():
                 params = self.aws_drill_in(node, node.tag, params, node_names)
         del(nodes)
 
-        num_retries = 3
+        num_retries = 5
         result = None
         for ii in range(1, num_retries + 1):
             try:
@@ -1078,6 +1086,9 @@ class TaskEngine():
             except Exception as ex:
                 if "<Code>InvalidInstanceID.NotFound</Code>" in str(ex) and ii <= num_retries:
                     self.logger.info("Instance ID not found. Sleeping and retrying")
+                    time.sleep(ii * 2)
+                elif "<Code>ServiceUnavailable</Code>" in str(ex) and ii <= num_retries:
+                    self.logger.info("Amazon Service unavailable. Sleeping and retrying")
                     time.sleep(ii * 2)
                 else:
                     msg = "%s command %s failed: %s" % (product, action, ex)
@@ -1462,11 +1473,20 @@ class TaskEngine():
             nodes = root.findall("./parameter")
             for node in nodes:
                 name = node.findtext("name", "").strip()
+
+                encrypt = node.attrib.get("encrypt")
+                if encrypt and encrypt == "true":
+                    encrypt_flag = True
+                else:
+                    encrypt_flag = False
+
                 v_nodes = node.findall("./values/value")
                 ii = 0
                 for v_node in v_nodes:
                     ii += 1
                     val = v_node.text.strip() if v_node.text is not None else ""
+                    if encrypt_flag:
+                        val = catocommon.cato_decrypt(val)
                     self.rt.set(name, val, ii)
             del(root)
         except ET.ParseError:
