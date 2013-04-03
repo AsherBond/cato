@@ -325,13 +325,13 @@ def FilterSetByTag(rows):
         return rows
     else:
         tags = tag.ObjectTags(1, GetSessionUserID())
-        
         filtered = []
-        for row in rows:
-            if set(tags) & set(row["Tags"].split(",") if row["Tags"] else []):
-                filtered.append(row)
+        if tags:
+            for row in rows:
+                if set(tags) & set(row["Tags"].split(",") if row["Tags"] else []):
+                    filtered.append(row)
         return filtered
-
+        
 def IsObjectAllowed(object_id, object_type):
     # if permissions checking is turned off, everything is allowed
     if catoconfig.CONFIG["ui_permissions"] == "false":
