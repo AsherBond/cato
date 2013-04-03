@@ -1473,11 +1473,20 @@ class TaskEngine():
             nodes = root.findall("./parameter")
             for node in nodes:
                 name = node.findtext("name", "").strip()
+
+                encrypt = node.attrib.get("encrypt")
+                if encrypt and encrypt == "true":
+                    encrypt_flag = True
+                else:
+                    encrypt_flag = False
+
                 v_nodes = node.findall("./values/value")
                 ii = 0
                 for v_node in v_nodes:
                     ii += 1
                     val = v_node.text.strip() if v_node.text is not None else ""
+                    if encrypt_flag:
+                        val = catocommon.cato_decrypt(val)
                     self.rt.set(name, val, ii)
             del(root)
         except ET.ParseError:
