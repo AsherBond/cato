@@ -22,6 +22,7 @@ logger = catolog.get_logger(__name__)
 
 import traceback
 import uuid
+import json
 try:
     import xml.etree.cElementTree as ET
 except (AttributeError, ImportError):
@@ -334,40 +335,37 @@ class Task(object):
         return ET.tostring(root)
 
     def AsJSON(self, include_code=False):
-        sb = []
-        sb.append("{")
-        sb.append("\"%s\" : \"%s\"," % ("ID", self.ID))
-        sb.append("\"%s\" : \"%s\"," % ("Name", self.Name))
-        sb.append("\"%s\" : \"%s\"," % ("Code", self.Code))
-        sb.append("\"%s\" : \"%s\"," % ("Version", self.Version))
-        sb.append("\"%s\" : \"%s\"," % ("Status", self.Status))
-        sb.append("\"%s\" : \"%s\"," % ("OriginalTaskID", self.OriginalTaskID))
-        sb.append("\"%s\" : \"%s\"," % ("IsDefaultVersion", self.IsDefaultVersion))
-        sb.append("\"%s\" : \"%s\"," % ("Description", self.Description))
-        sb.append("\"%s\" : \"%s\"," % ("ConcurrentInstances", self.ConcurrentInstances))
-        sb.append("\"%s\" : \"%s\"," % ("QueueDepth", self.QueueDepth))
-        sb.append("\"%s\" : \"%s\"," % ("NumberOfApprovedVersions", self.NumberOfApprovedVersions))
-        sb.append("\"%s\" : \"%s\"," % ("MaxVersion", self.MaxVersion))
-        sb.append("\"%s\" : \"%s\"," % ("NextMinorVersion", self.NextMinorVersion))
-        sb.append("\"%s\" : \"%s\"," % ("NextMajorVersion", self.NextMajorVersion))
-        sb.append("\"%s\" : \"%s\"" % ("UseConnectorSystem", self.UseConnectorSystem))
+        t = {
+             "ID" : self.ID,
+             "Name" : self.Name,
+            "Code" : self.Code,
+            "Version" : self.Version,
+            "Status" : self.Status,
+            "OriginalTaskID" : self.OriginalTaskID,
+            "IsDefaultVersion" : self.IsDefaultVersion,
+            "Description" : self.Description,
+            "ConcurrentInstances" : self.ConcurrentInstances,
+            "QueueDepth" : self.QueueDepth,
+            "NumberOfApprovedVersions" : self.NumberOfApprovedVersions,
+            "MaxVersion" : self.MaxVersion,
+            "NextMinorVersion" : self.NextMinorVersion,
+            "NextMajorVersion" : self.NextMajorVersion,
+            "UseConnectorSystem" : self.UseConnectorSystem
+        }
         
         if include_code:
             # codeblocks
-            sb.append(", \"Codeblocks\" : {")
             codeblocks = []
             for name, cb in self.Codeblocks.items():
                 steps = []
-                for order, st in cb.Steps.iteritems():
-                    steps.append(" \"%s\" : %s" % (order, st.AsJSON()))
-                codeblocks.append(" \"%s\" : {\"Steps\" : {%s} }" % (name, ",".join(steps)))
+                for st in cb.Steps.itervalues():
+                    steps.append(json.loads(st.AsJSON()))
+                codeblocks.append({ name: { "Steps" : steps } })
 
-            sb.append(",".join(codeblocks))
-            sb.append("}")
+            t["Codeblocks"] = codeblocks
 
-        sb.append("}")
-        return "".join(sb)
-
+        return catocommon.ObjectOutput.AsJSON(t)
+    
     def CheckDBExists(self):
         db = catocommon.new_conn()
         sSQL = """select task_id, original_task_id from task
@@ -920,20 +918,11 @@ class Step(object):
         self.IsValid = True
         
     def AsJSON(self):
-        sb = []
-        sb.append("{")
-        sb.append("\"%s\" : \"%s\"," % ("ID", self.ID))
-        sb.append("\"%s\" : \"%s\"," % ("Codeblock", self.Codeblock))
-        sb.append("\"%s\" : \"%s\"," % ("Order", self.Order))
-        sb.append("\"%s\" : \"%s\"," % ("Description", self.Description))
-        sb.append("\"%s\" : \"%s\"," % ("Commented", self.Commented))
-        sb.append("\"%s\" : \"%s\"," % ("Locked", self.Locked))
-        sb.append("\"%s\" : \"%s\"," % ("OutputParseType", self.OutputParseType))
-        sb.append("\"%s\" : \"%s\"," % ("OutputRowDelimiter", self.OutputRowDelimiter))
-        sb.append("\"%s\" : \"%s\"," % ("OutputColumnDelimiter", self.OutputColumnDelimiter))
-        sb.append("\"%s\" : \"%s\"" % ("FunctionName", self.FunctionName))
-        sb.append("}")
-        return "".join(sb)        
+        del self.Task
+        del self.UserSettings
+        self.FunctionXML = ET.tostring(self.FunctionXDoc)
+        del self.FunctionXDoc
+        return catocommon.ObjectOutput.AsJSON(self.__dict__)        
 
     def FromXML(self, sStepXML="", sCodeblockName=""):
         if sStepXML == "": return None
@@ -1187,7 +1176,7 @@ class TaskInstance(object):
         # the task has never been run... just return
         if not sTaskInstance:
             return
-            #raise Exception("No Instance found.  Most likely this Task has never been run.") 
+            # raise Exception("No Instance found.  Most likely this Task has never been run.") 
         
         # the task instance must be a number, die if it isn't
         try:
