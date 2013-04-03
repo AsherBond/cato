@@ -322,7 +322,7 @@ def jsonSerializeHandler(obj):
 #    elif isinstance(obj, custom_object):
 #        tmp = some code to coerce your custom_object into something serializable
 #        return tmp
-    raise TypeError, 'Object of type %s with value of %s is not JSON serializable' % (type(obj), repr(obj))
+    raise TypeError("Object of type %s with value of %s is not JSON serializable" % (type(obj), repr(obj)))
 
 def is_true(var):
     # not just regular python truth testing - certain string values are also "true"
@@ -352,6 +352,21 @@ def tick_slash(s):
         return s.replace("'", "''").replace("\\", "\\\\").replace("%", "%%")
     
     return ""
+
+
+def lookup_shared_cred(alias):
+
+    sql = "select username, password from asset_credential where credential_name = %s"
+    db = new_conn()
+    row = db.select_row(sql, (alias))
+    db.close()    
+    if row:
+        user = row[0]
+        password = cato_decrypt(row[1])
+        ret = (user,password)
+    else:
+        ret = None
+    return ret
 
 def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id, account_id, schedule_instance, submitted_by_instance, cloud_id=None):
     """This *should* be the only place where rows are added to task_instance."""
@@ -413,7 +428,7 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id, ac
         return task_instance
     
     except Exception as ex:
-        raise ex
+        raise Exception(ex)
     finally:
         if db:
             db.close()    
@@ -692,7 +707,7 @@ class ObjectOutput(object):
             xml = dict2xml(dict_obj, item_node)
             return xml.tostring()
         except Exception as ex:
-            raise ex
+            raise Exception(ex)
         
     @staticmethod
     def AsText(obj, keys, delimiter=None):
@@ -715,7 +730,7 @@ class ObjectOutput(object):
 
             return "%s\n%s" % (delimiter.join(keys), delimiter.join(vals))
         except Exception as ex:
-            raise ex
+            raise Exception(ex)
 
     @staticmethod
     def IterableAsJSON(iterable):
@@ -730,7 +745,7 @@ class ObjectOutput(object):
                 
             return json.dumps(lst, default=jsonSerializeHandler, indent=4)
         except Exception as ex:
-            raise ex
+            raise Exception(ex)
 
     @staticmethod
     def IterableAsXML(iterable, root_node, item_node):
@@ -748,7 +763,7 @@ class ObjectOutput(object):
             
             return ET.tostring(dom)
         except Exception as ex:
-            raise ex
+            raise Exception(ex)
 
     @staticmethod
     def IterableAsText(iterable, keys, delimiter=None):
@@ -774,7 +789,7 @@ class ObjectOutput(object):
               
             return "%s\n%s" % (delimiter.join(keys), "\n".join(outrows))
         except Exception as ex:
-            raise ex
+            raise Exception(ex)
 
 class SecurityLogTypes(object):
     Object = "Object"

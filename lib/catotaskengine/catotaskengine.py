@@ -789,16 +789,6 @@ class TaskEngine():
         return value
         
 
-    def lookup_shared_cred(self, cred):
-
-        sql = "select username, password from asset_credential where credential_name = %s"
-        row = self.db.select_row(sql, (cred))
-        if row:
-            return row
-        else:
-            return None
-
-
     def connect_winrm(self, server, port, user, password, protocol):
 
         if not port:
