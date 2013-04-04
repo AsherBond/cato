@@ -126,6 +126,7 @@ class Messenger(catoprocess.CatoService):
                 msg_body = row[4]
                 msg_cc = row[5]
                 msg_bcc = row[6]
+                msg_to_list = msg_to.split(",")
 
                 msg = MIMEMultipart('alternative')
                 msg["To"] = msg_to
@@ -137,9 +138,10 @@ class Messenger(catoprocess.CatoService):
                 msg.attach(part1)
                 msg.attach(part2)
                 try:
-                    s.sendmail(self.smtp_from, msg_to, msg.as_string())
+                    s.sendmail(self.smtp_from, msg_to_list, msg.as_string())
                 except Exception as e:
                     err_msg = "Error sending smtp message: %s" % (e)
+                    self.logger.info("%s\n%s" % (err_msg, msg.as_string()))
                     self.update_msg_status(msg_id, 1, err_msg)
                 else:
                     self.update_msg_status(msg_id, 2, "")
