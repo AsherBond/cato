@@ -112,6 +112,8 @@ def datastore_insert_cmd(self, task, step):
     for p in pairs:
         name = self.replace_variables(p[0])
         value = self.replace_variables(p[1])
+        if value == "datetime.now()":
+            value = datetime.now()
         document[name] = value
 
     self.logger.debug(document)
