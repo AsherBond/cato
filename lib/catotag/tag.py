@@ -124,8 +124,9 @@ class ObjectTags(list):
             and object_id = %s"""
         
         rows = db.select_all(sql, (object_type, object_id))
-        list.__init__(self, [r[0] for r in rows])
         db.close()
+        if rows:
+            list.__init__(self, [r[0] for r in rows])
 
     def AsJSON(self):
         return catocommon.ObjectOutput.IterableAsJSON(self)

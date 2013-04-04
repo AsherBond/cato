@@ -261,6 +261,7 @@ CREATE TABLE `deployment` (
   `uptime` varchar(45) DEFAULT NULL,
   `archive` int(11) DEFAULT NULL,
   `prompts` text,
+  `options` text,
   `created_dt` datetime NOT NULL,
   PRIMARY KEY (`deployment_id`),
   UNIQUE KEY `environment_name_UNIQUE` (`deployment_name`)
@@ -320,6 +321,7 @@ CREATE TABLE `deployment_service` (
   `document_id` varchar(24) NOT NULL,
   `service_desc` varchar(255) DEFAULT NULL,
   `health` varchar(16) DEFAULT 'unknown',
+  `options` text,
   PRIMARY KEY (`deployment_id`,`deployment_service_id`),
   UNIQUE KEY `service_name_deployment_id` (`deployment_id`,`service_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -348,7 +350,7 @@ CREATE TABLE `deployment_service_state` (
   `run_level` int(11) DEFAULT '0',
   `state_desc` varchar(255) DEFAULT NULL,
   `predecessors` varchar(1024) DEFAULT NULL,
-  `json` text DEFAULT NULL,
+  `json` text,
   PRIMARY KEY (`deployment_service_id`,`state`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `deployment_step` (
@@ -362,7 +364,7 @@ CREATE TABLE `deployment_step_service` (
   `deployment_service_id` varchar(36) NOT NULL,
   `desired_state` varchar(16) NOT NULL,
   `initial_state` varchar(16) DEFAULT NULL,
-  `json` text DEFAULT NULL,
+  `json` text,
   PRIMARY KEY (`sequence_id`,`step_number`,`deployment_service_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `deployment_template` (
@@ -554,6 +556,7 @@ CREATE TABLE `task_instance` (
   `ecosystem_id` varchar(36) DEFAULT NULL,
   `account_id` varchar(36) DEFAULT NULL,
   `cloud_id` varchar(36) DEFAULT NULL,
+  `options` text,
   PRIMARY KEY (`task_instance`),
   KEY `IX_task_instance_asset_id` (`asset_id`),
   KEY `IX_task_instance_cenode` (`ce_node`),
