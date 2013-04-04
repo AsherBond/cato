@@ -204,7 +204,7 @@ def datastore_create_index_cmd(self, task, step):
 
 def datastore_update_cmd(self, task, step):
 
-    collection, query_string = self.get_command_params(step.command, "collection", "query")[:]
+    collection, query_string, upsert = self.get_command_params(step.command, "collection", "query", "upsert")[:]
     pairs = self.get_node_list(step.command, "columns/column", "name", "value")
     collection = self.replace_variables(collection)
     query_string = self.replace_variables(query_string)
@@ -239,11 +239,18 @@ def datastore_update_cmd(self, task, step):
         raise Exception(msg)
 
     vars = {}
+    print type(upsert)
+    print upsert
+    if upsert == "1":
+        upsert = True
+    else:
+        upsert = False
     for p in pairs:
         name = self.replace_variables(p[0])
         vars[name] = self.replace_variables(p[1])
-    msg = "Collection %s, Update %s, Set %s" % (collection, query_string, json.dumps(vars))
-    ret = coll.update(query, {"$set" : vars}, multi=True)
+    msg = "Collection %s, Update %s, Set %s, Upsert %s" % (collection, query_string, json.dumps(vars), upsert)
+    print upsert
+    ret = coll.update(query, {"$set" : vars}, multi=True, upsert=upsert)
     catocommon.mongo_disconnect(db)
     self.insert_audit(step.function_name, msg, "")
 

@@ -239,7 +239,7 @@
 					<pairs is_array="true">
 						<pair>
 							<name input_type="text" label="Name" />
-							<value input_type="text" label="Value" />
+							<value input_type="text" label="Value" style="width: 50%;" />
 						</pair>
 					</pairs>
 				</function>
@@ -247,7 +247,7 @@
 			<command name="datastore_query" label="Datastore Query" description="" help="" icon="static/images/icons/bookmark_add_32.png">
 				<function name="datastore_query">
                     <collection input_type="text" label="Collection" />
-                    <query input_type="text" label="Query" />
+                    <query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
 					<columns is_array="true">
 						<column>
 							<name input_type="text" label="Column Name" />
@@ -258,12 +258,13 @@
 			</command>
 			<command name="datastore_update" label="Datastore Update" description="" help="" icon="static/images/icons/bookmark_add_32.png">
 				<function name="datastore_update">
-                    <collection input_type="text" label="Collection" />
-                    <query input_type="text" label="Query" />
+                    <collection input_type="text" required="true" label="Collection" />
+                    <upsert input_type="checkbox" label="Upsert?" />
+                    <query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
 					<columns is_array="true">
 						<column>
 							<name input_type="text" label="Name" />
-							<value input_type="text" label="Value" />
+							<value input_type="text" label="Value" style="width: 50%;" />
 						</column>
 					</columns>
 				</function>
@@ -271,7 +272,7 @@
 			<command name="datastore_delete" label="Datastore Delete" description="" help="" icon="static/images/icons/bookmark_add_32.png">
 				<function name="datastore_delete">
                     <collection input_type="text" label="Collection" />
-                    <query input_type="text" label="Query" />
+                    <query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
 				</function>
 			</command>
 			<command name="datastore_create_collection" label="Datastore Create Collection" description="" help="" icon="static/images/icons/bookmark_add_32.png">
