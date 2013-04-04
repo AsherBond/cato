@@ -423,14 +423,15 @@ class Credential(object):
             else:
                 sPriviledgedPasswordUpdate = ", privileged_password = '" + catocommon.cato_encrypt(self.PrivilegedPassword) + "'"
     
-        sSQL = "update asset_credential " \
-            "set username = '" + self.Username + "'," \
-            "domain = '" + self.Domain + "'," \
-            "shared_or_local = '" + self.SharedOrLocal + "'," \
-            "shared_cred_desc = '" + catocommon.tick_slash(self.Description) + "'" \
-            + sPasswordUpdate + sPriviledgedPasswordUpdate + \
-            "where credential_id = '" + self.ID + "'"
-        db.exec_db(sSQL)
+        sSQL = """update asset_credential set
+            credential_name = %s,
+            username = %s,
+            domain = %s,
+            shared_or_local = %s,
+            shared_cred_desc = %s {0} {1}
+            where credential_id = %s""".format(sPasswordUpdate, sPriviledgedPasswordUpdate) 
+            
+        db.exec_db(sSQL, (self.Name, self.Username, self.Domain, self.SharedOrLocal, self.Description, self.ID))
         db.close()        
     
         return True
