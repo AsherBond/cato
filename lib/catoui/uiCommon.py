@@ -909,6 +909,18 @@ def GetLayout():
     
     return result
 
+def GetDashImage():
+    """Simply proxies an HTTP GET to another domain, and returns the results."""
+    path = getAjaxArg("path")
+    print path
+    url = "%s/images/%s" % (get_dash_url(), path)
+    print url 
+    result, err = catocommon.http_get(url, 15)
+    if err:
+        return "Unable to reach the Dash API.  Is the service running?\n %s" % err
+    
+    return result
+
 def get_dash_url():
     url = "http://localhost"
     if catoconfig.CONFIG.has_key("dash_api_url"):
