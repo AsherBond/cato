@@ -137,7 +137,6 @@ def datastore_delete_cmd(self, task, step):
             raise Exception(msg)
         except Exception as e:
             raise Exception(e)
-        print type(query)
         if not isinstance(query, dict):
             msg = "Datastore Delete error: query is not properly formed json key, value pair object %s" % (query_string)
             raise Exception(msg)
@@ -217,7 +216,6 @@ def datastore_update_cmd(self, task, step):
             raise Exception(msg)
         except Exception as e:
             raise Exception(e)
-        print type(query)
         if not isinstance(query, dict):
             msg = "Datastore Update error: query is not properly formed json key, value pair object %s" % (query_string)
             raise Exception(msg)
@@ -239,8 +237,6 @@ def datastore_update_cmd(self, task, step):
         raise Exception(msg)
 
     vars = {}
-    print type(upsert)
-    print upsert
     if upsert == "1":
         upsert = True
     else:
@@ -249,7 +245,6 @@ def datastore_update_cmd(self, task, step):
         name = self.replace_variables(p[0])
         vars[name] = self.replace_variables(p[1])
     msg = "Collection %s, Update %s, Set %s, Upsert %s" % (collection, query_string, json.dumps(vars), upsert)
-    print upsert
     ret = coll.update(query, {"$set" : vars}, multi=True, upsert=upsert)
     catocommon.mongo_disconnect(db)
     self.insert_audit(step.function_name, msg, "")
@@ -270,7 +265,6 @@ def datastore_query_cmd(self, task, step):
             raise Exception(msg)
         except Exception as e:
             raise Exception(e)
-        print type(query)
         if not isinstance(query, dict):
             msg = "Datastore Query error: query is not properly formed json key, value pair object %s" % (query_string)
             raise Exception(msg)
@@ -303,7 +297,6 @@ def datastore_query_cmd(self, task, step):
     for row in rows:
         index += 1
         msg = "%s\n%s" % (msg, json.dumps(row))
-        print row
         for v in vars:
             name = v[0]
             variable = v[1]
@@ -313,7 +306,7 @@ def datastore_query_cmd(self, task, step):
                 value = ""
             except Exception as e:
                 raise Exception(e)
-            print "name %s, value %s" % (name, value)
+            # print "name %s, value %s" % (name, value)
             self.rt.set(variable, value, index)
 
     catocommon.mongo_disconnect(db)
