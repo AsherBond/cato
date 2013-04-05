@@ -319,6 +319,10 @@ def jsonSerializeHandler(obj):
         return obj.isoformat()
     else:
         return str(obj)
+
+    # another date time option if you wanted an integer
+#    if isinstance(obj, datetime.datetime):
+#        return int(time.mktime(obj.timetuple()))    
 #    elif isinstance(obj, custom_object):
 #        tmp = some code to coerce your custom_object into something serializable
 #        return tmp
