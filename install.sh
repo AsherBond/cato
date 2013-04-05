@@ -168,6 +168,7 @@ service ${MONGOSERVICE} start
 mkdir -p $LOGFILESDIR/ce
 mkdir -p $LOGFILESDIR/se
 mkdir -p $CATOFILESDIR/ui
+mkdir -p $CATOFILESDIR/reports
 mkdir -p $TMPDIR
 
 mysqladmin -u root -p$ROOTDBPASS create $CATODBNAME
