@@ -352,7 +352,6 @@ class settings(object):
         
         db = catocommon.new_conn()
         sxml = db.select_col(sql)
-        db.close()
         # if there's no settings xml row, insert it
         if not sxml:
             sql = "delete from application_settings"
