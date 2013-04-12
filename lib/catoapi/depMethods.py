@@ -53,9 +53,10 @@ class depMethods:
         
         Returns: An array of all Deployments with basic attributes.
         """
-        fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args.get("filter", "")
+        show_archived = args.get("show_archived", "")
         
-        obj = deployment.Deployments(sFilter=fltr)
+        obj = deployment.Deployments(sFilter=fltr, sShowArchived=catocommon.is_true(show_archived))
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
