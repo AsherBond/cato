@@ -67,6 +67,7 @@ class uiMethods:
     def wmLicenseAgree(self):
         settings.settings.set_application_setting("general", "license_status", "agreed")
         settings.settings.set_application_setting("general", "license_datetime", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+        return ""
             
     def wmGetDBInfo(self):
         if catoconfig.CONFIG.has_key("server"):
