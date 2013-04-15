@@ -43,9 +43,6 @@ CATODBPASS="cato"
 CATODBREADUSER="catoread"
 # the database read only user's password...
 CATODBREADPASS="catoread"
-# the cato administrator password, will have to be changed on initial login anyways
-# probably should leave this one
-ADMINPASS="password"
 # the encryption key, recommend 8 or more random characters. 
 ENCRYPTIONKEY="E8Ske%0j5Ih#HF4"
 # the root location for cato created files
@@ -180,7 +177,6 @@ cp $CATO_HOME/conf/default.cato.conf $CATO_HOME/conf/cato.conf
 NEWKEY=`$CATO_HOME/conf/catoencrypt $ENCRYPTIONKEY ""`
 ENCDBPASS=`$CATO_HOME/conf/catoencrypt $CATODBPASS $ENCRYPTIONKEY`
 ENCDBREADPASS=`$CATO_HOME/conf/catoencrypt $CATODBREADPASS $ENCRYPTIONKEY`
-ENCADMINPASS=`$CATO_HOME/conf/catoencrypt $ADMINPASS $ENCRYPTIONKEY`
 sed -i"" -e"s|#CATO_HOME#|${CATO_HOME}|" $CATO_HOME/conf/cato.conf
 sed -i"" -e"s|#CATODBNAME#|${CATODBNAME}|" $CATO_HOME/conf/cato.conf
 sed -i"" -e"s|#CATODBUSER#|${CATODBUSER}|" $CATO_HOME/conf/cato.conf

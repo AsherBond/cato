@@ -327,6 +327,7 @@ class configure:
 
 
         db.close()
+        out.append("\n")
         return "\n".join(out)
 
         
