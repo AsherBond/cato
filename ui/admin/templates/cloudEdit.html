@@ -3,18 +3,18 @@ $var jsfiles: managePageCommon.js cloudEdit.js
 $var cssfiles:
 
 <style type="text/css">
-	.keypair {
-		clear: both;
-		height: 18px;
-		margin: 1px 2px 1px 4px;
-		padding: 1px;
-	}
-	.keypair_label {
-		float: left;
-	}
-	.keypair_icons {
-		float: right;
-	}
+    .keypair {
+        clear: both;
+        height: 18px;
+        margin: 1px 2px 1px 4px;
+        padding: 1px;
+    }
+    .keypair_label {
+        float: left;
+    }
+    .keypair_icons {
+        float: right;
+    }
 </style>
 
 <div style="display: none;">
@@ -117,6 +117,16 @@ $var cssfiles:
 					<td> Default Account: </td>
 					<td><select id="ddlDefaultAccount"></select><span id="jumpto_account_btn" title="Edit Account">&nbsp;</span><span class="test_connection_btn" title="Test Connection">&nbsp;</span><span id="add_account_btn" title="Add an Account">&nbsp;</span></td>
 				</tr>
+				<tr>
+					<td colspan="2">
+					<hr />
+					</td>
+				</tr>
+				<tr>
+					<td style="white-space: nowrap"> Predefined Clouds: <span id="static_clouds_info" class="ui-icon ui-icon-info forceinline pointer"></span></td>
+					<td><span id="static_clouds_btn">Create</span></td>
+				</tr>
+
 				<tr>
 					<td colspan="2"><div id="conn_test_result" style="margin-top: 10px;"></div><div id="conn_test_error" style="font-size: 0.8em; font-style: italic; margin-top: 10px;"></div></td>
 				</tr>

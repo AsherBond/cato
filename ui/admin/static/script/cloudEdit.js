@@ -177,6 +177,28 @@ $(document).ready(function() {
 		}
 	}
 
+	// this button will create any missing 'static' clouds
+	$("#static_clouds_btn").button({
+		icons : {
+			primary : "ui-icon-plus"
+		}
+	});
+	$("#static_clouds_btn").click(function() {
+		if (confirm("This will initialize all the predefined Cloud Endpoints in Cato.\n\n(This will not harm any existing Clouds.)\n\nAre you sure?")) {
+			ajaxGet("cloudMethods/wmCreateStaticClouds", function(response) {
+				$("#txtSearch").val("");
+				GetItems();
+				$("#edit_dialog").dialog("close");
+			});
+		}
+	});
+	var tip = "Will create Cloud Endpoints for all pre-defined Clouds.  (For example, AWS Endpoints.)";
+	$("#static_clouds_info").attr("title", tip);
+	$("#static_clouds_info").click(function() {
+		showInfo(tip, "", true);
+	});
+	$("#static_clouds_info").tipTip();
+
 	GetItems();
 	ManagePageLoad();
 
@@ -280,7 +302,7 @@ function LoadEditDialog(editID) {
 
 	clearEditDialog();
 	$("#hidMode").val("edit");
-	
+
 	$('#edit_dialog_tabs').tabs("enable", 1);
 
 	$("#hidCurrentEditID").val(editID);

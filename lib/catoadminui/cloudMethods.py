@@ -506,3 +506,9 @@ class cloudMethods:
         self.db.exec_db(sSQL)
         return json.dumps({ "result": "success"})
     
+    def wmCreateStaticClouds(self):
+        success = cloud.create_static_clouds()
+        if success:
+            return json.dumps({ "result": "success"})
+        else:
+            raise Exception("Unable to create Clouds.  Check the UI Log for more information.")
