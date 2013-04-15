@@ -2226,13 +2226,16 @@ class taskMethods:
             for dr in runlog.summary_rows:
                 # almost done... if there is a Result Summary ... display that.
                 if dr["log"]:
-                    xdSummary = ET.fromstring(dr["log"])
-                    if xdSummary is not None:
-                        for item in xdSummary.findall("items/item"):
-                            name = item.findtext("name", "")
-                            detail = item.findtext("detail", "")
-                            sSummary += "<div class='result_summary_item_name'>%s</div>" % name
-                            sSummary += "<div class='result_summary_item_detail ui-widget-content ui-corner-all'>%s</div>" % detail    
+                    try:
+                        xdSummary = ET.fromstring(dr["log"])
+                        if xdSummary is not None:
+                            for item in xdSummary.findall("items/item"):
+                                name = item.findtext("name", "")
+                                detail = item.findtext("detail", "")
+                                sSummary += "<div class='result_summary_item_name'>%s</div>" % name
+                                sSummary += "<div class='result_summary_item_detail ui-widget-content ui-corner-all'>%s</div>" % detail
+                    except:
+                        sSummary += "Unable to unpack summary xml - here is the raw data. <div class=\"log_results ui-widget-content ui-corner-all\">%s</div>" % uiCommon.SafeHTML(dr["log"])
 
         # log rows
         if runlog.log_rows:

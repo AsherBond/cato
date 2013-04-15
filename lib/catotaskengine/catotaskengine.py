@@ -1592,7 +1592,7 @@ class TaskEngine():
             self.process_task(self.task_id)
             self.update_status('Completed')
             if len(self.summary) > 0:
-                msg = "result_summary" "<result_summary><items>%s</items></result_summary>" % (self.summary)
+                msg = "<result_summary><items>%s</items></result_summary>" % (self.summary)
                 self.insert_audit("result_summary", msg, "")
             self.release_all()
         except Exception as e:
