@@ -1597,7 +1597,7 @@ def GetVariablesForStepForEdit(oStep, sXPathPrefix=None):
                         " <input type=\"radio\" name=\"" + sVarGUID + "_r_mode\" value=\"string\" " + sRPosChecked + " class=\"prop\" refid=\"" + sVarGUID + "\" />" \
                         " suffix " \
                         " <input type=\"text\" class=\"w100px code prop\" id=\"" + sVarGUID + "_r_prop\"" \
-                        " value=\"" + sRProp + "\" refid=\"" + sVarGUID + "\" />."
+                        " value=\"" + sRProp + "\" refid=\"" + sVarGUID + "\" />"
                 
             elif sType == "delimited":
                 sLProp = xVar.findtext("position", "")
@@ -1608,7 +1608,7 @@ def GetVariablesForStepForEdit(oStep, sXPathPrefix=None):
                 sDetailStrip += "" \
                     " will contain the data from column position" \
                         " <input type=\"text\" class=\"w100px code\" id=\"" + sVarGUID + "_l_prop\"" \
-                        " value=\"" + sLProp + "\" validate_as=\"posint\" />."
+                        " value=\"" + sLProp + "\" validate_as=\"posint\" />"
                 
             elif sType == "regex":
                 sLProp = UI.SafeHTML(xVar.findtext("regex", ""))
@@ -1620,7 +1620,7 @@ def GetVariablesForStepForEdit(oStep, sXPathPrefix=None):
                     " will contain the result of the following regular expression: " \
                         " <br /><input type=\"text\" class=\"w98pct code\"" \
                         " id=\"" + sVarGUID + "_l_prop\"" \
-                        " value=\"" + sLProp + "\" />."
+                        " value=\"" + sLProp + "\" />"
             elif sType == "xpath":
                 sLProp = UI.SafeHTML(xVar.findtext("xpath", ""))
                 sVarStrip = "Variable: " \
@@ -1631,7 +1631,7 @@ def GetVariablesForStepForEdit(oStep, sXPathPrefix=None):
                     " will contain the Xpath: " \
                         " <br /><input type=\"text\" class=\"w98pct code\"" \
                         " id=\"" + sVarGUID + "_l_prop\"" \
-                        " value=\"" + sLProp + "\" />."
+                        " value=\"" + sLProp + "\" />"
             else:
                 sHTML += "INVALID TYPE"
             

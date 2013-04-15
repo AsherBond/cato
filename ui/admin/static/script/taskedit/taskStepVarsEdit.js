@@ -402,8 +402,8 @@ function addDelimitedVar() {
 	foo += " <input type=\"text\" value=\"" + varname + "\" id=\"v" + vid + "_name\"" + " class=\"code var_name var_unique\" />";
 	foo += "</span>";
 	foo += "<span class=\"ui-icon ui-icon-close forceinline variable_delete_btn\" remove_id=\"v" + vid + "\"></span>";
-	foo += "<br /><span class=\"variable_detail\">";
-	foo += "will contain the data from column position: ";
+	foo += "<span class=\"variable_detail\">";
+	foo += " will contain the data from column position ";
 	foo += " <input type=\"text\" class=\"w100px code\" id=\"v" + vid + "_l_prop\"" + " value=\"" + position + "\" validate_as=\"posint\" />.</span>";
 
 	//an error message placeholder
@@ -537,18 +537,21 @@ function addParsedVar() {
 			var r_pos_checked = (r_idx_checked == "" ? " checked=\"checked\"" : "");
 			var r_msg = "<input type=\"radio\" name=\"v" + vid + "_r_mode\" value=\"index\" " + r_idx_checked + " class=\"prop\" refid=\"v" + vid + "\" />" + " position / " + " <input type=\"radio\" name=\"v" + vid + "_r_mode\" value=\"string\" " + r_pos_checked + " class=\"prop\" refid=\"v" + vid + "\" />" + " suffix";
 
-			foo += "<span class=\"variable_detail\">" + "  will contain the output found between<br />" + l_msg + "  <input type=\"text\" class=\"w100px code prop\" id=\"v" + vid + "_l_prop\"" + "  value=\"" + l_val.replace('"', '&quot;') + "\" refid=\"v" + vid + "\" />" + " and " + r_msg + " <input type=\"text\" class=\"w100px code prop\" id=\"v" + vid + "_r_prop\"" + "  value=\"" + r_val.replace('"', '&quot;') + "\" refid=\"v" + vid + "\" />.</span>";
+			foo += "<span class=\"variable_detail\"> will contain the output found between<br />" + l_msg + "  <input type=\"text\" class=\"w100px code prop\" id=\"v" + vid + "_l_prop\" value=\"" + l_val.replace('"', '&quot;') + "\" refid=\"v" + vid + "\" /> and " + r_msg + " <input type=\"text\" class=\"w100px code prop\" id=\"v" + vid + "_r_prop\" value=\"" + r_val.replace('"', '&quot;') + "\" refid=\"v" + vid + "\" /></span>";
 			break;
 
 		case "delimited":
-			foo += " <span class=\"variable_detail\">" + "will contain the data from column position: " + " <input type=\"text\" class=\"w100px code\" id=\"v" + vid + "_l_prop\"" + " value=\"" + l_val.replace('"', '&quot;') + "\" validate_as=\"posint\" />.</span>";
+			foo += " <span class=\"variable_detail\"> will contain the data from column position \
+			<input type=\"text\" class=\"w100px code\" id=\"v" + vid + "_l_prop\" value=\"" + l_val.replace('"', '&quot;') + "\" validate_as=\"posint\" /></span>";
 			break;
 
 		case "regex":
-			foo += " <span class=\"variable_detail\">" + "will contain the result of the following regular expression: <br />" + " <input type=\"text\" class=\"w98pct code\" id=\"v" + vid + "_l_prop\"" + " value=\"" + l_val.replace('"', '&quot;') + "\" />.</span>";
+			foo += " <span class=\"variable_detail\"> will contain the result of the following regular expression: <br /> \
+			<input type=\"text\" class=\"w98pct code\" id=\"v" + vid + "_l_prop\"" + " value=\"" + l_val.replace('"', '&quot;') + "\" /></span>";
 			break;
 		case "xpath":
-			foo += " <span class=\"variable_detail\">" + "will contain the Xpath: <br />" + " <input type=\"text\" class=\"w98pct code\" id=\"v" + vid + "_l_prop\"" + " value=\"" + l_val.replace('"', '&quot;') + "\" />.</span>";
+			foo += " <span class=\"variable_detail\">" + "will contain the Xpath: <br /> \
+			<input type=\"text\" class=\"w98pct code\" id=\"v" + vid + "_l_prop\"" + " value=\"" + l_val.replace('"', '&quot;') + "\" /></span>";
 			break;
 	}
 
