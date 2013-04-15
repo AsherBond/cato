@@ -191,13 +191,10 @@ sed -i"" -e"s|#ENCRYPTIONKEY#|${NEWKEY}|" $CATO_HOME/conf/cato.conf
 sed -i"" -e"s|#LOGFILESDIR#|${LOGFILESDIR}|" $CATO_HOME/conf/cato.conf
 sed -i"" -e"s|#TMPDIR#|${TMPDIR}|" $CATO_HOME/conf/cato.conf
 sed -i"" -e"s|#CATOFILES#|${CATOFILESDIR}|" $CATO_HOME/conf/cato.conf
-sed -i"" -e"s|#ADMINPASSWORD#|${ENCADMINPASS}|" $CATO_HOME/conf/data/cato_data.sql
 
 
 mysql -u root -p$ROOTDBPASS $CATODBNAME < $CATO_HOME/conf/data/cato_ddl.sql
-mysql -u root -p$ROOTDBPASS $CATODBNAME < $CATO_HOME/conf/data/cato_data.sql
 
-sed -i"" -e"s|${ENCADMINPASS}|#ADMINPASSWORD#|" $CATO_HOME/conf/data/cato_data.sql
 
 #$CATO_HOME/services/start_services.sh
 set +x

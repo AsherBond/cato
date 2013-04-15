@@ -30,6 +30,7 @@ except AttributeError as ex:
 
 from catoconfig import catoconfig
 from catocommon import catocommon
+from catoerrors import InfoException
 
 from catolog import catolog
 logger = catolog.get_logger(__name__)
@@ -107,7 +108,7 @@ class Cloud(object):
         return None
         
  
-    #the default constructor (manual creation)
+    # the default constructor (manual creation)
     def FromArgs(self, p, bUserDefined, sID, sName, sAPIUrl, sAPIProtocol, sRegion):
         if not sID:
             raise Exception("Error building Cloud object: Cloud ID is required.")
@@ -127,7 +128,7 @@ class Cloud(object):
         cp = CloudProviders()
         if not cp:
             raise Exception("Error building Cloud object: Unable to get CloudProviders.")
-        #check the CloudProvider class first ... it *should be there unless something is wrong.
+        # check the CloudProvider class first ... it *should be there unless something is wrong.
         for p in cp.itervalues():
             for c in p.Clouds:
                 if c.ID == sCloudID:
@@ -141,8 +142,8 @@ class Cloud(object):
                     
                     return
         
-        #well, if we got here we have a problem... the ID provided wasn't found anywhere.
-        #this should never happen, so bark about it.
+        # well, if we got here we have a problem... the ID provided wasn't found anywhere.
+        # this should never happen, so bark about it.
         logger.warning("Unable to find a Cloud with id [%s] on any Providers." % sCloudID)   
         return
 
@@ -153,10 +154,11 @@ class Cloud(object):
         cp = CloudProviders()
         if not cp:
             raise Exception("Error building Cloud object: Unable to get CloudProviders.")
-        #check the CloudProvider class first ... it *should be there unless something is wrong.
+        # check the CloudProvider class first ... it *should be there unless something is wrong.
         for p in cp.itervalues():
             for c in p.Clouds:
-                if c.Name == name:
+                # NOTE: we will match on the name OR id.
+                if c.Name == name or c.ID == name:
                     self.IsUserDefined = c.IsUserDefined
                     self.ID = c.ID
                     self.Name = c.Name
@@ -167,8 +169,8 @@ class Cloud(object):
                     
                     return
         
-        #well, if we got here we have a problem... the name provided wasn't found anywhere.
-        #this should never happen, so bark about it.
+        # well, if we got here we have a problem... the name provided wasn't found anywhere.
+        # this should never happen, so bark about it.
         logger.warning("Unable to find a Cloud with name [%s] on any Providers." % name)   
         return
 
@@ -189,9 +191,9 @@ class Cloud(object):
         
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
-    #STATIC METHOD
-    #creates this Cloud as a new record in the db
-    #and returns the object
+    # STATIC METHOD
+    # creates this Cloud as a new record in the db
+    # and returns the object
     @staticmethod
     def DBCreateNew(sCloudName, sProvider, sAPIUrl, sAPIProtocol, sRegion="", sDefaultAccountID=""):
         db = catocommon.new_conn()
@@ -207,24 +209,24 @@ class Cloud(object):
             else:
                 raise Exception(db.error)
         
-        #now it's inserted and in the session... lets get it back from the db as a complete object for confirmation.
+        # now it's inserted and in the session... lets get it back from the db as a complete object for confirmation.
         c = Cloud()
         c.FromID(sNewID)
         c.GetDefaultAccount()
         
-        #yay!
+        # yay!
         db.close()
         return c
 
-    #INSTANCE METHOD
-    #updates the current Cloud object to the db
+    # INSTANCE METHOD
+    # updates the current Cloud object to the db
     def DBUpdate(self):
         db = catocommon.new_conn()
-        #of course we do nothing if this cloud was hardcoded in the xml
-        #just return success, which should never happen since the user can't get to edit a hardcoded Cloud anyway.
+        # of course we do nothing if this cloud was hardcoded in the xml
+        # just return success, which should never happen since the user can't get to edit a hardcoded Cloud anyway.
         if not self.IsUserDefined:
             return True
-        #what's the original name?
+        # what's the original name?
         sSQL = "select cloud_name from clouds where cloud_id = '%s'" % self.ID
         sOriginalName = db.select_col_noexcep(sSQL)
         if not sOriginalName:
@@ -244,7 +246,7 @@ class Cloud(object):
             where cloud_id = '%s'""" % (self.Name, self.Provider.Name, self.APIProtocol, self.APIUrl, sDefaultAccountID, self.ID)
         if not db.exec_db_noexcep(sSQL):
             if db.error == "key_violation":
-                raise Exception("A Cloud with that name already exists.  Please select another name.")
+                raise InfoException("A Cloud with that name already exists.  Please select another name.")
             else:
                 raise Exception(db.error)
 
@@ -375,7 +377,7 @@ class CloudAccount(object):
                 raise Exception("Error building Cloud Account object: Unable to get CloudProviders.")
                 return
 
-            #check the CloudProvider class first ... it *should be there unless something is wrong.
+            # check the CloudProvider class first ... it *should be there unless something is wrong.
             if cp.has_key(dr["provider"]):
                 self.Provider = cp[dr["provider"]]
             else:
@@ -390,39 +392,41 @@ class CloudAccount(object):
         return False
 
     def AsJSON(self):
-        sb = []
-        sb.append("{")
-        sb.append("\"%s\" : \"%s\"," % ("ID", self.ID))
-        sb.append("\"%s\" : \"%s\"," % ("Name", self.Name))
-        sb.append("\"%s\" : \"%s\"," % ("Provider", self.Provider.Name))
-        sb.append("\"%s\" : \"%s\"," % ("AccountNumber", self.AccountNumber))
-        sb.append("\"%s\" : \"%s\"," % ("LoginID", self.LoginID))
-        sb.append("\"%s\" : \"%s\"," % ("LoginPassword", self.LoginPassword))
-        sb.append("\"%s\" : \"%s\"," % ("IsDefault", self.IsDefault))
+        self.DefaultCloud = self.DefaultCloud.Name
+        self.Provider = self.Provider.Name
+        del self.LoginPassword
+        return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
-        sb.append("\"%s\" : %s," % ("DefaultCloud", self.DefaultCloud.AsJSON()))
-        
-        # what are all the other available clouds for this provider?
-        sb.append("\"ProviderClouds\" : {")
-        lst = []
-        for c in self.Provider.Clouds:
-            #stick em all in a list for now
-            s = "\"%s\" : %s" % (c.ID, c.AsJSON())
-            lst.append(s)
-        #join the list using commas!
-        sb.append(",".join(lst))
-        sb.append("}")
+    def AsText(self, delimiter=None):
+        self.DefaultCloud = self.DefaultCloud.Name
+        self.Provider = self.Provider.Name
+        return catocommon.ObjectOutput.AsText(self.__dict__, ["Provider", "Name", "AccountNumber", "DefaultCloud"], delimiter)
 
+    def AsXML(self):
+        self.DefaultCloud = self.DefaultCloud.Name
+        self.Provider = self.Provider.Name
+        del self.LoginPassword
+        return catocommon.ObjectOutput.AsXML(self.__dict__, "Account")
 
-        sb.append("}")
-        return "".join(sb)
-
-    #STATIC METHOD
-    #creates this Cloud as a new record in the db
-    #and returns the object
+    # STATIC METHOD
+    # creates this Cloud as a new record in the db
+    # and returns the object
     @staticmethod
-    def DBCreateNew(sAccountName, sAccountNumber, sProvider, sLoginID, sLoginPassword, sIsDefault, sDefaultCloudID):
+    def DBCreateNew(sProvider, sAccountName, sLoginID, sLoginPassword, sAccountNumber, sDefaultCloudID, sIsDefault="0"):
         db = catocommon.new_conn()
+        
+        # some sanity checks...
+        # 1) is the provider valid?
+        providers = CloudProviders()
+        if sProvider not in providers.iterkeys():
+            raise InfoException("The specified Provider [%s] is not a valid Cato Cloud Provider." % sProvider)
+        
+        # 2) if given, does the 'default cloud' exist
+        c = Cloud()
+        c.FromName(sDefaultCloudID)
+        if not c.ID:
+            raise InfoException("The specified default Cloud [%s] is not defined." % sDefaultCloudID)
+
 
         # if there are no rows yet, make this one the default even if the box isn't checked.
         if sIsDefault == "0":
@@ -442,7 +446,7 @@ class CloudAccount(object):
     
         if not db.tran_exec_noexcep(sSQL):
             if db.error == "key_violation":
-                raise Exception("A Cloud Account with that name already exists.  Please select another name.")
+                raise InfoException("A Cloud Account with that name already exists.  Please select another name.")
             else: 
                 raise Exception(db.error)
         
@@ -482,7 +486,7 @@ class CloudAccount(object):
         
         if not db.exec_db_noexcep(sSQL):
             if db.error == "key_violation":
-                raise Exception("A Cloud Account with that name already exists.  Please select another name.")
+                raise InfoException("A Cloud Account with that name already exists.  Please select another name.")
             else: 
                 raise Exception(db.error)
         
@@ -511,7 +515,7 @@ class CloudProviders(dict):
      
     """
     
-    #the constructor requires an ET Document
+    # the constructor requires an ET Document
     def __init__(self, include_products=True, include_clouds=True):
         db = catocommon.new_conn()
         filename = os.path.join(catoconfig.BASEPATH, "conf/cloud_providers.xml")
@@ -551,7 +555,7 @@ class CloudProviders(dict):
                         logger.debug("Cloud Providers XML: Warning - Provider [%s] allows user defined Clouds, but none exist in the database." % pv.Name)
                 
                 if include_products:
-                    #get the cloudobjecttypes for this provider.                    
+                    # get the cloudobjecttypes for this provider.                    
                     xProducts = xProvider.findall("products/product")
                     for xProduct in xProducts:
                         p_name = xProduct.get("name", None)
@@ -561,14 +565,14 @@ class CloudProviders(dict):
     
                         p = Product(pv)
                         p.Name = xProduct.get("name", None)
-                        #use the name for the label if it doesn't exist.
+                        # use the name for the label if it doesn't exist.
                         p.Label = xProduct.get("label", p_name)
                         p.Type = xProduct.get("type", None)
                         p.APIUrlPrefix = xProduct.get("api_url_prefix", None)
                         p.APIUri = xProduct.get("api_uri", None)
                         p.APIVersion = xProduct.get("api_version", None)
                         
-                        #the product contains object type definitions
+                        # the product contains object type definitions
                         xTypes = xProduct.findall("object_types/type")
                         for xType in xTypes:
                             if xType.get("id", None) == None:
@@ -584,7 +588,7 @@ class CloudProviders(dict):
                             cot.APIRequestRecordFilter = xType.get("request_record_filter", None)
                             cot.XMLRecordXPath = xType.get("xml_record_xpath", None)
 
-                            #the type contains property definitions
+                            # the type contains property definitions
                             xProperties = xType.findall("property")
                             for xProperty in xProperties:
                                 # name="ImageId" label="" xpath="imageId" id_field="1" has_icon="0" short_list="1" sort_order="1"
@@ -649,8 +653,8 @@ class Provider(object):
                     return cot
             except Exception:
                 """"""
-                #don't crash while it's iterating, it may find it in the next object.
-                #don't worry, we'll return null if it doesn't find anything.
+                # don't crash while it's iterating, it may find it in the next object.
+                # don't worry, we'll return null if it doesn't find anything.
                     
         return None
 
@@ -744,8 +748,8 @@ class CloudObjectType(object):
         self.APIRequestRecordFilter = None
         self.XMLRecordXPath = None
         self.ParentProduct = parent
-        self.Properties = [] #!!! This is a list, not a dictionary
-        self.Instances = {} # a dictionary of results, keyed by the unique 'id'
+        self.Properties = []  #!!! This is a list, not a dictionary
+        self.Instances = {}  # a dictionary of results, keyed by the unique 'id'
 
     def IsValidForCalls(self):
         if self.XMLRecordXPath and self.ID:
@@ -787,3 +791,53 @@ class CloudObjectTypeProperty:
 
     def AsJSON(self):
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
+
+
+"""
+This class method will create database records for all the static clouds.
+"""
+def create_static_clouds():
+    db = catocommon.new_conn()
+    
+    filename = os.path.join(catoconfig.BASEPATH, "conf/cloud_providers.xml")
+    if not os.path.isfile(filename):
+        raise Exception("conf/cloud_providers.xml file does not exist.")
+    xRoot = ET.parse(filename)
+    if not xRoot:
+        raise Exception("Error: Invalid or missing Cloud Providers XML.")
+    else:
+        xProviders = xRoot.findall("providers/provider")
+        for xProvider in xProviders:
+            p_name = xProvider.get("name", None)
+            user_defined_clouds = xProvider.get("user_defined_clouds", True)
+            user_defined_clouds = (False if user_defined_clouds == "false" else True)
+             
+            if not user_defined_clouds:
+                # clouds are NOT user defined, check the database for these records.
+                xClouds = xProvider.findall("clouds/cloud")
+                for xCloud in xClouds:
+                    if xCloud.get("name", None) == None:
+                        raise Exception("Cloud Providers XML: All Clouds must have the 'name' attribute.")
+                    
+                    cloud_name = xCloud.get("name", "")
+
+                    sql = "select count(*) from clouds where cloud_name = '%s'" % cloud_name
+                    cnt = db.select_col_noexcep(sql)
+                    
+                    if not cnt:
+                        logger.info("    Creating Cloud [%s] on Provider [%s]..." % (cloud_name, p_name))
+
+                        if xCloud.get("api_url", None) == None:
+                            raise Exception("Cloud Providers XML: All Clouds must have the 'api_url' attribute.")
+                        if xCloud.get("api_protocol", None) == None:
+                            raise Exception("Cloud Providers XML: All Clouds must have the 'api_protocol' attribute.")
+                        
+                        from catocloud import cloud
+                        c = cloud.Cloud.DBCreateNew(cloud_name, p_name, xCloud.get("api_url", ""), xCloud.get("api_protocol", ""), xCloud.get("region", ""))
+                        if not c:
+                            logger.warning("    Could not create Cloud from cloud_providers.xml definition.\n%s")
+                    else:
+                        logger.info("    Cloud [%s] already exists." % cloud_name)
+    
+    db.close()
+    return True

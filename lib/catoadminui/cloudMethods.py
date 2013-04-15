@@ -249,7 +249,7 @@ class cloudMethods:
             return json.dumps({"info" : "Passwords must match."})
         
         if sMode == "add":
-            ca = cloud.CloudAccount.DBCreateNew(sAccountName, sAccountNumber, sProvider, sLoginID, sLoginPassword, sIsDefault, sDefaultCloudID)
+            ca = cloud.CloudAccount.DBCreateNew(sProvider, sAccountName, sLoginID, sLoginPassword, sAccountNumber, sDefaultCloudID, sIsDefault)
             uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.CloudAccount, ca.ID, ca.Name, "Account Created")
         
         elif sMode == "edit":

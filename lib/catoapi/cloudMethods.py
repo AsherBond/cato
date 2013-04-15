@@ -21,9 +21,10 @@ Cloud / Cloud Account endpoint methods.
 from catolog import catolog
 logger = catolog.get_logger(__name__)
 
-import traceback
+from catoapi import api
 from catoapi.api import response as R
 from catocloud import cloud
+from catocommon import catocommon
 
 class cloudMethods:
     """These are methods for Cloud, Cloud Accounts and other related items."""
@@ -65,3 +66,70 @@ class cloudMethods:
             return R(response=obj.AsText(args["output_delimiter"]))
         else:
             return R(response=obj.AsXML())
+        
+    def create_account(self, args):
+        """
+        Creates a Cloud Account.
+        
+        Required Arguments: 
+            name - a name for the new Account.
+            provider - one of the valid cloud providers.
+            login - the login id (access key) for this Account.
+            password - a password (secret key) for this Account.
+            default_cloud - the name of a default Cloud for this Account.
+
+        Optional Arguments: 
+            account_number - an Account number.
+        
+        """
+        required_params = ["name", "provider", "login", "password", "default_cloud"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        name = args.get("name")
+        provider = args.get("provider")
+        login = args.get("login")
+        pw = args.get("password")
+        default_cloud = args.get("default_cloud")
+        
+        acct_number = args.get("account_number", "")
+        
+        
+        obj = cloud.CloudAccount.DBCreateNew(provider, name, login, pw, acct_number, default_cloud)
+        catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Deployment, obj.ID, obj.Name, "Account created.")
+
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML())
+
+    def get_account(self, args):
+        """
+        Gets a Cloud Account.
+        
+        Required Arguments: 
+            name - a name for the new Account.
+
+        Returns: A Cloud Account object.
+        """
+        required_params = ["name"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        name = args.get("name")
+
+        obj = cloud.CloudAccount()
+        obj.FromName(name)
+
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML())
+
+        

@@ -169,21 +169,167 @@ def notfound():
         
 class version:        
     def GET(self):
-        try:
-            args = web.input()
-            output_format = args["output_format"] if args.has_key("output_format") else ""
-            version = catoconfig.VERSION
+        args = web.input()
+        output_format = args["output_format"] if args.has_key("output_format") else ""
+        version = catoconfig.VERSION
 
-            if output_format == "json":
-                response = api.response(response='{"Version" : "%s"}' % version)
-            elif output_format == "text":
-                response = api.response(response=version)
+        if output_format == "json":
+            response = api.response(response='{"Version" : "%s"}' % version)
+        elif output_format == "text":
+            response = api.response(response=version)
+        else:
+            response = api.response(response="<Version>%s</Version>" % version)
+            
+        return response.Write(output_format)
+            
+class configure:       
+    """
+    Meant to be called once, on the initial installation of Cato.
+    
+    Will create the Administrator account, and default values for settings tables.
+    
+    Will not create any data rows if they already exist.
+    """ 
+    def GET(self):
+        args = web.input()
+        db = catocommon.new_conn()
+        
+        out = []
+        out.append("Configuring Cato...\n\n")
+
+        # should we create the Administrator account
+        msg = "Administrator Account:"
+        out.append(msg)
+        logger.info(msg)
+        sql = "select count(*) from users where username = 'Administrator'"
+        cnt = db.select_col_noexcep(sql)
+        if not cnt:
+            msg = "    Administrator account not found, creating..."
+            out.append(msg)
+            logger.info(msg)
+            pw = catocommon.cato_encrypt("password")
+            sql = """INSERT INTO users 
+                (user_id, username, full_name, status, authentication_type, failed_login_attempts, force_change, email, user_role, user_password) 
+                VALUES (
+                '0002bdaf-bfd5-4b9d-82d1-fd39c2947d19','administrator','Administrator',1,'local',0,1,'','Administrator',%s
+                )"""
+            db.exec_db_noexcep(sql, (pw))            
+            
+            sql = """INSERT INTO user_password_history (user_id, change_time, password) 
+                VALUES ('0002bdaf-bfd5-4b9d-82d1-fd39c2947d19',now(),%s)"""
+            db.exec_db_noexcep(sql, (pw))            
+
+        else:
+            msg = "    Administrator account already exists."
+            out.append(msg)
+            logger.info(msg)
+
+
+        # settings rows
+        msg = "Default Settings:"
+        out.append(msg)
+        logger.info(msg)
+        
+        # scheduler
+        sql = "select count(*) from scheduler_settings"
+        cnt = db.select_col_noexcep(sql)
+        if not cnt:
+            msg = "    Scheduler settings..."
+            out.append(msg)
+            logger.info(msg)
+            sql = """INSERT INTO scheduler_settings (id, mode_off_on, loop_delay_sec, schedule_min_depth, schedule_max_days, clean_app_registry) 
+                VALUES (1,'on',5,10,60,5)"""
+            db.exec_db_noexcep(sql)            
+        else:
+            msg = "    Scheduler settings already exist."
+            out.append(msg)
+            logger.info(msg)
+            
+        # poller
+        sql = "select count(*) from poller_settings"
+        cnt = db.select_col_noexcep(sql)
+        if not cnt:
+            msg = "    Poller settings..."
+            out.append(msg)
+            logger.info(msg)
+            sql = """INSERT INTO poller_settings (id, mode_off_on, loop_delay_sec, max_processes, app_instance) 
+                VALUES (1,'on',3,4,'DEFAULT')"""
+            db.exec_db_noexcep(sql)            
+        else:
+            msg = "    Poller settings already exist."
+            out.append(msg)
+            logger.info(msg)
+            
+        # messenger
+        sql = "select count(*) from messenger_settings"
+        cnt = db.select_col_noexcep(sql)
+        if not cnt:
+            msg = "    Messenger settings..."
+            out.append(msg)
+            logger.info(msg)
+            sql = """INSERT INTO messenger_settings (id, mode_off_on, loop_delay_sec, retry_delay_min, retry_max_attempts, smtp_server_addr, smtp_server_user, smtp_server_password, smtp_server_port, smtp_timeout, smtp_ssl, from_email, from_name, admin_email) 
+                VALUES (1,'off',30,1,5,'','','',25,10,0,'user@example.com','Cloud Sidekick Messenger','')"""
+            db.exec_db_noexcep(sql)            
+        else:
+            msg = "    Messenger settings already exist."
+            out.append(msg)
+            logger.info(msg)
+
+        # security
+        sql = "select count(*) from login_security_settings"
+        cnt = db.select_col_noexcep(sql)
+        if not cnt:
+            msg = "    Security settings..."
+            out.append(msg)
+            logger.info(msg)
+            sql = """INSERT INTO login_security_settings (id, pass_max_age, pass_max_attempts, pass_max_length, pass_min_length, pass_complexity, pass_age_warn_days, pass_require_initial_change, auto_lock_reset, login_message, auth_error_message, pass_history, page_view_logging, report_view_logging, allow_login, new_user_email_message, log_days) 
+                VALUES (1,90,99,15,6,0,5,0,5,'New Cato Install','Login Error - Please check your user id and password.',0,0,0,1,'',90)"""
+            db.exec_db_noexcep(sql)            
+        else:
+            msg = "    Security settings already exist."
+            out.append(msg)
+            logger.info(msg)
+            
+        # security
+        sql = "select count(*) from marshaller_settings"
+        cnt = db.select_col_noexcep(sql)
+        if not cnt:
+            msg = "    Marshaller settings..."
+            out.append(msg)
+            logger.info(msg)
+            sql = """INSERT INTO marshaller_settings (id, mode_off_on, loop_delay_sec) 
+                VALUES (1,'on',3)"""
+            db.exec_db_noexcep(sql)            
+        else:
+            msg = "    Marshaller settings already exist."
+            out.append(msg)
+            logger.info(msg)
+
+
+
+        # should we create AWS clouds?
+        if args.get("createclouds"):
+            from catocloud import cloud
+            msg = "Checking Static Clouds..."
+            out.append(msg)
+            logger.info(msg)
+            success = cloud.create_static_clouds()
+            if success:
+                msg = "... done."
+                out.append(msg)
+                logger.info(msg)
             else:
-                response = api.response(response="<Version>%s</Version>" % version)
+                msg = "    Errors occurred while creating Clouds.  Please check the REST API logfile for details."
+                out.append(msg)
+                logger.info(msg)
                 
-            return response.Write(output_format)
-        except Exception as ex:
-            logger.error(ex.__str__())
+                
+
+
+        db.close()
+        return "\n".join(out)
+
+        
             
 # the default page if no URI is given, just an information message
 class index:        
@@ -315,6 +461,7 @@ def main():
     urls = (
         '/', 'index',
         '/version', 'version',
+        '/configure', 'configure',
         '/getlog', 'getlog',
         '/setdebug', 'setdebug',
         '/(.*)', 'wmHandler'
