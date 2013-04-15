@@ -110,6 +110,15 @@ def cato_encrypt(s):
     else:
         return ""
 
+def send_email_via_messenger(to, subject, body, frm="Cloud Sidekick - Cato"):
+    msg = "Inserting into message queue:\nTO:[%s]\nSUBJECT:[%s]\nBODY:[%s]" % (to, subject, body)
+    logger.info(msg)
+
+    sql = """insert into message (date_time_entered, process_type, status, msg_from, msg_to, msg_subject, msg_body) 
+        values (now(), 1, 0, %s, %s, %s, %s)"""
+    db = new_conn()
+    db.exec_db(sql, (frm, to, subject, body))
+    db.close()
 
 def http_get(url, timeout=30, headers={}):
     """

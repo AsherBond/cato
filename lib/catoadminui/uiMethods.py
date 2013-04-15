@@ -846,25 +846,22 @@ class uiMethods:
                         # an additional log entry
                         uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, user_id, user_id, "Password reset.")
 
-                        # TODO: 
-                        # would get the URL of the application, construct an email message
-                        # and send using our SendEmail function (which puts a row in the message table)
-                        
-                        # sURL = uiCommon.GetSessionObject("app_url", "user")
+                        # TODO: maybe have a setting for the application url?
                         sURL = ""
+                        
                         # now, send out an email
                         s_set = settings.settings.security()
                         body = s_set.NewUserMessage
                         if not body:
                             body = """%s - your password has been reset by an Administrator.\n\n
-                            Your temporary password is: %s.\n\n
-                            Access the application at <a href='%s' target='_blank'>%s</a>.""" % (u.FullName, sNewPassword, sURL, sURL)
+                            Your temporary password is: %s.""" % (u.FullName, sNewPassword)
 
-                            # replace our special tokens with the values
-                            body = body.replace("##FULLNAME##", u.FullName).replace("##USERNAME##", u.LoginID).replace("##PASSWORD##", sNewPassword).replace("##URL##", sURL)
+                        # replace our special tokens with the values
+                        body = body.replace("##FULLNAME##", u.FullName).replace("##USERNAME##", u.LoginID).replace("##PASSWORD##", sNewPassword)
 
-                            uiCommon.log_nouser("Would send email here...")
-#                                if !uiCommon.SendEmailMessage(sEmail.strip(), ag.APP_COMPANYNAME + " Account Management", "Account Action in " + ag.APP_NAME, sBody, 0000BYREF_ARG0000sErr:
+                        # TODO: should have the ability to use a configurable "company" name
+                        catocommon.send_email_via_messenger(u.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
+                        #f !uiCommon.SendEmailMessage(sEmail.strip(), ag.APP_COMPANYNAME + " Account Management", "Account Action in " + ag.APP_NAME, sBody, 0000BYREF_ARG0000sErr:
                     
         
         sql = "update users set %s where user_id = '%s'" % (",".join(sql_bits), user_id)
