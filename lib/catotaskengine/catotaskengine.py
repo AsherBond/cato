@@ -1492,6 +1492,26 @@ class TaskEngine():
         except ET.ParseError:
             raise Exception("Invalid or missing XML for parameters.")
 
+    def send_email(self, to, sub, body):
+
+        msg = "Inserting into message queue : TO:{%s} SUBJECT:{%s} BODY:{%s}" % (to, sub, body)
+        self.insert_audit("", msg, "")
+        # note - this logic is skipping the file attachment piece, to do
+        # also - there may need to be some additional processing to handle html, etc. messages
+
+        sql = """insert into message (date_time_entered,process_type,status,msg_to,msg_from,msg_subject,msg_body) 
+            values (now(),1,0,%s,%s,%s,%s)"""
+        self.db.exec_db(sql, (to, self.host_domain, sub, body))
+
+    def notify_error(self, msg):
+
+        sql = "select admin_email from messenger_settings where id = 1"
+        row = self.db.select_row(sql)
+        if row and len(row[0]):
+            s  = "Task Error on %s: Task = %s, Task Instance = %s" % (os.uname()[1], self.task_name, self.task_instance)
+            b  = "<html>Task Error on %s<br><br>Task = %s<br>Task Instance = %s<br><br>Error:%s</html>" % (os.uname()[1], self.task_name, self.task_instance, msg)
+            self.send_email(row[0], s, b)
+
     def get_task_params(self):
 
         sql = "select parameter_xml from task_instance_parameter where task_instance = %s"
@@ -1599,8 +1619,8 @@ class TaskEngine():
             msg = "ERROR -> %s" % (e)
             self.logger.info(msg)
             traceback.print_exc(file=sys.stderr)
-            # traceback.print_exc(file=sys.stderr)
             self.insert_audit("", msg, "")
             self.update_status('Error')
             self.release_all()
+            self.notify_error(msg)
             raise Exception(msg)

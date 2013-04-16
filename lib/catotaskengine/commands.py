@@ -980,15 +980,9 @@ def send_email_cmd(self, task, step):
     to = self.replace_variables(to)
     sub = self.replace_variables(sub)
     body = self.replace_variables(body)
-    msg = "Inserting into message queue : TO:{%s} SUBJECT:{%s} BODY:{%s}" % (to, sub, body)
+
+    self.send_email(to, sub, body)
     self.insert_audit(step.function_name, msg, "")
-
-    # note - this logic is skipping the file attachment piece, to do
-    # also - there may need to be some additional processing to handle html, etc. messages
-
-    sql = """insert into message (date_time_entered,process_type,status,msg_to,msg_from,msg_subject,msg_body) 
-        values (now(),1,0,%s,%s,%s,%s)"""
-    self.db.exec_db(sql, (to, self.host_domain, sub, body))
 
 
 def http_cmd(self, task, step):
