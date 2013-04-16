@@ -1,10 +1,7 @@
 $def with ()
 $var jsfiles: taskedit/taskEdit.js 	taskedit/taskView.js taskedit/taskVersions.js taskedit/taskEditDebug.js taskedit/taskEditCodeblock.js taskedit/taskEditParams.js taskedit/taskEditSteps.js taskedit/taskEditCommandSpecific.js taskedit/taskStepVarsEdit.js jquery/jquery.rightClick.js jquery/jquery.ui.ufd-0.6/jquery.ui.ufd.js toolbox.js validation.js tags.js registry.js parametersOnDialog.js taskLaunchDialog.js
 
-$var cssfiles: registry.css taskEdit.css taskView.css
-
-<link href="static/script/jquery/jquery.ui.ufd-0.6/css/ufd-base.css" rel="stylesheet" type="text/css" />
-<link href="static/script/jquery/jquery.ui.ufd-0.6/css/plain/plain.css" rel="stylesheet" type="text/css" />
+$var cssfiles: registry.css taskEdit.css taskView.css ../script/jquery/jquery.ui.ufd-0.6/css/ufd-base.css ../script/jquery/jquery.ui.ufd-0.6/css/plain/plain.css
 
 <div id="left_panel_te">
     <div id="toolbox">
@@ -329,7 +326,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
 <!-- End Registry dialogs.-->
 <input type="hidden" id="reg_type" value="task" />
 <!-- Step Variable Edit dialog. -->
-<div id="step_var_edit_dialog" title="Edit Command Variables">
+<div id="step_var_edit_dialog" class="hidden" title="Edit Command Variables">
     <div id="phVars"></div>
     <div class="hidden">
         <input type="hidden" id="hidStepID" />
@@ -340,7 +337,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
         <input type="hidden" id="delimiter_picker_target" />
     </div>
 </div>
-<div id="delimiter_picker_dialog" title="Select a Delimiter">
+<div id="delimiter_picker_dialog" class="hidden" title="Select a Delimiter">
     <ol id="ol_delimiters">
         <li id="d_9" class="delimiter" val="9">
             TAB
@@ -638,7 +635,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
         </li>
     </ol>
 </div>
-<div id="variable_add_dialog_delimited" title="Define Variable" class="ui-state-highlight">
+<div id="variable_add_dialog_delimited" title="Define Variable" class="ui-state-highlight hidden">
     <table class="w100pct" border="0">
         <tr>
             <td width="40%"> Variable: </td>
@@ -657,7 +654,7 @@ $var cssfiles: registry.css taskEdit.css taskView.css
         </tr>
     </table>
 </div>
-<div id="variable_add_dialog_parsed" title="Define Variable" class="ui-state-highlight">
+<div id="variable_add_dialog_parsed" title="Define Variable" class="ui-state-highlight hidden">
     <table class="w100pct" border="0">
         <tr>
             <td colspan="3" align="center">
