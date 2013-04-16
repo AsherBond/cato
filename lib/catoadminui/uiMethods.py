@@ -812,6 +812,8 @@ class uiMethods:
                 sql_bits.append("user_role='%s'" % val)
             if key == "FailedLoginAttempts":
                 sql_bits.append("failed_login_attempts='%s'" % val)
+            if key == "Expires":
+                sql_bits.append("expiration_dt=str_to_date('{0}', '%%m/%%d/%%Y')".format(val))
 
 
             # only do the password if it was provided
@@ -863,9 +865,7 @@ class uiMethods:
                         catocommon.send_email_via_messenger(u.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
                         #f !uiCommon.SendEmailMessage(sEmail.strip(), ag.APP_COMPANYNAME + " Account Management", "Account Action in " + ag.APP_NAME, sBody, 0000BYREF_ARG0000sErr:
                     
-        
         sql = "update users set %s where user_id = '%s'" % (",".join(sql_bits), user_id)
-
         self.db.exec_db(sql)
 
         uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, user_id, user_id, "User updated.")
@@ -889,7 +889,7 @@ class uiMethods:
         args = uiCommon.getAjaxArgs()
 
         u = catouser.User.DBCreateNew(args["LoginID"], args["FullName"], args["AuthenticationType"], uiCommon.unpackJSON(args["Password"]),
-                                        args["GeneratePW"], args["ForceChange"], args["Role"], args["Email"], args["Status"], args["Groups"])
+                                        args["GeneratePW"], args["ForceChange"], args["Role"], args["Email"], args["Status"], args["Expires"], args["Groups"])
 
         uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "User Created")
         return u.AsJSON()

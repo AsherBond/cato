@@ -125,7 +125,7 @@ class User(object):
         sSQL = """select u.user_id, u.username, u.full_name, u.status, u.last_login_dt,
             u.failed_login_attempts, u.email ,u.authentication_type,
             u.security_question, u.force_change, u.settings_xml,
-            u.user_role, u.expiration_dt
+            u.user_role, date_format(u.expiration_dt, '%%m/%%d/%%Y') as expiration_dt
             from users u"""
         
         if user_id:
@@ -277,7 +277,7 @@ class User(object):
     #creates this Cloud as a new record in the db
     #and returns the object
     @staticmethod
-    def DBCreateNew(sUsername, sFullName, sAuthType, sPassword, sGeneratePW, sForcePasswordChange, sUserRole, sEmail, sStatus, sGroupArray):
+    def DBCreateNew(sUsername, sFullName, sAuthType, sPassword, sGeneratePW, sForcePasswordChange, sUserRole, sEmail, sStatus, sExpires, sGroupArray):
         # TODO: All the password testing, etc.
         db = catocommon.new_conn()
 
@@ -297,15 +297,15 @@ class User(object):
                 raise Exception("A password must be provided, or check the box to generate one.")
         
         pw2insert = "'%s'" % sEncPW if sEncPW else " null"
+        ex2insert = ("str_to_date('{0}', '%%m/%%d/%%Y')".format(sExpires) if sExpires else " null")
         sSQL = """insert into users
-            (user_id, username, full_name, authentication_type, force_change, email, status, user_role, user_password)
-            values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-        
-        params = (sNewID, sUsername, sFullName, sAuthType, sForcePasswordChange, 
+            (user_id, username, full_name, authentication_type, force_change, email, status, user_role, user_password, expiration_dt)
+            values ('%s', '%s', '%s', '%s', %s, '%s', '%s', '%s', %s, %s)""" % (sNewID, sUsername, sFullName, sAuthType, sForcePasswordChange, 
                 (sEmail if sEmail else ""), sStatus,
-                sUserRole, pw2insert)
+                sUserRole, pw2insert, ex2insert)
 
-        if not db.tran_exec_noexcep(sSQL, params):
+        print sSQL
+        if not db.tran_exec_noexcep(sSQL):
             if db.error == "key_violation":
                 raise Exception("A User with that Login ID already exists.  Please select another.")
             else: 

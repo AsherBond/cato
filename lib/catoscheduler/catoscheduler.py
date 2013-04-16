@@ -229,6 +229,16 @@ class Scheduler(catoprocess.CatoService):
                 self.logger.info("    Fixing names for [%s]" % row["original_task_id"])
                 self.db.exec_db(sql, (row["original_task_id"], row["original_task_id"]))
 
+
+        # EXPIRED USERS
+        # we'll check for expired users... once their expiration date has passed, we'll update the row as 'Disabled'
+        # doing an extra select here for the sole purpose of getting a log entry
+        sql = """select group_concat(username) from users where expiration_dt < now() and status > 0"""
+        userlist = self.db.select_col_noexcep(sql)
+        if userlist:
+            self.logger.info("Housekeeping found expired Users [%s]... disabling..." % userlist)
+            self.db.exec_db("update users set status = 0 where expiration_dt < now() and status > 0")
+        
     def check_schedules(self):
         try:
             sql = """select ap.schedule_id, min(ap.plan_id) as plan_id, ap.task_id,
