@@ -1,27 +1,27 @@
-[][
+[
 	{
 		"name": "Equal To",
-		"value": "{} == {}"
+		"value": "&quot;&quot; == &quot;&quot;"
 	}, {
 		"name": "Not Equal To",
-		"value": "{} != {}"
+		"value": "&quot;&quot; != &quot;&quot;"
 	}, {
 		"name": "Greater Than",
-		"value": "{} > {}"
+		"value": "&quot;&quot; > &quot;&quot;"
 	}, {
 		"name": "Less Than",
-		"value": "{} < {}"
+		"value": "&quot;&quot; < &quot;&quot;"
 	}, {
 		"name": "Greater Than or Equal To",
-		"value": "{} >= {}"
+		"value": "&quot;&quot; >= &quot;&quot;"
 	}, {
 		"name": "Less Than or Equal To",
-		"value": "{} <= {}"
+		"value": "&quot;&quot; <= &quot;&quot;"
 	}, {
 		"name": "And Comparison",
-		"value": "{} == {} && {} == {}"
+		"value": "&quot;&quot; == &quot;&quot; and &quot;&quot; == &quot;&quot;"
 	}, {
 		"name": "Or Comparison",
-		"value": "{} == {} || {} == {}"
+		"value": "&quot;&quot; == &quot;&quot; or &quot;&quot; == &quot;&quot;"
 	}
 ]
