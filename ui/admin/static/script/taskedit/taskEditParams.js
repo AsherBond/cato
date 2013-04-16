@@ -259,16 +259,18 @@ function doGetParams(type, id, editable, snip, readonly) {
 	if (snip === undefined)
 		snip = true;
 
-	var response = ajaxPost("taskMethods/wmGetParameters", {
+	ajaxPostAsync("taskMethods/wmGetParameters", {
 		sType : type,
 		sID : id,
 		bEditable : editable,
 		bSnipValues : snip
-	}, "html");
-	$("#parameters").html(response);
+	}, function(response) {
+		$("#parameters").html(response);
 
-	//have to rebind the tooltips here
-	bindParameterToolTips();
+		//have to rebind the tooltips here
+		bindParameterToolTips();
+	}, "html");
+
 }
 
 function bindParameterToolTips() {

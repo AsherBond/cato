@@ -477,16 +477,11 @@ class taskMethods:
             if not sCodeblockName:
                 raise Exception("Unable to get Steps - No Codeblock specified.")
 
+            sHTML = ""
             sAddHelpMsg = "No Commands have been defined in this Codeblock. Drag a Command here to add it."
 
-            # instantiate the new Task object
-            oTask = task.Task()
-            oTask.IncludeSettingsForUser = uiCommon.GetSessionUserID()
-            oTask.FromID(sTaskID)
-
-            sHTML = ""
-
-            cb = oTask.Codeblocks[sCodeblockName]
+            # go directly and get the Codeblock object
+            cb = task.Codeblock(sTaskID, sCodeblockName, uiCommon.GetSessionUserID())
             if cb.Steps:
                 # we always need the no_step item to be there, we just hide it if we have other items
                 # it will get unhidden if someone deletes the last step.
