@@ -95,6 +95,15 @@ $(document).ready(function() {
 		}
 	});
 
+
+	var tip = "Will send the user an email with a temporary password, which must be changed upon login.";
+	$("#pw_reset_info").attr("title", tip);
+	$("#pw_reset_info").click(function() {
+		showInfo(tip, "", true);
+	});
+	$("#pw_reset_info").tipTip();
+
+
 	GetItems();
 	ManagePageLoad();
 
@@ -275,6 +284,8 @@ function SaveUserEdits() {
 		return false;
 	}
 
+	var sExpires = $('#txtExpirationDT').val();
+
 	//put the users groups in a string for submission
 	var sGroups = new Array();
 	$("#objects_tags .tag").each(function(idx) {
@@ -291,6 +302,7 @@ function SaveUserEdits() {
 	user.Role = sUserRole;
 	user.Email = sEmail;
 	user.Status = sStatus;
+	user.Expires = sExpires;
 	user.Groups = sGroups;
 
 	var response = ajaxPost("uiMethods/wmUpdateUser", user);
@@ -399,6 +411,8 @@ function SaveNewUser() {
 		return false;
 	}
 
+	var sExpires = $('#txtExpirationDT').val();
+
 	//put the users groups in a string for submission
 	var sGroups = "";
 	$("#objects_tags .tag").each(function(intIndex) {
@@ -418,6 +432,7 @@ function SaveNewUser() {
 	user.Role = sUserRole;
 	user.Email = sEmail;
 	user.Status = sStatus;
+	user.Expires = sExpires;
 	user.Groups = sGroups;
 
 	var response = ajaxPost("uiMethods/wmCreateUser", user);
@@ -453,6 +468,7 @@ function LoadEditDialog(editCount, editUserID) {
 		//$("#txtUserPasswordConfirm").val(user.sPasswordMasked)
 		$("#ddlUserAuthType").val(user.AuthenticationType);
 		$("#ddlUserStatus").val(user.Status);
+		$("#txtExpirationDT").val(user.ExpirationDT);
 		$("#ddlUserRole").val(user.Role);
 		$("#lblFailedLoginAttempts").html(user.FailedLoginAttempts);
 

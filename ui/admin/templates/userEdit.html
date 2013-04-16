@@ -3,171 +3,175 @@ $var jsfiles: managePageCommon.js userEdit.js tags.js
 $var cssfiles:
 
 <div style="display: none;">
-    <input id="hidPageSaveType" type="hidden" value="batch" />
-    <input id="hidMode" type="hidden" name="hidMode" />
-    <input id="hidEditCount" type="hidden" name="hidEditCount" />
-    <input id="hidCurrentEditID" type="hidden" name="hidCurrentEditID" />
-    <input id="hidSelectedArray" type="hidden" name="hidSelectedArray" />
-    <!-- Start visible elements -->
+	<input id="hidPageSaveType" type="hidden" value="batch" />
+	<input id="hidMode" type="hidden" name="hidMode" />
+	<input id="hidEditCount" type="hidden" name="hidEditCount" />
+	<input id="hidCurrentEditID" type="hidden" name="hidCurrentEditID" />
+	<input id="hidSelectedArray" type="hidden" name="hidSelectedArray" />
+	<!-- Start visible elements -->
 </div>
 <div id="left_panel">
-    <div id="left_tooltip_img">
-        <img src="static/images/user-192x192.png" alt="" />
-    </div>
-    <div class="left_tooltip">
-        <div id="left_tooltip_box_outer">
-            <div id="left_tooltip_box_inner">
-                <h2>Users</h2>
-                <p>
-                    The Manage Users screen allows administrators
-                    to modify permissions or add and delete Users.
-                </p>
-                <p>
-                    Select one or more Users from the list to the right, using the checkboxes. Select
-                    an action to modify or delete the Users you've selected.
-                </p>
-                <p>
-                    <a href="https://github.com/cloudsidekick/cato/wiki/security" target="_blank"><span class="ui-icon ui-icon-info forceinline"></span>Click here</a>
-                    for a more detailed introduction to Security.
-                </p>
-            </div>
-        </div>
-    </div>
+	<div id="left_tooltip_img">
+		<img src="static/images/user-192x192.png" alt="" />
+	</div>
+	<div class="left_tooltip">
+		<div id="left_tooltip_box_outer">
+			<div id="left_tooltip_box_inner">
+				<h2>Users</h2>
+				<p>
+					The Manage Users screen allows administrators
+					to modify permissions or add and delete Users.
+				</p>
+				<p>
+					Select one or more Users from the list to the right, using the checkboxes. Select
+					an action to modify or delete the Users you've selected.
+				</p>
+				<p>
+					<a href="https://github.com/cloudsidekick/cato/wiki/security" target="_blank"><span class="ui-icon ui-icon-info forceinline"></span>Click here</a>
+					for a more detailed introduction to Security.
+				</p>
+			</div>
+		</div>
+	</div>
 </div>
 <div id="content">
-    <span id="lblItemsSelected">0</span> Items Selected <span id="clear_selected_btn">&nbsp;</span>
-    <span id="item_create_btn">Create</span>
-    <span id="item_copy_btn">Copy</span>
-    <span id="item_modify_btn">Modify</span>
-    <span id="item_delete_btn">Delete</span>
-    <input type="text" id="txtSearch" class="search_text" />
-    <span id="item_search_btn">Search</span>
-    <table class="jtable" cellspacing="1" cellpadding="1" width="99%">
-        <thead>
-            <tr>
-                <th class="chkboxcolumn">
-                <input type="checkbox" class="chkbox" id="chkAll" />
-                </th>
-                <th class="sortable">Status</th>
-                <th class="sortable">User</th>
-                <th class="sortable">Login</th>
-                <th class="sortable">Role</th>
-                <th class="sortable">Last Login</th>
-            </tr>
-        </thead>
-        <tbody id="users"></tbody>
-    </table>
+	<span id="lblItemsSelected">0</span> Items Selected <span id="clear_selected_btn">&nbsp;</span>
+	<span id="item_create_btn">Create</span>
+	<span id="item_copy_btn">Copy</span>
+	<span id="item_modify_btn">Modify</span>
+	<span id="item_delete_btn">Delete</span>
+	<input type="text" id="txtSearch" class="search_text" />
+	<span id="item_search_btn">Search</span>
+	<table class="jtable" cellspacing="1" cellpadding="1" width="99%">
+		<thead>
+			<tr>
+				<th class="chkboxcolumn">
+				<input type="checkbox" class="chkbox" id="chkAll" />
+				</th>
+				<th class="sortable">Status</th>
+				<th class="sortable">User</th>
+				<th class="sortable">Login</th>
+				<th class="sortable">Role</th>
+				<th class="sortable">Last Login</th>
+			</tr>
+		</thead>
+		<tbody id="users"></tbody>
+	</table>
 	<div id="pager"></div>
 </div>
 <div id="edit_dialog" class="hidden" title="Add New User">
-    <div id="AddUserTabs">
-        <ul>
-            <li>
-                <a href="#GeneralTab"><span>General</span></a>
-            </li>
-            <li>
-                <a href="#GroupsTab"><span>Groups (Tags)</span></a>
-            </li>
-        </ul>
-        <div id="GeneralTab" style="height: 430px;">
-            <table style="width: 98%;">
-                <tbody>
-                    <tr>
-                        <td colspan="2"><span id="lblNewUserMessage"></span></td>
-                    </tr>
-                    <tr>
-                        <td style="width: 40%"> Login ID: </td>
-                        <td style="width: 60%">
-                        <input id="txtUserLoginID" style="width: 90%;" type="text" name="txtUserLoginID" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td> Full Name: </td>
-                        <td>
-                        <input id="txtUserFullName" style="width: 90%;" type="text" name="txtUserFullName" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td> Status: </td>
-                        <td>
-                        <select id="ddlUserStatus" style="width: 90%;" name="ddlUserStatus">
-                            <option value="-1">Locked</option>
-                            <option value="1">Enabled</option>
-                            <option value="0">Disabled</option>
-                        </select></td>
-                    </tr>
-                    <tr>
-                        <td> User Role: </td>
-                        <td>
-                        <select id="ddlUserRole" style="width: 90%;">
-                            <option value="User">User</option>
-                            <option value="Developer">Developer</option>
-                            <option value="Administrator">Administrator</option>
-                        </select></td>
-                    </tr>
-                    <tr>
-                        <td> Authentication Type: </td>
-                        <td>
-                        <select id="ddlUserAuthType" style="width: 90%;" name="ddlUserAuthType">
-                            <option value="local">local</option>
-                            <option value="ldap">ldap</option>
-                        </select></td>
-                    </tr>
-                    <tr>
-                        <td> Email Address: </td>
-                        <td>
-                        <input id="txtUserEmail" style="width: 90%;" type="text" maxlength="1024" name="txtUserEmail" />
-                        </td>
-                    </tr>
-                    <tr class="password_checkbox">
-                        <td> Generate Random Password?: </td>
-                        <td>
-                        <input type="checkbox" id="chkGeneratePW" name="chkGeneratePW" />
-                        </td>
-                    </tr>
-                    <tr class="password_entry">
-                        <td> Password: </td>
-                        <td>
-                        <input id="txtUserPassword" style="width: 90%;" type="password" name="txtUserPassword" />
-                        </td>
-                    </tr>
-                    <tr class="password_entry">
-                        <td> Confirm Password: </td>
-                        <td>
-                        <input id="txtUserPasswordConfirm" style="width: 90%;" type="password" name="txtUserPasswordConfirm" />
-                        </td>
-                    </tr>
-                    <tr class="password_edit">
-                        <td> Force Password Change? </td>
-                        <td>
-                        <input id="cbNewUserForcePasswordChange" type="checkbox" name="cbNewUserForcePasswordChange" />
-                        </td>
-                    </tr>
-                    <tr class="password_edit" id="trFailedLoginAttempts">
-                        <td style="padding-top: 10px;"> Failed Login Attempts: </td>
-                        <td><span id="lblFailedLoginAttempts"></span>&nbsp;&nbsp;<span id="clear_failed_btn">&nbsp;</span></td>
-                    </tr>
-                    <tr class="password_edit">
-                        <td style="padding-top: 10px;"> Password Reset: </td>
-                        <td><span id="pw_reset_btn">Reset</span>
-                        <br />
-                        Will send the user an email with a temporary password, which must be changed upon
-                        login. </td>
-                    </tr>
-                </tbody>
-            </table>
-            <br />
-            <center>
-                <span id="show_log_link">View Change Log</span>
-            </center>
-        </div>
-        <div id="GroupsTab">
-            <span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
-            <hr />
-            <ul id="objects_tags"></ul>
-        </div>
-    </div>
+	<div id="AddUserTabs">
+		<ul>
+			<li>
+				<a href="#GeneralTab"><span>General</span></a>
+			</li>
+			<li>
+				<a href="#GroupsTab"><span>Groups (Tags)</span></a>
+			</li>
+		</ul>
+		<div id="GeneralTab" style="height: 430px;">
+			<table style="width: 98%;">
+				<tbody>
+					<tr>
+						<td colspan="2"><span id="lblNewUserMessage"></span></td>
+					</tr>
+					<tr>
+						<td style="width: 40%"> Login ID: </td>
+						<td style="width: 60%">
+						<input id="txtUserLoginID" style="width: 90%;" type="text" name="txtUserLoginID" />
+						</td>
+					</tr>
+					<tr>
+						<td> Full Name: </td>
+						<td>
+						<input id="txtUserFullName" style="width: 90%;" type="text" name="txtUserFullName" />
+						</td>
+					</tr>
+					<tr>
+						<td> Status: </td>
+						<td>
+						<select id="ddlUserStatus" style="width: 90%;" name="ddlUserStatus">
+							<option value="-1">Locked</option>
+							<option value="1">Enabled</option>
+							<option value="0">Disabled</option>
+						</select></td>
+					</tr>
+					<tr>
+						<td> User Role: </td>
+						<td>
+						<select id="ddlUserRole" style="width: 90%;">
+							<option value="User">User</option>
+							<option value="Developer">Developer</option>
+							<option value="Administrator">Administrator</option>
+						</select></td>
+					</tr>
+					<tr>
+						<td> Authentication Type: </td>
+						<td>
+						<select id="ddlUserAuthType" style="width: 90%;" name="ddlUserAuthType">
+							<option value="local">local</option>
+							<option value="ldap">ldap</option>
+						</select></td>
+					</tr>
+					<tr>
+						<td> Email Address: </td>
+						<td>
+						<input id="txtUserEmail" style="width: 90%;" type="text" maxlength="1024" name="txtUserEmail" />
+						</td>
+					</tr>
+					<tr class="password_checkbox">
+						<td> Generate Random Password?: </td>
+						<td>
+						<input type="checkbox" id="chkGeneratePW" name="chkGeneratePW" />
+						</td>
+					</tr>
+					<tr class="password_entry">
+						<td> Password: </td>
+						<td>
+						<input id="txtUserPassword" style="width: 90%;" type="password" name="txtUserPassword" />
+						</td>
+					</tr>
+					<tr class="password_entry">
+						<td> Confirm Password: </td>
+						<td>
+						<input id="txtUserPasswordConfirm" style="width: 90%;" type="password" name="txtUserPasswordConfirm" />
+						</td>
+					</tr>
+					<tr class="password_edit">
+						<td> Force Password Change? </td>
+						<td>
+						<input id="cbNewUserForcePasswordChange" type="checkbox" name="cbNewUserForcePasswordChange" />
+						</td>
+					</tr>
+					<tr>
+						<td> Expires On: </td>
+						<td>
+						<input id="txtExpirationDT" class="datepicker" />
+						</td>
+					</tr>
+					<tr class="password_edit" id="trFailedLoginAttempts">
+						<td style="padding-top: 10px;"> Failed Login Attempts: </td>
+						<td><span id="lblFailedLoginAttempts"></span>&nbsp;&nbsp;<span id="clear_failed_btn">&nbsp;</span></td>
+					</tr>
+					<tr class="password_edit">
+						<td style="padding-top: 10px;"> Password Reset: <span id="pw_reset_info" class="ui-icon ui-icon-info forceinline pointer"></span></td>
+						<td><span id="pw_reset_btn">Reset</span>
+						 </td>
+					</tr>
+				</tbody>
+			</table>
+			<br />
+			<center>
+				<span id="show_log_link">View Change Log</span>
+			</center>
+		</div>
+		<div id="GroupsTab">
+			<span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
+			<hr />
+			<ul id="objects_tags"></ul>
+		</div>
+	</div>
 </div>
 <div id="delete_dialog" class="hidden" title="Delete User">
-    Are you sure you want to delete these users?
+	Are you sure you want to delete these users?
 </div>
