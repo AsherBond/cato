@@ -27,10 +27,9 @@ $(document).ready(function() {
 });
 
 function doGetDetails() {
-	var task = ajaxPost("taskMethods/wmGetTask", {
+	ajaxPostAsync("taskMethods/wmGetTask", {
 		sTaskID : g_task_id
-	});
-	if (task) {
+	}, function(task) {
 		$("#lblTaskCode").text(task.Code);
 		$("#lblStatus").text(task.Status);
 		$("#lblDescription").text(task.Description);
@@ -40,14 +39,13 @@ function doGetDetails() {
 		//the header
 		$("#lblTaskNameHeader").text(task.Name);
 		$("#lblVersionHeader").text(task.Version + (task.IsDefaultVersion ? " (default)" : ""));
-	}
+	});
 }
 
 function doGetCommands() {
-	var response = ajaxPost("taskMethods/wmGetStepsPrint", {
+	ajaxPostAsync("taskMethods/wmGetStepsPrint", {
 		sTaskID : g_task_id
+	}, function(response) {
+		$("#codeblock_steps").html(response);
 	}, "text");
-
-	$("#codeblock_steps").html(response);
-
 }

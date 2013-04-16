@@ -335,34 +335,38 @@ class taskMethods:
         return sNewTaskID
 
     def wmGetCodeblocks(self):
-        sTaskID = uiCommon.getAjaxArg("sTaskID")
+        """
+        This method simply gets a list of codeblocks for a task, no code is needed.
+        Fastest method - a simple query.
+        """
+        task_id = uiCommon.getAjaxArg("sTaskID")
+        html = ""
 
-        # instantiate the new Task object
-        oTask = task.Task()
-        oTask.FromID(sTaskID)
+        sql = "select codeblock_name from task_codeblock where task_id = %s order by codeblock_name"
 
-        sCBHTML = ""
-        for cb in oTask.Codeblocks.itervalues():
-            # if it's a guid it's a bogus codeblock (for export only)
-            if catocommon.is_guid(cb.Name):
-                continue
-            sCBHTML += "<li class=\"ui-widget-content codeblock\" id=\"cb_" + cb.Name + "\">"
-            sCBHTML += "<div>"
-            sCBHTML += "<div class=\"codeblock_title\" name=\"" + cb.Name + "\">"
-            sCBHTML += "<span>" + cb.Name + "</span>"
-            sCBHTML += "</div>"
-            sCBHTML += "<div class=\"codeblock_icons pointer\">"
-            sCBHTML += "<span id=\"codeblock_rename_btn_" + cb.Name + "\" class=\"ui-icon ui-icon-pencil forceinline codeblock_rename\" codeblock_name=\"" + cb.Name + "\">"
-            sCBHTML += "</span>"
-            sCBHTML += "<span class=\"ui-icon ui-icon-copy forceinline codeblock_copy_btn\" codeblock_name=\"" + cb.Name + "\">"
-            sCBHTML += "</span>"
-            sCBHTML += "<span id=\"codeblock_delete_btn_" + cb.Name + "\""
-            sCBHTML += " class=\"ui-icon ui-icon-close forceinline codeblock_delete_btn codeblock_icon_delete\" remove_id=\"" + cb.Name + "\">"
-            sCBHTML += "</span>"
-            sCBHTML += "</div>"
-            sCBHTML += "</div>"
-            sCBHTML += "</li>"
-        return sCBHTML
+        dt = self.db.select_all_dict(sql, task_id)
+        if dt:
+            for dr in dt:
+#                # if it's a guid it's a bogus codeblock (for export only)
+#                if catocommon.is_guid(cb.Name):
+#                    continue
+                html += '''<li class="ui-widget-content codeblock" id="cb_{0}">
+                    <div>
+                        <div class="codeblock_title" name="{0}">
+                            <span>{0}</span>
+                        </div>
+                        <div class="codeblock_icons pointer">
+                            <span id="codeblock_rename_btn_{0}" class="ui-icon ui-icon-pencil forceinline codeblock_rename" codeblock_name="{0}">
+                            </span>
+                            <span class="ui-icon ui-icon-copy forceinline codeblock_copy_btn" codeblock_name="{0}">
+                            </span>
+                            <span id="codeblock_delete_btn_{0}"
+                             class="ui-icon ui-icon-close forceinline codeblock_delete_btn codeblock_icon_delete" remove_id="{0}">
+                            </span>
+                        </div>
+                    </div>
+                    </li>'''.format(dr["codeblock_name"])
+            return html
 
     def wmAddCodeblock(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
@@ -477,16 +481,11 @@ class taskMethods:
             if not sCodeblockName:
                 raise Exception("Unable to get Steps - No Codeblock specified.")
 
+            sHTML = ""
             sAddHelpMsg = "No Commands have been defined in this Codeblock. Drag a Command here to add it."
 
-            # instantiate the new Task object
-            oTask = task.Task()
-            oTask.IncludeSettingsForUser = uiCommon.GetSessionUserID()
-            oTask.FromID(sTaskID)
-
-            sHTML = ""
-
-            cb = oTask.Codeblocks[sCodeblockName]
+            # go directly and get the Codeblock object
+            cb = task.Codeblock(sTaskID, sCodeblockName, uiCommon.GetSessionUserID())
             if cb.Steps:
                 # we always need the no_step item to be there, we just hide it if we have other items
                 # it will get unhidden if someone deletes the last step.

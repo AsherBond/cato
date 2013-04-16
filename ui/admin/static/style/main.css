@@ -25,6 +25,17 @@ body {
     line-height: 20px;
 }
 
+#app_footer {
+    height: 18px;
+    font-weight: normal;
+    left: 0;
+    bottom: 0;
+    text-align: center;
+    z-index: 10;
+    position: fixed;
+    width: 100%;
+}
+
 #content {
     /*overflow: auto;*/
     position: absolute;
@@ -33,6 +44,7 @@ body {
     left: 200px;
     right: 2px;
     padding-left: 10px;
+    padding-bottom: 20px; /* to accomodate the fixed footer */
 }
 
 #content table {

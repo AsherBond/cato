@@ -78,7 +78,10 @@ $(document).ready(function() {
 	$("#param_edit_value_add_btn").live("click", function() {
 		//something unique on the page until it is posted.
 		var id = "pv" + new Date().getTime();
-		var html = "<div id=\"" + id + "\">" + "<textarea class=\"param_edit_value\" rows=\"1\"></textarea>" + " <span class=\"ui-icon ui-icon-close forceinline param_edit_value_remove_btn pointer\" remove_id=\"" + id + "\"></span>" + "</div>";
+		var html = '<div id="' + id + '">';
+		html +=	'<textarea class="param_edit_value" rows="1"></textarea>';
+		html += '<span class="ui-icon ui-icon-close forceinline param_edit_value_remove_btn pointer" remove_id="' + id + '"></span>';
+		html += '</div>';
 
 		$("#param_edit_values").append(html);
 		$("#" + id + " textarea:first").focus();
@@ -259,16 +262,18 @@ function doGetParams(type, id, editable, snip, readonly) {
 	if (snip === undefined)
 		snip = true;
 
-	var response = ajaxPost("taskMethods/wmGetParameters", {
+	ajaxPostAsync("taskMethods/wmGetParameters", {
 		sType : type,
 		sID : id,
 		bEditable : editable,
 		bSnipValues : snip
-	}, "html");
-	$("#parameters").html(response);
+	}, function(response) {
+		$("#parameters").html(response);
 
-	//have to rebind the tooltips here
-	bindParameterToolTips();
+		//have to rebind the tooltips here
+		bindParameterToolTips();
+	}, "html");
+
 }
 
 function bindParameterToolTips() {

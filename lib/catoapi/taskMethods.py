@@ -237,22 +237,22 @@ class taskMethods:
                 logger.info("Checking for JSON parameters...")
 
                 # are the parameters already a dict?
-                if isinstance({}, dict):
+                if isinstance(parameters, dict):
                     pjson = parameters
                 else:
                     pjson = json.loads(parameters)
-                    
-                if pjson:
-                    for p in pjson:
-                        vals = ""
-                        if p["values"]:
-                            for v in p["values"]:
-                                vals += "<value>%s</value>" % v
-                        pxml += "<parameter><name>%s</name><values>%s</values></parameter>" % (p["name"], vals)
-                    
-                    pxml = "<parameters>%s</parameters>" % pxml
             except Exception as ex:
                 logger.info("Trying to parse parameters as JSON failed. %s" % ex)
+                    
+            if pjson:
+                for p in pjson:
+                    vals = ""
+                    if p["values"]:
+                        for v in p["values"]:
+                            vals += "<value>%s</value>" % v
+                    pxml += "<parameter><name>%s</name><values>%s</values></parameter>" % (p["name"], vals)
+                
+                pxml = "<parameters>%s</parameters>" % pxml
             
             # not json, maybe xml?
             if not pxml:

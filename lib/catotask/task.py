@@ -189,11 +189,11 @@ class Task(object):
                 " where task_id = '" + sTaskID + "'"
 
         dr = db.select_row_dict(sSQL)
-        
+        db.close()
         if not dr:
             raise InfoException("Unable to find Task for ID [%s]" % sTaskID)
 
-        self.PopulateTask(db, dr, include_code)
+        self.PopulateTask(dr, include_code)
 
     def FromNameVersion(self, name, version=None, include_code=True):
         db = catocommon.new_conn()
@@ -209,11 +209,12 @@ class Task(object):
                 from task
                 where (task_name = '%s') %s""" % (name, version_clause)
         dr = db.select_row_dict(sSQL)
+        db.close()
 
         if not dr:
             raise InfoException("Unable to find Task for [%s / %s]" % (name, version))
         
-        self.PopulateTask(db, dr, include_code)
+        self.PopulateTask(dr, include_code)
 
     def FromOriginalIDVersion(self, otid, version=None, include_code=True):
         db = catocommon.new_conn()
@@ -228,11 +229,12 @@ class Task(object):
                 from task
                 where original_task_id = '%s' %s""" % (otid, version_clause)
         dr = db.select_row_dict(sSQL)
+        db.close()
 
         if not dr:
             raise InfoException("Unable to find Task for Original ID/Version [%s/%s]" % (otid, version))
         
-        self.PopulateTask(db, dr, include_code)
+        self.PopulateTask(dr, include_code)
 
     def FromXML(self, sTaskXML=""):
         if sTaskXML == "": return None
@@ -280,7 +282,7 @@ class Task(object):
             if not cbname:
                 logger.error("Codeblock 'name' attribute is required.", 1)
         
-            newcb = Codeblock(cbname)
+            newcb = Codeblock(self.ID, cbname)
             newcb.FromXML(ET.tostring(xCB))
             self.Codeblocks[newcb.Name] = newcb
             
@@ -754,8 +756,7 @@ class Task(object):
 
         return sNewTaskID
 
-    def PopulateTask(self, db, dr, IncludeCode=True):
-        # only called from inside this class, so the caller passed in a db conn pointer too
+    def PopulateTask(self, dr, IncludeCode=True):
         # of course it exists...
         self.DBExists = True
 
@@ -778,6 +779,7 @@ class Task(object):
                 self.ParameterXDoc = xParameters
 
         if IncludeCode:
+            db = catocommon.new_conn()
             # 
             # * ok, this is important.
             # * there are some rules for the process of 'Approving' a task and other things.
@@ -809,7 +811,7 @@ class Task(object):
             dtCB = db.select_all_dict(sSQL)
             if dtCB:
                 for drCB in dtCB:
-                    cb = Codeblock(drCB["codeblock_name"])
+                    cb = Codeblock(self.ID, drCB["codeblock_name"], self.IncludeSettingsForUser)
                     self.Codeblocks[cb.Name] = cb
             else:
                 # uh oh... there are no codeblocks!
@@ -817,43 +819,10 @@ class Task(object):
                 # we can just repair it right here.
                 sSQL = "insert task_codeblock (task_id, codeblock_name) values ('%s', 'MAIN')" % self.ID
                 db.exec_db(sSQL)
-                self.Codeblocks["MAIN"] = Codeblock("MAIN")
-
-
-            # NOTE: it may seem like STEP sorting will be an issue, but it shouldn't.
-            # sorting ALL the steps by their order here will ensure they get added to their respective 
-            # codeblocks in the right order.
+                self.Codeblocks["MAIN"] = Codeblock(self.ID, "MAIN")
             
-            # GET THE STEPS
-            # we need the userID to get the user settings in some cases
-            if self.IncludeSettingsForUser:
-                sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name,
-                    us.visible, us.breakpoint, us.skip, us.button
-                    from task_step s
-                    left outer join task_step_user_settings us on us.user_id = '%s' and s.step_id = us.step_id
-                    where s.task_id = '%s'
-                    order by s.step_order""" % (self.IncludeSettingsForUser, self.ID)
-            else:
-                sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name,
-                    0 as visible, 0 as breakpoint, 0 as skip, '' as button
-                    from task_step s
-                    where s.task_id = '%s'
-                    order by s.step_order""" % self.ID
+            db.close()
 
-            dtSteps = db.select_all_dict(sSQL)
-            if dtSteps:
-                for drSteps in dtSteps:
-                    oStep = Step.FromRow(drSteps, self)
-                    # the steps dictionary for each codeblock uses the ORDER, not the STEP ID, as the key
-                    # this way, we can order the dictionary.
-                    
-                    # maybe this should just be a list?
-                    if oStep:
-                        # just double check that the codeblocks match
-                        if self.Codeblocks.has_key(oStep.Codeblock):
-                            self.Codeblocks[oStep.Codeblock].Steps[oStep.Order] = oStep
-                        else:
-                            raise Exception("WARNING: Step thinks it belongs in codeblock [%s] but this task doesn't have that codeblock." % (oStep.Codeblock if oStep.Codeblock else "NONE"))
 
     def IncrementMajorVersion(self):
         self.Version = str(int(float(self.MaxVersion) + 1)) + ".000"
@@ -866,9 +835,50 @@ class Task(object):
         self.NextMajorVersion = str(int(float(self.MaxVersion) + 1)) + ".000"
 
 class Codeblock(object):
-    def __init__(self, sName):
+    def __init__(self, sTaskID, sName, IncludeSettingsForUser=None):
         self.Name = sName
         self.Steps = {}
+
+        db = catocommon.new_conn()
+
+        # NOTE: it may seem like STEP sorting will be an issue, but it shouldn't.
+        # sorting ALL the steps by their order here will ensure they get added to their respective 
+        # codeblocks in the right order.
+        
+        # GET THE STEPS
+        # we need the userID to get the user settings in some cases
+        if IncludeSettingsForUser:
+            sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name,
+                us.visible, us.breakpoint, us.skip, us.button
+                from task_step s
+                left outer join task_step_user_settings us on us.user_id = '%s' and s.step_id = us.step_id
+                where s.task_id = '%s'
+                and codeblock_name = '%s'
+                order by s.step_order""" % (IncludeSettingsForUser, sTaskID, self.Name)
+        else:
+            sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name,
+                0 as visible, 0 as breakpoint, 0 as skip, '' as button
+                from task_step s
+                where s.task_id = '%s'
+                and codeblock_name = '%s'
+                order by s.step_order""" % (sTaskID, self.Name)
+
+        dtSteps = db.select_all_dict(sSQL)
+        if dtSteps:
+            for drSteps in dtSteps:
+                oStep = Step.FromRow(drSteps, self)
+                # the steps dictionary for each codeblock uses the ORDER, not the STEP ID, as the key
+                # this way, we can order the dictionary.
+                
+                # maybe this should just be a list?
+                if oStep:
+                    # just double check that the codeblocks match
+                    print self.Name
+                    print oStep.Codeblock
+                    if self.Name == oStep.Codeblock:
+                        self.Steps[oStep.Order] = oStep
+                    else:
+                        raise Exception("WARNING: Step thinks it belongs in codeblock [%s] but this task doesn't have that codeblock." % (oStep.Codeblock if oStep.Codeblock else "NONE"))
         
     # a codeblock contains a dictionary collection of steps
     def FromXML(self, sCBXML=""):

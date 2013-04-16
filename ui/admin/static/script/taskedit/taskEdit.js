@@ -210,10 +210,9 @@ $(document).ready(function() {
 });
 
 function doGetDetails() {
-	var task = ajaxPost("taskMethods/wmGetTask", {
+	ajaxPostAsync("taskMethods/wmGetTask", {
 		sTaskID : g_task_id
-	});
-	if (task) {
+	}, function(task) {
 		$("#hidOriginalTaskID").val(task.OriginalTaskID);
 		$("#txtTaskCode").val(task.Code);
 		$("#txtTaskName").val(task.Name);
@@ -267,7 +266,7 @@ function doGetDetails() {
 		$("#lblTaskNameHeader").text(task.Name);
 		$("#lblVersionHeader").text(task.Version + (task.IsDefaultVersion == "True" ? " (default)" : ""));
 
-	}
+	});
 }
 
 function doGetCommands() {
@@ -295,9 +294,11 @@ function doGetCommands() {
 
 			//show the one you clicked
 			$("#" + $(this).attr("id") + "_functions").removeClass("hidden");
-			
+
 			// and scroll to the top
-			$('#div_commands').animate({scrollTop:0}, 'slow');
+			$('#div_commands').animate({
+				scrollTop : 0
+			}, 'slow');
 		});
 	});
 	ajaxGet("uiMethods/wmGetFunctions", function(response) {
