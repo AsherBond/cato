@@ -13,10 +13,11 @@
     top: 39px;
     left: 350px;
     right: 0px;
-    bottom: 0px;
     background: #f8f8f8;
     padding-left: 10px;
     padding-right: 10px;
+    padding-bottom: 20px; /* to accomodate the fixed footer */
+
 }
 
 * html #content_te {
