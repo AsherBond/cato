@@ -14,6 +14,7 @@
 # limitations under the License.
  
 import traceback
+import json
 from catoui import uiCommon as UI, uiGlobals
 try:
     import xml.etree.cElementTree as ET
@@ -45,8 +46,8 @@ def DrawFullStep(oStep):
     if fn:
         oStep.Function = fn
     else:
-        #the function doesn't exist (was probably deprecated)
-        #we need at least a basic strip with a delete button
+        # the function doesn't exist (was probably deprecated)
+        # we need at least a basic strip with a delete button
         sNoFunc = "<li class=\"step\" id=\"" + sStepID + "\">"            
         sNoFunc += "    <div class=\"ui-state-default ui-state-highlight step_header\" id=\"step_header_" + sStepID + "\">"
         sNoFunc += "        <div class=\"step_header_title\"><img src=\"static/images/icons/status_unknown_16.png\" /></div>"
@@ -78,23 +79,23 @@ def DrawFullStep(oStep):
 
     sMainHTML = ""
     
-    #what's the 'label' for the step strip?
-    #(hate this... wish the label was consistent across all step types)
-    #hack for initial loading of the step... don't show the order if it's a "-1"... it's making a
-    #strange glitch in the browser...you can see it update
+    # what's the 'label' for the step strip?
+    # (hate this... wish the label was consistent across all step types)
+    # hack for initial loading of the step... don't show the order if it's a "-1"... it's making a
+    # strange glitch in the browser...you can see it update
     sIcon = ("" if not oStep.Function.Icon else oStep.Function.Icon)
     sStepOrder = ("" if oStep.Order == -1 else str(oStep.Order))
     sLabel = "<img class=\"step_header_function_icon\" src=\"" + sIcon + "\" alt=\"\" />" \
         "<span class=\"step_order_label\">" + str(sStepOrder) + "</span> : " + \
         oStep.Function.Category.Label + " - " + oStep.Function.Label
 
-    #show a useful snip in the title bar.
-    #notes trump values, and not all commands show a value snip
-    #but certain ones do.
+    # show a useful snip in the title bar.
+    # notes trump values, and not all commands show a value snip
+    # but certain ones do.
     sSnip = ""
     if oStep.Description:
         sSnip = UI.GetSnip(oStep.Description, 75)
-        #special words get in indicator icon, but only one in highest order
+        # special words get in indicator icon, but only one in highest order
         if "IMPORTANT" in sSnip:
             sSnip = "<img src=\"static/images/icons/flag_red.png\" />" + sSnip.replace("IMPORTANT", "")
         elif "TODO" in sSnip:
@@ -129,12 +130,12 @@ def DrawFullStep(oStep):
     sMainHTML += "        </div>"
     sMainHTML += "        <div class=\"step_header_icons\">"
 
-    #this button will copy a step into the clipboard.
+    # this button will copy a step into the clipboard.
     sMainHTML += "            <span id=\"step_copy_btn_" + sStepID + "\"" \
         " class=\"ui-icon ui-icon-copy forceinline step_copy_btn\" step_id=\"" + sStepID + "\"" \
         " title=\"Copy this Step to your Clipboard\"></span>"
 
-    #this button is data enabled.  it controls the value of the hidden field at the top of the step.
+    # this button is data enabled.  it controls the value of the hidden field at the top of the step.
     sMainHTML += "            <span id=\"step_skip_btn_" + sStepID + "\" skip=\"" + sSkipVal + "\"" \
         " class=\"ui-icon ui-icon-" + sSkipIcon + " forceinline step_skip_btn\" step_id=\"" + sStepID + "\"" \
         " title=\"Skip this Step\"></span>"
@@ -149,7 +150,7 @@ def DrawFullStep(oStep):
     sStepHTML, sOptionHTML, sVariableHTML = GetStepTemplate(oStep)
     sMainHTML += sStepHTML
     
-    #comment steps don't have a common section - all others do
+    # comment steps don't have a common section - all others do
     if oStep.FunctionName != "comment":
         sMainHTML += DrawStepCommon(oStep, sOptionHTML, sVariableHTML)
     
@@ -179,10 +180,10 @@ def GetStepTemplate(oStep):
     # if a command "populates variables", it currently has to be hardcoded
     # in some cases, they even update the db on render to keep certain values clean
     
-    ## PERSONAL NOTE - while converting the hardcoded ones, make use of the Draw Field function
-    ## at least then things will be more consistent, and less html in the hardcoding.
+    # # PERSONAL NOTE - while converting the hardcoded ones, make use of the Draw Field function
+    # # at least then things will be more consistent, and less html in the hardcoding.
     
-    ## AND MAKE SURE to reference the old code when building out the xml, to make sure nothing is missed
+    # # AND MAKE SURE to reference the old code when building out the xml, to make sure nothing is missed
     # (styles, etc.)
 
     if sFunction.lower() == "new_connection":
@@ -204,9 +205,9 @@ def GetStepTemplate(oStep):
     elif sFunction.lower() == "run_task":
         sHTML = RunTask(oStep)
     elif sFunction.lower() == "transfer":
-        sHTML = "Not Yet Available" #Transfer(oStep)
+        sHTML = "Not Yet Available"  # Transfer(oStep)
     elif sFunction.lower() == "set_asset_registry":
-        sHTML = "Not Yet Available" #SetAssetRegistry(oStep)
+        sHTML = "Not Yet Available"  # SetAssetRegistry(oStep)
     elif sFunction.lower() == "loop":
         sHTML = Loop(oStep)
     elif sFunction.lower() == "while":
@@ -364,8 +365,8 @@ def DrawStepFromXMLDocument(oStep):
     # 
     sHTML = ""
     sOptionHTML = ""
-    #UI.log("Command XML:", 4)
-    #UI.log(ET.tostring(xd), 4)
+    # UI.log("Command XML:", 4)
+    # UI.log(ET.tostring(xd), 4)
     if xd is not None:
         # for each node in the function element
         # each node will become a field on the step.
@@ -415,22 +416,22 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
     UI.log("-- Elements: " + str(len(xeNode)), 4)
     UI.log("-- Option Field?: " + sOptionTab, 4)
     
-    #if a node has children we'll draw it with some hierarchical styling.
-    #AND ALSO if it's editable, even if it has no children, we'll still draw it as a container.
+    # if a node has children we'll draw it with some hierarchical styling.
+    # AND ALSO if it's editable, even if it has no children, we'll still draw it as a container.
     
     # this dict holds the nodes that have the same name
     # meaning they are part of an array
     dictNodes = {}
     
     if len(xeNode) > 0 or bIsEditable:
-        #if there is only one child, AND it's not part of an array
-        #don't draw the header or the bounding box, just a composite field label.
+        # if there is only one child, AND it's not part of an array
+        # don't draw the header or the bounding box, just a composite field label.
         if len(xeNode) == 1 and not bIsEditable:
             UI.log("-- no more children ... drawing ... ", 4)
-            #get the first (and only) node
-            xeOnlyChild = xeNode[0] #.find("*[1]")
+            # get the first (and only) node
+            xeOnlyChild = xeNode[0]  # .find("*[1]")
             
-            #call DrawNode just on the off chance it actually has children
+            # call DrawNode just on the off chance it actually has children
             sChildXPath = sXPath + "/" + xeOnlyChild.tag
             # DrawNode returns a tuple, but here we only care about the first value
             # because "editable" nodes shouldn't be options.
@@ -440,18 +441,18 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
             else:
                 sHTML += sNodeName + "." + sNodeHTML
             
-            #since we're making it composite, the parents are gonna be off.  Go ahead and draw the delete link here.
+            # since we're making it composite, the parents are gonna be off.  Go ahead and draw the delete link here.
             if bIsRemovable:
                 sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + sXPath + "\" step_id=\"" + oStep.ID + "\"></span>"
-        else: #there is more than one child... business as usual
+        else:  # there is more than one child... business as usual
             UI.log("-- more children ... drawing and drilling down ... ", 4)
-            sHTML += "<div class=\"ui-widget-content ui-corner-bottom step_group\">" #this section
-            sHTML += "  <div class=\"ui-state-default step_group_header\">" #header
+            sHTML += "<div class=\"ui-widget-content ui-corner-bottom step_group\">"  # this section
+            sHTML += "  <div class=\"ui-state-default step_group_header\">"  # header
             sHTML += "      <div class=\"step_header_title\">" + sNodeLabel + "</div>"
-            #look, I know this next bit is crazy... but not really.
-            #if THIS NODE is an editable array, it means you can ADD CHILDREN to it.
-            #so, it gets an add link.
-            sHTML += "<div class=\"step_header_icons\">" #step header icons
+            # look, I know this next bit is crazy... but not really.
+            # if THIS NODE is an editable array, it means you can ADD CHILDREN to it.
+            # so, it gets an add link.
+            sHTML += "<div class=\"step_header_icons\">"  # step header icons
             if bIsEditable:
                 sHTML += "<div class=\"ui-icon ui-icon-plus forceinline fn_node_add_btn pointer\"" + " step_id=\"" + oStep.ID + "\"" \
                     " function_name=\"" + oStep.FunctionName + "\"" \
@@ -460,13 +461,13 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
                     " step_id=\"" + oStep.ID + "\">" \
                     "</div>"
     
-            #BUT, if this nodes PARENT is editable, that means THIS NODE can be deleted.
-            #so, it gets a delete link
-            #you can't remove unless there are more than one
+            # BUT, if this nodes PARENT is editable, that means THIS NODE can be deleted.
+            # so, it gets a delete link
+            # you can't remove unless there are more than one
             if bIsRemovable:
                 sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + sXPath + "\" step_id=\"" + oStep.ID + "\"></span>"
-            sHTML += "</div>" #end step header icons
-            sHTML += "  </div>" #end header
+            sHTML += "</div>"  # end step header icons
+            sHTML += "  </div>"  # end header
     
             sHTML += "<div class=\"clearfloat\">"
             for xeChildNode in xeNode:
@@ -502,14 +503,14 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
     
             sHTML += "</div>"
             sHTML += "</div>"
-    else: #end section
+    else:  # end section
         sHTML += DrawField(xeNode, sXPath, oStep)
-        #it may be that these fields themselves are removable
+        # it may be that these fields themselves are removable
         if bIsRemovable:
             sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + sXPath + "\" step_id=\"" + oStep.ID + "\"></span>"
     
-    #ok, now that we've drawn it, it might be intended to go on the "options tab".
-    #if so, stick it there
+    # ok, now that we've drawn it, it might be intended to go on the "options tab".
+    # if so, stick it there
     if sOptionTab:
         return "", sHTML
     else:
@@ -534,22 +535,22 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
     UI.log("-- Elements: " + str(len(xeNode)), 4)
     UI.log("-- Option Field?: " + sOptionTab, 4)
     
-    #if a node has children we'll draw it with some hierarchical styling.
-    #AND ALSO if it's editable, even if it has no children, we'll still draw it as a container.
+    # if a node has children we'll draw it with some hierarchical styling.
+    # AND ALSO if it's editable, even if it has no children, we'll still draw it as a container.
     
     # this dict holds the nodes that have the same name
     # meaning they are part of an array
     dictNodes = {}
     
     if len(xeNode) > 0 or bIsEditable:
-        #if there is only one child, AND it's not part of an array
-        #don't draw the header or the bounding box, just a composite field label.
+        # if there is only one child, AND it's not part of an array
+        # don't draw the header or the bounding box, just a composite field label.
         if len(xeNode) == 1 and not bIsEditable:
             UI.log("-- no more children ... drawing ... ", 4)
-            #get the first (and only) node
-            xeOnlyChild = xeNode[0] #.find("*[1]")
+            # get the first (and only) node
+            xeOnlyChild = xeNode[0]  # .find("*[1]")
             
-            #call DrawNode just on the off chance it actually has children
+            # call DrawNode just on the off chance it actually has children
             sChildXPath = sXPath + "/" + xeOnlyChild.tag
             # DrawNode returns a tuple, but here we only care about the first value
             # because "editable" nodes shouldn't be options.
@@ -558,12 +559,12 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
                 sHTML += sNodeName + "." + sOptionHTML
             else:
                 sHTML += sNodeName + "." + sNodeHTML
-        else: #there is more than one child... business as usual
+        else:  # there is more than one child... business as usual
             UI.log("-- more children ... drawing and drilling down ... ", 4)
-            sHTML += "<div class=\"ui-widget-content ui-corner-bottom step_group\">" #this section
-            sHTML += "  <div class=\"ui-state-default step_group_header\">" #header
+            sHTML += "<div class=\"ui-widget-content ui-corner-bottom step_group\">"  # this section
+            sHTML += "  <div class=\"ui-state-default step_group_header\">"  # header
             sHTML += "      <div class=\"step_header_title\">" + sNodeLabel + "</div>"
-            sHTML += "  </div>" #end header
+            sHTML += "  </div>"  # end header
     
             for xeChildNode in xeNode:
                 sChildNodeName = xeChildNode.tag
@@ -597,11 +598,11 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
                 sHTML += sNodeHTML
     
             sHTML += "</div>"
-    else: #end section
+    else:  # end section
         sHTML += DrawReadOnlyField(xeNode, sXPath, oStep)
     
-    #ok, now that we've drawn it, it might be intended to go on the "options tab".
-    #if so, stick it there
+    # ok, now that we've drawn it, it might be intended to go on the "options tab".
+    # if so, stick it there
     if sOptionTab:
         return "", sHTML
     else:
@@ -660,13 +661,13 @@ def DrawField(xe, sXPath, oStep):
     UI.log("---- Required : %s" % (str(bRequired)), 4)
 
 
-    #some getting started layout possibilities
+    # some getting started layout possibilities
     if sBreakBefore == catocommon.is_true(sBreakBefore):
         sHTML += "<br />"
     if sHRBefore == catocommon.is_true(sHRBefore):
         sHTML += "<hr />"
     if sInputType == "textarea":
-        #textareas have additional properties
+        # textareas have additional properties
         sRows = xe.get("rows", "2")
         sTextareaID = catocommon.new_guid()
         sHTML += sNodeLabel + " <textarea rows=\"" + sRows + "\"" + \
@@ -674,7 +675,7 @@ def DrawField(xe, sXPath, oStep):
             " style=\"" + sStyle + "\"" \
             " help=\"" + sHelp + "\"" \
             ">" + sNodeValue + "</textarea>"
-        #big box button
+        # big box button
         sHTML += "<span class=\"ui-icon ui-icon-pencil forceinline big_box_btn pointer\" link_to=\"" + sTextareaID + "\"></span><br />"
     elif sInputType == "dropdown":
         # the data source of a drop down can be a) an xml file, b) an internal function or web method or c) an "local" inline list
@@ -756,7 +757,7 @@ def DrawField(xe, sXPath, oStep):
                             if key == sNodeValue: bValueWasInData = True
             except Exception:
                 UI.log_nouser(traceback.format_exc(), 0)
-        else: # default is "local"
+        else:  # default is "local"
             UI.log("---- Inline datasource ... reading my own 'dataset' attribute ...", 4)
             # data is pipe delimited
             aValues = sDataSet.split('|')
@@ -767,39 +768,39 @@ def DrawField(xe, sXPath, oStep):
         
         # NOTE: If it has the "combo" style and a value, that means we're allowing the user to enter a value that may not be 
         # in the dataset.  If that's the case, we must add the actual saved value to the list too. 
-        if not bValueWasInData: # we didn't find it in the data ..
-            if "combo" in sCSSClasses and sNodeValue:   # and it's a combo and not empty
+        if not bValueWasInData:  # we didn't find it in the data ..
+            if "combo" in sCSSClasses and sNodeValue:  # and it's a combo and not empty
                 sHTML += "<option " + SetOption(sNodeValue, sNodeValue) + " value=\"" + sNodeValue + "\">" + sNodeValue + "</option>\n";            
 
         sHTML += "</select>"
     elif sInputType == "checkbox":
         checked = " checked=\"checked\"" if catocommon.is_true(sNodeValue) else ""
         
-        sElementID = catocommon.new_guid() #some special cases below may need this.
+        sElementID = catocommon.new_guid()  # some special cases below may need this.
         sHTML += "<label for=\"" + sElementID + "\">" + sNodeLabel + "</label> <input type=\"checkbox\" " + \
             CommonAttribsWithID(oStep, bRequired, sXPath, sElementID, sCSSClasses) + \
             " style=\"" + sStyle + "\"" \
             " help=\"" + sHelp + "\"" \
             " value=\"" + sNodeValue + "\"" + checked + " />"
         
-    else: #input is the default
+    else:  # input is the default
         # NOTE NOTE NOTE: 
         # this is an input type='text', which means the value goes in a value attribute,
         # but may very likely have a " in it.  So, we gotta escape the " with \".
         sNodeValue = sNodeValue.replace('"', '&quot;')
         
-        sElementID = catocommon.new_guid() #some special cases below may need this.
+        sElementID = catocommon.new_guid()  # some special cases below may need this.
         sHTML += sNodeLabel + " <input type=\"text\" " + \
             CommonAttribsWithID(oStep, bRequired, sXPath, sElementID, sCSSClasses, opts) + \
             " style=\"" + sStyle + "\"" \
             " help=\"" + sHelp + "\"" \
             " value=\"" + sNodeValue + "\" />"
-        #might this be a conn_name field?  If so, we can show the picker.
+        # might this be a conn_name field?  If so, we can show the picker.
         sConnPicker = xe.get("connection_picker", "")
         if catocommon.is_true(sConnPicker):
             sHTML += "<span class=\"ui-icon ui-icon-search forceinline conn_picker_btn pointer\" link_to=\"" + sElementID + "\"></span>"
 
-    #some final layout possibilities
+    # some final layout possibilities
     if catocommon.is_true(sBreakAfter):
         sHTML += "<br />"
     if catocommon.is_true(sHRAfter):
@@ -828,7 +829,7 @@ def DrawReadOnlyField(xe, sXPath, oStep):
     UI.log("---- HR Before/After : %s/%s" % (sHRBefore, sHRAfter), 4)
 
 
-    #some getting started layout possibilities
+    # some getting started layout possibilities
     if sBreakBefore == catocommon.is_true(sBreakBefore):
         sHTML += "<br />"
     if sHRBefore == catocommon.is_true(sHRBefore):
@@ -840,7 +841,7 @@ def DrawReadOnlyField(xe, sXPath, oStep):
     else:
         sHTML += sNodeLabel + "<span class=\"code\" style=\"padding-right: 8px;\"> " + UI.SafeHTML(sNodeValue) + "</span>"
 
-    #some final layout possibilities
+    # some final layout possibilities
     if catocommon.is_true(sBreakAfter):
         sHTML += "<br />"
     if catocommon.is_true(sHRAfter):
@@ -945,8 +946,8 @@ def DrawEmbeddedStep(oStep):
 
 
     #  step expand image
-    #sExpandImage = "expand_down.png"
-    #if sExpandedClass == "step_collapsed":
+    # sExpandImage = "expand_down.png"
+    # if sExpandedClass == "step_collapsed":
     #    sExpandImage = "expand_up.png"
 
     sMainHTML += "<div class=\"embedded_step\">"
@@ -975,7 +976,7 @@ def DrawEmbeddedStep(oStep):
     sStepHTML, sOptionHTML, sVariableHTML = GetStepTemplate(oStep)
     sMainHTML += sStepHTML
     
-    #comment steps don't have a common section - all others do
+    # comment steps don't have a common section - all others do
     if oStep.FunctionName != "comment":
         sMainHTML += DrawStepCommon(oStep, sOptionHTML, sVariableHTML, True)
 
@@ -992,8 +993,8 @@ def DrawEmbeddedReadOnlyStep(xEmbeddedFunction):
 
         # !!!!! This isn't a new step! ... It's an extension of the parent step.
         # but, since it's a different 'function', we'll treat it like a different step for now
-        oEmbeddedStep = task.Step() # a new step object
-        oEmbeddedStep.Function = fn # a function object
+        oEmbeddedStep = task.Step()  # a new step object
+        oEmbeddedStep.Function = fn  # a function object
         oEmbeddedStep.FunctionName = sFunctionName
         oEmbeddedStep.FunctionXDoc = xEmbeddedFunction
 
@@ -1040,7 +1041,7 @@ def DrawEmbeddedReadOnlyStep(xEmbeddedFunction):
     
         return sMainHTML
 
-def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
+def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded=False):
     sStepID = oStep.ID
     sJSid = "%s_%s" % (oStep.ID, oStep.XPathPrefix.replace("/", "").replace("[", "").replace("]", ""))
 
@@ -1048,15 +1049,15 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
     if bIsEmbedded and not sOptionHTML and not sVariableHTML:
         return ""
     
-    #this is the section that is common to all steps.
+    # this is the section that is common to all steps.
     sHTML = ""
     sHTML += "        <hr />"
     sHTML += "        <div class=\"step_common\" step_id=\"" + sStepID + "\" xpath_prefix=\"" + oStep.XPathPrefix + "\" jsid=\"" + sJSid + "\">"
-    sHTML += "            <div class=\"step_common_header\">" # header div
+    sHTML += "            <div class=\"step_common_header\">"  # header div
     
     sShowOnLoad = oStep.UserSettings.Button
     
-    #pill buttons
+    # pill buttons
     if sVariableHTML != "":
         sHTML += "                <span class=\"step_common_button " + ("step_common_button_active" if sShowOnLoad == "variables" else "") + "\"" \
             " id=\"btn_step_common_detail_" + sJSid + "_variables\"" \
@@ -1078,9 +1079,9 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
             " button=\"help\">Help</span>"
     
     
-    sHTML += "            </div>" # end header div
+    sHTML += "            </div>"  # end header div
     
-    #sections
+    # sections
     # embedded commands don't have notes (it's the description of the command, which doesn't apply)
     if not bIsEmbedded:
         sHTML += "            <div id=\"step_common_detail_" + sJSid + "_notes\"" \
@@ -1097,8 +1098,8 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
         sHTML += oStep.Function.Help
         sHTML += "            </div>"
     
-    #some steps generate custom options we want in this pane
-    #but we don't show the panel if there aren't any
+    # some steps generate custom options we want in this pane
+    # but we don't show the panel if there aren't any
     if sOptionHTML != "":
         sHTML += "          <div id=\"step_common_detail_" + sJSid + "_options\"" \
             " class=\"step_common_detail " + ("" if sShowOnLoad == "options" else "step_common_collapsed") + "\">"
@@ -1107,8 +1108,8 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
         sHTML += "              </div>"
         sHTML += "          </div>"
     
-    #some steps have variables
-    #but we don't show the panel if there aren't any
+    # some steps have variables
+    # but we don't show the panel if there aren't any
     if sVariableHTML != "":
         sHTML += "          <div id=\"step_common_detail_" + sJSid + "_variables\"" \
             " class=\"step_common_detail " + ("" if sShowOnLoad == "variables" else "step_common_collapsed") + "\">"
@@ -1116,7 +1117,7 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded = False):
         sHTML += sVariableHTML
         sHTML += "              </div>"
         sHTML += "          </div>"
-    #close it out
+    # close it out
     sHTML += "        </div>"
     
     return sHTML
@@ -1161,7 +1162,7 @@ def ddDataSource_GetVMwareClouds():
 
 def ddDataSource_GetAllClouds():
     data = {}
-    cp = cloud.CloudProviders(include_clouds = True, include_products = False)
+    cp = cloud.CloudProviders(include_clouds=True, include_products=False)
     for p in cp.itervalues():
         for c in p.Clouds:
             data[c.Name] = c.Name
@@ -1210,9 +1211,9 @@ def DrawDropZone(oStep, xEmbeddedFunction, sXPath, sLabel, bRequired):
 
         # !!!!! This isn't a new step! ... It's an extension of the parent step.
         # but, since it's a different 'function', we'll treat it like a different step for now
-        oEmbeddedStep = task.Step() # a new step object
+        oEmbeddedStep = task.Step()  # a new step object
         oEmbeddedStep.ID = oStep.ID 
-        oEmbeddedStep.Function = fn # a function object
+        oEmbeddedStep.Function = fn  # a function object
         oEmbeddedStep.FunctionName = sFunctionName
         oEmbeddedStep.FunctionXDoc = xEmbeddedFunction
         oEmbeddedStep.Task = oStep.Task
@@ -2534,8 +2535,8 @@ def NewConnection(oStep):
         
         # NOTE: we're allowing the user to enter a value that may not be 
         # in the dataset.  If that's the case, we must add the actual saved value to the list too. 
-        if not bValueWasInData: #we didn't find it in the data ..:
-            if sCloudName: #and it's a combo and not empty
+        if not bValueWasInData:  # we didn't find it in the data ..:
+            if sCloudName:  # and it's a combo and not empty
                 sHTML += "<option " + SetOption(sCloudName, sCloudName) + " value=\"" + sCloudName + "\">" + sCloudName + "</option>\n";            
         
         sHTML += "</select>"
@@ -2656,7 +2657,7 @@ def If(oStep):
     xTests = xd.findall("tests/test")
     sHTML += "<div id=\"if_" + sStepID + "_conditions\" number=\"" + str(len(xTests)) + "\">"
 
-    i = 1 # because XPath starts at "1"
+    i = 1  # because XPath starts at "1"
     for xTest in xTests:
         sEval = xTest.findtext("eval", None)
         xAction = xTest.find("action", None)
@@ -2668,19 +2669,17 @@ def If(oStep):
 
         # a way to delete the section you just added
         if i == 1:
-            xGlobals = ET.parse("luCompareTemplates.xml")
-
-            if xGlobals is None:
-                sHTML += "(No Compare templates file available)<br />"
-            else:
-                sHTML += "Comparison Template: <select class=\"compare_templates\" textarea_id=\"" + sFieldID + "\">\n"
-                sHTML += "  <option value=\"\"></option>\n"
-
-                xTemplates = xGlobals.findall("template")
-                for xEl in xTemplates:
-                    sHTML += "  <option value=\"" + xEl.findtext("value", "") + "\">" + xEl.findtext("name", "") + "</option>\n"
-                sHTML += "</select> <br />\n"
-
+            try:
+                with open("if_comparators.json", 'r') as f:
+                    comparators = json.load(f)
+                    sHTML += "Comparison Template: <select class=\"compare_templates\" textarea_id=\"" + sFieldID + "\">\n"
+                    sHTML += "  <option value=\"\"></option>\n"
+                    for c in comparators:
+                        sHTML += "  <option value=\"" + c.get("value", "") + "\">" + c.get("name", "") + "</option>\n"
+                    sHTML += "</select> <br />\n"
+            except:
+                sHTML += "(No Compare templates file available, or file is invalid.)<br />"
+                    
 
             sHTML += "If:<br />"
         else:
@@ -2754,7 +2753,7 @@ def If_View(oStep):
     xTests = xd.findall("tests/test")
     sHTML += "<div id=\"if_" + sStepID + "_conditions\" number=\"" + str(len(xTests)) + "\">"
 
-    i = 1 # because XPath starts at "1"
+    i = 1  # because XPath starts at "1"
     for xTest in xTests:
         sEval = xTest.findtext("eval", None)
         xAction = xTest.find("action", None)
@@ -3114,7 +3113,7 @@ def DrawCommandParameterSection(sParameterXML, bEditable, bSnipValues):
             sHTML += "  <div class=\"ui-state-default parameter_header\">"
 
             sHTML += "<div class=\"step_header_title\"><span class=\"parameter_name"
-            sHTML += (" pointer" if bEditable else "") # make the name a pointer if it's editable
+            sHTML += (" pointer" if bEditable else "")  # make the name a pointer if it's editable
             sHTML += "\" id=\"" + sPID + "\">"
             sHTML += sName
             sHTML += "</span></div>"

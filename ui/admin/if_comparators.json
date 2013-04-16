@@ -1,0 +1,27 @@
+[][
+	{
+		"name": "Equal To",
+		"value": "{} == {}"
+	}, {
+		"name": "Not Equal To",
+		"value": "{} != {}"
+	}, {
+		"name": "Greater Than",
+		"value": "{} > {}"
+	}, {
+		"name": "Less Than",
+		"value": "{} < {}"
+	}, {
+		"name": "Greater Than or Equal To",
+		"value": "{} >= {}"
+	}, {
+		"name": "Less Than or Equal To",
+		"value": "{} <= {}"
+	}, {
+		"name": "And Comparison",
+		"value": "{} == {} && {} == {}"
+	}, {
+		"name": "Or Comparison",
+		"value": "{} == {} || {} == {}"
+	}
+]
