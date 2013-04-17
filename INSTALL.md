@@ -194,7 +194,7 @@ vi $CATO_HOME/conf/cato.conf
 - Install your certificate and private key in $CATO_HOME/conf
 - If you want to keep your certificate and key in another location, specify the path and file in the two cato.conf settings: *admin_ui_ssl_cert <path>/mycert.crt* and *admin_ui_ssl_key <path>/mykey.key*
 
-With OpenSSL, it's easy to generate a self signed certificate and private key.
+With OpenSSL, it is easy to generate a self signed certificate and private key.
 
 ```openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $CATO_HOME/conf/cato.key -out $CATO_HOME/conf/cato.crt```
 
