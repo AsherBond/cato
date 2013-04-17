@@ -1216,7 +1216,7 @@ def DrawDropZone(oStep, xEmbeddedFunction, sXPath, sLabel, bRequired):
         oEmbeddedStep.Function = fn  # a function object
         oEmbeddedStep.FunctionName = sFunctionName
         oEmbeddedStep.FunctionXDoc = xEmbeddedFunction
-        oEmbeddedStep.Task = oStep.Task
+        oEmbeddedStep.TaskID = oStep.TaskID
         oEmbeddedStep.OutputParseType = xEmbeddedFunction.get("parse_method", 0)
         oEmbeddedStep.OutputRowDelimiter = xEmbeddedFunction.get("row_delimiter", 0)
         oEmbeddedStep.OutputColumnDelimiter = xEmbeddedFunction.get("col_delimiter", 0)
@@ -3071,6 +3071,7 @@ def Exists_View(oStep):
 def Codeblock(oStep):
     xd = oStep.FunctionXDoc
 
+    print oStep.__dict__
     sCB = xd.findtext("codeblock", "")
     sHTML = ""
     sElementID = catocommon.new_guid()
@@ -3087,7 +3088,7 @@ def Codeblock(oStep):
         # don't enable the jump link if it isn't a valid codeblock on this task.
         db = catocommon.new_conn()
         sql = "select 1 from task_codeblock where task_id = %s and codeblock_name = %s"
-        exists = db.select_col_noexcep(sql, (oStep.Task.ID, sCB))
+        exists = db.select_col_noexcep(sql, (oStep.TaskID, sCB))
         if exists:
             sHTML += """<span class=\"ui-icon ui-icon-link forceinline codeblock_goto_btn pointer\" title=\"Go To Codeblock\"
                 codeblock=\"%s\"></span>\n""" % sCB

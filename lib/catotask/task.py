@@ -848,7 +848,7 @@ class Codeblock(object):
         # GET THE STEPS
         # we need the userID to get the user settings in some cases
         if IncludeSettingsForUser:
-            sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name,
+            sSQL = """select s.task_id, s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name,
                 us.visible, us.breakpoint, us.skip, us.button
                 from task_step s
                 left outer join task_step_user_settings us on us.user_id = '%s' and s.step_id = us.step_id
@@ -856,7 +856,7 @@ class Codeblock(object):
                 and codeblock_name = '%s'
                 order by s.step_order""" % (IncludeSettingsForUser, sTaskID, self.Name)
         else:
-            sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name,
+            sSQL = """select s.task_id, s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, codeblock_name,
                 0 as visible, 0 as breakpoint, 0 as skip, '' as button
                 from task_step s
                 where s.task_id = '%s'
@@ -866,15 +866,13 @@ class Codeblock(object):
         dtSteps = db.select_all_dict(sSQL)
         if dtSteps:
             for drSteps in dtSteps:
-                oStep = Step.FromRow(drSteps, self)
+                oStep = Step.FromRow(drSteps)
                 # the steps dictionary for each codeblock uses the ORDER, not the STEP ID, as the key
                 # this way, we can order the dictionary.
                 
                 # maybe this should just be a list?
                 if oStep:
                     # just double check that the codeblocks match
-                    print self.Name
-                    print oStep.Codeblock
                     if self.Name == oStep.Codeblock:
                         self.Steps[oStep.Order] = oStep
                     else:
@@ -900,6 +898,7 @@ class Codeblock(object):
 class Step(object):
     def __init__(self):
         self.ID = ""
+        self.TaskID = None
         self.Codeblock = ""
         self.Order = 0
         self.Description = ""
@@ -916,10 +915,6 @@ class Step(object):
         # this is because of xml import/export - where the function details aren't required.
         # but they are in the UI when drawing steps.
         self.Function = None 
-        # Very rarely does a single Step object have an associated parent Task.
-        # usually, we're working on steps within the context of already knowing the Task.
-        # but if it's needed, it will have been explicitly populated.
-        self.Task = None
         # most steps won't even have this - only manually created ones for "embedded" steps
         self.XPathPrefix = ""
         
@@ -928,7 +923,7 @@ class Step(object):
         self.IsValid = True
         
     def AsJSON(self):
-        del self.Task
+        del self.TaskID
         del self.UserSettings
         self.FunctionXML = ET.tostring(self.FunctionXDoc)
         del self.FunctionXDoc
@@ -962,9 +957,9 @@ class Step(object):
         self.FunctionName = xFunc.get("name", xFunc.get("command_type", ""))
     
     @staticmethod
-    def FromRow(dr, task):
+    def FromRow(dr):
         s = Step()
-        s.PopulateStep(dr, task)
+        s.PopulateStep(dr)
         return s
         
     @staticmethod
@@ -975,13 +970,13 @@ class Step(object):
         the associated task object.
         """
         db = catocommon.new_conn()
-        sSQL = """select s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, s.codeblock_name
+        sSQL = """select s.task_id, s.step_id, s.step_order, s.step_desc, s.function_name, s.function_xml, s.commented, s.locked, s.codeblock_name
             from task_step s
             where s.step_id = '%s' limit 1""" % sStepID
         row = db.select_row_dict(sSQL)
         db.close()
         if row:
-            oStep = Step.FromRow(row, None)
+            oStep = Step.FromRow(row)
             return oStep
 
         return None
@@ -1002,13 +997,14 @@ class Step(object):
         row = db.select_row_dict(sSQL)
         db.close()
         if row:
-            oStep = Step.FromRow(row, None)
+            oStep = Step.FromRow(row)
             return oStep
 
         return None
         
-    def PopulateStep(self, dr, oTask):
+    def PopulateStep(self, dr):
         self.ID = dr["step_id"]
+        self.TaskID = dr["task_id"]
         self.Codeblock = ("" if not dr["codeblock_name"] else dr["codeblock_name"])
         self.Order = dr["step_order"]
         self.Description = ("" if not dr["step_desc"] else dr["step_desc"])
@@ -1075,26 +1071,26 @@ class Step(object):
         if dr.has_key("visible"):
             self.UserSettings.Visible = (False if dr["visible"] == 0 else True)
 
-        # NOTE!! :oTask can possibly be null, in lots of cases where we are just getting a step and don't know the task.
-        # if it's null, it will not populate the parent object.
-        # this happens all over the place in the HTMLTemplates stuff, and we don't need the extra overhead of the same task
-        # object being created hundreds of times.
-        if oTask:
-            self.Task = oTask
-        else:
-            # NOTE HACK TODO - this is bad and wrong
-            # we shouldn't assume the datarow was a join to the task table... but in a few places it was.
-            # so we're populating some stuff here.
-            # the right approach is to create a full Task object from the ID, but we need to analyze
-            # how it's working, so we don't create a bunch more database hits.
-            # I THINK THIS is only happening on GetSingleStep and taskStepVarsEdit, but double check.
-            self.Task = Task()
-            if dr.has_key("task_id"):
-                self.Task.ID = dr["task_id"]
-            if dr.has_key("task_name"):
-                self.Task.Name = dr["task_name"]
-            if dr.has_key("version"):
-                self.Task.Version = dr["version"]
+#        # NOTE!! :oTask can possibly be null, in lots of cases where we are just getting a step and don't know the task.
+#        # if it's null, it will not populate the parent object.
+#        # this happens all over the place in the HTMLTemplates stuff, and we don't need the extra overhead of the same task
+#        # object being created hundreds of times.
+#        if oTask:
+#            self.Task = oTask
+#        else:
+#            # NOTE HACK TODO - this is bad and wrong
+#            # we shouldn't assume the datarow was a join to the task table... but in a few places it was.
+#            # so we're populating some stuff here.
+#            # the right approach is to create a full Task object from the ID, but we need to analyze
+#            # how it's working, so we don't create a bunch more database hits.
+#            # I THINK THIS is only happening on GetSingleStep and taskStepVarsEdit, but double check.
+#            self.Task = Task()
+#            if dr.has_key("task_id"):
+#                self.Task.ID = dr["task_id"]
+#            if dr.has_key("task_name"):
+#                self.Task.Name = dr["task_name"]
+#            if dr.has_key("version"):
+#                self.Task.Version = dr["version"]
         return self
         
 class StepUserSettings(object):
