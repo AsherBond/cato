@@ -89,7 +89,7 @@ class wmHandler:
             else:
                 logger.error("Authentication Failure [%s]" % user_id)
 
-            response = api.response(err_code="AuthenticationFailure")
+            response = api.response(err_code="AuthenticationFailure", err_msg="Authentication Failure")
             return response.Write(output_format)
         
         # the args collection is passed to the target function, BUT
