@@ -658,14 +658,14 @@ $var cssfiles: registry.css taskEdit.css taskView.css ../script/jquery/jquery.ui
     <table class="w100pct" border="0">
         <tr>
             <td colspan="3" align="center">
-            <input type="radio" name="parsed_type" value="delimited" />
-            Delimited&nbsp;
-            <input type="radio" name="parsed_type" value="range" checked="checked" />
-            Range&nbsp;
-            <input type="radio" name="parsed_type" value="regex" />
-            Regex&nbsp;
-            <input type="radio" name="parsed_type" value="xpath" />
-            Xpath&nbsp;
+            <input type="radio" id="var_dialog_delimited_btn" name="parsed_type" value="delimited" />
+            <label for="var_dialog_delimited_btn">Delimited</label>
+            <input type="radio" id="var_dialog_range_btn" name="parsed_type" value="range" checked="checked" />
+            <label for="var_dialog_range_btn">Range</label>
+            <input type="radio" id="var_dialog_regex_btn" name="parsed_type" value="regex" />
+            <label for="var_dialog_regex_btn">Regex</label>
+            <input type="radio" id="var_dialog_xpath_btn" name="parsed_type" value="xpath" />
+            <label for="var_dialog_xpath_btn">Xpath</label>
             <hr />
             </td>
         </tr>
@@ -679,11 +679,11 @@ $var cssfiles: registry.css taskEdit.css taskView.css ../script/jquery/jquery.ui
             <td><span id="new_parsed_l_label">Begin Position:</span></td>
             <td>
             <div id="parsed_lmode_div">
-                <input type="radio" name="parsed_lmode_rb" value="index" checked="checked" />
-                Position
+                <input type="radio" id="parsed_lmode_rb_pos" name="parsed_lmode_rb" value="index" checked="checked" />
+                <label for="parsed_lmode_rb_pos">Position</label>
                 <br />
-                <input type="radio" name="parsed_lmode_rb" value="string" />
-                Prefix
+                <input type="radio" id="parsed_lmode_rb_suffix" name="parsed_lmode_rb" value="string" />
+                <label for="parsed_lmode_rb_suffix">Prefix</label>
             </div></td>
             <td valign="middle">
             <input type="text" id="new_parsed_l_val" class="w100pct code" />
@@ -693,11 +693,12 @@ $var cssfiles: registry.css taskEdit.css taskView.css ../script/jquery/jquery.ui
             <td><span id="new_parsed_r_label">End Position:</span></td>
             <td>
             <div id="parsed_rmode_div">
-                <input type="radio" name="parsed_rmode_rb" value="index" checked="checked" />
-                Position
+                <input type="radio" id="parsed_rmode_rb_pos" name="parsed_rmode_rb" value="index" checked="checked" />
+                <label for="parsed_rmode_rb_pos">Position</label>
                 <br />
-                <input type="radio" name="parsed_rmode_rb" value="string" />
-                Suffix
+                <input type="radio" id="parsed_rmode_rb_suffix" name="parsed_rmode_rb" value="string" />
+                <label for="parsed_rmode_rb_suffix">Suffix</label>
+                
             </div></td>
             <td valign="middle">
             <input type="text" id="new_parsed_r_val" class="w100pct code" />

@@ -531,11 +531,11 @@ function addParsedVar() {
 			var l_idx_checked = (l_mode == "index" ? " checked=\"checked\"" : "");
 			var l_pos_checked = (l_idx_checked == "" ? " checked=\"checked\"" : "");
 
-			var l_msg = "<input type=\"radio\" name=\"v" + vid + "_l_mode\" value=\"index\" " + l_idx_checked + " class=\"prop\" refid=\"v" + vid + "\" />" + " position / " + " <input type=\"radio\" name=\"v" + vid + "_l_mode\" value=\"string\" " + l_pos_checked + " class=\"prop\" refid=\"v" + vid + "\" />" + " prefix";
+			var l_msg = "<input type=\"radio\" id=\"v" + vid + "_l_mode_pos\" name=\"v" + vid + "_l_mode\" value=\"index\" " + l_idx_checked + " class=\"prop\" refid=\"v" + vid + "\" />" + " <label for=\"v" + vid + "_l_mode_pos\">position</label> / " + " <input type=\"radio\" id=\"v" + vid + "_l_mode_pre\" name=\"v" + vid + "_l_mode\" value=\"string\" " + l_pos_checked + " class=\"prop\" refid=\"v" + vid + "\" />" + " <label for=\"v" + vid + "_l_mode_pre\">prefix</label>";
 
 			var r_idx_checked = (r_mode == "index" ? " checked=\"checked\"" : "");
 			var r_pos_checked = (r_idx_checked == "" ? " checked=\"checked\"" : "");
-			var r_msg = "<input type=\"radio\" name=\"v" + vid + "_r_mode\" value=\"index\" " + r_idx_checked + " class=\"prop\" refid=\"v" + vid + "\" />" + " position / " + " <input type=\"radio\" name=\"v" + vid + "_r_mode\" value=\"string\" " + r_pos_checked + " class=\"prop\" refid=\"v" + vid + "\" />" + " suffix";
+			var r_msg = "<input type=\"radio\" id=\"v" + vid + "_r_mode_pos\" name=\"v" + vid + "_r_mode\" value=\"index\" " + r_idx_checked + " class=\"prop\" refid=\"v" + vid + "\" />" + " <label for=\"v" + vid + "_r_mode_pos\">position</label> / " + " <input type=\"radio\" id=\"v" + vid + "_r_mode_suf\" name=\"v" + vid + "_r_mode\" value=\"string\" " + r_pos_checked + " class=\"prop\" refid=\"v" + vid + "\" />" + " <label for=\"v" + vid + "_r_mode_suf\">suffix</label>";
 
 			foo += "<span class=\"variable_detail\"> will contain the output found between<br />" + l_msg + "  <input type=\"text\" class=\"w100px code prop\" id=\"v" + vid + "_l_prop\" value=\"" + l_val.replace('"', '&quot;') + "\" refid=\"v" + vid + "\" /> and " + r_msg + " <input type=\"text\" class=\"w100px code prop\" id=\"v" + vid + "_r_prop\" value=\"" + r_val.replace('"', '&quot;') + "\" refid=\"v" + vid + "\" /></span>";
 			break;
