@@ -210,6 +210,10 @@ sed -i"" -e"s|#CATOFILES#|${CATOFILESDIR}|" $CATO_HOME/conf/cato.conf
 ### create the database tables, indexes, etc. etc.
 mysql -u root -p$ROOTDBPASS $CATODBNAME < $CATO_HOME/conf/data/cato_ddl.sql
 
+### Start the services then sleep
+$CATO_HOME/services/start_services.sh
+sleep 5
+
 ### See LOADAWSREGIONS option at top of script
 if [ "$LOADAWSREGIONS" = "yes" ];
 then
@@ -227,9 +231,5 @@ echo "!!!!!!!!!!!!!!!!!!!!!"
 echo "CATO INSTALL COMPLETE"
 echo "All done, make sure services are up and running."
 echo "NOTE: You may want to DELETE THIS SCRIPT since it contains passwords and keys"
-echo ""
-echo "Run the following command to start the services:"
-echo "  $CATO_HOME/services/start_services.sh"
-echo ""
 echo "!!!!!!!!!!!!!!!!!!!!!"
 exit 0
