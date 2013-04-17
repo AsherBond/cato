@@ -20,6 +20,7 @@ import os
 import sys
 import shelve
 import json
+from web.wsgiserver import CherryPyWSGIServer
 
 app_name = "cato_admin_ui"
 logger = catolog.get_logger(app_name)
@@ -549,6 +550,26 @@ if __name__ != app_name:
         port = catoconfig.CONFIG["admin_ui_port"]
         sys.argv.append(port)
     
+    # enable ssl?
+    if catocommon.is_true(catoconfig.CONFIG.get("admin_ui_use_ssl")):
+        logger.info("Using SSL/TLS...")
+        sslcert = catoconfig.CONFIG.get("admin_ui_ssl_cert", os.path.join(base_path, "conf", "cato.crt"))
+        sslkey = catoconfig.CONFIG.get("admin_ui_ssl_key", os.path.join(base_path, "conf", "cato.key"))
+        try:
+            with open(sslcert): pass
+            logger.debug("SSL Certificate [%s]" % sslcert)
+            CherryPyWSGIServer.ssl_certificate = sslcert
+        except:
+            raise Exception("SSL Certificate not found at [%s]" % sslcert)
+        try:
+            with open(sslkey): pass
+            logger.debug("SSL Key [%s]" % sslkey)
+            CherryPyWSGIServer.ssl_private_key = sslkey
+        except:
+            raise Exception("SSL Key not found at [%s]" % sslcert)
+    else:
+        logger.info("Using standard HTTP. (Set admin_ui_use_ssl to 'true' in cato.conf to enable SSL/TLS.)")
+        
     # the LAST LINE must be our /(.*) catchall, which is handled by uiMethods.
     urls = (
         '/', 'home',
@@ -596,6 +617,8 @@ if __name__ != app_name:
     
     app = ExceptionHandlingApplication(urls, globals(), autoreload=True)
     web.config.session_parameters["cookie_name"] = app_name
+    # cookies won't work in https without this!
+    web.config.session_parameters.httponly = False
     
     if "uicache" in catoconfig.CONFIG:
         uicachepath = catoconfig.CONFIG["uicache"]

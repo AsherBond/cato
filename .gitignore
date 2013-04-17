@@ -17,3 +17,7 @@ logfiles/*
 
 
 conf/crontab.backup
+
+*.crt
+
+*.key

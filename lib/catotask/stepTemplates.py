@@ -1581,24 +1581,22 @@ def GetVariablesForStepForEdit(oStep, sXPathPrefix=None):
                     sRPosChecked = " checked=\"checked\""
                 else:
                     return "Variable XML data for step [" + sStepID + "] does not contain a valid end marker."
-                sVarStrip = "Variable: " \
-                    " <input type=\"text\" class=\"var_name code var_unique\" id=\"" + sVarGUID + "_name\"" \
-                        " validate_as=\"variable\"" \
-                        " value=\"" + sName + "\" />"
-                sDetailStrip = " will contain the output found between <br />" \
-                    "<input type=\"radio\" name=\"" + sVarGUID + "_l_mode\" value=\"index\" " + sLIdxChecked + " class=\"prop\" refid=\"" + sVarGUID + "\" />" \
-                        " position / " \
-                        " <input type=\"radio\" name=\"" + sVarGUID + "_l_mode\" value=\"string\" " + sLPosChecked + " class=\"prop\" refid=\"" + sVarGUID + "\" />" \
-                        " prefix " \
-                        " <input type=\"text\" class=\"w100px code prop\" id=\"" + sVarGUID + "_l_prop\"" \
-                        " value=\"" + sLProp + "\" refid=\"" + sVarGUID + "\" />" \
-                        " and " \
-                        "<input type=\"radio\" name=\"" + sVarGUID + "_r_mode\" value=\"index\" " + sRIdxChecked + " class=\"prop\" refid=\"" + sVarGUID + "\" />" \
-                        " position / " \
-                        " <input type=\"radio\" name=\"" + sVarGUID + "_r_mode\" value=\"string\" " + sRPosChecked + " class=\"prop\" refid=\"" + sVarGUID + "\" />" \
-                        " suffix " \
-                        " <input type=\"text\" class=\"w100px code prop\" id=\"" + sVarGUID + "_r_prop\"" \
-                        " value=\"" + sRProp + "\" refid=\"" + sVarGUID + "\" />"
+                sVarStrip = '''Variable: 
+                    <input type="text" class="var_name code var_unique" id="{0}_name"
+                        validate_as="variable" value="{1}" />'''.format(sVarGUID, sName)
+                sDetailStrip = ''' will contain the output found between <br />
+                    <input type="radio" id="{0}_l_mode_pos" name="{0}_l_mode" value="index" {1} class="prop" refid="{0}" /> 
+                        <label for="{0}_l_mode_pos">position</label> / 
+                        <input type="radio" id="{0}_l_mode_pre" name="{0}_l_mode" value="string" {2} class="prop" refid="{0}" /> 
+                        <label for="{0}_l_mode_pre">prefix</label>
+                        <input type="text" class="w100px code prop" id="{0}_l_prop" value="{5}" refid="{0}" />
+                        and 
+                        <input type="radio" id="{0}_r_mode_pos" name="{0}_r_mode" value="index" {3} class="prop" refid="{0}" /> 
+                        <label for="{0}_r_mode_pos">position</label> / 
+                        <input type="radio" id="{0}_r_mode_pre" name="{0}_r_mode" value="string" {4} class="prop" refid="{0}" /> 
+                        <label for="{0}_r_mode_pre">suffix</label> 
+                        <input type="text" class="w100px code prop" id="{0}_r_prop" value="{6}" refid="{0}" />'''.format(
+                            sVarGUID, sLIdxChecked, sLPosChecked, sRIdxChecked, sRPosChecked, sLProp, sRProp)
                 
             elif sType == "delimited":
                 sLProp = xVar.findtext("position", "")
@@ -3071,7 +3069,6 @@ def Exists_View(oStep):
 def Codeblock(oStep):
     xd = oStep.FunctionXDoc
 
-    print oStep.__dict__
     sCB = xd.findtext("codeblock", "")
     sHTML = ""
     sElementID = catocommon.new_guid()

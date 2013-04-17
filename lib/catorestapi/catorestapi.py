@@ -23,6 +23,7 @@ import web
 import sys
 import os
 import json
+from web.wsgiserver import CherryPyWSGIServer
 
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 lib_path = os.path.join(base_path, "lib")
@@ -445,6 +446,13 @@ class ExceptionHandlingApplication(web.application):
             return response.Write(output_format)
         
 def main():
+    dbglvl = 20
+    if "rest_api_debug" in catoconfig.CONFIG:
+        try:
+            dbglvl = int(catoconfig.CONFIG["rest_api_debug"])
+        except:
+            raise Exception("rest_api_debug setting in cato.conf must be an integer between 0-50.")
+    catolog.DEBUG = dbglvl
 
     server = catoprocess.CatoService(app_name)
     server.startup()
@@ -452,6 +460,7 @@ def main():
     # now that the service is set up, we'll know what the logfile name is.
     # so reget the logger
     logger = catolog.get_logger(app_name)
+    catolog.set_debug(dbglvl)
 
     if len(sys.argv) < 2:
         port = "4001"
@@ -459,6 +468,26 @@ def main():
             port = catoconfig.CONFIG["rest_api_port"]
         sys.argv.append(port)
 
+    # enable ssl?
+    if catocommon.is_true(catoconfig.CONFIG.get("rest_api_use_ssl")):
+        logger.info("Using SSL/TLS...")
+        sslcert = catoconfig.CONFIG.get("rest_api_ssl_cert", os.path.join(base_path, "conf", "cato.crt"))
+        sslkey = catoconfig.CONFIG.get("rest_api_ssl_key", os.path.join(base_path, "conf", "cato.key"))
+        try:
+            with open(sslcert): pass
+            logger.debug("SSL Certificate [%s]" % sslcert)
+            CherryPyWSGIServer.ssl_certificate = sslcert
+        except:
+            raise Exception("SSL Certificate not found at [%s]" % sslcert)
+        try:
+            with open(sslkey): pass
+            logger.debug("SSL Key [%s]" % sslkey)
+            CherryPyWSGIServer.ssl_private_key = sslkey
+        except:
+            raise Exception("SSL Key not found at [%s]" % sslcert)
+    else:
+        logger.info("Using standard HTTP. (Set rest_api_use_ssl to 'true' in cato.conf to enable SSL/TLS.)")
+        
     urls = (
         '/', 'index',
         '/version', 'version',
