@@ -316,6 +316,9 @@ class taskMethods:
         Required Arguments: 
             task - Either the Task ID or Name.
 
+        Optional Arguments:
+            force_delete - Delete the Task, even if there are historical rows and references.  (Valid values: 1, yes, true)
+
         Returns: Nothing if successful, error messages on failure.
         """
         # this is a admin function
@@ -327,9 +330,11 @@ class taskMethods:
         if not has_required:
             return resp
 
+        force = catocommon.is_true(args.get("force_delete"))
+
         obj = task.Task()
         obj.FromNameVersion(name=args["task"], include_code=False)
-        task.Tasks.Delete(["'%s'" % obj.ID], args["_user_id"])
+        task.Tasks.Delete(["'%s'" % obj.ID], force)
         
         catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.Task, obj.ID, obj.Name, "Deleted via API.")
         return R(response="[%s] successfully deleted." % obj.Name)

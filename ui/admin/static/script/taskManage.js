@@ -210,6 +210,8 @@ function DeleteItems() {
 	//take that into consideration.
 	var args = {};
 	args.sDeleteArray = $("#hidSelectedArray").val();
+	args.sForce = $("#delete_dialog_force").is(':checked');
+	
 	var response = ajaxPost("taskMethods/wmDeleteTasks", args);
 	if (response) {
 		// clear the selected array, search field and fire a new search
@@ -218,7 +220,7 @@ function DeleteItems() {
 		GetItems();
 		hidePleaseWait();
 		$("#update_success_msg").text("Delete Successful").show().fadeOut(2000);
-
+		$("#delete_dialog_force").attr("checked", false);
 		$("#delete_dialog").dialog("close");
 	}
 }
@@ -229,7 +231,7 @@ function ExportTasks() {
 	//take that into consideration.
 
 	var args = {};
-	args.sIncludeRefs = $("#export_dialog_include_refs").is(':checked')
+	args.sIncludeRefs = $("#export_dialog_include_refs").is(':checked');
 	args.sTaskArray = $("#hidSelectedArray").val();
 
 	var response = ajaxPost("taskMethods/wmExportTasks", args);

@@ -80,6 +80,7 @@ $(document).ready(function () {
         autoOpen: false,
         modal: false,
         bgiframe: false,
+        width: 400,
         buttons: {
             "Delete": function () {
                 showPleaseWait();
