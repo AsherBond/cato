@@ -137,30 +137,6 @@ ls -l *.log
 more <logfile_name>
 ```
 
-### Initial Configuration
-
-After Cato services are started, one last step remains - the initial configuration of the system.
-
-This can be done via a web browser, or the *curl* command line utility.
-
-```
-http://<serveraddress>:4001/configure
-```
-or
-```
-curl http://<serveraddress>:4001/configure
-```
-
-Note: in a default Cato install, no Cloud endpoints are defined.  Service providers such as Amazon AWS have a known set of Cloud endpoints.
-To configure Cato with the default AWS Endpoints, add the following option to the configure command.  
-(Predefined Clouds can be added at any time in the Cato Admin UI as well.)
-
-```
-http://<serveraddress>:4001/configure?createclouds=true
-```
-
-
-
 ### Startup / Shutdown
 
 If at any time the services need to be shutdown, the following scripts will stop / start 

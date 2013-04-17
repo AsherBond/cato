@@ -54,9 +54,19 @@ TMPDIR="$CATOFILESDIR/tmp"
 MONGOADMIN=admin
 MONGOADMINPASS=secret
 
+# Should we create AWS cloud records in the database?
+# This will load the AWS region endpoint addresses into
+# the Cato database. Default is yes. Comment out or change to 'no'
+# if there are no plans to use the AWS Cloud. They can be added or 
+# deleted later.
+
+LOADAWSREGIONS="yes"
+
 ###
 ### shouldn't have to edit below this line
 ###
+
+trap "echo !!!!!!!!!!!!!!!!!!!!!!!!!;echo 'Cato install script did not complete successfully!;echo !!!!!!!!!!!!!!!!!!!!!!!!!" ERR
 
 # the following should be i386 or x64_86 for linux
 ARCHITECTURE=`uname -m`
@@ -93,7 +103,7 @@ echo $FLAVOR
 if [ "$FLAVOR" = "deb" ];
 then
     apt-get update -q
-    apt-get install -y -q python-dev mongodb python-pip build-essential
+    apt-get install -y -q python-dev mongodb python-pip build-essential curl
 
     export DEBIAN_FRONTEND=noninteractive
     echo "mysql-server mysql-server/root_password select $ROOTDBPASS" | debconf-set-selections
@@ -103,7 +113,7 @@ then
 
 elif [ "$FLAVOR" = "rh" ];
 then 
-    yum -y --quiet install mysql-server mysql mysql-client python-setuptools gcc make python-devel gcc-c++
+    yum -y --quiet install mysql-server mysql mysql-client python-setuptools gcc make python-devel gcc-c++ curl
     easy_install pip
     chkconfig --levels 235 mysqld on
     service mysqld start
@@ -128,7 +138,7 @@ EOF
 elif [ "$FLAVOR" = "suse" ];
 then 
     zypper refresh
-    zypper --quiet install -y mysql mysql-client python-setuptools python-xml
+    zypper --quiet install -y mysql mysql-client python-setuptools python-xml curl
 
     chkconfig --add mysql
     service mysql start
@@ -146,37 +156,45 @@ else
     exit 1
 fi
 
-# install third party python packages
+### install third party python packages
 pip install -q -r $CATO_HOME/requirements.txt
 pip install -q https://github.com/cloudsidekick/awspy/archive/master.zip
 pip install -q http://github.com/pdunnigan/pywinrm/archive/master.zip
 
-# compile c++ encryption library
+### compile c++ encryption library
 cd $CATO_HOME/src/catocrypt
 python setup.py install --install-platlib=$CATO_HOME/lib/catocryptpy
 cd $CATO_HOME
 
-# mongodb setup
+### mongodb setup
 $CATO_HOME/tools/mongo_secure.py 127.0.0.1 ${MONGOADMIN} ${MONGOADMINPASS} ${CATODBNAME} ${CATODBUSER} ${CATODBPASS}
 sed -i"" -e"s|#auth|auth|" /etc/${MONGOSERVICE}.conf
 service ${MONGOSERVICE} stop
 service ${MONGOSERVICE} start
 
+### Create the supporting application directories
 mkdir -p $LOGFILESDIR/ce
 mkdir -p $LOGFILESDIR/se
 mkdir -p $CATOFILESDIR/ui
 mkdir -p $CATOFILESDIR/reports
 mkdir -p $TMPDIR
 
+### Create the database, logins and permissions in MySQL
 mysqladmin -u root -p$ROOTDBPASS create $CATODBNAME
 mysql -u root -p$ROOTDBPASS -e "GRANT EXECUTE, SELECT, INSERT, UPDATE, DELETE, LOCK TABLES, CREATE TEMPORARY TABLES ON $CATODBNAME.* TO '$CATODBUSER'@'localhost' IDENTIFIED BY '$CATODBPASS';"
 mysql -u root -p$ROOTDBPASS -e "GRANT SELECT, CREATE TEMPORARY TABLES ON $CATODBNAME.* TO '$CATODBREADUSER'@'localhost' IDENTIFIED BY '$CATODBREADPASS';"
 mysql -u root -p$ROOTDBPASS -e "FLUSH PRIVILEGES;"
 
+### Create a new conf file from the default
 cp $CATO_HOME/conf/default.cato.conf $CATO_HOME/conf/cato.conf
+
+### Use the encryption utility to encrypt passwords to be used in the conf file
 NEWKEY=`$CATO_HOME/conf/catoencrypt $ENCRYPTIONKEY ""`
 ENCDBPASS=`$CATO_HOME/conf/catoencrypt $CATODBPASS $ENCRYPTIONKEY`
 ENCDBREADPASS=`$CATO_HOME/conf/catoencrypt $CATODBREADPASS $ENCRYPTIONKEY`
+
+### Replace placeholders with localized config settings
+### See the user configurable settings above
 sed -i"" -e"s|#CATO_HOME#|${CATO_HOME}|" $CATO_HOME/conf/cato.conf
 sed -i"" -e"s|#CATODBNAME#|${CATODBNAME}|" $CATO_HOME/conf/cato.conf
 sed -i"" -e"s|#CATODBUSER#|${CATODBUSER}|" $CATO_HOME/conf/cato.conf
@@ -189,10 +207,18 @@ sed -i"" -e"s|#TMPDIR#|${TMPDIR}|" $CATO_HOME/conf/cato.conf
 sed -i"" -e"s|#CATOFILES#|${CATOFILESDIR}|" $CATO_HOME/conf/cato.conf
 
 
+### create the database tables, indexes, etc. etc.
 mysql -u root -p$ROOTDBPASS $CATODBNAME < $CATO_HOME/conf/data/cato_ddl.sql
 
+### See LOADAWSREGIONS option at top of script
+if [ "$LOADAWSREGIONS" = "yes" ];
+then
+    ADDCONFIG = "createclouds=true"
+fi
+### Load default data into database
+curl http://localhost:4001/configure${ADDCONFIG}
 
-#$CATO_HOME/services/start_services.sh
+
 set +x
 echo ""
 echo ""
@@ -201,4 +227,9 @@ echo "!!!!!!!!!!!!!!!!!!!!!"
 echo "CATO INSTALL COMPLETE"
 echo "All done, make sure services are up and running."
 echo "NOTE: You may want to DELETE THIS SCRIPT since it contains passwords and keys"
+echo ""
+echo "Run the following command to start the services:"
+echo "  $CATO_HOME/services/start_services.sh"
+echo ""
 echo "!!!!!!!!!!!!!!!!!!!!!"
+exit 0
