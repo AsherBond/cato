@@ -165,19 +165,19 @@ the processes and also place monitors in cron.
 To stop the services:
 
 ```
-/opt/cato/services/stop_services.sh
+$CATO_HOME/services/stop_services.sh
 ```
 
 To start the services:
 
 ```
-/opt/cato/services/start_services.sh
+$CATO_HOME/services/start_services.sh
 ```
 
 To restart the services:
 
 ```
-/opt/cato/services/restart_services.sh
+$CATO_HOME/services/restart_services.sh
 ```
 
 ## Firewalls
@@ -212,11 +212,23 @@ vi $CATO_HOME/conf/cato.conf
 - For the Cato UI - change the setting *admin_ui_use_ssl* to *true*
 - For the Cato REST API - change the setting *rest_api_use_ssl* to *true*
 - Install your certificate and private key in $CATO_HOME/conf
-- If you want to keep your certificate and key in another location, specify the path and file in the two cato.conf settings: *admin_ui_ssl_cert <path>/mycert.crt* and *admin_ui_ssl_key <path>/mykey.key*
+- If you want to keep your certificate and key in another location, specify the path and file in the two cato.conf settings: i
+```    
+admin_ui_ssl_cert <path>/mycert.crt
+admin_ui_ssl_key <path>/mykey.key
+```
 
-With OpenSSL, it is easy to generate a self signed certificate and private key.
+With OpenSSL, it is easy to generate a self signed certificate and private key. However for production use, a certificate authority (CA) is highly recommended.
+
+To create a self signed certificate, use the following command and fill out the prompts.
 
 ```openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $CATO_HOME/conf/cato.key -out $CATO_HOME/conf/cato.crt```
+
+Make sure to restart the services and time a change is made to the cato.conf file:
+
+```
+$CATO_HOME/services/restart_services.sh
+```
 
 ## Administrator UI Login
 
