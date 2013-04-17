@@ -625,8 +625,6 @@ class Task(object):
         sSQL = ""
         sNewTaskID = catocommon.new_guid()
         iIsDefault = 0
-        sTaskName = ""
-        sOTID = ""
 
         # figure out the new name and selected version
         sTaskName = self.Name
@@ -726,8 +724,8 @@ class Task(object):
         if dtStepIDs:
             for drStepIDs in dtStepIDs:
                 sSQL = "update _copy_task_step" \
-                    " set function_xml = replace(lower(function_xml)," \
-                    " '" + drStepIDs["step_id"].lower() + "'," \
+                    " set function_xml = replace(function_xml," \
+                    " '" + drStepIDs["step_id"] + "'," \
                     " '" + drStepIDs["newstep_id"] + "')" \
                     " where function_name in ('if','loop','exists','while')"
                 db.tran_exec(sSQL)
