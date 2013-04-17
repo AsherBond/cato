@@ -66,7 +66,7 @@ LOADAWSREGIONS="yes"
 ### shouldn't have to edit below this line
 ###
 
-trap "echo !!!!!!!!!!!!!!!!!!!!!!!!!;echo 'Cato install script did not complete successfully!;echo !!!!!!!!!!!!!!!!!!!!!!!!!" ERR
+trap "echo !!!!!!!!!!!!!!!!!!!!!!!!!;echo 'Cato install script did not complete successfully!';echo !!!!!!!!!!!!!!!!!!!!!!!!!" ERR
 
 # the following should be i386 or x64_86 for linux
 ARCHITECTURE=`uname -m`
@@ -213,7 +213,7 @@ mysql -u root -p$ROOTDBPASS $CATODBNAME < $CATO_HOME/conf/data/cato_ddl.sql
 ### See LOADAWSREGIONS option at top of script
 if [ "$LOADAWSREGIONS" = "yes" ];
 then
-    ADDCONFIG = "createclouds=true"
+    ADDCONFIG="?createclouds=true"
 fi
 ### Load default data into database
 curl http://localhost:4001/configure${ADDCONFIG}
