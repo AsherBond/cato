@@ -176,7 +176,8 @@ class TaskEngine():
                 pass
             raise Exception(msg)
 
-        return c.before
+        # remove any trailing newline
+        return c.before.rstrip("\n")
 
     def connect_expect(self, type, host, user, password=None, passphrase=None, key=None, default_prompt=None):
 
