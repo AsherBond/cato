@@ -243,11 +243,12 @@ class taskMethods:
     def wmDeleteTasks(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
         sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
+        force = catocommon.is_true(uiCommon.getAjaxArg("sForce"))
 
         if not sDeleteArray:
             raise Exception("Unable to delete - no selection.")
             
-        task.Tasks.Delete(sDeleteArray.split(","), uiCommon.GetSessionUserID())
+        task.Tasks.Delete(sDeleteArray.split(","), force)
         
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Task, "Multiple", "Original Task IDs", sDeleteArray)
         return json.dumps({"result" : "success"})

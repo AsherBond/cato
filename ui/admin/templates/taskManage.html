@@ -79,12 +79,25 @@ $var cssfiles:
 	</table>
 </div>
 <div id="delete_dialog" class="hidden" title="Delete Tasks">
-	Are you sure you want to delete these Tasks?
+	Cato Tasks may be referenced by other Cloud Sidekick applications.  Deleting Tasks could have impact in those applications that cannot be determined from here.
+	<hr />
+	<p style="font-style: italic; padding: 2px;" class="ui-state-highlight">
+		Some of the selected Tasks may have have external references and/or historical information.  Would you like to delete these Tasks anyway?
+		<br />
+		<br />
+		<input type="checkbox" id="delete_dialog_force">
+		<label for="delete_dialog_force">Delete Tasks with history?</label>
+	</p>
+	<hr />
+	<p style="font-style: italic; text-align: center;" class="ui-state-error">
+		Are you sure you want to delete these Tasks?
+	</p>
 </div>
 <div id="export_dialog" class="hidden" title="Export Tasks">
 	<input type="checkbox" id="export_dialog_include_refs" />
 	<label for"export_dialog_include_refs">Include All Referenced Tasks?</label>
-	<br /><br />
+	<br />
+	<br />
 	Are you sure you want to export these Tasks?
 </div>
 <div id="copy_dialog" class="hidden" title="Copy Task">

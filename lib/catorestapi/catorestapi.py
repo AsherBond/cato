@@ -309,7 +309,7 @@ class configure:
 
 
         # should we create AWS clouds?
-        if args.get("createclouds"):
+        if catocommon.is_true(args.get("createclouds")):
             from catocloud import cloud
             msg = "Checking Static Clouds..."
             out.append(msg)

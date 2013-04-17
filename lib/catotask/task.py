@@ -96,51 +96,74 @@ class Tasks(object):
         return catocommon.ObjectOutput.IterableAsText(self.rows, ['ID', 'OriginalTaskID', 'Name', 'Code', 'Version', 'Status'], delimiter)
 
     @staticmethod
-    def Delete(ids, user_id):
+    def Delete(ids, force=False):
         """
         Delete a list of tasks.
         
         Done here instead of in the Task class - no point to instantiate a task just to delete it.
         """
+        print ids
+        print force
         db = catocommon.new_conn()
         
         delete_ids = ",".join(ids) 
 
-        # first we need a list of tasks that will not be deleted
-        sql = """select task_name from task t
+        tasks_with_history = ""
+        task_ids = ""
+        if not force:
+            # first we need a list of tasks that will not be deleted
+            sql = """select task_name from task t
+                    where t.original_task_id in (%s)
+                    and (
+                    t.task_id in (select ti.task_id from task_instance ti where ti.task_id = t.task_id)
+                    )""" % delete_ids 
+            tasks_with_history = db.select_csv(sql, True)
+    
+            # build a list of tasks that CAN be deleted because they have no history
+            # ... 'delete_ids' is an array of 'original_task_id' - we need an array of 'task_id'
+            sql = """select t.task_id from task t
                 where t.original_task_id in (%s)
-                and (
-                t.task_id in (select ti.task_id from task_instance ti where ti.task_id = t.task_id)
-                )""" % delete_ids 
-        sTaskNames = db.select_csv(sql, True)
+                and t.task_id not in 
+                (select ti.task_id from task_instance ti where ti.task_id = t.task_id)""" % delete_ids
+            task_ids = db.select_csv(sql, True)
+        else:
+            # force is True, just build a list of all task_ids for the provided original_task_ids
+            sql = """select t.task_id from task t
+                where t.original_task_id in (%s)""" % delete_ids
+            task_ids = db.select_csv(sql, True)
+            
+            
+        # do we have a list of task_ids to delete? 
+        if task_ids:
+            sql = "delete from action_schedule where task_id in (%s)" % (task_ids)
+            db.tran_exec(sql)
 
-        # list of tasks that will be deleted
-        # we have an array of 'original_task_id' - we need an array of task_id
-        sql = """select t.task_id from task t
-            where t.original_task_id in (%s)
-            and t.task_id not in 
-            (select ti.task_id from task_instance ti where ti.task_id = t.task_id)""" % delete_ids
-        task_ids = db.select_csv(sql, True)
-        if len(task_ids) > 1:
+            sql = "delete from action_plan_history where task_id in (%s)" % (task_ids)
+            db.tran_exec(sql)
+
+            sql = "delete from action_plan where task_id in (%s)" % (task_ids)
+            db.tran_exec(sql)
+
             sql = """delete from task_step_user_settings
                 where step_id in
-                (select step_id from task_step where task_id in (%s))""" % task_ids
+                (select step_id from task_step where task_id in (%s))""" % (task_ids)
             db.tran_exec(sql)
 
-            sql = "delete from task_step where task_id in (" + task_ids + ")"
+            sql = "delete from task_step where task_id in (%s)" % (task_ids)
             db.tran_exec(sql)
 
-            sql = "delete from task_codeblock where task_id in (" + task_ids + ")"
+            sql = "delete from task_codeblock where task_id in (%s)" % (task_ids)
             db.tran_exec(sql)
 
-            sql = "delete from task where task_id in (" + task_ids + ")"
+            sql = "delete from task where task_id in (%s)" % (task_ids)
             db.tran_exec(sql)
 
             db.tran_commit()
-            db.close()
+        
+        db.close()
 
-        if len(sTaskNames) > 0:
-            raise InfoException("Task(s) (%s) have history rows and could not be deleted." % sTaskNames)
+        if tasks_with_history:
+            raise InfoException("Tasks [%s] have history rows and could not be deleted.  Provide the option to force deletion." % tasks_with_history)
         
         return True
         
@@ -625,8 +648,6 @@ class Task(object):
         sSQL = ""
         sNewTaskID = catocommon.new_guid()
         iIsDefault = 0
-        sTaskName = ""
-        sOTID = ""
 
         # figure out the new name and selected version
         sTaskName = self.Name
@@ -726,8 +747,8 @@ class Task(object):
         if dtStepIDs:
             for drStepIDs in dtStepIDs:
                 sSQL = "update _copy_task_step" \
-                    " set function_xml = replace(lower(function_xml)," \
-                    " '" + drStepIDs["step_id"].lower() + "'," \
+                    " set function_xml = replace(function_xml," \
+                    " '" + drStepIDs["step_id"] + "'," \
                     " '" + drStepIDs["newstep_id"] + "')" \
                     " where function_name in ('if','loop','exists','while')"
                 db.tran_exec(sSQL)
