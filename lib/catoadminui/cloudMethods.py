@@ -229,8 +229,11 @@ class cloudMethods:
 
     def wmGetProvider(self):
         sProvider = uiCommon.getAjaxArg("sProvider")
-        p = cloud.Provider.FromName(sProvider)
-        return p.AsJSON()
+        if sProvider:
+            p = cloud.Provider.FromName(sProvider)
+            return p.AsJSON()
+        else:
+            return json.dumps({"info":"No Cloud Accounts are defined."})
 
     def wmSaveAccount(self):
         sMode = uiCommon.getAjaxArg("sMode")

@@ -116,30 +116,39 @@ $(document).ready(function() {
 
 function GetProvider() {
 	// when ADDING, we need to get the clouds for this provider
-	var provider = ajaxPost("cloudMethods/wmGetProvider", {
-		sProvider : $.cookie("selected_cloud_provider")
-	});
-	if (provider) {
-		// loop the clouds
-		$("#ddlClouds").empty();
-		$.each(provider.Clouds, function(id, cloud) {
-			$("#ddlClouds").append("<option value=\"" + id + "\">" + cloud.Name + "</option>");
-		});
+	selected_provider = $.cookie("selected_cloud_provider2");
+	if (selected_provider) {
+		var provider = ajaxPostAsync("cloudMethods/wmGetProvider", {
+			sProvider : selected_provider
+		}, function(provider) {
+			if (provider.info) {
+				showInfo(provider.info)
+			} else {
+				// loop the clouds
+				$("#ddlClouds").empty();
+				$.each(provider.Clouds, function(id, cloud) {
+					$("#ddlClouds").append("<option value=\"" + id + "\">" + cloud.Name + "</option>");
+				});
 
-		$("#ddlClouds").change(function() {
-			//changing the Cloud just clears the results and sets all tabs back to unselected.
-			$(".group_tab").removeClass("group_tab_selected");
-			$("#results_label").empty();
-			$("#results_list").empty();
-		});
+				$("#ddlClouds").change(function() {
+					//changing the Cloud just clears the results and sets all tabs back to unselected.
+					$(".group_tab").removeClass("group_tab_selected");
+					$("#results_label").empty();
+					$("#results_list").empty();
+				});
 
-		// draw the object type tabs
-		$.each(provider.Products, function(name, prod) {
-			$("#cloud_object_types").append("<li class=\"group_header\">" + prod.Label + "</li>");
-			$.each(prod.CloudObjectTypes, function(id, cot) {
-				$("#cloud_object_types").append("<li class=\"group_tab\" object_type=\"" + id + "\">" + cot.Label + "</li>");
-			});
+				// draw the object type tabs
+				$.each(provider.Products, function(name, prod) {
+					$("#cloud_object_types").append("<li class=\"group_header\">" + prod.Label + "</li>");
+					$.each(prod.CloudObjectTypes, function(id, cot) {
+						$("#cloud_object_types").append("<li class=\"group_tab\" object_type=\"" + id + "\">" + cot.Label + "</li>");
+					});
+				});
+			}
 		});
+	} else {
+		showInfo("There are no Cloud Accounts defined.")
+		
 	}
 }
 
