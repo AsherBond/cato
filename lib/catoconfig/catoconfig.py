@@ -68,12 +68,14 @@ def read_config():
     cfg["ui_permissions"] = "true"
     
     cfg["admin_ui_port"] = "8082"
-    cfg["admin_ui_debug"] = "0"
+    cfg["admin_ui_debug"] = "20"
+    cfg["admin_ui_use_ssl"] = "false"
     
     cfg["user_ui_port"] = "8080"
-    cfg["user_ui_debug"] = "0"
-    cfg["user_ui_client_debug"] = "30"
+    cfg["user_ui_debug"] = "20"
+    cfg["user_ui_client_debug"] = "20"
     cfg["user_ui_enable_refresh"] = "true"
+    cfg["user_ui_use_ssl"] = "false"
     
     cfg["rest_api_url"] = "http://localhost"
     cfg["rest_api_port"] = "4001"
@@ -81,7 +83,7 @@ def read_config():
     
     cfg["dash_api_url"] = "http://localhost"
     cfg["dash_api_port"] = "4002"
-    cfg["dash_api_debug"] = "0"
+    cfg["dash_api_debug"] = "20"
 
     
     filename = os.path.join(BASEPATH, "conf/cato.conf")        
