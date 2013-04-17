@@ -210,19 +210,6 @@ sed -i"" -e"s|#CATOFILES#|${CATOFILESDIR}|" $CATO_HOME/conf/cato.conf
 ### create the database tables, indexes, etc. etc.
 mysql -u root -p$ROOTDBPASS $CATODBNAME < $CATO_HOME/conf/data/cato_ddl.sql
 
-### Start the services then sleep
-$CATO_HOME/services/start_services.sh
-sleep 5
-
-### See LOADAWSREGIONS option at top of script
-if [ "$LOADAWSREGIONS" = "yes" ];
-then
-    ADDCONFIG="?createclouds=true"
-fi
-### Load default data into database
-curl http://localhost:4001/configure${ADDCONFIG}
-
-
 set +x
 echo ""
 echo ""
@@ -231,5 +218,8 @@ echo "!!!!!!!!!!!!!!!!!!!!!"
 echo "CATO INSTALL COMPLETE"
 echo "All done, make sure services are up and running."
 echo "NOTE: You may want to DELETE THIS SCRIPT since it contains passwords and keys"
+echo ""
+echo "Proceed with the final installation steps in INSTALL.md now"
+echo ""
 echo "!!!!!!!!!!!!!!!!!!!!!"
 exit 0

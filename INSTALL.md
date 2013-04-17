@@ -106,10 +106,10 @@ Add the CATO_HOME environment variable to the .profile (or .bash_profile dependi
 echo "export CATO_HOME=$CATO_HOME" >> ~/.profile
 ```
 
-Now start all services.
+Now start all services. Make sure to use the application user account used in the "chown" step above.
 
 ```
-./services/start_services.sh
+$CATO_HOME/services/start_services.sh
 ```
 
 
@@ -136,6 +136,26 @@ cd /var/cato/log
 ls -l *.log
 more <logfile_name>
 ```
+
+### Initial Configuration
+
+After Cato services are started, one last step remains - the initial configuration of the system.
+
+Note: in a default Cato install, no Cloud endpoints are defined.  Service providers such as Amazon AWS have a known set of Cloud endpoints.
+To configure Cato with the default AWS Endpoints, add the following option to the configure command.  
+(Predefined Clouds can be added at any time in the Cato Admin UI as well.)
+
+This can be done via a web browser, or the *curl* command line utility.
+
+Using curl on localhost _without_ AWS region endpoints
+```
+curl http://localhost:4001/configure
+```
+or using curl on localhost _with_ AWS region endpoints
+```
+curl http//locahost:4001/configure?createclouds=true
+```
+
 
 ### Startup / Shutdown
 
@@ -216,4 +236,3 @@ Password: password
 Cato Community Edition runs on a lightweight webserver that comes with Python web framework Web.py.
 This should be sufficient for most uses Cato CE, however Cato can also be configured to use Apache.
 
-> Click [here](http://projects.cloudsidekick.com/projects/cato/wiki/ConfigureApache?utm_source=cato_docs&utm_medium=installdoc&utm_campaign=app) for details about configuring Apache to serve the Cato UI.
