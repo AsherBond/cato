@@ -607,6 +607,12 @@ class Task(object):
 
         # by the time we get here, there should for sure be a task row, either new or updated.                
         # now, codeblocks
+        # if there's no MAIN codeblock, create it.
+        if not self.Codeblocks:
+            self.Codeblocks["MAIN"] = Codeblock(self.ID, "MAIN")
+        if "MAIN" not in self.Codeblocks.itervalues():
+            self.Codeblocks["MAIN"] = Codeblock(self.ID, "MAIN")
+            
         for c in self.Codeblocks.itervalues():
             sSQL = "insert task_codeblock (task_id, codeblock_name)" \
                 " values ('" + self.ID + "', '" + c.Name + "')"
