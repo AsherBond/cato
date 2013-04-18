@@ -26,7 +26,7 @@ function catoAjax() {
 }
 
 // Class methods.
-catoAjax.getConfig = function(username) {"use strict";
+catoAjax.getConfig = function() {"use strict";
 	var args = {};
 	return ajaxPost("uiMethods/wmGetConfig", args);
 }
