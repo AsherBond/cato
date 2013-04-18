@@ -3,85 +3,69 @@
 /* -----------------------------------*/
 
 /*
-These styles apply specifically to the Task Run Log page.
-*/
-textarea
-{
+ These styles apply specifically to the Task Run Log page.
+ */
+textarea {
 	width: 90%;
 }
-.result_summary
-{
+.result_summary {
 	margin: 2px 4px 2px 4px;
 }
-.result_summary_detail
-{
+.result_summary_detail {
 	padding: 1px 8px 1px 8px;
 }
-.result_summary_item_name
-{
+.result_summary_item_name {
 	font-weight: bold;
 }
-.result_summary_item_detail
-{
+.result_summary_item_detail {
 	padding: 1px 8px 1px 8px;
 }
-.instance_header
-{
+.instance_header {
 	margin: 2px 4px 2px 4px;
 	padding: 1px 8px 1px 8px;
 	vertical-align: middle;
 }
-.action_bar
-{
+.action_bar {
 	height: 24px;
 	padding-top: 8px;
 }
-.instance_label
-{
+.instance_label {
 	font-weight: bold;
 }
 
-.log
-{
+.log {
 }
-.log_item
-{
+.log_item {
 	font: 9pt tahoma;
 	margin: 2px 0px 6px 0px;
 }
-.log_header
-{
+.log_header {
 	font-weight: normal;
 	font-size: 0.9em;
 	padding: 0px 0px 0px 4px;
 }
-.log_detail
-{
+.log_detail {
 	padding: 1px 8px 1px 8px;
 }
-.log_command
-{
+.log_command {
 	font: .8em Courier New;
 	color: #225522;
 	background: #FFF;
 	padding: 1px 8px 1px 8px;
 	margin-bottom: 1px;
 }
-.log_variable_name
-{
+.log_variable_name {
 	font: Courier New;
 	background: #EFF;
 	padding: 0px 8px 2px 8px;
 }
-.log_variable_value
-{
+.log_variable_value {
 	font: .8em Courier New;
 	background: #EFF;
 	padding: 0px 8px 2px 8px;
 }
 
-.vis_btn
-{
+.vis_btn {
 	border: 1px solid #404040;
 	border-style: inset;
 	background-color: #b3b3b3;
@@ -92,18 +76,15 @@ textarea
 	height: 16px;
 	border-radius: 12px;
 }
-.vis_btn_off
-{
+.vis_btn_off {
 	background-color: #e3e3e3;
 	border-style: outset;
 }
-.link
-{
+.link {
 	cursor: pointer;
 	color: #0000FF;
 	font-size: 12px;
 }
-#clear_log
-{
+#clear_log {
 	margin-left: 20px;
 }
