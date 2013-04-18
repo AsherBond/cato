@@ -198,9 +198,6 @@ function updateSetting(category, setting, value) {
 		contentType : "application/json; charset=utf-8",
 		dataType : "text",
 		success : function(response) {
-			if (response.length > 0) {
-				showAlert(response);
-			}
 			success = true;
 		},
 		error : function(response) {
