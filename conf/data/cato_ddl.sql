@@ -329,6 +329,7 @@ CREATE TABLE `deployment_service_inst` (
   `deployment_service_id` varchar(36) NOT NULL,
   `instance_id` varchar(36) NOT NULL,
   `instance_label` varchar(80) NOT NULL,
+  `instance_num` int(11) DEFAULT NULL,
   `status` varchar(16) NOT NULL,
   `current_state` varchar(16) DEFAULT NULL,
   `desired_state` varchar(16) DEFAULT NULL,
