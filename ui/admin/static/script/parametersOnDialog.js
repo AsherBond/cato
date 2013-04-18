@@ -105,7 +105,8 @@ function DrawParameterEditForm(parameter_xml) {
                 var required_class = (required == "true" ? "task_launch_parameter_required" : "");
 
                 output += "<div id=\"tlp" + parameter_id + "\" class=\"task_launch_parameter " + required_class + "\" present_as=\"" + present_as + "\"" + encryptattr + ">";
-                output += "<div class=\"task_launch_parameter_name\">" + parameter_name + "</div>";
+                var label = (parameter_desc) ? parameter_desc : parameter_name;
+                output += "<div class=\"task_launch_parameter_name\">" + label + "</div>";
 
                 //don't show tooltip icons for empty descriptions
                 if (parameter_desc > "") {

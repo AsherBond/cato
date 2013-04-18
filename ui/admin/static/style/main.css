@@ -560,6 +560,8 @@ td.row_over {
 }
 .task_launch_parameter_name {
     float: left;
+    max-width: 380px;
+	overflow: hidden;
 }
 .task_launch_parameter_icons {
     float: right;
