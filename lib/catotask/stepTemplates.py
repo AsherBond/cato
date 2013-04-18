@@ -2063,7 +2063,7 @@ def RunTask_View(oStep):
 
     # get the name and code for belonging to this otid and version
     if sTaskName:
-        sSQL = "select task_id, task_code, task_name, parameter_xml from task" \
+        sSQL = "select original_task_id, task_id, task_code, task_name, parameter_xml from task" \
             " where task_name = '" + sTaskName + "'" + \
             (" and default_version = 1" if not sVersion else " and version = '" + sVersion + "'")
 
