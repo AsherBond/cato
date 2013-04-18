@@ -239,10 +239,9 @@ function LoadEditDialog(sEditID) {
 
 	$("#hidCurrentEditID").val(sEditID);
 
-	var account = ajaxPost("cloudMethods/wmGetCloudAccount", {
+	var account = ajaxPostAsync("cloudMethods/wmGetCloudAccount", {
 		sID : sEditID
-	});
-	if (account) {
+	}, function(account) {
 		$("#txtAccountName").val(account.Name);
 		$("#txtAccountNumber").val(account.AccountNumber)
 		$("#ddlProvider").val(account.Provider);
@@ -256,12 +255,12 @@ function LoadEditDialog(sEditID) {
 
 		//the account result will have a list of all the clouds on this account.
 		$("#ddlDefaultCloud").empty();
-		$.each(account.ProviderClouds, function(id, cloud) {
+		$.each(account.ProviderClouds, function(index, cloud) {
 			// the 'default' one is selected here
-			if (id == account.DefaultCloud.ID)
-				$("#ddlDefaultCloud").append("<option value=\"" + id + "\" selected=\"selected\">" + cloud.Name + "</option>");
+			if (cloud.ID == account.DefaultCloud.ID)
+				$("#ddlDefaultCloud").append("<option value=\"" + cloud.ID + "\" selected=\"selected\">" + cloud.Name + "</option>");
 			else
-				$("#ddlDefaultCloud").append("<option value=\"" + id + "\">" + cloud.Name + "</option>");
+				$("#ddlDefaultCloud").append("<option value=\"" + cloud.ID + "\">" + cloud.Name + "</option>");
 		});
 
 		//we can't allow testing the connection if there are no clouds
@@ -279,7 +278,7 @@ function LoadEditDialog(sEditID) {
 		$('#edit_dialog_tabs').tabs("option", "disabled", []);
 		$("#edit_dialog").dialog("option", "title", "Modify Account");
 		$("#edit_dialog").dialog("open");
-	}
+	});
 }
 
 function ClearTestResult() {

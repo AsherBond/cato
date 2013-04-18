@@ -18,6 +18,7 @@
     Why?  Because it isn't only used by the UI.
 """
 import os
+import json
 try:
     import xml.etree.cElementTree as ET
 except (AttributeError, ImportError):
@@ -392,7 +393,8 @@ class CloudAccount(object):
         return False
 
     def AsJSON(self):
-        self.DefaultCloud = self.DefaultCloud.Name
+        self.ProviderClouds = [{ "ID": c.ID, "Name" : c.Name} for c in self.Provider.Clouds]
+        self.DefaultCloud = json.loads(self.DefaultCloud.AsJSON())
         self.Provider = self.Provider.Name
         del self.LoginPassword
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
@@ -412,21 +414,20 @@ class CloudAccount(object):
     # creates this Cloud as a new record in the db
     # and returns the object
     @staticmethod
-    def DBCreateNew(sProvider, sAccountName, sLoginID, sLoginPassword, sAccountNumber, sDefaultCloudID, sIsDefault="0"):
+    def DBCreateNew(sProvider, sAccountName, sLoginID, sLoginPassword, sAccountNumber, sDefaultCloud, sIsDefault="0"):
         db = catocommon.new_conn()
         
         # some sanity checks...
         # 1) is the provider valid?
-        providers = CloudProviders()
+        providers = CloudProviders(include_products=False, include_clouds=False)
         if sProvider not in providers.iterkeys():
             raise InfoException("The specified Provider [%s] is not a valid Cato Cloud Provider." % sProvider)
         
         # 2) if given, does the 'default cloud' exist
         c = Cloud()
-        c.FromName(sDefaultCloudID)
+        c.FromName(sDefaultCloud)
         if not c.ID:
-            raise InfoException("The specified default Cloud [%s] is not defined." % sDefaultCloudID)
-
+            raise InfoException("The specified default Cloud [%s] is not defined." % sDefaultCloud)
 
         # if there are no rows yet, make this one the default even if the box isn't checked.
         if sIsDefault == "0":
@@ -442,7 +443,7 @@ class CloudAccount(object):
             (account_id, account_name, account_number, provider, is_default, 
             default_cloud_id, login_id, login_password, auto_manage_security)
             values ('%s','%s','%s','%s','%s','%s','%s','%s',0)""" % (sNewID, sAccountName, sAccountNumber, sProvider, sIsDefault,
-                                                                     sDefaultCloudID, sLoginID, sPW)
+                                                                     c.ID, sLoginID, sPW)
     
         if not db.tran_exec_noexcep(sSQL):
             if db.error == "key_violation":
