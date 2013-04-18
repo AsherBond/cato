@@ -18,6 +18,7 @@
     Why?  Because it isn't only used by the UI.
 """
 import os
+import json
 try:
     import xml.etree.cElementTree as ET
 except (AttributeError, ImportError):
@@ -392,7 +393,8 @@ class CloudAccount(object):
         return False
 
     def AsJSON(self):
-        self.DefaultCloud = self.DefaultCloud.Name
+        self.ProviderClouds = [{ "ID": c.ID, "Name" : c.Name} for c in self.Provider.Clouds]
+        self.DefaultCloud = json.loads(self.DefaultCloud.AsJSON())
         self.Provider = self.Provider.Name
         del self.LoginPassword
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
