@@ -1,7 +1,7 @@
 $def with ()
-$var jsfiles: taskedit/taskEdit.js 	taskedit/taskView.js taskedit/taskVersions.js taskedit/taskEditDebug.js taskedit/taskEditCodeblock.js taskedit/taskEditParams.js taskedit/taskEditSteps.js taskedit/taskEditCommandSpecific.js taskedit/taskStepVarsEdit.js jquery/jquery.rightClick.js jquery/jquery.ui.ufd-0.6/jquery.ui.ufd.js toolbox.js validation.js tags.js registry.js parametersOnDialog.js taskLaunchDialog.js
+$var jsfiles: taskedit/taskEdit.js 	taskedit/taskView.js taskedit/taskVersions.js taskedit/taskEditDebug.js taskedit/taskEditCodeblock.js taskedit/taskEditParams.js taskedit/taskEditSteps.js taskedit/taskEditCommandSpecific.js taskedit/taskStepVarsEdit.js jquery/jquery.rightClick.js jquery/jquery.ui.ufd-0.6/jquery.ui.ufd.js toolbox.js validation.js tags.js parametersOnDialog.js taskLaunchDialog.js
 
-$var cssfiles: registry.css taskEdit.css taskView.css ../script/jquery/jquery.ui.ufd-0.6/css/ufd-base.css ../script/jquery/jquery.ui.ufd-0.6/css/plain/plain.css
+$var cssfiles: taskEdit.css taskView.css ../script/jquery/jquery.ui.ufd-0.6/css/ufd-base.css ../script/jquery/jquery.ui.ufd-0.6/css/plain/plain.css
 
 <div id="left_panel_te">
     <div id="toolbox">
@@ -15,10 +15,6 @@ $var cssfiles: registry.css taskEdit.css taskView.css ../script/jquery/jquery.ui
             id="tab_commands" linkto="div_commands" class="ui-state-default ui-corner-top toolbox_tab">Commands</span><span
             id="tab_debug" linkto="div_debug" class="ui-state-default ui-corner-top toolbox_tab">Run</span><span
             id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>
-
-            <!--<<span
-            id="tab_registry" linkto="div_registry" class="ui-state-default ui-corner-top toolbox_tab"
-            style="padding-left: 7px; padding-right: 7px;">Registry</span>-->
         </div>
         <div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel">
             <div style="padding: 0 0 0 5px;">
@@ -138,9 +134,6 @@ $var cssfiles: registry.css taskEdit.css taskView.css ../script/jquery/jquery.ui
         <div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
             <span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
             <ul id="objects_tags"></ul>
-        </div>
-        <div id="div_registry" class="ui-widget-content ui-corner-top toolbox_panel hidden">
-            <div id="registry_content"></div>
         </div>
     </div>
 </div>
@@ -320,10 +313,6 @@ $var cssfiles: registry.css taskEdit.css taskView.css ../script/jquery/jquery.ui
         <ul id="clip_dialog_clip"></ul>
     </div>
 </div>
-<!-- Registry dialogs. -->
-<div id="reg_edit_dialog" class="hidden"></div>
-<div id="reg_add_dialog" class="hidden"></div>
-<!-- End Registry dialogs.-->
 <input type="hidden" id="reg_type" value="task" />
 <!-- Step Variable Edit dialog. -->
 <div id="step_var_edit_dialog" class="hidden" title="Edit Command Variables">

@@ -149,8 +149,6 @@ function tabWasClicked(tab) {
 		doGetVersions();
 	} else if (tab == "schedules") {
 		doGetPlans();
-	} else if (tab == "registry") {
-		GetRegistry($("#hidOriginalTaskID").val());
 	} else if (tab == "tags") {
 		if ( typeof (GetObjectsTags) != 'undefined') {
 			GetObjectsTags($("#hidOriginalTaskID").val());

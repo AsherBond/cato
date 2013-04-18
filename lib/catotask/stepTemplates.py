@@ -206,8 +206,6 @@ def GetStepTemplate(oStep):
         sHTML = RunTask(oStep)
     elif sFunction.lower() == "transfer":
         sHTML = "Not Yet Available"  # Transfer(oStep)
-    elif sFunction.lower() == "set_asset_registry":
-        sHTML = "Not Yet Available"  # SetAssetRegistry(oStep)
     elif sFunction.lower() == "loop":
         sHTML = Loop(oStep)
     elif sFunction.lower() == "while":

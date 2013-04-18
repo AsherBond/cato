@@ -838,7 +838,6 @@ class CatoObjectTypes(object):
     Asset = 2
     Task = 3
     Schedule = 4
-    Registry = 6
     Tag = 7
     Image = 8
     MessageTemplate = 18

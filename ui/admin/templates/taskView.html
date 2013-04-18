@@ -1,7 +1,7 @@
 $def with ()
-$var jsfiles: taskedit/taskView.js taskedit/taskVersions.js taskedit/taskEditDebug.js taskedit/taskEditParams.js toolbox.js tags.js registry.js parametersOnDialog.js taskLaunchDialog.js
+$var jsfiles: taskedit/taskView.js taskedit/taskVersions.js taskedit/taskEditDebug.js taskedit/taskEditParams.js toolbox.js tags.js parametersOnDialog.js taskLaunchDialog.js
 
-$var cssfiles: registry.css taskEdit.css taskView.css
+$var cssfiles: taskEdit.css taskView.css
 
 <script type="text/javascript">
 	//here because other pages (task edit, print) share the taskView.js file.
@@ -19,9 +19,6 @@ $var cssfiles: registry.css taskEdit.css taskView.css
 			style="padding-left: 6px; padding-right: 6px;">Schedules</span><span id="tab_debug"
 			linkto="div_debug" class="ui-state-default ui-corner-top toolbox_tab">Run</span><span
 			id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>
-			<!--<span
-			id="tab_registry" linkto="div_registry" class="ui-state-default ui-corner-top toolbox_tab"
-			style="padding-left: 7px; padding-right: 7px;">Registry</span>-->
 		</div>
 		<div id="div_versions" class="ui-widget-content ui-corner-top toolbox_panel">
 			<center>
@@ -80,9 +77,6 @@ $var cssfiles: registry.css taskEdit.css taskView.css
 		<div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
 			<span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
 			<ul id="objects_tags"></ul>
-		</div>
-		<div id="div_registry" class="ui-widget-content ui-corner-top toolbox_panel hidden">
-			<div id="registry_content"></div>
 		</div>
 		<div id="div_parameters" class="ui-widget-content ui-corner-top toolbox_panel hidden">
 			<span id="parameter_add_btn">Add New</span>
@@ -182,10 +176,6 @@ id="asset_search_btn" class=" ui-icon ui-icon-search forceinline pointer"></span
 		<br />
 	</center>
 </div>
-<!-- Registry dialogs. -->
-<div id="reg_edit_dialog" class="hidden"></div>
-<div id="reg_add_dialog" class="hidden"></div>
-<!-- End Registry dialogs.-->
 <input type="hidden" id="reg_type" value="task" />
 <!--END DIALOGS-->
 <input id="hidPageSaveType" type="hidden" value="dynamic" />

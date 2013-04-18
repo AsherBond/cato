@@ -469,11 +469,6 @@ CREATE TABLE `metric_db_waits` (
   `pct_time` decimal(4,2) DEFAULT NULL,
   PRIMARY KEY (`instance_id`,`metric_dt`,`class`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `object_registry` (
-  `object_id` varchar(36) NOT NULL,
-  `registry_xml` text NOT NULL,
-  PRIMARY KEY (`object_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `object_tags` (
   `object_id` varchar(36) NOT NULL,
   `object_type` int(11) NOT NULL,
