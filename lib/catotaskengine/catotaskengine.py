@@ -972,7 +972,7 @@ class TaskEngine():
                     break
                 elif state == "pending":
                     msg = "Instance id [%s] state is pending. Sleeping and retrying..." % (instance_id)
-                    self.logger.info(msg)
+                    self.insert_audit("", msg, "")
                     time.sleep(10)
                 else:
                     msg = "Instance ID [%s] state is neither running or pending, state found is [%s], cannot connect." % (instance_id, state)
@@ -983,7 +983,7 @@ class TaskEngine():
                     self.logger.info(msg)
                 else:
                     msg = "DescribeInstances returned -> [%s]. Sleeping and retrying..." % (ex)
-                    self.logger.info(msg)
+                    self.insert_audit("", msg, "")
                     time.sleep(10)
 
         # we got here, so we either timed out or sucessfully retrieved a running instance
