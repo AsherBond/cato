@@ -427,7 +427,7 @@ def CacheMenu():
         sLabel = menu.get("label", "No Label Defined")
         sHref = " href=\"" + menu.get("href", "") + "\"" if menu.get("href") else ""
         sOnClick = " onclick=\"" + menu.get("onclick", "") + "\"" if menu.get("onclick") else ""
-        sIcon = "<img src=\"" + menu.get("icon", "") + "\" alt=\"\" />" if menu.get("icon") else ""
+        sIcon = "<img src=\"" + menu.get("icon", "") + "\" alt=\"\" height=\"24px\" width=\"24px\" />" if menu.get("icon") else ""
         sTarget = " target=\"" + menu.get("target", "") + "\"" if menu.get("target") else ""
         sClass = menu.get("class", "")
         sRoles = menu.get("roles", "")
@@ -440,7 +440,7 @@ def CacheMenu():
             sItemLabel = item.get("label", "No Label Defined")
             sItemHref = " href=\"" + item.get("href", "") + "\"" if item.get("href") else ""
             sItemOnClick = " onclick=\"" + item.get("onclick", "") + "\"" if item.get("onclick") else ""
-            sItemIcon = "<img src=\"" + item.get("icon", "") + "\" alt=\"\" />" if item.get("icon") else ""
+            sItemIcon = "<img src=\"" + item.get("icon", "") + "\" alt=\"\" height=\"24px\" width=\"24px\" />" if item.get("icon") else ""
             sItemTarget = " target=\"" + item.get("target", "") + "\"" if item.get("target") else ""
             sItemClass = item.get("class", "")
             sItemRoles = item.get("roles", "")

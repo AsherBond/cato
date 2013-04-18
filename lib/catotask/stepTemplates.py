@@ -50,7 +50,7 @@ def DrawFullStep(oStep):
         # we need at least a basic strip with a delete button
         sNoFunc = "<li class=\"step\" id=\"" + sStepID + "\">"            
         sNoFunc += "    <div class=\"ui-state-default ui-state-highlight step_header\" id=\"step_header_" + sStepID + "\">"
-        sNoFunc += "        <div class=\"step_header_title\"><img src=\"static/images/icons/status_unknown_16.png\" /></div>"
+        sNoFunc += "        <div class=\"step_header_title\"><img src=\"static/images/icons/status_unknown_16.png\" height=\"16px\" width=\"16px\" /></div>"
         sNoFunc += "        <div class=\"step_header_icons\">"
         sNoFunc += "            <span class=\"ui-icon ui-icon-close forceinline step_delete_btn\" remove_id=\"" + sStepID + "\"></span>"
         sNoFunc += "        </div>"
@@ -238,7 +238,7 @@ def DrawReadOnlyStep(oStep, bDisplayNotes):
         # we need at least a basic strip with a delete button
         sNoFunc = "<li>";            
         sNoFunc += "<div class=\"ui-state-default ui-state-highlightview_step\" id=\"" + sStepID + "\">"
-        sNoFunc += "    <div class=\"view_step_header ui-state-default ui-state-highlight\" id=\"view_step_header_" + sStepID + "\"><img src=\"static/images/icons/status_unknown_16.png\" /></div>"
+        sNoFunc += "    <div class=\"view_step_header ui-state-default ui-state-highlight\" id=\"view_step_header_" + sStepID + "\"><img src=\"static/images/icons/status_unknown_16.png\" height=\"16px\" width=\"16px\" /></div>"
         sNoFunc += "    <div class=\"view_step_detail ui-state-highlight\" id=\"step_detail_" + sStepID + "\">"
         sNoFunc += "Error building Step - Unable to get the details for the command type '" + oStep.FunctionName + "'.<br />"
         sNoFunc += "This command type may have been deprecated or the extension not loaded.<br />"
@@ -913,7 +913,7 @@ def DrawEmbeddedStep(oStep):
         # we need at least a basic strip with a delete button
         sNoFunc = "<div class=\"embedded_step\">"
         sNoFunc += "    <div class=\"ui-state-default ui-state-highlight step_header\">"
-        sNoFunc += "        <div class=\"step_header_title\"><img src=\"static/images/icons/status_unknown_16.png\" /></div>"
+        sNoFunc += "        <div class=\"step_header_title\"><img src=\"static/images/icons/status_unknown_16.png\" height=\"16px\" width=\"16px\" /></div>"
         sNoFunc += "        <div class=\"step_header_icons\">"
         sNoFunc += "            <span class=\"ui-icon ui-icon-close forceinline embedded_step_delete_btn\" remove_xpath=\"" + oStep.XPathPrefix + "\" parent_id=\"" + sStepID + "\"></span>"
         sNoFunc += "        </div>"
@@ -1002,7 +1002,7 @@ def DrawEmbeddedReadOnlyStep(xEmbeddedFunction):
             # we need at least a basic strip with a delete button
             sNoFunc = "<div class=\"embedded_step\">"
             sNoFunc += "    <div class=\"ui-state-default ui-state-highlight step_header\">"
-            sNoFunc += "        <div class=\"step_header_title\"><img src=\"static/images/icons/status_unknown_16.png\" /></div>"
+            sNoFunc += "        <div class=\"step_header_title\"><img src=\"static/images/icons/status_unknown_16.png\" height=\"16px\" width=\"16px\" /></div>"
             sNoFunc += "    </div>"
             sNoFunc += "    <div class=\"ui-widget-content ui-state-highlight ui-corner-bottom step_detail\" >"
             sNoFunc += "Error building Step - Unable to get the details for the command type '" + sFunctionName + "'.<br />"
@@ -1382,7 +1382,7 @@ def DrawVariableSectionForDisplay(oStep, bShowEditLink):
         # right xml attributes
         
         sHTML += """<span class=\"variable_popup_btn\" step_id=\"%s\" xpath_prefix=\"%s\">
-            <img src=\"static/images/icons/kedit_16.png\"
+            <img height=\"16px\" width=\"16px\" src=\"static/images/icons/kedit_16.png\"
              title=\"Manage Variables\" alt=\"\" /> Manage Variables</span>""" % (sStepID, oStep.XPathPrefix)
 
     # some types may only have one of the delimiters
@@ -1515,9 +1515,9 @@ def DrawVariableSectionForEdit(oStep, sXPathPrefix=None):
 
     sHTML += "<div id=\"div_variables\">"
     sHTML += "<div><span id=\"variable_add_btn\">" \
-        "<img src=\"static/images/icons/bookmark_add_32.png\" width=\"16\" height=\"16\"" \
+        "<img src=\"static/images/icons/bookmark_add_32.png\" width=\"16px\" height=\"16px\"" \
         " alt=\"Add Variable\" title=\"Add Variable\"/> Add a Variable</span><span id=\"variable_clearall_btn\">" \
-        "<img src=\"static/images/icons/bookmark_delete_32.png\" width=\"16\" height=\"16\"" \
+        "<img src=\"static/images/icons/bookmark_delete_32.png\" width=\"16px\" height=\"16px\"" \
         " alt=\"Clear All Variables\" title=\"Clear All Variables\"/> Clear All Variables</span></div><hr />"
     sHTML += GetVariablesForStepForEdit(oStep, sXPathPrefix)
     sHTML += "</div>"
