@@ -262,35 +262,35 @@ def GetSessionUserID():
     if uid:
         return uid
     else:
-        ForceLogout("Server Session has expired (1). Please log in again.")
+        raise Exception("Server Session has expired (1). Please log in again.")
 
 def GetSessionUserName():
     un = GetSessionObject("user", "user_name")
     if un:
         return un
     else:
-        ForceLogout("Server Session has expired (1a). Please log in again.")
+        raise Exception("Server Session has expired (1a). Please log in again.")
 
 def GetSessionUserFullName():
     fn = GetSessionObject("user", "full_name")
     if fn:
         return fn
     else:
-        ForceLogout("Server Session has expired (1b). Please log in again.")
+        raise Exception("Server Session has expired (1b). Please log in again.")
 
 def GetSessionUserRole():
     role = GetSessionObject("user", "role")
     if role:
         return role
     else:
-        ForceLogout("Server Session has expired (2). Please log in again.")
+        raise Exception("Server Session has expired (2). Please log in again.")
 
 def GetSessionUserTags():
     tags = GetSessionObject("user", "tags")
     if tags:
         return tags
     else:
-        ForceLogout("Server Session has expired (3). Please log in again.")
+        raise Exception("Server Session has expired (3). Please log in again.")
 
 def GetSessionObject(category, key):
     cat = uiGlobals.session.get(category, False)

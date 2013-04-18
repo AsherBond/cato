@@ -277,8 +277,7 @@ class temp:
 class login:
     def GET(self):
         # visiting the login page kills the session
-        uiGlobals.session.kill()
-        raise web.seeother('/static/login.html')
+        uiCommon.ForceLogout("")
 
 class logout:        
     def GET(self):

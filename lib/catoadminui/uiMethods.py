@@ -174,7 +174,7 @@ class uiMethods:
         role = uiCommon.GetSessionUserRole()
         
         if not role:
-            uiCommon.ForceLogout("Unable to get Role for user.")
+            raise Exception("Unable to get Role for user.")
 
         filename = ""
         if role == "Administrator":
