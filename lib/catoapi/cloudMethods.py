@@ -111,7 +111,7 @@ class cloudMethods:
         Gets a Cloud Account.
         
         Required Arguments: 
-            name - a name for the new Account.
+            name - a Cloud Account name or ID.
 
         Returns: A Cloud Account object.
         """
@@ -123,6 +123,32 @@ class cloudMethods:
         name = args.get("name")
 
         obj = cloud.CloudAccount()
+        obj.FromName(name)
+
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML())
+
+    def get_cloud(self, args):
+        """
+        Gets a Cloud object.
+        
+        Required Arguments: 
+            name - a Cloud name or ID.
+
+        Returns: A Cloud object.
+        """
+        required_params = ["name"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        name = args.get("name")
+
+        obj = cloud.Cloud()
         obj.FromName(name)
 
         if args["output_format"] == "json":
