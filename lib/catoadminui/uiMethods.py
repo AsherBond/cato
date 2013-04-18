@@ -34,7 +34,6 @@ from catouser import catouser
 from catocloud import cloud
 from catoasset import asset
 from catotask import task
-from catoregistry import registry
 from catosettings import settings
 from catoerrors import InfoException
 
@@ -1239,87 +1238,6 @@ class uiMethods:
         
         return result
 
-    def wmGetRegistry(self):
-        """Return the registry editor, complete html block, to the requestor."""
-        sObjectID = uiCommon.getAjaxArg("sObjectID")
-        # NOTE: there is only one global registry... id=1
-        # rather than spread that all over the script,if the objectid is "global"
-        # we'll change it to a 1
-        if sObjectID == "global":
-            sObjectID = "1"
-        
-        r = registry.Registry(sObjectID)
-        if not r:
-            return "Unable to get Registry for object id [%s]" % sObjectID
-
-        return r.DrawRegistryEditor()
-
-    def wmAddRegistryNode(self):
-        sObjectID = uiCommon.getAjaxArg("sObjectID")
-        sXPath = uiCommon.getAjaxArg("sXPath")
-        sName = uiCommon.getAjaxArg("sName")
-
-        # fail on missing values
-        if not sXPath:
-            return "{\"error\" : \"Missing XPath to add to.\"}"
-
-        # fail on empty name
-        if not sName:
-            return False, "{\"info\" : \"Node Name required.\"}"
-
-        r = registry.Registry(sObjectID)
-        if not r:
-            return "Unable to get Registry for object id [%s]" % sObjectID
-
-        result, msg = r.AddNode(sXPath, sName)
-        if not result:
-            return "{\"error\" : \"%s\"}" % msg
-            
-        
-        return json.dumps({"result" : "success"})
-   
-    def wmUpdateRegistryValue(self):
-        sObjectID = uiCommon.getAjaxArg("sObjectID")
-        sXPath = uiCommon.getAjaxArg("sXPath")
-        sValue = uiCommon.getAjaxArg("sValue")
-        sEncrypt = uiCommon.getAjaxArg("sEncrypt")
-        
-        sValue = uiCommon.unpackJSON(sValue)
-
-        # fail on missing values
-        if not sXPath:
-            return "{\"error\" : \"Missing XPath to update.\"}"
-
-        r = registry.Registry(sObjectID)
-        if not r:
-            return "Unable to get Registry for object id [%s]" % sObjectID
-
-        result, msg = r.SetNodeText(sXPath, sValue, sEncrypt)
-        if not result:
-            return "{\"error\" : \"%s\"}" % msg
-            
-        
-        return json.dumps({"result" : "success"})
-   
-    def wmDeleteRegistryNode(self):
-        sObjectID = uiCommon.getAjaxArg("sObjectID")
-        sXPath = uiCommon.getAjaxArg("sXPath")
-
-        # fail on missing values
-        if not sXPath:
-            return "{\"error\" : \"Missing path to remove.\"}"
-
-        r = registry.Registry(sObjectID)
-        if not r:
-            return "Unable to get Registry for object id [%s]" % sObjectID
-
-        result, msg = r.DeleteNode(sXPath)
-        if not result:
-            return "{\"error\" : \"%s\"}" % msg
-            
-        
-        return json.dumps({"result" : "success"})
-   
     """
     Some Enterprise features require additional script files.  A CE install would show 
     404 errors if we include them on the client files, so we'll get and eval them this way.

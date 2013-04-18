@@ -134,11 +134,6 @@
 				"onclick": "openWindow('http://community.cloudsidekick.com/report-an-issue?utm_source=cato_app&utm_medium=menu&utm_campaign=app', 'ask', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');"
 			}, {
 				"roles": "all",
-				"label": "Ask a Question",
-				"icon": "static/images/icons/ask_24.png",
-				"onclick": "openWindow('http://community.cloudsidekick.com/ask-a-question?utm_source=cato_app&utm_medium=menu&utm_campaign=app', 'ask', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');"
-			}, {
-				"roles": "all",
 				"label": "Register Cato",
 				"icon": "static/images/icons/register_24.png",
 				"onclick": "registerCato();"

@@ -30,7 +30,7 @@ except AttributeError as ex:
     del(ET)
     import catoxml.etree.ElementTree as ET
 
-from catoui import uiCommon
+from catoui import uiCommon, uiGlobals
 from catolog import catolog
 from catocommon import catocommon
 from catotask import task, stepTemplates as ST
@@ -2505,14 +2505,31 @@ class taskMethods:
             sHTML += "<div target=\"var_picker_group_globals\" class=\"ui-widget-content ui-corner-all value_picker_group\"><img alt=\"\" src=\"static/images/icons/expand.png\" style=\"width:12px;height:12px;\" /> Globals</div>"
             sHTML += "<div id=\"var_picker_group_globals\" class=\"hidden\">"
 
-            lItems = ["_ASSET", "_SUBMITTED_BY", "_SUBMITTED_BY_EMAIL",
-                      "_TASK_INSTANCE", "_TASK_NAME", "_TASK_VERSION",
-                      "_DATE", "_HTTP_RESPONSE", "_UUID", "_UUID2",
-                      "_CLOUD_NAME", "_CLOUD_LOGIN_ID", "_CLOUD_LOGIN_PASS",
-                      "_HOST_ID", "_HOST", "_INSTANCE_ID",
-                      "_SERVICE_ID", "_SERVICE_NAME", "_SERVICE_DOCID",
-                      "_DEPLOYMENT_ID", "_DEPLOYMENT_NAME", "_DEPLOYMENT_DOCID"]
-            for gvar in lItems:
+            # for ease of enhancement, the globals list os read from files.
+            # if there are extensions - the extension directories are also checked.
+            taskglobals = []
+            with open(os.path.join(uiGlobals.lib_path, "catoadminui/task_globals.json"), 'r') as f:
+                try:
+                    taskglobals = json.load(f)
+                except:
+                    raise Exception("Unable to parse task_globals.json - invalid format.")
+            
+            # so, we have the cato menu.  Are there any extensions with menu additions?
+            # extension paths are defined in config.
+            if catoconfig.CONFIG.has_key("extension_path"):
+                expath = catoconfig.CONFIG["extension_path"].split(";")
+                for p in expath:
+                    uiCommon.log("Looking for extension task globals in [%s]..." % p, 4)
+                    for root, subdirs, files in os.walk(p):
+                        for f in files:
+                            if f == "task_globals.json":
+                                uiCommon.log("... found one! Loading...", 4)
+        
+                                with open(os.path.join(p, f), 'r') as f:
+                                    extglobs = json.load(f)
+                                    taskglobals += extglobs
+            
+            for gvar in taskglobals:
                 sHTML += "<div class=\"ui-widget-content ui-corner-all value_picker_value\">%s</div>" % gvar
 
             sHTML += "</div>"
