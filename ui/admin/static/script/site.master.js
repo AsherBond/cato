@@ -75,32 +75,33 @@ function updateHeartbeat() {
     $.ajax({
         type: "GET",
         url: "uiMethods/wmUpdateHeartbeat",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
+        dataType: "text",
         success: function (msg) {
             if (msg) {
-                showAlert(msg);
+                showAlert("HEARTBEAT EXCEPTION\n" + msg);
             }
         },
         error: function (response) {
-        	// if the heartbeat failed, it's likely the server is just gone.
-        	// so, close down the gui and show a pretty message, with a link to the login page.
+            showAlert("HEARTBEAT EXCEPTION\n" + response.responseText);
 
-        	// this is a wicked trick for erasing thie browser history to prevent the user
-        	// from going back and seeing broken pages.
-        	var backlen=history.length;
-        	history.go(-backlen);
-        	
-			msg = '<div class="ui-widget-content ui-corner-all" style="margin-left: auto; margin-right: auto; padding: 20px; width: 500px;">' + 
-				'<div class="ui-state-highlight ui-corner-all" style="padding: 10px;">' + 
-				'<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span><strong>Uh oh...</strong>' + 
-				'<br><br>' +
-				'<p style="margin-left: 10px;">It appears the server is no longer available.</p><br>' + 
-				'<p style="margin-left: 10px;">Please contact an Administrator.</p><br>' + 
-				'<p style="margin-left: 10px;"><a href="/static/login.html">Click here</a> to return to the login page.</p>' + 
-				'</div>' + 
-				'</div>'
-        	$("body").html(msg);
+        	// // if the heartbeat failed, it's likely the server is just gone.
+        	// // so, close down the gui and show a pretty message, with a link to the login page.
+// 
+        	// // this is a wicked trick for erasing thie browser history to prevent the user
+        	// // from going back and seeing broken pages.
+        	// var backlen=history.length;
+        	// history.go(-backlen);
+//         	
+			// msg = '<div class="ui-widget-content ui-corner-all" style="margin-left: auto; margin-right: auto; padding: 20px; width: 500px;">' + 
+				// '<div class="ui-state-highlight ui-corner-all" style="padding: 10px;">' + 
+				// '<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span><strong>Uh oh...</strong>' + 
+				// '<br><br>' +
+				// '<p style="margin-left: 10px;">It appears the server is no longer available.</p><br>' + 
+				// '<p style="margin-left: 10px;">Please contact an Administrator.</p><br>' + 
+				// '<p style="margin-left: 10px;"><a href="/static/login.html">Click here</a> to return to the login page.</p>' + 
+				// '</div>' + 
+				// '</div>'
+        	// $("body").html(msg);
         }
     });
 }
