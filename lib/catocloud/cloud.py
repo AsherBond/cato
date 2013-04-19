@@ -214,7 +214,7 @@ class Cloud(object):
             self.DefaultAccount = self.DefaultAccount.Name
         else:
             self.DefaultAccount = ""
-        return catocommon.ObjectOutput.AsText(self.__dict__, ["Provider", "Name", "DefaultAccount"], delimiter)
+        return catocommon.ObjectOutput.AsText(self.__dict__, ["Provider", "Name", "APIProtocol", "APIUrl", "DefaultAccount"], delimiter)
 
     def AsXML(self):
         self.Provider = self.Provider.Name
@@ -240,7 +240,7 @@ class Cloud(object):
             values ('%s', '%s', '%s', '%s', '%s', %s, %s)""" % (sNewID, sCloudName, sProvider, sAPIUrl, sAPIProtocol, sRegion, sDefaultAccountID)
         if not db.exec_db_noexcep(sSQL):
             if db.error == "key_violation":
-                raise Exception("A Cloud with that name already exists.  Please select another name.")
+                raise InfoException("A Cloud with that name already exists.  Please select another name.")
             else:
                 raise Exception(db.error)
         
