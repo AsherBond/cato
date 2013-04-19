@@ -1061,3 +1061,62 @@ class depMethods:
         else:
             return R(response="{}")
             
+
+    def list_deployment_templates(self, args):        
+        """
+        Lists all Deployment Templates.
+        
+        Optional Arguments: 
+            filter - will filter a value match on Template Name, Version or Description.
+        
+        Returns: An array of all Deployment Templates.
+        """
+        fltr = args.get("filter", "")
+        
+        obj = deployment.DeploymentTemplates(sFilter=fltr)
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML())
+        
+    def copy_deployment_template(self, args):        
+        """
+        Copies a Deployment Template.
+        
+        Required Arguments: 
+            template - the name of a Deployment Template.
+            version - the Template version.
+            newname - a name for the new Template.
+            newversion - a version for the new Template
+            
+        Returns: A Deployment Template object.
+        """
+
+        # define the required parameters for this call
+        required_params = ["template", "version", "newname", "newversion"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        newname = args["newname"]
+        newversion = args["newversion"]
+        template = args["template"]
+        version = args["version"]
+        
+        t = deployment.DeploymentTemplate()
+        t.FromNameVersion(template, version)
+        obj = t.DBCopy(newname, newversion)
+
+        if obj:
+            catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.DeploymentTemplate, obj.ID, obj.Name, "Deployment Template copied.")
+            if args["output_format"] == "json":
+                return R(response=obj.AsJSON())
+            elif args["output_format"] == "text":
+                return R(response=obj.AsText(args["output_delimiter"]))
+            else:
+                return R(response=obj.AsXML())
+        else:
+            return R(err_code=R.Codes.CreateError, err_detail="Unable to copy Template.")
+
