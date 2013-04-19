@@ -180,11 +180,11 @@ $(document).ready(function() {
 	// this button will create any missing 'static' clouds
 	$("#static_clouds_btn").button({
 		icons : {
-			primary : "ui-icon-plus"
+			primary : "ui-icon-arrowthick-1-n"
 		}
 	});
 	$("#static_clouds_btn").click(function() {
-		if (confirm("This will initialize all the predefined Cloud Endpoints in Cato.\n\n(This will not harm any existing Clouds.)\n\nAre you sure?")) {
+		if (confirm("This will import all predefined Clouds in Cato. (AWS endpoints, for example.)\n\n(This will not harm any existing Clouds.)\n\nAre you sure?")) {
 			ajaxGet("cloudMethods/wmCreateStaticClouds", function(response) {
 				$("#txtSearch").val("");
 				GetItems();
@@ -192,12 +192,9 @@ $(document).ready(function() {
 			});
 		}
 	});
-	var tip = "Will create Cloud Endpoints for all pre-defined Clouds.  (For example, AWS Endpoints.)";
-	$("#static_clouds_info").attr("title", tip);
-	$("#static_clouds_info").click(function() {
-		showInfo(tip, "", true);
-	});
-	$("#static_clouds_info").tipTip();
+	var tip = "Will create Cato pre-defined Clouds.  (For example, AWS Endpoints.)";
+	$("#static_clouds_btn").attr("title", tip);
+	$("#static_clouds_btn").tipTip();
 
 	GetItems();
 	ManagePageLoad();
