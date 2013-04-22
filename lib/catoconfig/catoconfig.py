@@ -80,10 +80,12 @@ def read_config():
     cfg["rest_api_url"] = "http://localhost"
     cfg["rest_api_port"] = "4001"
     cfg["rest_api_debug"] = "20"
+    cfg["rest_api_use_ssl"] = "false"
     
     cfg["dash_api_url"] = "http://localhost"
     cfg["dash_api_port"] = "4002"
     cfg["dash_api_debug"] = "20"
+    cfg["dash_api_use_ssl"] = "false"
 
     
     filename = os.path.join(BASEPATH, "conf/cato.conf")        
@@ -130,6 +132,13 @@ def read_config():
     un_mongo_pass = catocryptpy.decrypt_string(enc_mongo_pass, un_key) if enc_mongo_pass else ""
     cfg["mongodb.password"] = un_mongo_pass
     
+
+    # these aren't direct settings, rather derived from other settings
+    cfg["admin_ui_protocol"] = "https" if cfg["admin_ui_use_ssl"] == "true" else "http"
+    cfg["user_ui_protocol"] = "https" if cfg["user_ui_use_ssl"] == "true" else "http"
+    cfg["rest_api_protocol"] = "https" if cfg["rest_api_use_ssl"] == "true" else "http"
+    cfg["dash_api_protocol"] = "https" if cfg["dash_api_use_ssl"] == "true" else "http"
+    
     # something else here... 
     # the root cato directory should have a VERSION file.
     # read it's value into a config setting
@@ -152,6 +161,12 @@ def safe_config():
     cfg["user_ui_port"] = CONFIG["user_ui_port"]
     cfg["admin_ui_port"] = CONFIG["admin_ui_port"]
     cfg["user_ui_enable_refresh"] = CONFIG["user_ui_enable_refresh"]
+
+    cfg["admin_ui_protocol"] = "https" if CONFIG["admin_ui_use_ssl"] == "true" else "http"
+    cfg["user_ui_protocol"] = "https" if CONFIG["user_ui_use_ssl"] == "true" else "http"
+    cfg["rest_api_protocol"] = "https" if CONFIG["rest_api_use_ssl"] == "true" else "http"
+    cfg["dash_api_protocol"] = "https" if CONFIG["dash_api_use_ssl"] == "true" else "http"
+
     return cfg
 
 BASEPATH = _get_base_path()
