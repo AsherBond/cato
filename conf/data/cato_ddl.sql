@@ -144,6 +144,7 @@ CREATE TABLE `dep_action_inst` (
   `action_id` varchar(36) NOT NULL,
   `task_instance` bigint(20) NOT NULL,
   `status` varchar(32) NOT NULL,
+  `instance_id` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`action_id`,`task_instance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_seq_inst` (
