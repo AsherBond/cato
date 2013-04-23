@@ -12,9 +12,17 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 //
-g_newpw = "";
+var g_newpw = "";
+var g_app = "Cato";
 
 $(document).ready(function() {
+	$.get("/version", function(response) {
+		if (response) {
+			$("#app_version").text("Version " + response);
+			g_app = g_app + " v" + response;
+		}
+	});
+
 	$('#txtLoginUser').focus();
 
 	//if there's a 'msg' querystring, show it on a nice label
