@@ -537,7 +537,7 @@ def AddTaskInstance(sUserID, sTaskID, sScopeID, sAccountID, sAssetID, sParameter
     sParameterXML = PrepareAndEncryptParameterXML(sParameterXML);                
 
     if catocommon.is_guid(sTaskID) and catocommon.is_guid(sUserID):
-        ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, sScopeID, sAccountID, "", "")
+        ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, sScopeID, sAccountID)
         log("Starting Task [%s] ... Instance is [%s]" % (sTaskID, ti), 3)
         return ti
     else:

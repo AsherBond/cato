@@ -554,6 +554,7 @@ CREATE TABLE `task_instance` (
   `account_id` varchar(36) DEFAULT NULL,
   `cloud_id` varchar(36) DEFAULT NULL,
   `options` text,
+  `schedule_id` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`task_instance`),
   KEY `IX_task_instance_asset_id` (`asset_id`),
   KEY `IX_task_instance_cenode` (`ce_node`),

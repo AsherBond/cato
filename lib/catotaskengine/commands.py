@@ -562,7 +562,7 @@ def run_task_cmd(self, task, step):
     
     ti = catocommon.add_task_instance(task_id=task_id, user_id=self.submitted_by, debug_level=self.debug_level,
         parameter_xml=merged_params, scope_id=self.instance_id, account_id=self.cloud_account,
-        schedule_instance=self.schedule_instance, submitted_by_instance=self.task_instance,
+        plan_id=self.plan_id, schedule_id=self.schedule_id, submitted_by_instance=self.task_instance,
         cloud_id=self.cloud_id) 
 
     h = classes.TaskHandle()

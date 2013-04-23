@@ -1195,7 +1195,7 @@ class TaskEngine():
 
         sql = """select B.task_name, A.asset_id, 
                 C.asset_name, A.submitted_by, 
-                B.task_id, B.version, A.debug_level, A.schedule_instance,
+                B.task_id, B.version, A.debug_level, A.schedule_instance, A.schedule_id,
                 A.ecosystem_id, A.account_id, A.cloud_id
             from task_instance A 
             join task B on A.task_id = B.task_id
@@ -1206,7 +1206,7 @@ class TaskEngine():
 
         if row:
             self.task_name, self.system_id, self.system_name, self.submitted_by, self.task_id, \
-                self.task_version, self.debug_level, self.schedule_instance, self.instance_id, \
+                self.task_version, self.debug_level, self.plan_id, self.schedule_id, self.instance_id, \
                 self.cloud_account, self.cloud_id = row[:]
 
         if self.submitted_by:
