@@ -293,6 +293,8 @@
 		</product>
 		</products>
 		</provider>
+		<provider name="vCloud" test_product="" test_object="" user_defined_clouds="true">
+		</provider>
 		<!--<provider name="OpenStack" test_product="compute" test_object="" user_defined_clouds="true">
 		<products>
 		<product name="compute" label="Compute" api_version="v1.1" api_url_prefix="az-1." api_uri="/">

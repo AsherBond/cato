@@ -1148,6 +1148,7 @@ class TaskEngine():
         self.logger.info("[%s] Not a built-in command, checking extensions..." % name)
         root = ET.fromstring(step.command)
         extension = root.attrib.get("extension")
+        del(root)
         if not extension:
             msg = "Unable to get 'extension' property from extension command xml for extension %s" % (name)
             self.logger.error(msg)

@@ -175,6 +175,7 @@ class Cloud:
         self.provider = None
         self.default_account = None
         self.path = "/"
+        self.conn = None
     
         db = catocommon.new_conn()
         sql = """select cloud_id, provider, api_url, api_protocol, default_account_id, region
