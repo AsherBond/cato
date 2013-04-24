@@ -15,10 +15,10 @@ class CatoError(StandardError):
         self.reason = reason
 
     def __repr__(self):
-        return 'CatoError: %s' % self.reason
+        return self.reason
 
     def __str__(self):
-        return 'CatoError: %s' % self.reason
+        return self.reason
     
 class MissingArgumentError(CatoError):
     """Missing argument error"""
@@ -62,6 +62,10 @@ class ReportError(CatoError):
 
 class InternalError(CatoError):
     """Internal cato error used instead of assert"""
+    pass
+
+class SessionError(CatoError):
+    """Error thrown if the UI session fails."""
     pass
 
 

@@ -21,8 +21,8 @@ window.setInterval(updateHeartbeat, 120000);
 // THIS IS AWESOME
 // get some important python configuration settings that have relevance on the client
 g_config = catoAjax.getConfig();
-g_config.user_ui_url = window.location.hostname + ':' + g_config.user_ui_port;
-g_config.admin_ui_url = window.location.hostname + ':' + g_config.admin_ui_port;
+g_config.user_ui_url = g_config.user_ui_protocol + '://' + window.location.hostname + ':' + g_config.user_ui_port;
+g_config.admin_ui_url = g_config.admin_ui_protocol + '://' + window.location.hostname + ':' + g_config.admin_ui_port;
 
 
 $(document).ready(function () {
@@ -70,39 +70,50 @@ $(function () {
 });
 // End Menu
 
-//and the jquery ajax it performs
-function updateHeartbeat() {
-    $.ajax({
-        type: "GET",
-        url: "uiMethods/wmUpdateHeartbeat",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (msg) {
-            if (msg) {
-                showAlert(msg);
-            }
-        },
-        error: function (response) {
-        	// if the heartbeat failed, it's likely the server is just gone.
-        	// so, close down the gui and show a pretty message, with a link to the login page.
+function updateHeartbeat() {"use strict";
+	ajaxGet("uiMethods/wmUpdateHeartbeat");
+}
 
-        	// this is a wicked trick for erasing thie browser history to prevent the user
-        	// from going back and seeing broken pages.
-        	var backlen=history.length;
-        	history.go(-backlen);
-        	
-			msg = '<div class="ui-widget-content ui-corner-all" style="margin-left: auto; margin-right: auto; padding: 20px; width: 500px;">' + 
-				'<div class="ui-state-highlight ui-corner-all" style="padding: 10px;">' + 
-				'<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span><strong>Uh oh...</strong>' + 
-				'<br><br>' +
-				'<p style="margin-left: 10px;">It appears the server is no longer available.</p><br>' + 
-				'<p style="margin-left: 10px;">Please contact an Administrator.</p><br>' + 
-				'<p style="margin-left: 10px;"><a href="/static/login.html">Click here</a> to return to the login page.</p>' + 
-				'</div>' + 
-				'</div>'
-        	$("body").html(msg);
-        }
-    });
+function lockDown(msg) {
+	// if the heartbeat failed or a method returned a session error...
+	// or, possibly the server is just gone...
+	// close down the gui and show a pretty message, with a link to the login page.
+
+	// NOTE: you cannot do a location.href here to any page, because if the server is down
+	// it'll result in an ugly message.  By doing it with script here we don't need the server.
+
+	msg = (msg) ? msg : 'It appears the server is no longer available.';
+
+	//this will clear the page
+	$("body").empty();
+
+	// this is a wicked trick for erasing thie browser history to prevent the user
+	// from going back and seeing broken pages.
+	var backlen = history.length;
+	history.go(-backlen);
+
+	var $msg = $('<div class="ui-widget-content ui-corner-all" style="margin-left: auto; margin-right: auto; padding: 20px; width: 500px;" />');
+	var $inner = $('<div class="ui-state-highlight ui-corner-all" style="padding: 10px;">');
+	$inner.append('<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span><strong>Uh oh...</strong>');
+	$inner.append('<br><br>');
+	$inner.append('<p style="margin-left: 10px;">' + msg + '</p><br>');
+	$inner.append('<p style="margin-left: 10px;">Please contact an Administrator if this condition persists.</p><br>');
+	$inner.append('<p style="margin-left: 10px;"><a href="/static/login.html">Click here</a> to return to the login page.</p>');
+	$msg.append($inner);
+	$("body").append($msg);
+
+	// this nice little bit gets the index of a new setTimeout, then clears every outstanding timeout.
+	// very useful for when dynamic content like user-defined reports are setting timeouts
+	var x = setTimeout(function(){}, 0);
+	for (var i = 0; i < x; i++) {
+		clearTimeout(i);
+	}
+
+	//same magic to clear intervals
+	var x = setInterval(function(){}, 0);
+	for (var i = 0; i < x; i++) {
+		clearInterval(i);
+	}
 }
 
 function getCloudAccounts() {

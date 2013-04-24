@@ -144,6 +144,7 @@ CREATE TABLE `dep_action_inst` (
   `action_id` varchar(36) NOT NULL,
   `task_instance` bigint(20) NOT NULL,
   `status` varchar(32) NOT NULL,
+  `instance_id` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`action_id`,`task_instance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_seq_inst` (
@@ -553,6 +554,7 @@ CREATE TABLE `task_instance` (
   `account_id` varchar(36) DEFAULT NULL,
   `cloud_id` varchar(36) DEFAULT NULL,
   `options` text,
+  `schedule_id` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`task_instance`),
   KEY `IX_task_instance_asset_id` (`asset_id`),
   KEY `IX_task_instance_cenode` (`ce_node`),

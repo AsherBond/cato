@@ -272,7 +272,7 @@ class taskMethods:
 
 
         # try to launch it
-        ti = catocommon.add_task_instance(task_id, args["_user_id"], debug, pxml, service_instance_id, account_id, "", "")
+        ti = catocommon.add_task_instance(task_id, args["_user_id"], debug, pxml, service_instance_id, account_id)
         
         if ti:
             if args["output_format"] == "text":

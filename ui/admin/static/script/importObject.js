@@ -65,9 +65,38 @@ $(document).ready(function() {
 				showInfo("Results", infomsg, true);
 
 				// temporary comment $("#xml_to_import").val("");
-
 			}
+		}
+	});
 
+	$("#analyze_btn").button({
+		icons : {
+			primary : "ui-icon-search"
+		}
+	});
+	$("#analyze_btn").click(function() {
+		var xml = packJSON($("#xml_to_import").val());
+		if (xml) {
+			var response = ajaxPost("uiMethods/wmAnalyzeImportXML", {
+				sXML : xml
+			});
+			if (response) {
+				var infomsg = "";
+				$.each(response.items, function(index, item) {
+					if (item.info) {
+						infomsg += "<p>" + item.type + " : " + item.name + "<br /><span class='ui-state-highlight' style='font-size: 0.8em; padding-left: 10px;'>" + item.info + "</span><br />";
+					}
+					var url = "taskEdit?task_id=" + item.id;
+					infomsg += "<span style='font-size: 0.8em; padding-left: 10px;'>Click <a href='" + url + "'>here</a> to edit " + item.name + ".</span><br />";
+					infomsg += "</p>";
+				});
+
+				infomsg += "<br /><br />Click <a href='taskManage'>here</a> to manage Tasks.<br />";
+
+				showInfo("Results", infomsg, true);
+
+				// temporary comment $("#xml_to_import").val("");
+			}
 		}
 	});
 });

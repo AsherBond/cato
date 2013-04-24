@@ -34,8 +34,7 @@ class Poller(catoprocess.CatoService):
     def start_submitted_tasks(self, get_num):
 
         task_list = []
-        sql = """select ti.task_instance, ti.asset_id, 
-            ti.schedule_instance 
+        sql = """select ti.task_instance, ti.asset_id, ti.schedule_instance 
             from task_instance ti
             join task t on t.task_id = ti.task_id
             where ti.task_status = 'Submitted'
@@ -46,11 +45,8 @@ class Poller(catoprocess.CatoService):
             for row in rows:
                 task_instance = row[0]
                 self.logger.info("Considering Task Instance: %d" % (task_instance))
-                asset_id = row[1]
-                schedule_instance = row[2]
 
                 if task_instance > 0:
-                    error_flag = 0
                     self.logger.info("Starting process ...")
 
                     cmd_line = "nohup %s/services/bin/cato_task_engine %d >> %s/ce/%d.log 2>&1 &" % (self.home, task_instance, catolog.LOGPATH, task_instance)

@@ -49,6 +49,21 @@ $(document).ready(function() {
 		}]
 	});
 
+	$("#copy_dialog").dialog({
+		autoOpen : false,
+		modal : true,
+		width : 500,
+		buttons : {
+			"Copy" : function() {
+				showPleaseWait();
+				CopyTemplate();
+			},
+			Cancel : function() {
+				$(this).dialog("close");
+			}
+		}
+	});
+
 	//this onchange event will test the json text entry
 	//and display a little warning if it couldn't be parsed.
 	$("#txtTemplateFile").change(function() {
@@ -246,5 +261,63 @@ function validateTemplateJSON() {
 		}
 
 		$(".validation").show();
+	}
+}
+
+function ShowItemCopy() {
+	// clear all of the previous values
+	var ArrayString = $("#hidSelectedArray").val();
+	if (ArrayString.length == 0) {
+		showInfo('Select a Template to Copy.');
+		return false;
+	}
+
+	// before loading the task copy dialog, we need to get the task_code for the
+	// first task selected, to be able to show something useful in the copy message.
+	var myArray = ArrayString.split(',');
+
+	var copy_id = myArray[0];
+
+	//alert(myArray[0]);
+	var src_name = $("[template_id=" + copy_id +"] td")[1].innerHTML;
+	var src_ver = $("[template_id=" + copy_id +"] td")[2].innerHTML;
+	$("#lblTemplateCopy").html('<b>Copying ' + src_name + ' Version ' + src_ver + '</b><br />&nbsp;<br />');
+	$("[tag='chk']").attr("checked", false);
+	$("#hidSelectedArray").val('');
+	$("#hidCopyTemplateID").val(copy_id);
+	$("#lblItemsSelected").html("0");
+	$("#txtCopyTemplateName").val('');
+	$("#txtCopyTemplateVersion").val('');
+
+	$("#copy_dialog").dialog("open");
+}
+
+function CopyTemplate() {
+	var sNewName = $("#txtCopyTemplateName").val();
+	var sNewVersion = $("#txtCopyTemplateVersion").val();
+	var sSourceID = $("#hidCopyTemplateID").val();
+
+	// make sure we have all of the valid fields
+	if (sNewName == '' || sNewVersion == '') {
+		showInfo('Name and Version are required.');
+		return false;
+	}
+	// this shouldnt happen, but just in case.
+	if (sSourceID == '') {
+		showInfo('Can not copy, no ID found.');
+		return false;
+	}
+
+	var response = ajaxPost("depMethods/wmCopyTemplate", {
+		template : sSourceID,
+		name : sNewName,
+		version : sNewVersion
+	});
+	if (response) {
+		$("#copy_dialog").dialog("close");
+		$("#txtSearch").val("");
+		GetItems();
+		hidePleaseWait();
+		showInfo('Copy Successful.');
 	}
 }

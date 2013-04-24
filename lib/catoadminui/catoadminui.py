@@ -14,6 +14,7 @@
 
 
 from catoconfig import catoconfig
+
 from catolog import catolog
 import web
 import os
@@ -43,7 +44,7 @@ except AttributeError as ex:
 
 from catocommon import catocommon, catoprocess
 from catolicense import catolicense
-from catoerrors import InfoException
+from catoerrors import InfoException, SessionError
 from catoui import uiGlobals
 from taskMethods import taskMethods
 
@@ -277,20 +278,28 @@ class temp:
 class login:
     def GET(self):
         # visiting the login page kills the session
-        uiGlobals.session.kill()
-        raise web.seeother('/static/login.html')
+        uiCommon.ForceLogout("")
 
 class logout:        
     def GET(self):
         uiCommon.ForceLogout("")
         
-
-#Authentication preprocessor
+# Authentication preprocessor
 def auth_app_processor(handle):
-    path = web.ctx.path
+    """
+    This function handles every single request to the server.
     
+    Certain paths are allowed no matter what, the rest require a session.
+    
+    Errors are processed according to the type of exception thrown.
+    
+    For the UI's, client side code handles the different HTTP responses accordingly.
+    """
+    path = web.ctx.path
+
     # requests that are allowed, no matter what
     if path in [
+        "/favicon.ico",
         "/uiMethods/wmAttemptLogin",
         "/uiMethods/wmGetQuestion",
         "/version",
@@ -299,33 +308,54 @@ def auth_app_processor(handle):
         "/notfound",
         "/announcement",
         "/getlicense",
-        "/uiMethods/wmLicenseAgree",
-        "/uiMethods/wmUpdateHeartbeat"
+        "/uiMethods/wmLicenseAgree"
         ]:
         return handle()
 
-    # any other request requires an active session ... kick it out if there's not one.
-    if not uiGlobals.session.get('user', False):
-        logger.info("Session Expired")
-        raise web.seeother('/static/login.html')
-    
-    # check the role/method mappings to see if the requested page is allowed
-    # HERE's the rub! ... some of our requests are for "pages" and others (most) are ajax calls.
-    # for the pages, we can redirect to the "notAllowed" page, 
-    # but for the ajax calls we can't - we need to return an acceptable ajax response.
-    
-    # the only way to tell if the request is for a page or an ajax
-    # is to look at the name.
-    # all of our ajax aware methods are called "wmXXX"
-    
-    if uiCommon.check_roles(path):
-        return handle()
-    else:
-        logger.debug(path)
-        if "Methods/wm" in path:
-            return ""
+    try:
+        # any other request requires an active session ... kick it out if there's not one.
+        # best (most consistent) way to check? Get the user...
+        uiCommon.GetSessionUserID()
+
+        # check the role/method mappings to see if the requested page is allowed
+        # HERE's the rub! ... some of our requests are for "pages" and others (most) are ajax calls.
+        # for the pages, we can redirect to the "notAllowed" page, 
+        # but for the ajax calls we can't - we need to return an acceptable ajax response.
+        
+        if uiCommon.check_roles(path):
+            return handle()
         else:
-            return "Some content on this page isn't available to your user."
+            logger.debug(path)
+            if web.ctx.env.get('HTTP_X_REQUESTED_WITH') == "XMLHttpRequest":
+                return ""
+            else:
+                return "Some content on this page isn't available to your user."
+            
+    except (web.HTTPError, KeyboardInterrupt, SystemExit):
+        raise
+    except InfoException as ex:
+        # we're using a custom HTTP status code to indicate 'information' back to the user.
+        web.ctx.status = "280 Informational Response"
+        logger.info(ex.__str__())
+        return ex.__str__()
+    except SessionError as ex:
+        logger.exception(ex.__str__())
+        # now, all our ajax calls are from jQuery, which sets a header - X-Requested-With
+        # so if we have that header, it's ajax, otherwise we can redirect to the login page.
+        
+        # a session error means we kill the session
+        session.kill()
+        
+        if web.ctx.env.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest":
+            web.ctx.status = "480 Session Error"
+            return ex.__str__()
+        else:
+            logger.debug("Standard Request - redirecting to the login page...")
+            raise web.seeother('/static/login.html')
+    except Exception as ex:
+        web.ctx.status = "400 Bad Request"
+        logger.exception(ex.__str__())
+        return ex.__str__()
 
 def CacheTaskCommands():
     #creates the html cache file
@@ -493,23 +523,7 @@ def CacheMenu():
             logger.error("Unable to create %s/_umenu.html." % path)
         f_out.write(sUserMenu)
 
-class ExceptionHandlingApplication(web.application):
-    def handle(self):
-        try:
-            return web.application.handle(self)
-        except (web.HTTPError, KeyboardInterrupt, SystemExit):
-            raise
-        except InfoException as ex:
-            # we're using a custom HTTP status code to indicate 'information' back to the user.
-            web.ctx.status = "280 Informational Response"
-            logger.exception(ex.__str__())
-            return ex.__str__()
-        except Exception as ex:
-            # web.ctx.env.get('HTTP_X_REQUESTED_WITH')
-            web.ctx.status = "400 Bad Request"
-            logger.exception(ex.__str__())
-            return ex.__str__()
-        
+
 """
     Main Startup
 """
@@ -615,7 +629,7 @@ if __name__ != app_name:
     render_popup = web.template.render('templates', base='popup')
     render_plain = web.template.render('templates')
     
-    app = ExceptionHandlingApplication(urls, globals(), autoreload=True)
+    app = web.application(urls, globals(), autoreload=True)
     web.config.session_parameters["cookie_name"] = app_name
     # cookies won't work in https without this!
     web.config.session_parameters.httponly = False
@@ -630,7 +644,13 @@ if __name__ != app_name:
         logger.critical("UI file cache directory defined in cato.conf does not exist. [%s]" % uicachepath)
         exit()
         
-    session = web.session.Session(app, web.session.ShelfStore(shelve.open('%s/adminsession.shelf' % uicachepath)))
+    # Hack to make session play nice with the reloader (in debug mode)
+    if web.config.get('_session') is None:
+        session = web.session.Session(app, web.session.ShelfStore(shelve.open('%s/adminsession.shelf' % uicachepath)))
+        web.config._session = session
+    else:
+        session = web.config._session
+        
     app.add_processor(auth_app_processor)
     app.notfound = notfound
     

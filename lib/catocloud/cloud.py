@@ -103,6 +103,10 @@ class Cloud(object):
                 ca = CloudAccount()
                 ca.FromID(row["default_account_id"])
                 if ca.ID:
+                    # when a default account is added to a cloud
+                    # we DO NOT include the default cloud of the account
+                    # or we'll have recursion
+                    del ca.DefaultCloud
                     self.DefaultAccount = ca
                     return ca
 
@@ -141,6 +145,11 @@ class Cloud(object):
                     self.Region = c.Region
                     self.Provider = c.Provider
                     
+                    # when a provider is included on a cloud, it does NOT include 
+                    # products or a complete list of clouds.
+                    del self.Provider.Clouds
+                    del self.Provider.Products
+                    
                     return
         
         # well, if we got here we have a problem... the ID provided wasn't found anywhere.
@@ -168,6 +177,11 @@ class Cloud(object):
                     self.Region = c.Region
                     self.Provider = c.Provider
                     
+                    # when a provider is included on a cloud, it does NOT include 
+                    # products or a complete list of clouds.
+                    del self.Provider.Clouds
+                    del self.Provider.Products
+                    
                     return
         
         # well, if we got here we have a problem... the name provided wasn't found anywhere.
@@ -192,6 +206,26 @@ class Cloud(object):
         
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
+    def AsText(self, delimiter=None):
+        self.Provider = self.Provider.Name
+        self.GetDefaultAccount()
+        if self.DefaultAccount:
+            del self.DefaultAccount.Provider
+            self.DefaultAccount = self.DefaultAccount.Name
+        else:
+            self.DefaultAccount = ""
+        return catocommon.ObjectOutput.AsText(self.__dict__, ["Provider", "Name", "APIProtocol", "APIUrl", "DefaultAccount"], delimiter)
+
+    def AsXML(self):
+        self.Provider = self.Provider.Name
+        self.GetDefaultAccount()
+        if self.DefaultAccount:
+            del self.DefaultAccount.Provider
+            self.DefaultAccount = self.DefaultAccount.Name
+        else:
+            self.DefaultAccount = ""
+        return catocommon.ObjectOutput.AsXML(self.__dict__, "Cloud")
+
     # STATIC METHOD
     # creates this Cloud as a new record in the db
     # and returns the object
@@ -206,7 +240,7 @@ class Cloud(object):
             values ('%s', '%s', '%s', '%s', '%s', %s, %s)""" % (sNewID, sCloudName, sProvider, sAPIUrl, sAPIProtocol, sRegion, sDefaultAccountID)
         if not db.exec_db_noexcep(sSQL):
             if db.error == "key_violation":
-                raise Exception("A Cloud with that name already exists.  Please select another name.")
+                raise InfoException("A Cloud with that name already exists.  Please select another name.")
             else:
                 raise Exception(db.error)
         

@@ -180,8 +180,8 @@ class Scheduler(catoprocess.CatoService):
             account_id = instance_row[8]
             cloud_id = instance_row[9]
     
-            ti = catocommon.add_task_instance(task_id, "", debug_level, parameter_xml, scope_id, account_id, schedule_id, plan_id, cloud_id)
-
+            ti = catocommon.add_task_instance(task_id, "", debug_level, parameter_xml, scope_id, account_id, plan_id, schedule_id, cloud_id=cloud_id)
+            print ti
             self.logger.info("Started task instance %s for schedule id %s and plan id %s" % (ti, schedule_id, plan_id))
             sql = """insert into action_plan_history (plan_id, task_id, run_on_dt, action_id, 
                     ecosystem_id, parameter_xml, debug_level, source, schedule_id, task_instance, account_id, cloud_id)
