@@ -1224,6 +1224,47 @@ class uiMethods:
             
         return "{\"items\" : %s}" % json.dumps(items)
             
+    def wmAnalyzeImportXML(self):
+        """Takes a properly formatted XML backup file, and replies with the existence/condition of each Task."""
+        sXML = uiCommon.getAjaxArg("sXML")
+        sXML = uiCommon.unpackJSON(sXML)
+
+        # the trick here is to return enough information back to the client
+        # to best interact with the user.
+        
+        # what types of things were in this backup?  what are their new ids?
+        items = []
+
+        # parse it as a validation, and to find out what's in it.
+        xd = None
+        try:
+            xd = ET.fromstring(sXML)
+        except ET.ParseError as ex:
+            return "{\"error\" : \"Data is not properly formatted XML.\"}"
+        
+        if xd is not None:
+            # so, what's in here?  Tasks?
+            
+            # TASKS
+            for xtask in xd.iterfind("task"):
+                t = task.Task()
+                t.FromXML(ET.tostring(xtask))
+
+                if t.DBExists and t.OnConflict == "cancel":
+                    msg ="Task exists - set 'replace', 'minor' or 'major' flag."
+                elif t.OnConflict == "replace":
+                    msg = "Will be replaced."
+                elif t.OnConflict == "minor" or t.OnConflict == "major":
+                    msg = "Will be versioned up."
+                else:
+                    msg = "Will be created."
+                
+                items.append({"type" : "task", "id" : t.ID, "name" : t.Name, "info" : msg})  
+        else:
+            items.append({"info" : "Unable to create Task from backup XML."})
+            
+        return "{\"items\" : %s}" % json.dumps(items)
+            
     def wmHTTPGet(self):
         """Simply proxies an HTTP GET to another domain, and returns the results."""
         url = uiCommon.getAjaxArg("url")

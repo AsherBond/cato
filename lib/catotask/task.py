@@ -102,8 +102,6 @@ class Tasks(object):
         
         Done here instead of in the Task class - no point to instantiate a task just to delete it.
         """
-        print ids
-        print force
         db = catocommon.new_conn()
         
         delete_ids = ",".join(ids) 
@@ -264,7 +262,7 @@ class Task(object):
         
         xmlerr = "XML Error: Attribute not found."
         
-        logger.debug("Creating Task object from XML")
+        logger.debug("Building a Task object from XML")
         xTask = ET.fromstring(sTaskXML)
         
         # attributes of the <task> node
@@ -280,6 +278,7 @@ class Task(object):
         self.OriginalTaskID = self.ID
         
         self.Name = xTask.get("name", xmlerr)
+        logger.debug("    %s" % (self.Name))
         self.Code = xTask.get("code", xmlerr)
         self.OnConflict = xTask.get("on_conflict", "cancel")  # cancel is the default action if on_conflict isn't specified
         
@@ -301,7 +300,7 @@ class Task(object):
         xCodeblocks = xTask.findall("codeblocks/codeblock")
         logger.debug("Number of Codeblocks: " + str(len(xCodeblocks)))
         for xCB in xCodeblocks:
-            cbname = xTask.get("name", "")
+            cbname = xCB.get("name", "")
             if not cbname:
                 logger.error("Codeblock 'name' attribute is required.", 1)
         
@@ -609,8 +608,10 @@ class Task(object):
         # now, codeblocks
         # if there's no MAIN codeblock, create it.
         if not self.Codeblocks:
+            logger.warning("No Codeblocks were defined on this Task. Creating 'MAIN'...")
             self.Codeblocks["MAIN"] = Codeblock(self.ID, "MAIN")
-        if "MAIN" not in self.Codeblocks.itervalues():
+        if "MAIN" not in self.Codeblocks.iterkeys():
+            logger.warning("REquired 'MAIN' Codeblock does not exist. Creating...")
             self.Codeblocks["MAIN"] = Codeblock(self.ID, "MAIN")
             
         for c in self.Codeblocks.itervalues():
