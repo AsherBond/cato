@@ -14,6 +14,7 @@
 
 
 from catoconfig import catoconfig
+
 from catolog import catolog
 import web
 import os
@@ -341,7 +342,11 @@ def auth_app_processor(handle):
         logger.exception(ex.__str__())
         # now, all our ajax calls are from jQuery, which sets a header - X-Requested-With
         # so if we have that header, it's ajax, otherwise we can redirect to the login page.
-        if web.ctx.env.get('HTTP_X_REQUESTED_WITH') == "XMLHttpRequest":
+        
+        # a session error means we kill the session
+        session.kill()
+        
+        if web.ctx.env.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest":
             web.ctx.status = "480 Session Error"
             return ex.__str__()
         else:
@@ -639,7 +644,13 @@ if __name__ != app_name:
         logger.critical("UI file cache directory defined in cato.conf does not exist. [%s]" % uicachepath)
         exit()
         
-    session = web.session.Session(app, web.session.ShelfStore(shelve.open('%s/adminsession.shelf' % uicachepath)))
+    # Hack to make session play nice with the reloader (in debug mode)
+    if web.config.get('_session') is None:
+        session = web.session.Session(app, web.session.ShelfStore(shelve.open('%s/adminsession.shelf' % uicachepath)))
+        web.config._session = session
+    else:
+        session = web.config._session
+        
     app.add_processor(auth_app_processor)
     app.notfound = notfound
     
