@@ -104,7 +104,7 @@ function DrawParameterEditForm(parameter_xml) {
                 //show the required one slightly different
                 var required_class = (required == "true" ? "task_launch_parameter_required" : "");
 
-                output += "<div id=\"tlp" + parameter_id + "\" class=\"task_launch_parameter " + required_class + "\" present_as=\"" + present_as + "\"" + encryptattr + ">";
+                output += "<div id=\"tlp" + parameter_id + "\" class=\"task_launch_parameter " + required_class + "\" param_name=\"" + parameter_name + "\" present_as=\"" + present_as + "\"" + encryptattr + ">";
                 var label = (parameter_desc) ? parameter_desc : parameter_name;
                 output += "<div class=\"task_launch_parameter_name\">" + label + "</div>";
 
@@ -230,7 +230,7 @@ function buildXMLToSubmit() {
         if ($(p)) {
             var parameter_id = $(p).attr("id").replace(/tlp/, ""); ;
             var required = $(p).hasClass("task_launch_parameter_required");
-            var parameter_name = $(p).find(".task_launch_parameter_name").text();
+            var parameter_name = $(p).attr("param_name");
             var $values = $(p).find(".task_launch_parameter_value_input");
             var present_as = $(p).attr("present_as");
 
