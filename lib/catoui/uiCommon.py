@@ -37,6 +37,7 @@ from catosettings import settings
 from catoui import uiGlobals
 from catouser import catouser
 from catotag import tag
+from catoerrors import SessionError
 
 logger = catolog.get_logger(__name__)
 
@@ -262,35 +263,35 @@ def GetSessionUserID():
     if uid:
         return uid
     else:
-        raise Exception("Server Session has expired (1). Please log in again.")
+        raise SessionError("Server Session has expired (1). Please log in again.")
 
 def GetSessionUserName():
     un = GetSessionObject("user", "user_name")
     if un:
         return un
     else:
-        raise Exception("Server Session has expired (1a). Please log in again.")
+        raise SessionError("Server Session has expired (1a). Please log in again.")
 
 def GetSessionUserFullName():
     fn = GetSessionObject("user", "full_name")
     if fn:
         return fn
     else:
-        raise Exception("Server Session has expired (1b). Please log in again.")
+        raise SessionError("Server Session has expired (1b). Please log in again.")
 
 def GetSessionUserRole():
     role = GetSessionObject("user", "role")
     if role:
         return role
     else:
-        raise Exception("Server Session has expired (2). Please log in again.")
+        raise SessionError("Server Session has expired (2). Please log in again.")
 
 def GetSessionUserTags():
     tags = GetSessionObject("user", "tags")
     if tags:
         return tags
     else:
-        raise Exception("Server Session has expired (3). Please log in again.")
+        raise SessionError("Server Session has expired (3). Please log in again.")
 
 def GetSessionObject(category, key):
     cat = uiGlobals.session.get(category, False)
