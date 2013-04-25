@@ -427,6 +427,22 @@ class index:
 
 
 class ExceptionHandlingApplication(web.application):
+    """
+    IMPORTANT
+    This is an overload of the web.py web.application class.
+    
+    Main reason? In application.py, the 'handle()' function
+        doesn't explicitly trap exceptions, therefore
+        any exceptions are converted into the generic web.py _InternalError.
+        
+    This interferes, because we wanna trap the original error an make determinations
+        on how to reply to the client.
+        
+    So, we overloaded the function and fixed the error handing.
+    
+    NOTE: this is a little different than what we did in catoadminui - that file
+        uses an application processor, where here we aren't intercepting every request (yet).
+    """
     def handle(self):
         try:
             return web.application.handle(self)
