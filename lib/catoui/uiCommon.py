@@ -392,7 +392,12 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
     if c is None:
         return None, "Unable to get Cloud for ID [" + sCloudID + "]"
     
-    cot = c.Provider.GetObjectTypeByName(sObjectType)
+    # NOTE: the Cloud object has a *THIN* copy of the Provider (it doesn't include
+    #    products or provider clouds.)
+    # But, we actually need a full provider here, so go get it!
+    
+    full_provider = cloud.Provider.FromName(c.Provider.Name)
+    cot = full_provider.GetObjectTypeByName(sObjectType)
     if cot is not None:
         if not cot.ID:
             return None, "Cannot find definition for requested object type [" + sObjectType + "]"
