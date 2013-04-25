@@ -89,8 +89,8 @@ function GetItems(page) {
 		sPage : page
 	});
 	if (response) {
-		pager = unpackJSON(response.pager);
-		html = unpackJSON(response.rows);
+		var pager = unpackJSON(response.pager);
+		var html = unpackJSON(response.rows);
 
 		$("#pager").html(pager);
 		$("#pager .pager_button").click(function() {
@@ -109,6 +109,17 @@ function GetItems(page) {
 			} else {
 				location.href = '/taskEdit?task_id=' + $(this).parent().attr("task_id");
 			}
+		});
+
+		// a run button on the task list!
+		$(".task_run").click(function() {
+			event.stopPropagation();
+			var task_id = $(this).parent().attr("task_id");
+			var task_name = $(this).parent().find("td")[2].innerHTML + " - " + $(this).parent().find("td")[3].innerHTML;
+			var args = '{"task_id":"' + task_id + '", "task_name":"' + task_name + '", "debug_level":"4"}';
+
+			//note: we are not passing the account_id - the dialog will use the default
+			ShowTaskLaunchDialog(args);
 		});
 
 	}
@@ -211,7 +222,7 @@ function DeleteItems() {
 	var args = {};
 	args.sDeleteArray = $("#hidSelectedArray").val();
 	args.sForce = $("#delete_dialog_force").is(':checked');
-	
+
 	var response = ajaxPost("taskMethods/wmDeleteTasks", args);
 	if (response) {
 		// clear the selected array, search field and fire a new search

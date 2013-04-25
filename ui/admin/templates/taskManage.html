@@ -1,5 +1,5 @@
 $def with ()
-$var jsfiles: managePageCommon.js taskManage.js
+$var jsfiles: managePageCommon.js taskManage.js parametersOnDialog.js taskLaunchDialog.js
 $var cssfiles:
 
 <div style="display: none;">
@@ -46,7 +46,8 @@ $var cssfiles:
 				<th class="sortable" width="50px"> Version </th>
 				<th class="sortable" width="400px"> Description </th>
 				<th class="sortable" width="75px"> Status </th>
-				<th class="sortable" width="25px"> Versions </th>
+                <th class="sortable" width="25px"> Versions </th>
+                <th width="25px"></th>
 			</tr>
 		</thead>
 		<tbody id="tasks"></tbody>
@@ -125,4 +126,7 @@ $var cssfiles:
 		</tr>
 	</table>
 	<input id="hidCopyTaskID" type="hidden" name="hidCopyTaskID" />
+</div>
+<div id="task_launch_dialog" title="Run Task">
+    <div id="plan_edit_dialog" title="Edit Plan"></div>
 </div>

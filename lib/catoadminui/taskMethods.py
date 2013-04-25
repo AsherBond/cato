@@ -70,6 +70,7 @@ class taskMethods:
                 sHTML += '<td class="selectable">' + row["Description"] + '</td>'
                 sHTML += '<td class="selectable">' + row["Status"] + '</td>'
                 sHTML += '<td class="selectable">' + str(row["Versions"]) + '</td>'
+                sHTML += '<td class="task_run"><span class="ui-icon ui-icon-play"></span></td>'
                 
                 sHTML += '</tr>'
 
