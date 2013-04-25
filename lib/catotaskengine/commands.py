@@ -285,8 +285,9 @@ def datastore_query_cmd(self, task, step):
     cols = {}
     for p in pairs:
         name = self.replace_variables(p[0])
-        vars.append([name, p[1]])
-        cols[name] = True
+        if len(name):
+            vars.append([name, p[1]])
+            cols[name] = True
     msg = "Collection %s, Query %s, Columns %s" % (collection, query_string, cols.keys())
     if "_id" not in cols.keys():
         cols["_id"] = False
