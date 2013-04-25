@@ -61,8 +61,8 @@ os.chdir(web_root)
  and find the proper function to handle the request.
 """
 class wmHandler:
-    #the GET and POST methods here are hooked by web.py.
-    #whatever method is requested, that function is called.
+    # the GET and POST methods here are hooked by web.py.
+    # whatever method is requested, that function is called.
     def GET(self, method):
         return catocommon.FindAndCall("catoadminui." + method)
 
@@ -247,10 +247,10 @@ class upload:
     def POST(self):
         x = web.input(fupFile={}, ref_id="")
         if x:
-            #print x # ref_id
-            #web.debug(x['fupFile'].filename) # This is the filename
-            #web.debug(x['fupFile'].value) # This is the file contents
-            #web.debug(x['fupFile'].file.read()) # Or use a file(-like) object
+            # print x # ref_id
+            # web.debug(x['fupFile'].filename) # This is the filename
+            # web.debug(x['fupFile'].value) # This is the file contents
+            # web.debug(x['fupFile'].file.read()) # Or use a file(-like) object
             # raise web.seeother('/upload')
             
             ref_id = (x.ref_id if x.ref_id else "")
@@ -259,7 +259,7 @@ class upload:
             with open(fullpath, 'w') as f_out:
                 if not f_out:
                     logger.critical("Unable to open %s for writing." % fullpath)
-                f_out.write(x["fupFile"].file.read()) # writes the uploaded file to the newly created file.
+                f_out.write(x["fupFile"].file.read())  # writes the uploaded file to the newly created file.
             
             # all done, we loop back to the file_upload.html page, but this time include
             # a qq arg - the file name
@@ -312,53 +312,26 @@ def auth_app_processor(handle):
         ]:
         return handle()
 
-    try:
-        # any other request requires an active session ... kick it out if there's not one.
-        # best (most consistent) way to check? Get the user...
-        uiCommon.GetSessionUserID()
+    # any other request requires an active session ... kick it out if there's not one.
+    # best (most consistent) way to check? Get the user...
+    uiCommon.GetSessionUserID()
 
-        # check the role/method mappings to see if the requested page is allowed
-        # HERE's the rub! ... some of our requests are for "pages" and others (most) are ajax calls.
-        # for the pages, we can redirect to the "notAllowed" page, 
-        # but for the ajax calls we can't - we need to return an acceptable ajax response.
-        
-        if uiCommon.check_roles(path):
-            return handle()
+    # check the role/method mappings to see if the requested page is allowed
+    # HERE's the rub! ... some of our requests are for "pages" and others (most) are ajax calls.
+    # for the pages, we can redirect to the "notAllowed" page, 
+    # but for the ajax calls we can't - we need to return an acceptable ajax response.
+    
+    if uiCommon.check_roles(path):
+        return handle()
+    else:
+        logger.debug(path)
+        if web.ctx.env.get('HTTP_X_REQUESTED_WITH') == "XMLHttpRequest":
+            return ""
         else:
-            logger.debug(path)
-            if web.ctx.env.get('HTTP_X_REQUESTED_WITH') == "XMLHttpRequest":
-                return ""
-            else:
-                return "Some content on this page isn't available to your user."
-            
-    except (web.HTTPError, KeyboardInterrupt, SystemExit):
-        raise
-    except InfoException as ex:
-        # we're using a custom HTTP status code to indicate 'information' back to the user.
-        web.ctx.status = "280 Informational Response"
-        logger.info(ex.__str__())
-        return ex.__str__()
-    except SessionError as ex:
-        logger.exception(ex.__str__())
-        # now, all our ajax calls are from jQuery, which sets a header - X-Requested-With
-        # so if we have that header, it's ajax, otherwise we can redirect to the login page.
-        
-        # a session error means we kill the session
-        session.kill()
-        
-        if web.ctx.env.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest":
-            web.ctx.status = "480 Session Error"
-            return ex.__str__()
-        else:
-            logger.debug("Standard Request - redirecting to the login page...")
-            raise web.seeother('/static/login.html')
-    except Exception as ex:
-        web.ctx.status = "400 Bad Request"
-        logger.exception(ex.__str__())
-        return ex.__str__()
+            return "Some content on this page isn't available to your user."
 
 def CacheTaskCommands():
-    #creates the html cache file
+    # creates the html cache file
     try:
         sCatHTML = ""
         sFunHTML = ""
@@ -524,6 +497,56 @@ def CacheMenu():
         f_out.write(sUserMenu)
 
 
+class ExceptionHandlingApplication(web.application):
+    """
+    CRITICALLY IMPORTANT!
+    This is an overload of the standard web.application class.
+    
+    Main reason? In application.py, the 'handle_with_processors' function
+        converts *any* exception into the generic web.py _InternalError.
+        
+    This interferes, because we wanna trap the original error an make determinations
+        on how to reply to the client.
+        
+    So, we overloaded the function and fixed the error handing.
+    """
+    def handle_with_processors(self):
+        def process(processors):
+            try:
+                if processors:
+                    p, processors = processors[0], processors[1:]
+                    return p(lambda: process(processors))
+                else:
+                    return self.handle()
+            except (web.HTTPError, KeyboardInterrupt, SystemExit):
+                raise
+            except InfoException as ex:
+                # we're using a custom HTTP status code to indicate 'information' back to the user.
+                web.ctx.status = "280 Informational Response"
+                logger.exception(ex.__str__())
+                return ex.__str__()
+            except SessionError as ex:
+                logger.exception(ex.__str__())
+                # now, all our ajax calls are from jQuery, which sets a header - X-Requested-With
+                # so if we have that header, it's ajax, otherwise we can redirect to the login page.
+                
+                # a session error means we kill the session
+                session.kill()
+                
+                if web.ctx.env.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest":
+                    web.ctx.status = "480 Session Error"
+                    return ex.__str__()
+                else:
+                    logger.debug("Standard Request - redirecting to the login page...")
+                    raise web.seeother('/static/login.html')
+            except Exception as ex:
+                # web.ctx.env.get('HTTP_X_REQUESTED_WITH')
+                web.ctx.status = "400 Bad Request"
+                logger.exception(ex.__str__())
+                return ex.__str__()             
+        
+        return process(self.processors)
+
 """
     Main Startup
 """
@@ -546,7 +569,7 @@ if __name__ != app_name:
             raise Exception("admin_ui_client_debug setting in cato.conf must be an integer between 0-50.")
     catolog.CLIENTDEBUG = c_dbglvl
             
-    #this is a service, which has a db connection.
+    # this is a service, which has a db connection.
     # but we're not gonna use that for gui calls - we'll make our own when needed.
     server = catoprocess.CatoService(app_name)
     server.startup()
@@ -629,7 +652,7 @@ if __name__ != app_name:
     render_popup = web.template.render('templates', base='popup')
     render_plain = web.template.render('templates')
     
-    app = web.application(urls, globals(), autoreload=True)
+    app = ExceptionHandlingApplication(urls, globals(), autoreload=True)
     web.config.session_parameters["cookie_name"] = app_name
     # cookies won't work in https without this!
     web.config.session_parameters.httponly = False
@@ -670,12 +693,12 @@ if __name__ != app_name:
     # and cache the html in a flat file
     logger.info("Reading configuration files and generating static html...")
 
-        #NOTE: this import is here and not at the top ON PURPOSE...
+        # NOTE: this import is here and not at the top ON PURPOSE...
     # if it's imported at the top, catolog won't have a LOGFILE defined yet 
     # and the uiCommon logger won't write to the file
     from catoui import uiCommon
     uiCommon.LoadTaskCommands()
-    #rebuild the cache html files
+    # rebuild the cache html files
     CacheTaskCommands()
 
     CacheMenu()
