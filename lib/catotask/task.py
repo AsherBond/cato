@@ -785,6 +785,8 @@ class Task(object):
         return sNewTaskID
 
     def PopulateTask(self, dr, IncludeCode=True):
+        db = catocommon.new_conn()
+
         # of course it exists...
         self.DBExists = True
 
@@ -806,30 +808,28 @@ class Task(object):
             if xParameters is not None:
                 self.ParameterXDoc = xParameters
 
+        # 
+        # * ok, this is important.
+        # * there are some rules for the process of 'Approving' a task and other things.
+        # * so, we'll need to know some count information
+        # 
+        sSQL = """select count(*) from task
+            where original_task_id = '%s'
+            and task_status = 'Approved'""" % self.OriginalTaskID
+        iCount = db.select_col_noexcep(sSQL)
+        self.NumberOfApprovedVersions = iCount
+
+        sSQL = "select count(*) from task where original_task_id = '%s'" % self.OriginalTaskID
+        iCount = db.select_col_noexcep(sSQL)
+        self.NumberOfOtherVersions = iCount
+
+        sSQL = "select max(version) from task where original_task_id = '%s'" % self.OriginalTaskID
+        sMax = db.select_col_noexcep(sSQL)
+        self.MaxVersion = sMax
+        self.NextMinorVersion = str(float(self.MaxVersion) + .001)
+        self.NextMajorVersion = str(int(float(self.MaxVersion) + 1)) + ".000"
+
         if IncludeCode:
-            db = catocommon.new_conn()
-            # 
-            # * ok, this is important.
-            # * there are some rules for the process of 'Approving' a task and other things.
-            # * so, we'll need to know some count information
-            # 
-            sSQL = """select count(*) from task
-                where original_task_id = '%s'
-                and task_status = 'Approved'""" % self.OriginalTaskID
-            iCount = db.select_col_noexcep(sSQL)
-            self.NumberOfApprovedVersions = iCount
-
-            sSQL = "select count(*) from task where original_task_id = '%s'" % self.OriginalTaskID
-            iCount = db.select_col_noexcep(sSQL)
-            self.NumberOfOtherVersions = iCount
-
-            sSQL = "select max(version) from task where original_task_id = '%s'" % self.OriginalTaskID
-            sMax = db.select_col_noexcep(sSQL)
-            
-            self.MaxVersion = sMax
-            self.NextMinorVersion = str(float(self.MaxVersion) + .001)
-            self.NextMajorVersion = str(int(float(self.MaxVersion) + 1)) + ".000"
-
             # now, the fun stuff
             # 1 get all the codeblocks and populate that dictionary
             # 2 then get all the steps... ALL the steps in one sql
@@ -849,7 +849,7 @@ class Task(object):
                 db.exec_db(sSQL)
                 self.Codeblocks["MAIN"] = Codeblock(self.ID, "MAIN")
             
-            db.close()
+        db.close()
 
 
     def IncrementMajorVersion(self):
