@@ -21,7 +21,8 @@ and apply any database changes needed, by version.
     SUPPORTED OPERATORS:
         droptable - table
         addcolumn - table, column, options
-        modifycolumn - table, column, options
+        modifycolumn - table, column, options (allows changing column options but not name)
+        changecolumn - table, column, `newname` options (will allow changing of a column name)
         dropcolumn - table, column
         sql - a sql statement
         function - function name (will execute a funcion in this file, useful only
@@ -66,11 +67,13 @@ versions = [
             [
              "1.15", [
                     ["addcolumn", "task_instance", "schedule_id", "varchar(36) DEFAULT NULL"],
+                    ["modifycolumn", "deployment_template", "template_text", "MEDIUMTEXT NOT NULL"],
                     ["addcolumn", "dep_action_inst", "instance_id", "varchar(36) DEFAULT NULL"],
                     ["addcolumn", "deployment_service_inst", "instance_num", "int(11) DEFAULT NULL"]
                     ]
              ]
             ]
+#ALTER TABLE `cato`.`deployment_template` CHANGE COLUMN `template_text` `template_text` MEDIUMTEXT NOT NULL  ;
 
 #                    ["sql", "update deployment set options = '' where archive is null"],
 #                    ["sql", """update deployment_service set options = '' where deployment_id in (
@@ -98,7 +101,7 @@ def main(argv):
             colexists = None
     
             # these apply to several cases below
-            if item[0] in ["addcolumn", "dropcolumn", "modifycolumn"]:        
+            if item[0] in ["addcolumn", "dropcolumn", "modifycolumn", "changecolumn"]:        
                 sql = """SELECT COLUMN_NAME
                     FROM INFORMATION_SCHEMA.COLUMNS
                     WHERE table_schema = 'cato'
@@ -115,23 +118,21 @@ def main(argv):
             sql = ""
             if item[0] == "droptable":
                 if tblexists:
-                    print "    executing %s" % (item)
                     sql = "drop table `%s`" % (item[1])
             elif item[0] == "addcolumn":
                 if not colexists:
-                    print "    executing %s" % (item)
                     sql = "alter table `%s` add column `%s` %s" % (item[1], item[2], item[3])
             elif item[0] == "modifycolumn":
                 if colexists:
-                    print "    executing %s" % (item)
                     sql = "alter table `%s` modify column `%s` %s" % (item[1], item[2], item[3])
+            elif item[0] == "changecolumn":
+                if colexists:
+                    sql = "alter table `%s` change column `%s` %s" % (item[1], item[2], item[3])
             elif item[0] == "dropcolumn":
                 if colexists:
-                    print "    executing %s" % (item)
                     sql = "alter table `%s` drop column `%s`" % (item[1], item[2])
             elif item[0] == "sql":
                 if len(item) > 1 and item[1]:
-                    print "    executing %s" % (item)
                     db.exec_db(item[1])
             elif item[0] == "function":
                 funcname = item[1]
@@ -143,6 +144,7 @@ def main(argv):
                 print "    encountered unknown directive [%s]" % (item[0])
             
             if sql:
+                print "    Executing [%s]" % (sql)
                 db.exec_db(sql)
                 
 
