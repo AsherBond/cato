@@ -28,12 +28,9 @@ from catocryptpy import catocryptpy
 
 # ALL Cato modules import this, and it should be one of the first imports.
 
-#this file has a global 'config' that gets populated automatically.
+# this file has a global 'config' that gets populated automatically.
 # it's populated below the function definition
 CONFIG = {}
-
-VERSION = "UNKNOWN"
-BASEPATH = ""
 
 def _get_base_path():
     # this library file will always be in basepath/lib/catocommon
@@ -88,14 +85,14 @@ def read_config():
     cfg["dash_api_use_ssl"] = "false"
 
     
-    filename = os.path.join(BASEPATH, "conf/cato.conf")        
-    if not os.path.isfile(filename):
-        msg = "The configuration file " + filename + " does not exist."
-        raise Exception(msg)
+    if not os.path.isfile(CONFFILE):
+        if not os.path.isfile(CONFFILE):
+            msg = "CATO_CONFIG file [%s] not found." % (CONFFILE)
+            raise Exception(msg)
     try:
-        fp = open(filename, 'r')
+        fp = open(CONFFILE, 'r')
     except IOError as (errno, strerror):
-        msg = "Error opening file " + filename + " " + format(errno, strerror)
+        msg = "Error opening file [%s] %s" % (CONFFILE, format(errno, strerror))
         raise IOError(msg)
     
     contents = fp.read().splitlines()
@@ -169,6 +166,12 @@ def safe_config():
 
     return cfg
 
+
+#if not os.environ.get("CATO_CONFIG"):
+#    print "CATO_CONFIG environment variable not set - trying default..."
+
+CONFFILE = os.environ.get("CATO_CONFIG", os.path.join(os.sep, "etc", "cato", "cato.conf"))
+CONFDIR = os.path.split(CONFFILE)[0]
 BASEPATH = _get_base_path()
 CONFIG = read_config()
 SAFECONFIG = safe_config()

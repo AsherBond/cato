@@ -10,10 +10,18 @@ if [ -z "$CATO_HOME" ]; then
     echo "CATO_HOME not set, assuming $CATO_HOME"
     export CATO_HOME
 fi
-CATO_LOGS=`grep "^logfiles" $CATO_HOME/conf/cato.conf | awk '{print $2}'`
+if [ -z "$CATO_CONFIG" ]; then
+    
+    CATO_CONFIG=/etc/cato/cato.conf
+    echo "CATO_CONFIG not set, assuming $CATO_CONFIG"
+    export CATO_CONFIG
+fi
+
+CATO_LOGS=`grep "^logfiles" $CATO_CONFIG | awk '{print $2}'`
 echo "logfile location $CATO_LOGS"
 if [ -z "$CATO_LOGS" ]; then
-    CATO_LOGS=$CATO_HOME/services/logfiles
+    CATO_LOGS=/var/cato/log
+    echo "'logfiles' setting not set, assuming $CATO_LOGS"
 fi
 export CATO_LOGS
 

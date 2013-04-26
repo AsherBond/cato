@@ -186,7 +186,9 @@ mysql -u root -p$ROOTDBPASS -e "GRANT SELECT, CREATE TEMPORARY TABLES ON $CATODB
 mysql -u root -p$ROOTDBPASS -e "FLUSH PRIVILEGES;"
 
 ### Create a new conf file from the default
-cp $CATO_HOME/conf/default.cato.conf $CATO_HOME/conf/cato.conf
+mkdir -p /etc/cato
+CONFFILE=/etc/cato/cato.conf
+cp $CATO_HOME/conf/default.cato.conf $CONFFILE
 
 ### Use the encryption utility to encrypt passwords to be used in the conf file
 NEWKEY=`$CATO_HOME/conf/catoencrypt $ENCRYPTIONKEY ""`
@@ -195,16 +197,16 @@ ENCDBREADPASS=`$CATO_HOME/conf/catoencrypt $CATODBREADPASS $ENCRYPTIONKEY`
 
 ### Replace placeholders with localized config settings
 ### See the user configurable settings above
-sed -i"" -e"s|#CATO_HOME#|${CATO_HOME}|" $CATO_HOME/conf/cato.conf
-sed -i"" -e"s|#CATODBNAME#|${CATODBNAME}|" $CATO_HOME/conf/cato.conf
-sed -i"" -e"s|#CATODBUSER#|${CATODBUSER}|" $CATO_HOME/conf/cato.conf
-sed -i"" -e"s|#CATODBPASS#|${ENCDBPASS}|" $CATO_HOME/conf/cato.conf
-sed -i"" -e"s|#CATODBREADUSER#|${CATODBREADUSER}|" $CATO_HOME/conf/cato.conf
-sed -i"" -e"s|#CATODBREADPASS#|${ENCDBREADPASS}|" $CATO_HOME/conf/cato.conf
-sed -i"" -e"s|#ENCRYPTIONKEY#|${NEWKEY}|" $CATO_HOME/conf/cato.conf
-sed -i"" -e"s|#LOGFILESDIR#|${LOGFILESDIR}|" $CATO_HOME/conf/cato.conf
-sed -i"" -e"s|#TMPDIR#|${TMPDIR}|" $CATO_HOME/conf/cato.conf
-sed -i"" -e"s|#CATOFILES#|${CATOFILESDIR}|" $CATO_HOME/conf/cato.conf
+sed -i"" -e"s|#CATO_HOME#|${CATO_HOME}|" $CONFFILE
+sed -i"" -e"s|#CATODBNAME#|${CATODBNAME}|" $CONFFILE
+sed -i"" -e"s|#CATODBUSER#|${CATODBUSER}|" $CONFFILE
+sed -i"" -e"s|#CATODBPASS#|${ENCDBPASS}|" $CONFFILE
+sed -i"" -e"s|#CATODBREADUSER#|${CATODBREADUSER}|" $CONFFILE
+sed -i"" -e"s|#CATODBREADPASS#|${ENCDBREADPASS}|" $CONFFILE
+sed -i"" -e"s|#ENCRYPTIONKEY#|${NEWKEY}|" $CONFFILE
+sed -i"" -e"s|#LOGFILESDIR#|${LOGFILESDIR}|" $CONFFILE
+sed -i"" -e"s|#TMPDIR#|${TMPDIR}|" $CONFFILE
+sed -i"" -e"s|#CATOFILES#|${CATOFILESDIR}|" $CONFFILE
 
 
 ### create the database tables, indexes, etc. etc.

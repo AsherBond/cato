@@ -48,6 +48,10 @@ class CatoProcess():
 #######################################
     Starting up %s
 #######################################""" % self.process_name)
+
+        self.logger.info("Configuration File: [%s]" % catoconfig.CONFFILE)
+
+        
         self.db = catodb.Db()
         self.db.connect_db(server=catoconfig.CONFIG["server"], port=catoconfig.CONFIG["port"],
             user=catoconfig.CONFIG["user"],

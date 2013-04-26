@@ -206,7 +206,7 @@ sudo chkconfig iptables off
 By default, the Cato UI and REST API are configured for standard HTTP.  HTTPS (SSL/TLS) can be easily enabled.
 
 ```
-vi $CATO_HOME/conf/cato.conf
+vi $CATO_CONFIG/cato.conf (default: /etc/cato/cato.conf)
 ```
 
 - For the Cato UI - change the setting *admin_ui_use_ssl* to *true*
@@ -222,7 +222,7 @@ With OpenSSL, it is easy to generate a self signed certificate and private key. 
 
 To create a self signed certificate, use the following command and fill out the prompts.
 
-```openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $CATO_HOME/conf/cato.key -out $CATO_HOME/conf/cato.crt```
+```openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $CATO_CONFIG/cato.key -out $CATO_CONFIG/cato.crt```
 
 Make sure to restart the services and time a change is made to the cato.conf file:
 
