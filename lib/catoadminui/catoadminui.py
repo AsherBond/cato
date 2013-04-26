@@ -590,8 +590,8 @@ if __name__ != app_name:
     # enable ssl?
     if catocommon.is_true(catoconfig.CONFIG.get("admin_ui_use_ssl")):
         logger.info("Using SSL/TLS...")
-        sslcert = catoconfig.CONFIG.get("admin_ui_ssl_cert", os.path.join(base_path, "conf", "cato.crt"))
-        sslkey = catoconfig.CONFIG.get("admin_ui_ssl_key", os.path.join(base_path, "conf", "cato.key"))
+        sslcert = catoconfig.CONFIG.get("admin_ui_ssl_cert", os.path.join(catoconfig.CONFDIR, "cato.crt"))
+        sslkey = catoconfig.CONFIG.get("admin_ui_ssl_key", os.path.join(catoconfig.CONFDIR, "cato.key"))
         try:
             with open(sslcert): pass
             logger.debug("SSL Certificate [%s]" % sslcert)
