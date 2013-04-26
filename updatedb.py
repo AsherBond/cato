@@ -67,18 +67,19 @@ versions = [
             [
              "1.15", [
                     ["addcolumn", "task_instance", "schedule_id", "varchar(36) DEFAULT NULL"],
-                    ["modifycolumn", "deployment_template", "template_text", "MEDIUMTEXT NOT NULL"],
                     ["addcolumn", "dep_action_inst", "instance_id", "varchar(36) DEFAULT NULL"],
-                    ["addcolumn", "deployment_service_inst", "instance_num", "int(11) DEFAULT NULL"]
+                    ["addcolumn", "deployment_service_inst", "instance_num", "int(11) DEFAULT NULL"],
+                    ["modifycolumn", "deployment_template", "template_text", "MEDIUMTEXT NOT NULL"],
+                    ["modifycolumn", "action_plan", "parameter_xml", "MEDIUMTEXT NOT NULL"],
+                    ["modifycolumn", "action_plan_history", "parameter_xml", "MEDIUMTEXT NOT NULL"],
+                    ["modifycolumn", "action_schedule", "parameter_xml", "MEDIUMTEXT NOT NULL"],
+                    ["modifycolumn", "dep_seq_tran_params", "parameter_xml", "MEDIUMTEXT NOT NULL"],
+                    ["modifycolumn", "dep_service_inst_params", "parameter_xml", "MEDIUMTEXT NOT NULL"],
+                    ["modifycolumn", "task", "parameter_xml", "MEDIUMTEXT NOT NULL"],
+                    ["modifycolumn", "task_instance_parameter", "parameter_xml", "MEDIUMTEXT NOT NULL"]
                     ]
              ]
             ]
-#ALTER TABLE `cato`.`deployment_template` CHANGE COLUMN `template_text` `template_text` MEDIUMTEXT NOT NULL  ;
-
-#                    ["sql", "update deployment set options = '' where archive is null"],
-#                    ["sql", """update deployment_service set options = '' where deployment_id in (
-#                        select deployment_id from deployment where archive is null)"""]
-#                    ]
 
 import os
 import sys

@@ -16,7 +16,7 @@ CREATE TABLE `action_plan` (
   `action_id` varchar(36) DEFAULT NULL,
   `ecosystem_id` varchar(36) DEFAULT NULL,
   `account_id` varchar(36) DEFAULT NULL,
-  `parameter_xml` text,
+  `parameter_xml` mediumtext NOT NULL,
   `debug_level` int(11) DEFAULT NULL,
   `source` varchar(16) NOT NULL DEFAULT 'manual',
   `schedule_id` varchar(36) DEFAULT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE `action_plan_history` (
   `action_id` varchar(36) DEFAULT NULL,
   `ecosystem_id` varchar(36) DEFAULT NULL,
   `account_id` varchar(36) DEFAULT NULL,
-  `parameter_xml` text,
+  `parameter_xml` mediumtext NOT NULL,
   `debug_level` int(11) DEFAULT NULL,
   `source` varchar(16) NOT NULL DEFAULT 'manual',
   `schedule_id` varchar(36) DEFAULT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE `action_schedule` (
   `days` varchar(84) DEFAULT NULL,
   `hours` varchar(62) DEFAULT NULL,
   `minutes` varchar(172) DEFAULT NULL,
-  `parameter_xml` text,
+  `parameter_xml` mediumtext NOT NULL,
   `debug_level` int(11) DEFAULT NULL,
   `label` varchar(64) DEFAULT NULL,
   `descr` varchar(512) DEFAULT NULL,
@@ -207,7 +207,7 @@ CREATE TABLE `dep_seq_tran_params` (
   `deployment_service_id` varchar(36) NOT NULL,
   `state` varchar(32) NOT NULL,
   `next_state` varchar(45) NOT NULL,
-  `parameter_xml` text,
+  `parameter_xml` mediumtext NOT NULL,
   PRIMARY KEY (`sequence_id`,`step_number`,`deployment_service_id`,`state`,`next_state`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_service_inst_mon` (
@@ -219,7 +219,7 @@ CREATE TABLE `dep_service_inst_params` (
   `instance_id` varchar(36) NOT NULL,
   `state` varchar(32) NOT NULL,
   `next_state` varchar(45) NOT NULL,
-  `parameter_xml` text,
+  `parameter_xml` mediumtext NOT NULL,
   PRIMARY KEY (`instance_id`,`state`,`next_state`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_service_inst_proc` (
@@ -374,7 +374,7 @@ CREATE TABLE `deployment_template` (
   `template_name` varchar(64) NOT NULL,
   `template_version` varchar(8) NOT NULL,
   `template_desc` varchar(1024) DEFAULT NULL,
-  `template_text` text NOT NULL,
+  `template_text` mediumtext NOT NULL,
   PRIMARY KEY (`template_id`),
   UNIQUE KEY `name_version` (`template_name`,`template_version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -512,7 +512,7 @@ CREATE TABLE `task` (
   `concurrent_instances` int(11) DEFAULT NULL,
   `queue_depth` int(11) DEFAULT NULL,
   `created_dt` datetime NOT NULL,
-  `parameter_xml` text NOT NULL,
+  `parameter_xml` mediumtext NOT NULL,
   PRIMARY KEY (`task_id`),
   UNIQUE KEY `IX_task_version` (`original_task_id`,`version`),
   UNIQUE KEY `IX_task_name_version` (`task_name`(64),`version`)
@@ -548,7 +548,7 @@ CREATE TABLE `task_instance` (
   `schedule_instance` bigint(20) DEFAULT NULL,
   `ce_node` int(11) DEFAULT NULL,
   `pid` int(11) DEFAULT NULL,
-  `group_name` varchar(32) DEFAULT NULL,
+  `group_name` varchar(33) DEFAULT NULL,
   `submitted_by_instance` bigint(20) DEFAULT NULL,
   `ecosystem_id` varchar(36) DEFAULT NULL,
   `account_id` varchar(36) DEFAULT NULL,
@@ -580,7 +580,7 @@ CREATE TABLE `task_instance_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `task_instance_parameter` (
   `task_instance` bigint(20) NOT NULL,
-  `parameter_xml` text NOT NULL,
+  `parameter_xml` mediumtext NOT NULL,
   PRIMARY KEY (`task_instance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `task_step` (
