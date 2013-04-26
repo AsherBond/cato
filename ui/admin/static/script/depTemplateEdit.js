@@ -100,9 +100,7 @@ $(document).ready(function() {"use strict";
 	});
 	$("#text_save_btn").click(function() {
 		var isvalid = doAnalyze($("#txtTemplate").val());
-		if (isvalid) {
-			doDetailFieldUpdate($("#txtTemplate"));
-		}
+		doDetailFieldUpdate($("#txtTemplate"));
 	});
 	$("#editor_save_btn").button({
 		icons : {
@@ -114,9 +112,7 @@ $(document).ready(function() {"use strict";
 		//move the editor text to the text box...
 		$("#txtTemplate").val(JSON.stringify(editor.get()));
 		var isvalid = doAnalyze($("#txtTemplate").val());
-		if (isvalid) {
-			doDetailFieldUpdate($("#txtTemplate"));
-		}
+		doDetailFieldUpdate($("#txtTemplate"));
 	});
 
 	// the Analyze buttons parse the template and verify it's accuracy
@@ -160,14 +156,12 @@ $(document).ready(function() {"use strict";
 			if ($.trim(ui.tab.text) === "Editor") {
 				//move the text box code to the editor
 				var jstxt = $("#txtTemplate").val();
-				var jsobj;
 				try {
-					jsobj = JSON.parse(jstxt)
+					var jsobj = JSON.parse(jstxt)
+					editor.set(jsobj);
 				} catch (ex) {
-					showAlert(ex.message);
+					showAlert("Unable to display Template in editor: \n" + ex.message);
 				}
-				jsobj = JSON.parse(jstxt)
-				editor.set(jsobj);
 			}
 		}
 	});
@@ -189,7 +183,12 @@ function getDetails() {"use strict";
 		$("#txtDescription").val(template.Description);
 		$("#txtTemplate").val(template.Text);
 
-		editor.set(JSON.parse(template.Text));
+		try {
+			var jsobj = JSON.parse(template.Text)
+			editor.set(jsobj);
+		} catch (ex) {
+			showAlert("Unable to display Template in editor: \n" + ex.message);
+		}
 
 		validateTemplateJSON();
 	}
