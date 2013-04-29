@@ -728,9 +728,21 @@ def set_variable_cmd(self, task, step):
         elif modifier == "FROM_BASE64":
             value = base64.b64decode(value)
         elif modifier == "Write JSON":
-            pass  # TODO
+            # assumes the value is a variable name, containing a dictionary, most likely created by the Read JSON option.
+            if type(value) == dict or type(value) == list:
+                try:
+                    value = json.dumps(value)
+                except Exception as ex:
+                    self.logger.warning("Set Variable - Write JSON Modifier : Unable to dump variable named [%s] to string. %s" % (value, ex.__str__))
+            else:
+                self.logger.warning("Set Variable - Write JSON Modifier : Requires the 'value' to be a dictionary or list variable.")
+
         elif modifier == "Read JSON":
-            pass  # TODO
+            # reads a JSON string into a dictionary variable object.
+            try:
+                value = json.loads(value)
+            except Exception as ex:
+                self.logger.warning("Set Variable - Read JSON Modifier : Unable to parse string. %s" % (ex.__str__))
 
         self.rt.set(name, value, index)
 
