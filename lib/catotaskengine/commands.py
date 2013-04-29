@@ -107,7 +107,7 @@ def datastore_insert_cmd(self, task, step):
         raise Exception(e)
 
     document = {}
-    #document["timestamp"] = datetime.now()
+    # document["timestamp"] = datetime.now()
 
     for p in pairs:
         name = self.replace_variables(p[0])
@@ -1049,6 +1049,7 @@ def get_instance_handle_cmd(self, task, step):
     ti, handle = self.get_command_params(step.command, "instance", "handle")[:]
     ti = self.replace_variables(ti)
     handle = self.replace_variables(handle)
+    handle = handle.lower()
 
     try:
         h = self.task_handles[handle]
@@ -1148,17 +1149,17 @@ def winrm_cmd_cmd(self, task, step):
     self.logger.info("Buffer returned is %s" % buff)
     self.logger.info("Error result is %s" % err)
     
-    #if return_code > 0:
+    # if return_code > 0:
     #    # return code of > 0 seems to be a winrm error. bad
     #    self.logger.info(buff)
     #    raise Exception(err)
-    #elif return_code == -1:
+    # elif return_code == -1:
     if return_code != 0:
         # return code of -1 seems to be an error from the command line
         # we will pass this on to the task to figure out what to do with
         if len(err):
             buff = "%s\n%s" % (buff, err)
-        #else:
+        # else:
         #    buff = err
 
     c.handle.cleanup_command(c.shell_id, command_id)

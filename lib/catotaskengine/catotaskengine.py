@@ -782,7 +782,6 @@ class TaskEngine():
         return row
 
     def get_handle_var(self, var):
-
         # a handle var starts with #, strip it
         var = var[1:].lower()
         split_var = var.split(".")
@@ -794,7 +793,8 @@ class TaskEngine():
             self.refresh_handle(h)
             value = getattr(h, prop)
         except:
-            pass
+            self.logger.info("Unable to find Handle by name [%s]." % (handle))
+
         return value
         
 
