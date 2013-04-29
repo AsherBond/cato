@@ -2283,8 +2283,9 @@ class taskMethods:
                 if dr["command_text"].strip():
                     # the command text might hold special information we want to display differently
                     if "run_task" in dr["command_text"]:
-                        sInstance = dr["command_text"].replace("run_task ", "")
-                        sLog += "<span class=\"link\" onclick=\"location.href='taskRunLog?task_instance=" + sInstance + "';\">Jump to Task</span>"
+                        sInstance = dr["command_text"].replace("run_task", "").strip()
+                        if sInstance:
+                            sLog += "<span class=\"link\" onclick=\"location.href='taskRunLog?task_instance=" + sInstance + "';\">Jump to Task</span>"
                     else:
                         sLog += "<div class=\"log_command ui-widget-content ui-corner-all hidden\">\n"
                         sLog += uiCommon.FixBreaks(uiCommon.SafeHTML(dr["command_text"]))
