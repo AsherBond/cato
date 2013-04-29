@@ -715,6 +715,9 @@ def set_variable_cmd(self, task, step):
         # FIXUP - need to do modifers logic here
         self.logger.info("Setting variable [%s] to [%s]..." % (name, value))
 
+        if modifier:
+            self.logger.info("... using modifier [%s]..." % (modifier))
+            
         if modifier == "Math":
             value = self.math.eval_expr(value)
         elif modifier == "TO_UPPER":
@@ -727,17 +730,20 @@ def set_variable_cmd(self, task, step):
             value = base64.b64encode(value.encode("utf_16_le"))
         elif modifier == "FROM_BASE64":
             value = base64.b64decode(value)
-        elif modifier == "Write JSON":
+        elif modifier == "TO_JSON":
             # assumes the value is a variable name, containing a dictionary, most likely created by the Read JSON option.
-            if type(value) == dict or type(value) == list:
+            # DOES NOT use the value returned from self.replace_variables, as this is always cast to a string!
+            
+            dictvar = self.rt.get(value)
+            if type(dictvar) == dict or type(dictvar) == list:
                 try:
-                    value = json.dumps(value)
+                    value = json.dumps(dictvar)
                 except Exception as ex:
                     self.logger.warning("Set Variable - Write JSON Modifier : Unable to dump variable named [%s] to string. %s" % (value, ex.__str__))
             else:
-                self.logger.warning("Set Variable - Write JSON Modifier : Requires the 'value' to be a dictionary or list variable.")
+                self.logger.warning("Set Variable - Write JSON Modifier : Requires the 'value' to be a dictionary variable NAME, not reference!")
 
-        elif modifier == "Read JSON":
+        elif modifier == "FROM_JSON":
             # reads a JSON string into a dictionary variable object.
             try:
                 value = json.loads(value)

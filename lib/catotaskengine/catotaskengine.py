@@ -534,6 +534,25 @@ class TaskEngine():
                 elif found_var.startswith("#"):
                     # this is a task handle variable
                     value = self.get_handle_var(found_var)
+                elif ":" in found_var:
+                    # this is a dictionary lookup (likely set by Read JSON)
+                    parts = found_var.split(":")
+                    varname = parts[0]
+                    keypath = parts[1]
+                    
+                    # TODO: this could be infinitely more useful using jsonpath
+                    if (varname):
+                        var = self.rt.get(varname)
+                        if type(var) == dict:
+                            if var.get(keypath):
+                                value = var.get(keypath)
+                            else:
+                                self.logger.info("Dictionary lookup, key [%s] not found in [%s]" % (keypath, varname))
+                        else:
+                            self.logger.info("Found a : in the variable, signifying a 'dictionary' lookup, but [%s] isn't a dictionary!" % (varname))
+                    else:
+                        self.logger.info("Found a : in the variable, signifying a 'dictionary' lookup, but [%s] doesn't exist!" % (varname))
+                    
                 elif "." in found_var:
                     # this is an xpath query
                     period = found_var.find(".")
