@@ -851,6 +851,7 @@ def end_cmd(self, task, step):
     self.insert_audit(step.function_name, msg, "")
     if status == "Error":
         raise Exception("Erroring task with message:\n%s" % (message))
+    self.result_summary()
     self.release_all()
     self.update_status(status)
     exit()
@@ -1086,7 +1087,7 @@ def add_summary_item_cmd(self, task, step):
     name, detail = self.get_command_params(step.command, "name", "detail")[:]
     name = self.replace_variables(name)
     detail = self.replace_variables(detail)
-
+    
     if len(name) == 0:
         raise Exception("Add Summary Item error, Item Name required.")
     msg = "<item><name>%s</name><detail>%s</detail></item>" % (name, detail)

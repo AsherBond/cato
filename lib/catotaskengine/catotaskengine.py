@@ -1623,13 +1623,17 @@ class TaskEngine():
         self.db.close()
         
 
+    def result_summary(self):
+        if len(self.summary) > 0:
+            msg = "<result_summary><items>%s</items></result_summary>" % (self.summary)
+            self.insert_audit("result_summary", msg, "")
+        
+    
     def run(self):
         try: 
             self.process_task(self.task_id)
             self.update_status('Completed')
-            if len(self.summary) > 0:
-                msg = "<result_summary><items>%s</items></result_summary>" % (self.summary)
-                self.insert_audit("result_summary", msg, "")
+            self.result_summary()
             self.release_all()
         except Exception as e:
             msg = "ERROR -> %s" % (e)
@@ -1637,6 +1641,7 @@ class TaskEngine():
             traceback.print_exc(file=sys.stderr)
             self.insert_audit("", msg, "")
             self.update_status('Error')
+            self.result_summary()
             self.release_all()
             self.notify_error(msg)
             raise Exception(msg)
