@@ -291,20 +291,14 @@ $(document).ready(function() {
 	$("#task_search_btn").click(function() {
 		var field = $("#" + $("#task_picker_target_field_id").val());
 
-		$("#task_picker_dialog").block({
-			message : null,
-			cursor : 'wait'
-		});
 		var search_text = $("#task_search_text").val();
 
-		var response = ajaxPost("taskMethods/wmTaskSearch", {
+		var response = ajaxPostAsync("taskMethods/wmTaskSearch", {
 			sSearch : search_text
-		}, "html");
-		if (response) {
+		}, function(response) {
 			$("#task_picker_results").html(response);
 			//bind the onclick event for the new results
 			$("#task_picker_results .task_picker_value").disableSelection();
-			$("#task_picker_dialog").unblock();
 
 			//gotta kill previously bound clicks or it will stack 'em! = bad.
 			$("#task_picker_results li[tag='task_picker_row']").die();
@@ -328,7 +322,7 @@ $(document).ready(function() {
 				maxWidth : "500px",
 				fadeIn : 100
 			});
-		}
+		}, "html");
 	});
 	//////END TASK PICKER
 

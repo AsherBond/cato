@@ -1062,51 +1062,49 @@ class taskMethods:
         return json.dumps({"result" : "success"})
 
     def wmTaskSearch(self):
+        sHTML = ""
         sFilter = uiCommon.getAjaxArg("sSearch")
         tasks = task.Tasks(sFilter)
         if tasks.rows:
-            sHTML = "<hr />"
-
             iRowsToGet = len(tasks.rows)
 
-            if iRowsToGet == 0:
-                sHTML += "No results found"
-            else:
-                if iRowsToGet >= 100:
-                    sHTML += "<div>Search found %s results.  Displaying the first 100.</div>" % iRowsToGet
-                    iRowsToGet = 99
-                sHTML += "<ul id=\"search_task_ul\" class=\"search_dialog_ul\">"
+            if iRowsToGet >= 100:
+                sHTML += "<div>Search found %s results.  Displaying the first 100.</div>" % (iRowsToGet)
+                iRowsToGet = 99
+            sHTML += "<ul id=\"search_task_ul\" class=\"search_dialog_ul\">"
 
-                i = 0
-                for row in tasks.rows:
-                    if i > iRowsToGet:
-                        break
-                    
-                    sTaskName = row["Name"].replace("\"", "\\\"")
-                    sLabel = row["Code"] + " : " + sTaskName
-                    sDesc = (row["Description"] if row["Description"] else "")
-                    sDesc = sDesc.replace("\"", "").replace("'", "")
+            i = 0
+            for row in tasks.rows:
+                if i > iRowsToGet:
+                    break
+                
+                sTaskName = row["Name"].replace("\"", "\\\"")
+                sLabel = row["Code"] + " : " + sTaskName
+                sDesc = (row["Description"] if row["Description"] else "")
+                sDesc = sDesc.replace("\"", "").replace("'", "")
 
-                    sHTML += "<li class=\"ui-widget-content ui-corner-all search_dialog_value\" tag=\"task_picker_row\"" \
-                        " task_name=\"" + sTaskName + "\"" \
-                        " original_task_id=\"" + row["OriginalTaskID"] + "\"" \
-                        " task_label=\"" + sLabel + "\"" \
-                        "\">"
-                    sHTML += "<div class=\"step_header_title search_dialog_value_name\">" + sLabel + "</div>"
+                sHTML += "<li class=\"ui-widget-content ui-corner-all search_dialog_value\" tag=\"task_picker_row\"" \
+                    " task_name=\"" + sTaskName + "\"" \
+                    " original_task_id=\"" + row["OriginalTaskID"] + "\"" \
+                    " task_label=\"" + sLabel + "\"" \
+                    "\">"
+                sHTML += "<div class=\"step_header_title search_dialog_value_name\">" + sLabel + "</div>"
 
-                    sHTML += "<div class=\"step_header_icons\">"
+                sHTML += "<div class=\"step_header_icons\">"
 
-                    # if there's a description, show a tooltip
-                    if sDesc:
-                        sHTML += "<img src=\"static/images/icons/info.png\" class=\"search_dialog_tooltip trans50\" title=\"" + sDesc + "\" />"
+                # if there's a description, show a tooltip
+                if sDesc:
+                    sHTML += "<img src=\"static/images/icons/info.png\" class=\"search_dialog_tooltip trans50\" title=\"" + sDesc + "\" />"
 
-                    sHTML += "</div>"
-                    sHTML += "<div class=\"clearfloat\"></div>"
-                    sHTML += "</li>"
-                    
-                    i += 1
+                sHTML += "</div>"
+                sHTML += "<div class=\"clearfloat\"></div>"
+                sHTML += "</li>"
+                
+                i += 1
                     
             sHTML += "</ul>"
+        else:
+            sHTML = "No results found."
 
         return sHTML
 
