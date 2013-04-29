@@ -1145,7 +1145,7 @@ class TaskEngine():
         Here we're going after a specific function.
         
         """
-        self.logger.info("[%s] Not a built-in command, checking extensions..." % name)
+        self.logger.info("[%s] Not a built-in command, checking extensions..." % (name))
         root = ET.fromstring(step.command)
         extension = root.attrib.get("extension")
         del(root)
@@ -1154,12 +1154,12 @@ class TaskEngine():
             self.logger.error(msg)
             raise Exception(msg)
         
-        self.logger.info("loading extension [%s] ..." % extension)
+        self.logger.info("loading extension [%s] ..." % (extension))
         try:
             mod = importlib.import_module(extension)
         except ImportError as ex:
             self.logger.error(ex.__str__())
-            msg = "Extension module [%s] does not exist." % extension
+            msg = "Extension module [%s] does not exist." % (extension)
             raise Exception(msg)
 
         # evidently the module exists... try to call the function
@@ -1170,18 +1170,26 @@ class TaskEngine():
                 # we pass a pointer to the TaskEngine instance itself, so the extension code has access to everything!
                 return method_to_call(self, step)
             else:
-                msg = "Extension found, method [%s] found, but not callable." % name
+                msg = "Extension found, method [%s] found, but not callable." % (name)
                 raise Exception(msg)
         else:
-            msg = "Extension found, but method [%s] not found." % name
+            msg = "Extension found, but method [%s] not found." % (name)
             raise Exception(msg)
         
     def process_codeblock(self, task, codeblock_name):
 
+        if not codeblock_name:
+            msg = "Codeblock command cannot be empty."
+            raise Exception(msg)
+            
         self.logger.info("##### Processing Codeblock %s" % (codeblock_name))
-        for step in task.codeblocks[codeblock_name].step_list:
-            self.process_step(task, step)
-
+        if task.codeblocks.get(codeblock_name):
+            for step in task.codeblocks[codeblock_name].step_list:
+                self.process_step(task, step)
+        else:
+            msg = "Codeblock Step references a non-existant Codeblock [%s]." % (codeblock_name)
+            raise Exception(msg)
+            
     def process_task(self, task_id):
 
         try:
