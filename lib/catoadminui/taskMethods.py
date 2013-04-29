@@ -358,12 +358,12 @@ class taskMethods:
                             <span>{0}</span>
                         </div>
                         <div class="codeblock_icons pointer">
-                            <span id="codeblock_rename_btn_{0}" class="ui-icon ui-icon-pencil forceinline codeblock_rename" codeblock_name="{0}">
+                            <span id="codeblock_rename_btn_{0}" class="ui-icon ui-icon-pencil forceinline codeblock_rename" codeblock_name="{0}" title="Rename this Codeblock">
                             </span>
-                            <span class="ui-icon ui-icon-copy forceinline codeblock_copy_btn" codeblock_name="{0}">
+                            <span class="ui-icon ui-icon-copy forceinline codeblock_copy_btn" codeblock_name="{0}" title="Copy all Steps to the Clipboard.">
                             </span>
                             <span id="codeblock_delete_btn_{0}"
-                             class="ui-icon ui-icon-close forceinline codeblock_delete_btn codeblock_icon_delete" remove_id="{0}">
+                             class="ui-icon ui-icon-close forceinline codeblock_delete_btn codeblock_icon_delete" remove_id="{0}" title="Delete this Codeblock and all Steps.">
                             </span>
                         </div>
                     </div>
@@ -416,36 +416,52 @@ class taskMethods:
         sNewCodeblockName = uiCommon.getAjaxArg("sNewCodeblockName")
         if catocommon.is_guid(sTaskID):
             #  first make sure we are not try:ing to rename it something that already exists.
-            sSQL = "select count(*) from task_codeblock where task_id = '" + sTaskID + "'" \
-                " and codeblock_name = '" + sNewCodeblockName + "'"
-            iCount = self.db.select_col(sSQL)
+            sSQL = """select count(*) from task_codeblock where task_id = %s
+                and codeblock_name = %s"""
+            iCount = self.db.select_col(sSQL, (sTaskID, sNewCodeblockName))
             if iCount != 0:
                 raise Exception("Codeblock Name already in use, choose another.")
 
             #  do it
 
             # update the codeblock table
-            sSQL = "update task_codeblock set codeblock_name = '" + sNewCodeblockName + \
-                "' where codeblock_name = '" + sOldCodeblockName + \
-                "' and task_id = '" + sTaskID + "'"
-            self.db.tran_exec(sSQL)
+            sSQL = """update task_codeblock set codeblock_name = %s
+                where codeblock_name = %s
+                and task_id = %s"""
+            self.db.tran_exec(sSQL, (sNewCodeblockName, sOldCodeblockName, sTaskID))
 
             # and any steps in that codeblock
-            sSQL = "update task_step set codeblock_name = '" + sNewCodeblockName + \
-                "' where codeblock_name = '" + sOldCodeblockName + \
-                "' and task_id = '" + sTaskID + "'"
-            self.db.tran_exec(sSQL)
+            sSQL = """update task_step set codeblock_name = %s
+                where codeblock_name = %s
+                and task_id = %s"""
+            self.db.tran_exec(sSQL, (sNewCodeblockName, sOldCodeblockName, sTaskID))
 
             # the fun part... rename it where it exists in any steps
             # but this must be in a loop of only the steps where that codeblock reference exists.
-            sSQL = "select step_id from task_step" \
-                " where task_id = '" + sTaskID + "'" \
-                " and ExtractValue(function_xml, '//codeblock[1]') = '" + sOldCodeblockName + "'"
-            dtSteps = self.db.select_all_dict(sSQL)
+            # In ElementTree, you can't get a node by it's inner value, 
+            # so we can't use uiCommon.SetNodeValueinXMLColumn.
+            # just do it with sql 
+            sSQL = """select step_id, function_xml from task_step
+                where task_id = %s
+                and ExtractValue(function_xml, '//codeblock[1]') = %s"""
+            dtSteps = self.db.select_all_dict(sSQL, (sTaskID, sOldCodeblockName))
 
             if dtSteps:
                 for dr in dtSteps:
-                    uiCommon.SetNodeValueinXMLColumn("task_step", "function_xml", "step_id = '" + dr["step_id"] + "'", "codeblock[.='" + sOldCodeblockName + "']", sNewCodeblockName)
+                    # doing a snip of the xml, so we don't have issues with a generic codeblock name, like 'codeblock'
+                    oldsnip = ">%s</codeblock>" % (sOldCodeblockName) 
+                    newsnip = ">%s</codeblock>" % (sNewCodeblockName) 
+                    if oldsnip in dr["function_xml"]:
+                        newxml = dr["function_xml"].replace(oldsnip, newsnip)
+                        # don't update it if the change busted the xml
+                        xd = ET.fromstring(newxml)
+                        if xd is None:
+                            self.db.tran_rollback()
+                            raise Exception("Rename Codeblock: Unable to parse new command XML.")
+                        
+                        sSQL = "update task_step set function_xml = %s where step_id = %s"
+                        print sSQL % (newxml, dr["step_id"])
+                        self.db.tran_exec(sSQL, (newxml, dr["step_id"]))
 
             # all done
             self.db.tran_commit()

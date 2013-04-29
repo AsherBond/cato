@@ -212,6 +212,8 @@ function doCodeblockUpdate(old_name) {
 
 		//refresh the codeblock list
 		doGetCodeblocks();
+		//refresh the step list - it's possible a codeblock on the page holds an old value
+		doGetSteps();
 
 		$("#update_success_msg").text("Update Successful").fadeOut(2000);
 	}
