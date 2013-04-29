@@ -750,7 +750,7 @@ def DrawField(xe, sXPath, oStep):
                 if sDataSet:
                     data = globals()[sDataSet]()
                     if data:
-                        for key, val in data.iteritems():
+                        for key, val in sorted(data.iteritems()):
                             sHTML += "<option " + SetOption(key, sNodeValue) + " value=\"" + key + "\">" + val + "</option>\n"
                             if key == sNodeValue: bValueWasInData = True
             except Exception:
@@ -1131,7 +1131,7 @@ def SetCheckRadio(s1, s2):
 # dropdowns expect a Dictionary<string,string> object return
 
 def ddDataSource_GetDebugLevels():
-    return {"10": "Debug", "20": "Info", "30": "Warning", "40": "Error", "50": "Critical", }
+    return {"10": "Debug", "20": "Info", "30": "Warning", "40": "Error", "50": "Critical"}
 
 def ddDataSource_GetAWSClouds():
     data = {}
