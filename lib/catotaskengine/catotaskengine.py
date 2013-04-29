@@ -426,7 +426,7 @@ class TaskEngine():
         for node in nodes:
             part_list = []
             for subnode in args:
-                self.logger.debug(subnode)
+                # self.logger.debug(subnode)
                 subnode = "./" + subnode
                 part_list.append(node.findtext(subnode, ""))
             return_list.append(part_list)
@@ -706,7 +706,7 @@ class TaskEngine():
             row_count = len(buff)
 
         variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
-            "range_begin", "prefix", "range_end", "suffix", "regex")
+            "range_begin", "prefix", "range_end", "suffix", "regex", "xpath")
 
         for ii in range(row_count):
 
@@ -787,8 +787,11 @@ class TaskEngine():
                     else:
                         value = match.group()
                 elif typ == "xpath":
-                    # TODO
-                    pass
+                    xml = line
+                    if len(xml):
+                        value = self.aws_get_result_var(xml, v[8])
+                    else:
+                        value = ""
 
                 self.rt.set(name, value, ii + 1)
 

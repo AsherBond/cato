@@ -1056,7 +1056,7 @@ def http_cmd(self, task, step):
     log = "http %s %s\012%s\012%s\012Response time = %s ms" % (typ, url, data, buff, response_ms)
     self.insert_audit(step.function_name, log)
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
-        "range_begin", "prefix", "range_end", "suffix", "regex")
+        "range_begin", "prefix", "range_end", "suffix", "regex", "xpath")
     if len(variables):
         # print variables
         self.process_buffer(buff, step)
@@ -1096,9 +1096,9 @@ def parse_text_cmd(self, task, step):
     log = "%s: %s" % (step.function_name, buff)
     self.insert_audit(step.function_name, log)
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
-        "range_begin", "prefix", "range_end", "suffix", "regex")
+        "range_begin", "prefix", "range_end", "suffix", "regex", "xpath")
     if len(variables):
-        # print variables
+        self.logger.debug(variables)
         self.process_buffer(buff, step)
 
 def add_summary_item_cmd(self, task, step):
@@ -1186,7 +1186,7 @@ def winrm_cmd_cmd(self, task, step):
     msg = "%s\n%s" % (cmd, buff)
     self.insert_audit(step.function_name, msg)
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
-        "range_begin", "prefix", "range_end", "suffix", "regex")
+        "range_begin", "prefix", "range_end", "suffix", "regex", "xpath")
     if len(variables):
         self.process_buffer(buff, step)
 
@@ -1222,7 +1222,7 @@ def cmd_line_cmd(self, task, step):
     self.insert_audit(step.function_name, "%s\n%s" % (cmd, buff), conn_name)
 
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
-        "range_begin", "prefix", "range_end", "suffix", "regex")
+        "range_begin", "prefix", "range_end", "suffix", "regex", "xpath")
     if len(variables):
         # print variables
         self.process_buffer(buff, step)
