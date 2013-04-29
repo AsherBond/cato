@@ -1421,6 +1421,12 @@ class TaskEngine():
         # this will merge the two parameter documents, with 
         # values from the second overriding values from the first
         
+        # if there's no parameters, do nothing...
+        if not default_xml:
+            return None
+        if not override_xml:
+            return None
+    
         xdefaults = ET.fromstring(default_xml)
         xoverrides = ET.fromstring(override_xml)
         
