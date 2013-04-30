@@ -147,6 +147,8 @@ $(document).ready(function () {
         $("#lblItemsSelected").html($("[tag='chk']:checked").length);
     });
 
+	// set the focus to the search box
+	$("#txtSearch").focus();
 });
 
 //look, you can't overload a pure javascript function.
