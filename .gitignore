@@ -1,6 +1,4 @@
 
-conf/cato.conf
-
 *.pyc
 
 *.so
@@ -11,13 +9,6 @@ conf/cato.conf
 
 *.o
 
-logfiles/*
-
 .DS_Store
 
 
-conf/crontab.backup
-
-*.crt
-
-*.key

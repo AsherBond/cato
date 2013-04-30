@@ -77,9 +77,10 @@ fi
 crontab -l | grep ${CATO_HOME}/services/start_services.sh 2>&1 1>/dev/null
 if [ $? -eq 1 ]; then
     echo "Adding start_services.sh to crontab"
-    crontab -l > $CATO_HOME/conf/crontab.backup 2>/dev/null
-    echo "0-59 * * * * $CATO_HOME/services/start_services.sh >> $CATO_LOGS/startup.log 2>&1" >> $CATO_HOME/conf/crontab.backup
+    crontab -l > /tmp/crontab.backup 2>/dev/null
+    echo "0-59 * * * * $CATO_HOME/services/start_services.sh >> $CATO_LOGS/startup.log 2>&1" >> /tmp/crontab.backup
     crontab -r 2>/dev/null
-    crontab $CATO_HOME/conf/crontab.backup
+    crontab /tmp/crontab.backup
+    rm /tmp/crontab.backup
 fi
 
