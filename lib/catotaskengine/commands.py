@@ -317,6 +317,7 @@ def datastore_query_cmd(self, task, step):
 
 def codeblock_cmd(self, task, step):
     name = self.get_command_params(step.command, "codeblock")[0]
+    name = self.replace_variables(name)
     self.process_codeblock(task, name.upper())
 
 
