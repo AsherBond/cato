@@ -706,6 +706,7 @@ def set_variable_cmd(self, task, step):
     variables = self.get_node_list(step.command, "variables/variable", "name", "value", "modifier")
     for var in variables:
         name, value, modifier = var[:]
+        name = self.replace_variables(name)
         value = self.replace_variables(value)
         if "," in name:
             name, index = name.split(",", 2)
