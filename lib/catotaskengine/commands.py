@@ -87,9 +87,10 @@ def datastore_create_collection_cmd(self, task, step):
 
 def datastore_insert_cmd(self, task, step):
 
-    collection = self.get_command_params(step.command, "collection")[0]
+    collection, object_id = self.get_command_params(step.command, "collection", "object_id")[:]
     pairs = self.get_node_list(step.command, "pairs/pair", "name", "value")
     collection = self.replace_variables(collection)
+    docvar = self.replace_variables(object_id)
 
     if len(collection) == 0:
         raise Exception("Set Datastore Value requires a collection name")
@@ -117,8 +118,9 @@ def datastore_insert_cmd(self, task, step):
         document[name] = value
 
     self.logger.debug(document)
-    ret = coll.insert(document)
-    msg = "Collection %s, Insert %s" % (collection, str(document))
+    doc_id = coll.insert(document)
+    msg = "Collection %s, Insert %s, Document Id %s" % (collection, str(document), doc_id)
+    self.rt.set(docvar, doc_id)
     self.insert_audit(step.function_name, msg, "")
 
     catocommon.mongo_disconnect(db)
