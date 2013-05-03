@@ -20,6 +20,7 @@
 import re
 from catosettings import settings
 from catocommon import catocommon
+from catoerrors import InfoException
 from catolog import catolog
 logger = catolog.get_logger(__name__)
 
@@ -167,6 +168,96 @@ class User(object):
     def AsJSON(self):
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
+    def DBUpdate(self):
+        db = catocommon.new_conn()
+
+        # TODO:  make sure the current user making this call
+        # is an Administrator
+        
+        sql_bits = []
+        if self.LoginID:
+            sql_bits.append("username='%s'" % self.LoginID)
+        if self.FullName:
+            sql_bits.append("full_name='%s'" % self.FullName)
+        if self.Status:
+            sql_bits.append("status='%s'" % self.Status)
+        if self.AuthenticationType:
+            sql_bits.append("authentication_type='%s'" % self.AuthenticationType)
+        if self.ForceChange:
+            sql_bits.append("force_change='%s'" % self.ForceChange)
+        if self.Email:
+            sql_bits.append("email='%s'" % self.Email)
+        if self.Role:
+            sql_bits.append("user_role='%s'" % self.Role)
+        if self.FailedLoginAttempts:
+            sql_bits.append("failed_login_attempts='%s'" % self.FailedLoginAttempts)
+        if self.Expires:
+            sql_bits.append("expiration_dt=str_to_date('{0}', '%%m/%%d/%%Y')".format(self.Expires))
+
+
+        # only do the password if it was provided
+        if self.Password:
+            result, msg = User.ValidatePassword(self.ID, self.Password)
+            if result:
+                sql_bits.append("user_password = '%s'" % catocommon.cato_encrypt(self.Password))
+            else:
+                raise InfoException(msg)
+
+        # Here's something special...
+        # If the arg "_NewRandomPassword" was provided and is true...
+        # Generate a new password and send out an email.
+        
+        # IF for some reason this AND a password were provided, it means someone is hacking
+        # (We don't do both of them at the same time.)
+        # so the provided one takes precedence.
+        if self._NewRandomPassword and not self.Password:
+            # DON'T sent it to the email on the submit data, rather to the email on the existing record
+            u = User()
+            if u:
+                u.FromID(self.ID)
+                if not u.Email:
+                    raise InfoException("Unable to reset password - User does not have an email address defined.")
+                else:
+                    sNewPassword = catocommon.generate_password()
+                    sql_bits.append("user_password='%s'" % catocommon.cato_encrypt(sNewPassword))
+                      
+                    # TODO: maybe have a setting for the application url?
+                    sURL = ""
+                    
+                    # now, send out an email
+                    s_set = settings.settings.security()
+                    body = s_set.NewUserMessage
+                    if not body:
+                        body = """%s - your password has been reset by an Administrator.\n\n
+                        Your temporary password is: %s.""" % (u.FullName, sNewPassword)
+
+                    # replace our special tokens with the values
+                    body = body.replace("##FULLNAME##", u.FullName).replace("##USERNAME##", u.LoginID).replace("##PASSWORD##", sNewPassword)
+
+                    # TODO: should have the ability to use a configurable "company" name
+                    catocommon.send_email_via_messenger(u.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
+                    #f !uiCommon.SendEmailMessage(sEmail.strip(), ag.APP_COMPANYNAME + " Account Management", "Account Action in " + ag.APP_NAME, sBody, 0000BYREF_ARG0000sErr:
+                    
+        # if there are no properties to update, don't update
+        if sql_bits:
+            sql = "update users set %s where user_id = '%s'" % (",".join(sql_bits), self.ID)
+            db.exec_db(sql)
+
+        if getattr(self, "_Groups", None):
+            # if the Groups argument was empty, that means delete them all!
+            # no matter what the case, we're doing a whack-n-add here.
+            sql = "delete from object_tags where object_id = '%s'" % self.ID
+            db.exec_db(sql)
+
+            # now, lets do any groups that were passed in. 
+            for tag in self._Groups:
+                sql = "insert object_tags (object_type, object_id, tag_name) values (1, '%s','%s')" % (self.ID, tag)
+                db.exec_db(sql)
+                    
+        db.close()
+        return True
+                    
+                            
     def Authenticate(self, login_id, password, client_ip, change_password=None, answer=None):
         # Some of the failure to authenticate return values pass back a token.
         # this is so we can know how to prompt the user.
@@ -304,7 +395,6 @@ class User(object):
                 (sEmail if sEmail else ""), sStatus,
                 sUserRole, pw2insert, ex2insert)
 
-        print sSQL
         if not db.tran_exec_noexcep(sSQL):
             if db.error == "key_violation":
                 raise Exception("A User with that Login ID already exists.  Please select another.")

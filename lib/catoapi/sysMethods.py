@@ -37,6 +37,7 @@ from catoapi import api
 from catoapi.api import response as R
 from catocommon import catocommon
 from catotask import task
+from catouser import catouser
 
 class sysMethods:
     """These are utility methods for the Cato system."""
@@ -139,3 +140,40 @@ class sysMethods:
                 return R(response=ET.tostring(dom))
         else:
             return R(err_code=R.Codes.ListError, err_detail="Unable to list Processes.")
+        
+    def reset_password(self, args):
+        """
+        Resets the password of the authenticated, or a specified User.
+
+        If a user is specified, and the authenticated user is an Administrator, 
+        this will reset the password of the specified user to the provided value.
+        
+        If no user is specified, the password of the authenticated user will be changed.
+
+        Required Arguments: 
+            password - the new password.
+        
+        Optional Arguments:
+            user - Either the User ID or Name.
+
+        Returns: Nothing if successful, error messages on failure.
+        """
+        user = args.get("user")
+
+        # this is a admin function
+        if user and not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        required_params = ["password"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        obj = catouser.User()
+        obj.FromName(user)
+        task.Tasks.Delete(["'%s'" % obj.ID], force)
+        
+        catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.Task, obj.ID, obj.Name, "Deleted via API.")
+        return R(response="[%s] successfully deleted." % obj.Name)
+            
+
