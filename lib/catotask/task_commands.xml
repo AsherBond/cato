@@ -233,9 +233,10 @@
 					</actions>
 				</function>
 			</command>
-			<command name="datastore_insert" label="Datastore Insert" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+			<command name="datastore_insert" label="Datastore Insert" description="" help="Specify a Collection in which to create the document.  ObjectId Variable is a variable name that will be populated with the ObjectId of the newly created document." icon="static/images/icons/bookmark_add_32.png">
 				<function name="datastore_insert">
                     <collection input_type="text" label="Collection" />
+                    <object_id input_type="text" label="ObjectId Variable" />
 					<pairs is_array="true">
 						<pair>
 							<name input_type="text" label="Name" />
