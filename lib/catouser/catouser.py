@@ -168,38 +168,38 @@ class User(object):
     def AsJSON(self):
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
-    def DBUpdate(self):
+    def ChangePassword(self, new_password=None, generate=False):
+        """
+        Updating a user password is a different function with extra rules, 
+            so it's kept separate from the DBUpdate function.
+            
+        You cannot explicitly change a password, AND do the Generate function,
+            so if a password is set it'll use it and continue, otherwise it'll generate.
+        """
+        if not self.Email:
+            raise InfoException("Unable to reset password - User [%s] does not have an email address defined." % (self.FullName))
+        
+        if not new_password and not generate:
+            raise InfoException("Unable to reset password - New password is required or random generation option must be specified.")
+            return False
+
+        # TODO: maybe have a setting for the application url in the email?
+        # TODO: should have the ability to use a configurable "company" name in the email
+        
+        
         db = catocommon.new_conn()
 
-        # TODO:  make sure the current user making this call
-        # is an Administrator
-        
-        sql_bits = []
-        if self.LoginID:
-            sql_bits.append("username='%s'" % self.LoginID)
-        if self.FullName:
-            sql_bits.append("full_name='%s'" % self.FullName)
-        if self.Status:
-            sql_bits.append("status='%s'" % self.Status)
-        if self.AuthenticationType:
-            sql_bits.append("authentication_type='%s'" % self.AuthenticationType)
-        if self.ForceChange:
-            sql_bits.append("force_change='%s'" % self.ForceChange)
-        if self.Email:
-            sql_bits.append("email='%s'" % self.Email)
-        if self.Role:
-            sql_bits.append("user_role='%s'" % self.Role)
-        if self.FailedLoginAttempts:
-            sql_bits.append("failed_login_attempts='%s'" % self.FailedLoginAttempts)
-        if self.Expires:
-            sql_bits.append("expiration_dt=str_to_date('{0}', '%%m/%%d/%%Y')".format(self.Expires))
-
-
-        # only do the password if it was provided
-        if self.Password:
-            result, msg = User.ValidatePassword(self.ID, self.Password)
+        # only do the password if _NewPassword exists on the object.
+        # NOTE: no function that inits a user will set a password property, so it must've been set explicitly
+        if new_password:
+            logger.info("Updating password for User [%s]" % (self.FullName))
+            result, msg = User.ValidatePassword(self.ID, new_password)
             if result:
-                sql_bits.append("user_password = '%s'" % catocommon.cato_encrypt(self.Password))
+                sql = "update users set user_password = %s where user_id = %s"
+                db.exec_db(sql, (catocommon.cato_encrypt(new_password), self.ID))
+                
+                body = """%s - your password has been reset by an Administrator.""" % (self.FullName)
+                catocommon.send_email_via_messenger(self.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
             else:
                 raise InfoException(msg)
 
@@ -210,34 +210,54 @@ class User(object):
         # IF for some reason this AND a password were provided, it means someone is hacking
         # (We don't do both of them at the same time.)
         # so the provided one takes precedence.
-        if self._NewRandomPassword and not self.Password:
-            # DON'T sent it to the email on the submit data, rather to the email on the existing record
-            u = User()
-            if u:
-                u.FromID(self.ID)
-                if not u.Email:
-                    raise InfoException("Unable to reset password - User does not have an email address defined.")
-                else:
-                    sNewPassword = catocommon.generate_password()
-                    sql_bits.append("user_password='%s'" % catocommon.cato_encrypt(sNewPassword))
-                      
-                    # TODO: maybe have a setting for the application url?
-                    sURL = ""
-                    
-                    # now, send out an email
-                    s_set = settings.settings.security()
-                    body = s_set.NewUserMessage
-                    if not body:
-                        body = """%s - your password has been reset by an Administrator.\n\n
-                        Your temporary password is: %s.""" % (u.FullName, sNewPassword)
+        if generate:
+            logger.info("Generating a new password for User [%s]" % (self.FullName))
+            sNewPassword = catocommon.generate_password()
+            
+            sql = "update users set force_change = 1, user_password = %s where user_id = %s"
+            db.exec_db(sql, (catocommon.cato_encrypt(sNewPassword), self.ID))
+              
+            s_set = settings.settings.security()
+            body = s_set.NewUserMessage
+            if not body:
+                body = """%s - your password has been reset by an Administrator.\n\n
+                Your temporary password is: %s.""" % (self.FullName, sNewPassword)
 
-                    # replace our special tokens with the values
-                    body = body.replace("##FULLNAME##", u.FullName).replace("##USERNAME##", u.LoginID).replace("##PASSWORD##", sNewPassword)
+            # replace our special tokens with the values
+            body = body.replace("##FULLNAME##", self.FullName).replace("##USERNAME##", self.LoginID).replace("##PASSWORD##", sNewPassword)
 
-                    # TODO: should have the ability to use a configurable "company" name
-                    catocommon.send_email_via_messenger(u.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
-                    #f !uiCommon.SendEmailMessage(sEmail.strip(), ag.APP_COMPANYNAME + " Account Management", "Account Action in " + ag.APP_NAME, sBody, 0000BYREF_ARG0000sErr:
-                    
+            catocommon.send_email_via_messenger(self.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
+            #f !uiCommon.SendEmailMessage(sEmail.strip(), ag.APP_COMPANYNAME + " Account Management", "Account Action in " + ag.APP_NAME, sBody, 0000BYREF_ARG0000sErr:
+
+        db.close()
+        return True
+        
+    def DBUpdate(self):
+        db = catocommon.new_conn()
+
+        # TODO:  make sure the current user making this call
+        # is an Administrator
+        
+        sql_bits = []
+        if self.LoginID:
+            sql_bits.append("username='%s'" % (self.LoginID))
+        if self.FullName:
+            sql_bits.append("full_name='%s'" % (self.FullName))
+        if self.Status:
+            sql_bits.append("status='%s'" % (self.Status))
+        if self.AuthenticationType:
+            sql_bits.append("authentication_type='%s'" % (self.AuthenticationType))
+        if self.ForceChange:
+            sql_bits.append("force_change='%s'" % (self.ForceChange))
+        if self.Email:
+            sql_bits.append("email='%s'" % (self.Email))
+        if self.Role:
+            sql_bits.append("user_role='%s'" % (self.Role))
+        if self.FailedLoginAttempts:
+            sql_bits.append("failed_login_attempts='%s'" % (self.FailedLoginAttempts))
+        if self.Expires:
+            sql_bits.append("expiration_dt=str_to_date('{0}', '%%m/%%d/%%Y')".format(self.Expires))
+
         # if there are no properties to update, don't update
         if sql_bits:
             sql = "update users set %s where user_id = '%s'" % (",".join(sql_bits), self.ID)
@@ -246,7 +266,7 @@ class User(object):
         if getattr(self, "_Groups", None):
             # if the Groups argument was empty, that means delete them all!
             # no matter what the case, we're doing a whack-n-add here.
-            sql = "delete from object_tags where object_id = '%s'" % self.ID
+            sql = "delete from object_tags where object_id = '%s'" % (self.ID)
             db.exec_db(sql)
 
             # now, lets do any groups that were passed in. 

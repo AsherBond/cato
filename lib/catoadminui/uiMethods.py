@@ -793,6 +793,20 @@ class uiMethods:
         u.FromID(args["ID"])
 
         if u.ID:
+            # these changes are done BEFORE we manipulate the user properties for update.
+
+            new_pw = uiCommon.unpackJSON(args.get("Password"))
+            random_pw = args.get("NewRandomPassword")
+    
+            # if a password was provided, or the random flag was set...exclusively
+            if new_pw:
+                u.ChangePassword(new_password=new_pw)
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "Password changed.")
+            elif random_pw:
+                u.ChangePassword(generate=random_pw)
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "Password reset.")
+                
+            # now we can change the properties
             u.LoginID = args.get("LoginID")
             u.FullName = args.get("FullName")
             u.Status = args.get("Status")
@@ -803,19 +817,12 @@ class uiMethods:
             u.FailedLoginAttempts = args.get("FailedLoginAttempts")
             u.Expires = args.get("Expires")
 
-            u.Password = uiCommon.unpackJSON(args.get("Password"))
-            
             u._Groups = args.get("Groups")
-            u._NewRandomPassword = args.get("NewRandomPassword")
 
-        # special thing about this flag - it'll create a new random password if provided,
-        # but we need to write a security log entry here.
-        if u._NewRandomPassword and not u.Password:
-            uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.ID, "Password reset.")
-            
         if u.DBUpdate():
             uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.ID, "User updated.")
-            return json.dumps({"result" : "success"})
+
+        return json.dumps({"result" : "success"})
 
     def wmCreateUser(self):
         args = uiCommon.getAjaxArgs()
