@@ -21,6 +21,8 @@ import urllib2
 import httplib
 import json
 from datetime import datetime
+from bson.objectid import ObjectId
+from pymongo.errors import InvalidName
 
 try:
     import xml.etree.cElementTree as ET
@@ -36,6 +38,29 @@ from catocommon import catocommon
 from . import classes
 
 RESERVED_COLLECTIONS = ["deployments", "services", "default", "system.indexes"]
+
+def _fix_mongo_query(query_string):
+    # since we started with a JSON document, any reference to the _id field will likely be 
+    # a string representation of the ObjectId.  We gotta cheat that into a real BSON ObjectId.
+    if len(query_string):
+        try:
+            query = json.loads(query_string)
+        except ValueError as e:
+            msg = "Datastore Query error: query not properly formed json: %s, %s" % (query_string, str(e))
+            raise Exception(msg)
+        except Exception as e:
+            raise Exception(e)
+        if not isinstance(query, dict):
+            msg = "Datastore Query error: query is not properly formed json key, value pair object %s" % (query_string)
+            raise Exception(msg)
+    else:
+        query = {}
+        
+    if query.has_key('_id'):
+        if isinstance(query['_id'], unicode) or isinstance(query['_id'], str):
+            query['_id'] = ObjectId(query['_id'])
+    
+    return query
 
 def datastore_drop_collection_cmd(self, task, step):
 
@@ -87,9 +112,10 @@ def datastore_create_collection_cmd(self, task, step):
 
 def datastore_insert_cmd(self, task, step):
 
-    collection = self.get_command_params(step.command, "collection")[0]
+    collection, object_id = self.get_command_params(step.command, "collection", "object_id")[:]
     pairs = self.get_node_list(step.command, "pairs/pair", "name", "value")
     collection = self.replace_variables(collection)
+    docvar = self.replace_variables(object_id)
 
     if len(collection) == 0:
         raise Exception("Set Datastore Value requires a collection name")
@@ -117,8 +143,9 @@ def datastore_insert_cmd(self, task, step):
         document[name] = value
 
     self.logger.debug(document)
-    ret = coll.insert(document)
-    msg = "Collection %s, Insert %s" % (collection, str(document))
+    doc_id = coll.insert(document)
+    msg = "Collection %s, Insert %s, Document Id %s" % (collection, str(document), doc_id)
+    self.rt.set(docvar, doc_id)
     self.insert_audit(step.function_name, msg, "")
 
     catocommon.mongo_disconnect(db)
@@ -129,19 +156,8 @@ def datastore_delete_cmd(self, task, step):
     collection = self.replace_variables(collection)
     query_string = self.replace_variables(query_string)
 
-    if len(query_string):
-        try:
-            query = json.loads(query_string)
-        except ValueError as e:
-            msg = "Datastore Delete error: query not properly formed json: %s, %s" % (query_string, str(e))
-            raise Exception(msg)
-        except Exception as e:
-            raise Exception(e)
-        if not isinstance(query, dict):
-            msg = "Datastore Delete error: query is not properly formed json key, value pair object %s" % (query_string)
-            raise Exception(msg)
-    else:
-        query = {}
+    # validate and prepare the query
+    query_dict = _fix_mongo_query(query_string)
 
     if len(collection) == 0:
         raise Exception("Datastore Delete requires a collection name")
@@ -157,8 +173,8 @@ def datastore_delete_cmd(self, task, step):
         msg = "Datastore Delete error: a collection named %s does not exist" % (collection)
         raise Exception(msg)
 
-    msg = "Collection %s, Delete %s" % (collection, query_string)
-    ret = coll.remove(query)
+    msg = "Collection %s, Delete %s" % (collection, query_dict)
+    coll.remove(query_dict)
     catocommon.mongo_disconnect(db)
     self.insert_audit(step.function_name, msg, "")
 
@@ -196,7 +212,7 @@ def datastore_create_index_cmd(self, task, step):
         unique = True
     else:
         unique = False
-    ret = coll.create_index(index, unique=unique)
+    coll.create_index(index, unique=unique)
     catocommon.mongo_disconnect(db)
     self.insert_audit(step.function_name, msg, "")
 
@@ -208,20 +224,9 @@ def datastore_update_cmd(self, task, step):
     collection = self.replace_variables(collection)
     query_string = self.replace_variables(query_string)
 
-    if len(query_string):
-        try:
-            query = json.loads(query_string)
-        except ValueError as e:
-            msg = "Datastore Update error: query not properly formed json: %s, %s" % (query_string, str(e))
-            raise Exception(msg)
-        except Exception as e:
-            raise Exception(e)
-        if not isinstance(query, dict):
-            msg = "Datastore Update error: query is not properly formed json key, value pair object %s" % (query_string)
-            raise Exception(msg)
-    else:
-        query = {}
-
+    # validate and prepare the query
+    query_dict = _fix_mongo_query(query_string)
+    
     if len(collection) == 0:
         raise Exception("Datastore Update requires a collection name")
 
@@ -236,16 +241,16 @@ def datastore_update_cmd(self, task, step):
         msg = "Datastore Update error: a collection named %s does not exist" % (collection)
         raise Exception(msg)
 
-    vars = {}
+    _vars = {}
     if upsert == "1":
         upsert = True
     else:
         upsert = False
     for p in pairs:
         name = self.replace_variables(p[0])
-        vars[name] = self.replace_variables(p[1])
-    msg = "Collection %s, Update %s, Set %s, Upsert %s" % (collection, query_string, json.dumps(vars), upsert)
-    ret = coll.update(query, {"$set" : vars}, multi=True, upsert=upsert)
+        _vars[name] = self.replace_variables(p[1])
+    msg = "Collection %s, Update %s, Set %s, Upsert %s" % (collection, query_dict, json.dumps(_vars), upsert)
+    coll.update(query_dict, {"$set" : _vars}, multi=True, upsert=upsert)
     catocommon.mongo_disconnect(db)
     self.insert_audit(step.function_name, msg, "")
 
@@ -257,19 +262,8 @@ def datastore_query_cmd(self, task, step):
     collection = self.replace_variables(collection)
     query_string = self.replace_variables(query_string)
 
-    if len(query_string):
-        try:
-            query = json.loads(query_string)
-        except ValueError as e:
-            msg = "Datastore Query error: query not properly formed json: %s, %s" % (query_string, str(e))
-            raise Exception(msg)
-        except Exception as e:
-            raise Exception(e)
-        if not isinstance(query, dict):
-            msg = "Datastore Query error: query is not properly formed json key, value pair object %s" % (query_string)
-            raise Exception(msg)
-    else:
-        query = {}
+    # validate and prepare the query
+    query_dict = _fix_mongo_query(query_string)
 
     if len(collection) == 0:
         raise Exception("Datastore Query requires a collection name")
@@ -281,24 +275,24 @@ def datastore_query_cmd(self, task, step):
         msg = "Datastore Query error: a collection named %s does not exist" % (collection)
         raise Exception(msg)
 
-    vars = []
+    _vars = []
     cols = {}
     for p in pairs:
         name = self.replace_variables(p[0])
         if len(name):
-            vars.append([name, p[1]])
+            _vars.append([name, p[1]])
             cols[name] = True
-    msg = "Collection %s, Query %s, Columns %s" % (collection, query_string, cols.keys())
+    msg = "Collection %s, Query %s, Columns %s" % (collection, query_dict, cols.keys())
     if "_id" not in cols.keys():
         cols["_id"] = False
-    cur = coll.find(query, fields=cols)
+    cur = coll.find(query_dict, fields=cols)
     if cur:
         rows = list(cur)
     index = 0
     for row in rows:
         index += 1
         msg = "%s\n%s" % (msg, json.dumps(row))
-        for v in vars:
+        for v in _vars:
             name = v[0]
             variable = v[1]
             try:
@@ -317,6 +311,7 @@ def datastore_query_cmd(self, task, step):
 
 def codeblock_cmd(self, task, step):
     name = self.get_command_params(step.command, "codeblock")[0]
+    name = self.replace_variables(name)
     self.process_codeblock(task, name.upper())
 
 
@@ -706,6 +701,7 @@ def set_variable_cmd(self, task, step):
     variables = self.get_node_list(step.command, "variables/variable", "name", "value", "modifier")
     for var in variables:
         name, value, modifier = var[:]
+        name = self.replace_variables(name)
         value = self.replace_variables(value)
         if "," in name:
             name, index = name.split(",", 2)

@@ -21,7 +21,7 @@ $(document).ready(function() {
 			$("#app_version").text("Version " + response);
 			g_app = g_app + " v" + response;
 		}
-	});
+	}, "text");
 
 	$('#txtLoginUser').focus();
 

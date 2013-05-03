@@ -211,7 +211,7 @@
 					<text input_type="textarea" rows="3" label="Text" class="w95pct" required="true" label_style="display: block;" />
 				</function>
 			</command>
-			<command name="substring" label="Substring" description="Sets a variable to a portion of the specified text." help="Substring is used to populate a variable with part of a string. Enter the name of the variable to be set in the Variable: entry field. The start index is the position in the Source String to start. 0 is the first position. End Index will contain the last position to be part of the value extracted. This can be an integer, a plus sign and number of characters past the start index (+5 to get the start index plus five more characters) or the word 'end' to make the end position the last character in the string.&lt;br&gt;&lt;br&gt;Source String is the set of characters to be extracted from." icon="static/images/icons/editcut_32.png">
+			<command name="substring" label="Substring" description="Sets a variable to a portion of the specified text." help="Substring is used to populate a variable with part of a string. Enter the name of the variable to be set in the Variable: entry field. The start index is the position in the Source String to start. 1 is the first position. End Index will contain the last position to be part of the value extracted. This can be an integer, a plus sign and number of characters past the start index (+5 to get the start index plus five more characters) or the word 'end' to make the end position the last character in the string.&lt;br&gt;&lt;br&gt;Source String is the set of characters to be extracted from." icon="static/images/icons/editcut_32.png">
 				<function name="substring" snip="variable_name">
 					<variable_name input_type="text" label="Variable" required="true" />
 					<start input_type="text" label="Start" />
@@ -233,9 +233,10 @@
 					</actions>
 				</function>
 			</command>
-			<command name="datastore_insert" label="Datastore Insert" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+			<command name="datastore_insert" label="Datastore Insert" description="Insert a document into the Datastore." help="Specify a Collection in which to create the document.  ObjectId Variable is a variable name that will be populated with the ObjectId of the newly created document." icon="static/images/icons/datastore_insert.png">
 				<function name="datastore_insert">
                     <collection input_type="text" label="Collection" />
+                    <object_id input_type="text" label="ObjectId Variable" />
 					<pairs is_array="true">
 						<pair>
 							<name input_type="text" label="Name" />
@@ -244,7 +245,7 @@
 					</pairs>
 				</function>
 			</command>
-			<command name="datastore_query" label="Datastore Query" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+			<command name="datastore_query" label="Datastore Query" description="Retrieve a document from the Datastore and populate variables with it's properties." help="Specify a standard JSON query to retrieve the document.  Specify 'columns' (keys in the document) to populate named variables." icon="static/images/icons/datastore_query.png">
 				<function name="datastore_query">
                     <collection input_type="text" label="Collection" />
                     <query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
@@ -256,7 +257,7 @@
 					</columns>
 				</function>
 			</command>
-			<command name="datastore_update" label="Datastore Update" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+			<command name="datastore_update" label="Datastore Update" description="Update one or more properties in a Datastore document." help="Specify a standard JSON query to retrieve one or more document(s) to update.  Specify 'columns' (keys in the document) and provide new values. Select 'Upsert' to create a document if the query matches nothing.&lt;br /&gt;&lt;b&gt;&lt;i&gt;If more than one document matches the selection query, all will be updated.&lt;/i&gt;&lt;/b&gt;" icon="static/images/icons/datastore_update.png">
 				<function name="datastore_update">
                     <collection input_type="text" required="true" label="Collection" />
                     <upsert input_type="checkbox" label="Upsert?" />
@@ -269,23 +270,23 @@
 					</columns>
 				</function>
 			</command>
-			<command name="datastore_delete" label="Datastore Delete" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+			<command name="datastore_delete" label="Datastore Delete" description="Delete a Datastore document." help="Specify a standard JSON query to identify document(s) to be deleted." icon="static/images/icons/datastore_delete.png">
 				<function name="datastore_delete">
                     <collection input_type="text" label="Collection" />
                     <query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
 				</function>
 			</command>
-			<command name="datastore_create_collection" label="Datastore Create Collection" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+			<command name="datastore_create_collection" label="Datastore Create Collection" description="Create a new collection in the Datastore." help="Creates a collection in the Datastore. Collections are permanent, and will persist after the Task completes." icon="static/images/icons/datastore_create_collection.png">
 				<function name="datastore_create_collection">
                     <collection input_type="text" label="Collection" />
 				</function>
 			</command>
-			<command name="datastore_drop_collection" label="Datastore Drop Collection" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+			<command name="datastore_drop_collection" label="Datastore Drop Collection" description="Drop a collection from the Datastore." help="Will permanently delete a Datastore collection.&lt;br /&gt;&lt;b&gt;&lt;i&gt;All documents in the collection will be deleted, and cannot be recovered.&lt;/i&gt;&lt;/b&gt;" icon="static/images/icons/datastore_delete_collection.png">
 				<function name="datastore_drop_collection">
                     <collection input_type="text" label="Collection" />
 				</function>
 			</command>
-			<command name="datastore_create_index" label="Datastore Create Index" description="" help="" icon="static/images/icons/bookmark_add_32.png">
+			<command name="datastore_create_index" label="Datastore Create Index" description="Index a Datastore collection by document properties." help="Will create an index in the specified Datastore collection.  All documents in the collection will be subject to the index. &lt;br /&gt;&lt;b&gt;&lt;i&gt;Datastore operations are asynchronous, so index conflicts will not raise warnings - rather operations will silently fail.&lt;/i&gt;&lt;/b&gt;" icon="static/images/icons/datastore_index.png">
 				<function name="datastore_create_index">
                     <collection input_type="text" label="Collection" />
                     <unique input_type="dropdown" label="Unique?" datasource="local" dataset="no|yes">no</unique>
