@@ -630,6 +630,8 @@ class TaskEngine():
             v = self.host_name
         elif s == "_HOST_ADDRESS":
             v = self.host_address
+        elif s == "_INSTANCE_INDEX":
+            v = self.instance_index if hasattr(self, "instance_index") else ""
         elif s == "_INSTANCE_ID":
             v = self.instance_id if hasattr(self, "instance_id") else ""
         elif s == "_INSTANCE_NAME":
