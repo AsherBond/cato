@@ -812,7 +812,9 @@ class uiMethods:
             if key == "FailedLoginAttempts":
                 sql_bits.append("failed_login_attempts='%s'" % val)
             if key == "Expires":
-                sql_bits.append("expiration_dt=str_to_date('{0}', '%%m/%%d/%%Y')".format(val))
+                # don't update the expiration if there's no value!
+                if val:
+                    sql_bits.append("expiration_dt=str_to_date('{0}', '%%m/%%d/%%Y')".format(val))
 
 
             # only do the password if it was provided
