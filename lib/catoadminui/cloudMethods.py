@@ -424,8 +424,12 @@ class cloudMethods:
         ca = cloud.CloudAccount()
         ca.FromID(sAccountID)
 
-        # get the test cloud object type for this provider
-        cot = c.Provider.GetObjectTypeByName(c.Provider.TestObject)
+        # NOTE: the Cloud object has a *THIN* copy of the Provider (it doesn't include
+        #    products or provider clouds.)
+        # But, we actually need a full provider here, so go get it!
+        
+        full_provider = cloud.Provider.FromName(c.Provider.Name)
+        cot = full_provider.GetObjectTypeByName(c.Provider.TestObject)
         
         # different providers libs have different methods for building a url
         url = ""
