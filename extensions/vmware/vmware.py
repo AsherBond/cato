@@ -36,33 +36,36 @@ def vmw_list_images(TE, step):
     values = []
     root = ET.fromstring(step.command)
     filters = root.findall("filters/filter")
-    the_filter = {}
     if filters:
+        the_filter = {}
         for f in filters:
             name = f.findtext("./name", "")
-            values = f.findall("./values/value")
-            value_list = []
-            for v in values:
-                TE.logger.debug("value is %s" % (v.findtext(".", "")))
-                value_list.append(v.findtext(".", ""))
-            the_filter[name] = value_list
+            if len(name):
+                values = f.findall("./values/value")
+                value_list = []
+                for v in values:
+                    #TE.logger.debug("value is %s" % (v.findtext(".", "")))
+                    value_list.append(v.findtext(".", ""))
+                the_filter[name] = value_list
+    else:
+        the_filter = None
         
     instances = cloud.server.list_instances(instanceUuid=instance_uuid, filter=the_filter)
-    TE.logger.info(instances)
+    #TE.logger.info(instances)
 
     results = []
+    msg = "%s\n" % (catosphere.get_all_property_names())
     if len(instances):
 
         for i in instances:
-            results.append(i.get_properties())
+            prop_list = i.get_properties()
+            results.append(prop_list)
+            msg = "%s\n%s" % (msg, prop_list)
 
-        if len(results):
-            variables = TE.get_node_list(step.command, "step_variables/variable", "name", "position")
-            TE.process_list_buffer(results, variables)
+    if len(results):
+        variables = TE.get_node_list(step.command, "step_variables/variable", "name", "position")
+        TE.process_list_buffer(results, variables)
 
-    TE.logger.info(results)
-    msg = catosphere.get_all_property_names() + results
-    TE.logger.info(results)
     TE.insert_audit("vmw_list_images", msg, "")
 
 def vmw_clone_image(TE, step):
@@ -89,11 +92,11 @@ def vmw_clone_image(TE, step):
     TE.insert_audit("vmw_clone_image", msg, "")
     TE.logger.info(result)
         
-def vwm_power_on_image(TE, step):
-    vmw_power_image(step.command, "on")
+def vmw_power_on_image(TE, step):
+    vmw_power_image(TE, step.command, "on")
             
-def vwm_power_off_image(TE, step):
-    vmw_power_image(step.command, "off")
+def vmw_power_off_image(TE, step):
+    vmw_power_image(TE, step.command, "off")
             
 def vmw_power_image(TE, command, on_off):
 
@@ -107,6 +110,7 @@ def vmw_power_image(TE, command, on_off):
     cloud = TE.get_cloud_connection(endpoint_name)
         
     if on_off == "on":
+        result = cloud.server.power_on_vm(instance_uuid)
         msg = "VMware Image Power On %s\nOK" % (instance_uuid)
         TE.insert_audit("vmw_power_on_image", msg, "")
     elif on_off == "off":
