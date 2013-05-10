@@ -93,7 +93,7 @@ class Tasks(object):
         return catocommon.ObjectOutput.IterableAsXML(self.rows, "Tasks", "Task")
 
     def AsText(self, delimiter=None):
-        return catocommon.ObjectOutput.IterableAsText(self.rows, ['ID', 'OriginalTaskID', 'Name', 'Code', 'Version', 'Status'], delimiter)
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ['Name', 'Code', 'Version', 'Status'], delimiter)
 
     @staticmethod
     def Delete(ids, force=False):
@@ -1425,7 +1425,7 @@ class TaskInstances(object):
 
 
         # there may be a list of statuses passed in, if so, build out the where clause for them too
-        if sStatus:
+        if sStatus and sStatus != "all":
             l = []
             # status might be a comma delimited list.  but to prevent sql injection, parse it.
             for s in sStatus.split(","):
