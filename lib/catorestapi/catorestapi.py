@@ -425,6 +425,75 @@ class index:
         finally:
             return "\n".join(out)
 
+class doc:
+    """
+    This is meant primarily as a convenience function to grab the latest documentation
+    for docs.cloudsidekick.com
+    """        
+    def GET(self):
+        out = []
+        out.append("<h2>Cloud Sidekick REST API</h2>")
+        
+        try:
+            from catoapi import taskMethods
+            
+            for attname in dir(taskMethods.taskMethods):
+                att = getattr(taskMethods.taskMethods, attname, None)
+                if att:
+                    if hasattr(att, "__name__"):
+                        out.append("<h4>taskMethods/%s</h4>" % att.__name__)
+                        if att.__doc__:
+                            out.append("<pre><code>%s</code></pre>" % att.__doc__.replace("        ", "").strip())
+                            
+                        
+
+            from catoapi import sysMethods
+            
+            for attname in dir(sysMethods.sysMethods):
+                att = getattr(sysMethods.sysMethods, attname, None)
+                if att:
+                    if hasattr(att, "__name__"):
+                        out.append("<h4>sysMethods/%s</h4>" % att.__name__)
+                        if att.__doc__:
+                            out.append("<pre><code>%s</code></pre>" % att.__doc__.replace("        ", "").strip())
+                        
+
+            from catoapi import dsMethods
+            
+            for attname in dir(dsMethods.dsMethods):
+                att = getattr(dsMethods.dsMethods, attname, None)
+                if att:
+                    if hasattr(att, "__name__"):
+                        out.append("<h4>dsMethods/%s</h4>" % att.__name__)
+                        if att.__doc__:
+                            out.append("<pre><code>%s</code></pre>" % att.__doc__.replace("        ", "").strip())
+
+            
+            try:      
+                from catoapi import depMethods
+
+                out.append("<hr />")
+                out.append("<h2>Maestro REST API</h2>")
+                                    
+                for attname in dir(depMethods.depMethods):
+                    att = getattr(depMethods.depMethods, attname, None)
+                    if att:
+                        if hasattr(att, "__name__"):
+                            out.append("<h4>depMethods/%s</h4>" % att.__name__)
+                            if att.__doc__:
+                                out.append("<pre><code>%s</code></pre>" % att.__doc__.replace("        ", "").strip())
+            except ImportError:
+                # depMethods is a Maestro module, don't error if it's missing.
+                pass
+
+                    
+            out.append("\n")
+                    
+                    
+        except Exception as ex:
+            out.append(ex.__str__())
+        finally:
+            return "\n".join(out)
 
 class ExceptionHandlingApplication(web.application):
     """
@@ -506,6 +575,7 @@ def main():
         
     urls = (
         '/', 'index',
+        '/doc', 'doc',
         '/version', 'version',
         '/configure', 'configure',
         '/getlog', 'getlog',
