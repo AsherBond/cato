@@ -20,6 +20,7 @@ import urllib
 import urllib2
 import httplib
 import json
+from bson import json_util
 from datetime import datetime
 from bson.objectid import ObjectId
 from pymongo.errors import InvalidName
@@ -100,12 +101,12 @@ def datastore_create_collection_cmd(self, task, step):
 
     db = catocommon.new_mongo_conn()
     if collection in db.collection_names():
-        msg = "Datastore Create Collection error: a collection named %s already exists" % (collection)
-        raise Exception(msg)
-
-    db.create_collection(collection)
-    msg = "Collection %s created" % (collection)
-    self.insert_audit(step.function_name, msg, "")
+        msg = "Datastore Create Collection warning: a collection named %s already exists, continuing ..." % (collection)
+        self.insert_audit(step.function_name, msg, "")
+    else:
+        db.create_collection(collection)
+        msg = "Collection %s created" % (collection)
+        self.insert_audit(step.function_name, msg, "")
 
     catocommon.mongo_disconnect(db)
 
@@ -291,7 +292,7 @@ def datastore_query_cmd(self, task, step):
     index = 0
     for row in rows:
         index += 1
-        msg = "%s\n%s" % (msg, json.dumps(row))
+        msg = "%s\n%s" % (msg, json.dumps(row, default=json_util.default))
         for v in _vars:
             name = v[0]
             variable = v[1]
@@ -890,7 +891,7 @@ def new_connection_cmd(self, task, step):
         pass
     else:
         # close the connection and reopen
-        msg = "A connection by the name [%]s already exists, closing the previous one and openning a new connection..." % (conn_name)
+        msg = "A connection by the name %s already exists, closing the previous one and openning a new connection..." % (conn_name)
         self.insert_audit(step.function_name, msg, "")
 
         self.drop_connection(conn_name)
