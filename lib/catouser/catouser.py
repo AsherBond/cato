@@ -67,6 +67,7 @@ class User(object):
         self.FailedLoginAttempts = 0
         self.ForceChange = False
         self.Email = ""
+        self.Expires = None
         self.SettingsXML = ""
         self.Tags = []
     

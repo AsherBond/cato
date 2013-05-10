@@ -698,44 +698,28 @@ class uiMethods:
         """
             In this method, the values come from the browser in a jQuery serialized array of name/value pairs.
         """
-        
-        # TODO 
-        # this should move to the user class
         user_id = uiCommon.GetSessionUserID()
-        sValues = uiCommon.getAjaxArg("sValues")
-    
-        sql_bits = []
-        for pair in sValues:
-            # but to prevent sql injection, only build a sql from values we accept
-            if pair["name"] == "my_email":
-                sql_bits.append("email = '%s'" % catocommon.tick_slash(pair["value"]))
-            if pair["name"] == "my_question":
-                sql_bits.append("security_question = '%s'" % catocommon.tick_slash(pair["value"]))
-            if pair["name"] == "my_answer":
-                if pair["value"]:
-                    sql_bits.append("security_answer = '%s'" % catocommon.cato_encrypt(pair["value"]))
+        args = uiCommon.getAjaxArg("sValues")
 
-            # only do the password if it was provided
-            if pair["name"] == "my_password":
-                newpw = uiCommon.unpackJSON(pair["value"])
-                if newpw:
-                    result, msg = catouser.User.ValidatePassword(user_id, newpw)
-                    if result:
-                        encpw = catocommon.cato_encrypt(newpw)
-                        sql = "insert user_password_history (user_id, change_time, password) values ('%s', now(), '%s')" % (user_id, encpw)
-                        self.db.exec_db(sql)
+        u = catouser.User()
+        u.FromID(user_id)
 
-                        sql_bits.append("user_password = '%s'" % encpw)
-                    else:
-                        return "{\"info\":\"%s\"}" % msg
+        if u.ID:
+            # if a password was provided...
+            # these changes are done BEFORE we manipulate the user properties for update.
+            new_pw = uiCommon.unpackJSON(args.get("my_password"))
+            if new_pw:
+                u.ChangePassword(new_password=new_pw)
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "Password changed.")
+                
+            # now the other values...
+            u.Email = args.get("my_email")
+            u.SecurityQuestion = args.get("my_question")
+            u.SecurityAnswer = uiCommon.unpackJSON(args.get("my_answer"))
 
+            if u.DBUpdate():
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.ID, "User updated.")
 
-        sql = "update users set %s where user_id = '%s'" % (",".join(sql_bits), user_id)
-
-        self.db.exec_db(sql)
-
-        uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, user_id, user_id, "My Account settings updated.")
-            
         return json.dumps({"result" : "success"})
 
     def wmGetUsersTable(self):

@@ -83,16 +83,19 @@ $(document).ready(function() {
 		buttons : {
 			"Save" : function() {
 				// do not submit if the passwords don't match
-				pw1 = $("#my_account_dialog #my_password").val();
-				pw2 = $("#my_account_dialog #my_password_confirm").val();
+				var pw1 = $("#my_account_dialog #my_password").val();
+				var pw2 = $("#my_account_dialog #my_password_confirm").val();
 
 				if (pw1 != pw2) {
 					showInfo("Passwords must match.");
 					return false;
 				}
 
-				pw1 = packJSON(pw1);
-				args = $("#my_account_dialog :input").serializeArray();
+				var args = {};
+				args.my_email = $("#my_account_dialog #my_email").val();
+				args.my_question = $("#my_account_dialog #my_question").val();
+				args.my_password = packJSON(pw1);
+				args.my_answer = packJSON($("#my_account_dialog #my_answer").val());
 
 				var response = catoAjax.saveMyAccount(args);
 				if (response) {
