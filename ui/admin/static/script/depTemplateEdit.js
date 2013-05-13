@@ -75,6 +75,13 @@ $(document).ready(function() {"use strict";
 		validateTemplateJSON();
 	});
 
+	// the onchange event of the icon picker will fire the draw() function
+	// and draw the icon on the canvas.
+	// document.getElementById("uploadimage").addEventListener("change", draw, false)
+	$("#uploadimage").change(function() {
+		saveicon();
+	});
+
 	//tabs in the editor
 	$("#txtTemplate").tabby();
 
@@ -182,6 +189,10 @@ function getDetails() {"use strict";
 		$("#txtTemplateVersion").val(template.Version);
 		$("#txtDescription").val(template.Description);
 		$("#txtTemplate").val(template.Text);
+		
+		// draw the icon on the canvas
+		// FROM OUR SPECIAL appicon url that handles delivering an image from the db.
+		drawicon("/appicon/" + template.ID);
 
 		try {
 			var jsobj = JSON.parse(template.Text)
@@ -301,4 +312,35 @@ function validateTemplateJSON() {"use strict";
 	}
 
 	$(".validation").show();
+}
+
+function drawicon(imgurl) {
+    var ctx = document.getElementById('canvas').getContext('2d'),
+        img = new Image();
+
+    img.src = imgurl;
+    img.onload = function() {
+        ctx.drawImage(img, 0, 0);
+        url.revokeObjectURL(src);
+    }
+}
+
+function saveicon(ev) {
+    // console.log(ev);
+    var ctx = document.getElementById('canvas').getContext('2d'),
+        img = new Image(),
+        f = document.getElementById("uploadimage").files[0],
+        url = window.URL || window.webkitURL,
+        src = url.createObjectURL(f);
+
+    img.src = src;
+    img.onload = function() {
+        ctx.drawImage(img, 0, 0);
+        url.revokeObjectURL(src);
+        
+        // now update the db
+        dataurl = document.getElementById("canvas").toDataURL();
+        $("#iconb64").val(dataurl.replace("data:image/png;base64,", ""));
+        $("#iconb64").change();
+    }
 }

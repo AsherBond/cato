@@ -20,6 +20,7 @@ import json
 import cgi
 import re
 import copy
+import base64
 try:
     import xml.etree.cElementTree as ET
 except (AttributeError, ImportError):
@@ -989,3 +990,21 @@ def SetDebug():
             
     return "Debug successfully changed."
     
+# For saving/reading a deployment template icon from the database.
+def SaveAppIcon(template_id, img):
+    db = catocommon.new_conn()
+    sql = "update deployment_template set icon = %s where template_id = %s"
+    db.exec_db(sql, (base64.b64encode(img), template_id))
+    db.close()
+    return ""
+
+def GetAppIcon(template_id):
+    db = catocommon.new_conn()
+    sql = "select icon from deployment_template where template_id = %s"
+    img = db.select_col(sql, (template_id))
+    db.close()
+    if img:
+        return base64.b64decode(img)
+    else:
+        return ""
+
