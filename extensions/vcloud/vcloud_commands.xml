@@ -1,0 +1,48 @@
+<categories>
+	<category name="vCloud" label="vCloud" description="Commands for interacting with the VMWare vCloud API" icon="static/images/icons/vmware/vmware.png">
+		<commands>
+			<command name="vcloud_call_parse" label="vCloud API Call and Parse" description="" icon="static/images/icons/vmware/vmware.png">
+				<function name="vcloud_call_parse" extension="vcloud.vcloud" >
+					<endpoint_name input_type="dropdown" label="Cloud Endpoint Name" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAllClouds" />
+					<path input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Url or Method" />
+                    <method_or_href input_type="dropdown" label="Method or Href" datasource="local" dataset="method|href">method</method_or_href>
+                    <action input_type="dropdown" label="Action" datasource="local" dataset="GET|POST|DELETE|PUT">GET</action>
+					<data input_type="textarea" rows="3" class="w90pct" label_style="display: block;" label="Data" />
+					<content_type input_type="text" class="w90pct" label="Content Type" />
+					<xpath input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Xpath" />
+                    <values label="Values to Extract" is_array="true">
+                        <value label="Value">
+                            <name input_type="text" label="Attribute or Element Name" />
+                            <variable input_type="text" label="Variable" />
+                            <type input_type="dropdown" label="Type" datasource="local" dataset="attribute|element">attribute</type>
+                        </value>
+                    </values>
+				</function>
+			</command>
+			<command name="vcloud_call" label="vCloud API Call" description="" icon="static/images/icons/vmware/vmware.png">
+				<function name="vcloud_call" extension="vcloud.vcloud" >
+					<endpoint_name input_type="dropdown" label="Cloud Endpoint Name" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAllClouds" />
+					<path input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Url or Method" />
+                    <method_or_href input_type="dropdown" label="Method or Href" datasource="local" dataset="method|href">method</method_or_href>
+                    <action input_type="dropdown" label="Action" datasource="local" dataset="GET|POST|DELETE|PUT">GET</action>
+					<data input_type="textarea" rows="3" class="w90pct" label_style="display: block;" label="Data" />
+					<content_type input_type="text" class="w90pct" label="Content Type" />
+					<output_var input_type="text" label="Output Variable" />
+				</function>
+			</command>
+			<command name="vcloud_parse" label="vCloud Parse XML" description="" icon="static/images/icons/vmware/vmware.png">
+				<function name="vcloud_parse" extension="vcloud.vcloud" >
+					<xml input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="XML Data" />
+					<path input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Xpath" />
+                    <values label="Values to Extract" is_array="true">
+                        <value label="Value">
+                            <name input_type="text" label="Attribute or Element Name" />
+                            <variable input_type="text" label="Variable" />
+                            <type input_type="dropdown" label="Type" datasource="local" dataset="attribute|element">attribute</type>
+                        </value>
+                    </values>
+				</function>
+			</command>
+		</commands>
+	</category>
+</categories>
