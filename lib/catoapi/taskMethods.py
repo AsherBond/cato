@@ -376,11 +376,12 @@ class taskMethods:
         Returns: A list of Task Instances.
         """
         fltr = args["filter"] if args.has_key("filter") else ""
-        status = args["status"] if args.has_key("status") else ""
         frm = args["from"] if args.has_key("from") else ""
         to = args["to"] if args.has_key("to") else ""
         records = args["records"] if args.has_key("records") else ""
-
+        status = args["status"] if args.has_key("status") else "Submitted,Processing"
+        status = "" if status.lower() == "all" else status
+        
         obj = task.TaskInstances(sFilter=fltr,
                                  sStatus=status,
                                  sFrom=frm,

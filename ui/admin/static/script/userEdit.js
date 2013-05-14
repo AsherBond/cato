@@ -470,6 +470,7 @@ function LoadEditDialog(editCount, editUserID) {
 		$("#ddlUserStatus").val(user.Status);
 		$("#txtExpirationDT").val(user.ExpirationDT);
 		$("#ddlUserRole").val(user.Role);
+		$("#cbNewUserForcePasswordChange").attr('checked', user.ForceChange);
 		$("#lblFailedLoginAttempts").html(user.FailedLoginAttempts);
 
 		SetPasswordControls();

@@ -21,7 +21,6 @@ Datastore endpoint methods.
 import os
 import sys
 import json
-import traceback
 
 
 # These API endpoints require Maestro
@@ -73,15 +72,15 @@ class dsMethods:
         
         Returns: A list of Document Collections.
         """
-            fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args["filter"] if args.has_key("filter") else ""
 
-            obj = datastore.Collections(fltr)
-            if args["output_format"] == "json":
-                return R(response=obj.AsJSON())
-            elif args["output_format"] == "text":
-                return R(response=obj.AsText(args["output_delimiter"]))
-            else:
-                return R(response=obj.AsXML())
+        obj = datastore.Collections(fltr)
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML())
 
     def create_document(self, args):        
         """

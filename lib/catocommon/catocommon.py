@@ -469,13 +469,12 @@ def add_security_log(UserID, LogType, Action, ObjectType, ObjectID, LogMessage):
     db.close()
 
 def write_add_log(UserID, oType, sObjectID, sObjectName, sLog=""):
-    if sObjectID and sObjectName:
-        if not sLog:
-            sLog = "Created: [" + tick_slash(sObjectName) + "]."
-        else:
-            sLog = "Created: [" + tick_slash(sObjectName) + "] - [" + sLog + "]"
+    if not sLog:
+        sLog = "Created: [" + tick_slash(sObjectName) + "]."
+    else:
+        sLog = "Created: [" + tick_slash(sObjectName) + "] - [" + sLog + "]"
 
-        add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
+    add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
 
 def write_delete_log(UserID, oType, sObjectID, sObjectName, sLog=""):
     if not sLog:
@@ -486,19 +485,18 @@ def write_delete_log(UserID, oType, sObjectID, sObjectName, sLog=""):
     add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectDelete, oType, sObjectID, sLog)
 
 def write_change_log(UserID, oType, sObjectID, sObjectName, sLog=""):
-    if sObjectID and sObjectName:
-        if not sObjectName:
-            sObjectName = "[" + tick_slash(sObjectName) + "]."
-        else:
-            sLog = "Changed: [" + tick_slash(sObjectName) + "] - [" + sLog + "]"
+    if not sLog:
+        sLog = "Changed: [" + tick_slash(sObjectName) + "]."
+    else:
+        sLog = "Changed: [" + tick_slash(sObjectName) + "] - [" + sLog + "]"
 
-        add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
+    add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectModify, oType, sObjectID, sLog)
 
 def write_property_change_log(UserID, oType, sObjectID, sLabel, sFrom, sTo):
     if sFrom and sTo:
         if sFrom != sTo:
             sLog = "Changed: " + sLabel + " from [" + tick_slash(sFrom) + "] to [" + tick_slash(sTo) + "]."
-            add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
+            add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectModify, oType, sObjectID, sLog)
 
 def FindAndCall(method, args=None):
     """

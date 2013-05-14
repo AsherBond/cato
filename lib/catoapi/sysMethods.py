@@ -37,6 +37,7 @@ from catoapi import api
 from catoapi.api import response as R
 from catocommon import catocommon
 from catotask import task
+from catouser import catouser
 
 class sysMethods:
     """These are utility methods for the Cato system."""
@@ -139,3 +140,56 @@ class sysMethods:
                 return R(response=ET.tostring(dom))
         else:
             return R(err_code=R.Codes.ListError, err_detail="Unable to list Processes.")
+        
+    def reset_password(self, args):
+        """
+        Resets the password of the authenticated, or a specified User.
+
+        If a user is specified, and the authenticated user is an Administrator, 
+        this will reset the password of the specified user to the provided value.
+        
+        If no user is specified, the password of the authenticated user will be changed.
+
+        NOTE: to prevent accidental change of an Administrators password, an extra trap is in place:
+            * the username (or id) MUST be provided, even if the authenticated user 
+                is the user being changed.
+
+        Required Arguments: 
+            password - the new password.
+        
+        Optional Arguments:
+            user - Either the User ID or Name.
+
+        Returns: Nothing if successful, error messages on failure.
+        """
+        user = args.get("user")
+        new_pw = args.get("password")
+
+        # this is a admin function, kick out 
+        if user and not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+
+        # the only way to reset an "Administrator" role password
+        # is to BE an Administrator and SPECIFY a user, even if the user is you
+        if not user and args["_admin"]:
+            return R(err_code=R.Codes.Forbidden, err_detail="Administrators must specify a user to change.")
+
+        generate = catocommon.is_true(args.get("generate"))
+
+        obj = catouser.User()
+        obj.FromName(user)
+
+        if obj.ID:
+            # if a password was provided, or the random flag was set...exclusively
+            if new_pw:
+                obj.ChangePassword(new_password=new_pw)
+            elif generate:
+                obj.ChangePassword(generate=generate)
+        else:
+            return R(err_code=R.Codes.GetError, err_detail="Unable to update password.")
+
+        
+        catocommon.write_change_log(args["_user_id"], catocommon.CatoObjectTypes.User, obj.ID, obj.FullName, "Password change/reset via API.")
+        return R(response="[%s] password operation successful." % obj.FullName)
+            
+

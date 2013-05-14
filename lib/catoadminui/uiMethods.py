@@ -698,44 +698,28 @@ class uiMethods:
         """
             In this method, the values come from the browser in a jQuery serialized array of name/value pairs.
         """
-        
-        # TODO 
-        # this should move to the user class
         user_id = uiCommon.GetSessionUserID()
-        sValues = uiCommon.getAjaxArg("sValues")
-    
-        sql_bits = []
-        for pair in sValues:
-            # but to prevent sql injection, only build a sql from values we accept
-            if pair["name"] == "my_email":
-                sql_bits.append("email = '%s'" % catocommon.tick_slash(pair["value"]))
-            if pair["name"] == "my_question":
-                sql_bits.append("security_question = '%s'" % catocommon.tick_slash(pair["value"]))
-            if pair["name"] == "my_answer":
-                if pair["value"]:
-                    sql_bits.append("security_answer = '%s'" % catocommon.cato_encrypt(pair["value"]))
+        args = uiCommon.getAjaxArg("sValues")
 
-            # only do the password if it was provided
-            if pair["name"] == "my_password":
-                newpw = uiCommon.unpackJSON(pair["value"])
-                if newpw:
-                    result, msg = catouser.User.ValidatePassword(user_id, newpw)
-                    if result:
-                        encpw = catocommon.cato_encrypt(newpw)
-                        sql = "insert user_password_history (user_id, change_time, password) values ('%s', now(), '%s')" % (user_id, encpw)
-                        self.db.exec_db(sql)
+        u = catouser.User()
+        u.FromID(user_id)
 
-                        sql_bits.append("user_password = '%s'" % encpw)
-                    else:
-                        return "{\"info\":\"%s\"}" % msg
+        if u.ID:
+            # if a password was provided...
+            # these changes are done BEFORE we manipulate the user properties for update.
+            new_pw = uiCommon.unpackJSON(args.get("my_password"))
+            if new_pw:
+                u.ChangePassword(new_password=new_pw)
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "Password changed.")
+                
+            # now the other values...
+            u.Email = args.get("my_email")
+            u.SecurityQuestion = args.get("my_question")
+            u.SecurityAnswer = uiCommon.unpackJSON(args.get("my_answer"))
 
+            if u.DBUpdate():
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.ID, "User updated.")
 
-        sql = "update users set %s where user_id = '%s'" % (",".join(sql_bits), user_id)
-
-        self.db.exec_db(sql)
-
-        uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, user_id, user_id, "My Account settings updated.")
-            
         return json.dumps({"result" : "success"})
 
     def wmGetUsersTable(self):
@@ -782,108 +766,46 @@ class uiMethods:
     def wmUpdateUser(self):
         """
             Updates a user.  Will only update the values passed to it.
-            
-            TODO: this should be moved to the user module.
         """
-        # FIRST THINGS FIRST - it's critical we make sure the current user making this call
-        # is an Administrator
-        
-        
+        user_role = uiCommon.GetSessionUserRole()
+        if user_role != "Administrator":
+            raise Exception("Only Administrators can edit user accounts.")
+         
         args = uiCommon.getAjaxArgs()
-        user_id = args["ID"]
         
-        sql_bits = []
-        for key, val in args.iteritems():
-            # but to prevent sql injection, only build a sql from values we accept
-            if key == "LoginID":
-                sql_bits.append("username='%s'" % val)
-            if key == "FullName":
-                sql_bits.append("full_name='%s'" % val)
-            if key == "Status":
-                sql_bits.append("status='%s'" % val)
-            if key == "AuthenticationType":
-                sql_bits.append("authentication_type='%s'" % val)
-            if key == "ForceChange":
-                sql_bits.append("force_change='%s'" % val)
-            if key == "Email":
-                sql_bits.append("email='%s'" % val)
-            if key == "Role":
-                sql_bits.append("user_role='%s'" % val)
-            if key == "FailedLoginAttempts":
-                sql_bits.append("failed_login_attempts='%s'" % val)
-            if key == "Expires":
-                # don't update the expiration if there's no value!
-                if val:
-                    sql_bits.append("expiration_dt=str_to_date('{0}', '%%m/%%d/%%Y')".format(val))
+        u = catouser.User()
+        u.FromID(args["ID"])
 
+        if u.ID:
+            # these changes are done BEFORE we manipulate the user properties for update.
 
-            # only do the password if it was provided
-            if key == "Password":
-                newpw = uiCommon.unpackJSON(val)
-                if newpw:
-                    result, msg = catouser.User.ValidatePassword(user_id, newpw)
-                    if result:
-                        sql_bits.append("user_password = '%s'" % catocommon.cato_encrypt(newpw))
-                    else:
-                        raise InfoException(msg)
+            new_pw = uiCommon.unpackJSON(args.get("Password"))
+            random_pw = args.get("NewRandomPassword")
+    
+            # if a password was provided, or the random flag was set...exclusively
+            if new_pw:
+                u.ChangePassword(new_password=new_pw)
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "Password changed.")
+            elif random_pw:
+                u.ChangePassword(generate=random_pw)
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "Password reset.")
+                
+            # now we can change the properties
+            u.LoginID = args.get("LoginID")
+            u.FullName = args.get("FullName")
+            u.Status = args.get("Status")
+            u.AuthenticationType = args.get("AuthenticationType")
+            u.ForceChange = args.get("ForceChange")
+            u.Email = args.get("Email")
+            u.Role = args.get("Role")
+            u.FailedLoginAttempts = args.get("FailedLoginAttempts")
+            u.Expires = args.get("Expires")
 
-            # Here's something special...
-            # If the arg "RandomPassword" was provided and is true...
-            # Generate a new password and send out an email.
-            
-            # AND - don't sent it to the email on the submit data, rather to the email on the
-            
-            # IF for some reason this AND a password were provided, it means someone is hacking
-            # (We don't do both of them at the same time.)
-            # so the provided one takes precedence.
-            if key == "NewRandomPassword" and not args.has_key("Password"):
-                u = catouser.User()
-                if u:
-                    u.FromID(args["ID"])
-                    if not u.Email:
-                        raise InfoException("Unable to reset password - User does not have an email address defined.")
-                    else:
-                        sNewPassword = catocommon.generate_password()
-                        sql_bits.append("user_password='%s'" % sNewPassword)
-                          
-                        # an additional log entry
-                        uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, user_id, user_id, "Password reset.")
+            u._Groups = args.get("Groups")
 
-                        # TODO: maybe have a setting for the application url?
-                        sURL = ""
-                        
-                        # now, send out an email
-                        s_set = settings.settings.security()
-                        body = s_set.NewUserMessage
-                        if not body:
-                            body = """%s - your password has been reset by an Administrator.\n\n
-                            Your temporary password is: %s.""" % (u.FullName, sNewPassword)
+        if u.DBUpdate():
+            uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.ID, "User updated.")
 
-                        # replace our special tokens with the values
-                        body = body.replace("##FULLNAME##", u.FullName).replace("##USERNAME##", u.LoginID).replace("##PASSWORD##", sNewPassword)
-
-                        # TODO: should have the ability to use a configurable "company" name
-                        catocommon.send_email_via_messenger(u.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
-                        #f !uiCommon.SendEmailMessage(sEmail.strip(), ag.APP_COMPANYNAME + " Account Management", "Account Action in " + ag.APP_NAME, sBody, 0000BYREF_ARG0000sErr:
-                    
-        sql = "update users set %s where user_id = '%s'" % (",".join(sql_bits), user_id)
-        self.db.exec_db(sql)
-
-        uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, user_id, user_id, "User updated.")
-           
-           
-        if args.has_key("Groups"):
-            # if the Groups argument was empty, that means delete them all!
-            # no matter what the case, we're doing a whack-n-add here.
-            sql = "delete from object_tags where object_id = '%s'" % user_id
-            self.db.exec_db(sql)
-
-            # now, lets do any groups that were passed in. 
-            if args["Groups"]:
-                for tag in args["Groups"]:
-                    sql = "insert object_tags (object_type, object_id, tag_name) values (1, '%s','%s')" % (user_id, tag)
-                    self.db.exec_db(sql)
-        
         return json.dumps({"result" : "success"})
 
     def wmCreateUser(self):

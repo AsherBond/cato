@@ -150,10 +150,6 @@ class response:
 		self.ErrorMessage = err_msg
 		self.ErrorDetail = err_detail
 		
-		# if there's an error code and no details, use a generic message.
-		if self.ErrorCode and not self.ErrorDetail:
-			self.ErrorDetail = "An Exception has occured.  Check the API Server logfile for more information."
-
 	def asXMLString(self):
 		"""Returns the response as an XML string"""
 		
@@ -198,7 +194,7 @@ class response:
 
 	def asText(self):
 		"""
-		Returns ONY THE RESPONSE as plain text.
+		Returns ONLY THE RESPONSE as plain text.
 		If there's no response, it'll cascade across the error fields,
 		ultimately returning a generic message if nothing is available.
 		"""
