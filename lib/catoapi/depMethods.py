@@ -138,7 +138,7 @@ class depMethods:
         t.FromNameVersion(template, version)
         
         if not t.Text:
-            msg = "Deployment Template [%s/%s] has no JSON document." % (template, version)
+            msg = "Deployment Template [%s/%s] has no definition document." % (template, version)
             return R(err_code=R.Codes.CreateError, err_detail=msg)
             
         # 2)

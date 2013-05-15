@@ -189,7 +189,7 @@ function getDetails() {"use strict";
 		$("#txtTemplateVersion").val(template.Version);
 		$("#txtDescription").val(template.Description);
 		$("#txtTemplate").val(template.Text);
-		
+
 		// draw the icon on the canvas
 		// FROM OUR SPECIAL appicon url that handles delivering an image from the db.
 		drawicon("/appicon/" + template.ID);
@@ -258,18 +258,6 @@ function doDetailFieldUpdate(ctl) {"use strict";
 	var column = $(ctl).attr("column");
 	var value = $(ctl).val();
 
-	//for checkboxes and radio buttons, we gotta do a little bit more, as the pure 'val()' isn't exactly right.
-	//and textareas will not have a type property!
-	if ($(ctl).attr("type")) {
-		var typ = $(ctl).attr("type").toLowerCase();
-		if (typ === "checkbox") {
-			value = (ctl.checked === true ? 1 : 0);
-		}
-		if (typ === "radio") {
-			value = (ctl.checked === true ? 1 : 0);
-		}
-	}
-
 	if (column.length > 0) {
 		$("#update_success_msg").text("Updating...").show();
 
@@ -315,32 +303,33 @@ function validateTemplateJSON() {"use strict";
 }
 
 function drawicon(imgurl) {
-    var ctx = document.getElementById('canvas').getContext('2d'),
-        img = new Image();
+	var ctx = document.getElementById('canvas').getContext('2d'), img = new Image();
 
-    img.src = imgurl;
-    img.onload = function() {
-        ctx.drawImage(img, 0, 0);
-        url.revokeObjectURL(src);
-    }
+	img.src = imgurl;
+	img.onload = function() {
+		ctx.drawImage(img, 0, 0);
+		url.revokeObjectURL(src);
+	}
 }
 
 function saveicon(ev) {
-    // console.log(ev);
-    var ctx = document.getElementById('canvas').getContext('2d'),
-        img = new Image(),
-        f = document.getElementById("uploadimage").files[0],
-        url = window.URL || window.webkitURL,
-        src = url.createObjectURL(f);
+	// console.log(ev);
+	var ctx = document.getElementById('canvas').getContext('2d')
+	var img = new Image();
+	var f = document.getElementById("uploadimage").files[0];
+	var url = window.URL || window.webkitURL;
+	var src = url.createObjectURL(f);
 
-    img.src = src;
-    img.onload = function() {
-        ctx.drawImage(img, 0, 0);
-        url.revokeObjectURL(src);
-        
-        // now update the db
-        dataurl = document.getElementById("canvas").toDataURL();
-        $("#iconb64").val(dataurl.replace("data:image/png;base64,", ""));
-        $("#iconb64").change();
-    }
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	
+	img.src = src;
+	img.onload = function() {
+		ctx.drawImage(img, 0, 0);
+		url.revokeObjectURL(src);
+
+		// now update the db
+		dataurl = document.getElementById("canvas").toDataURL();
+		$("#iconb64").val(dataurl.replace("data:image/png;base64,", ""));
+		$("#iconb64").change();
+	}
 }

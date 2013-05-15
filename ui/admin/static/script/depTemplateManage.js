@@ -177,10 +177,6 @@ function Save() {
 		bSave = false;
 		strValidationError += 'Version is required.';
 	};
-	if ($("#txtTemplateFile").val() == "") {
-		bSave = false;
-		strValidationError += 'Template definition is required.';
-	};
 
 	if (bSave != true) {
 		showAlert(strValidationError);
