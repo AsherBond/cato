@@ -91,11 +91,22 @@ versions = [
                      ["addcolumn", "deployment_template", "categories", "varchar(1024) NULL"],
                      ["addcolumn", "deployment_template", "svc_count", "int(11) NULL DEFAULT 0"],
                      ["dropcolumn", "deployment", "grouping"],
-                     ["function", "_v16_updates"]
+                     ["addcolumn", "deployment_step_service", "original_task_id", "varchar(36)"],
+                     ["addcolumn", "deployment_step_service", "task_version", "varchar(36)"],
+                     ["addcolumn", "deployment_step_service", "run_level", "varchar(36)"],
+                     ["addcolumn", "dep_seq_tran_params", "original_task_id", "varchar(36)"],
+                     ["addcolumn", "dep_seq_tran_params", "task_version", "varchar(36)"],
+                     ["addcolumn", "dep_seq_inst_tran", "original_task_id", "varchar(36)"],
+                     ["addcolumn", "dep_seq_inst_tran", "task_version", "varchar(36)"],
+                     ["addcolumn", "dep_service_inst_params", "original_task_id", "varchar(36)"],
+                     ["addcolumn", "dep_service_inst_params", "task_version", "varchar(36)"],
+                     ["function", "_v16_updates"],
                      ]
              ],
             ["1.17", [
-                      ["comment", "FUTURE NOTE: delete the _template_name and _template_version columns from deployment."]
+                      ["comment", "FUTURE NOTE: delete the _template_name and _template_version columns from deployment."],
+                      ["comment", "FUTURE NOTE: drop the table deployment_service_state"],
+
                       ]
              ]
         ]
@@ -202,6 +213,17 @@ def _v16_updates():
     sql = "ALTER TABLE deployment CHANGE COLUMN `template_name` `_template_name` VARCHAR(64) NULL"
     db.exec_db_noexcep(sql)
     sql = "ALTER TABLE deployment CHANGE COLUMN `template_version` `_template_version` VARCHAR(8) NULL"
+    db.exec_db_noexcep(sql)
+
+    # move task info from deployment_service_state to deployment_step_service
+    sql = """update deployment_step_service dss
+        join deployment_service_state dss2 
+          on dss.deployment_service_id = dss2.deployment_service_id
+            and dss.initial_state = dss2.state
+            and dss.desired_state = dss2.next_state
+        set dss.original_task_id = dss2.original_task_id, 
+          dss.task_version = dss2.task_version,
+          dss.run_level = dss2.run_level"""
     db.exec_db_noexcep(sql)
     
 
