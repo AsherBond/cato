@@ -159,6 +159,7 @@ fi
 ### install third party python packages
 pip install -q -r $CATO_HOME/requirements.txt
 pip install -q https://github.com/cloudsidekick/awspy/archive/master.zip
+pip install -q https://github.com/cloudsidekick/vcloudpy/archive/master.zip
 pip install -q http://github.com/pdunnigan/pywinrm/archive/master.zip
 
 ### compile c++ encryption library
