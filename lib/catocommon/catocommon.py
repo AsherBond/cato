@@ -697,7 +697,7 @@ class dict2xml(object):
             
         else:
             data = str(structure)
-            tag = self.doc.createTextNode(data)
+            tag = self.doc.createTextNode(data.encode('ascii', 'replace'))
             father.appendChild(tag)
     
     def display(self):
@@ -791,11 +791,13 @@ class ObjectOutput(object):
                     if hasattr(row, "__dict__"):
                         # might be an object, which has the __dict__ builtin
                         for key in keys:
-                            cols.append(str(row.__dict__[key]))
+                            if row.__dict__[key]:
+                                cols.append(str(row.__dict__[key].encode('ascii', 'replace')))
                     elif isinstance(row, dict):
                         # but if it actually IS a dict...
                         for key in keys:
-                            cols.append(str(row[key]))
+                            if row[key]:
+                                cols.append(str(row[key].encode('ascii', 'replace')))
                     else:
                         # but if they're not, just return the whole row
                         cols.append(str(row))
