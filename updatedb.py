@@ -87,7 +87,7 @@ versions = [
                                                             `icon` MEDIUMBLOB NULL ,
                                                             UNIQUE INDEX `category_name_UNIQUE` (`category_name` ASC) ,
                                                             PRIMARY KEY (`category_id`) )"""],
-                     ["addcolumn", "deployment_template", "icon", "varchar(36) MEDIUMBLOB NULL"],
+                     ["addcolumn", "deployment_template", "icon", "MEDIUMBLOB NULL"],
                      ["addcolumn", "deployment_template", "categories", "varchar(1024) NULL"],
                      ["addcolumn", "deployment_template", "svc_count", "int(11) NULL DEFAULT 0"],
                      ["dropcolumn", "deployment", "grouping"],
