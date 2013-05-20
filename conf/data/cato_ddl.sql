@@ -556,7 +556,7 @@ CREATE TABLE `task_instance` (
   `schedule_instance` bigint(20) DEFAULT NULL,
   `ce_node` int(11) DEFAULT NULL,
   `pid` int(11) DEFAULT NULL,
-  `group_name` varchar(33) DEFAULT NULL,
+  `group_name` varchar(32) DEFAULT NULL,
   `submitted_by_instance` bigint(20) DEFAULT NULL,
   `ecosystem_id` varchar(36) DEFAULT NULL,
   `account_id` varchar(36) DEFAULT NULL,
