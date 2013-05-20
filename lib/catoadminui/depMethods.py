@@ -62,14 +62,13 @@ class depMethods:
                 <tr template_id="{0}">
                 <td class="chkboxcolumn">    
                     <input type="checkbox" class="chkbox" id="chk_{0}" object_id="{0}" tag="chk" />
-                </td>
+                </td>""".format(row["ID"])
                 
-                <td class="selectable">{1}</td>
-                <td class="selectable">{2}</td>
-                <td class="selectable">{3}</td>
+                sHTML += '<td class="selectable">' + row["Name"] + '</td>'
+                sHTML += '<td class="selectable">' + row["Version"] + '</td>'
+                sHTML += '<td class="selectable">' + (row["Description"] if row["Description"] else "") + '</td>'
                 
-                </tr>
-                """.format(row["ID"], row["Name"], row["Version"], row["Description"] if row["Description"] else "")
+                sHTML += "</tr>"
 
         return json.dumps({"pager" : uiCommon.packJSON(pager_html), "rows" : uiCommon.packJSON(sHTML)})
             

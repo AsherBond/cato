@@ -3,95 +3,99 @@ $var jsfiles: toolbox.js depTemplateEdit.js tags.js jsonlint/c/js/json2.js jsonl
 $var cssfiles: taskEdit.css taskView.css ../../static/script/jquery/jsoneditor/jsoneditor.css
 
 <div id="left_panel_te">
-	<div id="toolbox">
-		<div id="toolbox_tabs" class="toolbox_tabs_1row">
-			<span id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top ui-state-active toolbox_tab">Details</span><span
-			id="tab_deployments" linkto="div_deployments" class="ui-state-default ui-corner-top toolbox_tab">Deployments</span><span
-			id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>
-		</div>
-		<div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel">
-			<div style="padding: 0 0 0 5px;">
-				<span class="detail_label">Name:</span>
-				<input type="text" id="txtTemplateName" class="task_details code" disabled="disabled" />
-				<br />
-				<span class="detail_label">Version:</span>
-				<input type="text" id="txtTemplateVersion" class="task_details code" disabled="disabled" />
-				<br />
-				<span class="detail_label">Description:</span>
-				<br />
-				<textarea id="txtDescription" rows="5" class="code" te_group="detail_fields" column="Description"></textarea>
-			</div>
-		</div>
-		<div id="div_deployments" class="ui-widget-content ui-corner-top toolbox_panel hidden">
-			<div style="padding: 0 0 0 5px;">
-				<span id="deployment_create_btn">New Deployment</span>
-				<hr />
-				<div id="deployment_results"></div>
-			</div>
-		</div>
-		<div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
-			<span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
-			<ul id="objects_tags"></ul>
-		</div>
-	</div>
+    <div id="toolbox">
+        <div id="toolbox_tabs" class="toolbox_tabs_1row">
+            <span id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top ui-state-active toolbox_tab">Details</span><span
+            id="tab_deployments" linkto="div_deployments" class="ui-state-default ui-corner-top toolbox_tab">Deployments</span><span
+            id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>
+        </div>
+        <div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel">
+            <div style="padding: 0 0 0 5px;">
+                <span class="detail_label">Name:</span>
+                <input type="text" id="txtTemplateName" class="task_details code" disabled="disabled" />
+                <br />
+                <span class="detail_label">Version:</span>
+                <input type="text" id="txtTemplateVersion" class="task_details code" disabled="disabled" />
+                <br />
+                <span class="detail_label">Description:</span>
+                <br />
+                <textarea id="txtDescription" rows="5" class="code" te_group="detail_fields" column="Description" disabled="disabled"></textarea>
+                <br />
+                <canvas id="canvas" width="48" height="48"></canvas>
+                <input type="hidden" id="iconb64" te_group="detail_fields" column="Icon" />
+                <input type='file' name='img' size='65' id='uploadimage' />
+            </div>
+        </div>
+        <div id="div_deployments" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+            <div style="padding: 0 0 0 5px;">
+                <span id="deployment_create_btn">New Deployment</span>
+                <hr />
+                <div id="deployment_results"></div>
+            </div>
+        </div>
+        <div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+            <span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
+            <ul id="objects_tags"></ul>
+        </div>
+    </div>
 </div>
 <div id="content_te">
-	<center>
-		<h3>&nbsp;</h3>
-	</center>
-	<div id="div_details_detail" class="detail_panel">
-		<div id="all">
-			<div id="editor_tabs" class="hidden">
-				<ul>
-					<li>
-						<a href="#tree_editor"><span>Editor</span></a>
-					</li>
-					<li>
-						<a href="#text_editor"><span>Text</span></a>
-					</li>
-				</ul>
-				<div id="tree_editor">
-					<div style="float:right;">
-						<span id="editor_analyze_btn">Analyze</span>
-						<span id="editor_save_btn">Save</span>
-					</div>
-					<div id="jsoneditor" class="clearfloat"></div>
-				</div>
-				<div id="text_editor">
-					<div style="float:right;">
-						<span id="text_analyze_btn">Analyze</span>
-						<span id="text_save_btn">Save</span>
-					</div>
-					<textarea id="txtTemplate" class="code w100pct" rows="25" column="Text"></textarea>
-					<div class="validation">
-						<span id="validate">Validate JSON</span>
-						<input type="checkbox" id="chk_reformat" checked="checked" />
-						<label for="chk_format">Format?</label>
-						<pre id="json_parse_msg"></pre>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <center>
+        <h3>&nbsp;</h3>
+    </center>
+    <div id="div_details_detail" class="detail_panel">
+        <div id="all">
+            <div id="editor_tabs" class="hidden">
+                <ul>
+                    <li>
+                        <a href="#tree_editor"><span>Editor</span></a>
+                    </li>
+                    <li>
+                        <a href="#text_editor"><span>Text</span></a>
+                    </li>
+                </ul>
+                <div id="tree_editor">
+                    <div style="float:right;">
+                        <span id="editor_analyze_btn">Analyze</span>
+                        <span id="editor_save_btn">Save</span>
+                    </div>
+                    <div id="jsoneditor" class="clearfloat"></div>
+                </div>
+                <div id="text_editor">
+                    <div style="float:right;">
+                        <span id="text_analyze_btn">Analyze</span>
+                        <span id="text_save_btn">Save</span>
+                    </div>
+                    <textarea id="txtTemplate" class="code w100pct" rows="25" column="Text"></textarea>
+                    <div class="validation">
+                        <span id="validate">Validate JSON</span>
+                        <input type="checkbox" id="chk_reformat" checked="checked" />
+                        <label for="chk_format">Format?</label>
+                        <pre id="json_parse_msg"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="hidden">
-	<input id="hidPageSaveType" type="hidden" value="dynamic" />
-	<input id="hidObjectType" type="hidden" value="71" />
-	<input type="hidden" id="hidTemplateID" />
+    <input id="hidPageSaveType" type="hidden" value="dynamic" />
+    <input id="hidObjectType" type="hidden" value="71" />
+    <input type="hidden" id="hidTemplateID" />
 </div>
 <div id="deployment_add_dialog" class="hidden" title="New Deployment">
-	<table width="100%">
-		<tbody>
-			<tr>
-				<td> Name </td>
-				<td>
-				<input type="text" id="new_deployment_name" class="w300px" />
-				</td>
-			</tr>
-			<tr>
-				<td> Description </td>
-				<td>				<textarea id="new_deployment_desc" rows="3"></textarea></td>
-			</tr>
-		</tbody>
-	</table>
+    <table width="100%">
+        <tbody>
+            <tr>
+                <td> Name </td>
+                <td>
+                <input type="text" id="new_deployment_name" class="w300px" />
+                </td>
+            </tr>
+            <tr>
+                <td> Description </td>
+                <td>                <textarea id="new_deployment_desc" rows="3"></textarea></td>
+            </tr>
+        </tbody>
+    </table>
 </div>

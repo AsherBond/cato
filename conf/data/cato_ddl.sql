@@ -247,17 +247,22 @@ CREATE TABLE `dep_service_state_mon` (
   `minutes` varchar(172) DEFAULT NULL,
   PRIMARY KEY (`deployment_service_id`,`state`,`original_task_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_template_category` (
+  `category_id` varchar(36) NOT NULL,
+  `category_name` varchar(32) NOT NULL,
+  `icon` mediumblob,
+  PRIMARY KEY (`category_id`),
+  UNIQUE KEY `category_name_UNIQUE` (`category_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `deployment` (
   `deployment_id` varchar(36) NOT NULL,
   `deployment_name` varchar(64) NOT NULL,
-  `template_name` varchar(64) NOT NULL,
-  `template_version` varchar(8) NOT NULL,
+  `template_id` varchar(36) NOT NULL,
   `document_id` varchar(24) NOT NULL,
   `status` varchar(16) DEFAULT NULL,
   `owner_user_id` varchar(36) DEFAULT NULL,
   `deployment_desc` varchar(512) DEFAULT NULL,
   `health` varchar(16) DEFAULT 'unknown',
-  `grouping` varchar(45) DEFAULT NULL,
   `expiration_dt` datetime DEFAULT NULL,
   `uptime` varchar(45) DEFAULT NULL,
   `archive` int(11) DEFAULT NULL,
@@ -375,6 +380,9 @@ CREATE TABLE `deployment_template` (
   `template_version` varchar(8) NOT NULL,
   `template_desc` varchar(1024) DEFAULT NULL,
   `template_text` mediumtext NOT NULL,
+  `icon` mediumblob,
+  `categories` varchar(1024) DEFAULT NULL,
+  `svc_count` int(11) DEFAULT '0',
   PRIMARY KEY (`template_id`),
   UNIQUE KEY `name_version` (`template_name`,`template_version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

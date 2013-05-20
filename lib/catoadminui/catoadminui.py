@@ -284,6 +284,12 @@ class logout:
     def GET(self):
         uiCommon.ForceLogout("")
         
+class appicon:        
+    def GET(self, name):
+        img = uiCommon.GetAppIcon(name)
+        web.header('Content-type', 'image/png')
+        return img
+        
 # Authentication preprocessor
 def auth_app_processor(handle):
     """
@@ -644,6 +650,7 @@ if __name__ != app_name:
         '/version', 'version',
         '/getlog', 'getlog',
         '/setdebug', 'setdebug',
+        '/appicon/(.*)', 'appicon',
         '/(.*)', 'wmHandler'
     )
 

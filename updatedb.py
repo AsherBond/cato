@@ -20,6 +20,8 @@ and apply any database changes needed, by version.
 
     SUPPORTED OPERATORS:
         droptable - table
+        createtable - table, columns and keys (basically the entire statement except the 
+            beginning "create table `foo`" bit.
         addcolumn - table, column, options
         modifycolumn - table, column, options (allows changing column options but not name)
         changecolumn - table, column, `newname` options (will allow changing of a column name)
@@ -78,8 +80,25 @@ versions = [
                     ["modifycolumn", "task", "parameter_xml", "MEDIUMTEXT NOT NULL"],
                     ["modifycolumn", "task_instance_parameter", "parameter_xml", "MEDIUMTEXT NOT NULL"]
                     ]
+             ],
+            ["1.16", [                  
+                      ["createtable", "dep_template_category", """(`category_id` VARCHAR(36) NOT NULL ,
+                                                            `category_name` VARCHAR(32) NOT NULL ,
+                                                            `icon` MEDIUMBLOB NULL ,
+                                                            UNIQUE INDEX `category_name_UNIQUE` (`category_name` ASC) ,
+                                                            PRIMARY KEY (`category_id`) )"""],
+                     ["addcolumn", "deployment_template", "icon", "MEDIUMBLOB NULL"],
+                     ["addcolumn", "deployment_template", "categories", "varchar(1024) NULL"],
+                     ["addcolumn", "deployment_template", "svc_count", "int(11) NULL DEFAULT 0"],
+                     ["dropcolumn", "deployment", "grouping"],
+                     ["function", "_v16_updates"]
+                     ]
+             ],
+            ["1.17", [
+                      ["comment", "FUTURE NOTE: delete the _template_name and _template_version columns from deployment."]
+                      ]
              ]
-            ]
+        ]
 
 import os
 import sys
@@ -117,9 +136,14 @@ def main(argv):
                 tblexists = db.select_col(sql, (item[1]))
     
             sql = ""
+            if item[0] == "comment":
+                continue
             if item[0] == "droptable":
                 if tblexists:
                     sql = "drop table `%s`" % (item[1])
+            elif item[0] == "createtable":
+                if not tblexists:
+                    sql = "create table `%s` %s" % (item[1], item[2])
             elif item[0] == "addcolumn":
                 if not colexists:
                     sql = "alter table `%s` add column `%s` %s" % (item[1], item[2], item[3])
@@ -158,7 +182,27 @@ def _v13_updates():
     db.exec_db_noexcep(sql)
     sql = "alter table clouds drop key `cloud_provider_UNIQUE`, add unique key `CLOUD_NAME` (`cloud_name`)"
     db.exec_db_noexcep(sql)
+
+def _v16_updates():
+    # doing 'noexcep' updates here, so it won't fail if they already exist
+
+    sql = "ALTER TABLE deployment ADD COLUMN `template_id` VARCHAR(36) NULL AFTER `deployment_name`"
+    db.exec_db_noexcep(sql)
+
+    sql = """update deployment d
+        join deployment_template dt on d.template_name = dt.template_name 
+            and d.template_version = dt.template_version
+        set d.template_id = dt.template_id"""
+    db.exec_db_noexcep(sql)
     
+    sql = "ALTER TABLE deployment CHANGE COLUMN `template_id` `template_id` VARCHAR(36) NOT NULL"
+    db.exec_db_noexcep(sql)
+
+    # rename the old columns, but keep them for now as a backup in case something crashes
+    sql = "ALTER TABLE deployment CHANGE COLUMN `template_name` `_template_name` VARCHAR(64) NULL"
+    db.exec_db_noexcep(sql)
+    sql = "ALTER TABLE deployment CHANGE COLUMN `template_version` `_template_version` VARCHAR(8) NULL"
+    db.exec_db_noexcep(sql)
     
 
 
