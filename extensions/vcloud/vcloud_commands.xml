@@ -17,6 +17,7 @@
                             <type input_type="dropdown" label="Type" datasource="local" dataset="attribute|element">attribute</type>
                         </value>
                     </values>
+					<output_var input_type="text" label="Output Variable" />
 				</function>
 			</command>
 			<command name="vcloud_call" label="vCloud API Call" description="" icon="static/images/icons/vmware/vmware.png">

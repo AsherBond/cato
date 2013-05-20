@@ -55,8 +55,8 @@ def vcloud_connect(TE, step):
 def vcloud_call_parse(te, step):
 
     cloud = vcloud_connect(te, step)
-    path, meth_or_href, action, data, type, xpath = te.get_command_params(step.command, "path", "method_or_href", 
-        "action", "data", "content_type", "xpath")[:]
+    path, meth_or_href, action, data, type, xpath, out_var = te.get_command_params(step.command, "path", "method_or_href", 
+        "action", "data", "content_type", "xpath", "output_var")[:]
     path = te.replace_variables(path) 
     xpath = te.replace_variables(xpath) 
     data = te.replace_variables(data) 
@@ -65,8 +65,10 @@ def vcloud_call_parse(te, step):
 
     result = _vcloud_make_call(cloud, path, action, data, type, meth_or_href)
 
-    msg = "vCloud API Call %s\n\%s" % (path, result)
+    msg = "vCloud API Call %s\n%s" % (path, result)
     te.insert_audit(step.function_name, msg, "")
+    if len(out_var):
+        te.rt.set(out_var, result)
 
     _vcloud_parse_data(te, result, xpath, values)
 
