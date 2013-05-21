@@ -346,7 +346,7 @@ class depMethods:
 
         obj = deployment.Deployment()
         obj.FromName(args["deployment"])
-        service, msg = deployment.DeploymentService.DBCreateNew(deployment=obj, name=args["name"], desc=desc)
+        service, msg = deployment.Service.DBCreateNew(deployment=obj, name=args["name"], desc=desc)
         if service:
             catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.DeploymentService, obj.ID, service.Name, "Deployment Service created.")
             # call the other method that returns the list.
@@ -368,7 +368,7 @@ class depMethods:
         """
         obj = deployment.Deployment()
         obj.FromName(args["deployment"])
-        seq = deployment.DeploymentSequence(obj)
+        seq = deployment.Sequence(obj)
         seq.FromName(args["sequence"])
         if args["output_format"] == "json":
             return R(response=seq.AsJSON())
@@ -430,7 +430,7 @@ class depMethods:
 
         obj = deployment.Deployment()
         obj.FromName(args["deployment"])
-        seq = deployment.DeploymentSequence(obj)
+        seq = deployment.Sequence(obj)
         seq.FromName(args["sequence"])
         step, msg = seq.AddStep(before)
         if step:
@@ -469,7 +469,7 @@ class depMethods:
 
         obj = deployment.Deployment()
         obj.FromName(args["deployment"])
-        seq = deployment.DeploymentSequence(obj)
+        seq = deployment.Sequence(obj)
         seq.FromName(args["sequence"])
         step, msg = seq.GetStep(args["step"])
         if step:
@@ -507,7 +507,7 @@ class depMethods:
 
         obj = deployment.Deployment()
         obj.FromName(args["deployment"])
-        seq = deployment.DeploymentSequence(obj)
+        seq = deployment.Sequence(obj)
         seq.FromName(args["sequence"])
         step, msg = seq.GetStep(args["step"])
         if step:
@@ -545,7 +545,7 @@ class depMethods:
 
         obj = deployment.Deployment()
         obj.FromName(args["deployment"])
-        seq = deployment.DeploymentSequence(obj)
+        seq = deployment.Sequence(obj)
         seq.FromName(args["sequence"])
         success, msg = seq.DeleteStep(args["step"])
         if success:
@@ -840,115 +840,6 @@ class depMethods:
             return R(err_code=R.Codes.GetError, err_detail="Unable to get Sequence Instance [%s]." % args["instance"])
             
 
-    def add_deployment_service_state(self, args):        
-        """
-        Add a new State to a Deployment Service.
-        
-        Required Arguments: 
-            deployment - can be either an Deployment ID or Name.
-            service - can be either a Service ID or Name.
-            state - a name for the new State.
-            
-        Optional Arguments:
-            nextstate - the name of the State following this State.
-            task - a Task ID, Code or Name.
-            version - the Task Version.
-                (Unnecessary if 'task' is an ID.)
-        
-        Returns: A list of Deployment Service States.
-        """
-        # this is an admin function
-        if not args["_admin"]:
-            return R(err_code=R.Codes.Forbidden)
-        
-        # define the required parameters for this call
-        required_params = ["deployment", "service", "state"]
-        has_required, resp = api.check_required_params(required_params, args)
-        if not has_required:
-            return resp
-
-
-        nextstate = args["nextstate"] if args.has_key("nextstate") else ""
-        task = args["task"] if args.has_key("task") else ""
-        ver = args["version"] if args.has_key("version") else ""
-
-        obj = deployment.Deployment()
-        obj.FromName(args["deployment"])
-        service = obj.GetService(args["service"])
-        state, msg = service.AddState(args["state"], nextstate, task, ver)
-        if state:
-            if args["output_format"] == "json":
-                return R(response=service.StatesAsJSON())
-            elif args["output_format"] == "text":
-                return R(response=service.StatesAsText())
-            else:
-                return R(response=service.StatesAsXML())
-        else:
-            return R(err_code=R.Codes.CreateError, err_detail=msg)
-            
-
-    def delete_deployment_service_state(self, args):        
-        """
-        Deletes a Deployment Service State.
-        
-        Required Arguments: 
-            deployment - can be either an Deployment ID or Name.
-            service - can be either a Service ID or Name.
-            state - a name for the new State.
-            
-        Returns: A list of Deployment Service States.
-        """
-        # this is an admin function
-        if not args["_admin"]:
-            return R(err_code=R.Codes.Forbidden)
-        
-        # define the required parameters for this call
-        required_params = ["deployment", "service", "state"]
-        has_required, resp = api.check_required_params(required_params, args)
-        if not has_required:
-            return resp
-
-        obj = deployment.Deployment()
-        obj.FromName(args["deployment"])
-        service = obj.GetService(args["service"])
-        state, msg = service.RemoveState(args["state"])
-        if state:
-            if args["output_format"] == "json":
-                return R(response=service.StatesAsJSON())
-            elif args["output_format"] == "text":
-                return R(response=service.StatesAsText())
-            else:
-                return R(response=service.StatesAsXML())
-        else:
-            return R(err_code=R.Codes.CreateError, err_detail=msg)
-            
-
-    def get_deployment_service_states(self, args):        
-        """
-        Gets the States for a Deployment Service.
-        
-        Required Arguments: 
-            deployment - can be either an Deployment ID or Name.
-            service - can be either a Service ID or Name.
-        
-        Optional Arguments: 
-            filter - will filter a value match on State or NextState.
-        
-        Returns: A list of Deployment Service States.
-        """
-        fltr = args["filter"] if args.has_key("filter") else ""
-        
-        obj = deployment.Deployment()
-        obj.FromName(args["deployment"])
-        service = obj.GetService(args["service"])
-        if args["output_format"] == "json":
-            return R(response=service.StatesAsJSON(fltr))
-        elif args["output_format"] == "text":
-            return R(response=service.StatesAsText(fltr, args["output_delimiter"]))
-        else:
-            return R(response=service.StatesAsXML(fltr))
-            
-        
     def get_sequence_instances(self, args):
         """
         Gets a list of Sequence Instances.
@@ -1053,7 +944,7 @@ class depMethods:
 
         obj = deployment.Deployment()
         obj.FromName(args["deployment"])
-        seq = deployment.DeploymentSequence(obj)
+        seq = deployment.Sequence(obj)
         seq.FromName(args["sequence"])
         t = seq.GetParametersTemplate(basic)
         if t:
