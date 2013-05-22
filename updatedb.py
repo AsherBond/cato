@@ -26,6 +26,8 @@ and apply any database changes needed, by version.
         modifycolumn - table, column, options (allows changing column options but not name)
         changecolumn - table, column, `newname` options (will allow changing of a column name)
         dropcolumn - table, column
+        droppk - table
+        addpk - table, options (comma delimited columns making up the PK)
         sql - a sql statement
         function - function name (will execute a funcion in this file, useful only
             when very complicated logic is needed for an update.)
@@ -90,16 +92,26 @@ versions = [
                      ["addcolumn", "deployment_template", "icon", "MEDIUMBLOB NULL"],
                      ["addcolumn", "deployment_template", "categories", "varchar(1024) NULL"],
                      ["addcolumn", "deployment_template", "svc_count", "int(11) NULL DEFAULT 0"],
+                     
                      ["dropcolumn", "deployment", "grouping"],
+                     
                      ["addcolumn", "deployment_step_service", "original_task_id", "varchar(36)"],
-                     ["addcolumn", "deployment_step_service", "task_version", "varchar(36)"],
-                     ["addcolumn", "deployment_step_service", "run_level", "varchar(36)"],
-                     ["addcolumn", "dep_seq_tran_params", "original_task_id", "varchar(36)"],
-                     ["addcolumn", "dep_seq_tran_params", "task_version", "varchar(36)"],
-                     ["addcolumn", "dep_seq_inst_tran", "original_task_id", "varchar(36)"],
-                     ["addcolumn", "dep_seq_inst_tran", "task_version", "varchar(36)"],
-                     ["addcolumn", "dep_service_inst_params", "original_task_id", "varchar(36)"],
-                     ["addcolumn", "dep_service_inst_params", "task_version", "varchar(36)"],
+                     ["addcolumn", "deployment_step_service", "task_version", "decimal(18,3)"],
+                     ["addcolumn", "deployment_step_service", "run_level", "int(11)"],
+                     ["dropcolumn", "deployment_step_service", "initial_state"],
+                     
+                     ["addcolumn", "deployment_service_inst", "run_level", "int(11)"],
+                     
+                     ["dropcolumn", "deployment_service_inst", "desired_state"],
+                     
+                     ["dropcolumn", "dep_seq_inst_tran", "state"],
+                     ["dropcolumn", "dep_seq_inst_tran", "next_state"],
+                     
+                     ["dropcolumn", "dep_seq_tran_params", "state"],
+                     ["dropcolumn", "dep_seq_tran_params", "next_state"],
+                     
+                     ["droptable", "dep_service_inst_params", "NO LONGER NEEDED WAS FOR MANUAL STATE TRANSITION"],
+
                      ["function", "_v16_updates"],
                      ]
              ],
@@ -130,7 +142,8 @@ def main(argv):
         for item in ver[1]:
             tblexists = None
             colexists = None
-    
+            pkexists = None
+            
             # these apply to several cases below
             if item[0] in ["addcolumn", "dropcolumn", "modifycolumn", "changecolumn"]:        
                 sql = """SELECT COLUMN_NAME
@@ -145,7 +158,14 @@ def main(argv):
                     WHERE table_schema = 'cato'
                     AND table_name = %s"""
                 tblexists = db.select_col(sql, (item[1]))
-    
+            if item[0] in ["droppk", "addpk"]:        
+                sql = """SELECT TABLE_NAME
+                    FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+                    WHERE table_schema = 'cato'
+                    AND table_name = %s
+                    AND constraint_type = 'PRIMARY KEY'"""
+                pkexists = db.select_col(sql, (item[1]))
+
             sql = ""
             if item[0] == "comment":
                 continue
@@ -155,6 +175,12 @@ def main(argv):
             elif item[0] == "createtable":
                 if not tblexists:
                     sql = "create table `%s` %s" % (item[1], item[2])
+            elif item[0] == "droppk":
+                if pkexists:
+                    sql = "alter table `%s` drop primary key" % (item[1])
+            elif item[0] == "addpk":
+                if not tblexists:
+                    sql = "alter table `%s` add primary key (%s)" % (item[1], item[2])
             elif item[0] == "addcolumn":
                 if not colexists:
                     sql = "alter table `%s` add column `%s` %s" % (item[1], item[2], item[3])

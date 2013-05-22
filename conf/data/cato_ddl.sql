@@ -189,11 +189,9 @@ CREATE TABLE `dep_seq_inst_tran` (
   `step_number` int(11) NOT NULL,
   `deployment_service_id` varchar(36) NOT NULL,
   `instance_id` varchar(36) NOT NULL,
-  `state` varchar(32) NOT NULL,
-  `next_state` varchar(32) NOT NULL,
   `instance_label` varchar(80) NOT NULL,
   `task_instance` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`seq_instance`,`step_number`,`deployment_service_id`,`instance_id`,`state`,`next_state`)
+  PRIMARY KEY (`seq_instance`,`step_number`,`deployment_service_id`,`instance_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_seq_params` (
   `sequence_id` varchar(36) NOT NULL,
@@ -205,10 +203,10 @@ CREATE TABLE `dep_seq_tran_params` (
   `sequence_id` varchar(36) NOT NULL,
   `step_number` int(11) NOT NULL,
   `deployment_service_id` varchar(36) NOT NULL,
-  `state` varchar(32) NOT NULL,
-  `next_state` varchar(45) NOT NULL,
   `parameter_xml` mediumtext NOT NULL,
-  PRIMARY KEY (`sequence_id`,`step_number`,`deployment_service_id`,`state`,`next_state`)
+  `original_task_id` varchar(36) DEFAULT NULL,
+  `task_version` decimal(18,3) DEFAULT NULL,
+  PRIMARY KEY (`sequence_id`,`step_number`,`deployment_service_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_service_inst_mon` (
   `instance_id` varchar(36) NOT NULL,
@@ -220,6 +218,8 @@ CREATE TABLE `dep_service_inst_params` (
   `state` varchar(32) NOT NULL,
   `next_state` varchar(45) NOT NULL,
   `parameter_xml` mediumtext NOT NULL,
+  `original_task_id` varchar(36) DEFAULT NULL,
+  `task_version` decimal(18,3) DEFAULT NULL,
   PRIMARY KEY (`instance_id`,`state`,`next_state`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_service_inst_proc` (
@@ -344,6 +344,7 @@ CREATE TABLE `deployment_service_inst` (
   `task_instance` int(11) DEFAULT NULL,
   `host_id` varchar(36) DEFAULT NULL,
   `seq_instance` bigint(20) DEFAULT NULL,
+  `run_level` int(11) DEFAULT NULL,
   PRIMARY KEY (`instance_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `deployment_service_state` (
@@ -369,8 +370,10 @@ CREATE TABLE `deployment_step_service` (
   `sequence_id` varchar(36) NOT NULL,
   `step_number` int(11) NOT NULL,
   `deployment_service_id` varchar(36) NOT NULL,
-  `desired_state` varchar(16) NOT NULL,
-  `initial_state` varchar(16) DEFAULT NULL,
+  `original_task_id` varchar(36) DEFAULT NULL,
+  `task_version` varchar(36) DEFAULT NULL,
+  `desired_state` varchar(16) DEFAULT NULL,
+  `run_level` varchar(36) DEFAULT NULL,
   `json` text,
   PRIMARY KEY (`sequence_id`,`step_number`,`deployment_service_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
