@@ -1038,6 +1038,8 @@ def DrawEmbeddedReadOnlyStep(xEmbeddedFunction):
         sMainHTML += "</div>"
     
         return sMainHTML
+    else:
+        return "<span class=\"ui-state-error\">ERROR: No command defined for this action.</span>"
 
 def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded=False):
     sStepID = oStep.ID
