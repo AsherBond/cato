@@ -594,7 +594,10 @@ class depMethods:
         if svc:            
             service = dep.GetService(svc)
             if service:
-                action.FromName(args["action"], dep.ID, service.ID)
+                try:
+                    action.FromName(args["action"], dep.ID, service.ID)
+                except:
+                    return R(err_code=R.Codes.GetError, err_detail="Unable to get *Service* Action for identifier [%s]." % args["action"])
 
                 # if an 'inst' was passed, see if we can reconcile an existing instance
                 if inst:
@@ -613,7 +616,10 @@ class depMethods:
                     return R(err_code=R.Codes.StartFailure, 
                              err_detail="This Action is defined to run on Service Instances only - please provide a Service Instance.")
         else:    
-            action.FromName(args["action"], dep.ID)
+            try:
+                action.FromName(args["action"], dep.ID)
+            except:
+                return R(err_code=R.Codes.GetError, err_detail="Unable to get *Deployment* Action for identifier [%s]." % args["action"])
         
         
         if not action.ID:
@@ -666,12 +672,19 @@ class depMethods:
         if svc:            
             service = dep.GetService(svc)
             if service:
-                action.FromName(args["action"], dep.ID, service.ID)
+                try:
+                    action.FromName(args["action"], dep.ID, service.ID)
+                except:
+                    return R(err_code=R.Codes.GetError, err_detail="Unable to get *Service* Action for identifier [%s]." % args["action"])
             else:
                 return R(err_code=R.Codes.GetError, err_detail="Unable to get Service for identifier [%s]." % svc)
 
-        else:    
-            action.FromName(args["action"], dep.ID)
+        else:
+            try:
+                action.FromName(args["action"], dep.ID)
+            except:
+                return R(err_code=R.Codes.GetError, err_detail="Unable to get *Deployment* Action for identifier [%s]." % args["action"])
+                
         
         
         if not action.ID:
