@@ -176,6 +176,7 @@ class Cloud:
         self.default_account = None
         self.path = "/"
         self.conn = None
+        self.api_version = None
     
         db = catocommon.new_conn()
         sql = """select cloud_id, provider, api_url, api_protocol, default_account_id, region
@@ -193,6 +194,7 @@ class Cloud:
             self.url = None
         elif self.provider == "Eucalyptus":
             self.path = "/services/Eucalyptus/"
+            self.api_version = "2010-08-31"
         
 
     def connect(self, uid, pwd):
