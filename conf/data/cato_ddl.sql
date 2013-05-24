@@ -213,15 +213,6 @@ CREATE TABLE `dep_service_inst_mon` (
   `schedule_id` varchar(36) NOT NULL,
   PRIMARY KEY (`instance_id`,`schedule_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `dep_service_inst_params` (
-  `instance_id` varchar(36) NOT NULL,
-  `state` varchar(32) NOT NULL,
-  `next_state` varchar(45) NOT NULL,
-  `parameter_xml` mediumtext NOT NULL,
-  `original_task_id` varchar(36) DEFAULT NULL,
-  `task_version` decimal(18,3) DEFAULT NULL,
-  PRIMARY KEY (`instance_id`,`state`,`next_state`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_service_inst_proc` (
   `instance_id` varchar(36) NOT NULL,
   `proc_name` varchar(32) NOT NULL,
@@ -338,7 +329,6 @@ CREATE TABLE `deployment_service_inst` (
   `instance_num` int(11) DEFAULT NULL,
   `status` varchar(16) NOT NULL,
   `current_state` varchar(16) DEFAULT NULL,
-  `desired_state` varchar(16) DEFAULT NULL,
   `cloud_id` varchar(36) DEFAULT NULL,
   `cloud_account_id` varchar(36) DEFAULT NULL,
   `task_instance` int(11) DEFAULT NULL,
