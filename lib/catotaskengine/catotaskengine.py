@@ -1082,7 +1082,7 @@ class TaskEngine():
             path = cloud.path
 
         conn = awspy.AWSConn(self.cloud_login_id, self.cloud_login_password, region=cloud_name, product=product,
-            endpoint=cloud.url, path=path, protocol=cloud.protocol, timeout=None)
+            endpoint=cloud.url, path=path, protocol=cloud.protocol, timeout=None, api_version=cloud.api_version)
         result = conn.aws_query(action, params)
         del(conn)
         if result:
