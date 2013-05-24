@@ -92,6 +92,7 @@ versions = [
                      ["addcolumn", "deployment_template", "icon", "MEDIUMBLOB NULL"],
                      ["addcolumn", "deployment_template", "categories", "varchar(1024) NULL"],
                      ["addcolumn", "deployment_template", "svc_count", "int(11) NULL DEFAULT 0"],
+                     ["addcolumn", "deployment_template", "available", "int(11) NULL DEFAULT 0"],
                      
                      ["dropcolumn", "deployment", "grouping"],
                      
@@ -104,8 +105,14 @@ versions = [
                      
                      ["dropcolumn", "deployment_service_inst", "desired_state"],
                      
+                     ["dropcolumn", "deployment_log", "state"],
+                     ["dropcolumn", "deployment_log", "next_state"],
+                     
                      ["dropcolumn", "dep_seq_inst_tran", "state"],
                      ["dropcolumn", "dep_seq_inst_tran", "next_state"],
+                     
+                     ["dropcolumn", "dep_seq_inst_step_svc", "state"],
+                     ["dropcolumn", "dep_seq_inst_step_svc", "next_state"],
                      
                      ["dropcolumn", "dep_seq_tran_params", "state"],
                      ["dropcolumn", "dep_seq_tran_params", "next_state"],

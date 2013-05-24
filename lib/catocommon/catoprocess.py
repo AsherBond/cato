@@ -80,12 +80,12 @@ class CatoService(CatoProcess):
 
         result = self.db.select_col(sql, (self.process_name, self.host_domain))
         if not result:
-            self.logger.info("[%s] has not been registered, registering..." % self.process_name)
+            self.logger.info("[%s] has not been registered. Registering..." % self.process_name)
             self.register_app()
             result = self.db.select_col(sql, (self.process_name, self.host_domain))
             self.instance_id = result
         else:
-            self.logger.info("[%s] has already been registered, updating..." % self.process_name)
+            self.logger.info("[%s] has already been registered. Updating..." % self.process_name)
             self.instance_id = result
             self.logger.info("application instance = %d" % self.instance_id)
             sql = """update application_registry set 
@@ -97,8 +97,6 @@ class CatoService(CatoProcess):
             self.db.exec_db(sql, (self.host_domain, self.user, self.my_pid, self.platform, self.instance_id))
 
     def register_app(self):
-        self.logger.info("Registering application...")
-
         sql = """insert into application_registry 
             (app_name, app_instance, master, logfile_name, hostname, userid, pid, platform)
             values 
@@ -116,6 +114,13 @@ class CatoService(CatoProcess):
             self.update_heartbeat()
 
     def update_heartbeat(self):
+        # for systems whith power management where a long sleep may cause processes to get unregistered
+        sql = "select count(*) from application_registry where id = %s"
+        result = self.db.select_col(sql, (self.instance_id))
+        if not result:
+            self.logger.info("[%s] not found in registry. Reconciling..." % (self.process_name))
+            self.check_registration()
+            
         sql = "update application_registry set heartbeat = now() where id = %s"
         self.db_heart.exec_db(sql, (self.instance_id))
 

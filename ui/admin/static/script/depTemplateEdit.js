@@ -258,6 +258,11 @@ function doDetailFieldUpdate(ctl) {"use strict";
 	var column = $(ctl).attr("column");
 	var value = $(ctl).val();
 
+	//for checkboxes and radio buttons, we gotta do a little bit more, as the pure 'val()' isn't exactly right.
+	if ($(ctl).is(':checked')) {
+		value = "1";
+	}
+
 	if (column.length > 0) {
 		$("#update_success_msg").text("Updating...").show();
 
@@ -308,7 +313,6 @@ function drawicon(imgurl) {
 	img.src = imgurl;
 	img.onload = function() {
 		ctx.drawImage(img, 0, 0);
-		url.revokeObjectURL(src);
 	}
 }
 
@@ -321,7 +325,7 @@ function saveicon(ev) {
 	var src = url.createObjectURL(f);
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	
+
 	img.src = src;
 	img.onload = function() {
 		ctx.drawImage(img, 0, 0);

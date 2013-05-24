@@ -977,7 +977,7 @@ class depMethods:
         """
         fltr = args.get("filter", "")
         
-        obj = deployment.DeploymentTemplates(sFilter=fltr)
+        obj = deployment.DeploymentTemplates(sFilter=fltr, show_unavailable=True)
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
