@@ -658,6 +658,8 @@ class TaskEngine():
             v = self.cloud_login_password
         elif s == "_CLOUD_LOGIN_ID":
             v = self.cloud_login_id
+        elif s == "_CLOUD_PROVIDER":
+            v = self.provider
         elif s == "_TASK_NAME":
             v = self.task_name
         elif s == "_TASK_VERSION":
