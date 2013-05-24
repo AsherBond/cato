@@ -53,11 +53,13 @@ class depMethods:
         sPage = uiCommon.getAjaxArg("sPage")
         maxrows = 25
 
-        deps = deployment.DeploymentTemplates(sFilter)
+        deps = deployment.DeploymentTemplates(sFilter, show_unavailable=True)
         if deps.rows:
             start, end, pager_html = uiCommon.GetPager(len(deps.rows), maxrows, sPage)
 
             for row in deps.rows[start:end]:
+                available = 'Yes' if row["Available"] else 'No'
+                
                 sHTML += """
                 <tr template_id="{0}">
                 <td class="chkboxcolumn">    
@@ -67,6 +69,7 @@ class depMethods:
                 sHTML += '<td class="selectable">' + row["Name"] + '</td>'
                 sHTML += '<td class="selectable">' + row["Version"] + '</td>'
                 sHTML += '<td class="selectable">' + (row["Description"] if row["Description"] else "") + '</td>'
+                sHTML += '<td class="selectable">' + available + '</td>'
                 
                 sHTML += "</tr>"
 

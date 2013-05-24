@@ -92,6 +92,7 @@ versions = [
                      ["addcolumn", "deployment_template", "icon", "MEDIUMBLOB NULL"],
                      ["addcolumn", "deployment_template", "categories", "varchar(1024) NULL"],
                      ["addcolumn", "deployment_template", "svc_count", "int(11) NULL DEFAULT 0"],
+                     ["addcolumn", "deployment_template", "available", "int(11) NULL DEFAULT 0"],
                      
                      ["dropcolumn", "deployment", "grouping"],
                      
