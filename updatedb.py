@@ -105,8 +105,14 @@ versions = [
                      
                      ["dropcolumn", "deployment_service_inst", "desired_state"],
                      
+                     ["dropcolumn", "deployment_log", "state"],
+                     ["dropcolumn", "deployment_log", "next_state"],
+                     
                      ["dropcolumn", "dep_seq_inst_tran", "state"],
                      ["dropcolumn", "dep_seq_inst_tran", "next_state"],
+                     
+                     ["dropcolumn", "dep_seq_inst_step_svc", "state"],
+                     ["dropcolumn", "dep_seq_inst_step_svc", "next_state"],
                      
                      ["dropcolumn", "dep_seq_tran_params", "state"],
                      ["dropcolumn", "dep_seq_tran_params", "next_state"],
