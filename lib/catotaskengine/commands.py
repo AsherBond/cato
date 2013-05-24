@@ -999,7 +999,6 @@ def send_email_cmd(self, task, step):
     body = self.replace_variables(body)
 
     self.send_email(to, sub, body)
-    self.insert_audit(step.function_name, msg, "")
 
 
 def http_cmd(self, task, step):
