@@ -545,7 +545,7 @@ def AddTaskInstance(sUserID, sTaskID, sScopeID, sAccountID, sAssetID, sParameter
 
     if catocommon.is_guid(sTaskID) and catocommon.is_guid(sUserID):
         ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, sScopeID, sAccountID)
-        log("Starting Task [%s] ... Instance is [%s]" % (sTaskID, ti), 3)
+        log("Starting Task [%s] ... Instance is [%s] ... Scope is [%s]" % (sTaskID, ti, sScopeID), 3)
         return ti
     else:
         log("Unable to run task. Missing or invalid task [" + sTaskID + "] or user [" + sUserID + "] id.")
