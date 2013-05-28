@@ -275,7 +275,6 @@ function doDetailFieldUpdate(ctl) {"use strict";
 		var response = catoAjax.deployment.updateTemplateDetail(args);
 		if (response) {
 			$("#update_success_msg").text("Update Successful").fadeOut(2000);
-			showInfo("Update Successful");
 		}
 	}
 
