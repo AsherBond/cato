@@ -190,6 +190,11 @@ function getDetails() {"use strict";
 		$("#txtDescription").val(template.Description);
 		$("#txtTemplate").val(template.Text);
 
+		$("#chkTemplateAvailable").attr("checked", (template.Available == 1) ? true : false);
+
+		// if (account.IsDefault == "True")
+			// $("#chkDefault").attr('checked', true);
+
 		// draw the icon on the canvas
 		// FROM OUR SPECIAL appicon url that handles delivering an image from the db.
 		drawicon("/appicon/" + template.ID);
