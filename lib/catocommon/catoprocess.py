@@ -114,13 +114,13 @@ class CatoService(CatoProcess):
             self.update_heartbeat()
 
     def update_heartbeat(self):
-        # for systems whith power management where a long sleep may cause processes to get unregistered
-        sql = "select id from application_registry where id = %s"
-        result = self.db.select_col(sql, (self.instance_id))
-        if not result:
-            self.logger.info("[%s] not found in registry. Reconciling..." % (self.process_name))
-            self.check_registration()
-            
+#         # for systems whith power management where a long sleep may cause processes to get unregistered
+#         sql = "select id from application_registry where id = %s"
+#         result = self.db.select_col(sql, (self.instance_id))
+#         if not result:
+#             self.logger.info("[%s] not found in registry. Reconciling..." % (self.process_name))
+#             self.check_registration()
+#             
         sql = "update application_registry set heartbeat = now() where id = %s"
         self.db_heart.exec_db(sql, (self.instance_id))
 
