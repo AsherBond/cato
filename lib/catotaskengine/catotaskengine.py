@@ -179,6 +179,17 @@ class TaskEngine():
         # remove any trailing newline
         return c.before.rstrip("\n")
 
+
+    def remove_pk(self, kf_name):
+
+        # we successfully logged in, let's get rid of the private key
+        if key:
+            try:
+                os.remove(kf_name)
+            except:
+                pass
+
+
     def connect_expect(self, type, host, user, password=None, passphrase=None, key=None, default_prompt=None):
 
         at_prompt = False
@@ -262,14 +273,10 @@ class TaskEngine():
                         msg = msg + "\n" + c.before + c.match.group() + c.after
                     except:
                         pass
+                    self.remove_pk(kf_name)
                     raise Exception(msg)
 
-        # we successfully logged in, let's get rid of the private key
-        if key:
-            try:
-                os.remove(kf_name)
-            except:
-                pass
+        self.remove_pk(kf_name)
 
         c.sendline("unset PROMPT_COMMAND;export PS1='PROMPT>'")
         index = c.expect(["PROMPT>.*PROMPT>$", pexpect.EOF, pexpect.TIMEOUT])
