@@ -104,6 +104,7 @@ versions = [
                      ["addcolumn", "deployment_service_inst", "run_level", "int(11)"],
                      
                      ["dropcolumn", "deployment_service_inst", "desired_state"],
+                     ["dropcolumn", "deployment_service_inst", "task_instance"],
                      
                      ["dropcolumn", "deployment_log", "state"],
                      ["dropcolumn", "deployment_log", "next_state"],
