@@ -20,6 +20,10 @@ import urllib
 import urllib2
 import httplib
 import json
+from datetime import datetime
+import hashlib
+import base64
+import hmac
 from bson import json_util
 from datetime import datetime
 from bson.objectid import ObjectId
@@ -1001,39 +1005,66 @@ def send_email_cmd(self, task, step):
     self.send_email(to, sub, body)
 
 
-def http_cmd(self, task, step):
+def _cato_sign_string(host, method, access_key, secret_key):
+
+
+    #timestamp
+    ts = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+    ts = ts.replace(":", "%3A")
+
+    #string to sign
+    string_to_sign = "{0}?key={1}&timestamp={2}".format(method, access_key, ts)
+
+    #encoded signature
+    sig = base64.b64encode(hmac.new(str(secret_key), msg=string_to_sign, digestmod=hashlib.sha256).digest())
+    sig = "&signature=" + urllib.quote_plus(sig)
+
+
+    url = "%s/%s%s" % (host, string_to_sign, sig)
+    return url
+
+
+def cato_web_service_cmd(self, task, step):
 
     timeout = 5
-    url, typ = self.get_command_params(step.command, "url", "type")[:]
-    data = {}
-    url = self.replace_variables(url)
+    host, method, userid, password, result_var = self.get_command_params(step.command, 
+        "host", "method", "userid", "password", "result_var")[:]
+    host = self.replace_variables(host)
+    method = self.replace_variables(method)
+    userid = self.replace_variables(userid)
+    password = self.replace_variables(password)
 
-    if not len(url):
-        raise Exception("HTTP command url is empty.")
+    if not len(host):
+        raise Exception("Cato Web Service Call command requires Host value")
+    if not len(method):
+        raise Exception("Cato Web Service Call command requires Method value")
+    if not len(userid):
+        raise Exception("Cato Web Service Call command requires UserId value")
+    if not len(password):
+        raise Exception("Cato Web Service Call command requires Password value")
 
     pairs = self.get_node_list(step.command, "pairs/pair", "key", "value")
 
+    args = {} # a dictionary of any arguments required for 20the method
     for (k, v) in pairs:
         k = self.replace_variables(k)
         v = self.replace_variables(v)
         if len(k):
-            data[k] = v
+            args[k] = v
 
-    if len(data):
-        data = urllib.urlencode(data)
+    if args:
+        arglst = ["&%s=%s" % (k, urllib.quote_plus(v)) for k, v in args.items()]
+        argstr = "".join(arglst)
+    else:
+        argstr = ""
 
-    if typ == "GET" and len(data):
-        url = url + "?" + data
-        data = None
-    elif typ == "GET" and not len(data):
-        data = None
-    elif typ == "POST" and not len(data):
-        data = None
-    
-    # print url
+    url = _cato_sign_string(host, method, userid, password)
+
+    if len(argstr):
+        url = "%s%s" % (url, argstr)
     try:
         before = datetime.now() 
-        response = urllib2.urlopen(url, data, timeout)
+        response = urllib2.urlopen(url, None, timeout)
         after = datetime.now() 
     except urllib2.HTTPError, e:
         raise Exception("HTTPError = %s, %s, %s\n%s" % (str(e.code), e.msg, e.read(), url))
@@ -1047,14 +1078,114 @@ def http_cmd(self, task, step):
     buff = response.read()
     del(response)
     response_ms = int(round((after - before).total_seconds() * 1000))
+
+    log = "Cato Web Service Call %s\012%s\012Response time = %s ms" % (url, buff, response_ms)
+    self.insert_audit(step.function_name, log)
+    if len(result_var):
+        self.rt.set(result_var, buff)
+
+def http_cmd(self, task, step):
+
+    url, typ, u_data, time_out, retries, stat_code_v, stat_msg_v, header_v, body_v, res_time_v = self.get_command_params(step.command,
+        "url", "type", "data", "timeout", "retries", "status_code", "status_msg", "response_header", "response_body", "response_time_ms")[:]
+
+    url = self.replace_variables(url)
+    u_data = self.replace_variables(u_data)
+    time_out = self.replace_variables(time_out)
+    retries = self.replace_variables(retries)
+    stat_code_v = self.replace_variables(stat_code_v)
+    stat_msg_v = self.replace_variables(stat_msg_v)
+    header_v = self.replace_variables(header_v)
+    body_v = self.replace_variables(body_v)
+    res_time_v = self.replace_variables(res_time_v)
+
+    if not len(url):
+        raise Exception("HTTP command error, url is empty.")
+
+    headers = self.get_node_list(step.command, "headers/pair", "key", "value")
+
+    if len(time_out):
+        timeout = int(time_out)
+    else:
+        timeout = 10
+    if len(retries):
+        retries = int(retries)
+    else:
+        retries = 0
+    attempt = 0 
+
+    req = urllib2.Request(url)
+    req.get_method = lambda: typ
+    if not len(u_data):
+        u_data = None
+    
+    req.add_data(u_data)    
+    for (k, v) in headers:
+        k = self.replace_variables(k)
+        v = self.replace_variables(v)
+        if len(k):
+            req.add_header(k,v)
+
+    ok = True
+    while attempt <= retries:
+        try:
+            before = datetime.now() 
+            response = urllib2.urlopen(req, None,  timeout)
+            after = datetime.now() 
+            break
+        except urllib2.HTTPError, e:
+            after = datetime.now() 
+            head = e.headers
+            msg = e.msg
+            buff = e.read()
+            code = e.code
+            ok = False
+            
+            #raise Exception("HTTPError = %s, %s, %s\n%s" % (str(e.code), e.msg, e.read(), url))
+            break
+        except urllib2.URLError, e:
+            attempt += 1
+            if str(e.reason) == "timed out" and attempt <= retries:
+                self.insert_audit(step.function_name, "timeout on attempt number %s, retrying" % attempt)
+            else:
+                after = datetime.now() 
+                head = ""
+                msg = e.reason
+                buff = ""
+                code = e.reason
+                ok = False
+                #raise Exception("URLError = %s\n%s" % (str(e.reason), url))
+                break
+        except Exception as e:
+            import traceback
+            raise Exception("generic exception: " + traceback.format_exc())
+
+    if ok:
+        buff = response.read()
+        head = response.headers
+        code = response.getcode()
+        msg = "ok"
+        del(response)
+
+    response_ms = int(round((after - before).total_seconds() * 1000))
     self.http_response = response_ms
 
-    log = "http %s %s\012%s\012%s\012Response time = %s ms" % (typ, url, data, buff, response_ms)
+    if len(body_v):
+        self.rt.set(body_v, buff)
+    if len(header_v):
+        self.rt.set(header_v, head)
+    if len(stat_msg_v):
+        self.rt.set(stat_msg_v, msg)
+    if len(stat_code_v):
+        self.rt.set(stat_code_v, code)
+    if len(res_time_v):
+        self.rt.set(res_time_v, response_ms)
+
+    log = "http %s %s\012%s - %s\012%s\012Response time = %s ms" % (typ, url, code, msg, buff, response_ms)
     self.insert_audit(step.function_name, log)
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
         "range_begin", "prefix", "range_end", "suffix", "regex", "xpath")
     if len(variables):
-        # print variables
         self.process_buffer(buff, step)
 
 
