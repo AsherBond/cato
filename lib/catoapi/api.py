@@ -86,8 +86,8 @@ def authenticate(action, args):
 		if row["status"] < 1:
 			return False, "disabled"
 		# 2) is it requiring a new password?
-		if row["force_change"] > 0:
-			return False, "password change"
+# 		if row["force_change"] > 0:
+# 			return False, "password change"
 		# 3) is it locked?
 		if row["failed_login_attempts"] >= sset.PassMaxAttempts:
 			return False, "locked"
