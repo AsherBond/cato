@@ -169,15 +169,37 @@
 					<message input_type="textarea" rows="2" label="Log" class="w95pct" required="true" label_style="display: block;" />
 				</function>
 			</command>
-			<command name="http" label="HTTP" description="Http get to retrieve html data." help="The HTTP command can either issue an http get remote url. It will retrieve the resulting html or xml and place that data in the output buffer to be processed into variables.&lt;br&gt;&lt;br&gt;Select either http get or post from the Request Type drop down. Next type in the url text box that is to be issued. Make sure to include the http:// or https:// prefix to the url. &lt;br&gt;&lt;br&gt;Parameters can be added to the Post request type. Click the + icon below the Parameters section to add Key Value pairs that will be sent to the target url. &lt;br&gt;&lt;br&gt;Variables can be populated from the resulting html or xml that is returned from the target webserver. Click the Variables icon to popup the variables management page." icon="static/images/icons/internet_32.png">
+			<command name="http" label="HTTP" description="Http get to retrieve html data." help="The HTTP command can be used to communicate via http or https to a remote web server. Accepts the following parameters:&lt;br&gt;&lt;br&gt;Request Type - select the type of request, either GET, POST, DELETE, PUT, HEADER&lt;br&gt;&lt;br&gt;URL - the remote webserver url, must include the protocol (http:// or https://)&lt;br&gt;&lt;br&gt;Data - this is the http data typically used for POST, PUT request types&lt;br&gt;&lt;br&gt;Header Fields - http request header values that will be added to the header. In a key, value pair format.&lt;br&gt;&lt;br&gt;Options&lt;br&gt;&lt;br&gt;Timeout - request timeout in seconds&lt;br&gt;&lt;br&gt;Retries - number of times to retry if timeout occurs&lt;br&gt;&lt;br&gt;Status Code Variable - a variable name in which to store the http status code&lt;br&gt;&lt;br&gt;Status Message Variable - a variable name in which to store the response message, will be 'ok' if the http command worked without error&lt;br&gt;&lt;br&gt;Response Header Variable - a variable name in which to store the response header value&lt;br&gt;&lt;br&gt;Response Body Variable - a variable in which to store the response body&lt;br&gt;&lt;br&gt;Response Time ms Variable - a variable name in which to store the request response time in milliseconds" icon="static/images/icons/internet_32.png">
 				<function name="http" variables="true" parse_method="2" snip="url">
-					<type input_type="dropdown" label="Request Type" datasource="local" dataset="GET|POST">GET</type>
+					<type input_type="dropdown" label="Request Type" datasource="local" dataset="GET|POST|DELETE|PUT|HEADER">GET</type>
 					<url input_type="textarea" rows="1" label="URL" class="w95pct" required="true" label_style="display: block;" />
+					<data input_type="textarea" rows="3" label="Data" class="w95pct" label_style="display: block;" />
+					<headers label="Header Fields" is_array="true">
+						<pair label="Key and Values">
+							<key input_type="text" label="Name" />
+							<value input_type="text" label="Value" class="w50pct" />
+						</pair>
+					</headers>
+					<timeout input_type="text" option_tab="Options" label="Timeout" break_after="true">10</timeout>
+					<retries input_type="text" option_tab="Options" label="Retries" break_after="true">1</retries>
+					<status_code input_type="text" option_tab="Options" label="Status Code Variable" break_after="true" />
+					<status_msg input_type="text" option_tab="Options" label="Status Message Variable" break_after="true" />
+					<response_header input_type="text" option_tab="Options" label="Response Header Variable" break_after="true" />
+					<response_body input_type="text" option_tab="Options" label="Response Body Variable " break_after="true" />
+					<response_time_ms input_type="text" option_tab="Options" label="Response Time ms Variable" break_after="true" />
+				</function>
+			</command>
+			<command name="cato_web_service" label="Cato Web Service Call" description="Calls a Cato web service endpoint to manage the Cato environment." help="Host - the Cato web service host address in the form of http://address:port. Port is typically 4001. If left blank the host used will be the local Cato system&lt;br&gt;&lt;br&gt;Method - the Cato web service method to call, e.g. taskMethods/list_tasks&lt;br&gt;&lt;br&gt;UserId - the Cato user id that has permissions to use the web service&lt;br&gt;&lt;br&gt;Password - the Cato user id's password" icon="static/images/icons/internet_32.png">
+				<function name="cato_web_service" variables="true" >
+					<host input_type="text" label="Host" class="w95pct" />
+					<method input_type="text" label="Method" class="w95pct" required="true" />
+					<userid input_type="text" label="UserId" required="true"  />
+					<password input_type="text" label="Password" required="true"  />
+					<result_var input_type="text" label="Result Variable" />
 					<pairs label="Parameters" is_array="true">
 						<pair label="Parameter">
 							<key input_type="text" label="Name" />
 							<value input_type="text" label="Value" class="w50pct" />
-							<mask input_type="checkbox" label="Mask?" />
 						</pair>
 					</pairs>
 				</function>
