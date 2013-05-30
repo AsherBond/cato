@@ -169,7 +169,13 @@ class User(object):
     def AsJSON(self):
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
-    def ChangePassword(self, new_password=None, generate=False):
+    def AsText(self, delimiter=None):
+        return catocommon.ObjectOutput.AsText(self.__dict__, ["FullName", "Status", "AuthenticationType", "Role", "Email"], delimiter)
+
+    def AsXML(self):
+        return catocommon.ObjectOutput.AsXML(self.__dict__, "User")
+
+    def ChangePassword(self, new_password=None, generate=False, force_change=True):
         """
         Updating a user password is a different function with extra rules, 
             so it's kept separate from the DBUpdate function.
@@ -177,8 +183,8 @@ class User(object):
         You cannot explicitly change a password, AND do the Generate function,
             so if a password is set it'll use it and continue, otherwise it'll generate.
         """
-        if not self.Email:
-            raise InfoException("Unable to reset password - User [%s] does not have an email address defined." % (self.FullName))
+        if not new_password and not self.Email:
+            raise InfoException("Unable to generate a random password - User [%s] does not have an email address defined." % (self.FullName))
         
         if not new_password and not generate:
             raise InfoException("Unable to reset password - New password is required or random generation option must be specified.")
@@ -199,6 +205,14 @@ class User(object):
                 sql = "update users set user_password = %s where user_id = %s"
                 db.exec_db(sql, (catocommon.cato_encrypt(new_password), self.ID))
                 
+                # this flag can be reset from the calling function at it's discretion.  
+                # for example, if the user making the request IS the user being changed,
+                #     which we don't know at this point.
+                
+                if not force_change:
+                    sql = "update users set force_change = 0 where user_id = %s"
+                    db.exec_db(sql, (self.ID))
+                    
                 body = """%s - your password has been reset by an Administrator.""" % (self.FullName)
                 catocommon.send_email_via_messenger(self.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
             else:
@@ -228,7 +242,7 @@ class User(object):
             body = body.replace("##FULLNAME##", self.FullName).replace("##USERNAME##", self.LoginID).replace("##PASSWORD##", sNewPassword)
 
             catocommon.send_email_via_messenger(self.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
-            #f !uiCommon.SendEmailMessage(sEmail.strip(), ag.APP_COMPANYNAME + " Account Management", "Account Action in " + ag.APP_NAME, sBody, 0000BYREF_ARG0000sErr:
+            # f !uiCommon.SendEmailMessage(sEmail.strip(), ag.APP_COMPANYNAME + " Account Management", "Account Action in " + ag.APP_NAME, sBody, 0000BYREF_ARG0000sErr:
 
         db.close()
         return True
@@ -385,38 +399,47 @@ class User(object):
         db.close()
         return True, ""
 
-    #STATIC METHOD
-    #creates this Cloud as a new record in the db
-    #and returns the object
+    # STATIC METHOD
+    # creates this Cloud as a new record in the db
+    # and returns the object
     @staticmethod
-    def DBCreateNew(sUsername, sFullName, sAuthType, sPassword, sGeneratePW, sForcePasswordChange, sUserRole, sEmail, sStatus, sExpires, sGroupArray):
+    def DBCreateNew(username, fullname, role, password, generatepw, authtype="local", forcechange=1, email=None, status=1, expires=None, groups=None):
         # TODO: All the password testing, etc.
         db = catocommon.new_conn()
 
-        sNewID = catocommon.new_guid()
+        # all sorts of validation
+        if re.match("^[a-zA-Z0-9_.-]+$", username) is None:
+            raise Exception("Usernames cannot contain spaces or any characters other than letters, numbers, underscore, dot or dash.")
 
-        if sAuthType == "local":
-            if sPassword:
-                if sPassword:
-                    result, msg = User.ValidatePassword(None, sPassword)
-                    if result:
-                        sEncPW = catocommon.cato_encrypt(sPassword)
-                    else:
-                        raise Exception(msg)
-            elif catocommon.is_true(sGeneratePW):
-                sEncPW = catocommon.cato_encrypt(catocommon.generate_password())
+        newid = catocommon.new_guid()
+        authtype = authtype if authtype else "local"
+        forcechange = 0 if forcechange == 0 or forcechange == "0" else 1
+        email = email if email else ""        
+        encpw = None
+        
+        if authtype == "local":
+            if password:
+                result, msg = User.ValidatePassword(None, password)
+                if result:
+                    encpw = catocommon.cato_encrypt(password)
+                else:
+                    raise Exception(msg)
+            elif catocommon.is_true(generatepw):
+                encpw = catocommon.cato_encrypt(catocommon.generate_password())
             else:
                 raise Exception("A password must be provided, or check the box to generate one.")
-        
-        pw2insert = "'%s'" % sEncPW if sEncPW else " null"
-        ex2insert = ("str_to_date('{0}', '%%m/%%d/%%Y')".format(sExpires) if sExpires else " null")
-        sSQL = """insert into users
-            (user_id, username, full_name, authentication_type, force_change, email, status, user_role, user_password, expiration_dt)
-            values ('%s', '%s', '%s', '%s', %s, '%s', '%s', '%s', %s, %s)""" % (sNewID, sUsername, sFullName, sAuthType, sForcePasswordChange, 
-                (sEmail if sEmail else ""), sStatus,
-                sUserRole, pw2insert, ex2insert)
 
-        if not db.tran_exec_noexcep(sSQL):
+        if role not in ("Administrator", "Developer", "User"):
+            raise Exception("Role must be 'Administrator', 'Developer', or 'User'.")
+        
+        pw2insert = "'%s'" % encpw if encpw else " null"
+        ex2insert = ("str_to_date('{0}', '%%m/%%d/%%Y')".format(expires) if expires else " null")
+        sql = """insert into users
+            (user_id, username, full_name, authentication_type, force_change, email, status, user_role, user_password, expiration_dt)
+            values ('%s', '%s', '%s', '%s', %s, '%s', '%s', '%s', %s, %s)""" % (newid, username, fullname, authtype, forcechange,
+                email, status, role, pw2insert, ex2insert)
+
+        if not db.tran_exec_noexcep(sql):
             if db.error == "key_violation":
                 raise Exception("A User with that Login ID already exists.  Please select another.")
             else: 
@@ -424,17 +447,22 @@ class User(object):
 
         db.tran_commit()
         
-        if sGroupArray:
+        if groups:
             # if we can't create groups we don't actually fail...
-            for tag in sGroupArray:
-                sql = "insert object_tags (object_type, object_id, tag_name) values (1, '%s','%s')" % (sNewID, tag)
-                if not db.exec_db_noexcep(sql):
-                    logger.error("Error creating Groups for new user %s." % sNewID)
+            sql = "select group_concat(tag_name order by tag_name separator ',') as tags from tags"
+            alltags = db.select_col_noexcep(sql)
+            if alltags:
+                alltags = alltags.split(",")
+                for tag in groups:
+                    if tag in alltags:
+                        sql = "insert object_tags (object_type, object_id, tag_name) values (1, '%s','%s')" % (newid, tag)
+                        if not db.exec_db_noexcep(sql):
+                            logger.error("Error creating Groups for new user %s." % newid)
         
         # now it's inserted... lets get it back from the db as a complete object for confirmation.
         u = User()
-        u.FromID(sNewID)
-        u.AddPWToHistory(sEncPW)
+        u.FromID(newid)
+        u.AddPWToHistory(encpw)
         
         db.close()
         return u

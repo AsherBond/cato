@@ -182,7 +182,13 @@ class sysMethods:
         if obj.ID:
             # if a password was provided, or the random flag was set...exclusively
             if new_pw:
-                obj.ChangePassword(new_password=new_pw)
+                # if the user requesting the change *IS* the user being changed...
+                # set force_change to False
+                force = True
+                if obj.ID == args["_user_id"]:
+                    force = False
+                    
+                obj.ChangePassword(new_password=new_pw, force_change=force)
             elif generate:
                 obj.ChangePassword(generate=generate)
         else:
@@ -191,5 +197,69 @@ class sysMethods:
         
         catocommon.write_change_log(args["_user_id"], catocommon.CatoObjectTypes.User, obj.ID, obj.FullName, "Password change/reset via API.")
         return R(response="[%s] password operation successful." % obj.FullName)
+            
+    def create_user(self, args):
+        """
+        Creates a new user account.
+
+        Only an 'Administrator' can create other users.  If the credentials used for this API call 
+        are not an Administrator, the call will not succeed.
+
+        Required Arguments: 
+            user - A login name for the user.
+            name - The full name of the user.
+            role - The users role.  (Valid values: Administrator, Developer, User)
+        
+        Optional Arguments:
+            password - Password for the user. If password is not provided, a random password will be generated.
+            email - Email address for the user.  Required if 'password' is omitted.
+            authtype - 'local' or 'ldap'.  Default is 'local' if omitted.
+            forcechange - Require user to change password. Default is 'true' if omitted. (Valid values: 'true' or 'false'
+            status - Status of the new account. Default is 'enabled' if omitted. (Valid values: enabled, disabled, locked)
+            groups - A list of groups the user belongs to. Group names cannot contain spaces. Comma delimited list.
+
+        Returns: Nothing if successful, error messages on failure.
+        """
+
+        # this is a admin function, kick out 
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+
+        # define the required parameters for this call
+        required_params = ["user", "name", "role"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        generate = True if not args.get("password") else False
+        if generate and not args.get("email"):
+            return R(err_code=R.Codes.Exception, err_detail="Email is required if password is omitted.")
+
+        status = 1
+        if args.get("status"):
+            status = 0 if args.get("status").lower() == "disabled" else (-1 if args.get("status").lower() == "locked" else 1)
+
+        groups = args.get("groups").split(",") if args.get("groups") else None
+
+        obj = catouser.User.DBCreateNew(username=args["user"],
+                                        fullname=args["name"],
+                                        role=args["role"],
+                                        password=args.get("password"),
+                                        generatepw=generate,
+                                        authtype=args.get("authtype"),
+                                        forcechange=args.get("forcechange"),
+                                        email=args.get("email"),
+                                        status=status, groups=groups)
+
+        if obj:
+            catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.User, obj.ID, obj.LoginID, "User created.")
+            if args["output_format"] == "json":
+                return R(response=obj.AsJSON())
+            elif args["output_format"] == "text":
+                return R(response=obj.AsText(args["output_delimiter"]))
+            else:
+                return R(response=obj.AsXML())
+        else:
+            return R(err_code=R.Codes.CreateError, err_detail="Unable to create User.")
             
 

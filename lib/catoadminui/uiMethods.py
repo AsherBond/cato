@@ -784,7 +784,13 @@ class uiMethods:
     
             # if a password was provided, or the random flag was set...exclusively
             if new_pw:
-                u.ChangePassword(new_password=new_pw)
+                # if the user requesting the change *IS* the user being changed...
+                # set force_change to False
+                force = True
+                if u.ID == uiCommon.GetSessionUserID():
+                    force = False
+                    
+                u.ChangePassword(new_password=new_pw, force_change=force)
                 uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "Password changed.")
             elif random_pw:
                 u.ChangePassword(generate=random_pw)
@@ -811,8 +817,17 @@ class uiMethods:
     def wmCreateUser(self):
         args = uiCommon.getAjaxArgs()
 
-        u = catouser.User.DBCreateNew(args["LoginID"], args["FullName"], args["AuthenticationType"], uiCommon.unpackJSON(args["Password"]),
-                                        args["GeneratePW"], args["ForceChange"], args["Role"], args["Email"], args["Status"], args["Expires"], args["Groups"])
+        u = catouser.User.DBCreateNew(username=args["LoginID"],
+                                        fullname=args["FullName"],
+                                        role=args["Role"],
+                                        password=args.get("Password"),
+                                        generatepw=args["GeneratePW"],
+                                        authtype=args["AuthenticationType"],
+                                        forcechange=args.get("ForceChange"),
+                                        email=args.get("Email"),
+                                        status=args["Status"],
+                                        expires=args["Expires"],
+                                        groups=args["Groups"])
 
         uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "User Created")
         return u.AsJSON()
@@ -1175,7 +1190,7 @@ class uiMethods:
                 t.FromXML(ET.tostring(xtask))
 
                 if t.DBExists and t.OnConflict == "cancel":
-                    msg ="Task exists - set 'replace', 'minor' or 'major' flag."
+                    msg = "Task exists - set 'replace', 'minor' or 'major' flag."
                 elif t.OnConflict == "replace":
                     msg = "Will be replaced."
                 elif t.OnConflict == "minor" or t.OnConflict == "major":

@@ -104,7 +104,7 @@ class wmHandler:
         u = catouser.User()
         u.FromID(user_id)
         if u:
-            args["role"] = u.Role
+            args["_role"] = u.Role
             args["_user_full_name"] = u.FullName
             
             # flags are set so certain methods can have restricted access.
