@@ -73,7 +73,7 @@ def authenticate(action, args):
 		
 		db.ping_db()
 		# we need the password for the provided key (user_id)... that's what we use to build the signature.
-		sql = """select user_id, user_password, status, force_change, failed_login_attempts
+		sql = """select user_id, user_password, username, status, force_change, failed_login_attempts
 			from users 
 			where user_id = '{0}' or username = '{0}'""".format(key) 
 		row = db.select_row_dict(sql)
@@ -86,8 +86,9 @@ def authenticate(action, args):
 		if row["status"] < 1:
 			return False, "disabled"
 		# 2) is it requiring a new password?
-# 		if row["force_change"] > 0:
-# 			return False, "password change"
+		# NOTE: only the user explicitly named 'administrator' can use the API if force_change = 1
+		if row["force_change"] > 0 and row["username"] != "administrator":
+			return False, "password change"
 		# 3) is it locked?
 		if row["failed_login_attempts"] >= sset.PassMaxAttempts:
 			return False, "locked"
