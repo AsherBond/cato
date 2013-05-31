@@ -408,8 +408,8 @@ class User(object):
         db = catocommon.new_conn()
 
         # all sorts of validation
-        if re.match("^[a-zA-Z0-9_.-]+$", username) is None:
-            raise Exception("Usernames cannot contain spaces or any characters other than letters, numbers, underscore, dot or dash.")
+        if re.match("^[\a-zA-Z0-9_.-@]+$", username) is None:
+            raise Exception("Usernames cannot contain spaces or any characters other than letters, numbers or these chars [_.@-].")
 
         newid = catocommon.new_guid()
         authtype = authtype if authtype else "local"
