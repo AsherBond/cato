@@ -488,6 +488,30 @@ def log_msg_cmd(self, task, step):
     self.insert_audit(step.function_name, msg, "")
 
 
+def generate_password_cmd(self, task, step):
+
+    length, v_name = self.get_command_params(step.command, "length", "variable")[:]
+    length = self.replace_variables(length)
+    v_name = self.replace_variables(v_name)
+    if not len(v_name):
+        raise Exception("Generate Password command requires Variable Name") 
+    if not len(length):
+        i_len = 12
+    else:
+        try:
+            i_len = int(length)
+        except ValueError as e:
+            raise Exception("Length value must be integer, %s found" % (length))
+        except Exception as e:
+            raise Exception(e)
+
+    p = catocommon.generate_password(i_len) 
+    print p
+    self.rt.set(v_name, p)
+    msg = "Generated random password of length %s and stored in variable %s" % (i_len, v_name)
+    self.insert_audit(step.function_name, msg, "")
+
+
 def subtask_cmd(self, task, step):
     subtask_name, subtask_version = self.get_command_params(step.command, "task_name", "version")[:]
 
