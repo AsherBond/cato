@@ -360,6 +360,21 @@ class index:
                                 out.append("%s" % att.__doc__)
                         
 
+            from catoapi import cloudMethods
+            
+            for attname in dir(cloudMethods.cloudMethods):
+                att = getattr(cloudMethods.cloudMethods, attname, None)
+                if att:
+                    if hasattr(att, "__name__"):
+                        if listonly:
+                            out.append("cloudMethods/%s" % att.__name__)
+                        else:
+                            out.append("----------\n")
+                            out.append("Method: cloudMethods/%s" % att.__name__)
+                            if att.__doc__:
+                                out.append("%s" % att.__doc__)
+                        
+
             from catoapi import sysMethods
             
             for attname in dir(sysMethods.sysMethods):
@@ -442,6 +457,16 @@ class doc:
                 if att:
                     if hasattr(att, "__name__"):
                         out.append("<h4>taskMethods/%s</h4>" % att.__name__)
+                        if att.__doc__:
+                            out.append("<pre><code>%s</code></pre>" % att.__doc__.replace("        ", "").strip())
+                            
+            from catoapi import cloudMethods
+            
+            for attname in dir(cloudMethods.cloudMethods):
+                att = getattr(cloudMethods.cloudMethods, attname, None)
+                if att:
+                    if hasattr(att, "__name__"):
+                        out.append("<h4>cloudMethods/%s</h4>" % att.__name__)
                         if att.__doc__:
                             out.append("<pre><code>%s</code></pre>" % att.__doc__.replace("        ", "").strip())
                             
