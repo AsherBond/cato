@@ -305,11 +305,10 @@ def is_guid(s):
     else:
         return False
 
-def generate_password():
+def generate_password(length=12):
     import string
     from random import choice
     chars = string.letters + string.digits
-    length = 12
     return "".join(choice(chars) for _ in range(length))
 
 """The following is needed when serializing objects that have datetime or other non-serializable
