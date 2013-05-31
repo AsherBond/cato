@@ -37,8 +37,8 @@ catoAjax.getSettings = function() {"use strict";
 
 catoAjax.saveSettings = function(type, values) {"use strict";
 	var args = {};
-	args.sType = type;
-	args.sValues = values;
+	args.module = type;
+	args.settings = values;
 	return ajaxPost("uiMethods/wmSaveSettings", args);
 }
 

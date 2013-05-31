@@ -38,6 +38,7 @@ from catoapi.api import response as R
 from catocommon import catocommon
 from catotask import task
 from catouser import catouser
+from catosettings import settings
 
 class sysMethods:
     """These are utility methods for the Cato system."""
@@ -236,7 +237,7 @@ class sysMethods:
         if generate and not args.get("email"):
             return R(err_code=R.Codes.Exception, err_detail="Email is required if password is omitted.")
 
-        status = args.get("status", 1) # default if omitted is 'enabled'
+        status = args.get("status", 1)  # default if omitted is 'enabled'
 
         groups = args.get("groups").split(",") if args.get("groups") else None
         
@@ -392,4 +393,101 @@ class sysMethods:
         else:
             return R(response=obj.AsXML())
 
+    def update_settings(self, args):
+        """
+        Updates the settings of a Cato process or module.
+
+        NOTE: the update_settings command requires submission of a JSON settings object.
+        As a guide for updating settings, first execute this command with the output_format set to json.
+        
+        For example, to update Messenger settings, first do:
+        
+        get_settings?module=messenger&output_format=json
+        
+        ...then use the result as a template for update_settings.
+        
+        Required Arguments: 
+            module - name of the module to apply the settings.
+            settings - a list of name:value setting objects.
+
+        Returns: Nothing if successful, error messages on failure.
+        """
+        mod = args.get("module")
+        sets = args.get("settings")
+
+        print mod
+        print sets
+        
+        # this is a admin function, kick out 
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+
+        required_params = ["module", "settings"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        if not sets:
+            return R(err_code=R.Codes.UpdateError, err_detail="Settings JSON is required.")
+            
+        # first, validate the settings JSON
+        # are the settings json?
+        try:
+            setsdict = json.loads(sets)
+        except Exception as ex:
+            return R(err_code=R.Codes.UpdateError, err_detail="Trying to parse settings as JSON failed. %s" % ex)
+        
+        
+        # sweet, use getattr to actually get the class we want!
+        objname = getattr(settings.settings, mod.lower())
+        obj = objname()
+        if obj:
+            # spin the sValues array and set the appropriate properties.
+            # setattr is so awesome
+            for k, v in setsdict.iteritems():
+                setattr(obj, k, v)
+                # print  "setting %s to %s" % (pair["name"], pair["value"])
+            # of course all of our settings classes must have a DBSave method
+            obj.DBSave()
+            catocommon.add_security_log(args["_user_id"], catocommon.SecurityLogTypes.Security,
+                catocommon.SecurityLogActions.ConfigChange, catocommon.CatoObjectTypes.NA, "",
+                "%s settings changed." % mod.capitalize())
+        
+            if args["output_format"] == "json":
+                return R(response=obj.AsJSON())
+            elif args["output_format"] == "text":
+                return R(response=obj.AsText(args["output_delimiter"]))
+            else:
+                return R(response=obj.AsXML())
+
+    def get_settings(self, args):
+        """
+        Lists all the settings of Cato modules.
+
+        Optional Arguments: 
+            module - name of the module. If omitted, all module settings are returned.
+
+        Returns: A collection of settings.
+        """
+        # this is a admin function, kick out 
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+
+        mod = args.get("module")
+        obj = None
+        
+        # if a module is provided, just get that one, otherwise get them all
+        if mod:
+            objname = getattr(settings.settings, mod.lower())
+            obj = objname()
+        else:
+            obj = settings.settings()
+
+        if obj:
+            if args["output_format"] == "json":
+                return R(response=obj.AsJSON())
+            elif args["output_format"] == "text":
+                return R(response=obj.AsText(args["output_delimiter"]))
+            else:
+                return R(response=obj.AsXML())
 

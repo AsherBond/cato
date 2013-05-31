@@ -658,23 +658,23 @@ class uiMethods:
         """
             In this method, the values come from the browser in a jQuery serialized array of name/value pairs.
         """
-        sType = uiCommon.getAjaxArg("sType")
-        sValues = uiCommon.getAjaxArg("sValues")
+        sModule = uiCommon.getAjaxArg("module")
+        sSettings = uiCommon.getAjaxArg("settings")
     
         # sweet, use getattr to actually get the class we want!
-        objname = getattr(settings.settings, sType.lower())
+        objname = getattr(settings.settings, sModule.lower())
         obj = objname()
         if obj:
             # spin the sValues array and set the appropriate properties.
             # setattr is so awesome
-            for pair in sValues:
+            for pair in sSettings:
                 setattr(obj, pair["name"], pair["value"])
                 # print  "setting %s to %s" % (pair["name"], pair["value"])
             # of course all of our settings classes must have a DBSave method
             obj.DBSave()
             catocommon.add_security_log(uiCommon.GetSessionUserID(), catocommon.SecurityLogTypes.Security,
                 catocommon.SecurityLogActions.ConfigChange, catocommon.CatoObjectTypes.NA, "",
-                "%s settings changed." % sType.capitalize())
+                "%s settings changed." % sModule.capitalize())
         
         return "{}"
 
