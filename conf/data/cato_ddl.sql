@@ -172,12 +172,10 @@ CREATE TABLE `dep_seq_inst_step_svc` (
   `seq_instance` bigint(20) NOT NULL,
   `step_number` int(11) NOT NULL,
   `deployment_service_id` varchar(36) NOT NULL,
-  `state` varchar(32) NOT NULL,
-  `next_state` varchar(32) NOT NULL,
   `status` varchar(32) NOT NULL,
   `original_task_id` varchar(36) NOT NULL,
   `task_version` varchar(16) NOT NULL,
-  PRIMARY KEY (`seq_instance`,`step_number`,`deployment_service_id`,`state`,`next_state`)
+  PRIMARY KEY (`seq_instance`,`step_number`,`deployment_service_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_seq_inst_svc` (
   `seq_instance` bigint(20) NOT NULL,
@@ -295,8 +293,6 @@ CREATE TABLE `deployment_log` (
   `seq_instance` bigint(20) DEFAULT NULL,
   `step_number` int(11) DEFAULT NULL,
   `action_id` varchar(36) DEFAULT NULL,
-  `state` varchar(45) DEFAULT NULL,
-  `next_state` varchar(32) DEFAULT NULL,
   `task_instance` bigint(20) DEFAULT NULL,
   `log_msg` text,
   PRIMARY KEY (`log_id`)
@@ -331,7 +327,6 @@ CREATE TABLE `deployment_service_inst` (
   `current_state` varchar(16) DEFAULT NULL,
   `cloud_id` varchar(36) DEFAULT NULL,
   `cloud_account_id` varchar(36) DEFAULT NULL,
-  `task_instance` int(11) DEFAULT NULL,
   `host_id` varchar(36) DEFAULT NULL,
   `seq_instance` bigint(20) DEFAULT NULL,
   `run_level` int(11) DEFAULT NULL,
@@ -376,6 +371,7 @@ CREATE TABLE `deployment_template` (
   `icon` mediumblob,
   `categories` varchar(1024) DEFAULT NULL,
   `svc_count` int(11) DEFAULT '0',
+  `available` int(11) DEFAULT '0',
   PRIMARY KEY (`template_id`),
   UNIQUE KEY `name_version` (`template_name`,`template_version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
