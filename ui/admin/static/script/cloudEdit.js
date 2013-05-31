@@ -75,9 +75,11 @@ $(document).ready(function() {
 		if (confirm("Are you sure?")) {
 			$("#update_success_msg").text("Deleting...").show().fadeOut(2000);
 
+			var cloud_id = $("#hidCurrentEditID").val();
 			var kpid = $(this).parents(".keypair").attr("id").replace(/kp_/, "");
 
 			var response = ajaxPost("cloudMethods/wmDeleteKeyPair", {
+				sCloudID: cloud_id,
 				sKeypairID : kpid
 			}, "text");
 			if (response) {

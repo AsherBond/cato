@@ -201,23 +201,17 @@ class cloudMethods:
         sID = uiCommon.getAjaxArg("sID")
         sHTML = ""
 
-        sSQL = """select keypair_id, keypair_name, private_key, passphrase
-            from clouds_keypair
-            where cloud_id = %s"""
-
-        dt = self.db.select_all_dict(sSQL, sID)
-
-        if dt:
+        c = cloud.Cloud()
+        c.FromID(sID)
+        keypairs = c.GetKeyPairs()
+        if keypairs:
             sHTML += "<ul>"
-            for dr in dt:
-                sName = dr["keypair_name"]
+            for kp in keypairs:
+                sName = kp["Name"]
+                sPK = kp["HasPrivateKey"]
+                sPP = kp["HasPassphrase"]
 
-                # DO NOT send these back to the client.
-                sPK = ("false" if not dr["private_key"] else "true")
-                sPP = ("false" if not dr["passphrase"] else "true")
-                # sLoginPassword = "($%#d@x!&"
-
-                sHTML += "<li class=\"ui-widget-content ui-corner-all keypair\" id=\"kp_" + dr["keypair_id"] + "\" has_pk=\"" + sPK + "\" has_pp=\"" + sPP + "\">"
+                sHTML += "<li class=\"ui-widget-content ui-corner-all keypair\" id=\"kp_" + kp["ID"] + "\" has_pk=\"" + sPK + "\" has_pp=\"" + sPP + "\">"
                 sHTML += "<span class=\"keypair_label pointer\">" + sName + "</span>"
                 sHTML += "<span class=\"keypair_icons pointer\"><span class=\"keypair_delete_btn ui-icon ui-icon-close forceinline\" /></span></span>"
                 sHTML += "</li>"
@@ -459,58 +453,25 @@ class cloudMethods:
         sPK = uiCommon.getAjaxArg("sPK")
         sPP = uiCommon.getAjaxArg("sPP")
 
-        if not sName:
-            return "KeyPair Name is Required."
-
         sPK = uiCommon.unpackJSON(sPK)
 
-        bUpdatePK = False
-        if sPK:
-            bUpdatePK = True
-
-        bUpdatePP = False
-        if sPP and sPP != "!2E4S6789O":
-            bUpdatePP = True
-
+        c = cloud.Cloud()
+        c.FromID(sCloudID)
 
         if not sKeypairID:
-            # empty id, it's a new one.
-            sPKClause = ""
-            if bUpdatePK:
-                sPKClause = "'" + catocommon.cato_encrypt(sPK) + "'"
-
-            sPPClause = "null"
-            if bUpdatePP:
-                sPPClause = "'" + catocommon.cato_encrypt(sPP) + "'"
-
-            sSQL = "insert into clouds_keypair (keypair_id, cloud_id, keypair_name, private_key, passphrase)" \
-                " values ('" + catocommon.new_guid() + "'," \
-                "'" + sCloudID + "'," \
-                "'" + sName.replace("'", "''") + "'," \
-                + sPKClause + "," \
-                + sPPClause + \
-                ")"
+            # keypair_id not passed in, create a new one...
+            c.AddKeyPair(sName, sPK, sPP)
         else:
-            sPKClause = ""
-            if bUpdatePK:
-                sPKClause = ", private_key = '" + catocommon.cato_encrypt(sPK) + "'"
+            c.SaveKeyPair(sKeypairID, sName, sPK, sPP)
 
-            sPPClause = ""
-            if bUpdatePP:
-                sPPClause = ", passphrase = '" + catocommon.cato_encrypt(sPP) + "'"
-
-            sSQL = "update clouds_keypair set" \
-                " keypair_name = '" + sName.replace("'", "''") + "'" \
-                + sPKClause + sPPClause + \
-                " where keypair_id = '" + sKeypairID + "'"
-
-        self.db.exec_db(sSQL)
         return json.dumps({ "result": "success"})
 
     def wmDeleteKeyPair(self):
+        sCloudID = uiCommon.getAjaxArg("sCloudID")
         sKeypairID = uiCommon.getAjaxArg("sKeypairID")
-        sSQL = "delete from clouds_keypair where keypair_id = '" + sKeypairID + "'"
-        self.db.exec_db(sSQL)
+        c = cloud.Cloud()
+        c.FromID(sCloudID)
+        c.DeleteKeyPair(sKeypairID)
         return json.dumps({ "result": "success"})
     
     def wmCreateStaticClouds(self):

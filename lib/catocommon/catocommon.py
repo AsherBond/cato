@@ -849,6 +849,7 @@ class CatoObjectTypes(object):
     Domain = 36
     CloudAccount = 40
     Cloud = 41
+    CloudKeyPair = 45
     Deployment = 70
     DeploymentTemplate = 71
     DeploymentService = 72

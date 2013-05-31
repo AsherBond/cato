@@ -82,6 +82,10 @@ class cloudMethods:
             account_number - an Account number.
         
         """
+        # this is a developer function
+        if not args["_developer"]:
+            return R(err_code=R.Codes.Forbidden)
+        
         required_params = ["name", "provider", "login", "password", "default_cloud"]
         has_required, resp = api.check_required_params(required_params, args)
         if not has_required:
@@ -115,6 +119,10 @@ class cloudMethods:
 
         Returns: A Cloud Account object.
         """
+        # this is a developer function
+        if not args["_developer"]:
+            return R(err_code=R.Codes.Forbidden)
+        
         required_params = ["name"]
         has_required, resp = api.check_required_params(required_params, args)
         if not has_required:
@@ -171,7 +179,12 @@ class cloudMethods:
         Optional Arguments: 
             default_account - the name of a default Account for this Cloud.
         
+        Returns: A Cloud object.
         """
+        # this is a developer function
+        if not args["_developer"]:
+            return R(err_code=R.Codes.Forbidden)
+        
         required_params = ["name", "provider", "apiurl", "apiprotocol"]
         has_required, resp = api.check_required_params(required_params, args)
         if not has_required:
@@ -199,14 +212,19 @@ class cloudMethods:
         Updates a Cloud.
         
         Required Arguments: 
-            cloud - Name or ID of the cloud to update.
+            cloud - Name or ID of the Cloud to update.
 
         Optional Arguments: 
             apiurl - URL of the Cloud API endpoint.
             apiprotocol - Cloud API endpoint protocol.
             default_account - the name of a default Account for this Cloud.
         
+        Returns: A Cloud object.
         """
+        # this is a developer function
+        if not args["_developer"]:
+            return R(err_code=R.Codes.Forbidden)
+        
         required_params = ["name"]
         has_required, resp = api.check_required_params(required_params, args)
         if not has_required:
@@ -253,5 +271,100 @@ class cloudMethods:
             return R(response=obj.AsText(args["output_delimiter"]))
         else:
             return R(response=obj.AsXML())
+
+    def list_cloud_keypairs(self, args):
+        """
+        Lists all the Key Pairs defined on a Cloud.
+
+        Required Arguments: 
+            cloud - Name or ID of the Cloud to update.
+
+        Returns: A list of Key Pairs on this Cloud.
+        """
+
+        required_params = ["cloud"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        obj = cloud.Cloud()
+        obj.FromName(args["cloud"])
+        if args["output_format"] == "json":
+            return R(response=obj.KeyPairsAsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.KeyPairsAsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.KeyPairsAsXML())
+            
+    def add_cloud_keypair(self, args):
+        """
+        Adds a Key Pair to a Cloud.
+        
+        Required Arguments: 
+            cloud - Name or ID of the Cloud to update.
+            name - a name for the Key Pair.
+            private_key - the private key.
+
+        Optional Arguments: 
+            passphrase - a passphrase for this Key Pair.
+            
+        Returns: A list of Key Pairs on this Cloud.
+        """
+        # this is a developer function
+        if not args["_developer"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        required_params = ["cloud", "name", "private_key"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        obj = cloud.Cloud()
+        obj.FromName(args["cloud"])
+        obj.AddKeyPair(args.get("name"), args.get("private_key"), args.get("passphrase"))
+
+        catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.CloudKeyPair, obj.ID, obj.Name, "KeyPair [%s] added to Cloud." % args.get("name"))
+
+        # so what do we return when we add a keypair?  How about a list of all the keypairs.
+        if args["output_format"] == "json":
+            return R(response=obj.KeyPairsAsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.KeyPairsAsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.KeyPairsAsXML())
+
+
+    def delete_cloud_keypair(self, args):
+        """
+        Removes a Key Pair from a Cloud.
+        
+        Required Arguments: 
+            cloud - Name or ID of the Cloud to update.
+            name - a name for the Key Pair.
+            
+        Returns: A list of Key Pairs on this Cloud.
+        """
+        # this is a developer function
+        if not args["_developer"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        required_params = ["cloud", "name"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        obj = cloud.Cloud()
+        obj.FromName(args["cloud"])
+        obj.DeleteKeyPair(args.get("name"))
+
+        catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.CloudKeyPair, obj.ID, obj.Name, "KeyPair [%s] removed from Cloud." % args.get("name"))
+
+        # so what do we return when we add a keypair?  How about a list of all the keypairs.
+        if args["output_format"] == "json":
+            return R(response=obj.KeyPairsAsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.KeyPairsAsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.KeyPairsAsXML())
 
 

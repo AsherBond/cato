@@ -154,8 +154,7 @@ class Cloud(object):
         
         # well, if we got here we have a problem... the ID provided wasn't found anywhere.
         # this should never happen, so bark about it.
-        logger.warning("Unable to find a Cloud with id [%s] on any Providers." % sCloudID)   
-        return
+        raise Exception("Unable to find a Cloud with ID [%s] on any Providers." % sCloudID)   
 
     def FromName(self, name):
         if not name:
@@ -186,14 +185,78 @@ class Cloud(object):
         
         # well, if we got here we have a problem... the name provided wasn't found anywhere.
         # this should never happen, so bark about it.
-        logger.warning("Unable to find a Cloud with name [%s] on any Providers." % name)   
-        return
+        raise Exception("Unable to find a Cloud with ID or Name [%s] on any Providers." % name)   
 
     def IsValidForCalls(self):
         if self.APIUrl and self.APIProtocol:
             return True
         return False
 
+    def AddKeyPair(self, name, private_key, passphrase):
+        if not name:
+            return "KeyPair Name is Required."
+
+        pk_clause = "'%s'" % (catocommon.cato_encrypt(private_key)) if private_key else ""
+        pp_clause = "'%s'" % (catocommon.cato_encrypt(passphrase)) if passphrase else " null"
+
+        sql = """insert into clouds_keypair (keypair_id, cloud_id, keypair_name, private_key, passphrase)
+            values (%s, %s, %s, {0}, {1})""".format(pk_clause, pp_clause)
+
+        db = catocommon.new_conn()
+        db.exec_db(sql, (catocommon.new_guid(), self.ID, name))
+        db.close()
+    
+    def SaveKeyPair(self, kpid, name, private_key, passphrase):
+        # multiple sqls, but clean and to the point.  Happens once in a blue moon so I don't care about performance.
+        db = catocommon.new_conn()
+        if name:
+            sql = """update clouds_keypair set keypair_name = %s where keypair_id = %s"""
+            db.exec_db(sql, (name, kpid))
+        if private_key:
+            sql = """update clouds_keypair set private_key = %s where keypair_id = %s"""
+            db.exec_db(sql, (catocommon.cato_encrypt(private_key), kpid))
+        if passphrase and passphrase != "!2E4S6789O":
+            sql = """update clouds_keypair set passphrase = %s where keypair_id = %s"""
+            db.exec_db(sql, (catocommon.cato_encrypt(passphrase), kpid))
+
+        db.close()
+    
+    def DeleteKeyPair(self, kp):
+        db = catocommon.new_conn()
+        sql = """delete from clouds_keypair where cloud_id = %s and (keypair_id = %s or keypair_name = %s)"""
+        db.exec_db(sql, (self.ID, kp, kp))
+        db.close()
+    
+    def GetKeyPairs(self):
+        """
+        Will both populate the KeyPairs property, and return a list of KeyPair names.
+        """
+        
+        sql = """select keypair_id as ID, 
+            keypair_name as Name, 
+            case when ifnull(private_key, "") != "" then 'true' else 'false' end as HasPrivateKey,
+            case when passphrase is not null then 'true' else 'false' end as HasPassphrase
+            from clouds_keypair
+            where cloud_id = %s"""
+        db = catocommon.new_conn()
+        rows = db.select_all_dict(sql, (self.ID))
+        # making it a list instead of a tuple for downstream use as JSON
+        self.KeyPairs = list(rows) if rows else []
+        db.close()
+        return self.KeyPairs
+        
+    def KeyPairsAsText(self, delimiter):
+        self.GetKeyPairs()
+        return catocommon.ObjectOutput.IterableAsText(self.KeyPairs, ["Name"], delimiter)
+        
+    def KeyPairsAsJSON(self):
+        self.GetKeyPairs()
+        return catocommon.ObjectOutput.IterableAsJSON(self.KeyPairs)
+        
+    def KeyPairsAsXML(self):
+        self.GetKeyPairs()
+        return catocommon.ObjectOutput.IterableAsXML(self.KeyPairs, "KeyPairs", "KeyPair")
+        
     def AsJSON(self):
         # convert the Provider object to a dictionary for serialization
         self.Provider = self.Provider.__dict__
@@ -287,7 +350,6 @@ class Cloud(object):
 
         db.close()
         return True
-
 
 # Note: this is not a container for CloudAccount objects - it's just a rowset from the database
 # with an AsJSON method.
