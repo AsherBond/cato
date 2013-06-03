@@ -506,10 +506,11 @@ function LoadCredentialSelector() {
 	if (creds) {
 		$("#credentials").html("");
 		$.each(creds, function(index, cred) {
-			s = "<tr class=\"select_credential\" credential_id=\"" + cred.credential_id + "\">"
-			s += "<td class=\"selectablecrd row\">" + cred.username + "</td>"
-			s += "<td class=\"selectablecrd row\">" + cred.domain + "</td>"
-			s += "<td class=\"selectablecrd row\">" + cred.shared_cred_desc + "</td>"
+			s = "<tr class=\"select_credential\" credential_id=\"" + cred.ID + "\">"
+			s += "<td class=\"selectablecrd row\">" + cred.Name + "</td>"
+			s += "<td class=\"selectablecrd row\">" + cred.Username + "</td>"
+			s += "<td class=\"selectablecrd row\">" + cred.Domain + "</td>"
+			s += "<td class=\"selectablecrd row\">" + cred.Description + "</td>"
 			s += "</tr>"
 
 			$("#credentials").append(s);

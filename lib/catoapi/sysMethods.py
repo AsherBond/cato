@@ -39,6 +39,7 @@ from catocommon import catocommon
 from catotask import task
 from catouser import catouser
 from catosettings import settings
+from catoasset import asset
 
 class sysMethods:
     """These are utility methods for the Cato system."""
@@ -161,7 +162,7 @@ class sysMethods:
         Optional Arguments:
             user - Either the User ID or Name.
 
-        Returns: Nothing if successful, error messages on failure.
+        Returns: Success message if successful, error messages on failure.
         """
         user = args.get("user")
         new_pw = args.get("password")
@@ -263,7 +264,7 @@ class sysMethods:
                                         groups=groups)
 
         if obj:
-            catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.User, obj.ID, obj.LoginID, "User created.")
+            catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.User, obj.ID, obj.LoginID, "User created by API.")
             if args["output_format"] == "json":
                 return R(response=obj.AsJSON())
             elif args["output_format"] == "text":
@@ -451,7 +452,7 @@ class sysMethods:
             obj.DBSave()
             catocommon.add_security_log(args["_user_id"], catocommon.SecurityLogTypes.Security,
                 catocommon.SecurityLogActions.ConfigChange, catocommon.CatoObjectTypes.NA, "",
-                "%s settings changed." % mod.capitalize())
+                "%s settings changed via API." % mod.capitalize())
         
             if args["output_format"] == "json":
                 return R(response=obj.AsJSON())
@@ -490,4 +491,94 @@ class sysMethods:
                 return R(response=obj.AsText(args["output_delimiter"]))
             else:
                 return R(response=obj.AsXML())
+
+    def create_credential(self, args):
+        """
+        Creates a new Shared Credential.
+
+        Only a 'Developer' can create Credentials.
+
+        Required Arguments: 
+            name - The full name of the user.
+            username - A login name for the user.
+            password - Password for the user. If password is not provided, a random password will be generated.
+        
+        Optional Arguments:
+            description - Description of the Credential.
+            privileged = Additional password required to put certain devices into 'privileged' mode.
+            domain - A domain for the Credential.
+
+        Returns: A Credential object.
+        """
+
+        # this is a admin function, kick out 
+        if not args["_developer"]:
+            return R(err_code=R.Codes.Forbidden)
+
+        # define the required parameters for this call
+        required_params = ["name", "username", "password"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+        # a little different than the others ... credential objects must be instantiated before calling DBCreateNew
+        obj = asset.Credential()
+        obj.FromArgs(args["name"], args.get("description"), args["username"], args["password"],
+                 0, args.get("domain"), args.get("privileged"))
+        result = obj.DBCreateNew()
+        if not result:
+            return R(err_code=R.Codes.CreateError, err_detail="Unable to create Credential.")
+
+        catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Credential, obj.ID, obj.Name, "Credential created by API.")
+
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"]))
+        else:
+            return R(response=obj.AsXML())
+
+    def delete_credential(self, args):
+        """
+        Removes a Shared Credential.
+        
+        Required Arguments: 
+            credential - Name or ID of the Credential to delete.
+            
+        Returns: Success message if successful, error message on failure.
+        """
+        # this is a developer function
+        if not args["_developer"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        required_params = ["credential"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        obj = asset.Credential()
+        obj.FromName(args["credential"])
+        obj.DBDelete()
+
+        catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.Credential, obj.ID, obj.Name, "Credential [%s] deleted via API." % obj.Name)
+
+        return R(response="Delete operation successful.")
+
+    def list_credentials(self, args):        
+        """
+        Lists all Shared Credentials.
+        
+        Optional Arguments: 
+            filter - will filter a value match in Credential Name, Username, Domain or Description.
+        
+        Returns: A list of Shared Credentials.
+        """
+        fltr = args["filter"] if args.has_key("filter") else ""
+
+        obj = asset.Credentials(sFilter=fltr)
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+        else:
+            return R(response=obj.AsXML())
 
