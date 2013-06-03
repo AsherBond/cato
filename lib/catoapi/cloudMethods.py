@@ -212,7 +212,7 @@ class cloudMethods:
         Updates a Cloud.
         
         Required Arguments: 
-            cloud - Name or ID of the Cloud to update.
+            name - Name or ID of the Cloud to update.
 
         Optional Arguments: 
             apiurl - URL of the Cloud API endpoint.
@@ -340,7 +340,7 @@ class cloudMethods:
         
         Required Arguments: 
             cloud - Name or ID of the Cloud to update.
-            name - a name for the Key Pair.
+            name - Name of the Key Pair to delete.
             
         Returns: A list of Key Pairs on this Cloud.
         """

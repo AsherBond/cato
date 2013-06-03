@@ -137,6 +137,7 @@ class response:
 		Exception = "Exception"
 		Forbidden = "Forbidden"
 		CreateError = "CreateError"
+		UpdateError = "UpdateError"
 		DeleteError = "DeleteError"
 		GetError = "GetError"
 		ListError = "ListError"

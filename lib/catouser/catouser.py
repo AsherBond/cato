@@ -18,6 +18,17 @@
     Why?  Because it isn't only used by the UI.
 """
 import re
+
+try:
+    import xml.etree.cElementTree as ET
+except (AttributeError, ImportError):
+    import xml.etree.ElementTree as ET
+try:
+    ET.ElementTree.iterfind
+except AttributeError as ex:
+    del(ET)
+    import catoxml.etree.ElementTree as ET
+
 from catosettings import settings
 from catocommon import catocommon
 from catoerrors import InfoException
@@ -50,8 +61,33 @@ class Users(object):
         self.rows = db.select_all_dict(sSQL)
         db.close()
 
+    def SafeList(self):
+        out = []
+        if self.rows:
+            for user in self.rows:
+                u = {}
+                u["FullName"] = user["full_name"]
+                u["Role"] = user["role"]
+                u["Status"] = user["status"]
+                u["AuthenticationType"] = user["authentication_type"]
+                u["Email"] = user["email"]
+                out.append(u)
+        return out
+    
     def AsJSON(self):
-        return catocommon.ObjectOutput.IterableAsJSON(self.rows)
+        # results are tightly controlled
+        return catocommon.ObjectOutput.IterableAsJSON(self.SafeList())
+
+    def AsXML(self):
+        dom = ET.fromstring('<Users />')
+        for user in self.SafeList():
+            xml = catocommon.dict2xml(user, "User")
+            node = ET.fromstring(xml.tostring())
+            dom.append(node)
+        return ET.tostring(dom)
+
+    def AsText(self, delimiter=None):
+        return catocommon.ObjectOutput.IterableAsText(self.SafeList(), ['FullName', 'Role', 'Status', 'AuthenticationType', 'Email'], delimiter)
 
 class User(object):
     def __init__(self):
@@ -109,7 +145,10 @@ class User(object):
         return True, None
 
     def FromName(self, sUsername):
+        # try to get the user by name, if that fails try it by ID
         self.PopulateUser(login_id=sUsername)
+        if not self.ID:
+            self.PopulateUser(user_id=sUsername)
         
     def FromID(self, sUserID):
         self.PopulateUser(user_id=sUserID)
@@ -167,6 +206,8 @@ class User(object):
             raise Exception("Unable to build User object. User with ID/Login [%s%s] could be found." % (user_id, login_id))
 
     def AsJSON(self):
+        if hasattr(self, "_Groups"):
+            del self._Groups
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
     def AsText(self, delimiter=None):
@@ -250,36 +291,70 @@ class User(object):
     def DBUpdate(self):
         db = catocommon.new_conn()
 
-        # TODO:  make sure the current user making this call
-        # is an Administrator
-        
         sql_bits = []
         if self.LoginID:
             sql_bits.append("username='%s'" % (self.LoginID))
         if self.FullName:
             sql_bits.append("full_name='%s'" % (self.FullName))
-        if self.Status:
-            sql_bits.append("status='%s'" % (self.Status))
         if self.AuthenticationType:
             sql_bits.append("authentication_type='%s'" % (self.AuthenticationType))
-        if self.ForceChange:
-            sql_bits.append("force_change='%s'" % (self.ForceChange))
         if self.Email:
             sql_bits.append("email='%s'" % (self.Email))
         if self.Role:
             sql_bits.append("user_role='%s'" % (self.Role))
-        if self.FailedLoginAttempts:
-            sql_bits.append("failed_login_attempts='%s'" % (self.FailedLoginAttempts))
-        if self.Expires:
-            sql_bits.append("expiration_dt=str_to_date('{0}', '%%m/%%d/%%Y')".format(self.Expires))
 
+        # these can have a value of 0 which is valid, so they need a different test
+        if self.Status is not None:
+            if self.Status in ("enabled", "disabled", "locked"):
+                self.Status = 0 if self.Status.lower() == "disabled" else (-1 if self.Status.lower() == "locked" else 1)
+
+            if self.Status in (-1, 0, 1):
+                sql_bits.append("status='%s'" % (self.Status))
+            else:
+                logger.warning("User.DBUpdate : Status must be 'enabled' (1), 'disabled' (0) or 'locked' (-1).")
+
+        # force change must be 0 or 1
+        if self.ForceChange is not None:
+            fc = 0
+            try:
+                fc = int(self.ForceChange)
+                sql_bits.append("force_change='%s'" % (fc))
+            except:
+                logger.warning("User.DBUpdate : ForceChange property must be 0 or 1.")
+                pass
+
+        # failed login attempts resets on save to 0, UNLESS an explicit value was given
+        # (does anything even do this???)
+        f = 0
+        try:
+            f = int(self.FailedLoginAttempts)
+        except:
+            logger.warning("User.DBUpdate : FailedLoginAttempts property must be an integer.  Setting to 0.")
+            f = 0
+        sql_bits.append("failed_login_attempts='%s'" % (f))
+        
+        # expires can be set to null, so if there's no value make it null. 
+        if self.Expires:
+            import dateutil.parser as parser
+            try:
+                tmp = parser.parse(self.Expires)
+                self.Expires = tmp.strftime("%m/%d/%Y")
+                sql_bits.append("expiration_dt=str_to_date('{0}', '%%m/%%d/%%Y')".format(self.Expires))
+            except Exception:
+                # it might have been a reset directive in a string format
+                if self.Expires.lower() == "none":
+                    sql_bits.append("expiration_dt=null")
+        else:
+            sql_bits.append("expiration_dt=null")
+            
         # if there are no properties to update, don't update
         if sql_bits:
             sql = "update users set %s where user_id = '%s'" % (",".join(sql_bits), self.ID)
             db.exec_db(sql)
 
         if getattr(self, "_Groups", None):
-            # if the Groups argument was empty, that means delete them all!
+            # WE ARE REQUIRING the caller to take care of reconciling the groups.
+            # if the _Groups argument is empty, that means delete them all!
             # no matter what the case, we're doing a whack-n-add here.
             sql = "delete from object_tags where object_id = '%s'" % (self.ID)
             db.exec_db(sql)
@@ -414,7 +489,7 @@ class User(object):
         newid = catocommon.new_guid()
         authtype = authtype if authtype else "local"
         forcechange = 0 if forcechange == 0 or forcechange == "0" else 1
-        email = email if email else ""        
+        email = email if email else ""
         encpw = None
         
         if authtype == "local":

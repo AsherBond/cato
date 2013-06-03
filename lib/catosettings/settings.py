@@ -29,6 +29,21 @@ class settings(object):
     def AsJSON(self):
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
+    def AsXML(self):
+        return catocommon.ObjectOutput.AsXML(self.__dict__, "Settings")
+
+    def AsText(self, delimiter):
+        out = []
+        for mod, sets in self.__dict__.iteritems():
+            out.append("%s\n" % (mod.capitalize()))
+            
+            for k, v in sets.iteritems():
+                out.append("    %s : %s\n" % (k, v))
+
+            out.append("\n")
+
+        return "".join(out)
+
     class security(object):
         """
             These settings are defaults if there are no values in the database.
@@ -119,6 +134,15 @@ class settings(object):
         def AsJSON(self):
             return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
+        def AsXML(self):
+            return catocommon.ObjectOutput.AsXML(self.__dict__, "Security")
+    
+        def AsText(self, delimiter):
+            out = []
+            for k, v in self.__dict__.iteritems():
+                out.append("    %s : %s\n" % (k, v))
+            return "".join(out)
+    
     class poller(object):
         """
             These settings are defaults if there are no values in the database.
@@ -156,6 +180,15 @@ class settings(object):
         def AsJSON(self):
             return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
+        def AsXML(self):
+            return catocommon.ObjectOutput.AsXML(self.__dict__, "Poller")
+    
+        def AsText(self, delimiter):
+            out = []
+            for k, v in self.__dict__.iteritems():
+                out.append("    %s : %s\n" % (k, v))
+            return "".join(out)
+    
     class marshaller(object):
         """
             These settings are defaults if there are no values in the database.
@@ -191,6 +224,15 @@ class settings(object):
         def AsJSON(self):
             return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
+        def AsXML(self):
+            return catocommon.ObjectOutput.AsXML(self.__dict__, "Marshaller")
+    
+        def AsText(self, delimiter):
+            out = []
+            for k, v in self.__dict__.iteritems():
+                out.append("    %s : %s\n" % (k, v))
+            return "".join(out)
+    
     class messenger(object):
         """
             These settings are defaults if there are no values in the database.
@@ -252,9 +294,9 @@ class settings(object):
                 from_name=%s,
                 admin_email=%s"""
             
-            # only update password if it has been changed.
+            # only update password if it has been changed.  This "filler" is set in the gui to show stars so ignore it.
             sPasswordFiller = "~!@@!~"
-            if self.SMTPUserPassword != sPasswordFiller:
+            if self.SMTPUserPassword and self.SMTPUserPassword != sPasswordFiller:
                 sql += ",smtp_server_password='%s'" % catocommon.cato_encrypt(self.SMTPUserPassword)
 
             params = (("1" if catocommon.is_true(self.Enabled) else "0"),
@@ -278,6 +320,15 @@ class settings(object):
         def AsJSON(self):
             return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
+        def AsXML(self):
+            return catocommon.ObjectOutput.AsXML(self.__dict__, "Messenger")
+    
+        def AsText(self, delimiter):
+            out = []
+            for k, v in self.__dict__.iteritems():
+                out.append("    %s : %s\n" % (k, v))
+            return "".join(out)
+    
     class scheduler(object):
         """
             These settings are defaults if there are no values in the database.
@@ -325,6 +376,15 @@ class settings(object):
         def AsJSON(self):
             return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
+        def AsXML(self):
+            return catocommon.ObjectOutput.AsXML(self.__dict__, "Scheduler")
+    
+        def AsText(self, delimiter):
+            out = []
+            for k, v in self.__dict__.iteritems():
+                out.append("    %s : %s\n" % (k, v))
+            return "".join(out)
+    
     """
         Application Settings are stored as XML in a separate table.
         They aren't hardcoded settings and aren't required - can be added/deleted as needed.

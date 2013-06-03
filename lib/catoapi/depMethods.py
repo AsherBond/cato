@@ -1024,3 +1024,47 @@ class depMethods:
         else:
             return R(err_code=R.Codes.CreateError, err_detail="Unable to copy Template.")
 
+    def create_application_template(self, args):        
+        """
+        Create a new Application Template.
+        
+        Required Arguments: 
+            name - a name for the Application Template.
+            version - the Template version
+            template - A JSON document formatted as a Maestro Application definition.
+            
+        Returns: An Application Template object.
+        """
+
+        # this is a developer function
+        if not args["_developer"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        # define the required parameters for this call
+        required_params = ["name", "version"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        name = args["name"]
+        version = args["version"]
+        template = args.get("template")
+        
+        obj = deployment.DeploymentTemplate.DBCreateNew(name, version, template)
+        if obj:
+            # after it's created, we can call obj.DBUpdate and set other properties
+            obj.Icon = args.get("icon", obj.Icon)
+            if catocommon.is_true(args.get("makeavailable")):
+                obj.Available = 1
+            obj.DBUpdate()
+            
+            # TODO: create matching tags... this template gets all the tags this user has.
+            
+            catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.DeploymentTemplate, obj.ID, obj.Name, "Application Template created.")
+            if args["output_format"] == "json":
+                return R(response=obj.AsJSON())
+            elif args["output_format"] == "text":
+                return R(response=obj.AsText(args["output_delimiter"]))
+            else:
+                return R(response=obj.AsXML())
+

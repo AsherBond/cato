@@ -98,7 +98,7 @@ class depMethods:
         obj = t.DBCopy(name, version)
         
         if obj is not None:
-            # create matching tags... this template gets all the tags this user has.
+            # TODO: create matching tags... this template gets all the tags this user has.
             
             uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Deployment, obj.ID, obj.Name, "Deployment Template created.")
             return json.dumps({"template_id" : t.ID})
