@@ -319,6 +319,12 @@
 					</columns>
 				</function>
 			</command>
+			<command name="generate_password" label="Generate Password" description="Generates a random password" help="Will generate a random password for use in tasks and will store the result in a variable&lt;br&gt;&lt;br&gt;Accepts the following parameters:&lt;br&gt;&lt;br&gt;Length - optional, if unspecified will default to 12&lt;br&gt;&lt;br&gt;Variable Name - the variable name in which to store the password value" icon="static/images/icons/bookmark_add_32.png">
+				<function name="generate_password">
+                    <length input_type="text" label="Length" />
+                    <variable input_type="text" label="Variable Name" />
+				</function>
+			</command>
 		</commands>
 	</category>
 	<category name="cloud" label="Cloud" description="Commands for deployment management" icon="static/images/icons/clouds_32.png">
