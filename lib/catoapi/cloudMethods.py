@@ -101,7 +101,7 @@ class cloudMethods:
         
         
         obj = cloud.CloudAccount.DBCreateNew(provider, name, login, pw, acct_number, default_cloud)
-        catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.CloudAccount, obj.ID, obj.Name, "Account created.")
+        catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.CloudAccount, obj.ID, obj.Name, "Account created via API.")
 
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
@@ -198,7 +198,7 @@ class cloudMethods:
         
         obj = cloud.Cloud.DBCreateNew(name, provider, apiurl, apiprotocol, "", default_account)
 
-        catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Cloud, obj.ID, obj.Name, "Cloud created.")
+        catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Cloud, obj.ID, obj.Name, "Cloud created via API.")
 
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
@@ -323,7 +323,7 @@ class cloudMethods:
         obj.FromName(args["cloud"])
         obj.AddKeyPair(args.get("name"), args.get("private_key"), args.get("passphrase"))
 
-        catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.CloudKeyPair, obj.ID, obj.Name, "KeyPair [%s] added to Cloud." % args.get("name"))
+        catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.CloudKeyPair, obj.ID, obj.Name, "KeyPair [%s] added to Cloud via API." % args.get("name"))
 
         # so what do we return when we add a keypair?  How about a list of all the keypairs.
         if args["output_format"] == "json":
@@ -339,7 +339,7 @@ class cloudMethods:
         Removes a Key Pair from a Cloud.
         
         Required Arguments: 
-            cloud - Name or ID of the Cloud to update.
+            cloud - Name or ID of the Cloud.
             name - Name of the Key Pair to delete.
             
         Returns: A list of Key Pairs on this Cloud.
@@ -357,7 +357,7 @@ class cloudMethods:
         obj.FromName(args["cloud"])
         obj.DeleteKeyPair(args.get("name"))
 
-        catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.CloudKeyPair, obj.ID, obj.Name, "KeyPair [%s] removed from Cloud." % args.get("name"))
+        catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.CloudKeyPair, obj.ID, obj.Name, "KeyPair [%s] removed from Cloud via API." % args.get("name"))
 
         # so what do we return when we add a keypair?  How about a list of all the keypairs.
         if args["output_format"] == "json":

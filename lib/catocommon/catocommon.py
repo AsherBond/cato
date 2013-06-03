@@ -716,95 +716,89 @@ class ObjectOutput(object):
 
     @staticmethod
     def AsXML(dict_obj, item_node):
-        try:
-            xml = dict2xml(dict_obj, item_node)
-            return xml.tostring()
-        except Exception as ex:
-            raise Exception(ex)
+        xml = dict2xml(dict_obj, item_node)
+        return xml.tostring()
         
     @staticmethod
-    def AsText(obj, keys, delimiter=None):
-        try:
-            if not delimiter:
-                delimiter = "\t"
-            vals = []
-            if hasattr(obj, "__dict__"):
-                # might be an object, which has the __dict__ builtin
-                for key in keys:
-                    vals.append(str(obj.__dict__[key]))
-            elif isinstance(obj, dict):
-                # but if it actually IS a dict...
-                for key in keys:
-                    vals.append(str(obj[key]))
-            else:
-                # assume it's an object and get the attribute by name
-                for key in keys:
-                    vals.append(str(getattr(obj, key)))
+    def AsText(obj, keys, delimiter=None, header=None):
+        if not delimiter:
+            delimiter = "\t"
+        if header:
+            header = is_true(header)
+        vals = []
+        if hasattr(obj, "__dict__"):
+            # might be an object, which has the __dict__ builtin
+            for key in keys:
+                vals.append(str(obj.__dict__[key]))
+        elif isinstance(obj, dict):
+            # but if it actually IS a dict...
+            for key in keys:
+                vals.append(str(obj[key]))
+        else:
+            # assume it's an object and get the attribute by name
+            for key in keys:
+                vals.append(str(getattr(obj, key)))
 
-            return "%s\n%s" % (delimiter.join(keys), delimiter.join(vals))
-        except Exception as ex:
-            raise Exception(ex)
+        if header == False:
+            return "%s" % ("\n".join(vals))
+        else:
+            return "%s\n%s" % (delimiter.join(keys), "\n".join(vals))
 
     @staticmethod
     def IterableAsJSON(iterable):
-        try:
-            lst = []
-            if iterable:
-                for item in iterable:
-                    if hasattr(item, "__dict__"):
-                        lst.append(item.__dict__)
-                    else:
-                        lst.append(item)
-                
-            return json.dumps(lst, default=jsonSerializeHandler, indent=4)
-        except Exception as ex:
-            raise Exception(ex)
+        lst = []
+        if iterable:
+            for item in iterable:
+                if hasattr(item, "__dict__"):
+                    lst.append(item.__dict__)
+                else:
+                    lst.append(item)
+            
+        return json.dumps(lst, default=jsonSerializeHandler, indent=4)
 
     @staticmethod
     def IterableAsXML(iterable, root_node, item_node):
-        try:
-            dom = ET.fromstring("<%s />" % root_node)
-            if iterable:
-                for row in iterable:
-                    if hasattr(row, "__dict__"):
-                        xml = dict2xml(row.__dict__, item_node)
-                    else:
-                        xml = dict2xml(row, item_node)
+        dom = ET.fromstring("<%s />" % root_node)
+        if iterable:
+            for row in iterable:
+                if hasattr(row, "__dict__"):
+                    xml = dict2xml(row.__dict__, item_node)
+                else:
+                    xml = dict2xml(row, item_node)
 
-                    node = ET.fromstring(xml.tostring())
-                    dom.append(node)
-            
-            return ET.tostring(dom)
-        except Exception as ex:
-            raise Exception(ex)
+                node = ET.fromstring(xml.tostring())
+                dom.append(node)
+        
+        return ET.tostring(dom)
 
     @staticmethod
-    def IterableAsText(iterable, keys, delimiter=None):
-        try:
-            if not delimiter:
-                delimiter = "\t"
-            outrows = []
-            if iterable:
-                for row in iterable:
-                    cols = []
-                    if hasattr(row, "__dict__"):
-                        # might be an object, which has the __dict__ builtin
-                        for key in keys:
-                            if row.__dict__[key]:
-                                cols.append(str(row.__dict__[key].encode('ascii', 'replace')))
-                    elif isinstance(row, dict):
-                        # but if it actually IS a dict...
-                        for key in keys:
-                            if row[key]:
-                                cols.append(str(row[key].encode('ascii', 'replace')))
-                    else:
-                        # but if they're not, just return the whole row
-                        cols.append(str(row))
-                    outrows.append(delimiter.join(cols))
-              
+    def IterableAsText(iterable, keys, delimiter=None, header=None):
+        if not delimiter:
+            delimiter = "\t"
+        if header:
+            header = is_true(header)
+        outrows = []
+        if iterable:
+            for row in iterable:
+                cols = []
+                if hasattr(row, "__dict__"):
+                    # might be an object, which has the __dict__ builtin
+                    for key in keys:
+                        if row.__dict__[key]:
+                            cols.append(str(row.__dict__[key].encode('ascii', 'replace')))
+                elif isinstance(row, dict):
+                    # but if it actually IS a dict...
+                    for key in keys:
+                        if row[key]:
+                            cols.append(str(row[key].encode('ascii', 'replace')))
+                else:
+                    # but if they're not, just return the whole row
+                    cols.append(str(row))
+                outrows.append(delimiter.join(cols))
+        if header == False:
+            return "%s" % ("\n".join(outrows))
+        else:
             return "%s\n%s" % (delimiter.join(keys), "\n".join(outrows))
-        except Exception as ex:
-            raise Exception(ex)
 
 class SecurityLogTypes(object):
     Object = "Object"

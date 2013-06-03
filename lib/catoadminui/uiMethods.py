@@ -956,17 +956,17 @@ class uiMethods:
             start, end, pager_html = uiCommon.GetPager(len(c.rows), maxrows, sPage)
 
             for row in c.rows[start:end]:
-                sHTML += "<tr credential_id=\"" + row["credential_id"] + "\">"
+                sHTML += "<tr credential_id=\"" + row["ID"] + "\">"
                 sHTML += "<td class=\"chkboxcolumn\">"
                 sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
-                " id=\"chk_" + row["credential_id"] + "\"" \
+                " id=\"chk_" + row["ID"] + "\"" \
                 " tag=\"chk\" />"
                 sHTML += "</td>"
                 
-                sHTML += "<td class=\"selectable\">%s</td>" % row["credential_name"]
-                sHTML += "<td class=\"selectable\">%s</td>" % row["username"]
-                sHTML += "<td class=\"selectable\">%s</td>" % (row["domain"] if row["domain"] else "")
-                sHTML += "<td class=\"selectable\">%s</td>" % (row["shared_cred_desc"] if row["shared_cred_desc"] else "")
+                sHTML += "<td class=\"selectable\">%s</td>" % row["Name"]
+                sHTML += "<td class=\"selectable\">%s</td>" % row["Username"]
+                sHTML += "<td class=\"selectable\">%s</td>" % (row["Domain"] if row["Domain"] else "")
+                sHTML += "<td class=\"selectable\">%s</td>" % (row["Description"] if row["Description"] else "")
                 
                 sHTML += "</tr>"
 
@@ -1065,17 +1065,13 @@ class uiMethods:
     def wmCreateCredential(self):
         args = uiCommon.getAjaxArgs()
 
-        # a little different than the others ... crednetial objects must be instantiated
-        # before calling DBCreateNew
-        # sName, sDesc, sUsername, sPassword, sShared, sDomain, sPrivPassword
+        # a little different than the others ... credential objects must be instantiated before calling DBCreateNew
         c = asset.Credential()
         c.FromArgs(args["Name"], args["Description"], args["Username"], args["Password"],
                  args["SharedOrLocal"], args["Domain"], args["PrivilegedPassword"])
-        result, err = c.DBCreateNew()
-        if err:
-            return "{\"error\" : \"" + err + "\"}"
+        result = c.DBCreateNew()
         if not result:
-            return "{\"error\" : \"Unable to create Credential.\"}"
+            json.dumps({"error" : "Unable to create Credential."})
 
         uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Credential, c.ID, c.Name, "Credential Created")
 
@@ -1091,7 +1087,7 @@ class uiMethods:
         sSQL = """delete from asset_credential where credential_id in (%s)
             and credential_id not in (select distinct credential_id from asset where credential_id is not null)
             """ % sDeleteArray
-        self.db.tran_exec(sSQL)
+        self.db.exec_db(sSQL)
 
         return json.dumps({"result" : "success"})
                 

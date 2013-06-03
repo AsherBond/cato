@@ -295,7 +295,11 @@ class Credentials(object):
                         "or domain like '%%" + term + "%%' " \
                         "or shared_cred_desc like '%%" + term + "%%') "
 
-        sSQL = """select credential_id, credential_name, username, domain, shared_cred_desc
+        sSQL = """select credential_id as ID, 
+            credential_name as Name, 
+            username as Username, 
+            domain as Domain, 
+            shared_cred_desc as Description
             from asset_credential
             where shared_or_local = 0 %s order by credential_name""" % sWhereString
 
@@ -304,6 +308,12 @@ class Credentials(object):
 
     def AsJSON(self):
         return catocommon.ObjectOutput.IterableAsJSON(self.rows)
+
+    def AsXML(self):
+        return catocommon.ObjectOutput.IterableAsXML(self.rows, "Credentials", "Credential")
+
+    def AsText(self, delimiter=None, headers=None):
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ['Name', 'Username', 'Domain', 'Description'], delimiter, headers)
 
 class Credential(object):
     
@@ -333,30 +343,44 @@ class Credential(object):
             self.ID = catocommon.new_guid()
 
     def FromID(self, credential_id):
+        db = catocommon.new_conn()
+        sSQL = """select credential_id, credential_name, username, domain, shared_cred_desc, shared_or_local
+            from asset_credential
+            where credential_id = %s"""
+
+        dr = db.select_row_dict(sSQL, (credential_id))
+        db.close()        
+        
+        if dr is not None:
+            self.FromRow(dr)
+        else: 
+            raise Exception("No Credential found using ID [%s]" % (credential_id))
+
+    def FromName(self, name):
+        db = catocommon.new_conn()
+        sSQL = """select credential_id, credential_name, username, domain, shared_cred_desc, shared_or_local
+            from asset_credential
+            where (credential_id = %s or credential_name = %s)"""
+
+        dr = db.select_row_dict(sSQL, (name, name))
+        db.close()
+        
+        if dr is not None:
+            self.FromRow(dr)
+        else: 
+            raise Exception("No Credential found using ID or Name [%s]" % (name))
+
+    def FromRow(self, dr):
         """
             Note the absence of password or privileged_password in this method.
             We don't store passwords, even encrypted, in the object.
         """
-        db = catocommon.new_conn()
-        if not credential_id:
-            raise Exception("Error building Credential object: ID is required.");    
-        
-        sSQL = """select credential_id, credential_name, username, domain, shared_cred_desc, shared_or_local
-            from asset_credential
-            where credential_id = '%s'""" % credential_id
-
-        dr = db.select_row_dict(sSQL)
-        db.close()        
-        
-        if dr is not None:
-            self.ID = dr["credential_id"]
-            self.Name = dr["credential_name"]
-            self.Username = dr["username"]
-            self.SharedOrLocal = dr["shared_or_local"]
-            self.Domain = ("" if not dr["domain"] else dr["domain"])
-            self.Description = ("" if not dr["shared_cred_desc"] else dr["shared_cred_desc"])
-        else: 
-            raise Exception("Unable to build Credential object. Either no Credentials are defined, or no Credential by ID could be found.")
+        self.ID = dr["credential_id"]
+        self.Name = dr["credential_name"]
+        self.Username = dr["username"]
+        self.SharedOrLocal = dr["shared_or_local"]
+        self.Domain = ("" if not dr["domain"] else dr["domain"])
+        self.Description = ("" if not dr["shared_cred_desc"] else dr["shared_cred_desc"])
 
 
     def FromDict(self, cred):
@@ -371,30 +395,26 @@ class Credential(object):
     def DBCreateNew(self):
         db = catocommon.new_conn()
 
-        sPriviledgedPasswordUpdate = ""
-        if self.PrivilegedPassword:
-            sPriviledgedPasswordUpdate = "NULL"
-        else:
-            sPriviledgedPasswordUpdate = "'" + catocommon.cato_encrypt(self.PrivilegedPassword) + "'"
+        sPriviledgedPasswordUpdate = catocommon.cato_encrypt(self.PrivilegedPassword) if self.PrivilegedPassword else None
 
         # if it's a local credential, the credential_name is the asset_id.
         # if it's shared, there will be a name.
         if self.SharedOrLocal == "1":
             # whack and add - easiest way to avoid conflicts
-            sSQL = "delete from asset_credential where credential_name = '%s' and shared_or_local = '1'" % self.Name
-            db.exec_db(sSQL)
+            sSQL = "delete from asset_credential where credential_name = %s and shared_or_local = '1'"
+            db.exec_db(sSQL, (self.Name))
         
-        sSQL = "insert into asset_credential " \
-            "(credential_id, credential_name, username, password, domain, shared_or_local, shared_cred_desc, privileged_password) " \
-            "values ('" + self.ID + "','" + self.Name + "','" + self.Username + "','" + catocommon.cato_encrypt(self.Password) + "','" \
-            + self.Domain + "','" + self.SharedOrLocal + "','" + self.Description + "'," + sPriviledgedPasswordUpdate + ")"
-        if not db.exec_db_noexcep(sSQL):
+        sSQL = """insert into asset_credential
+            (credential_id, credential_name, username, password, domain, shared_or_local, shared_cred_desc, privileged_password)
+            values (%s, %s, %s, %s, %s, %s, %s, %s)"""
+        params = (self.ID, self.Name, self.Username, catocommon.cato_encrypt(self.Password), self.Domain, self.SharedOrLocal, self.Description, sPriviledgedPasswordUpdate)
+        if not db.exec_db_noexcep(sSQL, params):
             if db.error == "key_violation":
                 raise Exception("A Credential with that name already exists.  Please select another name.")
             else: 
                 raise Exception(db.error)
         
-        return True, None
+        return True
                 
     def DBDelete(self):
         db = catocommon.new_conn()
@@ -403,7 +423,7 @@ class Credential(object):
         db.exec_db(sSQL)
         db.close()        
 
-        return True, None
+        return True
             
     def DBUpdate(self):
         db = catocommon.new_conn()
@@ -437,5 +457,15 @@ class Credential(object):
         return True
 
     def AsJSON(self):
+        del self.Password
+        del self.PrivilegedPassword
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
+
+    def AsXML(self):
+        del self.Password
+        del self.PrivilegedPassword
+        return catocommon.ObjectOutput.AsXML(self.__dict__, "Credential")
+
+    def AsText(self, delimiter):
+        return catocommon.ObjectOutput.AsText(self.__dict__, ["Name", "Username", "SharedOrLocal", "Description"], delimiter)
 
