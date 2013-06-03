@@ -203,7 +203,7 @@ class TaskEngine():
             raise Exception("User id is required to establish a connection")
         
         expect_list = [
-            "No route to host|Network is unreachable|onnection reset by peer|onnection refused|onnection closed by|Read from socket failed|Name or service not known|Connection timed out",
+            "No route to host|Permission denied|Network is unreachable|onnection reset by peer|onnection refused|onnection closed by|Read from socket failed|Name or service not known|Connection timed out",
             "Please login as the user .* rather than the user|expired|Old password:|Host key verification failed|Authentication failed|denied|incorrect|Login Failed|This Account is NOT Valid",
             "yes/no",
             "passphrase for key.*:",
