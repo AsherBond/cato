@@ -246,7 +246,7 @@ class settings(object):
         SMTPUserPassword = ""
         SMTPServerPort = ""
         SMTPConnectionTimeout = ""
-        SMTPUseSSL = ""
+        SMTPLegacySSL = ""
         FromEmail = ""
         FromName = ""
         AdminEmail = ""
@@ -271,7 +271,7 @@ class settings(object):
                 self.SMTPUserPassword = catocommon.cato_decrypt(row["smtp_server_password"])
                 self.SMTPServerPort = row["smtp_server_port"]
                 self.SMTPConnectionTimeout = row["smtp_timeout"]
-                self.SMTPUseSSL = row["smtp_ssl"]
+                self.SMTPLegacySSL = row["smtp_ssl"]
                 self.FromEmail = row["from_email"]
                 self.FromName = row["from_name"]
                 self.AdminEmail = row["admin_email"]
@@ -307,7 +307,7 @@ class settings(object):
                     self.SMTPUserAccount,
                     str(self.SMTPServerPort),
                     str(self.SMTPConnectionTimeout),
-                    ("1" if catocommon.is_true(self.SMTPUseSSL) else "0"),
+                    ("1" if catocommon.is_true(self.SMTPLegacySSL) else "0"),
                     self.FromEmail,
                     self.FromName,
                     self.AdminEmail)

@@ -49,7 +49,7 @@ class Messenger(catoprocess.CatoService):
             self.retry_attempts = mset.RetryMaxAttempts
             self.smtp_server = mset.SMTPServerAddress
             self.smtp_port = mset.SMTPServerPort
-            self.smtp_use_ssl = mset.SMTPUseSSL
+            self.smtp_legacy_ssl = mset.SMTPLegacySSL
             self.smtp_conn_timeout = (mset.SMTPConnectionTimeout if mset.SMTPConnectionTimeout else 20)
 
             self.smtp_user = mset.SMTPUserAccount
@@ -95,7 +95,7 @@ class Messenger(catoprocess.CatoService):
         if rows:
             self.logger.info("Processing %d messages...", (len(rows)))
             s = smtplib.SMTP(timeout=self.smtp_conn_timeout)
-            if self.smtp_use_ssl:
+            if self.smtp_legacy_ssl:
                 s = smtplib.SMTP_SSL(timeout=self.smtp_conn_timeout)
             else:
                 s = smtplib.SMTP(timeout=self.smtp_conn_timeout)
