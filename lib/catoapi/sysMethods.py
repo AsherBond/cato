@@ -51,9 +51,15 @@ class sysMethods:
         """
         Imports an XML backup file.
         
-        NOTE: this function is a near identical copy of catoadminui/uiMethods.wmCreateObjectsFromXML.
-        Any changes here should be considered there as well.
+        Required Arguments: 
+            xml - An XML document in the format of a Cato backup file.
+        
+        Returns: A list of items in the backup file, with the success/failure of each import.
         """
+
+        # NOTE: this function is a near identical copy of catoadminui/uiMethods.wmCreateObjectsFromXML.
+        # Any changes here should be considered there as well.
+
         # define the required parameters for this call
         required_params = ["xml"]
         has_required, resp = api.check_required_params(required_params, args)
