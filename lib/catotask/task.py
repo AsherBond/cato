@@ -1408,8 +1408,7 @@ class TaskInstances(object):
                         "or t.task_name like '%%" + term + "%%' " \
                         "or t.version like '%%" + term + "%%' " \
                         "or u.username like '%%" + term + "%%' " \
-                        "or u.full_name like '%%" + term + "%%' " \
-                        "or d.ecosystem_name like '%%" + term + "%%') "
+                        "or u.full_name like '%%" + term + "%%') "
 
         sDateSearchString = ""
 
