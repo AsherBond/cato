@@ -508,7 +508,10 @@ class taskMethods:
             basic - in JSON mode, if provided, will omit descriptive details.
             
         Returns: An XML template defining the Parameters for a Task.
-            (Used for calling run_task or run_action.)
+
+        NOTE: This function is not affected by the output_format option.
+            The Response is always an XML document.
+        
         """
         # define the required parameters for this call
         required_params = ["task"]
@@ -558,3 +561,40 @@ class taskMethods:
                 
         else:
             return R(err_code=R.Codes.GetError, err_detail="Task has no parameters defined.")
+
+    def export_task(self, args):
+        """
+        Create a backup file for a single Task.
+        
+        NOTE: the behavior of this command is different depending on the output_format.
+        
+            * If 'json', it will return a JSON LIST of individual Task XML documents.
+            * If 'xml' (default) OR 'text', it will return a single XML document of Tasks.
+        
+        Required Arguments: 
+            task - Value can be either a Task ID, Code or Name.
+        
+        Optional Arguments:
+            version - A specific version.  ('Default' if omitted.)
+            include_refs - If true, will analyze each task and include any referenced Tasks.
+            
+        Returns: A collection of Task backup objects.
+        """
+        
+        # define the required parameters for this call
+        required_params = ["task"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        obj = task.Task()
+        obj.FromNameVersion(args["task"], args.get("version"))
+        tids = [obj.ID]
+        
+        docs = task.Tasks.Export(tids, args.get("include_refs"))
+
+        if args["output_format"] == "json":
+            return R(response=catocommon.ObjectOutput.IterableAsJSON(docs))
+        else:
+            return R(response="<tasks>%s</tasks>" % "".join(docs))
+            

@@ -2360,41 +2360,35 @@ class taskMethods:
             
     def wmExportTasks(self):
         """
-        This function creates an xml export file of all tasks specified in sTaskArray.  
-        
-        If the "include references" flag is set, each task is scanned for additional
-        references, and they are included in the export.
+        This function creates a SINGLE xml export file of all tasks specified in sTaskArray.  
         """
         
         sIncludeRefs = uiCommon.getAjaxArg("sIncludeRefs")
         sTaskArray = uiCommon.getAjaxArg("sTaskArray")
 
         otids = sTaskArray.split(",")
-        xml = ""
         
-        # there can be many tasks selected...
-        # to help a little bit, we'll use the first name we encounter on the export file name
-        helpername = ""
+        # helpername is just something to stick on the file so it's a little more recognizable.
+        # it should really be an argument, but the UI doesn't ask for it at the moment.
+        helpername = uiCommon.GetSessionUserFullName().replace(" ", "")
         
+        """
+        The UI sends us a list of OriginalTaskIDs and assumes we want the 'default' version.
+        
+        So, for now we just turn that list into a list of Task IDs.
+        """
+        task_ids = []
         for otid in otids:
-            # get the task
             t = task.Task()
             t.FromOriginalIDVersion(otid)
             if t:
-                if not helpername:
-                    helpername = t.Name
-                    
-                xml += t.AsXML(include_code=True)
-
-                # regarding references, here's the deal
-                # in a while loop, we check the references for each task in the array
-                # UTIL THE 'otid' LIST STOPS GROWING.
-                if catocommon.is_true(sIncludeRefs):
-                    reftasks = t.GetReferencedTasks()
-                    for reftask in reftasks:
-                        if reftask.OriginalTaskID not in otids:
-                            otids.append(reftask.OriginalTaskID)
-
+                task_ids.append(t.ID)
+        
+        docs = task.Tasks.Export(task_ids, sIncludeRefs)
+        xml = ""
+        for doc in docs:
+            xml += doc
+        
         xml = "<tasks>%s</tasks>" % xml
 
         # what are we gonna call this file?

@@ -93,7 +93,7 @@ class Tasks(object):
         return catocommon.ObjectOutput.IterableAsXML(self.rows, "Tasks", "Task")
 
     def AsText(self, delimiter=None):
-        return catocommon.ObjectOutput.IterableAsText(self.rows, ['Name', 'Code', 'Version', 'Status'], delimiter)
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ['Code', 'Name', 'Version', 'Status'], delimiter)
 
     @staticmethod
     def Delete(ids, force=False):
@@ -164,6 +164,38 @@ class Tasks(object):
             raise InfoException("Tasks [%s] have history rows and could not be deleted.  Provide the option to force deletion." % tasks_with_history)
         
         return True
+
+    @staticmethod
+    def Export(task_ids, include_refs):
+        """
+        This function creates an xml export document of all tasks specified in otids.  
+        
+        If the "include_refs" flag is set, each task is scanned for additional
+        references, and they are included in the export.
+        
+        This returns a list of xml documents - one per task.
+        """
+        
+        docs = []
+        
+        for tid in task_ids:
+            # get the task
+            t = Task()
+            t.FromID(tid)
+            if t:
+                docs.append(t.AsXML(include_code=True))
+
+                # regarding references, here's the deal
+                # in a while loop, we check the references for each task in the array
+                # UNTIL THE 'task_ids' LIST STOPS GROWING.
+                if catocommon.is_true(include_refs):
+                    reftasks = t.GetReferencedTasks()
+                    for reftask in reftasks:
+                        if reftask.ID not in task_ids:
+                            task_ids.append(reftask.ID)
+
+        return docs
+
         
 class Task(object):
     def __init__(self):
