@@ -18,7 +18,7 @@
 #########################################################################
 
 """Common API functions."""
-
+import web
 import base64
 import hmac
 import hashlib
@@ -216,6 +216,11 @@ class response:
 
 	def Write(self, output_format=""):
 		"""Returns the response in whatever format is specified here."""
+		
+		# IF there's an error code, set the HTTP status to 400
+		if self.ErrorCode:
+			web.ctx.status = "400 Bad Request"
+
 		if output_format == "text":
 			return self.asText()
 		elif output_format == "json":
