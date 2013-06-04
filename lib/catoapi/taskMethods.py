@@ -281,7 +281,7 @@ class taskMethods:
                 instance = task.TaskInstance(ti)
                 if args["output_format"] == "json":
                     return R(response=instance.AsJSON())
-                elif args["output_format"] == "xml":
+                else:
                     return R(response=instance.AsXML())
 
         # uh oh, something went wrong but we don't know what.
