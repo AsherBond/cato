@@ -12,17 +12,17 @@ $var cssfiles: taskEdit.css taskView.css ../../static/script/jquery/jsoneditor/j
         <div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel">
             <div style="padding: 0 0 0 5px;">
                 <span class="detail_label">Name:</span>
-                <input type="text" id="txtTemplateName" class="task_details code" disabled="disabled" />
+                <input type="text" id="txtTemplateName" class="task_details code" te_group="detail_fields" column="Name" />
                 <br />
                 <span class="detail_label">Version:</span>
-                <input type="text" id="txtTemplateVersion" class="task_details code" disabled="disabled" />
+                <input type="text" id="txtTemplateVersion" class="task_details code"te_group="detail_fields" column="Version"  />
                 <br />
                 <label class="detail_label" for="chkTemplateAvailable">Available to Deploy?</label>
                 <input type="checkbox" id="chkTemplateAvailable" te_group="detail_fields" column="Available" />
                 <br />
                 <span class="detail_label">Description:</span>
                 <br />
-                <textarea id="txtDescription" rows="5" class="code" te_group="detail_fields" column="Description" disabled="disabled"></textarea>
+                <textarea id="txtDescription" rows="5" class="code" te_group="detail_fields" column="Description"></textarea>
                 <br />
                 <canvas id="canvas" width="48" height="48"></canvas>
                 <input type="hidden" id="iconb64" te_group="detail_fields" column="Icon" />
