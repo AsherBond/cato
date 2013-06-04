@@ -494,7 +494,6 @@ class uiMethods:
     
     def wmRunLater(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
-        sActionID = uiCommon.getAjaxArg("sActionID")
         sRunOn = uiCommon.getAjaxArg("sRunOn")
         sParameterXML = uiCommon.getAjaxArg("sParameterXML")
         iDebugLevel = uiCommon.getAjaxArg("iDebugLevel")
@@ -511,11 +510,10 @@ class uiMethods:
         # we gotta peek into the XML and encrypt any newly keyed values
         sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML)          
 
-        sSQL = "insert into action_plan (task_id, action_id, account_id," \
+        sSQL = "insert into action_plan (task_id, account_id," \
             " run_on_dt, parameter_xml, debug_level, source)" \
             " values (" \
             " '" + sTaskID + "'," + \
-            (" '" + sActionID + "'" if sActionID else "''") + "," + \
             (" '" + sAccountID + "'" if sAccountID else "''") + "," \
             " str_to_date('" + sRunOn + "', '%%m/%%d/%%Y %%H:%%i')," + \
             (" '" + catocommon.tick_slash(sParameterXML) + "'" if sParameterXML else "null") + "," + \
@@ -527,7 +525,6 @@ class uiMethods:
 
     def wmRunRepeatedly(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
-        sActionID = uiCommon.getAjaxArg("sActionID")
         aMonths = uiCommon.getAjaxArg("sMonths")
         aDays = uiCommon.getAjaxArg("sDays")
         aHours = uiCommon.getAjaxArg("sHours")
@@ -552,12 +549,11 @@ class uiMethods:
         sDesc = ""
         sLabel, sDesc = catocommon.GenerateScheduleLabel(aMonths, aDays, aHours, aMinutes, sDaysOrWeeks)
 
-        sSQL = "insert into action_schedule (schedule_id, task_id, action_id, account_id," \
+        sSQL = "insert into action_schedule (schedule_id, task_id, account_id," \
             " months, days, hours, minutes, days_or_weeks, label, descr, parameter_xml, debug_level)" \
                " values (" \
             " '" + catocommon.new_guid() + "'," \
             " '" + sTaskID + "'," \
-            + (" '" + sActionID + "'" if sActionID else "''") + "," \
             + (" '" + sAccountID + "'" if sAccountID else "''") + "," \
             " '" + ",".join([str(x) for x in aMonths]) + "'," \
             " '" + ",".join([str(x) for x in aDays]) + "'," \
@@ -603,10 +599,10 @@ class uiMethods:
 
     def wmSaveSchedule(self):
         sScheduleID = uiCommon.getAjaxArg("sScheduleID")
-        sMonths = uiCommon.getAjaxArg("sMonths")
-        sDays = uiCommon.getAjaxArg("sDays")
-        sHours = uiCommon.getAjaxArg("sHours")
-        sMinutes = uiCommon.getAjaxArg("sMinutes")
+        aMonths = uiCommon.getAjaxArg("sMonths")
+        aDays = uiCommon.getAjaxArg("sDays")
+        aHours = uiCommon.getAjaxArg("sHours")
+        aMinutes = uiCommon.getAjaxArg("sMinutes")
         sDaysOrWeeks = uiCommon.getAjaxArg("sDaysOrWeeks")
         sParameterXML = uiCommon.getAjaxArg("sParameterXML")
         iDebugLevel = uiCommon.getAjaxArg("iDebugLevel")
@@ -617,7 +613,7 @@ class uiMethods:
          * 
          * """
 
-        if not sScheduleID or not sMonths or not sDays or not sHours or not sMinutes or not sDaysOrWeeks:
+        if not sScheduleID or not aMonths or not aDays or not aHours or not aMinutes or not sDaysOrWeeks:
             uiCommon.log("Missing Schedule ID or invalid timetable.")
 
         # we encoded this in javascript before the ajax call.
@@ -634,13 +630,13 @@ class uiMethods:
 
 
         # figure out a label
-        sLabel, sDesc = catocommon.GenerateScheduleLabel(sMonths, sDays, sHours, sMinutes, sDaysOrWeeks)
-
+        sLabel, sDesc = catocommon.GenerateScheduleLabel(aMonths, aDays, aHours, aMinutes, sDaysOrWeeks)
+        
         sSQL = "update action_schedule set" \
-            " months = '" + sMonths + "'," \
-            " days = '" + sDays + "'," \
-            " hours = '" + sHours + "'," \
-            " minutes = '" + sMinutes + "'," \
+            " months = '" + ",".join([str(x) for x in aMonths]) + "'," \
+            " days = '" + ",".join([str(x) for x in aDays]) + "'," \
+            " hours = '" + ",".join([str(x) for x in aHours]) + "'," \
+            " minutes = '" + ",".join([str(x) for x in aMinutes]) + "'," \
             " days_or_weeks = '" + sDaysOrWeeks + "'," \
             " label = " + ("'" + sLabel + "'" if sLabel else "null") + "," \
             " descr = " + ("'" + sDesc + "'" if sDesc else "null") + "," \

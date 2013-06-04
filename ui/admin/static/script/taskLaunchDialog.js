@@ -34,8 +34,7 @@ $(document).ready(function() {
 		       <div class="task_launch_params_title ui-widget-header ui-corner-all"> \
 		       Parameters \
 		       </div> \
-		       <span id="action_defaults_btn" class="hidden"><input type="radio" id="rbAction" name="radio" /><label for="rbAction">Action Defaults</label></span> \
-		       &nbsp;&nbsp;<input type="radio" id="rbDefault" name="radio" /><label for="rbDefault">&nbsp;Task Defaults</label> \
+		       <input type="radio" id="rbDefault" name="radio" /><label for="rbDefault">&nbsp;Task Defaults</label> \
 		       &nbsp;&nbsp;<input type="radio" id="rbPrevious" name="radio" /><label for="rbPrevious">&nbsp;Previous Values</label> \
 		       <div id="task_launch_dialog_params"></div> \
 		   </div> \
@@ -186,13 +185,6 @@ $(document).ready(function() {
 			id = $("#task_launch_dialog_task_id").val();
 		$("#task_launch_dialog_params").fadeOut(500, function() {
 			getParamXML(id, "instance");
-		});
-		$("#task_launch_dialog_params").fadeIn(500);
-	});
-	$("#rbAction").live("click", function() {
-		var action_id = $("#task_launch_dialog_action_id").val();
-		$("#task_launch_dialog_params").fadeOut(500, function() {
-			getParamXML(action_id, "action");
 		});
 		$("#task_launch_dialog_params").fadeIn(500);
 	});
@@ -428,8 +420,6 @@ function ShowTaskLaunchDialog(jsonargs) {
 		$("#task_launch_dialog_asset_id").val(args.asset_id);
 	if (args.task_instance)
 		$("#task_launch_dialog_task_instance").val(args.task_instance);
-	if (args.action_id)
-		$("#task_launch_dialog_action_id").val(args.action_id);
 
 	//if a debug level was passed, set it
 	if (args.debug_level && args.debug_level != "")
@@ -441,12 +431,6 @@ function ShowTaskLaunchDialog(jsonargs) {
 	if (args.task_instance && args.task_instance != "") {//if there's an instance let's get it!
 		$("#rbPrevious").attr("checked", "checked");
 		getParamXML(args.task_instance, "instance");
-	} else if (args.action_id && args.action_id != "") {//if there's an action let's get it!
-		//oh by the way, the action radio is hidden by default, so if we have an action let's show the button
-		$("#action_defaults_btn").removeClass("hidden");
-
-		$("#rbAction").attr("checked", "checked");
-		getParamXML(args.action_id, "action");
 	} else {//task defaults by default!
 		$("#rbDefault").attr("checked", "checked");
 		getParamXML(args.task_id, "task");
@@ -460,7 +444,6 @@ function ShowTaskLaunchDialog(jsonargs) {
 }
 
 function ShowPlanEditDialog(ctl) {
-	//var action_id = $("#task_launch_dialog_action_id").val();
 	var plan_id = $(ctl).parents(".action_plan").attr("plan_id");
 	var schedule_id = $(ctl).parents(".action_plan").attr("schedule_id");
 
@@ -668,7 +651,6 @@ function ReadTimetable() {
 function RunRepeatedly() {
 	var account_id = $("#task_launch_dialog_account_id").val();
 	var task_id = $("#task_launch_dialog_task_id").val();
-	var action_id = $("#task_launch_dialog_action_id").val();
 	var debug_level = $("#task_launch_dialog_debug_level").val();
 
 	//timetable comes back as json
@@ -679,7 +661,6 @@ function RunRepeatedly() {
 
 		var args = {};
 		args.sTaskID = task_id;
-		args.sActionID = action_id;
 		args.sAccountID = account_id;
 		args.sMonths = tt.months;
 		args.sDays = tt.days;
@@ -710,7 +691,6 @@ function RunLater() {
 
 	var account_id = $("#task_launch_dialog_account_id").val();
 	var task_id = $("#task_launch_dialog_task_id").val();
-	var action_id = $("#task_launch_dialog_action_id").val();
 	var debug_level = $("#task_launch_dialog_debug_level").val();
 
 	//build the XML from the dialog
@@ -718,7 +698,6 @@ function RunLater() {
 
 	var response = ajaxPost("uiMethods/wmRunLater", {
 		sTaskID : task_id,
-		sActionID : action_id,
 		sAccountID : account_id,
 		sRunOn : run_on,
 		sParameterXML : parameter_xml,
@@ -901,19 +880,11 @@ function presentPlanParams(plan_id, plan_name) {
 
 function dismissPlanParams() {
 	var task_id = $("#task_launch_dialog_task_id").val();
-	var action_id = $("#task_launch_dialog_action_id").val();
 	var plan_id = $("#plan_edit_plan_id").val();
 
-	//if the action_id is empty, we must be looking at the dialog on a task centric page.
-	if (action_id != "") {
-		//get the default parameters for the action again
-		$("#rbAction").attr("checked", "checked");
-		getParamXML(action_id, "action");
-	} else {
-		//get the default parameters for the task again
-		$("#rbDefault").attr("checked", "checked");
-		getParamXML(task_id, "task");
-	}
+	//get the default parameters for the task again
+	$("#rbDefault").attr("checked", "checked");
+	getParamXML(task_id, "task");
 
 	//put it back
 	$("#task_launch_params_content").appendTo("#task_launch_dialog_parameters");
