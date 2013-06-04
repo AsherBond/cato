@@ -1029,9 +1029,15 @@ class depMethods:
         Create a new Application Template.
         
         Required Arguments: 
-            name - a name for the Application Template.
-            version - the Template version
+            name - A name for the Application Template.
+            version - The Template version
             template - A JSON document formatted as a Maestro Application definition.
+            
+        Optional Arguments:
+            description - Describe this Application Template.
+            icon - a Base64 encoded image file.  (Suitable images are 32x32px in png, gif or jpg format.)
+            makeavailable - Immediately make the Application Template available for deployment.
+            
             
         Returns: An Application Template object.
         """
@@ -1050,7 +1056,7 @@ class depMethods:
         version = args["version"]
         template = args.get("template")
         
-        obj = deployment.DeploymentTemplate.DBCreateNew(name, version, template)
+        obj = deployment.DeploymentTemplate.DBCreateNew(name, version, template, args.get("description"))
         if obj:
             # after it's created, we can call obj.DBUpdate and set other properties
             obj.Icon = args.get("icon", obj.Icon)
