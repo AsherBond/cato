@@ -382,71 +382,64 @@ def lookup_shared_cred(alias):
 
 def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id=None, account_id=None, plan_id=None, schedule_id=None, submitted_by_instance=None, cloud_id=None):
     """This *should* be the only place where rows are added to task_instance."""
-    try:
-        user_id = "'%s'" % user_id if user_id else "null"
-        account_id = "'%s'" % account_id if account_id else "null"
-        scope_id = "'%s'" % scope_id if scope_id else "null"
-        plan_id = "'%s'" % plan_id if plan_id else "null"
-        schedule_id = "'%s'" % schedule_id if schedule_id else "null"
-        submitted_by_instance = "'%s'" % submitted_by_instance if submitted_by_instance else "null"
-        cloud_id = "'%s'" % cloud_id if cloud_id else "null"
-        # just in case
-        debug_level = str(debug_level)
-        
-        db = new_conn()
-        sql = """insert into task_instance (
-                task_status,
-                submitted_dt,
-                task_id,
-                debug_level,
-                submitted_by,
-                schedule_instance,
-                schedule_id,
-                submitted_by_instance,
-                ecosystem_id,
-                account_id,
-                cloud_id
-            ) values (
-                'Submitted',
-                now(),
-                '%s',
-                '%s',
-                %s,
-                %s,
-                %s,
-                %s,
-                %s,
-                %s,
-                %s
-            )
-            """ % (task_id, debug_level, user_id, plan_id, schedule_id, submitted_by_instance, scope_id, account_id, cloud_id)
-        
-        if not db.tran_exec_noexcep(sql):
-            raise Exception("Unable to run task [%s].%s" % (task_id, db.error))
-        
-        task_instance = db.conn.insert_id()
-        
-        if not task_instance:
-            logger.warning("An error occured - unable to get the task_instance id.")
-            return None
-        
-        # do the parameters
-        if parameter_xml:
-            sql = """insert into task_instance_parameter (task_instance, parameter_xml) 
-                values ('%s', '%s')""" % (str(task_instance), tick_slash(parameter_xml))
-            if not db.tran_exec_noexcep(sql):
-                logger.warning("Unable to save parameter_xml for instance [%s]." % str(task_instance))
-                raise Exception(db.error)
-
-        db.tran_commit()
-        
-        return task_instance
+    user_id = "'%s'" % user_id if user_id else "null"
+    account_id = "'%s'" % account_id if account_id else "null"
+    scope_id = "'%s'" % scope_id if scope_id else "null"
+    plan_id = "'%s'" % plan_id if plan_id else "null"
+    schedule_id = "'%s'" % schedule_id if schedule_id else "null"
+    submitted_by_instance = "'%s'" % submitted_by_instance if submitted_by_instance else "null"
+    cloud_id = "'%s'" % cloud_id if cloud_id else "null"
+    # just in case
+    debug_level = str(debug_level)
     
-    except Exception as ex:
-        raise Exception(ex)
-    finally:
-        if db:
-            db.close()    
+    db = new_conn()
+    sql = """insert into task_instance (
+            task_status,
+            submitted_dt,
+            task_id,
+            debug_level,
+            submitted_by,
+            schedule_instance,
+            schedule_id,
+            submitted_by_instance,
+            ecosystem_id,
+            account_id,
+            cloud_id
+        ) values (
+            'Submitted',
+            now(),
+            '%s',
+            '%s',
+            %s,
+            %s,
+            %s,
+            %s,
+            %s,
+            %s,
+            %s
+        )
+        """ % (task_id, debug_level, user_id, plan_id, schedule_id, submitted_by_instance, scope_id, account_id, cloud_id)
+    
+    if not db.tran_exec_noexcep(sql):
+        raise Exception("Unable to run task [%s].%s" % (task_id, db.error))
+    
+    task_instance = db.conn.insert_id()
+    
+    if not task_instance:
+        raise Exception("An error occured - unable to get the task_instance id.")
+    
+    # do the parameters
+    if parameter_xml:
+        sql = """insert into task_instance_parameter (task_instance, parameter_xml) 
+            values ('%s', '%s')""" % (str(task_instance), tick_slash(parameter_xml))
+        if not db.tran_exec_noexcep(sql):
+            logger.warning("Unable to save parameter_xml for instance [%s]." % str(task_instance))
+            raise Exception(db.error)
+
+    db.tran_commit()
+    db.close()    
+    
+    return task_instance
     
 def add_security_log(UserID, LogType, Action, ObjectType, ObjectID, LogMessage):
     """
