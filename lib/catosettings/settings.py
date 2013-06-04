@@ -166,8 +166,8 @@ class settings(object):
             
         def DBSave(self):
             sql = """update poller_settings set
-                mode_off_on=%s
-                loop_delay_sec=%s
+                mode_off_on=%s,
+                loop_delay_sec=%s,
                 max_processes=%s"""
 
             params = (("1" if catocommon.is_true(self.Enabled) else "0"), str(self.LoopDelay), str(self.MaxProcesses))
@@ -360,7 +360,7 @@ class settings(object):
                 loop_delay_sec=%s,
                 schedule_min_depth=%s,
                 schedule_max_days=%s,
-                clean_app_registry%s"""
+                clean_app_registry=%s"""
 
             params = (("1" if catocommon.is_true(self.Enabled) else "0"),
                       str(self.LoopDelay),
