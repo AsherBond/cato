@@ -285,7 +285,7 @@ class taskMethods:
                     return R(response=instance.AsXML())
 
         # uh oh, something went wrong but we don't know what.
-        return R(err_code=R.Codes.GetError, err_detail="Unable to run Task [%s %s].  Check the log for details." % (args["task"], ver))
+        return R(err_code=R.Codes.GetError, err_detail="Unable to run Task [%s%s].  Check the log for details." % (args["task"], " %s" % (ver) if ver else ""))
         
     def stop_task(self, args):
         """
