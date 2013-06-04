@@ -255,7 +255,10 @@ class User(object):
                     db.exec_db(sql, (self.ID))
                     
                 body = """%s - your password has been reset by an Administrator.""" % (self.FullName)
-                catocommon.send_email_via_messenger(self.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
+                if self.Email:
+                    catocommon.send_email_via_messenger(self.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
+                else:
+                    logger.warning("Attempt to send a password message failed - User [%s] has no email defined." % (self.FullName))
             else:
                 raise InfoException(msg)
 
@@ -282,7 +285,10 @@ class User(object):
             # replace our special tokens with the values
             body = body.replace("##FULLNAME##", self.FullName).replace("##USERNAME##", self.LoginID).replace("##PASSWORD##", sNewPassword)
 
-            catocommon.send_email_via_messenger(self.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
+            if self.Email:
+                catocommon.send_email_via_messenger(self.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
+            else:
+                logger.warning("Attempt to send a password message failed - User [%s] has no email defined." % (self.FullName))
             # f !uiCommon.SendEmailMessage(sEmail.strip(), ag.APP_COMPANYNAME + " Account Management", "Account Action in " + ag.APP_NAME, sBody, 0000BYREF_ARG0000sErr:
 
         db.close()
