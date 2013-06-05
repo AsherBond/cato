@@ -61,6 +61,7 @@ $(document).ready(function() {
 		autoOpen : false,
 		modal : true,
 		bgiframe : false,
+		width: 400,
 		buttons : {
 			"OK" : function() {
 				Forgot();
@@ -105,23 +106,38 @@ $(document).ready(function() {
 		}
 
 		try {
-			var response = catoAjax.getQuestion($("#username").val());
-			if (response.error) {
-				$("#error_msg").html(response.error).parent().show();
-				reset();
-			}
-			if (response.info) {
-				$("#error_msg").html(response.info).parent().show();
-				reset();
-			}
-			if (response.result) {
-				$("#security_question").html(unpackJSON(response.result));
-				$("#forgot_password_dialog").dialog("open");
-			}
+			// DON'T MOVE THIS to the catoAjax module.
+			var args = {};
+			args.username = $("#username").val();
+
+			$.ajax({
+				async : false,
+				type : "POST",
+				url : "../uiMethods/wmGetQuestion",
+				data : JSON.stringify(args),
+				contentType : "application/json; charset=utf-8",
+				dataType : "json",
+				success : function(response) {
+					if (response.error) {
+						$("#error_msg").html(response.error).parent().show();
+						reset();
+					}
+					if (response.info) {
+						$("#error_msg").html(response.info).parent().show();
+						reset();
+					}
+					if (response.result) {
+						$("#security_question").html(unpackJSON(response.result));
+						$("#forgot_password_dialog").dialog("open");
+					}
+				},
+				error : function(response) {
+					$("#error_msg").html(response.responseText).parent().show();
+				}
+			});
 		} catch (ex) {
 			$("#error_msg").html(ex.message).parent().show();
 		}
-
 	});
 
 	// get the welcome message
