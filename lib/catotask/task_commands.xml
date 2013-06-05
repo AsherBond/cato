@@ -241,6 +241,14 @@
 					<source input_type="textarea" rows="3" label="Text" class="w95pct" required="true" label_style="display: block;" />
 				</function>
 			</command>
+			<command name="get_shared_cred" label="Get Shared Credentials" description="Retrieves stored shared credentials for use in a task" help="Shared Credentials are aliased user ids and passwords that are stored encrypted in the Cato database. Typically these credentials will be used across multiple servers and defining them as shared credentials will allow for one central place for password management.&lt;br&gt;&lt;br&gt;Parameters:&lt;br&gt;&lt;br&gt;Alias - The shared credential name&lt;br&gt;&lt;br&gt;User ID Variable - the variable name to store the user id&lt;br&gt;&lt;br&gt;Password - the variable name to store the password&lt;br&gt;&lt;br&gt;Domain - the variable to store the domain name (if applicable)" icon="static/images/icons/editcut_32.png">
+				<function name="get_shared_cred" >
+					<alias input_type="text" label="Alias" required="true" />
+					<userid input_type="text" label="User ID Variable" />
+					<password input_type="text" label="Password Variable" />
+					<domain input_type="text" label="Domain Variable" />
+				</function>
+			</command>
 						<command name="exists" label="Exists" description="The Exists command will check one or more variables to ensure they have values" help="The Exists command will check one or more variables to ensure they have values&lt;br /&gt;" icon="static/images/icons/exists.png">
 				<function name="exists">
 					<variables>

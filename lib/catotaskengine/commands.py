@@ -887,6 +887,23 @@ def drop_connection_cmd(self, task, step):
         self.drop_connection(conn_name)
         
 
+def get_shared_cred_cmd(self, task, step):
+
+    alias, u, p, d = self.get_command_params(step.command, "alias", "userid", "password", "domain")[:] 
+    alias = self.replace_variables(alias)
+    u = self.replace_variables(u)
+    p = self.replace_variables(p)
+    d = self.replace_variables(d)
+
+    c = catocommon.lookup_shared_cred(alias)
+    if c:
+        userid = c[0]
+        password = c[1]
+    else:
+        raise Exception("Unable to find Shared Credential using name [%s]." % (shared_cred))
+    self.rt.set(u, userid)
+    self.rt.set(p, password)
+
 def end_cmd(self, task, step):
 
     message, status = self.get_command_params(step.command, "message", "status")[:]
