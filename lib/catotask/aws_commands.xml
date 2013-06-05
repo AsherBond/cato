@@ -3762,11 +3762,11 @@
 	</category>
 	<category name="aws_r53" label="AWS R53" description="AWS Route53" icon="static/images/icons/aws/r53.png">
 		<commands>
-			<command name="r53_dns_change" label="DNS Change" description="" help="" icon="static/images/icons/aws/r53.png">
-				<function name="r53_dns_change">
-					<dns_name input_type="text" />
-					<ip_address input_type="text" />
-					<ttl input_type="text" />
+			<command name="route53" label="Route53 Command" description="" help="" icon="static/images/icons/aws/r53.png">
+				<function name="route53">
+					<path input_type="text" label="Path" class="w95pct"/>
+                    <type input_type="dropdown" label="Request Type" datasource="local" dataset="GET|POST|DELETE">GET</type>
+					<data input_type="textarea" rows="3" label="Data" class="w95pct" label_style="display: block;"/>
 					<result_name label="Result Variable" break_before="true" input_type="text" />
 				</function>
 			</command>

@@ -28,6 +28,7 @@ from bson import json_util
 from datetime import datetime
 from bson.objectid import ObjectId
 from pymongo.errors import InvalidName
+from awspy import awspy
 
 try:
     import xml.etree.cElementTree as ET
@@ -1107,6 +1108,27 @@ def cato_web_service_cmd(self, task, step):
     self.insert_audit(step.function_name, log)
     if len(result_var):
         self.rt.set(result_var, buff)
+
+def route53_cmd(self, task, step):
+
+    path, type, data, response_v = self.get_command_params(step.command, "path", "type", "data", "result_name")[:]
+    path = self.replace_variables(path)
+    data = self.replace_variables(data)
+    response_v = self.replace_variables(response_v)
+    conn = awspy.AWSConn(self.cloud_login_id, self.cloud_login_password, product="r53") 
+    result = conn.aws_query(path, request_type=type, data=data)
+    del(conn)
+    if result:
+        result = self._xml_del_namespace(result)
+        msg = "%s %s\n%s" % ("Route53", path, result)
+        if len(response_v):
+            self.rt.set(response_v, result)
+        self.insert_audit("Route53", msg, "")
+    else:
+        msg = "Route53 command %s failed." % (product, path)
+        raise Exception(msg)
+
+
 
 def http_cmd(self, task, step):
 
