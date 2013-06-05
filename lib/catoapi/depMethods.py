@@ -1074,3 +1074,33 @@ class depMethods:
             else:
                 return R(response=obj.AsXML())
 
+    def list_template_tasks(self, args):        
+        """
+        Lists all Tasks associated with an Application Template.
+        
+        Required Arguments: 
+            template - the name of a defined Application Template.
+            version - the Application Template version.
+
+        Returns: An Application Template object.
+        """
+
+        # define the required parameters for this call
+        required_params = ["template", "version"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        version = args["version"]
+        template = args.get("template")
+        
+        obj = deployment.DeploymentTemplate()
+        obj.FromNameVersion(template, version)
+        if obj.ID:
+            if args["output_format"] == "json":
+                return R(response=obj.TasksAsJSON())
+            elif args["output_format"] == "text":
+                return R(response=obj.TasksAsText(args["output_delimiter"]))
+            else:
+                return R(response=obj.TasksAsXML())
+

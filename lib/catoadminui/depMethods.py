@@ -172,7 +172,7 @@ class depMethods:
 
     def wmValidateTemplate(self):
         template_json = uiCommon.getAjaxArg("template")
-        dt, validation_err = deployment.Deployment.ValidateJSON(template_json)
+        dt, validation_err = deployment.DeploymentTemplate.ValidateJSON(template_json)
         if dt:
             return json.dumps({"result" : "success"})
             
