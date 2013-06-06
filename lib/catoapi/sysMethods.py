@@ -101,7 +101,7 @@ class sysMethods:
         if args["output_format"] == "json":
             return R(response=catocommon.ObjectOutput.IterableAsJSON(items))
         elif args["output_format"] == "text":
-            return R(response=catocommon.ObjectOutput.IterableAsText(items, ["Name", "Info"], args["output_delimiter"], args.get("header")))
+            return R(response=catocommon.ObjectOutput.IterableAsText(items, ["Name", "Info"], args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=catocommon.ObjectOutput.IterableAsXML(items, "Results", "Result"))
     
@@ -274,7 +274,7 @@ class sysMethods:
             if args["output_format"] == "json":
                 return R(response=obj.AsJSON())
             elif args["output_format"] == "text":
-                return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+                return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
             else:
                 return R(response=obj.AsXML())
         else:
@@ -377,7 +377,7 @@ class sysMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
             
@@ -396,7 +396,7 @@ class sysMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
 
@@ -463,7 +463,7 @@ class sysMethods:
             if args["output_format"] == "json":
                 return R(response=obj.AsJSON())
             elif args["output_format"] == "text":
-                return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+                return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
             else:
                 return R(response=obj.AsXML())
 
@@ -494,7 +494,7 @@ class sysMethods:
             if args["output_format"] == "json":
                 return R(response=obj.AsJSON())
             elif args["output_format"] == "text":
-                return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+                return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
             else:
                 return R(response=obj.AsXML())
 
@@ -539,7 +539,7 @@ class sysMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
 
@@ -584,7 +584,7 @@ class sysMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
 
