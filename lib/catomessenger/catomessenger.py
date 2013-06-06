@@ -58,7 +58,7 @@ class Messenger(catoprocess.CatoService):
             self.smtp_from_email = mset.FromEmail
             self.smtp_from_name = mset.FromName
 
-            if self.smtp_from_name == "":
+            if self.smtp_from_name > "":
                 self.smtp_from = """\"%s\"<%s>""" % (self.smtp_from_name, self.smtp_from_email)
             else:
                 self.smtp_from = self.smtp_from_email
