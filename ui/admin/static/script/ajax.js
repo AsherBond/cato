@@ -42,12 +42,6 @@ catoAjax.saveSettings = function(type, values) {"use strict";
 	return ajaxPost("uiMethods/wmSaveSettings", args);
 }
 
-catoAjax.getQuestion = function(username) {"use strict";
-	var args = {};
-	args.username = username;
-	return ajaxPost("uiMethods/wmGetQuestion", args);
-}
-
 catoAjax.getCloudAccountsForHeader = function(selected) {"use strict";
 	var args = {};
 	args.sSelected = selected;
