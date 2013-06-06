@@ -1085,6 +1085,12 @@ class depMethods:
             template - the name of a defined Application Template.
             version - the Application Template version.
         
+        Optional Arguments: 
+            getdefinition - will only return the JSON definition file.
+            geticon - will only return the Base64 encoded icon.
+            
+            NOTE: the 'get' options are exclusive.  You cannot get both in a single call.
+        
         Returns: An Application Template object.
         """
         # define the required parameters for this call
@@ -1096,6 +1102,16 @@ class depMethods:
 
         obj = deployment.DeploymentTemplate()
         obj.FromNameVersion(args["template"], args["version"])
+        
+
+        # if asked, only return the definition.
+        if catocommon.is_true(args.get("getdefinition")):
+            return R(response=obj.Text)
+            
+        # if asked, only return the definition.
+        if catocommon.is_true(args.get("geticon")):
+            return R(response=obj.Icon)
+            
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
