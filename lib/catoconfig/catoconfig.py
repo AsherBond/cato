@@ -78,6 +78,8 @@ def read_config():
     cfg["rest_api_port"] = "4001"
     cfg["rest_api_debug"] = "20"
     cfg["rest_api_use_ssl"] = "false"
+    cfg["rest_api_enable_tokenauth"] = "true"
+    cfg["rest_api_token_lifespan"] = "30"
     
     cfg["dash_api_url"] = "http://localhost"
     cfg["dash_api_port"] = "4002"

@@ -18,6 +18,9 @@
 #########################################################################
 
 """Common API functions."""
+from catolog import catolog
+logger = catolog.get_logger(__name__)
+
 import web
 import base64
 import hmac
@@ -26,6 +29,7 @@ from datetime import datetime, timedelta
 import time
 from catocommon import catocommon
 from catosettings import settings
+from catoconfig import catoconfig
 
 try:
 	import xml.etree.cElementTree as ET
@@ -39,76 +43,111 @@ except AttributeError as ex:
 
 
 def authenticate(action, args):
-	try:
-		db = catocommon.new_conn()
-		sset = settings.settings.security()
-		# if it fails anywhere along the way just return false ...
-		# we're not returning error messages that would help a hacker.
-		
-		# here's how it works - we need the "action", the "key", the "timestamp" and the signed string
-		
-		# using the action, key and timestamp, we will:
-		# a) build our own string to sign
-		# b) sign it
-		# c) compare it to what was sent.
-		key = getattr(args, 'key', '')
-		ts = getattr(args, 'timestamp', '')
-		sig = getattr(args, 'signature', '')
-		
-		# Not enough arguments for the authentication? Fail.
-		if action == '' or key == '' or ts == '' or sig == '':
+	db = catocommon.new_conn()
+	sset = settings.settings.security()
+	# if it fails anywhere along the way just return false ...
+	# we're not returning error messages that would help a hacker.
+	
+	# new feature - if a token is provided instead of a full querystring,
+	# check that token for validity and timeliness.
+	if args.get("token"):
+		# tokens are only allowed if the configuration file says so.
+		if catocommon.is_true(catoconfig.CONFIG.get("rest_api_enable_tokenauth")):
+			# check the token here - looking it up will return a user_id if it's still valid
+			sql = "select user_id, created_dt from api_tokens where token = %s" 
+			row = db.select_row_dict(sql, (args.get("token")))
+			
+			if not row:
+				return False, None
+			if not row["created_dt"] or not row["user_id"]:
+				return False, None
+			
+			# check the expiration date of the token
+			now_ts = datetime.utcnow()
+			
+			mins = 30
+			try:
+				mins = int(catoconfig.CONFIG.get("rest_api_token_lifespan"))
+			except:
+				logger.warning("Config setting [rest_api_token_lifespan] not found or is not a number.  Using the default (30 minutes).")
+			
+			if (now_ts - row["created_dt"]) > timedelta (minutes=mins):
+				return False, None
+			
+			# still all good?  Update the created_dt.
+			sql = """update api_tokens set created_dt = str_to_date('{0}', '%%Y-%%m-%%d %%H:%%i:%%s')
+				where user_id = '{1}'""".format(now_ts, row["user_id"])
+			db.exec_db(sql)
+				
+			return True, row["user_id"]
+		else:
 			return False, None
-		
-		# test the timestamp for er, timeliness
-		fmt = "%Y-%m-%dT%H:%M:%S"
-		arg_ts = datetime.fromtimestamp(time.mktime(time.strptime(ts, fmt)))
-		now_ts = datetime.utcnow()
-		
-		if (now_ts - arg_ts) > timedelta (seconds=15):
-			return False, None
-		
-		# the timestamp used for the signature was URLencoded.  reencode before building our signature.
-		ts = ts.replace(":", "%3A")
-		string_to_sign = "%s?key=%s&timestamp=%s" % (action, key, ts)
-		
-		db.ping_db()
-		# we need the password for the provided key (user_id)... that's what we use to build the signature.
-		sql = """select user_id, user_password, username, status, force_change, failed_login_attempts
-			from users 
-			where user_id = '{0}' or username = '{0}'""".format(key) 
-		row = db.select_row_dict(sql)
-		
-		if not row:
-			return False, None
-		
-		# first, a few simple checks for this user.
-		# 1) is it enabled?
-		if row["status"] < 1:
-			return False, "disabled"
-		# 2) is it requiring a new password?
-		# NOTE: only the user explicitly named 'administrator' can use the API if force_change = 1
-		if row["force_change"] > 0 and row["username"] != "administrator":
-			return False, "password change"
-		# 3) is it locked?
-		if row["failed_login_attempts"] >= sset.PassMaxAttempts:
-			return False, "locked"
-		
-		# from here on down, 'key' is the user_id
-		key = row["user_id"]
-		# decrypt the password so we can use it to generate the signature
-		pwd = catocommon.cato_decrypt(row["user_password"])
-		
-		signed = base64.b64encode(hmac.new(pwd, msg=string_to_sign, digestmod=hashlib.sha256).digest())
-		
-		if signed != sig:
-			return False, None
-		
-		# made it here... we're authenticated!
-		return True, key
-	except Exception as ex:
-		raise Exception(ex)
-	finally:
-		db.close()
+	
+
+	# no token was provided? Go ahead and look into the querystring for auth information
+	
+	# here's how it works - we need the "action", the "key", the "timestamp" and the signed string
+	
+	# using the action, key and timestamp, we will:
+	# a) build our own string to sign
+	# b) sign it
+	# c) compare it to what was sent.
+	key = getattr(args, 'key', '')
+	ts = getattr(args, 'timestamp', '')
+	sig = getattr(args, 'signature', '')
+	
+	# Not enough arguments for the authentication? Fail.
+	if action == '' or key == '' or ts == '' or sig == '':
+		return False, None
+	
+	# test the timestamp for er, timeliness
+	fmt = "%Y-%m-%dT%H:%M:%S"
+	arg_ts = datetime.fromtimestamp(time.mktime(time.strptime(ts, fmt)))
+	now_ts = datetime.utcnow()
+	
+	if (now_ts - arg_ts) > timedelta (seconds=15):
+		return False, None
+	
+	# the timestamp used for the signature was URLencoded.  reencode before building our signature.
+	ts = ts.replace(":", "%3A")
+	string_to_sign = "%s?key=%s&timestamp=%s" % (action, key, ts)
+	
+	db.ping_db()
+	# we need the password for the provided key (user_id)... that's what we use to build the signature.
+	sql = """select user_id, user_password, username, status, force_change, failed_login_attempts
+		from users 
+		where user_id = '{0}' or username = '{0}'""".format(key) 
+	row = db.select_row_dict(sql)
+	
+	if not row:
+		return False, None
+	
+	# first, a few simple checks for this user.
+	# 1) is it enabled?
+	if row["status"] < 1:
+		return False, "disabled"
+	# 2) is it requiring a new password?
+	# NOTE: only the user explicitly named 'administrator' can use the API if force_change = 1
+	if row["force_change"] > 0 and row["username"] != "administrator":
+		return False, "password change"
+	# 3) is it locked?
+	if row["failed_login_attempts"] >= sset.PassMaxAttempts:
+		return False, "locked"
+	
+	# from here on down, 'key' is the user_id
+	key = row["user_id"]
+	# decrypt the password so we can use it to generate the signature
+	pwd = catocommon.cato_decrypt(row["user_password"])
+	
+	signed = base64.b64encode(hmac.new(pwd, msg=string_to_sign, digestmod=hashlib.sha256).digest())
+	
+	if signed != sig:
+		return False, None
+	
+	db.close()
+
+	# made it here... we're authenticated!
+	return True, key
 
 def check_required_params(required_params, args):
 	"""
