@@ -76,8 +76,8 @@ class Clouds(object):
     def AsXML(self):
         return catocommon.ObjectOutput.IterableAsXML(self.rows, "Clouds", "Cloud")
 
-    def AsText(self, delimiter=None):
-        return catocommon.ObjectOutput.IterableAsText(self.rows, ['ID', 'Name', 'Provider', 'APIUrl', 'APIProtocol', 'DefaultAccount'], delimiter)
+    def AsText(self, delimiter=None, headers=None):
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ['ID', 'Name', 'Provider', 'APIUrl', 'APIProtocol', 'DefaultAccount'], delimiter, headers)
 
 class Cloud(object):
     def __init__(self):
@@ -247,7 +247,7 @@ class Cloud(object):
         
     def KeyPairsAsText(self, delimiter):
         self.GetKeyPairs()
-        return catocommon.ObjectOutput.IterableAsText(self.KeyPairs, ["Name"], delimiter)
+        return catocommon.ObjectOutput.IterableAsText(self.KeyPairs, ["Name"], delimiter, headers)
         
     def KeyPairsAsJSON(self):
         self.GetKeyPairs()
@@ -269,7 +269,7 @@ class Cloud(object):
         
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
-    def AsText(self, delimiter=None):
+    def AsText(self, delimiter=None, headers=None):
         self.Provider = self.Provider.Name
         self.GetDefaultAccount()
         if self.DefaultAccount:
@@ -277,7 +277,7 @@ class Cloud(object):
             self.DefaultAccount = self.DefaultAccount.Name
         else:
             self.DefaultAccount = ""
-        return catocommon.ObjectOutput.AsText(self.__dict__, ["Provider", "Name", "APIProtocol", "APIUrl", "DefaultAccount"], delimiter)
+        return catocommon.ObjectOutput.AsText(self.__dict__, ["Provider", "Name", "APIProtocol", "APIUrl", "DefaultAccount"], delimiter, headers)
 
     def AsXML(self):
         self.Provider = self.Provider.Name
@@ -398,8 +398,8 @@ class CloudAccounts(object):
     def AsXML(self):
         return catocommon.ObjectOutput.IterableAsXML(self.rows, "Accounts", "Account")
 
-    def AsText(self, delimiter=None):
-        return catocommon.ObjectOutput.IterableAsText(self.rows, ['ID', 'Name', 'Provider', 'AccountNumber', 'LoginID', 'DefaultCloud'], delimiter)
+    def AsText(self, delimiter=None, headers=None):
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ['ID', 'Name', 'Provider', 'AccountNumber', 'LoginID', 'DefaultCloud'], delimiter, headers)
 
 class CloudAccount(object):
     def __init__(self):
@@ -495,10 +495,10 @@ class CloudAccount(object):
         del self.LoginPassword
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
-    def AsText(self, delimiter=None):
+    def AsText(self, delimiter=None, headers=None):
         self.DefaultCloud = self.DefaultCloud.Name
         self.Provider = self.Provider.Name
-        return catocommon.ObjectOutput.AsText(self.__dict__, ["Provider", "Name", "AccountNumber", "DefaultCloud"], delimiter)
+        return catocommon.ObjectOutput.AsText(self.__dict__, ["Provider", "Name", "AccountNumber", "DefaultCloud"], delimiter, headers)
 
     def AsXML(self):
         self.DefaultCloud = self.DefaultCloud.Name

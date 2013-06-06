@@ -92,8 +92,8 @@ class Tasks(object):
     def AsXML(self):
         return catocommon.ObjectOutput.IterableAsXML(self.rows, "Tasks", "Task")
 
-    def AsText(self, delimiter=None):
-        return catocommon.ObjectOutput.IterableAsText(self.rows, ['Code', 'Name', 'Version', 'Status'], delimiter)
+    def AsText(self, delimiter=None, headers=None):
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ['Code', 'Name', 'Version', 'Status'], delimiter, headers)
 
     @staticmethod
     def Delete(ids, force=False):
@@ -343,8 +343,8 @@ class Task(object):
         # PARAMETERS
         self.ParameterXDoc = xTask.find("parameters")
 
-    def AsText(self, delimiter=None):
-        return catocommon.ObjectOutput.AsText(self, ["Code", "Name", "Version", "Description", "Status", "IsDefaultVersion"], delimiter)
+    def AsText(self, delimiter=None, headers=None):
+        return catocommon.ObjectOutput.AsText(self, ["Code", "Name", "Version", "Description", "Status", "IsDefaultVersion"], delimiter, headers)
 
     def AsXML(self, include_code=False):
         root = ET.fromstring('<task />')
@@ -1212,9 +1212,9 @@ class TaskRunLog(object):
     def AsXML(self):
         return catocommon.ObjectOutput.IterableAsXML(self.log_rows, "log_rows", "row")
 
-    def AsText(self, delimiter=None):
+    def AsText(self, delimiter=None, headers=None):
         # NOTE: the AsText method ONLY RETURNS THE LOG ROWS, not the result summary or row count.
-        return catocommon.ObjectOutput.IterableAsText(self.log_rows, ['codeblock_name', 'step_order', 'function_name', 'log'], delimiter)
+        return catocommon.ObjectOutput.IterableAsText(self.log_rows, ['codeblock_name', 'step_order', 'function_name', 'log'], delimiter, headers)
 
 class TaskInstance(object):
     """
@@ -1357,8 +1357,8 @@ class TaskInstance(object):
     def AsXML(self):
         return catocommon.ObjectOutput.AsXML(self.__dict__, "TaskInstance")
 
-    def AsText(self, delimiter=None):
-        return catocommon.ObjectOutput.AsText(self, ["task_instance", "task_status", "task_name_label", "submitted_dt", "completed_dt"], delimiter)
+    def AsText(self, delimiter=None, headers=None):
+        return catocommon.ObjectOutput.AsText(self, ["task_instance", "task_status", "task_name_label", "submitted_dt", "completed_dt"], delimiter, headers)
 
     def Stop(self):
         db = catocommon.new_conn()
@@ -1512,6 +1512,6 @@ class TaskInstances(object):
     def AsXML(self):
         return catocommon.ObjectOutput.IterableAsXML(self.rows, "TaskInstances", "Instance")
 
-    def AsText(self, delimiter=None):
-        return catocommon.ObjectOutput.IterableAsText(self.rows, ['Instance', 'TaskName', 'Version', 'Status', 'StartedBy', 'SubmittedDate', 'CompletedDate'], delimiter)
+    def AsText(self, delimiter=None, headers=None):
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ['Instance', 'TaskName', 'Version', 'Status', 'StartedBy', 'SubmittedDate', 'CompletedDate'], delimiter, headers)
 

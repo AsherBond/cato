@@ -467,5 +467,5 @@ class Credential(object):
         return catocommon.ObjectOutput.AsXML(self.__dict__, "Credential")
 
     def AsText(self, delimiter):
-        return catocommon.ObjectOutput.AsText(self.__dict__, ["Name", "Username", "SharedOrLocal", "Description"], delimiter)
+        return catocommon.ObjectOutput.AsText(self.__dict__, ["Name", "Username", "SharedOrLocal", "Description"], delimiter, headers)
 

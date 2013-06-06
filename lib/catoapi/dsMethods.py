@@ -59,7 +59,7 @@ class dsMethods:
         if args["output_format"] == "json" or args["output_format"] == "text" :
             return R(response=obj.AsJSON())
 #                elif args["output_format"] == "text":
-#                    return R(response=obj.AsText(args["output_delimiter"]))
+#                    return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
         else:
             return R(response=obj.AsXML())
             
@@ -78,7 +78,7 @@ class dsMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"]))
+            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
         else:
             return R(response=obj.AsXML())
 

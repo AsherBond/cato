@@ -86,8 +86,8 @@ class Users(object):
             dom.append(node)
         return ET.tostring(dom)
 
-    def AsText(self, delimiter=None):
-        return catocommon.ObjectOutput.IterableAsText(self.SafeList(), ['FullName', 'Role', 'Status', 'AuthenticationType', 'Email'], delimiter)
+    def AsText(self, delimiter=None, headers=None):
+        return catocommon.ObjectOutput.IterableAsText(self.SafeList(), ['FullName', 'Role', 'Status', 'AuthenticationType', 'Email'], delimiter, headers)
 
 class User(object):
     def __init__(self):
@@ -210,8 +210,8 @@ class User(object):
             del self._Groups
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
-    def AsText(self, delimiter=None):
-        return catocommon.ObjectOutput.AsText(self.__dict__, ["FullName", "Status", "AuthenticationType", "Role", "Email"], delimiter)
+    def AsText(self, delimiter=None, headers=None):
+        return catocommon.ObjectOutput.AsText(self.__dict__, ["FullName", "Status", "AuthenticationType", "Role", "Email"], delimiter, headers)
 
     def AsXML(self):
         return catocommon.ObjectOutput.AsXML(self.__dict__, "User")
