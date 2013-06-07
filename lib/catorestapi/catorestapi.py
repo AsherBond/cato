@@ -544,13 +544,16 @@ class ExceptionHandlingApplication(web.application):
             raise
         except InfoException as ex:
             # we're using a custom HTTP status code to indicate 'information' back to the user.
+            args = web.input()
             web.ctx.status = "280 Informational Response"
+            output_format = args["output_format"] if args.has_key("output_format") else ""
             logger.exception(ex.__str__())
-            return ex.__str__()
+            response = api.response(err_code=api.response.Codes.Exception, err_detail=ex.__str__())
+            return response.Write(output_format)
         except Exception as ex:
             args = web.input()
-            output_format = args["output_format"] if args.has_key("output_format") else ""
             web.ctx.status = "400 Bad Request"
+            output_format = args["output_format"] if args.has_key("output_format") else ""
             logger.exception(ex.__str__())
             response = api.response(err_code=api.response.Codes.Exception, err_detail=ex.__str__())
             return response.Write(output_format)
