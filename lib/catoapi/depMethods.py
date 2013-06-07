@@ -40,6 +40,7 @@ from catoapi import api
 from catoapi.api import response as R
 from catocommon import catocommon
 from catodeployment import deployment
+from catotask import task
 
 class depMethods:
     """These are methods for Deployments, Services and other related items."""
@@ -610,10 +611,10 @@ class depMethods:
                 # 1 = action is Service Level only, doesn't appear on Instances
                 # 2 = Instance level only, doesn't appear at the Service level
                 if action.Scope == 1 and inst:
-                    return R(err_code=R.Codes.StartFailure, 
+                    return R(err_code=R.Codes.StartFailure,
                              err_detail="This Action is defined to run on Services only - do not supply a Service Instance.")
                 if action.Scope == 2 and not inst:
-                    return R(err_code=R.Codes.StartFailure, 
+                    return R(err_code=R.Codes.StartFailure,
                              err_detail="This Action is defined to run on Service Instances only - please provide a Service Instance.")
         else:    
             try:
@@ -623,7 +624,7 @@ class depMethods:
         
         
         if not action.ID:
-            return R(err_code=R.Codes.GetError, 
+            return R(err_code=R.Codes.GetError,
                      err_detail="Unable to get Action for [%s - %s]." % (args["action"], args["deployment"], svc))
             
         
@@ -1149,4 +1150,53 @@ class depMethods:
                 return R(response=obj.TasksAsText(args.get("output_delimiter"), args.get("header")))
             else:
                 return R(response=obj.TasksAsXML())
+
+    def export_application_template(self, args):        
+        """
+        Generates an export JSON document containing everything in an Application Template.
+        
+        Required Arguments: 
+            template - the name of a defined Application Template.
+            version - the Application Template version.
+
+        Returns: An JSON document containing the complete Application Template.
+        """
+
+        # THIS ONE IS CRAZY AND AMBITIOUS
+        # It'll return one gigantic JSON document containing everything in the deployment.
+        
+        # define the required parameters for this call
+        required_params = ["template", "version"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        version = args["version"]
+        template = args.get("template")
+        
+        obj = deployment.DeploymentTemplate()
+        obj.FromNameVersion(template, version)
+        if not obj.ID:
+            return R(err_code=R.Codes.GetError, err_detail="Unable to find Application Template for the provided Name and Version.")
+
+        out = {}
+        
+        # first, what are the details of the template?
+        out["Name"] = obj.Name
+        out["Version"] = obj.Version
+        out["Description"] = obj.Description
+        out["Definition"] = obj.Text
+        out["Icon"] = obj.Icon
+        
+        # Tasks
+        apptasks = obj.GetReferencedTasks()
+        taskids = [t["ID"] for t in apptasks]
+
+        # TODO: this would be a GREAT time to look again into backup up a task as JSON
+        taskbackups = task.Tasks.Export(taskids, True, outformat="json")
+        out["Tasks"] = taskbackups
+        
+        # TODO: This isn't gonna be complete until we figure out all the reporting stuff
+        
+        return R(response=catocommon.ObjectOutput.AsJSON(out))
 

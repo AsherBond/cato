@@ -166,7 +166,7 @@ class Tasks(object):
         return True
 
     @staticmethod
-    def Export(task_ids, include_refs):
+    def Export(task_ids, include_refs, outformat="xml"):
         """
         This function creates an xml export document of all tasks specified in otids.  
         
@@ -183,7 +183,10 @@ class Tasks(object):
             t = Task()
             t.FromID(tid)
             if t:
-                docs.append(t.AsXML(include_code=True))
+                if outformat == "json":
+                    docs.append(t.AsJSON(include_code=True))
+                else:
+                    docs.append(t.AsXML(include_code=True))
 
                 # regarding references, here's the deal
                 # in a while loop, we check the references for each task in the array
@@ -343,6 +346,57 @@ class Task(object):
         # PARAMETERS
         self.ParameterXDoc = xTask.find("parameters")
 
+    def FromJSON(self, taskjson, onconflict="cancel"):
+        logger.debug("Building a Task object from JSON.")
+        logger.debug("On a conflict, we will [%s]" % onconflict)
+        
+        self.OnConflict = onconflict
+
+        t = json.loads(taskjson)
+        
+        # NOTE: id is ALWAYS NEW from xml.  If it matches an existing task by name, that'll be figured out
+        # in CheckDBExists below.
+        self.ID = str(uuid.uuid4())
+        
+        # original task id is specific to the system where this was originally created.
+        # for xml imports, this is a NEW task by default.
+        # if the user changes 'on_conflict' to either replace or version up
+        # the proper original task id will be resolved by that branch of DBSave
+        self.OriginalTaskID = self.ID
+        
+        self.Name = t.get("Name")
+        logger.debug("    %s" % (self.Name))
+        self.Code = t.get("Code")
+        
+        # these, if not provided, have initial defaults
+        self.Version = t.get("Version", "1.000")
+        self.Status = t.get("Status", "Development")
+        self.IsDefaultVersion = True
+        self.ConcurrentInstances = t.get("ConcurrentInstances", "")
+        self.QueueDepth = t.get("QueueDepth", "")
+        
+        self.Description = t.get("Description", "")
+        
+        # do we have a conflict?
+        self.CheckDBExists()
+        
+        # CODEBLOCKS
+        codeblocks = t.get("Codeblocks", [])
+        logger.debug("Number of Codeblocks: %s" % (len(codeblocks)))
+        for cb in codeblocks:
+            cbname = cb.get("Name")
+            if not cbname:
+                raise Exception("Codeblock 'Name' attribute is required.")
+        
+            newcb = Codeblock(self.ID, cbname)
+            newcb.FromDict(cb)
+            self.Codeblocks[newcb.Name] = newcb
+            
+        # PARAMETERS
+        if t.get("Parameters"):
+            self.ParameterXDoc = ET.fromstring(t.get("Parameters"))
+            
+
     def AsText(self, delimiter=None, headers=None):
         return catocommon.ObjectOutput.AsText(self, ["Code", "Name", "Version", "Description", "Status", "IsDefaultVersion"], delimiter, headers)
 
@@ -353,7 +407,6 @@ class Task(object):
         root.set("name", str(self.Name))
         root.set("code", str(self.Code))
         root.set("version", str(self.Version))
-        root.set("on_conflict", "cancel")
         root.set("status", str(self.Status))
         root.set("concurrent_instances", str(self.ConcurrentInstances))
         root.set("queue_depth", str(self.QueueDepth))
@@ -392,8 +445,8 @@ class Task(object):
 
     def AsJSON(self, include_code=False):
         t = {
-             "ID" : self.ID,
-             "Name" : self.Name,
+            "ID" : self.ID,
+            "Name" : self.Name,
             "Code" : self.Code,
             "Version" : self.Version,
             "Status" : self.Status,
@@ -410,13 +463,16 @@ class Task(object):
         }
         
         if include_code:
+            # parameters
+            t["Parameters"] = ET.tostring(self.ParameterXDoc) if self.ParameterXDoc is not None else ""
+            
             # codeblocks
             codeblocks = []
             for name, cb in self.Codeblocks.items():
                 steps = []
                 for st in cb.Steps.itervalues():
                     steps.append(json.loads(st.AsJSON()))
-                codeblocks.append({ name: { "Steps" : steps } })
+                codeblocks.append({ "Name" : name, "Steps" : steps })
 
             t["Codeblocks"] = codeblocks
 
@@ -527,9 +583,9 @@ class Task(object):
             return False, "ID and Name are required Task properties."
 
         # this could be used in many cases below...
-        parameter_clause = " ''"
+        parameter_clause = ""
         if self.ParameterXDoc is not None:
-            parameter_clause = " '" + catocommon.tick_slash(ET.tostring(self.ParameterXDoc)) + "'"
+            parameter_clause = ET.tostring(self.ParameterXDoc)
         
         
         if self.DBExists:
@@ -553,88 +609,67 @@ class Task(object):
                     # will have resolved any name/id issues.
                     # if the ID existed it doesn't matter, we'll be plowing it anyway.
                     # by "plow" I mean drop and recreate the codeblocks and steps... the task row will be UPDATED
-                    sSQL = "delete from task_step_user_settings" \
-                        " where step_id in" \
-                        " (select step_id from task_step where task_id = '" + self.ID + "')"
-                    db.tran_exec(sSQL)
-                    sSQL = "delete from task_step where task_id = '" + self.ID + "'"
-                    db.tran_exec(sSQL)
-                    sSQL = "delete from task_codeblock where task_id = '" + self.ID + "'"
-                    db.tran_exec(sSQL)
+                    sSQL = """delete from task_step_user_settings
+                        where step_id in
+                        (select step_id from task_step where task_id = %s)"""
+                    db.tran_exec(sSQL, (self.ID))
+                    sSQL = "delete from task_step where task_id = %s"
+                    db.tran_exec(sSQL, (self.ID))
+                    sSQL = "delete from task_codeblock where task_id = %s"
+                    db.tran_exec(sSQL, (self.ID))
                     
                     # update the task row
-                    sSQL = "update task set" \
-                        " task_name = '" + catocommon.tick_slash(self.Name) + "'," \
-                        " task_code = '" + catocommon.tick_slash(self.Code) + "'," \
-                        " task_desc = '" + catocommon.tick_slash(self.Description) + "'," \
-                        " task_status = '" + self.Status + "'," \
-                        " concurrent_instances = '" + str(self.ConcurrentInstances) + "'," \
-                        " queue_depth = '" + str(self.QueueDepth) + "'," \
-                        " created_dt = now()," \
-                        " parameter_xml = " + parameter_clause + \
-                        " where task_id = '" + self.ID + "'"
-                    db.tran_exec(sSQL)
+                    sSQL = """update task set
+                        task_name = %s,
+                        task_code = %s,
+                        task_desc = %s,
+                        task_status = %s,
+                        concurrent_instances = %s,
+                        queue_depth = %s,
+                        created_dt = now(),
+                        parameter_xml = %s
+                        where task_id = %s"""
+                    db.tran_exec(sSQL, (self.Name, self.Code, self.Description, self.Status,
+                                        self.ConcurrentInstances, self.QueueDepth, parameter_clause, self.ID))
+
                 elif self.OnConflict == "minor":   
                     self.IncrementMinorVersion()
                     self.DBExists = False
                     self.ID = catocommon.new_guid()
                     self.IsDefaultVersion = False
                     # insert the new version
-                    sSQL = "insert task" \
-                        " (task_id, original_task_id, version, default_version," \
-                        " task_name, task_code, task_desc, task_status, parameter_xml, created_dt)" \
-                        " values " \
-                        " ('" + self.ID + "'," \
-                        " '" + self.OriginalTaskID + "'," \
-                        " " + self.Version + "," + " " \
-                        " " + ("1" if self.IsDefaultVersion else "0") + "," \
-                        " '" + catocommon.tick_slash(self.Name) + "'," \
-                        " '" + catocommon.tick_slash(self.Code) + "'," \
-                        " '" + catocommon.tick_slash(self.Description) + "'," \
-                        " '" + self.Status + "'," + \
-                        parameter_clause + "," \
-                        " now())"
-                    db.tran_exec(sSQL)
+                    sSQL = """insert task
+                        (task_id, original_task_id, version, default_version,
+                        task_name, task_code, task_desc, task_status, parameter_xml, created_dt)
+                        values
+                        (%s, %s, %s, %s, %s, %s, %s, %s, %s,now())"""
+                    db.tran_exec(sSQL, (self.ID, self.OriginalTaskID, self.Version, ("1" if self.IsDefaultVersion else "0"),
+                                        self.Name, self.Code, self.Description, self.Status, parameter_clause))
                 elif self.OnConflict == "major":
                     self.IncrementMajorVersion()
                     self.DBExists = False
                     self.ID = catocommon.new_guid()
                     self.IsDefaultVersion = False
                     # insert the new version
-                    sSQL = "insert task" \
-                        " (task_id, original_task_id, version, default_version," \
-                        " task_name, task_code, task_desc, task_status, parameter_xml, created_dt)" \
-                        " values " \
-                        " ('" + self.ID + "'," \
-                        " '" + self.OriginalTaskID + "'," \
-                        " " + self.Version + "," \
-                        " " + ("1" if self.IsDefaultVersion else "0") + "," \
-                        " '" + catocommon.tick_slash(self.Name) + "'," \
-                        " '" + catocommon.tick_slash(self.Code) + "'," \
-                        " '" + catocommon.tick_slash(self.Description) + "'," \
-                        " '" + self.Status + "'," + \
-                        parameter_clause + "," \
-                        " now())"
-                    db.tran_exec(sSQL)
+                    sSQL = """insert task
+                        (task_id, original_task_id, version, default_version,
+                        task_name, task_code, task_desc, task_status, parameter_xml, created_dt)
+                        values
+                        (%s, %s, %s, %s, %s, %s, %s, %s, %s,now())"""
+                    db.tran_exec(sSQL, (self.ID, self.OriginalTaskID, self.Version, ("1" if self.IsDefaultVersion else "0"),
+                                        self.Name, self.Code, self.Description, self.Status, parameter_clause))
                 else:
                     # there is no default action... if the on_conflict didn't match we have a problem... bail.
-                    return False, "There is an ID or Name/Version conflict, and the on_conflict directive isn't a valid option. (replace/major/minor/cancel)"
+                    return False, "There is an ID or Name/Version conflict on [%s], and the on_conflict directive isn't a valid option. (replace/major/minor/cancel)" % (self.Name)
         else:
             # the default action is to ADD the new task row... nothing
-            sSQL = "insert task" \
-                " (task_id, original_task_id, version, default_version," \
-                " task_name, task_code, task_desc, task_status, parameter_xml, created_dt)" \
-                " values " + " ('" + self.ID + "'," \
-                "'" + self.OriginalTaskID + "'," \
-                " " + self.Version + "," \
-                " 1," \
-                " '" + catocommon.tick_slash(self.Name) + "'," \
-                " '" + catocommon.tick_slash(self.Code) + "'," \
-                " '" + catocommon.tick_slash(self.Description) + "'," \
-                " '" + self.Status + "'," \
-                + parameter_clause + "," \
-                " now())"
-            db.tran_exec(sSQL)
+            sSQL = """insert task
+                (task_id, original_task_id, version, default_version,
+                task_name, task_code, task_desc, task_status, parameter_xml, created_dt)
+                values
+                (%s, %s, %s, 1, %s, %s, %s, %s, %s, now())"""
+            db.tran_exec(sSQL, (self.ID, self.OriginalTaskID, self.Version,
+                                self.Name, self.Code, self.Description, self.Status, parameter_clause))
 
         # by the time we get here, there should for sure be a task row, either new or updated.                
         # now, codeblocks
@@ -647,27 +682,19 @@ class Task(object):
             self.Codeblocks["MAIN"] = Codeblock(self.ID, "MAIN")
             
         for c in self.Codeblocks.itervalues():
-            sSQL = "insert task_codeblock (task_id, codeblock_name)" \
-                " values ('" + self.ID + "', '" + c.Name + "')"
-            db.tran_exec(sSQL)
+            sSQL = "insert task_codeblock (task_id, codeblock_name) values (%s, %s)"
+            db.tran_exec(sSQL, (self.ID, c.Name))
 
             # and steps
             if c.Steps:
                 order = 1
                 for s in c.Steps.itervalues():
-                    sSQL = "insert into task_step (step_id, task_id, codeblock_name, step_order," \
-                        " commented, locked," \
-                        " function_name, function_xml)" \
-                        " values ('" + s.ID + "'," \
-                        "'" + self.ID + "'," \
-                        "'" + s.Codeblock + "'," \
-                        + str(order) + "," \
-                        " " + ("1" if s.Commented else "0") + "," \
-                        "0," \
-                        "'" + s.FunctionName + "'," \
-                        "'" + catocommon.tick_slash(ET.tostring(s.FunctionXDoc)) + "'" \
-                        ")"
-                    db.tran_exec(sSQL)
+                    sSQL = """insert into task_step (step_id, task_id, codeblock_name, step_order,
+                        commented, locked,
+                        function_name, function_xml)
+                        values (%s, %s, %s, %s, %s, 0, %s, %s)"""
+                    db.tran_exec(sSQL, (s.ID, self.ID, s.Codeblock, order, ("1" if s.Commented else "0"),
+                                        s.FunctionName, ET.tostring(s.FunctionXDoc)))
                     order += 1
 
         if bLocalTransaction:
@@ -955,6 +982,19 @@ class Codeblock(object):
             self.Steps[order] = newstep
             order += 1
 
+    # a codeblock contains a dictionary collection of steps
+    def FromDict(self, cb):
+        self.Name = cb.get("Name")
+        
+        steps = cb.get("Steps", [])
+        logger.debug("Number of Steps in [%s]: %s" % (self.Name, len(steps)))
+        order = 1
+        for step in steps:
+            newstep = Step()
+            newstep.FromDict(step, self.Name)
+            self.Steps[order] = newstep
+            order += 1
+
 class Step(object):
     def __init__(self):
         self.ID = ""
@@ -984,6 +1024,7 @@ class Step(object):
         
     def AsJSON(self):
         del self.TaskID
+        del self.Function
         del self.UserSettings
         self.FunctionXML = ET.tostring(self.FunctionXDoc)
         del self.FunctionXDoc
@@ -1015,6 +1056,28 @@ class Step(object):
         self.FunctionXDoc = xFunc
         # command_type is for backwards compatilibity in importing tasks from 1.0.8
         self.FunctionName = xFunc.get("name", xFunc.get("command_type", ""))
+    
+    def FromDict(self, step="", sCodeblockName=""):
+        if sCodeblockName == "": return None
+        
+        self.ID = step.get("ID", str(uuid.uuid4()))
+        self.Order = step.get("Order", 0)
+        self.Codeblock = sCodeblockName
+        self.Commented = catocommon.is_true(step.get("Commented", ""))
+        self.OutputParseType = int(step.get("OutputParseType", 0))
+        self.OutputRowDelimiter = int(step.get("OutputRowDelimiter", 0))
+        self.OutputColumnDelimiter = int(step.get("OutputColumnDelimiter", 0))
+
+        self.Description = step.get("Description", "")
+
+        # FUNCTION
+        func = step.get("FunctionXML")
+        if not func:
+            raise Exception("ERROR: Step [%s] - function xml is empty or cannot be parsed.")
+        
+        self.FunctionXDoc = ET.fromstring(func)
+        # command_type is for backwards compatilibity in importing tasks from 1.0.8
+        self.FunctionName = step.get("FunctionName", "")
     
     @staticmethod
     def FromRow(dr):
