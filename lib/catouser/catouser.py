@@ -379,6 +379,10 @@ class User(object):
         # this is so we can know how to prompt the user.
         # but, to make hacking a little more difficult, we don't return too much detail about 
         # usernames or passwords.
+        if not login_id:
+            return False, "id required"
+        if not password and not answer:
+            return False, "password or answer required"
         
         # alrighty, lets check the password
         # we do this by encrypting the form submission and comparing, 

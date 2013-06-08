@@ -189,6 +189,9 @@ function Agree() {
 function Login() {
 	if ($("#username").val() == "")
 		return false;
+	if ($("#password").val() == "" && $("#security_answer").val() == "")
+		$("#error_msg").html("A password is required.").parent().show();
+		return false;
 
 	var args = {};
 	args.username = $("#username").val();
