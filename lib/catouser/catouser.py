@@ -382,7 +382,7 @@ class User(object):
         if not login_id:
             return False, "id required"
         if not password and not answer:
-            return False, "password or answer required"
+            return False, "Password required."
         
         # alrighty, lets check the password
         # we do this by encrypting the form submission and comparing, 
