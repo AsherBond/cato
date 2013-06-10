@@ -44,7 +44,7 @@ class cloudMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
 
@@ -63,7 +63,7 @@ class cloudMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
         
@@ -106,7 +106,7 @@ class cloudMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
 
@@ -136,7 +136,7 @@ class cloudMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
 
@@ -162,7 +162,7 @@ class cloudMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
 
@@ -203,7 +203,7 @@ class cloudMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
 
@@ -268,7 +268,7 @@ class cloudMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
 
@@ -292,7 +292,7 @@ class cloudMethods:
         if args["output_format"] == "json":
             return R(response=obj.KeyPairsAsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.KeyPairsAsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.KeyPairsAsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.KeyPairsAsXML())
             
@@ -329,7 +329,7 @@ class cloudMethods:
         if args["output_format"] == "json":
             return R(response=obj.KeyPairsAsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.KeyPairsAsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.KeyPairsAsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.KeyPairsAsXML())
 
@@ -363,7 +363,7 @@ class cloudMethods:
         if args["output_format"] == "json":
             return R(response=obj.KeyPairsAsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.KeyPairsAsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.KeyPairsAsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.KeyPairsAsXML())
 

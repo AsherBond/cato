@@ -61,7 +61,7 @@ $(document).ready(function() {
 		autoOpen : false,
 		modal : true,
 		bgiframe : false,
-		width: 400,
+		width : 400,
 		buttons : {
 			"OK" : function() {
 				Forgot();
@@ -189,6 +189,10 @@ function Agree() {
 function Login() {
 	if ($("#username").val() == "")
 		return false;
+	if ($("#password").val() == "" && $("#security_answer").val() == "") {
+		$("#error_msg").html("A password is required.").parent().show();
+		return false;
+	}
 
 	var args = {};
 	args.username = $("#username").val();

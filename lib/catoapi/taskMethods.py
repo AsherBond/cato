@@ -69,7 +69,37 @@ class taskMethods:
             if args["output_format"] == "json":
                 return R(response=t.AsJSON())
             elif args["output_format"] == "text":
-                return R(response=t.AsText(args["output_delimiter"], args.get("header")))
+                return R(response=t.AsText(args.get("output_delimiter"), args.get("header")))
+            else:
+                return R(response=t.AsXML())
+        else:
+            return R(err_code=R.Codes.CreateError, err_detail=msg)
+            
+    def create_task_from_json(self, args):        
+        """
+        Create a new Task from a JSON Task backup document.
+        
+        Required Arguments: 
+            json - A properly formatted JSON representation of a Task.
+            
+        Returns: A Task object.
+        """
+        # define the required parameters for this call
+        required_params = ["json"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        t = task.Task()
+        t.FromJSON(args["json"], args.get("on_conflict"))
+        result, msg = t.DBSave()
+
+        if result:
+            catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Task created.")
+            if args["output_format"] == "json":
+                return R(response=t.AsJSON())
+            elif args["output_format"] == "text":
+                return R(response=t.AsText(args.get("output_delimiter"), args.get("header")))
             else:
                 return R(response=t.AsXML())
         else:
@@ -121,7 +151,7 @@ class taskMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
             
@@ -175,7 +205,7 @@ class taskMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
 
@@ -357,7 +387,7 @@ class taskMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
 
@@ -391,7 +421,7 @@ class taskMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
             
@@ -422,7 +452,7 @@ class taskMethods:
         if args["output_format"] == "json":
             return R(response=obj.AsJSON(include_code=ic))
         elif args["output_format"] == "text":
-            return R(response=obj.AsText(args["output_delimiter"], args.get("header")))
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML(include_code=ic))
             

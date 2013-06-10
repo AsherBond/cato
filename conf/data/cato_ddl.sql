@@ -202,8 +202,6 @@ CREATE TABLE `dep_seq_tran_params` (
   `step_number` int(11) NOT NULL,
   `deployment_service_id` varchar(36) NOT NULL,
   `parameter_xml` mediumtext NOT NULL,
-  `original_task_id` varchar(36) DEFAULT NULL,
-  `task_version` decimal(18,3) DEFAULT NULL,
   PRIMARY KEY (`sequence_id`,`step_number`,`deployment_service_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_service_inst_mon` (
