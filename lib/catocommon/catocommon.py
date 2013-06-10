@@ -733,9 +733,9 @@ class ObjectOutput(object):
                 vals.append(str(getattr(obj, key)))
 
         if header == False:
-            return "%s" % ("\n".join(vals))
+            return "%s" % (delimiter.join(vals))
         else:
-            return "%s\n%s" % (delimiter.join(keys), "\n".join(vals))
+            return "%s\n%s" % (delimiter.join(keys), delimiter.join(vals))
 
     @staticmethod
     def IterableAsJSON(iterable):
