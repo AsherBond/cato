@@ -132,7 +132,7 @@ enabled=1
 EOF
     yum -y --quiet install mongo-10gen mongo-10gen-server
     # the following is to work around a bug on redhat / centos
-    sed -i"" -e"s|^pidfilepath.*$|pidfilepath=/var/lib/mongo/mongod.lock|"  /etc/mongod.conf
+    #sed -i"" -e"s|^pidfilepath.*$|pidfilepath=/var/lib/mongo/mongod.lock|"  /etc/mongod.conf
     service ${MONGOSERVICE} start
 
 elif [ "$FLAVOR" = "suse" ];
