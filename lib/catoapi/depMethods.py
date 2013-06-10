@@ -97,14 +97,14 @@ class depMethods:
 #        except Exception:
 #            return R(err_code=R.Codes.Exception)
 
-    def create_deployment(self, args):        
+    def deploy_application(self, args):        
         """
-        Create a new Deployment.
+        Deploy an Application Template.
         
         Required Arguments: 
             name - a name for the new Deployment.
-            template - the name of a defined Deployment Template.
-            version - the Template version
+            template - the name of a defined Application Template.
+            version - the ApplicationTemplate version
             
         Optional Arguments:
             description - a description for the Deployment.
@@ -967,14 +967,14 @@ class depMethods:
             return R(response="{}")
             
 
-    def list_deployment_templates(self, args):        
+    def list_application_templates(self, args):        
         """
-        Lists all Deployment Templates.
+        Lists all Application Templates.
         
         Optional Arguments: 
             filter - will filter a value match on Template Name, Version or Description.
         
-        Returns: An array of all Deployment Templates.
+        Returns: An array of all Application Templates.
         """
         fltr = args.get("filter", "")
         
@@ -987,17 +987,17 @@ class depMethods:
             return R(response=obj.AsXML())
         
 
-    def copy_deployment_template(self, args):        
+    def copy_application_template(self, args):        
         """
-        Copies a Deployment Template.
+        Copies an Application Template.
         
         Required Arguments: 
-            template - the name of a Deployment Template.
+            template - the name of an Application Template.
             version - the Template version.
             newname - a name for the new Template.
             newversion - a version for the new Template
             
-        Returns: A Deployment Template object.
+        Returns: An Application Template object.
         """
 
         # define the required parameters for this call
@@ -1016,7 +1016,7 @@ class depMethods:
         obj = t.DBCopy(newname, newversion)
 
         if obj:
-            catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.DeploymentTemplate, obj.ID, obj.Name, "Deployment Template copied.")
+            catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.DeploymentTemplate, obj.ID, obj.Name, "Application Template copied.")
             if args["output_format"] == "json":
                 return R(response=obj.AsJSON())
             elif args["output_format"] == "text":
@@ -1024,7 +1024,7 @@ class depMethods:
             else:
                 return R(response=obj.AsXML())
         else:
-            return R(err_code=R.Codes.CreateError, err_detail="Unable to copy Template.")
+            return R(err_code=R.Codes.CreateError, err_detail="Unable to copy Application Template.")
 
 
     def create_application_template(self, args):        
