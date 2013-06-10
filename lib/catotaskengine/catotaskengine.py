@@ -1541,16 +1541,16 @@ class TaskEngine():
         except ET.ParseError:
             raise Exception("Invalid or missing XML for parameters.")
 
-    def send_email(self, to, sub, body):
+    def send_email(self, to, cc, bcc, sub, body):
 
         msg = "Inserting into message queue : TO:{%s} SUBJECT:{%s} BODY:{%s}" % (to, sub, body)
         self.insert_audit("", msg, "")
         # note - this logic is skipping the file attachment piece, to do
         # also - there may need to be some additional processing to handle html, etc. messages
 
-        sql = """insert into message (date_time_entered,process_type,status,msg_to,msg_from,msg_subject,msg_body) 
-            values (now(),1,0,%s,%s,%s,%s)"""
-        self.db.exec_db(sql, (to, self.host_domain, sub, body))
+        sql = """insert into message (date_time_entered,process_type,status,msg_to,msg_from,msg_subject,msg_body, msg_cc, msg_bcc) 
+            values (now(),1,0,%s,%s,%s,%s, %s, %s)"""
+        self.db.exec_db(sql, (to, self.host_domain, sub, body, cc, bcc))
 
     def notify_error(self, msg):
 

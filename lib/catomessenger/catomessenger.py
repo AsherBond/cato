@@ -127,9 +127,13 @@ class Messenger(catoprocess.CatoService):
                 msg_cc = row[5]
                 msg_bcc = row[6]
                 msg_to_list = msg_to.split(",")
+                cc_list = msg_cc.split(",")
+                bcc_list = msg_bcc.split(",")
 
                 msg = MIMEMultipart('alternative')
                 msg["To"] = msg_to
+                msg["CC"] = msg_cc
+                msg["BCC"] = msg_bcc
                 msg["From"] = self.smtp_from
                 msg["Subject"] = msg_subject
                 #msg["Date"] = formatdate(localtime=True)
@@ -137,8 +141,9 @@ class Messenger(catoprocess.CatoService):
                 part2 = MIMEText(msg_body, 'html')
                 msg.attach(part1)
                 msg.attach(part2)
+                to_addrs = msg_to_list + cc_list + bcc_list
                 try:
-                    s.sendmail(self.smtp_from, msg_to_list, msg.as_string())
+                    s.sendmail(self.smtp_from, to_addrs, msg.as_string())
                 except Exception as e:
                     err_msg = "Error sending smtp message: %s" % (e)
                     self.logger.info("%s\n%s" % (err_msg, msg.as_string()))

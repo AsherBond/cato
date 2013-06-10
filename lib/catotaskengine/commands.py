@@ -1039,12 +1039,14 @@ def new_connection_cmd(self, task, step):
 
 def send_email_cmd(self, task, step):
 
-    to, sub, body = self.get_command_params(step.command, "to", "subject", "body")[:]
+    to, cc, bcc, sub, body = self.get_command_params(step.command, "to", "cc", "bcc", "subject", "body")[:]
     to = self.replace_variables(to)
+    cc = self.replace_variables(cc)
+    bcc = self.replace_variables(bcc)
     sub = self.replace_variables(sub)
     body = self.replace_variables(body)
 
-    self.send_email(to, sub, body)
+    self.send_email(to, cc, bcc, sub, body)
 
 
 def _cato_sign_string(host, method, access_key, secret_key):

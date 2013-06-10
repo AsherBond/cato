@@ -154,6 +154,8 @@
 			<command name="send_email" label="Send Email" description="Sends an email to the specified list of recipients." help="Send Email is used to send email messages. Enter the email addresses in the To: field, comma seperated. The Subject field takes the subject and the Message field accepts the body of the message. Html formatting is allowed in the message field only." icon="static/images/icons/mail_send_32.png">
 				<function name="send_email" snip="subject">
 					<to input_type="text" label="To" class="w95pct" label_style="display: block;" />
+					<cc input_type="text" label="Cc" class="w95pct" label_style="display: block;" />
+					<bcc input_type="text" label="Bcc" class="w95pct" label_style="display: block;" />
 					<subject input_type="text" label="Subject" class="w95pct" label_style="display: block;" />
 					<body input_type="textarea" rows="3" label="Body" class="w95pct" label_style="display: block;" />
 				</function>
