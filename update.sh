@@ -24,12 +24,24 @@ set -e
 ### This version of the script has been testing on Ubuntu Precise.
 ### It should work on Ubuntu Hardy forward.
 
-# TODO!!!
-# release, root db user and password should be command line arguments.
+RELEASE=$1
+DBROOTUID=$2
+DBROOTPWD=$3
 
-RELEASE=1.15
-DBROOTUID="root"
-DBROOTPWD="cloudsidekick"
+if [ "$RELEASE" = "" ] ; then
+    echo "usage: $0 <release> <dbrootuid> <dbrootpwd>"
+    exit 1
+fi
+if [ "$DBROOTUID" = "" ] ; then
+    echo "usage: $0 <release> <dbrootuid> <dbrootpwd>"
+    exit 1
+fi
+if [ "$DBROOTPWD" = "" ] ; then
+    echo "usage: $0 <release> <dbrootuid> <dbrootpwd>"
+    exit 1
+fi
+
+printf "Updating to Release: $RELEASE\n"
 
 BACKUP_DIR=/tmp
 
