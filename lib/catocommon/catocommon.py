@@ -430,10 +430,11 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id=Non
     
     # do the parameters
     if parameter_xml:
+        logger.debug("Saving Parameters: [%s]" % (parameter_xml))
         sql = """insert into task_instance_parameter (task_instance, parameter_xml) 
-            values ('%s', '%s')""" % (str(task_instance), tick_slash(parameter_xml))
-        if not db.tran_exec_noexcep(sql):
-            logger.warning("Unable to save parameter_xml for instance [%s]." % str(task_instance))
+            values (%s, %s)"""
+        if not db.tran_exec_noexcep(sql, (task_instance, parameter_xml)):
+            logger.warning("Unable to save parameter_xml for instance [%s]." % task_instance)
             raise Exception(db.error)
 
     db.tran_commit()
