@@ -870,17 +870,27 @@ class depMethods:
             
         Returns: A list of Sequence Instances.
         """
-        fltr = args["filter"] if args.has_key("filter") else ""
-        status = args["status"] if args.has_key("status") else ""
-        frm = args["from"] if args.has_key("from") else ""
-        to = args["to"] if args.has_key("to") else ""
-        records = args["records"] if args.has_key("records") else ""
+        # define the required parameters for this call
+        required_params = ["deployment"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
 
-        obj = deployment.SequenceInstances(fltr=fltr,
-                                 status=status,
-                                 frm=frm,
-                                 to=to,
-                                 records=records)
+        fltr = args.get("filter", "")
+        status = args.get("status", "")
+        frm = args.get("from", "")
+        to = args.get("to", "")
+        records = args.get("records", "")
+
+        d = deployment.Deployment()
+        d.FromName(args["deployment"])
+
+        obj = deployment.SequenceInstances(deployment_id=d.ID,
+                                        fltr=fltr,
+                                        status=status,
+                                        frm=frm,
+                                        to=to,
+                                        records=records)
         if obj:
             if args["output_format"] == "json":
                 return R(response=obj.AsJSON())
