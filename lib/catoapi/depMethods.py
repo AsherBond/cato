@@ -327,7 +327,8 @@ class depMethods:
             service = {}
             service["ID"] = svc.ID
             service["Name"] = svc.Name
-            service["Instances"] = [x.__dict__ for x in svc.GetInstances()]
+            service["Instances"] = [{"Instance" : x.__dict__} for x in svc.GetInstances()]
+                                     
             
             out.append(service)
          
