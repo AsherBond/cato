@@ -299,25 +299,55 @@ class depMethods:
         
         Required Arguments: 
             deployment - Value can be either an Deployment ID or Name.
+
+        Optional Arguments
             service - can be either a Service ID or Name.
         
-        Returns: A list of Service Instances.
+        Returns: A list of Services containing a list of Service Instances.
         """
         # define the required parameters for this call
-        required_params = ["deployment", "service"]
+        required_params = ["deployment"]
         has_required, resp = api.check_required_params(required_params, args)
         if not has_required:
             return resp
 
         obj = deployment.Deployment()
         obj.FromName(args["deployment"])
-        service = obj.GetService(args["service"])
-        if args["output_format"] == "json":
-            return R(response=service.InstancesAsJSON())
-        elif args["output_format"] == "text":
-            return R(response=service.InstancesAsText())
+        
+        svcs = []
+        if args.get("service"):
+            # a service was provided, limit it to that
+            svcs.append(obj.GetService(args["service"]))
         else:
-            return R(response=service.InstancesAsXML())
+            svcs = obj.GetServices()
+            
+        # now we have a list of the service(s) we want... get their instances
+        out = []
+        for svc in svcs:
+            service = {}
+            service["ID"] = svc.ID
+            service["Name"] = svc.Name
+            service["Instances"] = [x.__dict__ for x in svc.GetInstances()]
+            
+            out.append(service)
+         
+         
+        if args["output_format"] == "json":
+            return R(response=catocommon.ObjectOutput.IterableAsJSON(out))
+        elif args["output_format"] == "text":
+            delimiter = "\t" if not args.get("output_delimiter") else args.get("output_delimiter")
+            header = catocommon.is_true(args.get("header", True))
+
+            txt = []
+            if header:
+                txt.append(delimiter.join(['ServiceName', 'ID', 'Label', 'HostName']))
+            for svc in out:
+                for inst in svc["Instances"]:
+                    txt.append(delimiter.join([svc["Name"], inst["InstanceID"], inst["Label"], inst["HostName"]]))
+            
+            return R(response="\n".join(txt))
+        else:
+            return R(response=catocommon.ObjectOutput.IterableAsXML(out, "Services", "Service"))
 
         
     def create_deployment_service(self, args):        
