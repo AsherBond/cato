@@ -21,7 +21,6 @@ from catolog import catolog
 logger = catolog.get_logger(__name__)
 
 import traceback
-import uuid
 import json
 try:
     import xml.etree.cElementTree as ET
@@ -176,17 +175,14 @@ class Tasks(object):
         This returns a list of xml documents - one per task.
         """
         
-        docs = []
+        tasks = []
         
         for tid in task_ids:
             # get the task
             t = Task()
             t.FromID(tid)
             if t:
-                if outformat == "json":
-                    docs.append(t.AsJSON(include_code=True))
-                else:
-                    docs.append(t.AsXML(include_code=True))
+                tasks.append(t)
 
                 # regarding references, here's the deal
                 # in a while loop, we check the references for each task in the array
@@ -196,6 +192,20 @@ class Tasks(object):
                     for reftask in reftasks:
                         if reftask.ID not in task_ids:
                             task_ids.append(reftask.ID)
+
+
+        # this is VERY IMPORTANT - exported tasks must have identifiers removed from them.
+        # otherwise, downstream attempts to import might have issues.
+        docs = []
+        for t in tasks:
+            if outformat == "json":
+                del t.ID
+                for c in t.Codeblocks.itervalues():
+                    for s in c.Steps.itervalues():
+                        del s.ID
+                docs.append(t.AsJSON(include_code=True))
+            else:
+                docs.append(t.AsXML(include_code=True))
 
         return docs
 
@@ -230,7 +240,7 @@ class Task(object):
         if not sName:
             raise InfoException("Error building Task object: Name is required.")
 
-        self.ID = str(uuid.uuid4())
+        self.ID = catocommon.new_guid()
         self.OriginalTaskID = self.ID
         self.Name = sName
         self.Code = sCode
@@ -304,7 +314,7 @@ class Task(object):
         
         # NOTE: id is ALWAYS NEW from xml.  If it matches an existing task by name, that'll be figured out
         # in CheckDBExists below.
-        self.ID = str(uuid.uuid4())
+        self.ID = catocommon.new_guid()
         
         # original task id is specific to the system where this was originally created.
         # for xml imports, this is a NEW task by default.
@@ -346,17 +356,21 @@ class Task(object):
         # PARAMETERS
         self.ParameterXDoc = xTask.find("parameters")
 
-    def FromJSON(self, taskjson, onconflict="cancel"):
+    def FromJSON(self, taskjson, onconflict=None):
         logger.debug("Building a Task object from JSON.")
-        logger.debug("On a conflict, we will [%s]" % onconflict)
         
-        self.OnConflict = onconflict
-
         t = json.loads(taskjson)
         
+        # if the taskjson has an onconflict directive use it....
+        # BUT ONLY IF None WAS PROVIDED
+        self.OnConflict = t.get("OnConflict", "cancel") 
+        if onconflict:
+            self.OnConflict = onconflict
+        logger.debug("On a conflict, we will [%s]" % (self.OnConflict))
+
         # NOTE: id is ALWAYS NEW from xml.  If it matches an existing task by name, that'll be figured out
         # in CheckDBExists below.
-        self.ID = str(uuid.uuid4())
+        self.ID = catocommon.new_guid()
         
         # original task id is specific to the system where this was originally created.
         # for xml imports, this is a NEW task by default.
@@ -445,7 +459,6 @@ class Task(object):
 
     def AsJSON(self, include_code=False):
         t = {
-            "ID" : self.ID,
             "Name" : self.Name,
             "Code" : self.Code,
             "Version" : self.Version,
@@ -461,6 +474,8 @@ class Task(object):
             "NextMajorVersion" : self.NextMajorVersion,
             "UseConnectorSystem" : self.UseConnectorSystem
         }
+        if hasattr(self, "ID"):
+            t["ID"] = self.ID
         
         if include_code:
             # parameters
@@ -1037,7 +1052,7 @@ class Step(object):
         xStep = ET.fromstring(sStepXML)
         
         # attributes of the <step> node
-        self.ID = xStep.get("id", str(uuid.uuid4()))
+        self.ID = catocommon.new_guid()
         self.Order = xStep.get("order", 0)
         self.Codeblock = sCodeblockName
         self.Commented = catocommon.is_true(xStep.get("commented", ""))
@@ -1060,7 +1075,8 @@ class Step(object):
     def FromDict(self, step="", sCodeblockName=""):
         if sCodeblockName == "": return None
         
-        self.ID = step.get("ID", str(uuid.uuid4()))
+        # when created from a dict, steps always get a new id
+        self.ID = catocommon.new_guid()
         self.Order = step.get("Order", 0)
         self.Codeblock = sCodeblockName
         self.Commented = catocommon.is_true(step.get("Commented", ""))

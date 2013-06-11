@@ -47,6 +47,10 @@ $(document).ready(function() {
 				sXML : xml
 			});
 			if (response) {
+				if (response.error) {
+					showAlert(response.error);
+					return;
+				}
 				var infomsg = "";
 				$.each(response.items, function(index, item) {
 					if (item.info) {
@@ -77,10 +81,13 @@ $(document).ready(function() {
 	$("#analyze_btn").click(function() {
 		var xml = packJSON($("#xml_to_import").val());
 		if (xml) {
-			var response = ajaxPost("uiMethods/wmAnalyzeImportXML", {
+			var response = ajaxPostAsync("uiMethods/wmAnalyzeImportXML", {
 				sXML : xml
-			});
-			if (response) {
+			}, function(response) {
+				if (response.error) {
+					showAlert(response.error);
+					return;
+				}
 				var infomsg = "";
 				$.each(response.items, function(index, item) {
 					if (item.info) {
@@ -96,7 +103,7 @@ $(document).ready(function() {
 				showInfo("Results", infomsg, true);
 
 				// temporary comment $("#xml_to_import").val("");
-			}
+			});
 		}
 	});
 });

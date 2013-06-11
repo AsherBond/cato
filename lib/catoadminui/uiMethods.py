@@ -1104,8 +1104,8 @@ class uiMethods:
         
     def wmCreateObjectFromXML(self):
         """Takes a properly formatted XML backup file, and imports each object."""
-        sXML = uiCommon.getAjaxArg("sXML")
-        sXML = uiCommon.unpackJSON(sXML)
+        inputtext = uiCommon.getAjaxArg("sXML")
+        inputtext = uiCommon.unpackJSON(inputtext)
 
         # the trick here is to return enough information back to the client
         # to best interact with the user.
@@ -1115,10 +1115,14 @@ class uiMethods:
 
         # parse it as a validation, and to find out what's in it.
         xd = None
+        js = None
         try:
-            xd = ET.fromstring(sXML)
+            xd = ET.fromstring(inputtext)
         except ET.ParseError as ex:
-            return "{\"error\" : \"Data is not properly formatted XML.\"}"
+            try:
+                js = json.loads(inputtext)
+            except:
+                return "{\"error\" : \"Data is not properly formatted XML or JSON.\"}"
         
         if xd is not None:
             # so, what's in here?  Tasks?
@@ -1145,10 +1149,30 @@ class uiMethods:
                         items.append({"type" : "task", "id" : t.ID, "name" : t.Name, "info" : err}) 
                     else:
                         items.append({"type" : "task", "id" : t.ID, "name" : t.Name, "error" : "Unable to create Task. No error available."}) 
+        # otherwise it might have been JSON
+        elif js is not None:
+            # if js isn't a list, bail...
+            if not isinstance(js, list):
+                return "{\"error\" : \"JSON data must be a list of Tasks.\"}"
                 
+            for jstask in js:
+                uiCommon.log("Importing Task [%s]" % jstask.get("name", "Unknown"))
+                t = task.Task()
+                t.FromJSON(json.dumps(jstask))
 
+                result, err = t.DBSave()
+                if result:
+                    # add security log
+                    uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Created by import.")
+
+                    items.append({"type" : "task", "id" : t.ID, "name" : t.Name}) 
+                else:
+                    if err:
+                        items.append({"type" : "task", "id" : t.ID, "name" : t.Name, "info" : err}) 
+                    else:
+                        items.append({"type" : "task", "id" : t.ID, "name" : t.Name, "error" : "Unable to create Task. No error available."}) 
         else:
-            items.append({"info" : "Unable to create Task from backup XML."})
+            items.append({"info" : "Unable to create Task from backup JSON/XML."})
             
             # TODO: for loop for Assets will go here, same logic as above
             # ASSETS
@@ -1157,8 +1181,8 @@ class uiMethods:
             
     def wmAnalyzeImportXML(self):
         """Takes a properly formatted XML backup file, and replies with the existence/condition of each Task."""
-        sXML = uiCommon.getAjaxArg("sXML")
-        sXML = uiCommon.unpackJSON(sXML)
+        inputtext = uiCommon.getAjaxArg("sXML")
+        inputtext = uiCommon.unpackJSON(inputtext)
 
         # the trick here is to return enough information back to the client
         # to best interact with the user.
@@ -1168,11 +1192,18 @@ class uiMethods:
 
         # parse it as a validation, and to find out what's in it.
         xd = None
+        js = None
         try:
-            xd = ET.fromstring(sXML)
+            xd = ET.fromstring(inputtext)
         except ET.ParseError as ex:
-            return "{\"error\" : \"Data is not properly formatted XML.\"}"
+            uiCommon.log("Data is not valid XML... trying JSON...")
+            try:
+                js = json.loads(inputtext)
+            except Exception as ex:
+                uiCommon.log(ex)
+                return "{\"error\" : \"Data is not properly formatted XML or JSON.\"}"
         
+        # if the submitted data was XML
         if xd is not None:
             # so, what's in here?  Tasks?
             
@@ -1182,7 +1213,28 @@ class uiMethods:
                 t.FromXML(ET.tostring(xtask))
 
                 if t.DBExists and t.OnConflict == "cancel":
-                    msg = "Task exists - set 'replace', 'minor' or 'major' flag."
+                    msg = "Task exists - set 'on_conflict' attribute to 'replace', 'minor' or 'major'."
+                elif t.OnConflict == "replace":
+                    msg = "Will be replaced."
+                elif t.OnConflict == "minor" or t.OnConflict == "major":
+                    msg = "Will be versioned up."
+                else:
+                    msg = "Will be created."
+                
+                items.append({"type" : "task", "id" : t.ID, "name" : t.Name, "info" : msg})  
+            
+        # otherwise it might have been JSON
+        elif js is not None:
+            # if js isn't a list, bail...
+            if not isinstance(js, list):
+                return "{\"error\" : \"JSON data must be a list of Tasks.\"}"
+                
+            for jstask in js:
+                t = task.Task()
+                t.FromJSON(json.dumps(jstask))
+
+                if t.DBExists and t.OnConflict == "cancel":
+                    msg = "Task exists - set OnConflict to 'replace', 'minor' or 'major'."
                 elif t.OnConflict == "replace":
                     msg = "Will be replaced."
                 elif t.OnConflict == "minor" or t.OnConflict == "major":
@@ -1192,10 +1244,11 @@ class uiMethods:
                 
                 items.append({"type" : "task", "id" : t.ID, "name" : t.Name, "info" : msg})  
         else:
-            items.append({"info" : "Unable to create Task from backup XML."})
+            items.append({"info" : "Unable to create Task from backup JSON/XML."})
+                
             
         return "{\"items\" : %s}" % json.dumps(items)
-            
+        
     def wmHTTPGet(self):
         """Simply proxies an HTTP GET to another domain, and returns the results."""
         url = uiCommon.getAjaxArg("url")
