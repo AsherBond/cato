@@ -69,7 +69,7 @@ class Runtimes:
             index = index - 1
         try:
             val = self.data[name][index]
-            if not val:
+            if val is None:
                 val = ""
         except (IndexError, KeyError):
             val = ""
