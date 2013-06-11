@@ -257,6 +257,7 @@ class taskMethods:
                 account_id = ca.ID
 
         parameters = args["parameters"] if args.has_key("parameters") else ""
+        pjson = ""
         pxml = ""
         if parameters:
             # are the parameters json?
