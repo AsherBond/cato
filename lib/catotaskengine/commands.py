@@ -742,11 +742,7 @@ def clear_variable_cmd(self, task, step):
 
     variables = self.get_node_list(step.command, "variables/variable", "name")
     for var in variables:
-        # TODO: this might be temporary, but setting _LAST_ERROR actually changes a TE property, not a variable on the stack.
-        if var[0] == "_LAST_ERROR":
-            self.last_error = None
-        else:
-            self.rt.clear(var[0])
+        self.rt.clear(var[0])
 
 
 def set_variable_cmd(self, task, step):
@@ -1104,8 +1100,8 @@ def _cato_sign_string(host, method, access_key, secret_key):
 
 def cato_web_service_cmd(self, task, step):
 
-    host, method, userid, password, result_var, timeout = self.get_command_params(step.command,
-        "host", "method", "userid", "password", "result_var", "timeout")[:]
+    host, method, userid, password, result_var, error_var, timeout = self.get_command_params(step.command,
+        "host", "method", "userid", "password", "result_var", "error_var", "timeout")[:]
     host = self.replace_variables(host)
     method = self.replace_variables(method)
     userid = self.replace_variables(userid)
@@ -1146,25 +1142,27 @@ def cato_web_service_cmd(self, task, step):
     if len(argstr):
         url = "%s%s" % (url, argstr)
         
-    # TODO: this could be a lot better at trapping certain errors and populating self.last_error
+    error_msg = ""
     try:
         before = datetime.now() 
         response = urllib2.urlopen(url, None, timeout)
         after = datetime.now() 
     except urllib2.HTTPError, e:
-        raise Exception("HTTPError = %s, %s, %s\n%s" % (str(e.code), e.msg, e.read(), url))
+        error_msg = "HTTPError = %s, %s, %s" % (str(e.code), e.msg, e.read())
     except urllib2.URLError, e:
-        self.logger.critical("[%s]" % e.reason)
-        if str(e.reason) == "timed out":
-            self.last_error = str(e.reason)
-            msg = "URLError = %s\n%s" % (str(e.reason), url)
-            self.logger.error(msg)
-            self.insert_audit(step.function_name, msg)
-            return
-        else:
-            raise Exception("URLError = %s\n%s" % (str(e.reason), url))
+        error_msg = "URLError = %s" % (str(e.reason))
     except httplib.HTTPException, e:
-        raise Exception("HTTPException")
+        error_msg = "HTTPException" % str(e)
+
+    print 999
+    print error_var
+    if error_var:
+        self.logger.error(error_msg)
+        self.insert_audit(step.function_name, error_msg)
+        self.rt.set(error_var, error_msg)
+        return
+    else:
+        raise Exception(error_msg)
 
     buff = response.read()
     del(response)
