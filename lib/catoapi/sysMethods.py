@@ -56,7 +56,7 @@ class sysMethods:
         Returns: A UUID authentication token.
         """
         
-        #we wouldn't be here if tradiditional authentication failed.
+        # we wouldn't be here if tradiditional authentication failed.
         # so, the _user_id is the user we wanna create a token for
         
         token = catocommon.new_guid()
@@ -415,8 +415,12 @@ class sysMethods:
         Optional Arguments: 
             filter - will filter a value match in User's Full Name, Role or Email address.
         
-        Returns: An list of all Clouds.
+        Returns: A list of all Users.
         """
+        # this is a admin function, kick out 
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+
         fltr = args["filter"] if args.has_key("filter") else ""
 
         obj = catouser.Users(sFilter=fltr)
@@ -449,9 +453,6 @@ class sysMethods:
         mod = args.get("module")
         sets = args.get("settings")
 
-        print mod
-        print sets
-        
         # this is a admin function, kick out 
         if not args["_admin"]:
             return R(err_code=R.Codes.Forbidden)
@@ -614,4 +615,53 @@ class sysMethods:
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
+
+
+    def get_system_log(self, args):
+        """
+        Gets the Cato system log.  If all arguments are omitted, will return the most recent 100 entries.
+        
+        Optional Arguments:
+            object_id - An object_id filter to limit the results.
+            object_type - An object_type filter to limit the results.
+            log_type - A log_type filter. ('Security' or 'Object')
+            action - An action filter.
+            filter - A filter to limit the results.
+            from - a date string to set as the "from" marker. (mm/dd/yyyy format)
+            to - a date string to set as the "to" marker. (mm/dd/yyyy format)
+            records - a maximum number of results to get.
+
+        Returns: An array of log entries.
+        """
+        # this is a admin function, kick out 
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+
+        out = []        
+        rows = catocommon.get_security_log(oid=args.get("object_id"), otype=args.get("object_type"),
+                                           user=args.get("user"), logtype=args.get("log_type"),
+                                           action=args.get("action"), search=args.get("filter"),
+                                           num_records=args.get("num_records"), _from=args.get("from"), _to=args.get("to"))
+        if rows:
+            logrow = {}
+            for row in rows:
+                logrow["LogDate"] = row["log_dt"]
+                logrow["Action"] = row["action"]
+                logrow["LogType"] = row["log_type"]
+                logrow["ObjectType"] = row["object_type"]
+                logrow["User"] = row["full_name"]
+                logrow["ObjectID"] = row["object_id"]
+                logrow["Log"] = row["log_msg"]
+                out.append(logrow)
+
+        if out:
+            if args["output_format"] == "json":
+                return R(response=catocommon.ObjectOutput.IterableAsJSON(out))
+            elif args["output_format"] == "text":
+                return R(response=catocommon.ObjectOutput.IterableAsText(out, ["User", "Action", "LogDate", "Log"], args.get("output_delimiter"), args.get("header")))
+            else:
+                return R(response=catocommon.ObjectOutput.IterableAsXML(out, "log", "item"))
+        else:
+            return R(err_code=R.Codes.GetError, err_detail="Error retrieving Log.")
+            
 

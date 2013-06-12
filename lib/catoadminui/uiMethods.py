@@ -289,40 +289,10 @@ class uiMethods:
         sFrom = uiCommon.getAjaxArg("sFrom", "")
         sTo = uiCommon.getAjaxArg("sTo", "")
         
-        sWhereString = "(1=1)"
-        if sObjectID:
-            sWhereString += " and usl.object_id = '" + sObjectID + "'"
-
-        if sObjectType:
-            if sObjectType > "0":  # but a 0 object type means we want everything
-                sWhereString += " and usl.object_type = '" + sObjectType + "'"
-       
-        if not sObjectID and not sObjectType:  # no arguments passed means we want a security log
-            sWhereString += " and usl.log_type = 'Security'"
-
-        sDateSearchString = ""
-        sTextSearch = ""
-        
-        if sSearch:
-            sTextSearch += " and (usl.log_dt like '%%" + sSearch.replace("'", "''") + "%%' " \
-                "or u.full_name like '%%" + sSearch.replace("'", "''") + "%%' " \
-                "or usl.log_msg like '%%" + sSearch.replace("'", "''") + "%%') "
-        
-        if sFrom:
-            sDateSearchString += " and usl.log_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')"
-        if sTo:
-            sDateSearchString += " and usl.log_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')"
-            
-        sSQL = "select usl.log_msg as log_msg," \
-            " convert(usl.log_dt, CHAR(20)) as log_dt, u.full_name" \
-            " from user_security_log usl" \
-            " join users u on u.user_id = usl.user_id" \
-            " where " + sWhereString + sDateSearchString + sTextSearch + \
-            " order by usl.log_id desc" \
-            " limit " + (sRecords if sRecords else "100")
-            
         sLog = ""
-        rows = self.db.select_all_dict(sSQL)
+        logtype = "Security" if not sObjectID and not sObjectType else "Object"
+        rows = catocommon.get_security_log(oid=sObjectID, otype=sObjectType, logtype=logtype,
+                                           search=sSearch, num_records=sRecords, _from=sFrom, _to=sTo)
         if rows:
             i = 1
             sb = []

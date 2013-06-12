@@ -442,6 +442,59 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id=Non
     
     return task_instance
     
+def get_security_log(oid=None, otype=0, user=None, logtype="Security", action=None, search=None, num_records=100, _from=None, _to=None):
+    whereclause = "(1=1)"
+    if oid:
+        whereclause += " and usl.object_id = '%s'" % (oid)
+
+    if otype is not None and otype != "":
+        try:
+            int(otype)
+        except:
+            raise Exception("get_security_log - ObjectType [%s] must be an integer." % (otype))
+        if otype > 0:  # but a 0 object type means we want everything
+            whereclause += " and usl.object_type = '%s'" % (otype)
+   
+    if logtype:
+        whereclause += " and usl.log_type = '%s'" % (logtype)
+
+    if action:
+        whereclause += " and usl.action = '%s'" % (action)
+
+    if user:
+        whereclause += " and (u.user_id = '{0}' or u.username = '{0}' or u.full_name = '{0}')".format(user)
+
+    dateclause = ""
+    searchclause = ""
+    
+    if search:
+        searchclause += """ and (usl.log_dt like '%%{0}%%'
+            or u.full_name like '%%{0}%%'
+            or usl.log_msg like '%%{0}%%') """.format(search.replace("'", "''"))
+    
+    if _from:
+        dateclause += " and usl.log_dt >= str_to_date('{0}', '%%m/%%d/%%Y')".format(_from)
+    if _to:
+        dateclause += " and usl.log_dt <= str_to_date('{0}', '%%m/%%d/%%Y')".format(_to)
+        
+    sql = "select usl.log_msg, usl.action, usl.log_type, usl.object_type, usl.object_id," \
+        " convert(usl.log_dt, CHAR(20)) as log_dt, u.full_name" \
+        " from user_security_log usl" \
+        " join users u on u.user_id = usl.user_id" \
+        " where " + whereclause + dateclause + searchclause + \
+        " order by usl.log_id desc" \
+        " limit " + (str(num_records) if num_records else "100")
+
+    db = new_conn()
+    rows = db.select_all_dict(sql)
+    db.close()
+    if rows:
+        return rows
+    else:
+        return ()
+    
+
+
 def add_security_log(UserID, LogType, Action, ObjectType, ObjectID, LogMessage):
     """
     Creates a row in the user_security_log table.  Called from many places.
