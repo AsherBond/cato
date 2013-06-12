@@ -71,6 +71,7 @@ class Users(object):
                 u["Status"] = user["status"]
                 u["AuthenticationType"] = user["authentication_type"]
                 u["Email"] = user["email"]
+                u["LastLoginDT"] = user["last_login_dt"]
                 out.append(u)
         return out
     
