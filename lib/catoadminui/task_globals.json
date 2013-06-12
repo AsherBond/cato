@@ -11,5 +11,6 @@
     "_UUID2",
     "_CLOUD_NAME",
     "_CLOUD_LOGIN_ID",
-    "_CLOUD_LOGIN_PASS"
+    "_CLOUD_LOGIN_PASS",
+    "_LAST_ERROR"
 ]

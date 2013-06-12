@@ -707,6 +707,11 @@ class TaskEngine():
             v = self.submitted_by_user
         elif s == "_HTTP_RESPONSE":
             v = self.http_response
+        elif s == "_LAST_ERROR":
+            v = ""
+            if hasattr(self, "last_error"):
+                if self.last_error is not None:
+                    v = self.last_error
         elif s == "_ASSET":
             v = self.system_id
         elif s == "_PUBLIC_IP":
@@ -1261,6 +1266,7 @@ class TaskEngine():
             task = classes.Task(task_id)
             self.tasks[task_id] = task
 
+        self.last_error = None
         self.process_codeblock(task, "MAIN")
             
     def get_task_instance(self):

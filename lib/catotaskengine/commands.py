@@ -15,12 +15,11 @@
 #########################################################################
 
 import time
-import base64
+import socket
 import urllib
 import urllib2
 import httplib
 import json
-from datetime import datetime
 import hashlib
 import base64
 import hmac
@@ -330,9 +329,13 @@ def if_cmd(self, task, step):
         test = test_node.findtext("eval", "")
         test = self.replace_html_chars(test)
         test = self.replace_variables(test)
-        dummy = {}
+
         self.logger.debug("Testing expression: [%s]..." % (test))
-        if eval(test, dummy, dummy):
+        try:
+            eval(test, {}, {})
+        except:
+            raise Exception("If expression [%s] is not valid." % (test))
+        if eval(test, {}, {}):
             self.logger.debug("... True!")
             action = test_node.findall("./action/function")
             if action:
@@ -370,8 +373,13 @@ def while_cmd(self, task, step):
         orig_test = self.replace_html_chars(orig_test)
         test = self.replace_variables(orig_test)
         sub_step = self.get_step_object(step.step_id, action_xml)
-        dummy = {}
-        while eval(test, dummy, dummy):
+
+        self.logger.debug("While expression: [%s]..." % (test))
+        try:
+            eval(test, {}, {})
+        except:
+            raise Exception("While expression [%s] is not valid." % (test))
+        while eval(test, {}, {}):
             if self.loop_break:
                 self.loop_break = False
                 break
@@ -407,13 +415,13 @@ def loop_cmd(self, task, step):
         if max_iter:
             max_iter = int(max_iter)
 
-        self.logger.debug("initial is %s" % initial),
-        self.logger.debug("counter_v_name is %s" % counter_v_name),
-        self.logger.debug("loop_test is %s" % loop_test),
-        self.logger.debug("orig_compare_to is %s" % orig_compare_to),
-        self.logger.debug("actual compare_to is %s" % compare_to),
-        self.logger.debug("increment is %s" % increment),
-        self.logger.debug("max_iter is %s" % max_iter),
+        self.logger.debug("initial is %s" % initial)
+        self.logger.debug("counter_v_name is %s" % counter_v_name)
+        self.logger.debug("loop_test is %s" % loop_test)
+        self.logger.debug("orig_compare_to is %s" % orig_compare_to)
+        self.logger.debug("actual compare_to is %s" % compare_to)
+        self.logger.debug("increment is %s" % increment)
+        self.logger.debug("max_iter is %s" % max_iter)
 
 
         self.rt.set(counter_v_name, initial)
@@ -426,9 +434,15 @@ def loop_cmd(self, task, step):
         self.logger.debug(test)
         sub_step = self.get_step_object(step.step_id, action_xml)
         self.logger.debug("counter is %s" % counter)
-        dummy = {}
+
         loop_num = 1
-        while eval(test, dummy, dummy):
+        self.logger.debug("Loop expression: [%s]..." % (test))
+        try:
+            eval(test, {}, {})
+        except:
+            raise Exception("Loop expression [%s] is not valid." % (test))
+        
+        while eval(test, {}, {}):
             if max_iter and loop_num > max_iter:
                     break
             if self.loop_break:
@@ -728,7 +742,11 @@ def clear_variable_cmd(self, task, step):
 
     variables = self.get_node_list(step.command, "variables/variable", "name")
     for var in variables:
-        self.rt.clear(var[0])
+        # TODO: this might be temporary, but setting _LAST_ERROR actually changes a TE property, not a variable on the stack.
+        if var[0] == "_LAST_ERROR":
+            self.last_error = None
+        else:
+            self.rt.clear(var[0])
 
 
 def set_variable_cmd(self, task, step):
@@ -1086,13 +1104,18 @@ def _cato_sign_string(host, method, access_key, secret_key):
 
 def cato_web_service_cmd(self, task, step):
 
-    timeout = 5
-    host, method, userid, password, result_var = self.get_command_params(step.command,
-        "host", "method", "userid", "password", "result_var")[:]
+    host, method, userid, password, result_var, timeout = self.get_command_params(step.command,
+        "host", "method", "userid", "password", "result_var", "timeout")[:]
     host = self.replace_variables(host)
     method = self.replace_variables(method)
     userid = self.replace_variables(userid)
     password = self.replace_variables(password)
+    timeout = self.replace_variables(timeout)
+    try:
+        timeout = 5 if not timeout else int(timeout)
+    except:
+        timeout = 5
+    
 
     if not len(host):
         raise Exception("Cato Web Service Call command requires Host value")
@@ -1122,6 +1145,8 @@ def cato_web_service_cmd(self, task, step):
 
     if len(argstr):
         url = "%s%s" % (url, argstr)
+        
+    # TODO: this could be a lot better at trapping certain errors and populating self.last_error
     try:
         before = datetime.now() 
         response = urllib2.urlopen(url, None, timeout)
@@ -1129,11 +1154,17 @@ def cato_web_service_cmd(self, task, step):
     except urllib2.HTTPError, e:
         raise Exception("HTTPError = %s, %s, %s\n%s" % (str(e.code), e.msg, e.read(), url))
     except urllib2.URLError, e:
-        raise Exception("URLError = %s\n%s" % (str(e.reason), url))
+        self.logger.critical("[%s]" % e.reason)
+        if str(e.reason) == "timed out":
+            self.last_error = str(e.reason)
+            msg = "URLError = %s\n%s" % (str(e.reason), url)
+            self.logger.error(msg)
+            self.insert_audit(step.function_name, msg)
+            return
+        else:
+            raise Exception("URLError = %s\n%s" % (str(e.reason), url))
     except httplib.HTTPException, e:
         raise Exception("HTTPException")
-    except Exception as ex:
-        raise Exception("generic exception: " + ex.__str__)
 
     buff = response.read()
     del(response)

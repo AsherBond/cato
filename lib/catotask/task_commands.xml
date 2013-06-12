@@ -193,11 +193,12 @@
 			</command>
 			<command name="cato_web_service" label="Cato API Call" description="Makes a call to the Cato REST API to manage the Cato environment." help="Host - the Cato REST API host address in the form of http://address:port. Port is typically 4001. If left blank the host used will be the local Cato system&lt;br&gt;&lt;br&gt;Method - the Cato web service method to call, e.g. taskMethods/list_tasks&lt;br&gt;&lt;br&gt;UserId - the Cato user id that has permissions to use the web service&lt;br&gt;&lt;br&gt;Password - the Cato user id's password" icon="static/images/icons/network_service_32.png">
 				<function name="cato_web_service" variables="true" >
-					<host input_type="text" label="Host" class="w95pct" />
-					<method input_type="text" label="Method" class="w95pct" required="true" />
+					<host input_type="text" label="Host" class="w90pct" break_after="true" />
+					<method input_type="text" label="Method" class="w90pct" required="true" break_after="true" />
 					<userid input_type="text" label="UserId" required="true"  />
-					<password input_type="text" label="Password" required="true"  />
+					<password input_type="text" label="Password" required="true" break_after="true" />
 					<result_var input_type="text" label="Result Variable" />
+					<timeout input_type="text" label="Timeout" />
 					<pairs label="Parameters" is_array="true">
 						<pair label="Parameter">
 							<key input_type="text" label="Name" />
