@@ -2370,7 +2370,7 @@ class taskMethods:
         
         # helpername is just something to stick on the file so it's a little more recognizable.
         # it should really be an argument, but the UI doesn't ask for it at the moment.
-        helpername = uiCommon.GetSessionUserFullName().replace(" ", "")
+        helpername = ""
         
         """
         The UI sends us a list of OriginalTaskIDs and assumes we want the 'default' version.
@@ -2382,6 +2382,8 @@ class taskMethods:
             t = task.Task()
             t.FromOriginalIDVersion(otid)
             if t:
+                if not helpername:
+                    helpername = "%s_%s" % (t.Name, uiCommon.GetSessionUserFullName())
                 task_ids.append(t.ID)
         
         docs = task.Tasks.Export(task_ids, sIncludeRefs)
