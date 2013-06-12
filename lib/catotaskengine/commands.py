@@ -331,11 +331,16 @@ def if_cmd(self, task, step):
         test = self.replace_html_chars(test)
         test = self.replace_variables(test)
         dummy = {}
+        self.logger.debug("Testing expression: [%s]..." % (test))
         if eval(test, dummy, dummy):
+            self.logger.debug("... True!")
             action = test_node.findall("./action/function")
             if action:
                 action_xml = ET.tostring(action[0])
             break
+        else:
+            self.logger.debug("... False.")
+            
     if not action_xml:
         action = root.findall("./else/function")
         if action:
