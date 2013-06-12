@@ -32,14 +32,6 @@ if [ "$RELEASE" = "" ] ; then
     echo "usage: $0 <release> <dbrootuid> <dbrootpwd>"
     exit 1
 fi
-if [ "$DBROOTUID" = "" ] ; then
-    echo "usage: $0 <release> <dbrootuid> <dbrootpwd>"
-    exit 1
-fi
-if [ "$DBROOTPWD" = "" ] ; then
-    echo "usage: $0 <release> <dbrootuid> <dbrootpwd>"
-    exit 1
-fi
 
 printf "Updating to Release: $RELEASE\n"
 
@@ -73,8 +65,13 @@ curl -Lk --output /tmp/cato-$RELEASE.tar.gz https://github.com/cloudsidekick/cat
 echo "Updating..."
 tar -xvzf /tmp/cato-$RELEASE.tar.gz -C $CATO_HOME --strip-components=1
 
-echo "Updating the Database..."
-$CATO_HOME/updatedb.py $DBROOTUID -p$DBROOTPWD
+if [ "$DBROOTUID" != "" ] && [ "$DBROOTPWD" != "" ]; then
+	echo "Updating the Database..."
+	$CATO_HOME/updatedb.py $DBROOTUID -p$DBROOTPWD
+else
+    echo "<dbrootuid> and <dbrootpwd> not provided - not updating the database!"
+fi
+
 
 echo "Starting Cato services..."
 $CATO_HOME/services/start_services.sh
