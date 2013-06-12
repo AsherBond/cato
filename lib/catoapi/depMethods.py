@@ -327,7 +327,10 @@ class depMethods:
             service = {}
             service["ID"] = svc.ID
             service["Name"] = svc.Name
-            service["Instances"] = [{"Instance" : x.__dict__} for x in svc.GetInstances()]
+            # why am I getting them as JSON and doing a json.loads???
+            # becayse the InstancesAsJSON method takes care of cleaning up the children objects.
+            insts = json.loads(svc.InstancesAsJSON())
+            service["Instances"] = [{"Instance" : x} for x in insts] if insts else []
                                      
             
             out.append(service)
