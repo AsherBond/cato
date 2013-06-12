@@ -776,6 +776,17 @@ def set_variable_cmd(self, task, step):
             except Exception as ex:
                 self.logger.warning("Set Variable - Read JSON Modifier : Unable to parse string. %s" % (ex.__str__))
 
+            # here's the deal... a json source can be an OBJECT -OR- a LIST of objects
+            # if it's a list, we'll create a standard runtime array of objects
+            # If that's the case, the 'index' provided above is ignored
+            if type(value) == list:
+                i = 1
+                for v in value:
+                    self.rt.set(name, v, i)
+                    i += 1
+            else:
+                self.rt.set(name, value, index)
+
         self.rt.set(name, value, index)
 
     
@@ -1052,14 +1063,14 @@ def send_email_cmd(self, task, step):
 def _cato_sign_string(host, method, access_key, secret_key):
 
 
-    #timestamp
+    # timestamp
     ts = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
     ts = ts.replace(":", "%3A")
 
-    #string to sign
+    # string to sign
     string_to_sign = "{0}?key={1}&timestamp={2}".format(method, access_key, ts)
 
-    #encoded signature
+    # encoded signature
     sig = base64.b64encode(hmac.new(str(secret_key), msg=string_to_sign, digestmod=hashlib.sha256).digest())
     sig = "&signature=" + urllib.quote_plus(sig)
 
@@ -1071,7 +1082,7 @@ def _cato_sign_string(host, method, access_key, secret_key):
 def cato_web_service_cmd(self, task, step):
 
     timeout = 5
-    host, method, userid, password, result_var = self.get_command_params(step.command, 
+    host, method, userid, password, result_var = self.get_command_params(step.command,
         "host", "method", "userid", "password", "result_var")[:]
     host = self.replace_variables(host)
     method = self.replace_variables(method)
@@ -1089,7 +1100,7 @@ def cato_web_service_cmd(self, task, step):
 
     pairs = self.get_node_list(step.command, "pairs/pair", "key", "value")
 
-    args = {} # a dictionary of any arguments required for 20the method
+    args = {}  # a dictionary of any arguments required for 20the method
     for (k, v) in pairs:
         k = self.replace_variables(k)
         v = self.replace_variables(v)
@@ -1189,13 +1200,13 @@ def http_cmd(self, task, step):
         k = self.replace_variables(k)
         v = self.replace_variables(v)
         if len(k):
-            req.add_header(k,v)
+            req.add_header(k, v)
 
     ok = True
     while attempt <= retries:
         try:
             before = datetime.now() 
-            response = urllib2.urlopen(req, None,  timeout)
+            response = urllib2.urlopen(req, None, timeout)
             after = datetime.now() 
             break
         except urllib2.HTTPError, e:
@@ -1206,7 +1217,7 @@ def http_cmd(self, task, step):
             code = e.code
             ok = False
             
-            #raise Exception("HTTPError = %s, %s, %s\n%s" % (str(e.code), e.msg, e.read(), url))
+            # raise Exception("HTTPError = %s, %s, %s\n%s" % (str(e.code), e.msg, e.read(), url))
             break
         except urllib2.URLError, e:
             attempt += 1
@@ -1219,7 +1230,7 @@ def http_cmd(self, task, step):
                 buff = ""
                 code = e.reason
                 ok = False
-                #raise Exception("URLError = %s\n%s" % (str(e.reason), url))
+                # raise Exception("URLError = %s\n%s" % (str(e.reason), url))
                 break
         except Exception as e:
             import traceback

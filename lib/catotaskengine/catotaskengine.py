@@ -544,30 +544,43 @@ class TaskEngine():
                     value = self.get_handle_var(found_var)
                 elif found_var.startswith("$"):
                     # this is an "object" lookup (likely set by Read JSON)
-                    parts = found_var[1:].split(":")
-                    varname = parts[0]
-                    keypath = parts[1]
-                    
-                    # TODO: this could be infinitely more useful using jsonpath
-                    if (varname):
-                        var = self.rt.get(varname)
+                    index = 1 # in case no index is explicitly set, so we don't need two lookup blocks in if cases below
+                    new_found_var = found_var
+                    if "," in found_var:
+                        # it's got a comma, so it's either an array value or count
+                        comma = found_var.find(",")
+                        index = found_var[comma + 1:]
+                        new_found_var = found_var[:comma]
 
-                        # NOTE: here we support a similar syntax to how we count runtime variable arrays,
-                        # however, this object variable would always be count=1 by the traditional method
-                        # why? because the [[foo,*]] method doesn't know about an iterable INSIDE the variable,
-                        # it only knows about multiple occurences of a variable with the same name.
+                    if index == "*":
+                        # we want the array count, set that as the value and move on
+                        value = self.rt.count(new_found_var)
+                    else:
+                        # not a count, so set value based on var name and index
+                        # if the index is not a valid integer, error
+                        try:
+                            int_index = int(index)
+                        except ValueError:
+                            msg = "The array index [%s] for variable [%s] is not a valid integer." % (index, new_found_var)
+                            raise Exception(msg)
+                        except Exception as ex:
+                            raise Exception(ex)
+
+                        parts = new_found_var[1:].split(":", 1)
+                        varname = parts[0]
+                        keypath = "" if len(parts) == 1 else parts[1]
                         
-                        # so, they syntax [[objvar:*]] will return the count of elements INSIDE this single variable
-                        # if it's a LIST, return the number of elements
-                        # if it's a DICT, return the number of keys
+                        var = self.rt.get(varname, int_index)
+                        self.logger.debug("Object variable - variable is [%s]." % (varname))
                         
-                        # also, if the 'keypath' starts with a $, that's a JSONPATH so we'll apply that
-                        # otherwise we'll try a simple root level name or index.
-                        self.logger.debug("Object lookup - variable is [%s]." % (varname))
-                        self.logger.debug("Object lookup - type is [%s]." % (str(type(var))))
-                        self.logger.debug("Object lookup - keypath is [%s]." % (keypath))
-                        
-                        if type(var) == dict:
+                        if not keypath:
+                            value = var
+                        else:
+                            self.logger.debug("Object variable - keypath is [%s]." % (keypath))
+                             
+                            # [[objvar:*]] will return the number of keys INSIDE this object
+                            # if the 'keypath' starts with a $, that's a JSONPATH so we'll apply that
+                            # otherwise we'll try a simple root level name.
                             if keypath == "*":
                                 value = len(var)
                             elif keypath.startswith("$"):
@@ -575,25 +588,7 @@ class TaskEngine():
                             elif var.has_key(keypath):
                                 value = var.get(keypath)
                             else:
-                                self.logger.info("Object lookup [%s] is a dictionary - key [%s] not found." % (varname, keypath))
-                        elif type(var) == list:
-                            if keypath == "*":
-                                value = len(var)
-                            elif keypath.startswith("$"):
-                                value = jsonpath(var, keypath)
-                            else:
-                                try:
-                                    # task engine index starts at 1, python is 0 based
-                                    index = int(keypath) - 1
-                                    value = var[index]
-                                except IndexError:
-                                    self.logger.info("Object lookup [%s] is a list - index [%s] is out of range." % (varname, keypath))
-                                except ValueError:
-                                    self.logger.info("Object lookup [%s] is a list - key [%s] must be an integer or '*'." % (varname, keypath))
-                        else:
-                            self.logger.info("Variable starts with $ signifying an 'object' lookup, but [%s] isn't a dictionary or a list!" % (varname))
-                    else:
-                        self.logger.info("Variable starts with $ signifying an 'object' lookup, but [%s] doesn't exist!" % (varname))
+                                self.logger.info("Object variable [%s] - key [%s] not found." % (varname, keypath))
                     
                 elif "." in found_var:
                     # this is an xpath query
@@ -626,7 +621,7 @@ class TaskEngine():
                             try:
                                 int_index = int(index)
                             except ValueError:
-                                msg = "The array index '%s' for variable %s is not a valid integer" % (index, new_found_var)
+                                msg = "The array index [%s] for variable [%s] is not a valid integer." % (index, new_found_var)
                                 raise Exception(msg)
                             except Exception as ex:
                                 raise Exception(ex)
