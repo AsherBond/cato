@@ -938,7 +938,7 @@ class depMethods:
 
     def get_deployment_log(self, args):
         """
-        Gets a Deployment log.
+        Gets a Deployment log.  If all arguments are omitted, will return the most recent 100 entries.
         
         Required Arguments:
             deployment - can be either an Deployment ID or Name.
