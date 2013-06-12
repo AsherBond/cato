@@ -302,14 +302,21 @@ class Task(object):
         
         self.PopulateTask(dr, include_code)
 
-    def FromXML(self, sTaskXML=""):
-        if sTaskXML == "": return None
+    def FromXML(self, sTaskXML, onconflict=None):
+        if not sTaskXML: return None
         
         xmlerr = "XML Error: Attribute not found."
         
         logger.debug("Building a Task object from XML")
         xTask = ET.fromstring(sTaskXML)
         
+        # if the taskjson has an onconflict directive use it....
+        # BUT ONLY IF None WAS PROVIDED
+        self.OnConflict = xTask.get("on_conflict", "cancel")
+        if onconflict:
+            self.OnConflict = onconflict
+        logger.debug("On a conflict, we will [%s]" % (self.OnConflict))
+
         # attributes of the <task> node
         
         # NOTE: id is ALWAYS NEW from xml.  If it matches an existing task by name, that'll be figured out
@@ -325,7 +332,6 @@ class Task(object):
         self.Name = xTask.get("name", xmlerr)
         logger.debug("    %s" % (self.Name))
         self.Code = xTask.get("code", xmlerr)
-        self.OnConflict = xTask.get("on_conflict", "cancel")  # cancel is the default action if on_conflict isn't specified
         
         # these, if not provided, have initial defaults
         self.Version = xTask.get("version", "1.000")

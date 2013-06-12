@@ -13,10 +13,31 @@ $var cssfiles:
             Enter a URL:
             <br />
             <input type="text" class="w90pct code" id="import_from_url" />
-            <button id="url_load_btn" class="ui-widget ui-state-default ui-corner-all ui-button-text-only" style="margin-top: -10px; font-weight: normal; font-size: 10pt;">Load</button>
+            <button id="url_load_btn" class="ui-widget ui-state-default ui-corner-all ui-button-text-only" style="margin-top: -10px; font-weight: normal; font-size: 10pt;">
+                Load
+            </button>
             <hr />
-            <textarea id="xml_to_import" class="w100pct code" rows="24"></textarea>
+            <textarea id="xml_to_import" class="w100pct code" rows="20"></textarea>
             <span id="format_xml_btn">Format</span><span id="analyze_btn">Analyze</span><span id="import_xml_btn">Import</span>
+            Conflicts:
+            <select id="on_conflict">
+                <option value="" selected="selected"></option>
+                <option value="cancel">Cancel</option>
+                <option value="replace">Replace</option>
+                <option value="minor">New Minor Version</option>
+                <option value="major">New Major Version</option>
+            </select>
+            <hr />
+            <h4>Regarding Conflicts</h4>
+            <p>
+                An import definition may contain one or more Tasks, and some of these Tasks may already exist in this environment.
+            </p>
+            <p>
+                The 'Conflicts' option defines a global directive for all conflicts.  Tasks in the import file may also have a conflict resolution clause, but this global option takes precedence over the clauses in the file.
+            </p>
+            <p>
+                If 'Conflicts' is left blank, individual conflict resolution clauses will be honored.
+            </p>
         </div>
     </div>
 </div>

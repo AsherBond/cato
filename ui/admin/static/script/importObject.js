@@ -41,10 +41,12 @@ $(document).ready(function() {
 		}
 	});
 	$("#import_xml_btn").click(function() {
-		var xml = packJSON($("#xml_to_import").val());
-		if (xml) {
+		var import_text = packJSON($("#xml_to_import").val());
+		var on_conflict = $("#on_conflict").val();
+		if (import_text) {
 			var response = ajaxPost("uiMethods/wmCreateObjectFromXML", {
-				sXML : xml
+				import_text : import_text,
+				on_conflict : on_conflict
 			});
 			if (response) {
 				if (response.error) {
@@ -79,10 +81,10 @@ $(document).ready(function() {
 		}
 	});
 	$("#analyze_btn").click(function() {
-		var xml = packJSON($("#xml_to_import").val());
-		if (xml) {
+		var import_text = packJSON($("#xml_to_import").val());
+		if (import_text) {
 			var response = ajaxPostAsync("uiMethods/wmAnalyzeImportXML", {
-				sXML : xml
+				import_text : import_text
 			}, function(response) {
 				if (response.error) {
 					showAlert(response.error);

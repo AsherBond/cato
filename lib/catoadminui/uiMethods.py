@@ -1104,8 +1104,9 @@ class uiMethods:
         
     def wmCreateObjectFromXML(self):
         """Takes a properly formatted XML backup file, and imports each object."""
-        inputtext = uiCommon.getAjaxArg("sXML")
+        inputtext = uiCommon.getAjaxArg("import_text")
         inputtext = uiCommon.unpackJSON(inputtext)
+        on_conflict = uiCommon.getAjaxArg("on_conflict")
 
         # the trick here is to return enough information back to the client
         # to best interact with the user.
@@ -1131,7 +1132,7 @@ class uiMethods:
             for xtask in xd.iterfind("task"):
                 uiCommon.log("Importing Task [%s]" % xtask.get("name", "Unknown"))
                 t = task.Task()
-                t.FromXML(ET.tostring(xtask))
+                t.FromXML(ET.tostring(xtask), on_conflict)
 
                 # NOTE: possible TODO
                 # passing a db connection to task.DBSave will allow rollback of a whole 
@@ -1181,7 +1182,7 @@ class uiMethods:
             
     def wmAnalyzeImportXML(self):
         """Takes a properly formatted XML backup file, and replies with the existence/condition of each Task."""
-        inputtext = uiCommon.getAjaxArg("sXML")
+        inputtext = uiCommon.getAjaxArg("import_text")
         inputtext = uiCommon.unpackJSON(inputtext)
 
         # the trick here is to return enough information back to the client
