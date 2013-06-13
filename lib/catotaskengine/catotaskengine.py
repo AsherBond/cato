@@ -710,6 +710,8 @@ class TaskEngine():
             v = self.http_response
         elif s == "_ASSET":
             v = self.system_id
+        elif s == "_SUMMARY":
+            v = self.summary
         elif s == "_PUBLIC_IP":
             # TODO
             v = ""
