@@ -33,8 +33,7 @@
 					<on_error input_type="text" />
 					<asset_id input_type="text" />
 					<handle input_type="text" />
-					<parameters>
-					</parameters>
+					<parameters></parameters>
 				</function>
 			</command>
 			<command name="sleep" label="Sleep" description="Sleeps for a selected number of seconds." help="Sleep is used to pause task execution for the number of seconds entered." icon="static/images/icons/player_pause_32.png">
@@ -253,12 +252,13 @@
 					<domain input_type="text" label="Domain Variable" />
 				</function>
 			</command>
-						<command name="exists" label="Exists" description="The Exists command will check one or more variables to ensure they have values" help="The Exists command will check one or more variables to ensure they have values&lt;br /&gt;" icon="static/images/icons/exists.png">
+			<command name="exists" label="Exists" description="The Exists command will check one or more variables to ensure they have values" help="The Exists command will check one or more variables to ensure they have values&lt;br /&gt;" icon="static/images/icons/exists.png">
 				<function name="exists">
 					<variables>
 						<variable>
 							<name input_type="text" />
 							<is_true>0</is_true>
+							<has_data>0</has_data>
 						</variable>
 					</variables>
 					<actions>
@@ -269,8 +269,8 @@
 			</command>
 			<command name="datastore_insert" label="Datastore Insert" description="Insert a document into the Datastore." help="Specify a Collection in which to create the document.  ObjectId Variable is a variable name that will be populated with the ObjectId of the newly created document." icon="static/images/icons/datastore_insert.png">
 				<function name="datastore_insert">
-                    <collection input_type="text" label="Collection" />
-                    <object_id input_type="text" label="ObjectId Variable" />
+					<collection input_type="text" label="Collection" />
+					<object_id input_type="text" label="ObjectId Variable" />
 					<pairs is_array="true">
 						<pair>
 							<name input_type="text" label="Name" />
@@ -281,8 +281,8 @@
 			</command>
 			<command name="datastore_query" label="Datastore Query" description="Retrieve a document from the Datastore and populate variables with it's properties." help="Specify a standard JSON query to retrieve the document.  Specify 'columns' (keys in the document) to populate named variables." icon="static/images/icons/datastore_query.png">
 				<function name="datastore_query">
-                    <collection input_type="text" label="Collection" />
-                    <query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
+					<collection input_type="text" label="Collection" />
+					<query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
 					<columns is_array="true">
 						<column>
 							<name input_type="text" label="Column Name" />
@@ -293,9 +293,9 @@
 			</command>
 			<command name="datastore_update" label="Datastore Update" description="Update one or more properties in a Datastore document." help="Specify a standard JSON query to retrieve one or more document(s) to update.  Specify 'columns' (keys in the document) and provide new values. Select 'Upsert' to create a document if the query matches nothing.&lt;br /&gt;&lt;b&gt;&lt;i&gt;If more than one document matches the selection query, all will be updated.&lt;/i&gt;&lt;/b&gt;" icon="static/images/icons/datastore_update.png">
 				<function name="datastore_update">
-                    <collection input_type="text" required="true" label="Collection" />
-                    <upsert input_type="checkbox" label="Upsert?" />
-                    <query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
+					<collection input_type="text" required="true" label="Collection" />
+					<upsert input_type="checkbox" label="Upsert?" />
+					<query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
 					<columns is_array="true">
 						<column>
 							<name input_type="text" label="Name" />
@@ -306,24 +306,24 @@
 			</command>
 			<command name="datastore_delete" label="Datastore Delete" description="Delete a Datastore document." help="Specify a standard JSON query to identify document(s) to be deleted." icon="static/images/icons/datastore_delete.png">
 				<function name="datastore_delete">
-                    <collection input_type="text" label="Collection" />
-                    <query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
+					<collection input_type="text" label="Collection" />
+					<query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
 				</function>
 			</command>
 			<command name="datastore_create_collection" label="Datastore Create Collection" description="Create a new collection in the Datastore." help="Creates a collection in the Datastore. Collections are permanent, and will persist after the Task completes." icon="static/images/icons/datastore_create_collection.png">
 				<function name="datastore_create_collection">
-                    <collection input_type="text" label="Collection" />
+					<collection input_type="text" label="Collection" />
 				</function>
 			</command>
 			<command name="datastore_drop_collection" label="Datastore Drop Collection" description="Drop a collection from the Datastore." help="Will permanently delete a Datastore collection.&lt;br /&gt;&lt;b&gt;&lt;i&gt;All documents in the collection will be deleted, and cannot be recovered.&lt;/i&gt;&lt;/b&gt;" icon="static/images/icons/datastore_delete_collection.png">
 				<function name="datastore_drop_collection">
-                    <collection input_type="text" label="Collection" />
+					<collection input_type="text" label="Collection" />
 				</function>
 			</command>
 			<command name="datastore_create_index" label="Datastore Create Index" description="Index a Datastore collection by document properties." help="Will create an index in the specified Datastore collection.  All documents in the collection will be subject to the index. &lt;br /&gt;&lt;b&gt;&lt;i&gt;Datastore operations are asynchronous, so index conflicts will not raise warnings - rather operations will silently fail.&lt;/i&gt;&lt;/b&gt;" icon="static/images/icons/datastore_index.png">
 				<function name="datastore_create_index">
-                    <collection input_type="text" label="Collection" />
-                    <unique input_type="dropdown" label="Unique?" datasource="local" dataset="no|yes">no</unique>
+					<collection input_type="text" label="Collection" />
+					<unique input_type="dropdown" label="Unique?" datasource="local" dataset="no|yes">no</unique>
 					<columns is_array="true">
 						<column>
 							<name input_type="text" label="Name" />
@@ -333,8 +333,8 @@
 			</command>
 			<command name="generate_password" label="Generate Password" description="Generates a random password" help="Will generate a random password for use in tasks and will store the result in a variable&lt;br&gt;&lt;br&gt;Accepts the following parameters:&lt;br&gt;&lt;br&gt;Length - optional, if unspecified will default to 12&lt;br&gt;&lt;br&gt;Variable Name - the variable name in which to store the password value" icon="static/images/icons/bookmark_add_32.png">
 				<function name="generate_password">
-                    <length input_type="text" label="Length" />
-                    <variable input_type="text" label="Variable Name" />
+					<length input_type="text" label="Length" />
+					<variable input_type="text" label="Variable Name" />
 				</function>
 			</command>
 		</commands>

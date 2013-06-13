@@ -2961,6 +2961,7 @@ def Exists(oStep):
     for xe in xPairs:
         sKey = xe.findtext("name", "")
         sIsTrue = xe.findtext("is_true", "")
+        sHasData = xe.findtext("has_data", "")
 
         # Trac#389 - Make sure variable names are trimmed of whitespace if it exists
         # hokey, but doing it here because the field update function is global.
@@ -2976,6 +2977,9 @@ def Exists(oStep):
 
         sHTML += "&nbsp; Is True:<input type=\"checkbox\" " + \
             CommonAttribs(oStep, True, "variables/variable[" + str(i) + "]/is_true", "") + " " + SetCheckRadio("1", sIsTrue) + " />\n"
+
+        sHTML += "&nbsp; Has Data:<input type=\"checkbox\" " + \
+            CommonAttribs(oStep, True, "variables/variable[" + str(i) + "]/has_data", "") + " " + SetCheckRadio("1", sHasData) + " />\n"
 
         # can't delete the first one
         if i > 1:
@@ -3035,15 +3039,19 @@ def Exists_View(oStep):
     sHTML += "Variables to Test:<br />"
 
     xPairs = xd.findall("variables/variable")
-    i = 1
     for xe in xPairs:
         sKey = xe.findtext("name", "")
         sIsTrue = xe.findtext("is_true", "")
+        sHasData = xe.findtext("has_data", "")
 
+        checkboxes = ""
         if sIsTrue == "1":
-            sHTML += "<span class=\"code\">" + UI.SafeHTML(sKey) + " (IsTrue) </span>"
-        else:
-            sHTML += "<span class=\"code\">" + UI.SafeHTML(sKey) + "</span>"
+            checkboxes += " (Is True)"
+        if sHasData == "1":
+            checkboxes += " (Has Data)"
+
+        sHTML += "<span class=\"code\">" + UI.SafeHTML(sKey) + checkboxes + "</span>"
+
     sHTML += "</div>"
 
     #  Exists have a Positive and Negative action

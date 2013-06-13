@@ -469,21 +469,20 @@ def exists_cmd(self, task, step):
     variables = root.findall("./variables/variable")
     for v in variables:
         variable_name = v.findtext("name", "").upper()
-        is_true = v.findtext("is_true", "")
-        self.logger.debug("checking if %s exists ..." % (variable_name))
+        is_true_flag = v.findtext("is_true", None)
+        has_data_flag = v.findtext("has_data", None)
+        self.logger.debug("checking if [%s] exists ..." % (variable_name))
         
         # if result == "1":
         if self.rt.exists(variable_name):
-            if is_true == "1":
-                value = self.rt.get(variable_name)
-                value = value.lower()
-                # if value != "true" and value != "yes" and value != "1":
-                if not catocommon.is_true(value):
+            value = self.rt.get(variable_name)
+            if is_true_flag and not catocommon.is_true(value):
                     all_true = False
-                    break
+            if has_data_flag and not len(value):
+                all_true = False
         else:
             all_true = False
-            break
+
     self.logger.debug("all_true = %s" % (all_true))
 
     action = False
