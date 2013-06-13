@@ -15,7 +15,6 @@
 #########################################################################
 
 import time
-import socket
 import urllib
 import urllib2
 import httplib
@@ -319,6 +318,25 @@ def codeblock_cmd(self, task, step):
     name = self.replace_variables(name)
     self.process_codeblock(task, name.upper())
 
+def _eval_test_expression(self, test):
+    """
+    The IF, EXISTS and WHILE command all make use of 'eval' to test expressions.
+    To limit the risk, those eval calls do not provide globals or locals.
+    To provide some explicit advanced features, we'll parse the test string and open up
+        a few things.
+    """
+    self.logger.debug("Testing expression: [%s]..." % (test))
+    try:
+        # datetime comparison feature - very VERY strict and simplistic parsing
+        # it isn't really secure, but we disallow any #  or """ to prevent comments
+        if "datetime" in test and not "#" in test and not '"""' in test:
+            self.logger.debug("Evaluating 'datetime' expression...")
+            test = test.replace("datetime", "datetime.strptime") 
+            return eval(test, globals(), {})
+        else:
+            return eval(test, {}, {})
+    except Exception as ex:
+        raise Exception("If expression [%s] is not valid.\n%s" % (test, str(ex)))
 
 def if_cmd(self, task, step):
 
@@ -329,13 +347,8 @@ def if_cmd(self, task, step):
         test = test_node.findtext("eval", "")
         test = self.replace_html_chars(test)
         test = self.replace_variables(test)
-
-        self.logger.debug("Testing expression: [%s]..." % (test))
-        try:
-            eval(test, {}, {})
-        except:
-            raise Exception("If expression [%s] is not valid." % (test))
-        if eval(test, {}, {}):
+        
+        if _eval_test_expression(self, test):
             self.logger.debug("... True!")
             action = test_node.findall("./action/function")
             if action:
@@ -374,12 +387,7 @@ def while_cmd(self, task, step):
         test = self.replace_variables(orig_test)
         sub_step = self.get_step_object(step.step_id, action_xml)
 
-        self.logger.debug("While expression: [%s]..." % (test))
-        try:
-            eval(test, {}, {})
-        except:
-            raise Exception("While expression [%s] is not valid." % (test))
-        while eval(test, {}, {}):
+        while _eval_test_expression(self, test):
             if self.loop_break:
                 self.loop_break = False
                 break
@@ -436,13 +444,7 @@ def loop_cmd(self, task, step):
         self.logger.debug("counter is %s" % counter)
 
         loop_num = 1
-        self.logger.debug("Loop expression: [%s]..." % (test))
-        try:
-            eval(test, {}, {})
-        except:
-            raise Exception("Loop expression [%s] is not valid." % (test))
-        
-        while eval(test, {}, {}):
+        while _eval_test_expression(self, test):
             if max_iter and loop_num > max_iter:
                     break
             if self.loop_break:
@@ -475,7 +477,8 @@ def exists_cmd(self, task, step):
             if is_true == "1":
                 value = self.rt.get(variable_name)
                 value = value.lower()
-                if value != "true" and value != "yes" and value != "1":
+                # if value != "true" and value != "yes" and value != "1":
+                if not catocommon.is_true(value):
                     all_true = False
                     break
         else:
@@ -1076,7 +1079,7 @@ def send_email_cmd(self, task, step):
     sub = self.replace_variables(sub)
     body = self.replace_variables(body)
 
-    self.send_email(to, cc, bcc, sub, body)
+    self.send_email(to, sub, body, cc, bcc)
 
 
 def _cato_sign_string(host, method, access_key, secret_key):
