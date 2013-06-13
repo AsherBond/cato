@@ -100,14 +100,6 @@ def authenticate(action, args):
 	if action == '' or key == '' or ts == '' or sig == '':
 		return False, "missing args"
 	
-	# test the timestamp for er, timeliness
-	fmt = "%Y-%m-%dT%H:%M:%S"
-	arg_ts = datetime.fromtimestamp(time.mktime(time.strptime(ts, fmt)))
-	now_ts = datetime.utcnow()
-	
-	if (now_ts - arg_ts) > timedelta(seconds=60):
-		return False, "expired"
-	
 	# the timestamp used for the signature was URLencoded.  reencode before building our signature.
 	ts = ts.replace(":", "%3A")
 	string_to_sign = "%s?key=%s&timestamp=%s" % (action, key, ts)
