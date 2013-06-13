@@ -964,7 +964,7 @@ def GetLog():
     else:
         process = catolog.LOGFILE
     
-    l = os.popen("tail -%s %s" % (lines, process)).readlines()
+    l = os.popen("tail -n %s %s" % (lines, process)).readlines()
     html = """<!DOCTYPE html>
     <html>
         <head>
