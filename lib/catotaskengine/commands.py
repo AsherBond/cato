@@ -1142,6 +1142,7 @@ def cato_web_service_cmd(self, task, step):
     if len(argstr):
         url = "%s%s" % (url, argstr)
         
+    self.insert_audit(step.function_name, url)
     error_msg = ""
     try:
         before = datetime.now() 
@@ -1154,21 +1155,20 @@ def cato_web_service_cmd(self, task, step):
     except httplib.HTTPException, e:
         error_msg = "HTTPException" % str(e)
 
-    print 999
-    print error_var
-    if error_var:
-        self.logger.error(error_msg)
-        self.insert_audit(step.function_name, error_msg)
-        self.rt.set(error_var, error_msg)
-        return
-    else:
-        raise Exception(error_msg)
+    if error_msg: 
+        if error_var:
+            self.logger.error(error_msg)
+            self.insert_audit(step.function_name, error_msg)
+            self.rt.set(error_var, error_msg)
+            return
+        else:
+            raise Exception(error_msg)
 
     buff = response.read()
     del(response)
     response_ms = int(round((after - before).total_seconds() * 1000))
 
-    log = "Cato Web Service Call %s\012%s\012Response time = %s ms" % (url, buff, response_ms)
+    log = "%s\012Response time = %s ms" % (buff, response_ms)
     self.insert_audit(step.function_name, log)
     if len(result_var):
         self.rt.set(result_var, buff)

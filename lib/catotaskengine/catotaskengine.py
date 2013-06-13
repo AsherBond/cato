@@ -447,7 +447,8 @@ class TaskEngine():
         root = ET.fromstring(xml)
         for node in args:
             node = "./" + node
-            self.logger.debug(node)
+            self.logger.debug("Field: %s" % (node))
+            self.logger.debug("Value: %s" % (root.findtext(node, "")))
             return_list.append(root.findtext(node, ""))
         del(root)
         return return_list
