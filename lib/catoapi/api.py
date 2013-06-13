@@ -98,15 +98,15 @@ def authenticate(action, args):
 	
 	# Not enough arguments for the authentication? Fail.
 	if action == '' or key == '' or ts == '' or sig == '':
-		return False, None
+		return False, "missing args"
 	
 	# test the timestamp for er, timeliness
 	fmt = "%Y-%m-%dT%H:%M:%S"
 	arg_ts = datetime.fromtimestamp(time.mktime(time.strptime(ts, fmt)))
 	now_ts = datetime.utcnow()
 	
-	if (now_ts - arg_ts) > timedelta (seconds=15):
-		return False, None
+	if (now_ts - arg_ts) > timedelta(seconds=60):
+		return False, "expired"
 	
 	# the timestamp used for the signature was URLencoded.  reencode before building our signature.
 	ts = ts.replace(":", "%3A")
@@ -120,7 +120,7 @@ def authenticate(action, args):
 	row = db.select_row_dict(sql)
 	
 	if not row:
-		return False, None
+		return False, "no user"
 	
 	# first, a few simple checks for this user.
 	# 1) is it enabled?
@@ -142,7 +142,7 @@ def authenticate(action, args):
 	signed = base64.b64encode(hmac.new(pwd, msg=string_to_sign, digestmod=hashlib.sha256).digest())
 	
 	if signed != sig:
-		return False, None
+		return False, "signature mismatch"
 	
 	db.close()
 
