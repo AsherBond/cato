@@ -1590,7 +1590,7 @@ class TaskEngine():
         if row and len(row[0]):
             s = "Task Error on %s: Task = %s, Task Instance = %s" % (os.uname()[1], self.task_name, self.task_instance)
             b = "<html>Task Error on %s<br><br>Task = %s<br>Task Instance = %s<br><br>Error:%s</html>" % (os.uname()[1], self.task_name, self.task_instance, msg)
-            self.send_email(row[0], s, b)
+            self.send_email(row[0], "", "", s, b)
 
     def get_task_params(self):
 
