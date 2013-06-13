@@ -452,12 +452,12 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
             # so, it gets an add link.
             sHTML += "<div class=\"step_header_icons\">"  # step header icons
             if bIsEditable:
-                sHTML += "<div class=\"ui-icon ui-icon-plus forceinline fn_node_add_btn pointer\"" + " step_id=\"" + oStep.ID + "\"" \
+                sHTML += "<span class=\"ui-icon ui-icon-plus forceinline fn_node_add_btn pointer\"" + " step_id=\"" + oStep.ID + "\"" \
                     " function_name=\"" + oStep.FunctionName + "\"" \
                     " template_path=\"" + sXPath + "\"" \
                     " add_to_node=\"" + base_xpath + sXPath + "\"" \
                     " step_id=\"" + oStep.ID + "\">" \
-                    "</div>"
+                    "</span>"
     
             # BUT, if this nodes PARENT is editable, that means THIS NODE can be deleted.
             # so, it gets a delete link
@@ -1315,13 +1315,13 @@ def DrawKeyValueSection(oStep, bShowPicker, bShowMaskOption, sKeyLabel, sValueLa
 
         i += 1
 
-    sHTML += "<div class=\"fn_node_add_btn pointer\"" \
+    sHTML += "<span class=\"fn_node_add_btn pointer\"" \
         " function_name=\"" + oStep.FunctionName + "\"" \
         " template_path=\"pairs\"" \
         " add_to_node=\"" + base_xpath + "pairs\"" \
         " step_id=\"" + sStepID + "\">" \
         "<span class=\"ui-icon ui-icon-plus forceinline\" title=\"Add another.\"></span>( click to add another )</div>"
-    sHTML += "</div>"
+    sHTML += "</span>"
 
     return sHTML
 
@@ -2335,13 +2335,13 @@ def WaitForTasks(oStep):
 
         i += 1
 
-    sHTML += "<div class=\"fn_node_add_btn pointer\"" \
+    sHTML += "<span class=\"fn_node_add_btn pointer\"" \
         " function_name=\"" + oStep.FunctionName + "\"" \
         " template_path=\"handles\"" \
         " add_to_node=\"" + base_xpath + "handles\"" \
         " step_id=\"" + sStepID + "\">" \
         "<span class=\"ui-icon ui-icon-plus forceinline\"></span> ( click to add another )</div>"
-    sHTML += "</div>"
+    sHTML += "</span>"
 
     return sHTML
 
@@ -2384,13 +2384,13 @@ def ClearVariable(oStep):
 
         i += 1
 
-    sHTML += "<div class=\"fn_node_add_btn pointer\"" \
+    sHTML += "<span class=\"fn_node_add_btn pointer\"" \
         " function_name=\"" + oStep.FunctionName + "\"" \
         " template_path=\"variables\"" \
         " add_to_node=\"" + base_xpath + "variables\"" \
         " step_id=\"" + sStepID + "\">" \
         "<span class=\"ui-icon ui-icon-plus forceinline\" title=\"Add another.\"></span>( click to add another )</div>"
-    sHTML += "</div>"
+    sHTML += "</span>"
 
     return sHTML
 
@@ -2467,13 +2467,13 @@ def SetVariable(oStep):
 
     sHTML += "</table>\n"
 
-    sHTML += "<div class=\"fn_node_add_btn pointer\"" \
+    sHTML += "<span class=\"fn_node_add_btn pointer\"" \
         " function_name=\"" + oStep.FunctionName + "\"" \
         " template_path=\"variables\"" \
         " add_to_node=\"" + base_xpath + "variables\"" \
         " step_id=\"" + sStepID + "\">" \
         "<span class=\"ui-icon ui-icon-plus forceinline\" title=\"Add another.\" />( click to add another )</div>"
-    sHTML += "</div>"
+    sHTML += "</span>"
 
     return sHTML
 
@@ -2987,13 +2987,13 @@ def Exists(oStep):
 
         i += 1
 
-    sHTML += "<div class=\"fn_node_add_btn pointer\"" \
+    sHTML += "<span class=\"fn_node_add_btn pointer\"" \
         " function_name=\"" + oStep.FunctionName + "\"" \
         " template_path=\"variables\"" \
         " add_to_node=\"" + base_xpath + "variables\"" \
         " step_id=\"" + oStep.ID + "\">" \
         "<span class=\"ui-icon ui-icon-plus forceinline\" title=\"Add another.\"></span>( click to add another )</div>"
-    sHTML += "</div>"
+    sHTML += "</span>"
 
     #  Exists have a Positive and Negative action
     xPositiveAction = xd.find("actions/positive_action")
