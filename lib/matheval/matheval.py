@@ -35,10 +35,10 @@ class MathEval:
             raise Exception("math error, expression cannot be empty")
         try:
             return self.eval_(ast.parse(expr).body[0].value)
-        except (SyntaxError, TypeError) as e:
+        except (SyntaxError, TypeError):
             msg = "math syntax error in expression: %s" % (expr)
             raise Exception(msg)
-        except ZeroDivisionError as e:
+        except ZeroDivisionError:
             msg = "math division by zero error in expression: %s" % (expr)
             raise Exception(msg)
 

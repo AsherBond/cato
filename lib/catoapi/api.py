@@ -26,7 +26,6 @@ import base64
 import hmac
 import hashlib
 from datetime import datetime, timedelta
-import time
 from catocommon import catocommon
 from catosettings import settings
 from catoconfig import catoconfig
