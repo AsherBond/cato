@@ -345,6 +345,7 @@ def _set_variable_eval(self, expr):
         # we expose only specific objects in our environment and pass it as 'globals' to eval.
         environment = { 
                        'parsedate': parser.parse,
+                       'datetime': datetime,
                        'datediff': timedelta
                        }
         return eval(expr, environment, {})
