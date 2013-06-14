@@ -253,7 +253,7 @@ def ForceLogout(sMsg=""):
     if not sMsg:
         sMsg = "Session Ended"
     
-    log_nouser("Forcing logout with message: " + sMsg, 0)
+    log_nouser("Forcing logout with message: " + sMsg, 4)
     
     # logging out kills the session
     uiGlobals.session.kill()

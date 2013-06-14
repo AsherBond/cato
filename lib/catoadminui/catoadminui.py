@@ -277,8 +277,9 @@ class temp:
 
 class login:
     def GET(self):
-        # visiting the login page kills the session
-        uiCommon.ForceLogout("")
+        # visiting the login page kills the session and redirects to login.html
+        session.kill()
+        raise web.seeother('/static/login.html')
 
 class logout:        
     def GET(self):
@@ -305,10 +306,12 @@ def auth_app_processor(handle):
 
     # requests that are allowed, no matter what
     if path in [
+        "/",
         "/favicon.ico",
         "/uiMethods/wmAttemptLogin",
         "/uiMethods/wmGetQuestion",
         "/version",
+        "/login",
         "/logout",
         "/notAllowed",
         "/notfound",
@@ -615,7 +618,7 @@ if __name__ != app_name:
         
     # the LAST LINE must be our /(.*) catchall, which is handled by uiMethods.
     urls = (
-        '/', 'home',
+        '/', 'login',
         '/login', 'login',
         '/logout', 'logout',
         '/home', 'home',
