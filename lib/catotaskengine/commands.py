@@ -23,7 +23,8 @@ import hashlib
 import base64
 import hmac
 from bson import json_util
-from datetime import datetime
+from datetime import datetime, timedelta
+import dateutil.parser as parser
 from bson.objectid import ObjectId
 from pymongo.errors import InvalidName
 from awspy import awspy
@@ -318,6 +319,38 @@ def codeblock_cmd(self, task, step):
     name = self.replace_variables(name)
     self.process_codeblock(task, name.upper())
 
+def _set_variable_eval(self, expr):
+    """
+    Set Variable has an 'eval' modifier.  It's has a very strict mapping to 
+    a set of keywords we define and translate to python expressions.
+    """
+    self.logger.debug("Evaluating: [%s]..." % (expr))
+    try:
+#         # using eval is not the best approach here.
+#         bad_strings = ['import', 'os', 'sys', 'open', '#', '"""']
+#         for s in bad_strings:
+#             if s in expr:
+#                 raise Exception("Invalid keyword in evaluation phrase.")
+
+#         keywords = ["parsedate", "datediff"]
+#         for k in keywords:
+#             if k in test:
+#                 self.logger.debug("Evaluating keyword expression [%s]" % (k))
+#                 allow_globals = True
+         
+#         # replace the keywords with their python counterparts
+#         expr = expr.replace("parsedate", "parser.parse")
+#         expr = expr.replace("datediff", "timedelta")
+
+        # we expose only specific objects in our environment and pass it as 'globals' to eval.
+        environment = { 
+                       'parsedate': parser.parse,
+                       'datediff': timedelta
+                       }
+        return eval(expr, environment, {})
+    except Exception as ex:
+        raise Exception("Expression [%s] is not valid.\n%s" % (expr, str(ex)))
+
 def _eval_test_expression(self, test):
     """
     The IF, EXISTS and WHILE command all make use of 'eval' to test expressions.
@@ -327,16 +360,10 @@ def _eval_test_expression(self, test):
     """
     self.logger.debug("Testing expression: [%s]..." % (test))
     try:
-        # datetime comparison feature - very VERY strict and simplistic parsing
-        # it isn't really secure, but we disallow any #  or """ to prevent comments
-        if "datetime" in test and not "#" in test and not '"""' in test:
-            self.logger.debug("Evaluating 'datetime' expression...")
-            test = test.replace("datetime", "datetime.strptime") 
-            return eval(test, globals(), {})
-        else:
-            return eval(test, {}, {})
+        # using eval is not the best approach here.
+        return eval(test, {}, {})
     except Exception as ex:
-        raise Exception("If expression [%s] is not valid.\n%s" % (test, str(ex)))
+        raise Exception("Expression [%s] is not valid.\n%s" % (test, str(ex)))
 
 def if_cmd(self, task, step):
 
@@ -777,6 +804,9 @@ def set_variable_cmd(self, task, step):
             value = base64.b64encode(value.encode("utf_16_le"))
         elif modifier == "FROM_BASE64":
             value = base64.b64decode(value)
+        elif modifier == "EVAL":
+            value = _set_variable_eval(self, value)
+                
         elif modifier == "TO_JSON":
             # assumes the value is a variable name, containing a dictionary, most likely created by the Read JSON option.
             # DOES NOT use the value returned from self.replace_variables, as this is always cast to a string!
