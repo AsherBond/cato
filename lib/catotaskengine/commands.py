@@ -499,14 +499,16 @@ def exists_cmd(self, task, step):
         variable_name = v.findtext("name", "").upper()
         is_true_flag = v.findtext("is_true", None)
         has_data_flag = v.findtext("has_data", None)
-        self.logger.debug("checking if [%s] exists ..." % (variable_name))
+        self.logger.debug("Checking if [%s] exists ..." % (variable_name))
         
         # if result == "1":
         if self.rt.exists(variable_name):
             value = self.rt.get(variable_name)
-            if is_true_flag and not catocommon.is_true(value):
-                    all_true = False
-            if has_data_flag and not len(value):
+            if is_true_flag == "1" and not catocommon.is_true(value):
+                self.logger.debug("[%s] is not 'true'." % (variable_name))
+                all_true = False
+            if has_data_flag == "1" and not len(value):
+                self.logger.debug("[%s] has no data." % (variable_name))
                 all_true = False
         else:
             all_true = False
@@ -854,8 +856,10 @@ def cancel_task_cmd(self, task, step):
                 where task_instance = %s and task_status in ('Submitted','Staged','Processing')"""
             self.db.exec_db(sql, (ti))
             log = """Cancelling task instance [%s] by other task instance number [%s]""" % (ti, self.task_instance)
-            sql = """insert into task_instance_log (task_instance, step_id, entered_dt, connection_name, log, command_text) 
-                values (%s,'', now(),'',%s,'')"""
+            sql = """insert into task_instance_log 
+                (task_instance, step_id, entered_dt, connection_name, log, command_text) 
+                values 
+                (%s, '', now(), '', %s, '')"""
             self.db.exec_db(sql, (self.task_instance, log))
         else:
             raise Exception("Cancel Task error: invalid Task instance: [%s]. Value must be an integer." % (ti))
