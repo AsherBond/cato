@@ -277,7 +277,8 @@ class TaskEngine():
                         self.remove_pk(kf_name)
                     raise Exception(msg)
 
-        self.remove_pk(kf_name)
+        if key:
+            self.remove_pk(kf_name)
 
         c.sendline("unset PROMPT_COMMAND;export PS1='PROMPT>'")
         index = c.expect(["PROMPT>.*PROMPT>$", pexpect.EOF, pexpect.TIMEOUT])
