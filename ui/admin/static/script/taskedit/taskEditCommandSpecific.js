@@ -77,13 +77,12 @@ $(document).ready(function() {
 		args.bEditable = false;
 		args.bSnipValues = true;
 
-		var response = ajaxPost("taskMethods/wmGetParameters", args);
-		if (response) {
+		ajaxPostAsync("taskMethods/wmGetParameters", args, function(response) {
 			target.html(response);
 
 			//have to rebind the tooltips here
 			bindParameterToolTips();
-		}
+		}, "html");
 	});
 	//end SUBTASK command
 
