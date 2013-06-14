@@ -1378,10 +1378,17 @@ class TaskInstance(object):
             self.submitted_by = (dr["full_name"] if dr["full_name"] else "Scheduler")
 
 
+            # get the result summary
+            sSQL = """select log from task_instance_log
+                where task_instance = %s
+                and command_text = 'result_summary'""" % (sTaskInstance)
+            summary = db.select_col_noexcep(sSQL)
+            self.summary = summary if summary else ""
+
             # if THIS instance is 'active', show additional warning info on the resubmit confirmation.
             # and if it's not, don't show the "cancel" button
             if dr["task_status"].lower() in ["processing", "queued", "submitted", "pending", "aborting", "queued", "staged"]:
-                self.resubmit_message = "This Task is currently active.  You have requested to start another instance."
+                self.resubmit_message = "This Task is currently active."
             else:
                 self.allow_cancel = "false"
 
@@ -1435,11 +1442,31 @@ class TaskInstance(object):
         else:
             raise InfoException("Did not find any data for Instance [%s]." % sTaskInstance)
         
-        
+    def LoadResultSummary(self):
+        # at the moment the result_summary is xml
+        # and the schema is known
+        # DO NOT break the response if the summary can't be loaded
+        # also, both set a property and return the object
+        try:
+            xroot = ET.fromstring(self.summary)
+            if xroot is not None:
+                out = []
+                for xparam in xroot.findall(".//items/item"):
+                    tmp = {}
+                    tmp["name"] = xparam.findtext("name", "")
+                    tmp["detail"] = xparam.findtext("detail", "")
+                    out.append(tmp)
+                self.summary = out
+                return out
+        except:
+            self.summary = "Unable to read result summary xml."
+
     def AsJSON(self):
+        self.LoadResultSummary()
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
     def AsXML(self):
+        self.LoadResultSummary()
         return catocommon.ObjectOutput.AsXML(self.__dict__, "TaskInstance")
 
     def AsText(self, delimiter=None, headers=None):

@@ -466,8 +466,11 @@ class TaskEngine():
                 if step_id == "":
                     step_id = "NULL"
 
-                sql = """insert into task_instance_log (task_instance, step_id, entered_dt, connection_name,  
-                    log, command_text) values (%s,%s, now(),%s,%s,%s)"""
+                sql = """insert into task_instance_log 
+                    (task_instance, step_id, entered_dt, connection_name, log, command_text) 
+                    values 
+                    (%s, %s, now(), %s, %s, %s)"""
+                print(sql % (self.task_instance, step_id, conn, log, command))
                 self.db.exec_db(sql, (self.task_instance, step_id, conn, log, command))
 
                 self.logger.info(log)
