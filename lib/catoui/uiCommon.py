@@ -47,10 +47,9 @@ def log(msg, debuglevel=0):
     This function is used by the UI's, because it adds the User ID to the log message.
     """
     if msg:
-        user_id = ""
         try:
-            user_id = GetSessionUserID()
-            msg = "%s :: %s" % (user_id, msg)
+            user = GetSessionUserFullName()
+            msg = "%s :: %s" % (user, msg)
         except:
             """ do nothing if there's no user - it may be pre-login """
             
@@ -785,7 +784,7 @@ def AttemptLogin(app_name):
     current_user["ip_address"] = address
     SetSessionObject("user", current_user)
 
-    log("Login granted for: ", 4)
+    log("Login granted for: %s" % (u.FullName), 3)
     log(uiGlobals.session.user, 4)
 
     # update the security log
