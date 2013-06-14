@@ -126,9 +126,9 @@ class Messenger(catoprocess.CatoService):
                 msg_body = row[4]
                 msg_cc = row[5]
                 msg_bcc = row[6]
-                msg_to_list = msg_to.split(",")
-                cc_list = msg_cc.split(",")
-                bcc_list = msg_bcc.split(",")
+                msg_to_list = msg_to.split(",") if msg_to else []
+                cc_list = msg_cc.split(",") if msg_cc else []
+                bcc_list = msg_bcc.split(",") if msg_bcc else []
 
                 msg = MIMEMultipart('alternative')
                 msg["To"] = msg_to

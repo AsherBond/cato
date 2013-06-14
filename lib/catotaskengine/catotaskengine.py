@@ -1578,7 +1578,7 @@ class TaskEngine():
         except ET.ParseError:
             raise Exception("Invalid or missing XML for parameters.")
 
-    def send_email(self, to, sub, body, cc=None, bcc=None):
+    def send_email(self, to, sub, body, cc="", bcc=""):
 
         msg = "Inserting into message queue : TO:{%s} SUBJECT:{%s} BODY:{%s}" % (to, sub, body)
         self.insert_audit("", msg, "")
