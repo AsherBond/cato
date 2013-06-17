@@ -3,7 +3,7 @@
 version=$1
 
 if [ "$version" = "" ] ; then
-    echo "usage: $0 <release>"
+    echo "usage: $0 <version>"
     exit 1
 fi
 
@@ -18,7 +18,7 @@ git pull
 echo $version > VERSION
 
 git add VERSION
-git commit -m "Bumped Version to [$release]."
+git commit -m "Bumped Version to [$version]."
 git push
 git tag -a latest -m "Version $version"
 git tag -a $version -m "Version $version"
