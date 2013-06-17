@@ -124,9 +124,13 @@ versions = [
                      ]
              ],
             ["1.17", [
-                      ["comment", "FUTURE NOTE: delete the _template_name and _template_version columns from deployment."],
-                      ["comment", "FUTURE NOTE: drop the table deployment_service_state"],
-
+                      ["createtable", "api_tokens", """(`user_id` varchar(36) NOT NULL,
+                                                            `token` varchar(36) NOT NULL,
+                                                            `created_dt` datetime NOT NULL,
+                                                            PRIMARY KEY (`user_id`) )"""],
+                      ["droptable", "deployment_service_state", "NO LONGER NEEDED WAS FOR STATE BASED SEQUENCES"],
+                      ["dropcolumn", "deployment", "_template_name"],
+                      ["dropcolumn", "deployment", "_template_version"]
                       ]
              ]
         ]

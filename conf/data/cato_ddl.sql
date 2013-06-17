@@ -58,6 +58,12 @@ CREATE TABLE `action_schedule` (
   `cloud_id` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`schedule_id`,`last_modified`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `api_tokens` (
+  `user_id` varchar(36) NOT NULL,
+  `token` varchar(36) NOT NULL,
+  `created_dt` datetime NOT NULL,
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `application_registry` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `app_name` varchar(255) NOT NULL DEFAULT '',
