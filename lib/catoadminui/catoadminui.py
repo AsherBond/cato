@@ -285,6 +285,20 @@ class logout:
     def GET(self):
         uiCommon.ForceLogout("")
         
+class tokenauth:        
+    def GET(self):
+        # if anything goes wrong, just redirect to the login page
+        response = uiCommon.AttemptLogin("Cato Admin UI")
+        response = json.loads(response)
+        print response
+        if response.get("result") == "success":
+            raise web.seeother('/home')
+        
+        logger.info("Token Authentication failed... [%s]" % response.get("info"))
+        
+        session.kill()
+        raise web.seeother('/static/login.html?msg=Token%20Authentication%20failed')
+
 class appicon:        
     def GET(self, name):
         img = uiCommon.GetAppIcon(name)
@@ -311,6 +325,7 @@ def auth_app_processor(handle):
         "/uiMethods/wmAttemptLogin",
         "/uiMethods/wmGetQuestion",
         "/version",
+        "/tokenauth",
         "/login",
         "/logout",
         "/notAllowed",
@@ -620,6 +635,7 @@ if __name__ != app_name:
     urls = (
         '/', 'login',
         '/login', 'login',
+        '/tokenauth', 'tokenauth',
         '/logout', 'logout',
         '/home', 'home',
         '/importObject', 'importObject',

@@ -740,27 +740,34 @@ def AttemptLogin(app_name):
     new_pwd = unpackJSON(new_pwd)
     answer = getAjaxArg("answer")
     answer = unpackJSON(answer)
+    token = getAjaxArg("token")
 
     u = catouser.User()
     
-    # Authenticate will return the codes so we will know
-    # how to respond to the login page
-    # (must change password, password expired, etc)
-    result, code = u.Authenticate(in_name, in_pwd, address, new_pwd, answer)
-    if not result:
-        if code == "disabled":
-            return "{\"info\" : \"Your account has been suspended.  Please contact an Adminstrator.\"}"
-        if code == "failures":
-            return "{\"info\" : \"Your account has been temporarily locked due to excessive password failures.\"}"
-        if code == "change":
-            return "{\"result\" : \"change\"}"
-        
-        # no codes matched, but there is a message in there...
-        if code:
-            return "{\"info\" : \"%s\"}" % code
-
-        # failed with no code returned
-        return "{\"info\" : \"Invalid Username or Password.\"}"
+    if token:
+        log("Trying Token Authentication using [%s]" % token, 3)
+        result, code = u.AuthenticateToken(token, address)
+        if not result:
+            return json.dumps({"info" : code})
+    else:
+        # Authenticate will return the codes so we will know
+        # how to respond to the login page
+        # (must change password, password expired, etc)
+        result, code = u.Authenticate(in_name, in_pwd, address, new_pwd, answer)
+        if not result:
+            if code == "disabled":
+                return json.dumps({"info" : "Your account has been suspended.  Please contact an Adminstrator."})
+            if code == "failures":
+                return json.dumps({"info" : "Your account has been temporarily locked due to excessive password failures."})
+            if code == "change":
+                return json.dumps({"result" : "change"})
+            
+            # no codes matched, but there is a message in there...
+            if code:
+                return json.dumps({"info" : code})
+    
+            # failed with no code returned
+            return json.dumps({"info" : "Invalid Username or Password."})
 
     # So... they authenticated, but based on the users 'role' (Administrator, Developer, User) ...
     # they may not be allowed to log in to certain "app_name"s.

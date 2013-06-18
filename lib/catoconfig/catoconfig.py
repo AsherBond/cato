@@ -63,6 +63,8 @@ def read_config():
     cfg["write_http_logs"] = "false"
     
     cfg["ui_permissions"] = "true"
+    cfg["ui_enable_tokenauth"] = "true"
+    cfg["ui_token_lifespan"] = "30"
     
     cfg["admin_ui_port"] = "8082"
     cfg["admin_ui_debug"] = "20"
