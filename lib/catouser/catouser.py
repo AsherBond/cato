@@ -18,6 +18,7 @@
     Why?  Because it isn't only used by the UI.
 """
 import re
+from datetime import datetime, timedelta
 
 try:
     import xml.etree.cElementTree as ET
@@ -32,6 +33,7 @@ except AttributeError as ex:
 from catosettings import settings
 from catocommon import catocommon
 from catoerrors import InfoException
+from catoconfig import catoconfig
 from catolog import catolog
 logger = catolog.get_logger(__name__)
 
@@ -106,8 +108,13 @@ class User(object):
         self.Email = ""
         self.Expires = None
         self.SettingsXML = ""
+        self.LoginToken = None
         self.Tags = []
     
+    def GetToken(self):
+        if self.ID:
+            self.LoginToken = catocommon.create_api_token(self.ID)
+            
     @staticmethod
     def ValidatePassword(uid, pwd):
         """
@@ -375,6 +382,65 @@ class User(object):
         return True
                     
                             
+    def AuthenticateToken(self, token, client_ip):
+        """
+        The rules for authenticating from a token are different than uid/pwd.
+        """
+        # tokens are only allowed if the configuration file says so.
+        if catocommon.is_true(catoconfig.CONFIG.get("ui_enable_tokenauth")):
+            db = catocommon.new_conn()
+            
+            # check the token here - looking it up will return a user_id if it's still valid
+            sql = "select user_id, created_dt from api_tokens where token = %s" 
+            row = db.select_row_dict(sql, (token))
+            
+            if not row:
+                return False, "invalid token"
+            if not row["created_dt"] or not row["user_id"]:
+                return False, "invalid token"
+            
+            # check the expiration date of the token
+            now_ts = datetime.utcnow()
+            
+            mins = 30
+            try:
+                mins = int(catoconfig.CONFIG.get("ui_token_lifespan"))
+            except:
+                logger.warning("Config setting [ui_token_lifespan] not found or is not a number.  Using the default (30 minutes).")
+            
+            if (now_ts - row["created_dt"]) > timedelta (minutes=mins):
+                return False, "expired"
+            
+            # at the moment, UI tokens can't be kept current.  Once they expire they're gone.
+#             # still all good?  Update the created_dt.
+#             sql = """update api_tokens set created_dt = str_to_date('{0}', '%%Y-%%m-%%d %%H:%%i:%%s')
+#                 where user_id = '{1}'""".format(now_ts, row["user_id"])
+#             db.exec_db(sql)
+#                 
+
+            self.PopulateUser(user_id=row["user_id"])
+        
+            # These checks happen BEFORE we verify the password
+            
+            # Check for "locked" or "disabled" status
+            if self.Status < 1:
+                return False, "disabled"
+
+            # ALL GOOD!
+            # reset the user counters and last_login
+            sql = "update users set failed_login_attempts=0, last_login_dt=now() where user_id=%s"
+            db.exec_db(sql, (self.ID))
+        
+            sql = """insert into user_session (user_id, address, login_dt, heartbeat, kick)
+                values ('{0}', '{1}', now(), now(), 0)
+                on duplicate key update user_id = '{0}', address ='{1}'""".format(self.ID, client_ip)
+            db.exec_db(sql)
+    
+            db.close()
+            return True, ""
+        else:
+            return False, None
+        
     def Authenticate(self, login_id, password, client_ip, change_password=None, answer=None):
         # Some of the failure to authenticate return values pass back a token.
         # this is so we can know how to prompt the user.
@@ -474,12 +540,9 @@ class User(object):
         sql = "update users set failed_login_attempts=0, last_login_dt=now() %s where user_id='%s'" % (change_clause, self.ID)
         db.exec_db(sql)
     
-        # whack and add to the user_session table
-        sql = "delete from user_session where user_id = '%s' and address = '%s'" % (self.ID, client_ip)
-        db.exec_db(sql)
-        
         sql = """insert into user_session (user_id, address, login_dt, heartbeat, kick)
-            values ('%s','%s', now(), now(), 0)""" % (self.ID, client_ip)
+            values ('{0}', '{1}', now(), now(), 0)
+            on duplicate key update user_id = '{0}', address ='{1}'""".format(self.ID, client_ip)
         db.exec_db(sql)
 
         db.close()

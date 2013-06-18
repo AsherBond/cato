@@ -20,7 +20,6 @@ System endpoint methods.
 from catolog import catolog
 logger = catolog.get_logger(__name__)
 
-import traceback
 import json
 from datetime import datetime
 
@@ -58,20 +57,7 @@ class sysMethods:
         
         # we wouldn't be here if tradiditional authentication failed.
         # so, the _user_id is the user we wanna create a token for
-        
-        token = catocommon.new_guid()
-        now_ts = datetime.utcnow()
-        
-        sql = """insert into api_tokens 
-            (user_id, token, created_dt)
-            values ('{0}', '{1}', str_to_date('{2}', '%%Y-%%m-%%d %%H:%%i:%%s'))
-            on duplicate key update token='{1}', created_dt=str_to_date('{2}', '%%Y-%%m-%%d %%H:%%i:%%s')
-            """.format(args["_user_id"], token, now_ts)
-
-        db = catocommon.new_conn()
-        db.exec_db(sql)
-        db.close()
-        
+        token = catocommon.create_api_token(args["_user_id"])
         return R(response=token)
 
     def import_backup(self, args):
@@ -253,6 +239,7 @@ class sysMethods:
             status - Status of the new account. Default is 'enabled' if omitted. (Valid values: enabled, disabled, locked)
             expires - Expiration date for this account.  Default is 'never expires'. Must be in mm/dd/yyyy format.
             groups - A list of groups the user belongs to. Group names cannot contain spaces. Comma delimited list.
+            get_token - If true, will return an automatic login token.  (Valid values: 1, yes, true)
 
         Returns: A User object.
         """
@@ -295,6 +282,10 @@ class sysMethods:
                                         status=status,
                                         expires=expiration_dt,
                                         groups=groups)
+        
+        # do we get a login token?
+        if catocommon.is_true(args.get("get_token")):
+            obj.GetToken()
 
         if obj:
             catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.User, obj.ID, obj.LoginID, "User created by API.")

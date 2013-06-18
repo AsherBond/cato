@@ -22,6 +22,7 @@ import base64
 import re
 import json
 import calendar
+from datetime import datetime
 from bson.objectid import ObjectId
 
 from catoconfig import catoconfig
@@ -110,6 +111,25 @@ def cato_encrypt(s):
     else:
         return ""
 
+def create_api_token(user_id):
+    """
+    Will create a row in the api_tokens table.
+    """
+    token = new_guid()
+    now_ts = datetime.utcnow()
+    
+    sql = """insert into api_tokens 
+        (user_id, token, created_dt)
+        values ('{0}', '{1}', str_to_date('{2}', '%%Y-%%m-%%d %%H:%%i:%%s'))
+        on duplicate key update token='{1}', created_dt=str_to_date('{2}', '%%Y-%%m-%%d %%H:%%i:%%s')
+        """.format(user_id, token, now_ts)
+
+    db = new_conn()
+    db.exec_db(sql)
+    db.close()
+    
+    return token
+    
 def send_email_via_messenger(to, subject, body, frm="Cloud Sidekick - Cato"):
     msg = "Inserting into message queue:\nTO:[%s]\nSUBJECT:[%s]\nBODY:[%s]" % (to, subject, body)
     logger.info(msg)
