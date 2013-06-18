@@ -967,7 +967,7 @@ def get_shared_cred_cmd(self, task, step):
         userid = c[0]
         password = c[1]
     else:
-        raise Exception("Unable to find Shared Credential using name [%s]." % (shared_cred))
+        raise Exception("Unable to find Shared Credential using name [%s]." % (alias))
     self.rt.set(u, userid)
     self.rt.set(p, password)
 
