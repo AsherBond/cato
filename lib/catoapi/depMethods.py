@@ -1195,6 +1195,45 @@ class depMethods:
             else:
                 return R(response=obj.TasksAsXML())
 
+
+    def delete_application_template(self, args):        
+        """
+        Delete an existing Application Template.
+        
+        Note: You CANNOT delete a template if there are Deployments that were created from it.
+        
+        Required Arguments: 
+            template - the name of a defined Application Template.
+            version - the Application Template version.
+        
+        Optional Arguments: 
+            deletetasks - will forcibly delete any Tasks *directly* referenced by this Template. 
+                (This will not delete indirectly referenced Tasks, such at those included in 
+                'Subtask' and 'Run Task' commands.) 
+
+        Returns: Success or failure messages.
+        """
+        # this is an admin function
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+        
+        # define the required parameters for this call
+        required_params = ["template", "version"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+
+        obj = deployment.DeploymentTemplate()
+        obj.FromNameVersion(args["template"], args["version"])
+        success, msg = obj.DBDelete(catocommon.is_true(args.get("deletetasks")))
+        
+        if success:
+            return R(response="Successfully deleted the Application Template.")
+        else:
+            return R(err_code=R.Codes.DeleteError, err_detail=msg)
+            
+
     def export_application_template(self, args):        
         """
         Generates an export JSON document containing everything in an Application Template.
