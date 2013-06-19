@@ -81,6 +81,8 @@ class tagMethods:
         sSQL = """delete from tags where tag_name in (%s)""" % sDeleteArray
         self.db.tran_exec(sSQL)
 
+        self.db.tran_commit()
+        
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Tag, "", sDeleteArray, "Tag(s) Deleted")
 
         return json.dumps({"result" : "success"})
@@ -168,13 +170,7 @@ class tagMethods:
         if not sObjectID or not sTagName:
             raise Exception("Missing or invalid Object ID or Tag Name.")
 
-        sSQL = """insert into object_tags
-            (object_id, object_type, tag_name)
-            values ('%s', '%d', '%s')""" % (sObjectID, iObjectType, sTagName)
-
-        if not self.db.exec_db_noexcep(sSQL):
-            uiCommon.log_nouser(self.db.error, 0)
-
+        tag.ObjectTags.Add(sTagName, sObjectID, iObjectType)
         uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [%s] added." % sTagName)
 
         return json.dumps({"result" : "success"})
@@ -191,10 +187,7 @@ class tagMethods:
         if not sObjectID or not sTagName:
             raise Exception("Missing or invalid Object ID or Tag Name.")
 
-        sSQL = """delete from object_tags where object_id = '%s' and tag_name = '%s'""" % (sObjectID, sTagName)
-
-        self.db.exec_db(sSQL)
-
+        tag.ObjectTags.Remove(sTagName, sObjectID)
         uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [%s] removed." % sTagName)
 
         return json.dumps({"result" : "success"})

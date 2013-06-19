@@ -43,21 +43,28 @@ class Tags(object):
         if sObjectID:
             sWhereString += " and ot.object_id = '%s'" % sObjectID
             
-        sSQL = """select t.tag_name, t.tag_desc, count(ot.tag_name) as in_use
+        sql = """select t.tag_name, t.tag_desc, count(ot.tag_name) as in_use
             from tags t
             left outer join object_tags ot on t.tag_name = ot.tag_name
             where (1=1) %s
             group by t.tag_name, t.tag_desc
             order by t.tag_name""" % sWhereString
         
-        self.rows = db.select_all_dict(sSQL)
+        self.rows = db.select_all_dict(sql)
         db.close()
 
     def AsJSON(self):
         return catocommon.ObjectOutput.IterableAsJSON(self.rows)
 
+    def AsXML(self):
+        return catocommon.ObjectOutput.IterableAsXML(self.rows, "Tags", "Tag")
+
+    def AsText(self, delimiter, headers):
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ["tag_name", "in_use", "tag_desc"], delimiter, headers)
+
+
 class Tag(object):
-    def __init__(self, tag_name, description):
+    def __init__(self, tag_name, description=""):
         self.Name = tag_name
         self.Description = description
 
@@ -67,10 +74,11 @@ class Tag(object):
         """
         db = catocommon.new_conn()
 
-        sSQL = """insert into tags (tag_name, tag_desc) values ('%s', '%s')""" % (self.Name, catocommon.tick_slash(self.Description))
-        if not db.exec_db_noexcep(sSQL):
+        sql = "insert into tags (tag_name, tag_desc) values (%s, %s)"
+        if not db.exec_db_noexcep(sql, (self.Name, self.Description)):
             if db.error == "key_violation":
-                raise Exception("Tag Name '%s' already in use, choose another." % self.Name)
+                # If a Tag already exists, we're golden anyway...
+                pass
             else: 
                 raise Exception(db.error)
 
@@ -85,6 +93,18 @@ class Tag(object):
         db.close()
         return True
 
+    def DBDelete(self):
+        db = catocommon.new_conn()
+        sql = """delete from object_tags where tag_name = %s"""
+        db.tran_exec(sql, (self.Name))
+ 
+        sql = """delete from tags where tag_name = %s"""
+        db.tran_exec(sql, (self.Name))
+
+        db.tran_commit()
+        db.close()
+        return True
+
     def DBRename(self, sNewName):
         """
         Tags are different than other objects, because they don't have an additional 'id'.
@@ -93,11 +113,11 @@ class Tag(object):
         db = catocommon.new_conn()
 
         # do the description no matter what just to be quick
-        sSQL = "update object_tags set tag_name = %s where tag_name = %s"
-        db.tran_exec(sSQL, (sNewName, self.Name))
+        sql = "update object_tags set tag_name = %s where tag_name = %s"
+        db.tran_exec(sql, (sNewName, self.Name))
 
-        sSQL = "update tags set tag_name = %s where tag_name = %s"
-        if not db.tran_exec_noexcep(sSQL, (sNewName, self.Name)):
+        sql = "update tags set tag_name = %s where tag_name = %s"
+        if not db.tran_exec_noexcep(sql, (sNewName, self.Name)):
             if db.error == "key_violation":
                 raise Exception("Tag Name '%s' already in use, choose another." % self.Name)
             else: 
@@ -110,6 +130,12 @@ class Tag(object):
 
     def AsJSON(self):
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
+
+    def AsXML(self):
+        return catocommon.ObjectOutput.AsXML(self.__dict__, "Tag")
+
+    def AsText(self, delimiter, headers):
+        return catocommon.ObjectOutput.AsText(self.__dict__, ["Name", "Description"], delimiter, headers)
 
 class ObjectTags(list): 
     """
@@ -130,4 +156,41 @@ class ObjectTags(list):
 
     def AsJSON(self):
         return catocommon.ObjectOutput.IterableAsJSON(self)
+
+    @staticmethod
+    def Add(tag, object_id, object_type):
+        """
+        Adds a Tag to an object.
+        """
+        db = catocommon.new_conn()
+
+        ot = int(object_type)
+        if ot < 0:
+            raise Exception("Invalid Object Type.")
+
+        sql = """insert into object_tags
+            (object_id, object_type, tag_name)
+            values (%s, %s, %s)"""
+
+        if not db.exec_db_noexcep(sql, (object_id, object_type, tag)):
+            if db.error == "key_violation":
+                # If a reference already exists, we're golden anyway...
+                pass
+            else: 
+                raise Exception(db.error)
+
+        db.close()
+        return True
+
+    @staticmethod
+    def Remove(tag, object_id):
+        """
+        Removes a Tag from an object.
+        """
+        db = catocommon.new_conn()
+        sql = "delete from object_tags where object_id = %s and tag_name = %s"
+        db.exec_db(sql, (object_id, tag))
+        db.close()
+        return True
+
 

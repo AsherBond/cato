@@ -522,17 +522,26 @@ def add_security_log(UserID, LogType, Action, ObjectType, ObjectID, LogMessage):
     Note: the calling method is responsible for figuring out the user, as 
     doing so may differ between processes.
     """
-    UserID = UserID if UserID else "Unknown"
-    sTrimmedLog = tick_slash(LogMessage).strip()
-    if sTrimmedLog:
-        if len(sTrimmedLog) > 7999:
-            sTrimmedLog = sTrimmedLog[:7998]
-    sSQL = """insert into user_security_log (log_type, action, user_id, log_dt, object_type, object_id, log_msg)
-        values ('%s', '%s', '%s', now(), %d, '%s', '%s')""" % (LogType, Action, UserID, ObjectType, ObjectID, sTrimmedLog)
-    db = new_conn()
-    if not db.exec_db_noexcep(sSQL):
-        logger.error(db.error)
-    db.close()
+    # we don't crash if we can't write the security log, no matter what
+    try:
+        UserID = UserID if UserID else "Unknown"
+        try:
+            int(ObjectType)
+        except:
+            ObjectType = -1
+    
+        sTrimmedLog = tick_slash(LogMessage).strip()
+        if sTrimmedLog:
+            if len(sTrimmedLog) > 7999:
+                sTrimmedLog = sTrimmedLog[:7998]
+        sSQL = """insert into user_security_log (log_type, action, user_id, log_dt, object_type, object_id, log_msg)
+            values (%s, %s, %s, now(), %s, %s, %s)"""
+        db = new_conn()
+        if not db.exec_db_noexcep(sSQL, (LogType, Action, UserID, ObjectType, ObjectID, sTrimmedLog)):
+            logger.error(db.error)
+        db.close()
+    except Exception as ex:
+        logger.error(str(ex))
 
 def write_add_log(UserID, oType, sObjectID, sObjectName, sLog=""):
     if not sLog:

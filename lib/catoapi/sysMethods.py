@@ -40,6 +40,7 @@ from catotask import task
 from catouser import catouser
 from catosettings import settings
 from catoasset import asset
+from catotag import tag
 
 class sysMethods:
     """These are utility methods for the Cato system."""
@@ -655,4 +656,143 @@ class sysMethods:
         else:
             return R(err_code=R.Codes.GetError, err_detail="Error retrieving Log.")
             
+
+    """
+    Tagging endpoints.  Only an Administrator can manage Tags.
+    """
+    def list_tags(self, args):        
+        """
+        Lists all Tags.
+        
+        Optional Arguments: 
+            filter - will filter a value match in Task Name, Code or Description.
+        
+        Returns: A list of all Tags.
+        """
+        fltr = args["filter"] if args.has_key("filter") else ""
+
+        obj = tag.Tags(sFilter=fltr)
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
+        else:
+            return R(response=obj.AsXML())
+
+
+    def create_tag(self, args):
+        """
+        Creates a new security Tag.
+        
+        Required Arguments:
+            name - The name of the new Tag.  (AlphaNumeric ONLY. Cannot contain spaces, punctuation or special characters.)
+    
+        Optional Arguments:
+            description - Describe the Tag.
+            
+        Returns: The new Tag if successful, error message on failure.
+        """
+        # this is a admin function, kick out 
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+    
+        # define the required parameters for this call
+        required_params = ["name"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+    
+        obj = tag.Tag(args["name"], args.get("description"))
+        obj.DBCreateNew()
+        catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Tag, obj.Name, obj.Name, "Tag created by API.")
+    
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
+        else:
+            return R(response=obj.AsXML())
+
+    def delete_tag(self, args):
+        """
+        Deletes a security Tag.
+        
+        Required Arguments:
+            name - The name of the Tag.
+            
+        Returns: Success message successful, error message on failure.
+        """
+        # this is a admin function, kick out 
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+    
+        # define the required parameters for this call
+        required_params = ["name"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+    
+        obj = tag.Tag(args["name"], None)
+        obj.DBDelete()
+
+        catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.Tag, obj.Name, obj.Name, "Tag [%s] deleted via API." % obj.Name)
+
+        return R(response="Delete operation successful.")
+
+
+    def add_object_tag(self, args):
+        """
+        Adds a security Tag to an object.
+        
+        Required Arguments:
+            tag - The name of the Tag.
+            object_id - The ID of the object.
+            object_type - The numeric type of the object.
+            
+        Returns: Success message successful, error message on failure.
+        """
+        # this is a admin function
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+    
+        # define the required parameters for this call
+        required_params = ["tag", "object_id", "object_type"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        tag.ObjectTags.Add(args["tag"], args["object_id"], args["object_type"])
+
+        catocommon.write_add_log(args["_user_id"], args["object_type"], args["object_id"], args["object_id"], "Tag [%s] added to object via API." % args["tag"])
+
+        return R(response="Tag successfully added to object.")
+
+
+    def remove_object_tag(self, args):
+        """
+        Removes a security Tag from an object.
+        
+        Required Arguments:
+            tag - The name of the Tag.
+            object_id - The ID of the object.
+            object_type - The numeric type of the object.
+            
+        Returns: Success message successful, error message on failure.
+        """
+        # this is a admin function
+        if not args["_admin"]:
+            return R(err_code=R.Codes.Forbidden)
+    
+        # define the required parameters for this call
+        required_params = ["tag", "object_id", "object_type"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        tag.ObjectTags.Remove(args["tag"], args["object_id"])
+
+        catocommon.write_delete_log(args["_user_id"], args["object_type"], args["object_id"], args["object_id"], "Tag [%s] removed from object via API." % args["tag"])
+
+        return R(response="Tag successfully removed from object.")
+
 
