@@ -31,6 +31,10 @@ $(document).ready(function() {
 	$(".datetimepicker").datetimepicker();
 	$(".timepicker").timepicker();
 
+	$("#logout_btn").click(function() {
+		location.href = "/logout";
+	});
+
 	$("#error_dialog").dialog({
 		autoOpen : false,
 		bgiframe : false,

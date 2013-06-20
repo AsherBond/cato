@@ -139,10 +139,5 @@
 				"onclick": "registerCato();"
 			}
 		]
-	}, {
-		"roles": "all",
-		"label": "Logout",
-		"icon": "static/images/icons/logout.png",
-		"href": "logout"
 	}
 ]
