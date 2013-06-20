@@ -22,7 +22,7 @@
 # this module SHOULD be loaded first by all other Cato modules
 # therefore a basic initial setup of the logger here is necessary.
 import logging
-from logging import handlers
+from logging import handlers, config
 import sys
 import os.path
 from catoconfig import catoconfig
@@ -44,7 +44,7 @@ def get_logger(name):
     # if you're curious what loggers are defined...
     # print logging.Logger.manager.loggerDict
 
-    #print "getting a logger for [%s] at debug level [%s]..." % (name, DEBUG)
+    # print "getting a logger for [%s] at debug level [%s]..." % (name, DEBUG)
     l = logging.getLogger(name)
     l.setLevel(DEBUG)
     return l
@@ -106,7 +106,7 @@ def set_logfile(logfile):
     global LOGFILE
     LOGFILE = logfile
 
-    #print "...setting up a file handler using [%s]" % LOGFILE
+    # print "...setting up a file handler using [%s]" % LOGFILE
     # add the file handler to the root logger
     root = logging.getLogger()
     
@@ -138,7 +138,7 @@ class StreamToLogger(object):
     def __init__(self, logger, log_level=logging.INFO):
         self.logger = logger
         self.log_level = log_level
-        #self.linebuf = ''
+        # self.linebuf = ''
     
     def flush(self):
         pass
@@ -158,6 +158,10 @@ class StreamToLogger(object):
             self.logger.log(self.log_level, "".join(msg))
 
 logging.basicConfig(level=logging.DEBUG, format="%(msg)s")
+# logging.config.dictConfig({
+#     'version': 1,
+#     'disable_existing_loggers': False
+# })
 LOGPATH = _get_logfiles_path()
 
 
