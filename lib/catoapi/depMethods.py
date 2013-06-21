@@ -143,7 +143,7 @@ class depMethods:
             return R(err_code=R.Codes.CreateError, err_detail=msg)
             
         # 2)
-        obj, msg = deployment.Deployment.FromTemplate(t, name, desc)
+        obj, msg = deployment.Deployment.FromTemplate(t, name, desc, user_id=args["_user_id"])
         if obj:
             catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Deployment, obj.ID, obj.Name, "Deployment created.")
             if args["output_format"] == "json":
