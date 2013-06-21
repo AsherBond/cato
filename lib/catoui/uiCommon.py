@@ -601,9 +601,8 @@ def AddNodeToXMLColumn(sTable, sXMLColumn, sWhereClause, sXPath, sXMLToAdd):
 
 
         # then send the whole doc back to the database
-        sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "'" \
-            " where " + sWhereClause
-        if not db.exec_db_noexcep(sSQL):
+        sSQL = "update " + sTable + " set " + sXMLColumn + " = %s where " + sWhereClause
+        if not db.exec_db_noexcep(sSQL, (ET.tostring(xd))):
             log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
 
     return
@@ -631,8 +630,8 @@ def SetNodeValueinXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToSet, sValue
             xNodeToSet.text = sValue
 
             # then send the whole doc back to the database
-            sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "' where " + sWhereClause
-            if not db.exec_db_noexcep(sSQL):
+            sSQL = "update " + sTable + " set " + sXMLColumn + " = %s where " + sWhereClause
+            if not db.exec_db_noexcep(sSQL, (ET.tostring(xd))):
                 log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
         else:
             log("Unable to update XML Column ... [" + sNodeToSet + "] not found.")
@@ -679,9 +678,8 @@ def SetNodeAttributeinXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToSet, sA
     
     
         # then send the whole doc back to the database
-        sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "'" \
-            " where " + sWhereClause
-        if not db.exec_db_noexcep(sSQL):
+        sSQL = "update " + sTable + " set " + sXMLColumn + " = %s where " + sWhereClause
+        if not db.exec_db_noexcep(sSQL, (ET.tostring(xd))):
             log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
     
     return ""
@@ -718,9 +716,8 @@ def RemoveNodeFromXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToRemove):
         if xParentOfNodeToWhack is not None:
             xParentOfNodeToWhack.remove(xNodeToWhack)
 
-        sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "'" \
-            " where " + sWhereClause
-        if not db.exec_db_noexcep(sSQL):
+        sSQL = "update " + sTable + " set " + sXMLColumn + " = %s where " + sWhereClause
+        if not db.exec_db_noexcep(sSQL, (ET.tostring(xd))):
             log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
 
     return
