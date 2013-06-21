@@ -327,7 +327,7 @@ def FilterSetByTag(rows):
     else:
         tags = tag.ObjectTags(1, GetSessionUserID())
         filtered = []
-        if tags:
+        if tags and rows:
             for row in rows:
                 if set(tags) & set(row["Tags"].split(",") if row["Tags"] else []):
                     filtered.append(row)
