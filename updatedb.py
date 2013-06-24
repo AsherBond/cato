@@ -42,47 +42,6 @@ as simply as this, should be added to the bottom.
 
 # For each version supported, add a set of statements to the dictionary
 versions = [
-            [
-             "1.13", [
-                    ["addcolumn", "action_plan", "cloud_id", "varchar(36) DEFAULT NULL"],
-                    ["addcolumn", "action_plan_history", "cloud_id", "varchar(36) DEFAULT NULL"],
-                    ["addcolumn", "action_schedule", "cloud_id", "varchar(36) DEFAULT NULL"],
-                    ["addcolumn", "task_instance", "cloud_id", "varchar(36) DEFAULT NULL"],
-                    ["droptable", "ecosystem"],
-                    ["droptable", "ecosystem_log"],
-                    ["droptable", "ecosystem_object"],
-                    ["droptable", "ecosystem_output"],
-                    ["droptable", "ecosystem_object_tag"],
-                    ["droptable", "ecotemplate"],
-                    ["droptable", "ecotemplate_action"],
-                    ["droptable", "ecotemplate_runlist"],
-                    ["droptable", "image"],
-                    ["droptable", "request"],
-                    ["droptable", "request_action"],
-                    ["function", "_v13_updates"]
-                    ]
-             ],
-            [
-             "1.14", [
-                    ["addcolumn", "deployment", "options", "text"],
-                    ["addcolumn", "deployment_service", "options", "text"]
-                    ]
-             ],
-            [
-             "1.15", [
-                    ["addcolumn", "task_instance", "schedule_id", "varchar(36) DEFAULT NULL"],
-                    ["addcolumn", "dep_action_inst", "instance_id", "varchar(36) DEFAULT NULL"],
-                    ["addcolumn", "deployment_service_inst", "instance_num", "int(11) DEFAULT NULL"],
-                    ["modifycolumn", "deployment_template", "template_text", "MEDIUMTEXT NOT NULL"],
-                    ["modifycolumn", "action_plan", "parameter_xml", "MEDIUMTEXT NOT NULL"],
-                    ["modifycolumn", "action_plan_history", "parameter_xml", "MEDIUMTEXT NOT NULL"],
-                    ["modifycolumn", "action_schedule", "parameter_xml", "MEDIUMTEXT NOT NULL"],
-                    ["modifycolumn", "dep_seq_tran_params", "parameter_xml", "MEDIUMTEXT NOT NULL"],
-                    ["modifycolumn", "dep_service_inst_params", "parameter_xml", "MEDIUMTEXT NOT NULL"],
-                    ["modifycolumn", "task", "parameter_xml", "MEDIUMTEXT NOT NULL"],
-                    ["modifycolumn", "task_instance_parameter", "parameter_xml", "MEDIUMTEXT NOT NULL"]
-                    ]
-             ],
             ["1.16", [                  
                       ["createtable", "dep_template_category", """(`category_id` VARCHAR(36) NOT NULL ,
                                                             `category_name` VARCHAR(32) NOT NULL ,
@@ -131,6 +90,10 @@ versions = [
                       ["droptable", "deployment_service_state", "NO LONGER NEEDED WAS FOR STATE BASED SEQUENCES"],
                       ["dropcolumn", "deployment", "_template_name"],
                       ["dropcolumn", "deployment", "_template_version"]
+                      ]
+             ],
+            ["1.18", [
+                      ["addcolumn", "application_settings", "license", "TEXT NULL"]
                       ]
              ]
         ]
