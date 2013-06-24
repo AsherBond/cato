@@ -159,6 +159,8 @@ def safe_config():
     to the web and API clients if requested.
     """
     cfg = {}
+    cfg["version"] = CONFIG["version"] if CONFIG.has_key("version") else "NOT SET"
+
     cfg["user_ui_port"] = CONFIG["user_ui_port"]
     cfg["admin_ui_port"] = CONFIG["admin_ui_port"]
     cfg["user_ui_enable_refresh"] = CONFIG["user_ui_enable_refresh"]
