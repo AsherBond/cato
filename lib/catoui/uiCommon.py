@@ -974,10 +974,11 @@ def GetLog():
         </head>
         <body>
             <pre>%s</pre>
+            <div style="height: 20px;"></div>
             <a id="bottom">
             <script type="text/javascript">
-                location.hash = "#bottom";
-                setInterval(location.reload, %d);
+                window.scrollTo(0, document.body.scrollHeight);
+                setInterval(function() {location.reload();}, %d);
             </script>
         </body>
     </html>
