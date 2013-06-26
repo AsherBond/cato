@@ -175,7 +175,7 @@ $(document).ready(function() {"use strict";
 	$("#editor_tabs").show();
 
 	// set up the json editor (global object)
-	editor = new JSONEditor($("#jsoneditor")[0]);
+	editor = new jsoneditor.JSONEditor($("#jsoneditor")[0]);
 
 	getDetails();
 
