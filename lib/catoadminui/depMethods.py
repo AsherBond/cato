@@ -269,3 +269,20 @@ class depMethods:
 
         return json.dumps({"result" : "success"})
 
+    def wmDeleteDeployments(self):        
+        # this is an admin function
+        if uiCommon.GetSessionUserRole() != "Administrator":
+            raise InfoException("Only an Administrator can delete a Deployed Application.")
+            
+                    
+        sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
+
+        ids_to_delete = sDeleteArray.split(",")
+        if ids_to_delete:
+            for did in ids_to_delete:
+                obj = deployment.Deployment()
+                obj.FromID(did)
+                # no success check, just carry on
+                obj.DBDelete()
+
+        return json.dumps({"result" : "success"})
