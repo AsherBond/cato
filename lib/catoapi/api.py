@@ -29,6 +29,7 @@ from datetime import datetime, timedelta
 from catocommon import catocommon
 from catosettings import settings
 from catoconfig import catoconfig
+from catotag import tag
 
 try:
 	import xml.etree.cElementTree as ET
@@ -40,6 +41,13 @@ except AttributeError as ex:
 	del(ET)
 	import catoxml.etree.ElementTree as ET
 
+# An authenticated user sets a few global properties
+_USER_ID = None
+_USER_FULLNAME = None
+_USER_ROLE = None
+_USER_TAGS = None
+_ADMIN = False
+_DEVELOPER = False
 
 def authenticate(action, args):
 	db = catocommon.new_conn()
@@ -139,6 +147,46 @@ def authenticate(action, args):
 
 	# made it here... we're authenticated!
 	return True, key
+
+def filter_set_by_tag(rows):
+	# if permissions checking is turned off, everything is allowed
+	if catoconfig.CONFIG["ui_permissions"] == "false":
+		return rows
+
+	if _USER_ROLE == "Administrator":
+		return rows
+	else:
+		tags = tag.ObjectTags(1, _USER_ID)
+		filtered = []
+		if tags and rows:
+			for row in rows:
+				if set(tags) & set(row["Tags"].split(",") if row["Tags"] else []):
+					filtered.append(row)
+		return filtered
+
+def is_object_allowed(object_id, object_type):
+	# given a task id, we need to find the original task id,
+	# then check if the user can see it based on tags
+	if _USER_ROLE == "Administrator":
+		return True
+	
+	if not object_id or not object_type:
+		logger.error("Invalid or missing Object ID or Object Type.")
+		return False
+	
+	sql = """select 1 from object_tags otu
+	    join object_tags oto on otu.tag_name = oto.tag_name
+	    where (otu.object_type = 1)
+	    and otu.object_id = %s
+	    and oto.object_type = %s
+	    and oto.object_id = %s""" 
+	
+	uid = _USER_ID
+	db = catocommon.new_conn()
+	result = db.select_col_noexcep(sql, (uid, object_type, object_id))
+	db.close()
+	
+	return catocommon.is_true(result)
 
 def check_required_params(required_params, args):
 	"""

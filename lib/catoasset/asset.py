@@ -41,7 +41,7 @@ class Assets(object):
         sSQL = """select a.asset_id, a.asset_name, a.asset_status, a.address,
             case when ac.shared_or_local = 1 then 'Local - ' else 'Shared - ' end as shared_or_local,
             case when ac.domain <> '' then concat(ac.domain, cast(char(92) as char), ac.username) else ac.username end as credentials,
-            group_concat(ot.tag_name order by ot.tag_name separator ',') as tags
+            group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
             from asset a
             left outer join object_tags ot on a.asset_id = ot.object_id
             left outer join asset_credential ac on ac.credential_id = a.credential_id

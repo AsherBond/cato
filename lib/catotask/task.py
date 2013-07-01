@@ -1279,7 +1279,7 @@ class TaskRunLog(object):
 
         # NOW carry on with the regular rows
         sSQL = """select til.task_instance, til.entered_dt, til.connection_name, til.log,
-            til.step_id, s.step_order, s.function_name, s.function_name as function_label, s.codeblock_name,
+            til.step_id, s.task_id, s.step_order, s.function_name, s.function_name as function_label, s.codeblock_name,
             til.command_text,
             '' as variable_name,  '' as variable_value,
             case when length(til.log) > 256 then 1 else 0 end as large_text

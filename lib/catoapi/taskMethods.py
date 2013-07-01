@@ -16,7 +16,6 @@
 from catolog import catolog
 logger = catolog.get_logger(__name__)
 
-import traceback
 import json
 
 from catoapi import api
@@ -148,6 +147,9 @@ class taskMethods:
         if obj.Error:
             return R(err_code=R.Codes.GetError, err_detail=obj.Error)
 
+        if not api.is_object_allowed(obj.task_id, catocommon.CatoObjectTypes.Task):
+            return R(err_code=R.Codes.Forbidden)
+            
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
@@ -165,7 +167,7 @@ class taskMethods:
         Returns: Returns: Nothing if successful, error messages on failure.
         """
         # this is a developer function
-        if not args["_developer"]:
+        if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden)
         
         required_params = ["instance"]
@@ -181,6 +183,9 @@ class taskMethods:
 #                    msg = "Task [%s] Instance [%s] resubmitted by [%s]." % (ti.task_name_label, ti.task_instance, username)
 #                    deployment.WriteDeploymentLog(msg, dep_id=deployment_id, seq_inst=sequence_instance)
 
+        if not api.is_object_allowed(obj.task_id, catocommon.CatoObjectTypes.Task):
+            return R(err_code=R.Codes.Forbidden)
+            
         result, err = obj.Resubmit(args["_user_id"])
         if result:
             return R(response="Instance [%s] successfully resubmitted." % args["instance"])
@@ -202,6 +207,10 @@ class taskMethods:
             return resp
 
         obj = task.TaskRunLog(args["instance"])
+
+        if not api.is_object_allowed(obj.task_id, catocommon.CatoObjectTypes.Task):
+            return R(err_code=R.Codes.Forbidden)
+            
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
@@ -227,7 +236,7 @@ class taskMethods:
             If 'output_format' is set to 'text', returns only a Task Instance ID.
         """
         # this is a developer function
-        if not args["_developer"]:
+        if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden)
         
         required_params = ["task"]
@@ -240,6 +249,10 @@ class taskMethods:
         # find the task
         obj = task.Task()
         obj.FromNameVersion(args["task"], ver, False)
+
+        if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
+            return R(err_code=R.Codes.Forbidden)
+            
         task_id = obj.ID
         debug = args["log_level"] if args.has_key("log_level") else "2"
         
@@ -328,7 +341,7 @@ class taskMethods:
         Returns: Nothing if successful, error messages on failure.
         """
         # this is a developer function
-        if not args["_developer"]:
+        if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden)
         
         required_params = ["instance"]
@@ -337,6 +350,10 @@ class taskMethods:
             return resp
 
         ti = task.TaskInstance(args["instance"])
+
+        if not api.is_object_allowed(ti.task_id, catocommon.CatoObjectTypes.Task):
+            return R(err_code=R.Codes.Forbidden)
+            
         ti.Stop()
         return R(response="Instance [%s] successfully stopped." % args["instance"])
             
@@ -353,7 +370,7 @@ class taskMethods:
         Returns: Nothing if successful, error messages on failure.
         """
         # this is a admin function
-        if not args["_admin"]:
+        if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden)
         
         required_params = ["task"]
@@ -365,6 +382,10 @@ class taskMethods:
 
         obj = task.Task()
         obj.FromNameVersion(name=args["task"], include_code=False)
+
+        if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
+            return R(err_code=R.Codes.Forbidden)
+            
         task.Tasks.Delete(["'%s'" % obj.ID], force)
         
         catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.Task, obj.ID, obj.Name, "Deleted via API.")
@@ -385,6 +406,7 @@ class taskMethods:
         showall = True if args.has_key("show_all_versions") else False
 
         obj = task.Tasks(sFilter=fltr, show_all_versions=showall)
+        obj.rows = obj.rows if api._ADMIN else api.filter_set_by_tag(obj.rows)
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
         elif args["output_format"] == "text":
@@ -450,6 +472,10 @@ class taskMethods:
 
         obj = task.Task()
         obj.FromNameVersion(args["task"], ver)
+        
+        if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
+            return R(err_code=R.Codes.Forbidden)
+            
         if args["output_format"] == "json":
             return R(response=obj.AsJSON(include_code=ic))
         elif args["output_format"] == "text":
@@ -479,6 +505,10 @@ class taskMethods:
 
         obj = task.Task()
         obj.FromNameVersion(args["task"], ver)
+
+        if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
+            return R(err_code=R.Codes.Forbidden)
+            
         if obj.ParameterXDoc:
             """
                 Describe the parameters for the Task in a text (help) format.
@@ -555,6 +585,10 @@ class taskMethods:
 
         obj = task.Task()
         obj.FromNameVersion(args["task"], ver)
+
+        if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
+            return R(err_code=R.Codes.Forbidden)
+            
         if obj.ParameterXDoc:
             """
                 Build a template for a parameter xml document, suitable for editing and submission.
@@ -620,6 +654,10 @@ class taskMethods:
 
         obj = task.Task()
         obj.FromNameVersion(args["task"], args.get("version"))
+
+        if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
+            return R(err_code=R.Codes.Forbidden)
+            
         tids = [obj.ID]
         
         docs = task.Tasks.Export(tids, args.get("include_refs"))

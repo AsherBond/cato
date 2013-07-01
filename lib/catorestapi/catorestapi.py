@@ -105,22 +105,25 @@ class wmHandler:
         # (using an _ prefix to avoid conflicts)
         args["_user_id"] = user_id
         args["output_format"] = output_format
-        args["_admin"] = False
-        args["_developer"] = False
         
         # the API commands do some logging that use these detail properties
         u = catouser.User()
         u.FromID(user_id)
         if u:
-            args["_role"] = u.Role
-            args["_user_full_name"] = u.FullName
+            api._USER_ID = u.ID
+
+            api._USER_ROLE = u.Role
+            api._USER_FULLNAME = u.FullName
             
             # flags are set so certain methods can have restricted access.
             if u.Role == "Administrator":
-                args["_admin"] = True
-                args["_developer"] = True
+                api._ADMIN = True
+                api._DEVELOPER = True
             if u.Role == "Developer":
-                args["_developer"] = True
+                api._DEVELOPER = True
+                
+            # Tags are placed in a global for any access checks
+            api._USER_TAGS = u.Tags
         else:
             logger.error("Authenticated, but unable to build a User object.")
             response = api.response(err_code="Exception", err_msg="Authenticated, but unable to build a User object.")

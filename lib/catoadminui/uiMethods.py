@@ -849,9 +849,13 @@ class uiMethods:
 
         a = asset.Assets(sFilter)
         if a.rows:
-            start, end, pager_html = uiCommon.GetPager(len(a.rows), maxrows, sPage)
+            # before we break the results into pages, we first filter it by tag
+            # THIS IS DEPENDANT on the results containing a list of tags.
+            allowedrows = uiCommon.FilterSetByTag(a.rows)
 
-            for row in a.rows[start:end]:
+            start, end, pager_html = uiCommon.GetPager(len(allowedrows), maxrows, sPage)
+
+            for row in allowedrows[start:end]:
                 sHTML += "<tr asset_id=\"" + row["asset_id"] + "\">"
                 sHTML += "<td class=\"chkboxcolumn\">"
                 sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
