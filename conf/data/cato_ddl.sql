@@ -85,6 +85,7 @@ CREATE TABLE `application_registry` (
 CREATE TABLE `application_settings` (
   `id` int(11) NOT NULL,
   `setting_xml` text NOT NULL,
+  `license` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `asset` (
@@ -335,20 +336,6 @@ CREATE TABLE `deployment_service_inst` (
   `seq_instance` bigint(20) DEFAULT NULL,
   `run_level` int(11) DEFAULT NULL,
   PRIMARY KEY (`instance_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `deployment_service_state` (
-  `deployment_service_id` varchar(36) NOT NULL,
-  `state` varchar(16) NOT NULL,
-  `next_state` varchar(16) DEFAULT '',
-  `original_task_id` varchar(36) DEFAULT NULL,
-  `task_version` varchar(16) DEFAULT NULL,
-  `cfn_json` text,
-  `image` varchar(36) DEFAULT NULL,
-  `run_level` int(11) DEFAULT '0',
-  `state_desc` varchar(255) DEFAULT NULL,
-  `predecessors` varchar(1024) DEFAULT NULL,
-  `json` text,
-  PRIMARY KEY (`deployment_service_id`,`state`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `deployment_step` (
   `sequence_id` varchar(36) NOT NULL,
