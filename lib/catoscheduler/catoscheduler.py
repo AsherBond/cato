@@ -85,7 +85,7 @@ class Scheduler(catoprocess.CatoService):
 
         sql = """update task_instance set ce_node = 
             (select id from application_registry 
-                where app_name = 'cato_poller' and master = 1 order by load_value asc limit 1) 
+                where app_name = 'cato_poller' and master = 1 order by load_value asc, RAND() limit 1) 
             where task_status = 'Submitted' and ce_node is NULL"""
         self.db.exec_db(sql)
 
