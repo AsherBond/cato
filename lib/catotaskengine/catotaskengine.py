@@ -238,7 +238,7 @@ class TaskEngine():
             while not at_prompt:
 
                 index = c.expect_list(cpl)
-                if index == 0 or index == 8:
+                if index in [0,7,8]:
                     if attempt != 10:
                         log_msg = "ssh connection address %s unreachable on attempt %d. Sleeping and reattempting" % (host, attempt)
                         self.insert_audit("new_connection", log_msg, "")
@@ -266,8 +266,8 @@ class TaskEngine():
                     c.sendline(password)
                     # c.logfile=sys.stdout 
                     c.delaybeforesend = 0
-                elif index == 7:
-                    msg = "The connection to %s closed unexpectedly." % (host)
+                #elif index == 7:
+                #    msg = "The connection to %s closed unexpectedly." % (host)
                 if msg:
                     try: 
                         msg = msg + "\n" + c.before + c.match.group() + c.after
