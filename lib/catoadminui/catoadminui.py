@@ -32,16 +32,6 @@ lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 sys.path.append(web_root)
 
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
-try:
-    ET.ElementTree.iterfind
-except AttributeError as ex:
-    del(ET)
-    import catoxml.etree.ElementTree as ET
-
 from catocommon import catocommon, catoprocess
 from catolicense import catolicense
 from catoerrors import InfoException, SessionError
