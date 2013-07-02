@@ -31,11 +31,6 @@ from catosettings import settings
 from catoconfig import catoconfig
 from catotag import tag
 
-try:
-	import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-	import xml.etree.ElementTree as ET
-
 # An authenticated user sets a few global properties
 _USER_ID = None
 _USER_FULLNAME = None
@@ -228,33 +223,33 @@ class response:
 	def asXMLString(self):
 		"""Returns the response as an XML string"""
 		
-		dom = ET.fromstring('<apiResponse />')
-		ET.SubElement(dom, "method").text = self.Method
+		dom = catocommon.ET.fromstring('<apiResponse />')
+		catocommon.ET.SubElement(dom, "method").text = self.Method
 		
 		# if there was no response, we can't crash
 		if self.Response:
 			# try to parse it and catch ... if it's xml add it, else add it as text
 			try:
-				test = ET.fromstring(self.Response)
-				r = ET.SubElement(dom, "response")
+				test = catocommon.ET.fromstring(self.Response)
+				r = catocommon.ET.SubElement(dom, "response")
 				r.append(test)
 			except Exception:  # (ElementTree.ParseError is a subclass of SyntaxError)
 				# no need to print the exception... it just means the self.Response couldn't be converted to xml
 				# that's ok, a non-xml response is allowed and handled here.
 				# if ex:
 					# print str(ex)
-				ET.SubElement(dom, "response").text = self.Response
+				catocommon.ET.SubElement(dom, "response").text = self.Response
 		else:
-			ET.SubElement(dom, "response").text = ""
+			catocommon.ET.SubElement(dom, "response").text = ""
 		
 		# include an error section if necessary
 		if self.ErrorCode != "":
-			e = ET.SubElement(dom, "error")
-			ET.SubElement(e, "code").text = self.ErrorCode
-			ET.SubElement(e, "message").text = self.ErrorMessage
-			ET.SubElement(e, "detail").text = self.ErrorDetail
+			e = catocommon.ET.SubElement(dom, "error")
+			catocommon.ET.SubElement(e, "code").text = self.ErrorCode
+			catocommon.ET.SubElement(e, "message").text = self.ErrorMessage
+			catocommon.ET.SubElement(e, "detail").text = self.ErrorDetail
 		
-		return ET.tostring(dom)
+		return catocommon.ET.tostring(dom)
 
 	def asJSON(self):
 		"""Returns the response as a JSON string"""

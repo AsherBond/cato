@@ -15,15 +15,9 @@
  
 import os
 import re
-import traceback
 import json
 import time
 import cgi
-
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
 
 from catoui import uiCommon, uiGlobals
 from catolog import catolog

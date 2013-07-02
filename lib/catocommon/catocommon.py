@@ -32,15 +32,24 @@ from catoerrors import DatastoreError
 from catolog import catolog
 logger = catolog.get_logger(__name__)
 
+# Select the best available version of ElementTree with the features we need.
 try:
-    import xml.etree.cElementTree as ET
+    import xml.etree.cElementTree as _ET
 except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
+    import xml.etree.ElementTree as _ET
+try:
+    _ET.ElementTree.iterfind
+except AttributeError as ex:
+    del(_ET)
+    import catoxml.etree.ElementTree as _ET
 
 # this file is common across all Cato modules, so the following globals are also common
 
 # the "CatoService, if there is one...
 CATOSERVICE = None
+
+# so no other modules need to to the try/except for cElementTree
+ET = _ET
 
 # anything including catocommon can get new connections using the settings in 'config'
 def new_conn():

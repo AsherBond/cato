@@ -23,10 +23,6 @@ from catoapi.api import response as R
 from catotask import task
 from catocloud import cloud
 from catocommon import catocommon
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
 
 class taskMethods:
     """"""
@@ -298,7 +294,7 @@ class taskMethods:
                 try:
                     logger.info("Parameters are not JSON... trying XML...")
                     # just test to see if it's valid so we can throw an error if not.
-                    test = ET.fromstring(parameters)
+                    test = catocommon.ET.fromstring(parameters)
                     pxml = parameters # an xml STRING!!! - it gets parsed by the Task Engine
                 except Exception as ex:
                     logger.info("Trying to parse parameters as XML failed. %s" % ex)
@@ -610,12 +606,12 @@ class taskMethods:
                                         for val in xValue[1:]:
                                             xValues.remove(val)
                                         
-                xmlstr = catocommon.pretty_print_xml(ET.tostring(xdoc))
+                xmlstr = catocommon.pretty_print_xml(catocommon.ET.tostring(xdoc))
                                         
                 return R(response=xmlstr)
             else:
                 # the deployment module has a function that will convert this xml to suitable json
-                pxml = ET.tostring(obj.ParameterXDoc)
+                pxml = catocommon.ET.tostring(obj.ParameterXDoc)
                 lst = catocommon.paramxml2json(pxml, basic)
                 return R(response=catocommon.ObjectOutput.AsJSON(lst))
                 

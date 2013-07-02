@@ -15,12 +15,6 @@
 
 import traceback
 import json
-
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
-
 from catoui import uiCommon
 from catocommon import catocommon
 from catocloud import cloud
@@ -382,7 +376,7 @@ class cloudMethods:
                 # if this is the "Tags" column, it might contain some xml... break 'em down
                 if prop.Name == "Tags" and sValue:
                     try:
-                        xDoc = ET.fromstring(sValue)
+                        xDoc = catocommon.ET.fromstring(sValue)
                         if xDoc is not None:
                             sTags = ""
                             for xeTag in xDoc.findall("item"):

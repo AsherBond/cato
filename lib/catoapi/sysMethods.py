@@ -21,17 +21,6 @@ from catolog import catolog
 logger = catolog.get_logger(__name__)
 
 import json
-from datetime import datetime
-
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
-try:
-    ET.ElementTree.iterfind
-except AttributeError as ex:
-    del(ET)
-    import catoxml.etree.ElementTree as ET
 
 from catoapi import api
 from catoapi.api import response as R
@@ -87,15 +76,15 @@ class sysMethods:
         # parse it as a validation, and to find out what's in it.
         xd = None
         try:
-            xd = ET.fromstring(args["xml"])
-        except ET.ParseError as ex:
+            xd = catocommon.ET.fromstring(args["xml"])
+        except catocommon.ET.ParseError:
             return R(err_code=R.Codes.Exception, err_detail="File is not properly formatted XML.")
         
         if xd is not None:
             for xtask in xd.iterfind("task"):
                 logger.info("Importing Task [%s]" % xtask.get("name", "Unknown"))
                 t = task.Task()
-                t.FromXML(ET.tostring(xtask))
+                t.FromXML(catocommon.ET.tostring(xtask))
 
                 result, err = t.DBSave()
                 if result:
@@ -152,14 +141,14 @@ class sysMethods:
                       
                 return "%s\n%s" % ("\t".join(keys), "\n".join(outrows))
             else:
-                dom = ET.fromstring('<Processes />')
+                dom = catocommon.ET.fromstring('<Processes />')
                 if rows:
                     for row in rows:
                         xml = catocommon.dict2xml(row, "Process")
-                        node = ET.fromstring(xml.tostring())
+                        node = catocommon.ET.fromstring(xml.tostring())
                         dom.append(node)
                 
-                return R(response=ET.tostring(dom))
+                return R(response=catocommon.ET.tostring(dom))
         else:
             return R(err_code=R.Codes.ListError, err_detail="Unable to list Processes.")
         

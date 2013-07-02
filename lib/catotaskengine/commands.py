@@ -29,11 +29,6 @@ from bson.objectid import ObjectId
 from pymongo.errors import InvalidName
 from awspy import awspy
 
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
-
 from catocommon import catocommon
 from . import classes
 
@@ -363,7 +358,7 @@ def _eval_test_expression(self, test):
 
 def if_cmd(self, task, step):
 
-    root = ET.fromstring(step.command)
+    root = catocommon.ET.fromstring(step.command)
     test_nodes = root.findall("./tests/test")
     action_xml = False
     for test_node in test_nodes:
@@ -375,7 +370,7 @@ def if_cmd(self, task, step):
             self.logger.debug("... True!")
             action = test_node.findall("./action/function")
             if action:
-                action_xml = ET.tostring(action[0])
+                action_xml = catocommon.ET.tostring(action[0])
             break
         else:
             self.logger.debug("... False.")
@@ -383,7 +378,7 @@ def if_cmd(self, task, step):
     if not action_xml:
         action = root.findall("./else/function")
         if action:
-            action_xml = ET.tostring(action[0])
+            action_xml = catocommon.ET.tostring(action[0])
 
     if action_xml:
         sub_step = self.get_step_object(step.step_id, action_xml)
@@ -395,10 +390,10 @@ def if_cmd(self, task, step):
 def while_cmd(self, task, step):
 
     orig_test = self.get_command_params(step.command, "test")[0]
-    root = ET.fromstring(step.command)
+    root = catocommon.ET.fromstring(step.command)
     action = root.findall("./action/function")
     if action:
-        action_xml = ET.tostring(action[0])
+        action_xml = catocommon.ET.tostring(action[0])
     else:
         action_xml = False
     del(root)
@@ -425,10 +420,10 @@ def loop_cmd(self, task, step):
 
     initial, counter_v_name, loop_test, orig_compare_to, increment, max_iter = self.get_command_params(step.command,
         "start", "counter", "test", "compare_to", "increment", "max")[:]
-    root = ET.fromstring(step.command)
+    root = catocommon.ET.fromstring(step.command)
     action = root.findall("./action/function")
     if action:
-        action_xml = ET.tostring(action[0])
+        action_xml = catocommon.ET.tostring(action[0])
     else:
         action_xml = False
     del(root)
@@ -488,7 +483,7 @@ def loop_cmd(self, task, step):
 def exists_cmd(self, task, step):
     
     all_true = True
-    root = ET.fromstring(step.command)
+    root = catocommon.ET.fromstring(step.command)
     variables = root.findall("./variables/variable")
     for v in variables:
         variable_name = v.findtext("name", "").upper()
@@ -517,7 +512,7 @@ def exists_cmd(self, task, step):
         action = root.findall("./actions/negative_action/function")
 
     if action:
-        action_xml = ET.tostring(action[0])
+        action_xml = catocommon.ET.tostring(action[0])
     else:
         action_xml = False
     del(root)

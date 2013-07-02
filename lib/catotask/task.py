@@ -22,10 +22,6 @@ logger = catolog.get_logger(__name__)
 
 import traceback
 import json
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
 
 from catocommon import catocommon
 from datetime import datetime
@@ -303,7 +299,7 @@ class Task(object):
         xmlerr = "XML Error: Attribute not found."
         
         logger.debug("Building a Task object from XML")
-        xTask = ET.fromstring(sTaskXML)
+        xTask = catocommon.ET.fromstring(sTaskXML)
         
         # if the taskjson has an onconflict directive use it....
         # BUT ONLY IF None WAS PROVIDED
@@ -351,7 +347,7 @@ class Task(object):
                 logger.error("Codeblock 'name' attribute is required.", 1)
         
             newcb = Codeblock(self.ID, cbname)
-            newcb.FromXML(ET.tostring(xCB))
+            newcb.FromXML(catocommon.ET.tostring(xCB))
             self.Codeblocks[newcb.Name] = newcb
             
         # PARAMETERS
@@ -409,14 +405,14 @@ class Task(object):
             
         # PARAMETERS
         if t.get("Parameters"):
-            self.ParameterXDoc = ET.fromstring(t.get("Parameters"))
+            self.ParameterXDoc = catocommon.ET.fromstring(t.get("Parameters"))
             
 
     def AsText(self, delimiter=None, headers=None):
         return catocommon.ObjectOutput.AsText(self, ["Code", "Name", "Version", "Description", "Status", "IsDefaultVersion"], delimiter, headers)
 
     def AsXML(self, include_code=False):
-        root = ET.fromstring('<task />')
+        root = catocommon.ET.fromstring('<task />')
         
         root.set("original_task_id", self.OriginalTaskID)
         root.set("name", str(self.Name))
@@ -426,37 +422,37 @@ class Task(object):
         root.set("concurrent_instances", str(self.ConcurrentInstances))
         root.set("queue_depth", str(self.QueueDepth))
 
-        ET.SubElement(root, "description").text = self.Description
+        catocommon.ET.SubElement(root, "description").text = self.Description
         
         # PARAMETERS
         if self.ParameterXDoc is not None:
             root.append(self.ParameterXDoc)
         
         # CODEBLOCKS
-        xCodeblocks = ET.SubElement(root, "codeblocks")  # add the codeblocks section
+        xCodeblocks = catocommon.ET.SubElement(root, "codeblocks")  # add the codeblocks section
         
         if include_code:
             for name, cb in self.Codeblocks.items():
-                xCB = ET.SubElement(xCodeblocks, "codeblock")  # add the codeblock
+                xCB = catocommon.ET.SubElement(xCodeblocks, "codeblock")  # add the codeblock
                 xCB.set("name", name)
                 
                 # STEPS
-                xSteps = ET.SubElement(xCB, "steps")  # add the steps section
+                xSteps = catocommon.ET.SubElement(xCB, "steps")  # add the steps section
                 
                 for s in cb.Steps:
                     stp = cb.Steps[s]
-                    xStep = ET.SubElement(xSteps, "step")  # add the step
+                    xStep = catocommon.ET.SubElement(xSteps, "step")  # add the step
                     xStep.set("codeblock", str(stp.Codeblock))
                     xStep.set("output_parse_type", str(stp.OutputParseType))
                     xStep.set("output_column_delimiter", str(stp.OutputColumnDelimiter))
                     xStep.set("output_row_delimiter", str(stp.OutputRowDelimiter))
                     xStep.set("commented", str(stp.Commented).lower())
     
-                    ET.SubElement(xStep, "description").text = stp.Description
+                    catocommon.ET.SubElement(xStep, "description").text = stp.Description
                     
                     xStep.append(stp.FunctionXDoc)
         
-        return ET.tostring(root)
+        return catocommon.ET.tostring(root)
 
     def AsJSON(self, include_code=False):
         t = {
@@ -480,7 +476,7 @@ class Task(object):
         
         if include_code:
             # parameters
-            t["Parameters"] = ET.tostring(self.ParameterXDoc) if self.ParameterXDoc is not None else ""
+            t["Parameters"] = catocommon.ET.tostring(self.ParameterXDoc) if self.ParameterXDoc is not None else ""
             
             # codeblocks
             codeblocks = []
@@ -527,7 +523,7 @@ class Task(object):
         if rows:
             for dr in rows:
                 try:
-                    xFunc = ET.fromstring(dr["function_xml"])
+                    xFunc = catocommon.ET.fromstring(dr["function_xml"])
                 except:
                     logger.error("Unable to parse function_xml for task [%s]. %s" % (self.Name, dr["function_xml"]))
 
@@ -601,7 +597,7 @@ class Task(object):
         # this could be used in many cases below...
         parameter_clause = ""
         if self.ParameterXDoc is not None:
-            parameter_clause = ET.tostring(self.ParameterXDoc)
+            parameter_clause = catocommon.ET.tostring(self.ParameterXDoc)
         
         
         if self.DBExists:
@@ -710,7 +706,7 @@ class Task(object):
                         function_name, function_xml)
                         values (%s, %s, %s, %s, %s, 0, %s, %s)"""
                     db.tran_exec(sSQL, (s.ID, self.ID, s.Codeblock, order, ("1" if s.Commented else "0"),
-                                        s.FunctionName, ET.tostring(s.FunctionXDoc)))
+                                        s.FunctionName, catocommon.ET.tostring(s.FunctionXDoc)))
                     order += 1
 
         if bLocalTransaction:
@@ -879,7 +875,7 @@ class Task(object):
         
         # parameters - always available (for other processes)
         if dr["parameter_xml"]:
-            xParameters = ET.fromstring(dr["parameter_xml"])
+            xParameters = catocommon.ET.fromstring(dr["parameter_xml"])
             if xParameters is not None:
                 self.ParameterXDoc = xParameters
 
@@ -984,7 +980,7 @@ class Codeblock(object):
     # a codeblock contains a dictionary collection of steps
     def FromXML(self, sCBXML=""):
         if sCBXML == "": return None
-        xCB = ET.fromstring(sCBXML)
+        xCB = catocommon.ET.fromstring(sCBXML)
         
         self.Name = xCB.attrib["name"]
         
@@ -994,7 +990,7 @@ class Codeblock(object):
         order = 1
         for xStep in xSteps:
             newstep = Step()
-            newstep.FromXML(ET.tostring(xStep), self.Name)
+            newstep.FromXML(catocommon.ET.tostring(xStep), self.Name)
             self.Steps[order] = newstep
             order += 1
 
@@ -1042,7 +1038,7 @@ class Step(object):
         del self.TaskID
         del self.Function
         del self.UserSettings
-        self.FunctionXML = ET.tostring(self.FunctionXDoc)
+        self.FunctionXML = catocommon.ET.tostring(self.FunctionXDoc)
         del self.FunctionXDoc
         return catocommon.ObjectOutput.AsJSON(self.__dict__)        
 
@@ -1050,7 +1046,7 @@ class Step(object):
         if sStepXML == "": return None
         if sCodeblockName == "": return None
         
-        xStep = ET.fromstring(sStepXML)
+        xStep = catocommon.ET.fromstring(sStepXML)
         
         # attributes of the <step> node
         self.ID = catocommon.new_guid()
@@ -1092,7 +1088,7 @@ class Step(object):
         if not func:
             raise Exception("ERROR: Step [%s] - function xml is empty or cannot be parsed.")
         
-        self.FunctionXDoc = ET.fromstring(func)
+        self.FunctionXDoc = catocommon.ET.fromstring(func)
         # command_type is for backwards compatilibity in importing tasks from 1.0.8
         self.FunctionName = step.get("FunctionName", "")
     
@@ -1154,7 +1150,7 @@ class Step(object):
         # once parsed, it's cleaner.  update the object with the cleaner xml
         if func_xml:
             try:
-                self.FunctionXDoc = ET.fromstring(func_xml)
+                self.FunctionXDoc = catocommon.ET.fromstring(func_xml)
                 
                 # what's the output parse type?
                 try:
@@ -1180,7 +1176,7 @@ class Step(object):
                     logger.error("row_delimiter on step xml isn't a valid integer.")
                     cd = 0
                 self.OutputColumnDelimiter = cd
-            except ET.ParseError:
+            except catocommon.ET.ParseError:
                 self.IsValid = False
                 logger.error(traceback.format_exc())    
                 raise Exception("CRITICAL: Unable to parse function xml in step [%s]." % self.ID)
@@ -1443,7 +1439,7 @@ class TaskInstance(object):
         # DO NOT break the response if the summary can't be loaded
         # also, both set a property and return the object
         try:
-            xroot = ET.fromstring(self.summary)
+            xroot = catocommon.ET.fromstring(self.summary)
             if xroot is not None:
                 out = []
                 for xparam in xroot.findall(".//items/item"):

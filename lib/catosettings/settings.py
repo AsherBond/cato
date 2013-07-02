@@ -1,11 +1,6 @@
 """
     All of the settings for the Cato modules.
 """
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
-
 
 from catocommon import catocommon
 from catolog import catolog
@@ -391,7 +386,7 @@ class settings(object):
         sxml = db.select_col(sql)
         db.close()
         if sxml:
-            xdoc = ET.fromstring(sxml)
+            xdoc = catocommon.ET.fromstring(sxml)
             if xdoc is not None:
                 return xdoc.findtext(xpath, "")
         
@@ -415,19 +410,19 @@ class settings(object):
             sxml = "<settings />"
             
         if sxml:
-            xdoc = ET.fromstring(sxml)
+            xdoc = catocommon.ET.fromstring(sxml)
             if xdoc is not None:
                 
                 # category is optional - if omitted, the new one goes in the root
                 if category:
                     xcat = xdoc.find(category)
                     if xcat is None:
-                        xcat = ET.Element(category)
+                        xcat = catocommon.ET.Element(category)
                         xdoc.append(xcat)
 
                     xnew = xcat.find(setting)
                     if xnew is None:
-                        xnew = ET.Element(setting)
+                        xnew = catocommon.ET.Element(setting)
                         xcat.append(xnew)
 
                     xnew.text = ("" if value is None else value)
@@ -435,13 +430,13 @@ class settings(object):
                 else:
                     xnew = xdoc.find(setting)
                     if xnew is None:
-                        xnew = ET.Element(setting)
+                        xnew = catocommon.ET.Element(setting)
                         xdoc.append(xnew)
                     
                     xnew.text = ("" if value is None else value)
 
 
-                sql = "update application_settings set setting_xml='%s' where id=1" % ET.tostring(xdoc)
+                sql = "update application_settings set setting_xml='%s' where id=1" % catocommon.ET.tostring(xdoc)
                 db = catocommon.new_conn()
                 if not db.exec_db_noexcep(sql):
                     raise Exception("Info: attempt to set application setting [%s/%s] failed." % (category, setting))

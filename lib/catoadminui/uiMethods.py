@@ -17,15 +17,6 @@ import os
 import traceback
 import json
 from datetime import datetime
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
-try:
-    ET.ElementTree.iterfind
-except AttributeError as ex:
-    del(ET)
-    import catoxml.etree.ElementTree as ET
 
 from catolog import catolog
 from catoconfig import catoconfig
@@ -1095,8 +1086,8 @@ class uiMethods:
         xd = None
         js = None
         try:
-            xd = ET.fromstring(inputtext)
-        except ET.ParseError as ex:
+            xd = catocommon.ET.fromstring(inputtext)
+        except catocommon.ET.ParseError as ex:
             try:
                 js = json.loads(inputtext)
             except:
@@ -1172,8 +1163,8 @@ class uiMethods:
         xd = None
         js = None
         try:
-            xd = ET.fromstring(inputtext)
-        except ET.ParseError as ex:
+            xd = catocommon.ET.fromstring(inputtext)
+        except catocommon.ET.ParseError as ex:
             uiCommon.log("Data is not valid XML... trying JSON...")
             try:
                 js = json.loads(inputtext)

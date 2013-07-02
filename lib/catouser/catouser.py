@@ -20,11 +20,6 @@
 import re
 from datetime import datetime, timedelta
 
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
-
 from catosettings import settings
 from catocommon import catocommon
 from catoerrors import InfoException
@@ -77,12 +72,12 @@ class Users(object):
         return catocommon.ObjectOutput.IterableAsJSON(self.SafeList())
 
     def AsXML(self):
-        dom = ET.fromstring('<Users />')
+        dom = catocommon.ET.fromstring('<Users />')
         for user in self.SafeList():
             xml = catocommon.dict2xml(user, "User")
-            node = ET.fromstring(xml.tostring())
+            node = catocommon.ET.fromstring(xml.tostring())
             dom.append(node)
-        return ET.tostring(dom)
+        return catocommon.ET.tostring(dom)
 
     def AsText(self, delimiter=None, headers=None):
         return catocommon.ObjectOutput.IterableAsText(self.SafeList(), ['FullName', 'Role', 'Status', 'AuthenticationType', 'Email'], delimiter, headers)

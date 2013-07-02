@@ -19,10 +19,6 @@
 """
 import os
 import json
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
 
 from catoconfig import catoconfig
 from catocommon import catocommon
@@ -613,7 +609,7 @@ class CloudProviders(dict):
         filename = os.path.join(catoconfig.BASEPATH, "conf/cloud_providers.xml")
         if not os.path.isfile(filename):
             raise Exception("conf/cloud_providers.xml file does not exist.")
-        xRoot = ET.parse(filename)
+        xRoot = catocommon.ET.parse(filename)
         if not xRoot:
             raise Exception("Error: Invalid or missing Cloud Providers XML.")
         else:
@@ -894,7 +890,7 @@ def create_static_clouds():
     filename = os.path.join(catoconfig.BASEPATH, "conf/cloud_providers.xml")
     if not os.path.isfile(filename):
         raise Exception("conf/cloud_providers.xml file does not exist.")
-    xRoot = ET.parse(filename)
+    xRoot = catocommon.ET.parse(filename)
     if not xRoot:
         raise Exception("Error: Invalid or missing Cloud Providers XML.")
     else:

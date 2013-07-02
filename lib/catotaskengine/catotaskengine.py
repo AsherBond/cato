@@ -33,11 +33,6 @@ lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 
 
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
-
 from catocommon import catocommon
 from catodb import catodb
 from catoruntimes import runtimes
@@ -378,7 +373,7 @@ class TaskEngine():
 
     def get_xml_val(self, xml, path, index=0):
 
-        root = ET.fromstring(xml)
+        root = catocommon.ET.fromstring(xml)
         nodes = root.findall(path)
         if nodes:
             try:
@@ -387,7 +382,7 @@ class TaskEngine():
                 v = ""
             else:
                 if len(list(node)):
-                    v = ET.tostring(node)
+                    v = catocommon.ET.tostring(node)
                 else:
                     v = node.text
         else:
@@ -410,7 +405,7 @@ class TaskEngine():
 
     def get_xml_count(self, xml, node_name):
 
-        root = ET.fromstring(xml)
+        root = catocommon.ET.fromstring(xml)
         nodes = root.findall(node_name)
         if nodes:
             count = len(nodes)
@@ -423,7 +418,7 @@ class TaskEngine():
     def get_node_list(self, xml, node_name, *args):
 
         return_list = []
-        root = ET.fromstring(xml)
+        root = catocommon.ET.fromstring(xml)
         node_name = "./" + node_name
         nodes = root.findall(node_name)
 
@@ -440,7 +435,7 @@ class TaskEngine():
     def get_command_params(self, xml, *args):
 
         return_list = []
-        root = ET.fromstring(xml)
+        root = catocommon.ET.fromstring(xml)
         for node in args:
             node = "./" + node
             self.logger.debug("Field: %s" % (node))
@@ -509,7 +504,7 @@ class TaskEngine():
             
     def get_step_object(self, step_id, step_xml):
 
-        root = ET.fromstring(step_xml)
+        root = catocommon.ET.fromstring(step_xml)
         function_name = root.attrib.get("name")
         parse_method = root.attrib.get("parse_method")
         row_del = root.attrib.get("row_delimiter")
@@ -1134,7 +1129,7 @@ class TaskEngine():
         cloud_name = self.replace_variables(cloud_name)
 
         product, action = step.function_name.split("_")[1:]
-        nodes = ET.fromstring(step.command)
+        nodes = catocommon.ET.fromstring(step.command)
         params = []
         node_names = {}
         for node in nodes:
@@ -1210,7 +1205,7 @@ class TaskEngine():
         
         """
         self.logger.info("[%s] Not a built-in command, checking extensions..." % (name))
-        root = ET.fromstring(step.command)
+        root = catocommon.ET.fromstring(step.command)
         extension = root.attrib.get("extension")
         del(root)
         if not extension:
@@ -1470,11 +1465,11 @@ class TaskEngine():
 
     def extract_xml_string(self, xml, node_name):
 
-        root = ET.fromstring(xml)
+        root = catocommon.ET.fromstring(xml)
         node_name = "./" + node_name
         r = root.findall(node_name)
         if r:
-            z = ET.tostring(r[0])
+            z = catocommon.ET.tostring(r[0])
         else:
             z = None
         del(root)
@@ -1491,8 +1486,8 @@ class TaskEngine():
         if not override_xml:
             return None
     
-        xdefaults = ET.fromstring(default_xml)
-        xoverrides = ET.fromstring(override_xml)
+        xdefaults = catocommon.ET.fromstring(default_xml)
+        xoverrides = catocommon.ET.fromstring(override_xml)
         
         # spin the nodes in the DEFAULTS xml, then dig in to the task XML and UPDATE the value if found.
         # (if the node no longer exists, delete the node from the defaults xml IF IT WAS AN ACTION)
@@ -1541,7 +1536,7 @@ class TaskEngine():
                             xval.text = xovervals.findtext("value", "")
 
         if xdefaults is not None:    
-            resp = ET.tostring(xdefaults)
+            resp = catocommon.ET.tostring(xdefaults)
             if resp:
                 return resp
         
@@ -1549,7 +1544,7 @@ class TaskEngine():
     def parse_input_params(self, params):
 
         try:
-            root = ET.fromstring(params)
+            root = catocommon.ET.fromstring(params)
             nodes = root.findall("./parameter")
             for node in nodes:
                 name = node.findtext("name", "").strip()
@@ -1569,7 +1564,7 @@ class TaskEngine():
                         val = catocommon.cato_decrypt(val)
                     self.rt.set(name, val, ii)
             del(root)
-        except ET.ParseError:
+        except catocommon.ET.ParseError:
             raise Exception("Invalid or missing XML for parameters.")
 
     def send_email(self, to, sub, body, cc="", bcc=""):

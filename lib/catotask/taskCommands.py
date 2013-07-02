@@ -16,11 +16,7 @@
 from catolog import catolog
 logger = catolog.get_logger(__name__)
 
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
-
+from catocommon import catocommon
 
 # FunctionCategories contains a list of all Category objects, 
 # as well as a dictionary of function objects.
@@ -32,7 +28,7 @@ class FunctionCategories(object):
     # method to load from the disk
     def Load(self, sFileName):
         logger.debug("Loading commands from extension file [%s]" % sFileName)
-        xRoot = ET.parse(sFileName)
+        xRoot = catocommon.ET.parse(sFileName)
         if xRoot == None:
             # crash... we can't do anything if the XML is busted
             logger.warning("Invalid XML [%s]" % sFileName)
@@ -82,7 +78,7 @@ class FunctionCategories(object):
             
             func = xFunction.find("function")
             if func is not None:
-                fn.TemplateXML = ET.tostring(func)
+                fn.TemplateXML = catocommon.ET.tostring(func)
                 fn.TemplateXDoc = func
 
             cat.Functions.append(fn)

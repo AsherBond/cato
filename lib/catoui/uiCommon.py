@@ -21,10 +21,6 @@ import cgi
 import re
 import copy
 import base64
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
 
 from catolog import catolog
 from catoconfig import catoconfig
@@ -221,7 +217,7 @@ def WriteObjectPropertyChangeLog(oType, sObjectID, sLabel, sFrom, sTo):
 
 def PrepareAndEncryptParameterXML(sParameterXML):
     if sParameterXML:
-        xDoc = ET.fromstring(sParameterXML)
+        xDoc = catocommon.ET.fromstring(sParameterXML)
         if xDoc is None:
             log("Parameter XML data is invalid.")
 
@@ -239,7 +235,7 @@ def PrepareAndEncryptParameterXML(sParameterXML):
             xToEncrypt.text = unpackJSON(xToEncrypt.text)
             del xToEncrypt.attrib["oev"]
         
-        return ET.tostring(xDoc)
+        return catocommon.ET.tostring(xDoc)
     else:
         return ""
 
@@ -435,7 +431,7 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
     
     sXML = RemoveDefaultNamespacesFromXML(sXML)
 
-    xDoc = ET.fromstring(sXML)
+    xDoc = catocommon.ET.fromstring(sXML)
     if xDoc is None:
         return None, "API Response XML document is invalid."
     
@@ -494,7 +490,7 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
                         bAsXML = (True if newprop.ValueIsXML else False)
                         
                         if bAsXML:
-                            newprop.Value = ET.tostring(xeProp)
+                            newprop.Value = catocommon.ET.tostring(xeProp)
                             log(" -- found (as xml) - [%s]" % newprop.Value, 4)
                         else:
                             newprop.Value = xeProp.text
@@ -561,7 +557,7 @@ def AddNodeToXMLColumn(sTable, sXMLColumn, sWhereClause, sXPath, sXMLToAdd):
     else:
         # parse the doc from the table
         log(sXML, 4)
-        xd = ET.fromstring(sXML)
+        xd = catocommon.ET.fromstring(sXML)
         if xd is None:
             log("Error: Unable to parse XML.")
 
@@ -580,7 +576,7 @@ def AddNodeToXMLColumn(sTable, sXMLColumn, sWhereClause, sXPath, sXMLToAdd):
             return
 
         # now parse the new section from the text passed in
-        xNew = ET.fromstring(sXMLToAdd)
+        xNew = catocommon.ET.fromstring(sXMLToAdd)
         if xNew is None:
             log("Error: XML to be added cannot be parsed.")
 
@@ -597,7 +593,7 @@ def AddNodeToXMLColumn(sTable, sXMLColumn, sWhereClause, sXPath, sXMLToAdd):
 
         # then send the whole doc back to the database
         sSQL = "update " + sTable + " set " + sXMLColumn + " = %s where " + sWhereClause
-        if not db.exec_db_noexcep(sSQL, (ET.tostring(xd))):
+        if not db.exec_db_noexcep(sSQL, (catocommon.ET.tostring(xd))):
             log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
 
     return
@@ -611,7 +607,7 @@ def SetNodeValueinXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToSet, sValue
         log("Unable to get xml." + db.error)
     else:
         # parse the doc from the table
-        xd = ET.fromstring(sXML)
+        xd = catocommon.ET.fromstring(sXML)
         if xd is None:
             log("Error: Unable to parse XML.")
 
@@ -626,7 +622,7 @@ def SetNodeValueinXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToSet, sValue
 
             # then send the whole doc back to the database
             sSQL = "update " + sTable + " set " + sXMLColumn + " = %s where " + sWhereClause
-            if not db.exec_db_noexcep(sSQL, (ET.tostring(xd))):
+            if not db.exec_db_noexcep(sSQL, (catocommon.ET.tostring(xd))):
                 log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
         else:
             log("Unable to update XML Column ... [" + sNodeToSet + "] not found.")
@@ -648,7 +644,7 @@ def SetNodeAttributeinXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToSet, sA
     
     if sXML:
         # parse the doc from the table
-        xd = ET.fromstring(sXML)
+        xd = catocommon.ET.fromstring(sXML)
         if xd is None:
             log("Unable to parse xml." + db.error)
             return ""
@@ -674,7 +670,7 @@ def SetNodeAttributeinXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToSet, sA
     
         # then send the whole doc back to the database
         sSQL = "update " + sTable + " set " + sXMLColumn + " = %s where " + sWhereClause
-        if not db.exec_db_noexcep(sSQL, (ET.tostring(xd))):
+        if not db.exec_db_noexcep(sSQL, (catocommon.ET.tostring(xd))):
             log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
     
     return ""
@@ -688,7 +684,7 @@ def RemoveNodeFromXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToRemove):
         log("Unable to get xml." + db.error)
     else:
         # parse the doc from the table
-        xd = ET.fromstring(sXML)
+        xd = catocommon.ET.fromstring(sXML)
         if xd is None:
             log("Error: Unable to parse XML.")
 
@@ -712,7 +708,7 @@ def RemoveNodeFromXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToRemove):
             xParentOfNodeToWhack.remove(xNodeToWhack)
 
         sSQL = "update " + sTable + " set " + sXMLColumn + " = %s where " + sWhereClause
-        if not db.exec_db_noexcep(sSQL, (ET.tostring(xd))):
+        if not db.exec_db_noexcep(sSQL, (catocommon.ET.tostring(xd))):
             log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
 
     return

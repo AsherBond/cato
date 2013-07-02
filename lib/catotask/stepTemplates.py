@@ -16,11 +16,6 @@
 import traceback
 import json
 from catoui import uiCommon as UI, uiGlobals
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
-
 from catotask import task
 from catocommon import catocommon
 from catocloud import cloud
@@ -708,7 +703,7 @@ def DrawField(xe, sXPath, oStep):
                     if sValueNode == "":
                         UI.log("---- 'valuenode' attribute not found, defaulting to 'value'.", 4)
                     
-                    xml = ET.parse("extensions/" + sDataSet)
+                    xml = catocommon.ET.parse("extensions/" + sDataSet)
                     if xml:
                         nodes = xml.findall(".//" + sValueNode)
                         if len(nodes) > 0:
@@ -1404,7 +1399,7 @@ def GetVariablesForStepForDisplay(oStep):
 
     sHTML = ""
     if xDoc is not None:
-        # UI.log("Command Variable XML:\n%s" % ET.tostring(xDoc), 4)
+        # UI.log("Command Variable XML:\n%s" % catocommon.ET.tostring(xDoc), 4)
         xVars = xDoc.findall("step_variables/variable")
         if xVars is None:
             return "Variable XML data for step [" + sStepID + "] does not contain any 'variable' elements."
@@ -3100,7 +3095,7 @@ def DrawCommandParameterSection(sParameterXML, bEditable, bSnipValues):
     sHTML = ""
 
     if sParameterXML:
-        xParams = ET.fromstring(sParameterXML)
+        xParams = catocommon.ET.fromstring(sParameterXML)
         if xParams is None:
             UI.log("Parameter XML data is invalid.")
 
