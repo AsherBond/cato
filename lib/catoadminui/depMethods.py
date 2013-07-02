@@ -112,8 +112,7 @@ class depMethods:
         
         # can't delete it if it's referenced.
         sSQL = """select count(*) from deployment d
-            join deployment_template dt on (d.template_name = dt.template_name
-                and d.template_version = dt.template_version)
+            join deployment_template dt on d.template_id = dt.template_id
             where dt.template_id in (%s)""" % sDeleteArray
 
         iResults = self.db.select_col_noexcep(sSQL)
@@ -270,3 +269,20 @@ class depMethods:
 
         return json.dumps({"result" : "success"})
 
+    def wmDeleteDeployments(self):        
+        # this is an admin function
+        if uiCommon.GetSessionUserRole() != "Administrator":
+            raise InfoException("Only an Administrator can delete a Deployed Application.")
+            
+                    
+        sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
+
+        ids_to_delete = sDeleteArray.split(",")
+        if ids_to_delete:
+            for did in ids_to_delete:
+                obj = deployment.Deployment()
+                obj.FromID(did)
+                # no success check, just carry on
+                obj.DBDelete()
+
+        return json.dumps({"result" : "success"})

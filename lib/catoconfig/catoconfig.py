@@ -159,6 +159,9 @@ def safe_config():
     to the web and API clients if requested.
     """
     cfg = {}
+    cfg["version"] = CONFIG.get("version", "NOT SET")
+    cfg["database"] = CONFIG.get("server", "Unknown")
+
     cfg["user_ui_port"] = CONFIG["user_ui_port"]
     cfg["admin_ui_port"] = CONFIG["admin_ui_port"]
     cfg["user_ui_enable_refresh"] = CONFIG["user_ui_enable_refresh"]
@@ -171,7 +174,7 @@ def safe_config():
     return cfg
 
 
-#if not os.environ.get("CATO_CONFIG"):
+# if not os.environ.get("CATO_CONFIG"):
 #    print "CATO_CONFIG environment variable not set - trying default..."
 
 CONFFILE = os.environ.get("CATO_CONFIG", os.path.join(os.sep, "etc", "cato", "cato.conf"))
@@ -179,5 +182,5 @@ CONFDIR = os.path.split(CONFFILE)[0]
 BASEPATH = _get_base_path()
 CONFIG = read_config()
 SAFECONFIG = safe_config()
-VERSION = CONFIG["version"] if CONFIG.has_key("version") else "NOT SET"
+VERSION = CONFIG.get("version", "NOT SET")
 

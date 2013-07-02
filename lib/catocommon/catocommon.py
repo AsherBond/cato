@@ -530,7 +530,7 @@ def add_security_log(UserID, LogType, Action, ObjectType, ObjectID, LogMessage):
         except:
             ObjectType = -1
     
-        sTrimmedLog = tick_slash(LogMessage).strip()
+        sTrimmedLog = LogMessage.strip()
         if sTrimmedLog:
             if len(sTrimmedLog) > 7999:
                 sTrimmedLog = sTrimmedLog[:7998]
@@ -545,32 +545,32 @@ def add_security_log(UserID, LogType, Action, ObjectType, ObjectID, LogMessage):
 
 def write_add_log(UserID, oType, sObjectID, sObjectName, sLog=""):
     if not sLog:
-        sLog = "Created: [" + tick_slash(sObjectName) + "]."
+        sLog = "Created: [%s]." % (sObjectName)
     else:
-        sLog = "Created: [" + tick_slash(sObjectName) + "] - [" + sLog + "]"
+        sLog = "Created: [%s] - [%s]" % (sObjectName, sLog)
 
     add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectAdd, oType, sObjectID, sLog)
 
 def write_delete_log(UserID, oType, sObjectID, sObjectName, sLog=""):
     if not sLog:
-        sLog = "Deleted: [" + tick_slash(sObjectName) + "]."
+        sLog = "Deleted: [%s]." % (sObjectName)
     else:
-        sLog = "Deleted: [" + tick_slash(sObjectName) + "] - [" + sLog + "]"
+        sLog = "Deleted: [%s] - [%s]" % (sObjectName, sLog)
 
     add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectDelete, oType, sObjectID, sLog)
 
 def write_change_log(UserID, oType, sObjectID, sObjectName, sLog=""):
     if not sLog:
-        sLog = "Changed: [" + tick_slash(sObjectName) + "]."
+        sLog = "Changed: [%s]." % (sObjectName)
     else:
-        sLog = "Changed: [" + tick_slash(sObjectName) + "] - [" + sLog + "]"
+        sLog = "Changed: [%s] - [%s]" % (sObjectName, sLog)
 
     add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectModify, oType, sObjectID, sLog)
 
 def write_property_change_log(UserID, oType, sObjectID, sLabel, sFrom, sTo):
     if sFrom and sTo:
         if sFrom != sTo:
-            sLog = "Changed: " + sLabel + " from [" + tick_slash(sFrom) + "] to [" + tick_slash(sTo) + "]."
+            sLog = "Changed: %s from [%s] to [%s]." % (sLabel, sFrom, sTo)
             add_security_log(UserID, SecurityLogTypes.Object, SecurityLogActions.ObjectModify, oType, sObjectID, sLog)
 
 def FindAndCall(method, args=None):

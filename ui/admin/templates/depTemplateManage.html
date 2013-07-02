@@ -12,17 +12,17 @@ $var cssfiles:
         <img src="static/images/icons/deployments_128.png" alt="" />
         <div id="left_tooltip_box_outer">
             <div id="left_tooltip_box_inner">
-                <h4>Deployment Templates</h4>
+                <h4>Application Templates</h4>
                 <p>
-                    The Manage Deployment Templates screen allows
-                    administrators to modify, add and delete Templates for Deployment.
+                    The Manage Application Templates screen allows
+                    administrators to modify, add and delete Application Templates.
                 </p>
                 <p>
                     Select one or more Templates from the list to the right, using the checkboxes. Select
                     an action to modify or delete the Templates you've selected.
                 </p>
                 <p>
-                    Templates cannot be deleted if they are referenced by any Deployment.
+                    Templates cannot be deleted if they are referenced by any Deployed Application.
                 </p>
             </div>
         </div>
@@ -49,7 +49,7 @@ $var cssfiles:
     </table>
     <div id="pager"></div>
 </div>
-<div id="edit_dialog" class="hidden" title="New Deployment Template">
+<div id="edit_dialog" class="hidden" title="New Application Template">
     <table width="100%">
         <tbody>
             <tr>
@@ -72,7 +72,7 @@ $var cssfiles:
                 <td>                <textarea id="txtTemplateDesc" class="w400px" rows="3"></textarea></td>
             </tr>
             <tr>
-                <td> Template Source </td>
+                <td> Application Definition </td>
                 <td>
                 <select id="ddlTemplateSource">
                     <option value="Text" selected="selected">Text</option>
@@ -96,8 +96,8 @@ $var cssfiles:
         </tbody>
     </table>
 </div>
-<div id="delete_dialog" class="hidden" title="Delete Deployment Templates">
-    Are you sure you want to delete these Deployment Templates?
+<div id="delete_dialog" class="hidden" title="Delete Application Templates">
+    Are you sure you want to delete these Application Templates?
 </div>
 <div id="copy_dialog" class="hidden" title="Copy Template">
     <table width="100%">

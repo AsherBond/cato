@@ -31,8 +31,13 @@ $(document).ready(function() {
 	$(".datetimepicker").datetimepicker();
 	$(".timepicker").timepicker();
 
+	// the logout button
 	$("#logout_btn").click(function() {
 		location.href = "/logout";
+	});
+	// the 'about' link in the footer
+	$("#about_btn").click(function() {
+		showAbout();
 	});
 
 	$("#error_dialog").dialog({
@@ -146,8 +151,8 @@ function showMyAccount() {
 }
 
 function showAbout() {
-	$("#app_version").load("uiMethods/wmGetVersion");
-	$("#db_info").load("uiMethods/wmGetDBInfo");
+	$("#app_version").text(g_config.version);
+	$("#db_info").text(g_config.database);
 	$('#about_dialog').dialog('open');
 }
 

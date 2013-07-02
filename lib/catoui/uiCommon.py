@@ -327,7 +327,7 @@ def FilterSetByTag(rows):
     else:
         tags = tag.ObjectTags(1, GetSessionUserID())
         filtered = []
-        if tags:
+        if tags and rows:
             for row in rows:
                 if set(tags) & set(row["Tags"].split(",") if row["Tags"] else []):
                     filtered.append(row)
@@ -601,9 +601,8 @@ def AddNodeToXMLColumn(sTable, sXMLColumn, sWhereClause, sXPath, sXMLToAdd):
 
 
         # then send the whole doc back to the database
-        sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "'" \
-            " where " + sWhereClause
-        if not db.exec_db_noexcep(sSQL):
+        sSQL = "update " + sTable + " set " + sXMLColumn + " = %s where " + sWhereClause
+        if not db.exec_db_noexcep(sSQL, (ET.tostring(xd))):
             log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
 
     return
@@ -631,8 +630,8 @@ def SetNodeValueinXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToSet, sValue
             xNodeToSet.text = sValue
 
             # then send the whole doc back to the database
-            sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "' where " + sWhereClause
-            if not db.exec_db_noexcep(sSQL):
+            sSQL = "update " + sTable + " set " + sXMLColumn + " = %s where " + sWhereClause
+            if not db.exec_db_noexcep(sSQL, (ET.tostring(xd))):
                 log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
         else:
             log("Unable to update XML Column ... [" + sNodeToSet + "] not found.")
@@ -679,9 +678,8 @@ def SetNodeAttributeinXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToSet, sA
     
     
         # then send the whole doc back to the database
-        sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "'" \
-            " where " + sWhereClause
-        if not db.exec_db_noexcep(sSQL):
+        sSQL = "update " + sTable + " set " + sXMLColumn + " = %s where " + sWhereClause
+        if not db.exec_db_noexcep(sSQL, (ET.tostring(xd))):
             log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
     
     return ""
@@ -718,9 +716,8 @@ def RemoveNodeFromXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToRemove):
         if xParentOfNodeToWhack is not None:
             xParentOfNodeToWhack.remove(xNodeToWhack)
 
-        sSQL = "update " + sTable + " set " + sXMLColumn + " = '" + catocommon.tick_slash(ET.tostring(xd)) + "'" \
-            " where " + sWhereClause
-        if not db.exec_db_noexcep(sSQL):
+        sSQL = "update " + sTable + " set " + sXMLColumn + " = %s where " + sWhereClause
+        if not db.exec_db_noexcep(sSQL, (ET.tostring(xd))):
             log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
 
     return
@@ -977,10 +974,11 @@ def GetLog():
         </head>
         <body>
             <pre>%s</pre>
+            <div style="height: 20px;"></div>
             <a id="bottom">
             <script type="text/javascript">
-                location.hash = "#bottom";
-                setInterval(location.reload, %d);
+                window.scrollTo(0, document.body.scrollHeight);
+                setInterval(function() {location.reload();}, %d);
             </script>
         </body>
     </html>

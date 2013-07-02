@@ -83,7 +83,7 @@ class cloudMethods:
         
         """
         # this is a developer function
-        if not args["_developer"]:
+        if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden)
         
         required_params = ["name", "provider", "login", "password", "default_cloud"]
@@ -120,7 +120,7 @@ class cloudMethods:
         Returns: A Cloud Account object.
         """
         # this is a developer function
-        if not args["_developer"]:
+        if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden)
         
         required_params = ["name"]
@@ -182,7 +182,7 @@ class cloudMethods:
         Returns: A Cloud object.
         """
         # this is a developer function
-        if not args["_developer"]:
+        if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden)
         
         required_params = ["name", "provider", "apiurl", "apiprotocol"]
@@ -222,7 +222,7 @@ class cloudMethods:
         Returns: A Cloud object.
         """
         # this is a developer function
-        if not args["_developer"]:
+        if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden)
         
         required_params = ["name"]
@@ -311,7 +311,7 @@ class cloudMethods:
         Returns: A list of Key Pairs on this Cloud.
         """
         # this is a developer function
-        if not args["_developer"]:
+        if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden)
         
         required_params = ["cloud", "name", "private_key"]
@@ -345,7 +345,7 @@ class cloudMethods:
         Returns: A list of Key Pairs on this Cloud.
         """
         # this is a developer function
-        if not args["_developer"]:
+        if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden)
         
         required_params = ["cloud", "name"]

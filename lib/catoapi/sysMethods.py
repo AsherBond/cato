@@ -188,12 +188,12 @@ class sysMethods:
         new_pw = args.get("password")
 
         # this is a admin function, kick out 
-        if user and not args["_admin"]:
+        if user and not api._ADMIN:
             return R(err_code=R.Codes.Forbidden)
 
         # the only way to reset an "Administrator" role password
         # is to BE an Administrator and SPECIFY a user, even if the user is you
-        if not user and args["_admin"]:
+        if not user and api._ADMIN:
             return R(err_code=R.Codes.Forbidden, err_detail="Administrators must specify a user to change.")
 
         generate = catocommon.is_true(args.get("generate"))
@@ -246,7 +246,7 @@ class sysMethods:
         """
 
         # this is a admin function, kick out 
-        if not args["_admin"]:
+        if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden)
 
         # define the required parameters for this call
@@ -333,7 +333,7 @@ class sysMethods:
         """
 
         # this is a admin function, kick out 
-        if not args["_admin"]:
+        if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden)
 
         # define the required parameters for this call
@@ -410,7 +410,7 @@ class sysMethods:
         Returns: A list of all Users.
         """
         # this is a admin function, kick out 
-        if not args["_admin"]:
+        if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden)
 
         fltr = args["filter"] if args.has_key("filter") else ""
@@ -446,7 +446,7 @@ class sysMethods:
         sets = args.get("settings")
 
         # this is a admin function, kick out 
-        if not args["_admin"]:
+        if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden)
 
         required_params = ["module", "settings"]
@@ -497,7 +497,7 @@ class sysMethods:
         Returns: A collection of settings.
         """
         # this is a admin function, kick out 
-        if not args["_admin"]:
+        if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden)
 
         mod = args.get("module")
@@ -538,7 +538,7 @@ class sysMethods:
         """
 
         # this is a admin function, kick out 
-        if not args["_developer"]:
+        if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden)
 
         # define the required parameters for this call
@@ -573,7 +573,7 @@ class sysMethods:
         Returns: Success message if successful, error message on failure.
         """
         # this is a developer function
-        if not args["_developer"]:
+        if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden)
         
         required_params = ["credential"]
@@ -626,7 +626,7 @@ class sysMethods:
         Returns: An array of log entries.
         """
         # this is a admin function, kick out 
-        if not args["_admin"]:
+        if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden)
 
         out = []        
@@ -693,7 +693,7 @@ class sysMethods:
         Returns: The new Tag if successful, error message on failure.
         """
         # this is a admin function, kick out 
-        if not args["_admin"]:
+        if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden)
     
         # define the required parameters for this call
@@ -723,7 +723,7 @@ class sysMethods:
         Returns: Success message successful, error message on failure.
         """
         # this is a admin function, kick out 
-        if not args["_admin"]:
+        if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden)
     
         # define the required parameters for this call
@@ -752,7 +752,7 @@ class sysMethods:
         Returns: Success message successful, error message on failure.
         """
         # this is a admin function
-        if not args["_admin"]:
+        if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden)
     
         # define the required parameters for this call
@@ -780,7 +780,7 @@ class sysMethods:
         Returns: Success message successful, error message on failure.
         """
         # this is a admin function
-        if not args["_admin"]:
+        if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden)
     
         # define the required parameters for this call

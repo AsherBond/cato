@@ -17,153 +17,151 @@ $def with (content)
 //
 -->
 <html>
-	<head id="Head1">
-		<meta charset=utf-8 />
-		<title>Cato - Cloud Sidekick</title>
-		<link rel="shorcut icon" href="static/images/favicon.ico" />
-		<!-- Imp CSS -->
-		<link type="text/css" href="static/style/main.css" rel="stylesheet" />
-		<link type="text/css" href="static/style/ui.tabs.css" rel="stylesheet" />
-		<link type="text/css" href="static/style/superfish/superfish.css" rel="stylesheet" />
-		<link type="text/css" href="static/style/tipTip.css" rel="stylesheet" />
+    <head id="Head1">
+        <meta charset=utf-8 />
+        <title>Cato - Cloud Sidekick</title>
+        <link rel="shorcut icon" href="static/images/favicon.ico" />
+        <!-- Imp CSS -->
+        <link type="text/css" href="static/style/main.css" rel="stylesheet" />
+        <link type="text/css" href="static/style/ui.tabs.css" rel="stylesheet" />
+        <link type="text/css" href="static/style/superfish/superfish.css" rel="stylesheet" />
+        <link type="text/css" href="static/style/tipTip.css" rel="stylesheet" />
 
-		<!--Any .css files defined on the content page.-->
-		$if content.cssfiles:
-			$for f in content.cssfiles.split():
-				<link type="text/css" href="static/style/$f" rel="stylesheet" />
+        <!--Any .css files defined on the content page.-->
+        $if content.cssfiles:
+            $for f in content.cssfiles.split():
+                <link type="text/css" href="static/style/$f" rel="stylesheet" />
 
-		<!--jQuery -->
-		<script type="text/javascript" src="static/script/jquery/jquery-1.7.2.min.js"></script>
-		<script type="text/javascript" src="static/script/jquery/jquery-ui-1.8.21.min.js"></script>
-		<!-- Plugins -->
-		<script type="text/javascript" src="static/script/jquery/jquery.blockUI.js"></script>
-		<script type="text/javascript" src="static/script/jquery/jquery.textarea.js"></script>
-		<script type="text/javascript" src="static/script/jquery/jquery.timers.js"></script>
-		<script type="text/javascript" src="static/script/superfish/hoverIntent.js"></script>
-		<script type="text/javascript" src="static/script/superfish/superfish.js"></script>
-		<script type="text/javascript" src="static/script/superfish/supersubs.js"></script>
-		<script type="text/javascript" src="static/script/jquery/jquery.scrollTo.js"></script>
-		<script type="text/javascript" src="static/script/jquery/jquery.tipTip.js"></script>
-		<script type="text/javascript" src="static/script/jquery/jquery.timepicker.js"></script>
-		<script type="text/javascript" src="static/script/jquery/jquery.base64.js"></script>
-		<script type="text/javascript" src="static/script/jquery/jquery.cookie.js"></script>
-		<script type="text/javascript" src="static/script/jquery/jquery.sortElements.js"></script>
-		<!-- JavaScript -->
-		<script type="text/javascript" src="static/script/masterpage.js"></script>
-		<script type="text/javascript" src="static/script/MainScript.js"></script>
-		<script type="text/javascript" src="static/script/validation.js"></script>
-		<script type="text/javascript" src="static/script/logViewDialog.js"></script>
-		<script type="text/javascript" src="static/script/ajax.js"></script>
-		<script type="text/javascript" src="static/script/site.master.js"></script>
+        <!--jQuery -->
+        <script type="text/javascript" src="static/script/jquery/jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="static/script/jquery/jquery-ui-1.8.21.min.js"></script>
+        <!-- Plugins -->
+        <script type="text/javascript" src="static/script/jquery/jquery.blockUI.js"></script>
+        <script type="text/javascript" src="static/script/jquery/jquery.textarea.js"></script>
+        <script type="text/javascript" src="static/script/jquery/jquery.timers.js"></script>
+        <script type="text/javascript" src="static/script/superfish/hoverIntent.js"></script>
+        <script type="text/javascript" src="static/script/superfish/superfish.js"></script>
+        <script type="text/javascript" src="static/script/superfish/supersubs.js"></script>
+        <script type="text/javascript" src="static/script/jquery/jquery.scrollTo.js"></script>
+        <script type="text/javascript" src="static/script/jquery/jquery.tipTip.js"></script>
+        <script type="text/javascript" src="static/script/jquery/jquery.timepicker.js"></script>
+        <script type="text/javascript" src="static/script/jquery/jquery.base64.js"></script>
+        <script type="text/javascript" src="static/script/jquery/jquery.cookie.js"></script>
+        <script type="text/javascript" src="static/script/jquery/jquery.sortElements.js"></script>
+        <!-- JavaScript -->
+        <script type="text/javascript" src="static/script/masterpage.js"></script>
+        <script type="text/javascript" src="static/script/MainScript.js"></script>
+        <script type="text/javascript" src="static/script/validation.js"></script>
+        <script type="text/javascript" src="static/script/logViewDialog.js"></script>
+        <script type="text/javascript" src="static/script/ajax.js"></script>
+        <script type="text/javascript" src="static/script/site.master.js"></script>
 
-		<!--Any .js files defined on the content page.-->
-		$if content.jsfiles:
-			$for f in content.jsfiles.split():
-				<script type="text/javascript" src="static/script/$f"></script>
+        <!--Any .js files defined on the content page.-->
+        $if content.jsfiles:
+            $for f in content.jsfiles.split():
+                <script type="text/javascript" src="static/script/$f"></script>
 
-	</head>
-	<body>
-		<div id="app_footer" class="ui-widget-header blur">
-			<div class="floatleft" style="margin-left: 10px;">
-				&copy; 2012 Cloud Sidekick
-			</div>
+    </head>
+    <body>
+        <div id="app_footer" class="ui-widget-header blur">
+            <div class="floatleft" style="margin-left: 10px;">
+                &copy; 2012 Cloud Sidekick
+            </div>
 
-			<div class="floatright" style="margin-right: 10px; margin-top: -6px;">
-				<span>Cloud Account: <select id="header_cloud_accounts"></select></span>
-			</div>
-		</div>
-		<div id="fullcontent" class="min900px">
-			<!-- This is the MAIN Content section. -->
-			$:content
-			<!--  End MAIN Content section. -->
-			<div id="head" class="ui-widget-header">
-				<!-- Main Menu  -->
-				<ul id="main-menu" class="sf-menu"></ul>
-				<!--   END Main Menu -->
-            <div id="app_header_icons" class="floatright">
-					<img id="my_account_link" class="floatleft pointer app_header_icon" src="static/images/icons/myaccount.png" height="16px" width="16px" alt="My Account" title="My Account" />
+            <div class="floatright" style="margin-right: 10px; cursor: pointer;" title="About Cato">
+                <img id="about_btn" src="static/images/icons/info.png" />
+            </div>
+            <div class="floatright" style="margin-right: 10px; margin-top: -6px;">
+                <span>Cloud Account: <select id="header_cloud_accounts"></select></span>
+            </div>
+            <div id="update_success_msg" class="floatright hidden" style="color: #FFF; margin-right: 20px;">
+                Update Successful
+            </div>
+        </div>
+        <div id="fullcontent" class="min900px">
+            <!-- This is the MAIN Content section. -->
+$:content
+            <!--  End MAIN Content section. -->
+            <div id="head" class="ui-widget-header">
+                <!-- Main Menu  -->
+                <ul id="main-menu" class="sf-menu"></ul>
+                <!--   END Main Menu -->
+                <div id="app_header_icons" class="floatright">
+                    <img id="my_account_link" class="floatleft pointer app_header_icon" src="static/images/icons/myaccount.png" height="16px" width="16px" alt="My Account" title="My Account" />
                     <img id="logout_btn" class="floatleft pointer app_header_icon" src="static/images/icons/exit_24.png" alt="Log Out" title="Log Out" />
-				</div>
-				<div id="update_success_msg" class="hidden" style="margin-top: -16px; margin-right: 8px; color: #FFF; white-space: nowrap;
-				text-align: right;">
-					UpdateSuccessful
-				</div>
-			</div>
-			<br />
-			<!-- dynamic divs below here -->
-			<script type="text/javascript" src="static/script/site.master.common.js"></script>
-			<!-- This is the popup "about" dialog. -->
-			<div id="about_dialog" title="About Cato" class="ui-state-highlight">
-				<p>
-					<span class="ui-icon ui-icon-info" style="float: left; margin: 0 7px 0px 0;"></span>
-					<span id="app_name">Cloud Sidekick Cato</span>
-					<br />
-					<br />
-					<b>On the Web: </b><span id="app_web">http://www.cloudsidekick.com</span>
-					<br />
-					<br />
-					<b>Version: </b><span id="app_version"></span>
-					<br />
-					<b>Database: </b><span id="db_info"></span>
-					<br />
-					<br />
-					<br />
-					Copyright © Cloud Sidekick 2012. All Rights Reserved.
-				</p>
-				<br />
-				<p>
-					<span id="info_dialog_info"></span>
-				</p>
-			</div>
-			<!-- End "about" dialog. -->
-			<!-- This is the pop up "tag picker" dialog. -->
-			<div id="tag_picker_dialog" class="tag_picker hidden">
-				Select a Tag:
-				<hr />
-				<div style="overflow: auto;">
-					<div id="tag_picker_list"></div>
-				</div>
-				<hr />
-				<div id="tag_picker_description" class="tag_description ui-widget-content ui-corner-all"></div>
-			</div>
-			<!-- End "tag picker" dialog. -->
+                </div>
+            </div>
+            <br />
+            <!-- dynamic divs below here -->
+            <script type="text/javascript" src="static/script/site.master.common.js"></script>
+            <!-- This is the popup "about" dialog. -->
+            <div id="about_dialog" title="About Cato" class="ui-state-highlight">
+                <p>
+                    <span class="ui-icon ui-icon-info" style="float: left; margin: 0 7px 0px 0;"></span>
+                    <span id="app_name">Cloud Sidekick Cato</span>
+                    <br />
+                    <br />
+                    <b>On the Web: </b><span id="app_web">http://www.cloudsidekick.com</span>
+                    <br />
+                    <br />
+                    <b>Version: </b><span id="app_version"></span>
+                    <br />
+                    <b>Database: </b><span id="db_info"></span>
+                    <br />
+                    <br />
+                    <br />
+                    Copyright © Cloud Sidekick 2013. All Rights Reserved.
+                </p>
+            </div>
+            <!-- End "about" dialog. -->
+            <!-- This is the pop up "tag picker" dialog. -->
+            <div id="tag_picker_dialog" class="tag_picker hidden">
+                Select a Tag:
+                <hr />
+                <div style="overflow: auto;">
+                    <div id="tag_picker_list"></div>
+                </div>
+                <hr />
+                <div id="tag_picker_description" class="tag_description ui-widget-content ui-corner-all"></div>
+            </div>
+            <!-- End "tag picker" dialog. -->
 
-			<!-- This is the pop up "My Account" dialog. -->
-			<div id="my_account_dialog" class="hidden" title="My Account">
-				<table>
-					<tr>
-						<td>Name:</td><td><span id="my_fullname"></span></td>
-					</tr>
-					<tr>
-						<td>User Name:</td><td><span id="my_username"></span></td>
-					</tr>
-					<tr>
-						<td>Email:</td><td>
-						<input type="text" id="my_email" name="my_email" class="usertextbox" />
-						</td>
-					</tr>
-					<tr class="my_localsettings">
-						<td>Password:</td><td>
-						<input type="password" id="my_password" name="my_password" class="usertextbox" />
-						</td>
-					</tr>
-					<tr class="my_localsettings">
-						<td>Password Confirm:</td><td>
-						<input type="password" id="my_password_confirm" class="usertextbox" />
-						</td>
-					</tr>
-					<tr class="my_localsettings">
-						<td style="vertical-align: top;">Security Question:</td><td>						<textarea id="my_question" name="my_question" class="usertextbox"></textarea></td>
-					</tr>
-					<tr class="my_localsettings">
-						<td>Security Answer:</td><td>
-						<input type="password" id="my_answer" name="my_answer" class="usertextbox" />
-						</td>
-					</tr>
-				</table>
-			</div>
-			<!-- End "My Account" dialog. -->
+            <!-- This is the pop up "My Account" dialog. -->
+            <div id="my_account_dialog" class="hidden" title="My Account">
+                <table>
+                    <tr>
+                        <td>Name:</td><td><span id="my_fullname"></span></td>
+                    </tr>
+                    <tr>
+                        <td>User Name:</td><td><span id="my_username"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Email:</td><td>
+                        <input type="text" id="my_email" name="my_email" class="usertextbox" />
+                        </td>
+                    </tr>
+                    <tr class="my_localsettings">
+                        <td>Password:</td><td>
+                        <input type="password" id="my_password" name="my_password" class="usertextbox" />
+                        </td>
+                    </tr>
+                    <tr class="my_localsettings">
+                        <td>Password Confirm:</td><td>
+                        <input type="password" id="my_password_confirm" class="usertextbox" />
+                        </td>
+                    </tr>
+                    <tr class="my_localsettings">
+                        <td style="vertical-align: top;">Security Question:</td><td>                        <textarea id="my_question" name="my_question" class="usertextbox"></textarea></td>
+                    </tr>
+                    <tr class="my_localsettings">
+                        <td>Security Answer:</td><td>
+                        <input type="password" id="my_answer" name="my_answer" class="usertextbox" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- End "My Account" dialog. -->
 
-		</div>
-	</body>
+        </div>
+    </body>
 </html>

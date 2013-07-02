@@ -3,84 +3,89 @@ $var jsfiles: managePageCommon.js deploymentManage.js
 $var cssfiles:
 
 <div style="display: none;">
-	<input id="hidMode" type="hidden" name="hidMode" />
-	<input id="hidCurrentEditID" type="hidden" name="hidCurrentEditID" />
-	<input id="hidSelectedArray" type="hidden" name="hidSelectedArray" />
+    <input id="hidMode" type="hidden" name="hidMode" />
+    <input id="hidCurrentEditID" type="hidden" name="hidCurrentEditID" />
+    <input id="hidSelectedArray" type="hidden" name="hidSelectedArray" />
 </div>
 <div id="left_panel">
-	<div class="left_tooltip">
-		<img src="static/images/icons/deployments_128.png" alt="" />
-		<div id="left_tooltip_box_outer">
-			<div id="left_tooltip_box_inner">
-				<h2>Deployments</h2>
-				<p>
-					The Manage Deployments screen allows
-					administrators to modify, add and delete Deployments.
-				</p>
-				<p>
-					Select one or more Deployments from the list to the right, using the checkboxes. Select
-					an action to modify or delete the Deployments you've selected.
-				</p>
-				<p>
-					Deployments cannot be deleted if they are referenced by any Services.
-				</p>
-				<p>
-					<a href="" target="_blank"><img src="static/images/icons/info.png" alt="" />Click here</a>
-					for a more detailed introduction to Deployments.
-				</p>
-			</div>
-		</div>
-	</div>
+    <div class="left_tooltip">
+        <img src="static/images/icons/deployments_128.png" alt="" />
+        <div id="left_tooltip_box_outer">
+            <div id="left_tooltip_box_inner">
+                <h2>Deployments</h2>
+                <p>
+                    The Manage Deployments screen allows Administrators to modify and delete Deployed Applications.
+                </p>
+                <p>
+                    Select one or more Deployments from the list to the right, using the checkboxes. Select
+                    an action to modify or delete the Deployments you've selected.
+                </p>
+                <p>
+                    Deployments cannot be deleted if they are referenced by any Services.
+                </p>
+                <p>
+                    <a href="http://docs.cloudsidekick.com/docs/maestro/deployments/deployment-basics.html" target="_blank"><img src="static/images/icons/info.png" alt="" />Click here</a>
+                    for a more detailed introduction to Deployments.
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 <div id="content">
-	<span id="lblItemsSelected">0</span> Items Selected <span id="clear_selected_btn">&nbsp;</span><span
-	id="item_create_btn">Create</span><span id="item_copy_btn">Copy</span><span id="item_delete_btn">Delete</span>
-	<input type="text" id="txtSearch" class="search_text" />
-	<span id="item_search_btn">Search</span>
-	<table class="jtable" cellspacing="1" cellpadding="1" width="99%">
-		<thead>
-			<tr>
-				<th class="chkboxcolumn">
-				<input class="chkbox" type="checkbox" id="chkAll" />
-				</th>
-				<th class="sortable"> Name </th>
-				<th class="sortable"> Status </th>
-				<th class="sortable"> Description </th>
-			</tr>
-		</thead>
-		<tbody id="deployments"></tbody>
-	</table>
-	<div id="pager"></div>
+    <span id="lblItemsSelected">0</span> Items Selected <span id="clear_selected_btn">&nbsp;</span><!--<span id="item_copy_btn">Copy</span>--><span id="item_delete_btn">Delete</span>
+    <input type="text" id="txtSearch" class="search_text" />
+    <span id="item_search_btn">Search</span>
+    <table class="jtable" cellspacing="1" cellpadding="1" width="99%">
+        <thead>
+            <tr>
+                <th class="chkboxcolumn">
+                <input class="chkbox" type="checkbox" id="chkAll" />
+                </th>
+                <th class="sortable"> Name </th>
+                <th class="sortable"> Status </th>
+                <th class="sortable"> Description </th>
+            </tr>
+        </thead>
+        <tbody id="deployments"></tbody>
+    </table>
+    <div id="pager"></div>
 </div>
 <div id="edit_dialog" class="hidden" title="New Deployment">
-	<table width="100%">
-		<tbody>
-			<tr>
-				<td colspan="2"><span id="lblNewMessage"></span></td>
-			</tr>
-			<tr>
-				<td> Name </td>
-				<td>
-				<input type="text" id="txtDeploymentName" class="w100pct">
-				</td>
-			</tr>
-			<tr>
-				<td> Description </td>
-				<td>				<textarea id="txtDeploymentDesc" rows="3" class="w100pct"></textarea></td>
-			</tr>
-		</tbody>
-	</table>
+    <table width="100%">
+        <tbody>
+            <tr>
+                <td colspan="2"><span id="lblNewMessage"></span></td>
+            </tr>
+            <tr>
+                <td> Name </td>
+                <td>
+                <input type="text" id="txtDeploymentName" class="w100pct">
+                </td>
+            </tr>
+            <tr>
+                <td> Description </td>
+                <td>                <textarea id="txtDeploymentDesc" rows="3" class="w100pct"></textarea></td>
+            </tr>
+        </tbody>
+    </table>
 </div>
-<div id="delete_dialog" class="hidden" title="Delete Deployments">
-	Are you sure you want to delete these Deployments?
+<div id="delete_dialog" class="hidden" title="Delete Deployed Applications">
+    Deployed Applications may be associatd with provisioned infrastructure.
+    <p style="font-style: italic; padding: 2px;" class="ui-state-highlight">
+        Deleting a Deployed Application will not deprovision any infrastructure, and could result in unmanaged resources.
+    </p>
+    <hr />
+    <p style="font-style: italic; text-align: center;" class="ui-state-error">
+        Are you sure you want to delete these Applications?
+    </p>
 </div>
-<div id="copy_dialog" class="hidden" title="Copy Deployments">
-	<table width="100%">
-		<tr>
-			<td> New Deployment Name </td>
-			<td>
-			<input type="text" id="txtCopyDeploymentName" class="w400px" />
-			</td>
-		</tr>
-	</table>
+<div id="copy_dialog" class="hidden" title="Copy Deployed Application">
+    <table width="100%">
+        <tr>
+            <td> New Deployment Name </td>
+            <td>
+            <input type="text" id="txtCopyDeploymentName" class="w400px" />
+            </td>
+        </tr>
+    </table>
 </div>

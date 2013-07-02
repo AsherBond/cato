@@ -25,6 +25,14 @@ import os
 import json
 from web.wsgiserver import CherryPyWSGIServer
 
+# Some API endpoints require Maestro
+# we look at the MAESTRO_HOME environment variable and load the libs from that path
+if not os.environ.has_key("MAESTRO_HOME") or not os.environ["MAESTRO_HOME"]:
+    raise Exception("Maestro is required for API methods in this module.  MAESTRO_HOME environment variable not set.")
+
+MAESTRO_HOME = os.environ["MAESTRO_HOME"]
+sys.path.insert(0, os.path.join(MAESTRO_HOME, "lib"))
+
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
@@ -97,28 +105,40 @@ class wmHandler:
         # (using an _ prefix to avoid conflicts)
         args["_user_id"] = user_id
         args["output_format"] = output_format
-        args["_admin"] = False
-        args["_developer"] = False
         
         # the API commands do some logging that use these detail properties
         u = catouser.User()
         u.FromID(user_id)
         if u:
-            args["_role"] = u.Role
-            args["_user_full_name"] = u.FullName
+            api._USER_ID = u.ID
+
+            api._USER_ROLE = u.Role
+            api._USER_FULLNAME = u.FullName
             
             # flags are set so certain methods can have restricted access.
             if u.Role == "Administrator":
-                args["_admin"] = True
-                args["_developer"] = True
+                api._ADMIN = True
+                api._DEVELOPER = True
             if u.Role == "Developer":
-                args["_developer"] = True
+                api._DEVELOPER = True
+                
+            # Tags are placed in a global for any access checks
+            api._USER_TAGS = u.Tags
         else:
             logger.error("Authenticated, but unable to build a User object.")
             response = api.response(err_code="Exception", err_msg="Authenticated, but unable to build a User object.")
             return response.Write(output_format)
 
-        response = catocommon.FindAndCall("catoapi." + method, args)
+        if "depMethods" in method:
+            if MAESTRO_HOME:
+                response = catocommon.FindAndCall("maestroapi." + method, args)
+            else:
+                response = api.response(err_code="Exception", err_msg="This API call requires Maestro to be installed and the MAESTRO_HOME enviroment variable to be set.")
+                return response.Write(output_format)
+                
+        else:
+            response = catocommon.FindAndCall("catoapi." + method, args)
+            
         # FindAndCall can have all sorts of return values.
         # in this case, we expect it would be an api.response object.
         # but never assume
@@ -440,86 +460,6 @@ class index:
         finally:
             return "\n".join(out)
 
-class doc:
-    """
-    This is meant primarily as a convenience function to grab the latest documentation
-    for docs.cloudsidekick.com
-    """        
-    def GET(self):
-        out = []
-        out.append("<h2>Cloud Sidekick REST API</h2>")
-        
-        try:
-            from catoapi import taskMethods
-            
-            for attname in dir(taskMethods.taskMethods):
-                att = getattr(taskMethods.taskMethods, attname, None)
-                if att:
-                    if hasattr(att, "__name__"):
-                        out.append("<h4>taskMethods/%s</h4>" % att.__name__)
-                        if att.__doc__:
-                            out.append("<pre><code>%s</code></pre>" % att.__doc__.replace("        ", "").strip())
-                            
-            from catoapi import cloudMethods
-            
-            for attname in dir(cloudMethods.cloudMethods):
-                att = getattr(cloudMethods.cloudMethods, attname, None)
-                if att:
-                    if hasattr(att, "__name__"):
-                        out.append("<h4>cloudMethods/%s</h4>" % att.__name__)
-                        if att.__doc__:
-                            out.append("<pre><code>%s</code></pre>" % att.__doc__.replace("        ", "").strip())
-                            
-                        
-
-            from catoapi import sysMethods
-            
-            for attname in dir(sysMethods.sysMethods):
-                att = getattr(sysMethods.sysMethods, attname, None)
-                if att:
-                    if hasattr(att, "__name__"):
-                        out.append("<h4>sysMethods/%s</h4>" % att.__name__)
-                        if att.__doc__:
-                            out.append("<pre><code>%s</code></pre>" % att.__doc__.replace("        ", "").strip())
-                        
-
-            from catoapi import dsMethods
-            
-            for attname in dir(dsMethods.dsMethods):
-                att = getattr(dsMethods.dsMethods, attname, None)
-                if att:
-                    if hasattr(att, "__name__"):
-                        out.append("<h4>dsMethods/%s</h4>" % att.__name__)
-                        if att.__doc__:
-                            out.append("<pre><code>%s</code></pre>" % att.__doc__.replace("        ", "").strip())
-
-            
-            try:      
-                from catoapi import depMethods
-
-                out.append("<hr />")
-                out.append("<h2>Maestro REST API</h2>")
-                                    
-                for attname in dir(depMethods.depMethods):
-                    att = getattr(depMethods.depMethods, attname, None)
-                    if att:
-                        if hasattr(att, "__name__"):
-                            out.append("<h4>depMethods/%s</h4>" % att.__name__)
-                            if att.__doc__:
-                                out.append("<pre><code>%s</code></pre>" % att.__doc__.replace("        ", "").strip())
-            except ImportError:
-                # depMethods is a Maestro module, don't error if it's missing.
-                pass
-
-                    
-            out.append("\n")
-                    
-                    
-        except Exception as ex:
-            out.append(ex.__str__())
-        finally:
-            return "\n".join(out)
-
 class ExceptionHandlingApplication(web.application):
     """
     IMPORTANT
@@ -603,7 +543,6 @@ def main():
         
     urls = (
         '/', 'index',
-        '/doc', 'doc',
         '/version', 'version',
         '/configure', 'configure',
         '/getlog', 'getlog',

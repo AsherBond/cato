@@ -5,8 +5,8 @@ $var cssfiles: taskEdit.css taskView.css
 	<div id="toolbox">
 		<div id="toolbox_tabs" class="toolbox_tabs_1row">
 			<span
-			id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top ui-state-active toolbox_tab">Details</span><span
-			id="tab_datastore" linkto="div_datastore" class="ui-state-default ui-corner-top toolbox_tab">Datastore</span><span
+			id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top ui-state-active toolbox_tab">Details</span><!--<span
+			id="tab_datastore" linkto="div_datastore" class="ui-state-default ui-corner-top toolbox_tab">Datastore</span>--><span
 			id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>
 		</div>
 		<div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel">
@@ -20,7 +20,7 @@ $var cssfiles: taskEdit.css taskView.css
 				<br />
 				<br />
 				<span class="detail_label">Current Status:</span>
-				<input type="text" id="txtCurrentStatus" class="task_details code" te_group="detail_fields" column="Status" />
+				<input type="text" id="txtCurrentStatus" class="task_details code" readonly="readonly" />
 				<br />
 			</div>
 		</div>
@@ -35,7 +35,6 @@ $var cssfiles: taskEdit.css taskView.css
 		<h3><span id="lblDeploymentHeader"></span></h3>
 	</center>
 	<div id="div_details_detail" class="detail_panel hidden">
-		details go here
 	</div>
 	<div id="div_datastore_detail" class="detail_panel hidden">
 		<div id="jsoneditor" style="width: 100%;"></div>

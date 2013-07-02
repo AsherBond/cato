@@ -41,6 +41,7 @@ FunctionCategories = None
 ConnectionTypes = ["ssh - ec2", "ssh", "telnet", "mysql", "oracle", "sqlserver", "sybase", "informix", "winrm", "sqlanywhere"]
 
 RoleMethods = {
+    "/assetEdit" : ["Developer"],
     "/cloudAccountEdit" : ["Developer"],
     "/cloudDiscovery" : ["Developer"],
     "/cloudEdit" : ["Developer"],
