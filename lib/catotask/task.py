@@ -332,7 +332,7 @@ class Task(object):
         self.QueueDepth = xTask.get("queue_depth", "")
         
         # text nodes in the <task> node
-        _desc = xTask.find("description", xmlerr).text
+        _desc = xTask.find("description").text
         self.Description = _desc if _desc is not None else ""
         
         # do we have a conflict?

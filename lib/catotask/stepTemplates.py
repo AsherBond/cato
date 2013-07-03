@@ -354,7 +354,7 @@ def DrawStepFromXMLDocument(oStep):
     sHTML = ""
     sOptionHTML = ""
     # UI.log("Command XML:", 4)
-    # UI.log(ET.tostring(xd), 4)
+    # UI.log(catocommon.ET.tostring(xd), 4)
     if xd is not None:
         # for each node in the function element
         # each node will become a field on the step.
@@ -2649,7 +2649,7 @@ def If(oStep):
     i = 1  # because XPath starts at "1"
     for xTest in xTests:
         sEval = xTest.findtext("eval", None)
-        xAction = xTest.find("action", None)
+        xAction = xTest.find("action")
 
         #  we gotta get the field id first, but don't show the textarea until after
         sFieldID = catocommon.new_guid()
@@ -2713,7 +2713,7 @@ def If(oStep):
     sHTML += "<div id=\"if_" + sStepID + "_else\" class=\"fn_if_else_section\">"
 
     # the final 'else' area
-    xElse = xd.find("else", "")
+    xElse = xd.find("else")
     if xElse is not None:
         sHTML += "<span class=\"fn_node_remove_btn pointer\" step_id=\"" + sStepID + "\" remove_path=\"" + base_xpath + "else\">" \
            "<span class=\"ui-icon ui-icon-close forceinline\" title=\"Remove this Else condition.\"></span></span> "
@@ -2745,7 +2745,7 @@ def If_View(oStep):
     i = 1  # because XPath starts at "1"
     for xTest in xTests:
         sEval = xTest.findtext("eval", None)
-        xAction = xTest.find("action", None)
+        xAction = xTest.find("action")
 
         if i == 1:
             sHTML += "If:<br />"
@@ -2776,7 +2776,7 @@ def If_View(oStep):
     sHTML += "<div>"
 
     # the final 'else' area
-    xElse = xd.find("else", "")
+    xElse = xd.find("else")
     if xElse is not None:
         sHTML += "Else (no 'If' conditions matched):"
 
