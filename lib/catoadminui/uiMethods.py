@@ -196,62 +196,68 @@ class uiMethods:
     
     def wmGetSystemStatus(self):
         sProcessHTML = ""
-        sSQL = "select app_instance as Instance," \
-            " app_name as Component," \
-            " heartbeat as Heartbeat," \
-            " case master when 1 then 'Yes' else 'No' end as Enabled," \
-            " timestampdiff(MINUTE, heartbeat, now()) as mslr," \
-            " load_value as LoadValue, platform, hostname" \
-            " from application_registry " \
-            " order by component, master desc"
+        sSQL = """select app_instance as Instance,
+            app_name as Component,
+            heartbeat as Heartbeat,
+            case master when 1 then 'Yes' else 'No' end as Enabled,
+            timestampdiff(MINUTE, heartbeat, now()) as mslr,
+            load_value as LoadValue, platform, hostname
+            from application_registry
+            order by component, master desc"""
         rows = self.db.select_all_dict(sSQL)
         if rows:
             for dr in rows:
-                sProcessHTML += "<tr>" \
-                    "<td>" + str((dr["Component"] if dr["Component"] else "")) + "</td>" \
-                    "<td>" + str((dr["Instance"] if dr["Instance"] else "")) + "</td>" \
-                    "<td>" + str((dr["LoadValue"] if dr["LoadValue"] else "")) + "</td>" \
-                    "<td>" + str((dr["Heartbeat"] if dr["Heartbeat"] else "")) + "</td>" \
-                    "<td>" + str((dr["Enabled"] if dr["Enabled"] else "")) + "</td>" \
-                    "<td>" + str((dr["mslr"] if dr["mslr"] is not None else "")) + "</td>" \
-                    "<td><span class='ui-icon ui-icon-document forceinline view_component_log' component='" + str((dr["Component"] if dr["Component"] else "")) + "'></span></td>" \
-                    "</tr>"
+                sProcessHTML += """<tr>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td><span class='ui-icon ui-icon-document forceinline view_component_log' component='%s'></span></td>
+                    </tr>""" % (dr.get("Component", ""),
+                                dr.get("Instance", ""),
+                                dr["LoadValue"] if dr["LoadValue"] is not None else "",
+                                dr.get("Heartbeat", ""),
+                                dr.get("Enabled", ""),
+                                dr.get("mslr", ""),
+                                dr.get("Component", ""))
 
         sUserHTML = ""
-        sSQL = "select u.full_name, us.login_dt, us.heartbeat as last_update, us.address," \
-            " case when us.kick = 0 then 'Active' when us.kick = 1 then 'Warning' " \
-            " when us.kick = 2 then 'Kicking' when us.kick = 3 then 'Inactive' end as kick " \
-            " from user_session us join users u on u.user_id = us.user_id " \
-            " where timestampdiff(MINUTE,us.heartbeat, now()) < 10" \
-            " order by us.heartbeat desc"
+        sSQL = """select u.full_name, us.login_dt, us.heartbeat as last_update, us.address,
+            case when us.kick = 0 then 'Active' when us.kick = 1 then 'Warning'
+            when us.kick = 2 then 'Kicking' when us.kick = 3 then 'Inactive' end as kick
+            from user_session us join users u on u.user_id = us.user_id
+            where timestampdiff(MINUTE,us.heartbeat, now()) < 10
+            order by us.heartbeat desc"""
         rows = self.db.select_all_dict(sSQL)
         if rows:
             for dr in rows:
-                sUserHTML += "<tr>" \
-                    "<td>" + str((dr["full_name"] if dr["full_name"] else "")) + "</td>" \
-                    "<td>" + str((dr["login_dt"] if dr["login_dt"] else "")) + "</td>" \
-                    "<td>" + str((dr["last_update"] if dr["last_update"] else "")) + "</td>" \
-                    "<td>" + str((dr["address"] if dr["address"] else "")) + "</td>" \
-                    "<td>" + str((dr["kick"] if dr["kick"] else "")) + "</td>" \
-                    "</tr>"
+                sUserHTML += """<tr>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s</td>
+                    </tr>""" % (dr.get("full_name", ""), dr.get("login_dt", ""), dr.get("last_update", ""), dr.get("address", ""), dr.get("kick", ""))
                 
         sMessageHTML = ""
-        sSQL = "select msg_to, msg_subject," \
-            " case status when 0 then 'Queued' when 1 then 'Error' when 2 then 'Success' end as status," \
-            " error_message," \
-            " convert(date_time_entered, CHAR(20)) as entered_dt, convert(date_time_completed, CHAR(20)) as completed_dt" \
-            " from message" \
-            " order by msg_id desc limit 100"
+        sSQL = """select msg_to, msg_subject,
+            case status when 0 then 'Queued' when 1 then 'Error' when 2 then 'Success' end as status,
+            error_message,
+            convert(date_time_entered, CHAR(20)) as entered_dt, convert(date_time_completed, CHAR(20)) as completed_dt
+            from message
+            order by msg_id desc limit 100"""
         rows = self.db.select_all_dict(sSQL)
         if rows:
             for dr in rows:
-                sMessageHTML += "<tr>" \
-                    "<td>" + str((dr["msg_to"] if dr["msg_to"] else "")) + "</td>" \
-                    "<td>" + str((dr["msg_subject"] if dr["msg_subject"] else "")) + "</td>" \
-                    "<td>" + str((dr["status"] if dr["status"] else "")) + "</td>" \
-                    "<td>" + uiCommon.SafeHTML(str((dr["error_message"] if dr["error_message"] else ""))) + "</td>" \
-                    "<td>" + str((dr["entered_dt"] if dr["entered_dt"] else "")) + "<br />" + str((dr["completed_dt"] if dr["completed_dt"] else "")) + "</td>" \
-                    "</tr>"
+                sMessageHTML += """<tr>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td>%s<br />%s</td>
+                    </tr>""" % (dr.get("msg_to", ""), dr.get("msg_subject", ""), dr.get("status", ""), uiCommon.SafeHTML(dr.get("error_message", "")), dr.get("entered_dt", ""), dr.get("completed_dt", ""))
                 
         
         return json.dumps({"processes" : sProcessHTML, "users" : sUserHTML, "messages" : sMessageHTML})
@@ -280,29 +286,19 @@ class uiMethods:
         sFrom = uiCommon.getAjaxArg("sFrom", "")
         sTo = uiCommon.getAjaxArg("sTo", "")
         
-        sLog = ""
         logtype = "Security" if not sObjectID and not sObjectType else "Object"
         rows = catocommon.get_security_log(oid=sObjectID, otype=sObjectType, logtype=logtype,
                                            search=sSearch, num_records=sRecords, _from=sFrom, _to=sTo)
         if rows:
-            i = 1
-            sb = []
+            out = []
             for row in rows:
-                sb.append("[")
-                sb.append("\"%s\", " % (row["log_dt"]))
-                sb.append("\"%s\", " % (uiCommon.packJSON(row["full_name"])))
-                sb.append("\"%s\"" % (uiCommon.packJSON(uiCommon.SafeHTML(row["log_msg"]))))
-                sb.append("]")
-            
-                # the last one doesn't get a trailing comma
-                if i < len(rows):
-                    sb.append(",")
-                    
-                i += 1
-
-            sLog = "".join(sb)
-
-        return "{ \"log\" : [ %s ] }" % (sLog)
+                r = []
+                r.append(row["log_dt"])
+                r.append(uiCommon.packJSON(row["full_name"]))
+                r.append(uiCommon.packJSON(uiCommon.SafeHTML(row["log_msg"])))
+                out.append(r)
+                
+        return json.dumps({"log" : out})
 
     def wmGetDatabaseTime(self):
         sNow = self.db.select_col("select now()")
@@ -390,34 +386,26 @@ class uiMethods:
         if not sScheduleID:
             uiCommon.log("Unable to retrieve Reccuring Plan - schedule id argument not provided.")
         
-        sb = []
+        sched = {}
 
         # now we know the details, go get the timetable for that specific schedule
-        sSQL = "select schedule_id, months, days, hours, minutes, days_or_weeks, label" \
-            " from action_schedule" \
-            " where schedule_id = '" + sScheduleID + "'"
-        dt = self.db.select_all_dict(sSQL)
-        if dt:
-            for dr in dt:
-                sMo = dr["months"]
-                sDa = dr["days"]
-                sHo = dr["hours"]
-                sMi = dr["minutes"]
-                sDW = dr["days_or_weeks"]
-                sDesc = (dr["schedule_id"] if not dr["label"] else dr["label"])
-    
-                sb.append("{")
-                sb.append("\"sDescription\" : \"%s\"," % sDesc)
-                sb.append("\"sMonths\" : \"%s\"," % sMo)
-                sb.append("\"sDays\" : \"%s\"," % sDa)
-                sb.append("\"sHours\" : \"%s\"," % sHo)
-                sb.append("\"sMinutes\" : \"%s\"," % sMi)
-                sb.append("\"sDaysOrWeeks\" : \"%s\"" % sDW)
-                sb.append("}")
+        sSQL = """select schedule_id, months, days, hours, minutes, days_or_weeks, label
+            from action_schedule
+            where schedule_id = %s"""
+        dr = self.db.select_row_dict(sSQL, (sScheduleID))
+        if dr:
+            sDesc = (dr["schedule_id"] if not dr["label"] else dr["label"])
+
+            sched["sDescription"] = sDesc
+            sched["sMonths"] = dr["months"]
+            sched["sDays"] = dr["days"]
+            sched["sHours"] = dr["hours"]
+            sched["sMinutes"] = dr["minutes"]
+            sched["sDaysOrWeeks"] = str(dr["days_or_weeks"])
         else:
             uiCommon.log("Unable to find details for Recurring Action Plan. " + self.db.error + " ScheduleID [" + sScheduleID + "]")
 
-        return "".join(sb)
+        return json.dumps(sched)
     
     def wmDeleteSchedule(self):
         sScheduleID = uiCommon.getAjaxArg("sScheduleID")
@@ -426,11 +414,11 @@ class uiMethods:
             uiCommon.log("Missing Schedule ID.")
             return "Missing Schedule ID."
 
-        sSQL = "delete from action_plan where schedule_id = '" + sScheduleID + "'"
-        self.db.exec_db(sSQL)
+        sSQL = "delete from action_plan where schedule_id = %s"
+        self.db.exec_db(sSQL, (sScheduleID))
 
-        sSQL = "delete from action_schedule where schedule_id = '" + sScheduleID + "'"
-        self.db.exec_db(sSQL)
+        sSQL = "delete from action_schedule where schedule_id = %s"
+        self.db.exec_db(sSQL, (sScheduleID))
 
         #  if we made it here, so save the logs
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Schedule, "", "", "Schedule [" + sScheduleID + "] deleted.")
@@ -444,9 +432,9 @@ class uiMethods:
             uiCommon.log("Missing Action Plan ID.")
             return "Missing Action Plan ID."
 
-        sSQL = "delete from action_plan where plan_id = " + iPlanID
+        sSQL = "delete from action_plan where plan_id = %s"
 
-        self.db.exec_db(sSQL)
+        self.db.exec_db(sSQL, (iPlanID))
 
         #  if we made it here, so save the logs
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Schedule, "", "", "Action Plan [" + iPlanID + "] deleted.")
@@ -507,7 +495,6 @@ class uiMethods:
         sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML)                
 
         # figure out a label and a description
-        sDesc = ""
         sLabel, sDesc = catocommon.GenerateScheduleLabel(aMonths, aDays, aHours, aMinutes, sDaysOrWeeks)
 
         sSQL = "insert into action_schedule (schedule_id, task_id, account_id," \
@@ -551,12 +538,14 @@ class uiMethods:
         # we gotta peek into the XML and encrypt any newly keyed values
         sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML)                
 
-        sSQL = "update action_plan" \
-            " set parameter_xml = " + ("'" + catocommon.tick_slash(sParameterXML) + "'" if sParameterXML else "null") + "," \
-            " debug_level = " + (iDebugLevel if iDebugLevel > -1 else "null") + \
-            " where plan_id = " + iPlanID
+        sSQL = """update action_plan
+            set parameter_xml = %s,
+            debug_level = %s
+            where plan_id = %s"""
 
-        self.db.exec_db(sSQL)
+        self.db.exec_db(sSQL, (sParameterXML, iDebugLevel if iDebugLevel > -1 else None, iPlanID))
+        
+        return json.dumps({"result" : "success"})
 
     def wmSaveSchedule(self):
         sScheduleID = uiCommon.getAjaxArg("sScheduleID")
@@ -706,7 +695,7 @@ class uiMethods:
                 
                 sHTML += "</tr>"
 
-        return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
+        return json.dumps({"pager" : uiCommon.packJSON(pager_html), "rows" : uiCommon.packJSON(sHTML)})    
         
     def wmGetUser(self):
         sID = uiCommon.getAjaxArg("sUserID")
@@ -861,7 +850,7 @@ class uiMethods:
                 
                 sHTML += "</tr>"
 
-        return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
+        return json.dumps({"pager" : uiCommon.packJSON(pager_html), "rows" : uiCommon.packJSON(sHTML)})
         
     def wmAssetSearch(self):
         sFilter = uiCommon.getAjaxArg("sSearch")
@@ -934,7 +923,7 @@ class uiMethods:
                 
                 sHTML += "</tr>"
 
-        return "{\"pager\" : \"%s\", \"rows\" : \"%s\"}" % (uiCommon.packJSON(pager_html), uiCommon.packJSON(sHTML))    
+        return json.dumps({"pager" : uiCommon.packJSON(pager_html), "rows" : uiCommon.packJSON(sHTML)})
         
     def wmGetCredentialsJSON(self):
         sFilter = uiCommon.getAjaxArg("sFilter")
@@ -943,7 +932,7 @@ class uiMethods:
         if ac:
             return ac.AsJSON()
         # should not get here if all is well
-        return "{\"result\":\"fail\",\"error\":\"Failed to get Credentials using filter [" + sFilter + "].\"}"
+        return json.dumps({"result":"fail", "error":"Failed to get Credentials using filter [%s]." % (sFilter)})
 
     def wmGetCredential(self):
         sID = uiCommon.getAjaxArg("sCredentialID")
@@ -957,9 +946,9 @@ class uiMethods:
         a, sErr = asset.Asset.DBCreateNew(args["Name"], args["Status"], args["DBName"], args["Port"],
           args["Address"], args["ConnString"], args["Tags"], args["CredentialMode"], args["Credential"])
         if sErr:
-            return "{\"error\" : \"" + sErr + "\"}"
+            return json.dumps({"error" : sErr})
         if a == None:
-            return "{\"error\" : \"Unable to create Asset.\"}"
+            return json.dumps({"error" : "Unable to create Asset."})
 
         uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Asset, a.ID, a.Name, "Asset Created")
 
@@ -980,14 +969,14 @@ class uiMethods:
 
             result, msg = a.DBUpdate(tags=args["Tags"], credential_update_mode=args["CredentialMode"], credential=args["Credential"])
             if not result:
-                return "{\"error\" : \"" + msg + "\"}"
+                return json.dumps({"error" : msg})
 
         return json.dumps({"result" : "success"})
         
     def wmDeleteAssets(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
         if len(sDeleteArray) < 36:
-            return "{\"info\" : \"Unable to delete - no selection.\"}"
+            return json.dumps({"info" : "Unable to delete - no selection."})
 
         # for this one, 'now' will be all the assets that don't have history.
         # and 'later' will get updated to 'inactive' status
@@ -1087,11 +1076,11 @@ class uiMethods:
         js = None
         try:
             xd = catocommon.ET.fromstring(inputtext)
-        except catocommon.ET.ParseError as ex:
+        except catocommon.ET.ParseError:
             try:
                 js = json.loads(inputtext)
             except:
-                return "{\"error\" : \"Data is not properly formatted XML or JSON.\"}"
+                return json.dumps({"error" : "Data is not properly formatted XML or JSON."})
         
         if xd is not None:
             # so, what's in here?  Tasks?
@@ -1122,7 +1111,7 @@ class uiMethods:
         elif js is not None:
             # if js isn't a list, bail...
             if not isinstance(js, list):
-                return "{\"error\" : \"JSON data must be a list of Tasks.\"}"
+                return json.dumps({"error" : "JSON data must be a list of Tasks."})
                 
             for jstask in js:
                 uiCommon.log("Importing Task [%s]" % jstask.get("name", "Unknown"))
@@ -1146,7 +1135,7 @@ class uiMethods:
             # TODO: for loop for Assets will go here, same logic as above
             # ASSETS
             
-        return "{\"items\" : %s}" % json.dumps(items)
+        return json.dumps({"items" : items})
             
     def wmAnalyzeImportXML(self):
         """Takes a properly formatted XML backup file, and replies with the existence/condition of each Task."""
@@ -1170,7 +1159,7 @@ class uiMethods:
                 js = json.loads(inputtext)
             except Exception as ex:
                 uiCommon.log(ex)
-                return "{\"error\" : \"Data is not properly formatted XML or JSON.\"}"
+                return json.dumps({"error" : "Data is not properly formatted XML or JSON."})
         
         # if the submitted data was XML
         if xd is not None:
@@ -1196,7 +1185,7 @@ class uiMethods:
         elif js is not None:
             # if js isn't a list, bail...
             if not isinstance(js, list):
-                return "{\"error\" : \"JSON data must be a list of Tasks.\"}"
+                return json.dumps({"error" : "JSON data must be a list of Tasks."})
                 
             for jstask in js:
                 t = task.Task()
@@ -1216,7 +1205,7 @@ class uiMethods:
             items.append({"info" : "Unable to create Task from backup JSON/XML."})
                 
             
-        return "{\"items\" : %s}" % json.dumps(items)
+        return json.dumps({"items" : items})
         
     def wmHTTPGet(self):
         """Simply proxies an HTTP GET to another domain, and returns the results."""
