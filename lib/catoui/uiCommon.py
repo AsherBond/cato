@@ -763,7 +763,7 @@ def AttemptLogin(app_name):
     
     # TODO: enable this when the Cato EE Portal is released.
 #        if u.Role == "User" and "Admin" in app_name:
-#            return "{\"info\" : \"Your account isn't authorized for this application.\"}"
+#            return json.dumps({"info" : "Your account isn't authorized for this application."})
 
     
     # all good, put a few key things in the session, not the whole object
@@ -797,12 +797,12 @@ def GetQuestion():
 
     # again with the generic messages.
     if not u.ID:
-        return "{\"info\" : \"Unable to reset password for user.\"}"
+        return json.dumps({"info" : "Unable to reset password for user."})
     if not u.SecurityQuestion:
-        return "{\"info\" : \"Unable to reset password.  Contact an Administrator.\"}"
+        return json.dumps({"info" : "Unable to reset password.  Contact an Administrator."})
 
 
-    return "{\"result\" : \"%s\"}" % packJSON(u.SecurityQuestion)
+    return json.dumps({"result" : packJSON(u.SecurityQuestion)})
 
 def UpdateHeartbeat():
     # NOTE: this needs all the kick and warn stuff

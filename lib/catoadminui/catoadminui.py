@@ -99,7 +99,7 @@ class getlicense:
             result, msg, lic = catolicense.check_license()
             if lic:
                 lic = uiCommon.packJSON(uiCommon.FixBreaks(uiCommon.SafeHTML(lic)))
-            return "{\"result\":\"%s\",\"message\":\"%s\",\"license\":\"%s\"}" % (result, msg, lic)
+            return json.dumps({"result": result, "message": msg, "license": lic})
         except Exception as ex:
             logger.error(ex.__str__())
             
