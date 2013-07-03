@@ -39,6 +39,66 @@ _USER_TAGS = None
 _ADMIN = False
 _DEVELOPER = False
 
+"""
+Endpoints have a simple name, but the code could exist in one of several modules.
+
+So, this mapping dictionary gives us the proper python module.class.function for an endpoint name.
+"""
+
+endpoints = {
+			 "list_tasks" : "catoapi.taskMethods/list_tasks",
+			 "add_cloud_keypair" : "catoapi.cloudMethods/add_cloud_keypair",
+			 "create_cloud" : "catoapi.cloudMethods/create_cloud",
+			 "create_account" : "catoapi.cloudMethods/create_account",
+			 "create_credential" : "catoapi.sysMethods/create_credential",
+			 "create_document" : "catoapi.dsMethods/create_document",
+			 "create_tag" : "catoapi.sysMethods/create_tag",
+			 "create_task" : "catoapi.taskMethods/create_task",
+			 "create_task_from_json" : "catoapi.taskMethods/create_task_from_json",
+			 "create_user" : "catoapi.sysMethods/create_user",
+			 "delete_cloud_keypair" : "catoapi.cloudMethods/delete_cloud_keypair",
+			 "delete_credential" : "catoapi.sysMethods/delete_credential",
+			 "delete_tag" : "catoapi.sysMethods/delete_tag",
+			 "delete_task" : "catoapi.taskMethods/delete_task",
+			 "describe_task_parameters" : "catoapi.taskMethods/describe_task_parameters",
+			 "export_task" : "catoapi.taskMethods/export_task",
+			 "get_task_instances" : "catoapi.taskMethods/get_task_instances",
+			 "get_cloud" : "catoapi.cloudMethods/get_cloud",
+			 "get_account" : "catoapi.cloudMethods/get_account",
+			 "get_document" : "catoapi.dsMethods/get_document",
+			 "get_document_value" : "catoapi.dsMethods/get_document_value",
+			 "get_settings" : "catoapi.sysMethods/get_settings",
+			 "get_system_log" : "catoapi.sysMethods/get_system_log",
+			 "get_task" : "catoapi.taskMethods/get_task",
+			 "get_task_instance" : "catoapi.taskMethods/get_task_instance",
+			 "get_task_instances" : "catoapi.taskMethods/get_task_instances",
+			 "get_task_instance_status" : "catoapi.taskMethods/get_task_instance_status",
+			 "get_task_log" : "catoapi.taskMethods/get_task_log",
+			 "get_task_parameters" : "catoapi.taskMethods/get_task_parameters",
+			 "import_backup" : "catoapi.sysMethods/import_backup",
+			 "list_cloud_accounts" : "catoapi.cloudMethods/list_cloud_accounts",
+			 "list_cloud_keypairs" : "catoapi.cloudMethods/list_cloud_keypairs",
+			 "list_clouds" : "catoapi.cloudMethods/list_clouds",
+			 "list_credentials" : "catoapi.sysMethods/list_credentials",
+			 "list_document_collections" : "catoapi.dsMethods/list_document_collections",
+			 "list_documents" : "catoapi.dsMethods/list_documents",
+			 "list_processes" : "catoapi.sysMethods/list_processes",
+			 "list_tags" : "catoapi.sysMethods/list_tags",
+			 "list_users" : "catoapi.sysMethods/list_users",
+			 "reset_password" : "catoapi.sysMethods/reset_password",
+			 "resubmit_task_instance" : "catoapi.taskMethods/resubmit_task_instance",
+			 "run_task" : "catoapi.taskMethods/run_task",
+			 "set_document_value" : "catoapi.dsMethods/set_document_value",
+			 "stop_task" : "catoapi.taskMethods/stop_task",
+			 "add_object_tag" : "catoapi.sysMethods/add_object_tag",
+			 "remove_object_tag" : "catoapi.sysMethods/remove_object_tag",
+			 "update_cloud" : "catoapi.cloudMethods/update_cloud",
+			 "update_settings" : "catoapi.sysMethods/update_settings",
+			 "update_user" : "catoapi.sysMethods/update_user",
+			 "reset_password" : "catoapi.sysMethods/reset_password",
+			 "add_object_tag" : "catoapi.sysMethods/add_object_tag"
+			 }
+
 def authenticate(action, args):
 	db = catocommon.new_conn()
 	sset = settings.settings.security()

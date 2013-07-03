@@ -58,8 +58,8 @@ logger = catolog.get_logger(app_name)
  and find the proper function to handle the request.
 """
 class wmHandler:
-    #the GET and POST methods here are hooked by web.py.
-    #whatever method is requested, that function is called.
+    # the GET and POST methods here are hooked by web.py.
+    # whatever method is requested, that function is called.
     def GET(self, method):
         return self.go(method)
     
@@ -129,16 +129,19 @@ class wmHandler:
             response = api.response(err_code="Exception", err_msg="Authenticated, but unable to build a User object.")
             return response.Write(output_format)
 
-        if "depMethods" in method:
-            if MAESTRO_HOME:
-                response = catocommon.FindAndCall("maestroapi." + method, args)
-            else:
-                response = api.response(err_code="Exception", err_msg="This API call requires Maestro to be installed and the MAESTRO_HOME enviroment variable to be set.")
-                return response.Write(output_format)
-                
-        else:
-            response = catocommon.FindAndCall("catoapi." + method, args)
+        endpoints = api.endpoints
+        
+        # If Maestro is enabled, load those endpoints
+        if MAESTRO_HOME:
+            from maestroapi import api as mapi
+            endpoints = dict(endpoints.items() + mapi.endpoints.items())
             
+        if endpoints.get(method):
+            response = catocommon.FindAndCall(endpoints[method], args)
+        else:
+            response = api.response(err_code="Exception", err_msg="'%s' is not a valid API endpoint." % (method))
+            return response.Write(output_format)
+
         # FindAndCall can have all sorts of return values.
         # in this case, we expect it would be an api.response object.
         # but never assume
@@ -154,9 +157,9 @@ class wmHandler:
                     it just means the payload *inside* the jsonp callback will be xml or json as requested.)
                 """
                 payload = response.Write(output_format)
-                #base64 encode it (don't forget the three special chars)
-                #payload = base64.b64encode(payload)
-                #payload = payload.replace("=", "%3D").replace("+", "%2B").replace("/", "%2F")
+                # base64 encode it (don't forget the three special chars)
+                # payload = base64.b64encode(payload)
+                # payload = payload.replace("=", "%3D").replace("+", "%2B").replace("/", "%2F")
                 
                 web.header('Content-Type', 'application/json')
                 return "%s('%s')" % (args["callback"], payload)
