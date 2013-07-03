@@ -443,7 +443,7 @@ class taskMethods:
                     if oldsnip in dr["function_xml"]:
                         newxml = dr["function_xml"].replace(oldsnip, newsnip)
                         # don't update it if the change busted the xml
-                        xd = ET.fromstring(newxml)
+                        xd = catocommon.ET.fromstring(newxml)
                         if xd is None:
                             self.db.tran_rollback()
                             raise Exception("Rename Codeblock: Unable to parse new command XML.")
@@ -630,7 +630,7 @@ class taskMethods:
             sOPM = "0"
 
             # gotta do a few things to the templatexml
-            xe = ET.fromstring(func.TemplateXML)
+            xe = catocommon.ET.fromstring(func.TemplateXML)
             if xe is not None:
                 # get the OPM
                 sOPM = xe.get("parse_method", "0")
@@ -661,7 +661,7 @@ class taskMethods:
                     "-1," \
                     "0,0," \
                     "'" + func.Name + "'," \
-                    "'" + catocommon.tick_slash(ET.tostring(xe)) + "'" \
+                    "'" + catocommon.tick_slash(catocommon.ET.tostring(xe)) + "'" \
                     ")"
                 self.db.exec_db(sSQL)
 
@@ -736,7 +736,7 @@ class taskMethods:
             sXML = self.db.select_col(sSQL)
             if sXML:
                 # we'll need this below to return the html
-                xe = ET.fromstring(sXML)
+                xe = catocommon.ET.fromstring(sXML)
                 if xe is None:
                     uiCommon.log("Unable to add clipboard command. Function_xml could not be parsed.")
                     return "An error has occured.  Your command could not be added."
@@ -746,7 +746,7 @@ class taskMethods:
                 if not func:
                     uiCommon.log("Unable to add clipboard command to step.  Can't find a Function definition for clip [" + sItem + "]")
 
-                ST.AddToCommandXML(sStepID, sDropXPath, ET.tostring(xe))
+                ST.AddToCommandXML(sStepID, sDropXPath, catocommon.ET.tostring(xe))
 
                 uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sItem,
                     "Added Command from Clipboard to Step: " + sStepID)
@@ -764,7 +764,7 @@ class taskMethods:
                 uiCommon.log("Unable to add step.  Can't find a Function definition for [" + sItem + "]")
             
             # gotta do a few things to the templatexml
-            xe = ET.fromstring(func.TemplateXML)
+            xe = catocommon.ET.fromstring(func.TemplateXML)
             if xe is not None:
                 # there may be some provided values ... so alter the func.TemplateXML accordingly
                 for sXPath, sValue in dValues.iteritems():
@@ -773,7 +773,7 @@ class taskMethods:
                         xNode.text = sValue
             
                 # Add it!
-                ST.AddToCommandXML(sStepID, sDropXPath, ET.tostring(xe))
+                ST.AddToCommandXML(sStepID, sDropXPath, catocommon.ET.tostring(xe))
 
                 uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sItem,
                     "Added Command Type: " + sItem + " to Step: " + sStepID)
@@ -892,7 +892,7 @@ class taskMethods:
 
             sXMLTemplate = self.db.select_col(sSQL)
 
-            xDoc = ET.fromstring(sXMLTemplate)
+            xDoc = catocommon.ET.fromstring(sXMLTemplate)
             if xDoc is None:
                 raise Exception("XML data for step [" + sStepID + "] is invalid.")
 
@@ -930,7 +930,7 @@ class taskMethods:
 
                     # if there are no slashes we'll just add this one explicitly as a child of root
                     if sXPath.find("/") == -1:
-                        xDoc.append(ET.Element(sXPath))
+                        xDoc.append(catocommon.ET.Element(sXPath))
                     else:  # and if there are break it down
                         sWorkXPath = sXPath
                         while sWorkXPath.find("/") > -1:
@@ -945,7 +945,7 @@ class taskMethods:
 
                         # now that we know where to start (xFoundNode), we can use that as a basis for adding
                         for sNode in aMissingNodes:
-                            xFoundNode.append(ET.Element(sNode))
+                            xFoundNode.append(catocommon.ET.Element(sNode))
 
                     # now we should be good to stick the value on the final node.
                     xNode = xDoc.find(sXPath)
@@ -961,7 +961,7 @@ class taskMethods:
                     return ""
 
             sSQL = "update task_step set " \
-                " function_xml = '" + catocommon.tick_slash(ET.tostring(xDoc)) + "'" \
+                " function_xml = '" + catocommon.tick_slash(catocommon.ET.tostring(xDoc)) + "'" \
                 " where step_id = '" + sStepID + "';"
 
             self.db.exec_db(sSQL)
@@ -1162,7 +1162,7 @@ class taskMethods:
         # 2 - spin thru adding the variables
         # 3 - commit the whole doc at once to the db
 
-        xVars = ET.Element("step_variables")
+        xVars = catocommon.ET.Element("step_variables")
 
         # spin thru the variable array from the client
         for oVar in oVarArray:
@@ -1176,40 +1176,40 @@ class taskMethods:
             sLType = str(oVar[4])
             sRType = str(oVar[5])
 
-            xVar = ET.SubElement(xVars, "variable")
-            xVarName = ET.SubElement(xVar, "name")
+            xVar = catocommon.ET.SubElement(xVars, "variable")
+            xVarName = catocommon.ET.SubElement(xVar, "name")
             xVarName.text = sVarName
-            xVarType = ET.SubElement(xVar, "type")
+            xVarType = catocommon.ET.SubElement(xVar, "type")
             xVarType.text = sVarType
 
             # now that we've added it, based on the type let's add the custom properties
             if sVarType == "delimited":
-                x = ET.SubElement(xVar, "position")
+                x = catocommon.ET.SubElement(xVar, "position")
                 x.text = sLProp
             elif sVarType == "regex":
                 bAllDelimited = False
-                x = ET.SubElement(xVar, "regex")
+                x = catocommon.ET.SubElement(xVar, "regex")
                 x.text = sLProp
             elif sVarType == "range":
                 bAllDelimited = False
                 # we favor the 'string' mode over the index.  If a person selected 'index' that's fine
                 # but if something went wrong, we default to prefix/suffix.
                 if sLType == "index":
-                    x = ET.SubElement(xVar, "range_begin")
+                    x = catocommon.ET.SubElement(xVar, "range_begin")
                     x.text = sLProp
                 else:
-                    x = ET.SubElement(xVar, "prefix")
+                    x = catocommon.ET.SubElement(xVar, "prefix")
                     x.text = sLProp
 
                 if sRType == "index":
-                    x = ET.SubElement(xVar, "range_end")
+                    x = catocommon.ET.SubElement(xVar, "range_end")
                     x.text = sRProp
                 else:
-                    x = ET.SubElement(xVar, "suffix")
+                    x = catocommon.ET.SubElement(xVar, "suffix")
                     x.text = sRProp
             elif sVarType == "xpath":
                 bAllDelimited = False
-                x = ET.SubElement(xVar, "xpath")
+                x = catocommon.ET.SubElement(xVar, "xpath")
                 x.text = sLProp
 
         # if it's delimited, sort it
@@ -1227,13 +1227,13 @@ class taskMethods:
 
         
         uiCommon.log("Saving variables ...", 3)
-        uiCommon.log(ET.tostring(xVars), 4)
+        uiCommon.log(catocommon.ET.tostring(xVars), 4)
         
         # add and remove using the xml wrapper functions
         removenode = "%s/step_variables" % sXPathPrefix if sXPathPrefix else "step_variables"
         ST.RemoveFromCommandXML(sStepID, removenode)
 
-        ST.AddToCommandXML(sStepID, xpath, catocommon.tick_slash(ET.tostring(xVars)))
+        ST.AddToCommandXML(sStepID, xpath, catocommon.tick_slash(catocommon.ET.tostring(xVars)))
 
         return json.dumps({"result" : "success"})
 
@@ -1412,10 +1412,10 @@ class taskMethods:
             sSQL = """select function_xml from task_step where step_id = '%s'""" % sID
             func_xml = self.db.select_col(sSQL)
                 
-            xroot = ET.fromstring(func_xml)
+            xroot = catocommon.ET.fromstring(func_xml)
             prefix = "%s/" if sXPath else ""
             xparams = xroot.find("%sparameters" % prefix)
-            sParameterXML = ET.tostring(xparams)
+            sParameterXML = catocommon.ET.tostring(xparams)
 
         else:
             # other types can select it directly from their repspective tables
@@ -1447,7 +1447,7 @@ class taskMethods:
             sParameterXML = self.db.select_col(sSQL)
 
         if sParameterXML:
-            xParams = ET.fromstring(sParameterXML)
+            xParams = catocommon.ET.fromstring(sParameterXML)
             if xParams is None:
                 raise Exception("Parameter XML data for [" + sType + ":" + sID + "] is invalid.")
 
@@ -1463,7 +1463,7 @@ class taskMethods:
                 if sVal:
                     xEncryptedValue.text = "********"
 
-            resp = ET.tostring(xParams)
+            resp = catocommon.ET.tostring(xParams)
             if resp:
                 return resp
 
@@ -1564,13 +1564,13 @@ class taskMethods:
         sTaskParamXML = self.GetParameterXML("task", sTaskID, "")
         xTPParams = None
         if sTaskParamXML:
-            xTPParams = ET.fromstring(sTaskParamXML)
+            xTPParams = catocommon.ET.fromstring(sTaskParamXML)
             if xTPParams is None:
                 raise Exception("Task Parameter XML data is invalid.")
     
         # we populated this up above too
         if sDefaultsXML:
-            xDefParams = ET.fromstring(sDefaultsXML)
+            xDefParams = catocommon.ET.fromstring(sDefaultsXML)
             if xDefParams is None:
                 raise Exception("Defaults XML data is invalid.")
     
@@ -1654,7 +1654,7 @@ class taskMethods:
                                     xVal.text = xDefValues.findtext("value", "")
     
         if xTPParams is not None:    
-            resp = ET.tostring(xTPParams)
+            resp = catocommon.ET.tostring(xTPParams)
             if resp:
                 return resp
 
@@ -1692,13 +1692,13 @@ class taskMethods:
             # get the parameter XML from the TASK
             sTaskParamXML = self.GetParameterXML("task", sTaskID, "")
             if sTaskParamXML:
-                xTPDoc = ET.fromstring(sTaskParamXML)
+                xTPDoc = catocommon.ET.fromstring(sTaskParamXML)
                 if xTPDoc is None:
                     raise Exception("Task Parameter XML data is invalid.")
     
             # we had the ACTION defaults handed to us
             if sXML:
-                xADDoc = ET.fromstring(sXML)
+                xADDoc = catocommon.ET.fromstring(sXML)
                 if xADDoc is None:
                     raise Exception("Action Defaults XML data is invalid.")
 
@@ -1793,7 +1793,7 @@ class taskMethods:
                         continue
 
             # done
-            sOverrideXML = ET.tostring(xADDoc)
+            sOverrideXML = catocommon.ET.tostring(xADDoc)
 
             # FINALLY, we have an XML that represents only the differences we wanna save.
             if sType == "runtask":
@@ -1869,7 +1869,7 @@ class taskMethods:
 
             sXML = self.db.select_col(sSQL)
             if sXML:
-                xd = ET.fromstring(sXML)
+                xd = catocommon.ET.fromstring(sXML)
                 if xd is None: raise Exception("XML parameter data is invalid.")
 
                 xParameter = xd.find("parameter[@id='" + sParamID + "']")
@@ -2002,7 +2002,7 @@ class taskMethods:
 
             sXML = self.db.select_col(sSQL)
             if sXML != "":
-                xd = ET.fromstring(sXML)
+                xd = catocommon.ET.fromstring(sXML)
                 if xd is None:
                     raise Exception("XML parameter data is invalid.")
 
@@ -2231,7 +2231,7 @@ class taskMethods:
                 # almost done... if there is a Result Summary ... display that.
                 if dr["log"]:
                     try:
-                        xdSummary = ET.fromstring(dr["log"])
+                        xdSummary = catocommon.ET.fromstring(dr["log"])
                         if xdSummary is not None:
                             for item in xdSummary.findall("items/item"):
                                 name = item.findtext("name", "")
@@ -2489,7 +2489,7 @@ class taskMethods:
 
             sParameterXML = self.db.select_col(sSQL)
             if sParameterXML:
-                xParams = ET.fromstring(sParameterXML)
+                xParams = catocommon.ET.fromstring(sParameterXML)
                 if xParams is None:
                     uiCommon.log("Parameter XML data for task [" + sTaskID + "] is invalid.")
                 else:
@@ -2672,7 +2672,7 @@ class taskMethods:
         if xGroupNode is None:
             # well, let's try to add it, we might get lucky if it's a single node :-)
             try:
-                xd.append(ET.Element(sTemplateNode))
+                xd.append(catocommon.ET.Element(sTemplateNode))
                 xGroupNode = xd.find(sTemplateNode)
             except:
                 raise Exception("Error: Source node not found in Template XML, and cannot create it. [" + sTemplateNode + "].")
@@ -2681,7 +2681,7 @@ class taskMethods:
             raise Exception("Error: Unable to add.  Template XML does not contain [" + sTemplateNode + "].")
         
         # yeah, this wicked single line aggregates the value of each node
-        sNewXML = "".join(ET.tostring(x) for x in list(xGroupNode))
+        sNewXML = "".join(catocommon.ET.tostring(x) for x in list(xGroupNode))
         uiCommon.log(sNewXML, 4)
         
         if sNewXML != "":

@@ -1100,7 +1100,7 @@ class uiMethods:
             for xtask in xd.iterfind("task"):
                 uiCommon.log("Importing Task [%s]" % xtask.get("name", "Unknown"))
                 t = task.Task()
-                t.FromXML(ET.tostring(xtask), on_conflict)
+                t.FromXML(catocommon.ET.tostring(xtask), on_conflict)
 
                 # NOTE: possible TODO
                 # passing a db connection to task.DBSave will allow rollback of a whole 
@@ -1179,7 +1179,7 @@ class uiMethods:
             # TASKS
             for xtask in xd.iterfind("task"):
                 t = task.Task()
-                t.FromXML(ET.tostring(xtask))
+                t.FromXML(catocommon.ET.tostring(xtask))
 
                 if t.DBExists and t.OnConflict == "cancel":
                     msg = "Task exists - set 'on_conflict' attribute to 'replace', 'minor' or 'major'."
