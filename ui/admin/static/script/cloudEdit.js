@@ -79,7 +79,7 @@ $(document).ready(function() {
 			var kpid = $(this).parents(".keypair").attr("id").replace(/kp_/, "");
 
 			var response = ajaxPost("cloudMethods/wmDeleteKeyPair", {
-				sCloudID: cloud_id,
+				sCloudID : cloud_id,
 				sKeypairID : kpid
 			}, "text");
 			if (response) {
@@ -216,15 +216,17 @@ function GetProvidersList() {
 function GetProviderAccounts() {
 	var provider = $("#ddlProvider").val();
 
+	$("#ddlDefaultAccount").empty();
+	$("#ddlDefaultAccount").append('<option value="">Not Assigned</option>');
+
 	var accounts = ajaxPost("cloudMethods/wmGetCloudAccountsJSON", {
 		sProvider : provider
 	});
 	if (accounts) {
 		// all we want here is to loop the clouds
-		$("#ddlDefaultAccount").empty();
 		if (accounts) {
 			$.each(accounts, function(index, account) {
-				$("#ddlDefaultAccount").append("<option value=\"" + account.ID + "\">" + account.Name + "</option>");
+				$("#ddlDefaultAccount").append('<option value="' + account.ID + '">' + account.Name + '</option>');
 			});
 		}
 
