@@ -101,12 +101,8 @@ $(document).ready(function() {
 
 		//show stars for the private key and passphrase if they were populated
 		//the server sent back a flag denoting that
-		var pk = "";
-
 		if ($(this).parents(".keypair").attr("has_pk") == "true")
-			pk += "**********\n";
-
-		$("#keypair_private_key").val(pk);
+			$("#keypair_private_key").val("**********");
 
 		if ($(this).parents(".keypair").attr("has_pp") == "true")
 			$("#keypair_passphrase").val("!2E4S6789O");
@@ -438,10 +434,15 @@ function GetKeyPairs(sEditID) {
 function SaveKeyPair() {
 	var kpid = $("#keypair_id").val().replace(/kp_/, "");
 	var name = $("#keypair_name").val();
-	//pack up the PK field, JSON doesn't like it
-	var pk = packJSON($("#keypair_private_key").val());
-	var pp = $("#keypair_passphrase").val();
 	var cloud_id = $("#hidCurrentEditID").val();
+
+	var pk = "";
+	var pp = $("#keypair_passphrase").val();
+
+	if ($("#keypair_private_key").val() != "**********") {
+		//pack up the PK field, JSON doesn't like it
+		pk = packJSON($("#keypair_private_key").val());
+	}
 
 	//some client side validation before we attempt to save
 	if (name == '') {
@@ -466,6 +467,11 @@ function SaveKeyPair() {
 		if (kpid) {
 			//find the label and update it
 			$("#kp_" + kpid + " .keypair_label").html(name);
+			if (!pp) {
+				$("#kp_" + kpid).attr("has_pp", "")
+			} else {
+				$("#kp_" + kpid).attr("has_pp", "true")
+			}
 		} else {
 			//re-get the list
 			GetKeyPairs(cloud_id);

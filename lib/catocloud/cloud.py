@@ -206,7 +206,7 @@ class Cloud(object):
         if private_key:
             sql = """update clouds_keypair set private_key = %s where keypair_id = %s"""
             db.exec_db(sql, (catocommon.cato_encrypt(private_key), kpid))
-        if passphrase and passphrase != "!2E4S6789O":
+        if passphrase != "!2E4S6789O":
             sql = """update clouds_keypair set passphrase = %s where keypair_id = %s"""
             db.exec_db(sql, (catocommon.cato_encrypt(passphrase), kpid))
 
@@ -226,7 +226,7 @@ class Cloud(object):
         sql = """select keypair_id as ID, 
             keypair_name as Name, 
             case when ifnull(private_key, "") != "" then 'true' else 'false' end as HasPrivateKey,
-            case when passphrase is not null then 'true' else 'false' end as HasPassphrase
+            case when ifnull(passphrase, "") != "" then 'true' else 'false' end as HasPassphrase
             from clouds_keypair
             where cloud_id = %s"""
         db = catocommon.new_conn()
@@ -236,7 +236,7 @@ class Cloud(object):
         db.close()
         return self.KeyPairs
         
-    def KeyPairsAsText(self, delimiter):
+    def KeyPairsAsText(self, delimiter, headers):
         self.GetKeyPairs()
         return catocommon.ObjectOutput.IterableAsText(self.KeyPairs, ["Name"], delimiter, headers)
         
