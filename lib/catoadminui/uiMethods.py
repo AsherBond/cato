@@ -1086,7 +1086,7 @@ class uiMethods:
             # so, what's in here?  Tasks?
             
             # TASKS
-            for xtask in xd.iterfind("task"):
+            for xtask in xd.findall("task"):
                 uiCommon.log("Importing Task [%s]" % xtask.get("name", "Unknown"))
                 t = task.Task()
                 t.FromXML(catocommon.ET.tostring(xtask), on_conflict)
@@ -1166,7 +1166,7 @@ class uiMethods:
             # so, what's in here?  Tasks?
             
             # TASKS
-            for xtask in xd.iterfind("task"):
+            for xtask in xd.findall("task"):
                 t = task.Task()
                 t.FromXML(catocommon.ET.tostring(xtask))
 

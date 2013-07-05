@@ -81,7 +81,7 @@ class sysMethods:
             return R(err_code=R.Codes.Exception, err_detail="File is not properly formatted XML.")
         
         if xd is not None:
-            for xtask in xd.iterfind("task"):
+            for xtask in xd.findall("task"):
                 logger.info("Importing Task [%s]" % xtask.get("name", "Unknown"))
                 t = task.Task()
                 t.FromXML(catocommon.ET.tostring(xtask))

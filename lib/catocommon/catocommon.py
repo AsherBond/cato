@@ -37,11 +37,6 @@ try:
     import xml.etree.cElementTree as _ET
 except (AttributeError, ImportError):
     import xml.etree.ElementTree as _ET
-try:
-    _ET.ElementTree.iterfind
-except AttributeError as ex:
-    del(_ET)
-    import catoxml.etree.ElementTree as _ET
 
 # this file is common across all Cato modules, so the following globals are also common
 
