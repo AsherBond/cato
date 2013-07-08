@@ -189,11 +189,8 @@ def main(argv):
         print "    .... done."
 
 
-def _v13_updates():
-    # doing 'noexcep' updates here, so it won't fail if they already exist
-    sql = "alter table application_registry ADD KEY `app_name` (`app_name`)"
-    db.exec_db_noexcep(sql)
-    sql = "alter table clouds drop key `cloud_provider_UNIQUE`, add unique key `CLOUD_NAME` (`cloud_name`)"
+def _v18_updates():
+    sql = "delete from task_step_user_settings"
     db.exec_db_noexcep(sql)
 
 def _v16_updates():
