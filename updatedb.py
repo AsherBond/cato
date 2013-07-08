@@ -93,7 +93,8 @@ versions = [
                       ]
              ],
             ["1.18", [
-                      ["addcolumn", "application_settings", "license", "TEXT NULL"]
+                      ["addcolumn", "application_settings", "license", "TEXT NULL"],
+                      ["changecolumn", "task_step_user_settings", "button", "button varchar(1024)"]
                       ]
              ]
         ]

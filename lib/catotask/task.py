@@ -1201,7 +1201,7 @@ class Step(object):
 
         # user settings, if available
         if dr.has_key("button"):
-            self.UserSettings.Button = (dr["button"] if dr["button"] else "")
+            self.UserSettings.Button = json.loads(dr["button"]) if dr["button"] else {}
         if dr.has_key("skip"):
             self.UserSettings.Skip = (True if dr["skip"] == 1 else False)
         if dr.has_key("visible"):
@@ -1234,7 +1234,7 @@ class StepUserSettings(object):
         self.Visible = True
         self.Breakpoint = False
         self.Skip = False
-        self.Button = ""
+        self.Button = {}
 
 
 class TaskRunLog(object):

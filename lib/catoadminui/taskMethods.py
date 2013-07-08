@@ -376,21 +376,21 @@ class taskMethods:
     def wmDeleteCodeblock(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
         sCodeblockID = uiCommon.getAjaxArg("sCodeblockID")
-        sSQL = "delete u from task_step_user_settings u" \
-            " join task_step ts on u.step_id = ts.step_id" \
-            " where ts.task_id = '" + sTaskID + "'" \
-            " and ts.codeblock_name = '" + sCodeblockID + "'"
-        self.db.tran_exec(sSQL)
+        sSQL = """delete u from task_step_user_settings u
+            join task_step ts on u.step_id = ts.step_id
+            where ts.task_id = %s
+            and ts.codeblock_name = %s"""
+        self.db.tran_exec(sSQL, (sTaskID, sCodeblockID))
 
-        sSQL = "delete from task_step" \
-            " where task_id = '" + sTaskID + "'" \
-            " and codeblock_name = '" + sCodeblockID + "'"
-        self.db.tran_exec(sSQL)
+        sSQL = """delete from task_step
+            where ts.task_id = %s
+            and ts.codeblock_name = %s"""
+        self.db.tran_exec(sSQL, (sTaskID, sCodeblockID))
 
-        sSQL = "delete from task_codeblock" \
-            " where task_id = '" + sTaskID + "'" \
-            " and codeblock_name = '" + sCodeblockID + "'"
-        self.db.tran_exec(sSQL)
+        sSQL = """delete from task_codeblock
+            where ts.task_id = %s
+            and ts.codeblock_name = %s"""
+        self.db.tran_exec(sSQL, (sTaskID, sCodeblockID))
 
         self.db.tran_commit()
         self.db.close()
@@ -841,22 +841,22 @@ class taskMethods:
 
         # "embedded" steps have a codeblock name referencing their "parent" step.
         # if we're deleting a parent, whack all the children
-        sSQL = "delete from task_step where codeblock_name = '" + sStepID + "'"
-        self.db.tran_exec(sSQL)
+        sSQL = "delete from task_step where codeblock_name = %s"
+        self.db.tran_exec(sSQL, (sStepID))
 
         # step might have user_settings
-        sSQL = "delete from task_step_user_settings where step_id = '" + sStepID + "'"
-        self.db.tran_exec(sSQL)
+        sSQL = "delete from task_step_user_settings where step_id = %s"
+        self.db.tran_exec(sSQL, (sStepID))
 
         # now whack the parent
-        sSQL = "delete from task_step where step_id = '" + sStepID + "'"
-        self.db.tran_exec(sSQL)
+        sSQL = "delete from task_step where step_id = %s"
+        self.db.tran_exec(sSQL, (sStepID))
 
-        sSQL = "update task_step set step_order = step_order - 1" \
-            " where task_id = '" + sTaskID + "'" \
-            " and codeblock_name = '" + sCodeblock + "'" \
-            " and step_order > " + sDeletedStepOrder
-        self.db.tran_exec(sSQL)
+        sSQL = """update task_step set step_order = step_order - 1
+            where task_id = %s
+            and codeblock_name = %s
+            and step_order > %s"""
+        self.db.tran_exec(sSQL, (sTaskID, sCodeblock, sDeletedStepOrder))
 
         self.db.tran_commit()
         self.db.close()
@@ -985,27 +985,35 @@ class taskMethods:
     def wmToggleStepCommonSection(self):
         # no exceptions, just a log message if there are problems.
         sStepID = uiCommon.getAjaxArg("sStepID")
-        
-        # todo: issue #71 - this should be saved to the db
-        # sXPathPrefix = uiCommon.getAjaxArg("sXPathPrefix")
-        
         sButton = uiCommon.getAjaxArg("sButton")
+        sXPathPrefix = uiCommon.getAjaxArg("sXPathPrefix")
+
         if catocommon.is_guid(sStepID):
             sUserID = uiCommon.GetSessionUserID()
-            sButton = ("null" if sButton == "" else "'" + sButton + "'")
 
-            # is there a row?
-            iRowCount = self.db.select_col_noexcep("select count(*) from task_step_user_settings" \
-                " where user_id = '" + sUserID + "'" \
-                " and step_id = '" + sStepID + "'")
-            if iRowCount == 0:
-                sSQL = "insert into task_step_user_settings" \
-                    " (user_id, step_id, visible, breakpoint, skip, button)" \
-                    " values ('" + sUserID + "','" + sStepID + "', 1, 0, 0, " + sButton + ")"
+            button_json = self.db.select_col_noexcep("select button from task_step_user_settings where user_id=%s and step_id=%s", (sUserID, sStepID))
+            
+            buttons = json.loads(button_json) if button_json else {}
+            
+            # Some commands have embedded commands... so in those cases the button name actually contains that xpath
+            # what's stored in the button field is a json dictionary of paths and button names.
+            uiCommon.log("wut")
+            uiCommon.log(buttons)
+            uiCommon.log(sXPathPrefix)
+            if sXPathPrefix:
+                uiCommon.log("wutx")
+                buttons[str(sXPathPrefix)] = sButton
             else:
-                sSQL = "update task_step_user_settings set button = " + sButton + " where step_id = '" + sStepID + "'"
+                uiCommon.log("wut nox")
+                buttons[str("root")] = sButton
+                
+            uiCommon.log(buttons)
 
-            self.db.exec_db(sSQL)
+            sSQL = """insert into task_step_user_settings
+                (user_id, step_id, visible, breakpoint, skip, button)
+                values (%s, %s, 1, 0, 0, %s)
+                on duplicate key update button = %s"""
+            self.db.exec_db(sSQL, (sUserID, sStepID, json.dumps(buttons), json.dumps(buttons)))
 
             return ""
         else:
@@ -1021,17 +1029,10 @@ class taskMethods:
 
             sVisible = ("1" if sVisible == "1" else "0")
 
-            # is there a row?
-            iRowCount = self.db.select_col_noexcep("select count(*) from task_step_user_settings" \
-                " where user_id = '" + sUserID + "'" \
-                " and step_id = '" + sStepID + "'")
-            if iRowCount == 0:
-                sSQL = "insert into task_step_user_settings" \
-                    " (user_id, step_id, visible, breakpoint, skip)" \
-                    " values ('" + sUserID + "','" + sStepID + "', " + sVisible + ", 0, 0)"
-            else:
-                sSQL = "update task_step_user_settings set visible = '" + sVisible + "' where step_id = '" + sStepID + "'"
-
+            sSQL = """insert into task_step_user_settings
+                (user_id, step_id, visible, breakpoint, skip)
+                values ('%s', '%s', '%s', 0, 0)
+                on duplicate key update visible = %s""" % (sUserID, sStepID, sVisible, sVisible)
             self.db.exec_db(sSQL)
             
             return ""

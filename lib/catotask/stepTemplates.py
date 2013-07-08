@@ -1045,7 +1045,12 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded=False):
     sHTML += "        <div class=\"step_common\" step_id=\"" + sStepID + "\" xpath_prefix=\"" + oStep.XPathPrefix + "\" jsid=\"" + sJSid + "\">"
     sHTML += "            <div class=\"step_common_header\">"  # header div
     
-    sShowOnLoad = oStep.UserSettings.Button
+    # use .get and don't crash on any issues with the selected pill button... it's not worth an error
+    sShowOnLoad = ""
+    if oStep.XPathPrefix:
+        sShowOnLoad = oStep.UserSettings.Button.get(oStep.XPathPrefix, "")
+    else:
+        sShowOnLoad = oStep.UserSettings.Button.get("root", "")
     
     # pill buttons
     if sVariableHTML != "":
@@ -1063,10 +1068,10 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded=False):
             " id=\"btn_step_common_detail_" + sJSid + "_notes\"" \
             " button=\"notes\">Notes</span>"
 
-        # not showing help either... too cluttered
-        sHTML += "                <span class=\"step_common_button " + ("step_common_button_active" if sShowOnLoad == "help" else "") + "\"" \
-            " id=\"btn_step_common_detail_" + sJSid + "_help\"" \
-            " button=\"help\">Help</span>"
+    # every command gets a help button
+    sHTML += "                <span class=\"step_common_button " + ("step_common_button_active" if sShowOnLoad == "help" else "") + "\"" \
+        " id=\"btn_step_common_detail_" + sJSid + "_help\"" \
+        " button=\"help\">Help</span>"
     
     
     sHTML += "            </div>"  # end header div
@@ -1081,12 +1086,11 @@ def DrawStepCommon(oStep, sOptionHTML, sVariableHTML, bIsEmbedded=False):
             " help=\"Enter notes for this Command.\" reget_on_change=\"true\">" + oStep.Description + "</textarea>"
         sHTML += "            </div>"
 
-        # embedded commands *could* show the help, but I don't like the look of it.
-        # it's cluttered
-        sHTML += "            <div id=\"step_common_detail_" + sJSid + "_help\"" \
-            " class=\"ui-widget-content step_common_detail " + ("" if sShowOnLoad == "help" else "step_common_collapsed") + "\">"
-        sHTML += oStep.Function.Help
-        sHTML += "            </div>"
+    # every command gets a help section
+    sHTML += "            <div id=\"step_common_detail_" + sJSid + "_help\"" \
+        " class=\"ui-widget-content step_common_detail " + ("" if sShowOnLoad == "help" else "step_common_collapsed") + "\">"
+    sHTML += oStep.Function.Help
+    sHTML += "            </div>"
     
     # some steps generate custom options we want in this pane
     # but we don't show the panel if there aren't any
@@ -1207,6 +1211,7 @@ def DrawDropZone(oStep, xEmbeddedFunction, sXPath, sLabel, bRequired):
         oEmbeddedStep.FunctionName = sFunctionName
         oEmbeddedStep.FunctionXDoc = xEmbeddedFunction
         oEmbeddedStep.TaskID = oStep.TaskID
+        oEmbeddedStep.UserSettings = oStep.UserSettings
         oEmbeddedStep.OutputParseType = xEmbeddedFunction.get("parse_method", 0)
         oEmbeddedStep.OutputRowDelimiter = xEmbeddedFunction.get("row_delimiter", 0)
         oEmbeddedStep.OutputColumnDelimiter = xEmbeddedFunction.get("col_delimiter", 0)
