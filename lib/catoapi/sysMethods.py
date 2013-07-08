@@ -47,7 +47,7 @@ class sysMethods:
         
         # we wouldn't be here if tradiditional authentication failed.
         # so, the _user_id is the user we wanna create a token for
-        token = catocommon.create_api_token(args["_user_id"])
+        token = catocommon.create_api_token(api._USER_ID)
         return R(response=token)
 
     def import_backup(self, args):
@@ -88,7 +88,7 @@ class sysMethods:
 
                 result, err = t.DBSave()
                 if result:
-                    catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Created by import.")
+                    catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Created by import.")
 
                     items.append({"type" : "task", "id" : t.ID, "Name" : t.Name, "Info" : "Success"}) 
                 else:
@@ -196,7 +196,7 @@ class sysMethods:
                 # if the user requesting the change *IS* the user being changed...
                 # set force_change to False
                 force = True
-                if obj.ID == args["_user_id"]:
+                if obj.ID == api._USER_ID:
                     force = False
                     
                 obj.ChangePassword(new_password=new_pw, force_change=force)
@@ -206,7 +206,7 @@ class sysMethods:
             return R(err_code=R.Codes.GetError, err_detail="Unable to update password.")
 
         
-        catocommon.write_change_log(args["_user_id"], catocommon.CatoObjectTypes.User, obj.ID, obj.FullName, "Password change/reset via API.")
+        catocommon.write_change_log(api._USER_ID, catocommon.CatoObjectTypes.User, obj.ID, obj.FullName, "Password change/reset via API.")
         return R(response="[%s] password operation successful." % obj.FullName)
             
     def create_user(self, args):
@@ -278,7 +278,7 @@ class sysMethods:
             obj.GetToken()
 
         if obj:
-            catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.User, obj.ID, obj.LoginID, "User created by API.")
+            catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.User, obj.ID, obj.LoginID, "User created by API.")
             if args["output_format"] == "json":
                 return R(response=obj.AsJSON())
             elif args["output_format"] == "text":
@@ -380,7 +380,7 @@ class sysMethods:
         
         # all the properties are set... call DBUpdate!
         if obj.DBUpdate():
-            catocommon.write_change_log(args["_user_id"], catocommon.CatoObjectTypes.User, obj.ID, obj.FullName, "User updated via API.")
+            catocommon.write_change_log(api._USER_ID, catocommon.CatoObjectTypes.User, obj.ID, obj.FullName, "User updated via API.")
 
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
@@ -465,7 +465,7 @@ class sysMethods:
                 # print  "setting %s to %s" % (pair["name"], pair["value"])
             # of course all of our settings classes must have a DBSave method
             obj.DBSave()
-            catocommon.add_security_log(args["_user_id"], catocommon.SecurityLogTypes.Security,
+            catocommon.add_security_log(api._USER_ID, catocommon.SecurityLogTypes.Security,
                 catocommon.SecurityLogActions.ConfigChange, catocommon.CatoObjectTypes.NA, "",
                 "%s settings changed via API." % mod.capitalize())
         
@@ -543,7 +543,7 @@ class sysMethods:
         if not result:
             return R(err_code=R.Codes.CreateError, err_detail="Unable to create Credential.")
 
-        catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Credential, obj.ID, obj.Name, "Credential created by API.")
+        catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Credential, obj.ID, obj.Name, "Credential created by API.")
 
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
@@ -574,7 +574,7 @@ class sysMethods:
         obj.FromName(args["credential"])
         obj.DBDelete()
 
-        catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.Credential, obj.ID, obj.Name, "Credential [%s] deleted via API." % obj.Name)
+        catocommon.write_delete_log(api._USER_ID, catocommon.CatoObjectTypes.Credential, obj.ID, obj.Name, "Credential [%s] deleted via API." % obj.Name)
 
         return R(response="Delete operation successful.")
 
@@ -693,7 +693,7 @@ class sysMethods:
     
         obj = tag.Tag(args["name"], args.get("description"))
         obj.DBCreateNew()
-        catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Tag, obj.Name, obj.Name, "Tag created by API.")
+        catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Tag, obj.Name, obj.Name, "Tag created by API.")
     
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
@@ -724,7 +724,7 @@ class sysMethods:
         obj = tag.Tag(args["name"], None)
         obj.DBDelete()
 
-        catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.Tag, obj.Name, obj.Name, "Tag [%s] deleted via API." % obj.Name)
+        catocommon.write_delete_log(api._USER_ID, catocommon.CatoObjectTypes.Tag, obj.Name, obj.Name, "Tag [%s] deleted via API." % obj.Name)
 
         return R(response="Delete operation successful.")
 
@@ -752,7 +752,7 @@ class sysMethods:
 
         tag.ObjectTags.Add(args["tag"], args["object_id"], args["object_type"])
 
-        catocommon.write_add_log(args["_user_id"], args["object_type"], args["object_id"], args["object_id"], "Tag [%s] added to object via API." % args["tag"])
+        catocommon.write_add_log(api._USER_ID, args["object_type"], args["object_id"], args["object_id"], "Tag [%s] added to object via API." % args["tag"])
 
         return R(response="Tag successfully added to object.")
 
@@ -780,7 +780,7 @@ class sysMethods:
 
         tag.ObjectTags.Remove(args["tag"], args["object_id"])
 
-        catocommon.write_delete_log(args["_user_id"], args["object_type"], args["object_id"], args["object_id"], "Tag [%s] removed from object via API." % args["tag"])
+        catocommon.write_delete_log(api._USER_ID, args["object_type"], args["object_id"], args["object_id"], "Tag [%s] removed from object via API." % args["tag"])
 
         return R(response="Tag successfully removed from object.")
 

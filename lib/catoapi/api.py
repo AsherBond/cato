@@ -231,9 +231,8 @@ def is_object_allowed(object_id, object_type):
 	    and oto.object_type = %s
 	    and oto.object_id = %s""" 
 	
-	uid = _USER_ID
 	db = catocommon.new_conn()
-	result = db.select_col_noexcep(sql, (uid, object_type, object_id))
+	result = db.select_col_noexcep(sql, (_USER_ID, object_type, object_id))
 	db.close()
 	
 	return catocommon.is_true(result)

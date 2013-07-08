@@ -102,8 +102,6 @@ class wmHandler:
         
         # the args collection is passed to the target function, BUT
         # we wanna stick a few things in there we might need.
-        # (using an _ prefix to avoid conflicts)
-        args["_user_id"] = user_id
         args["output_format"] = output_format
         
         # the API commands do some logging that use these detail properties

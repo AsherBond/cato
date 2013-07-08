@@ -55,7 +55,7 @@ class taskMethods:
         result, msg = t.DBSave()
 
         if result:
-            catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Task created.")
+            catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Task created.")
             if args["output_format"] == "json":
                 return R(response=t.AsJSON())
             elif args["output_format"] == "text":
@@ -85,7 +85,7 @@ class taskMethods:
         result, msg = t.DBSave()
 
         if result:
-            catocommon.write_add_log(args["_user_id"], catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Task created.")
+            catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Task created.")
             if args["output_format"] == "json":
                 return R(response=t.AsJSON())
             elif args["output_format"] == "text":
@@ -177,7 +177,7 @@ class taskMethods:
         if not api.is_object_allowed(obj.task_id, catocommon.CatoObjectTypes.Task):
             return R(err_code=R.Codes.Forbidden)
             
-        result, err = obj.Resubmit(args["_user_id"])
+        result, err = obj.Resubmit(api._USER_ID)
         if result:
             return R(response="Instance [%s] successfully resubmitted." % args["instance"])
         else:
@@ -307,7 +307,7 @@ class taskMethods:
 
 
         # try to launch it
-        ti = catocommon.add_task_instance(task_id, args["_user_id"], debug, pxml, service_instance_id, account_id)
+        ti = catocommon.add_task_instance(task_id, api._USER_ID, debug, pxml, service_instance_id, account_id)
         
         if ti:
             if args["output_format"] == "text":
@@ -379,7 +379,7 @@ class taskMethods:
             
         task.Tasks.Delete(["'%s'" % obj.ID], force)
         
-        catocommon.write_delete_log(args["_user_id"], catocommon.CatoObjectTypes.Task, obj.ID, obj.Name, "Deleted via API.")
+        catocommon.write_delete_log(api._USER_ID, catocommon.CatoObjectTypes.Task, obj.ID, obj.Name, "Deleted via API.")
         return R(response="[%s] successfully deleted." % obj.Name)
             
     def list_tasks(self, args):        
