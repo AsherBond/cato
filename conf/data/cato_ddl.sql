@@ -605,7 +605,7 @@ CREATE TABLE `task_step_user_settings` (
   `visible` int(11) NOT NULL,
   `breakpoint` int(11) NOT NULL,
   `skip` int(11) NOT NULL,
-  `button` varchar(16) DEFAULT NULL,
+  `button` varchar(1024) DEFAULT NULL,
   PRIMARY KEY (`user_id`,`step_id`),
   KEY `FK_task_step_user_settings_task_step` (`step_id`),
   KEY `FK_task_step_user_settings_users` (`user_id`),
