@@ -94,7 +94,8 @@ versions = [
              ],
             ["1.18", [
                       ["addcolumn", "application_settings", "license", "TEXT NULL"],
-                      ["changecolumn", "task_step_user_settings", "button", "button varchar(1024)"]
+                      ["changecolumn", "task_step_user_settings", "button", "button varchar(1024)"],
+                      ["sql", "delete from task_step_user_settings"]
                       ]
              ]
         ]
@@ -188,10 +189,6 @@ def main(argv):
 
         print "    .... done."
 
-
-def _v18_updates():
-    sql = "delete from task_step_user_settings"
-    db.exec_db_noexcep(sql)
 
 def _v16_updates():
     # doing 'noexcep' updates here, so it won't fail if they already exist
