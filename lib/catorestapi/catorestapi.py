@@ -27,11 +27,9 @@ from web.wsgiserver import CherryPyWSGIServer
 
 # Some API endpoints require Maestro
 # we look at the MAESTRO_HOME environment variable and load the libs from that path
-if not os.environ.has_key("MAESTRO_HOME") or not os.environ["MAESTRO_HOME"]:
-    raise Exception("Maestro is required for API methods in this module.  MAESTRO_HOME environment variable not set.")
-
-MAESTRO_HOME = os.environ["MAESTRO_HOME"]
-sys.path.insert(0, os.path.join(MAESTRO_HOME, "lib"))
+MAESTRO_HOME = os.environ.get("MAESTRO_HOME")
+if MAESTRO_HOME:
+    sys.path.insert(0, os.path.join(MAESTRO_HOME, "lib"))
 
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 lib_path = os.path.join(base_path, "lib")
