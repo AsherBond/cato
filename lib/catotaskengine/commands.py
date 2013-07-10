@@ -682,7 +682,7 @@ def sql_exec_cmd(self, task, step):
     try:
         # get the connection object
         c = self.connections[conn_name]
-    except KeyError as ex:
+    except KeyError:
         msg = "A connection named [%s] has not been established." % (conn_name)
         raise Exception(msg)
 
@@ -988,7 +988,7 @@ def new_connection_cmd(self, task, step):
     try:
         # we've used this conn name before without dropping it
         c = self.connections[conn_name]
-    except KeyError as ex:
+    except KeyError:
         # we've never used this conn name before, continue
         pass
     else:
@@ -1202,12 +1202,12 @@ def cato_web_service_cmd(self, task, step):
 
 def route53_cmd(self, task, step):
 
-    path, type, data, response_v = self.get_command_params(step.command, "path", "type", "data", "result_name")[:]
+    path, rtype, data, response_v = self.get_command_params(step.command, "path", "type", "data", "result_name")[:]
     path = self.replace_variables(path)
     data = self.replace_variables(data)
     response_v = self.replace_variables(response_v)
     conn = awspy.AWSConn(self.cloud_login_id, self.cloud_login_password, product="r53") 
-    result = conn.aws_query(path, request_type=type, data=data)
+    result = conn.aws_query(path, request_type=rtype, data=data)
     del(conn)
     if result:
         result = self._xml_del_namespace(result)
@@ -1216,7 +1216,7 @@ def route53_cmd(self, task, step):
             self.rt.set(response_v, result)
         self.insert_audit("Route53", msg, "")
     else:
-        msg = "Route53 command %s failed." % (product, path)
+        msg = "Route53 command %s failed." % (path)
         raise Exception(msg)
 
 
@@ -1416,7 +1416,7 @@ def winrm_cmd_cmd(self, task, step):
     try:
         # get the connection object
         c = self.connections[conn_name]
-    except KeyError as ex:
+    except KeyError:
         msg = "A connection named [%s] has not been established." % (conn_name)
         raise Exception(msg)
 
@@ -1469,7 +1469,7 @@ def cmd_line_cmd(self, task, step):
     try:
         # get the connection object
         c = self.connections[conn_name]
-    except KeyError as ex:
+    except KeyError:
         msg = "A connection named [%s] has not been established." % (conn_name)
         raise Exception(msg)
 
