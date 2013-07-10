@@ -1438,19 +1438,20 @@ class TaskInstance(object):
         # and the schema is known
         # DO NOT break the response if the summary can't be loaded
         # also, both set a property and return the object
-        try:
-            xroot = catocommon.ET.fromstring(self.summary)
-            if xroot is not None:
-                out = []
-                for xparam in xroot.findall(".//items/item"):
-                    tmp = {}
-                    tmp["name"] = xparam.findtext("name", "")
-                    tmp["detail"] = xparam.findtext("detail", "")
-                    out.append(tmp)
-                self.summary = out
-                return out
-        except:
-            self.summary = "Unable to read result summary xml."
+        out = []
+        if self.summary:
+            try:
+                xroot = catocommon.ET.fromstring(self.summary)
+                if xroot is not None:
+                    for xparam in xroot.findall(".//items/item"):
+                        tmp = {}
+                        tmp["name"] = xparam.findtext("name", "")
+                        tmp["detail"] = xparam.findtext("detail", "")
+                        out.append(tmp)
+            except Exception as ex:
+                logger.error("Unable to read result summary xml. %s" % (ex.__str__()))
+        self.summary = out
+        return out
 
     def AsJSON(self):
         self.LoadResultSummary()
