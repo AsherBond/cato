@@ -71,13 +71,12 @@ def datastore_drop_collection_cmd(self, task, step):
 
     db = catocommon.new_mongo_conn()
     if collection not in db.collection_names():
-        msg = "Datastore Drop Collection error: a collection named %s does not exist" % (collection)
-        raise Exception(msg)
+        msg = "Datastore Drop Collection warning: a collection named %s does not exist, continuing" % (collection)
+    else:
+        db.drop_collection(collection)
+        msg = "Collection %s dropped" % (collection)
 
-    db.drop_collection(collection)
-    msg = "Collection %s dropped" % (collection)
     self.insert_audit(step.function_name, msg, "")
-
     catocommon.mongo_disconnect(db)
 
 
