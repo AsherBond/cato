@@ -1192,7 +1192,8 @@ def cato_web_service_cmd(self, task, step):
 
     buff = response.read()
     del(response)
-    response_ms = int(round((after - before).total_seconds() * 1000))
+    #response_ms = int(round((after - before).total_seconds() * 1000))
+    response_ms = self.time_diff_ms(after - before)
 
     log = "%s\012Response time = %s ms" % (buff, response_ms)
     self.insert_audit(step.function_name, log)
@@ -1303,7 +1304,8 @@ def http_cmd(self, task, step):
         msg = "ok"
         del(response)
 
-    response_ms = int(round((after - before).total_seconds() * 1000))
+    #response_ms = int(round((after - before).total_seconds() * 1000))
+    response_ms = self.time_diff_ms(after - before)
     self.http_response = response_ms
 
     if len(body_v):

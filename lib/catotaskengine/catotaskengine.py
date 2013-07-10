@@ -1462,6 +1462,9 @@ class TaskEngine():
             started_dt = now() where task_instance = %s""" 
         self.db.exec_db(sql, (os.getpid(), self.task_instance))
 
+    def time_diff_ms(self, td):
+
+        return int(round(td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6)) / 1000
 
     def extract_xml_string(self, xml, node_name):
 
