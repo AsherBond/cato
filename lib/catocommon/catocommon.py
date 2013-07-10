@@ -22,6 +22,7 @@ import base64
 import re
 import json
 import calendar
+import sys
 from datetime import datetime
 from bson.objectid import ObjectId
 
@@ -33,10 +34,13 @@ from catolog import catolog
 logger = catolog.get_logger(__name__)
 
 # Select the best available version of ElementTree with the features we need.
-try:
-    import xml.etree.cElementTree as _ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as _ET
+if sys.version_info < (2, 7):
+    import catoxml.etree.ElementTree as _ET
+else:
+    try:
+        import xml.etree.cElementTree as _ET
+    except (AttributeError, ImportError):
+        import xml.etree.ElementTree as _ET
 
 # this file is common across all Cato modules, so the following globals are also common
 

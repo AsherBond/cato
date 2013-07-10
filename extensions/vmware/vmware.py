@@ -14,10 +14,13 @@
 # limitations under the License.
 #########################################################################
 
-try:
-    import xml.etree.cElementTree as ET
-except (AttributeError, ImportError):
-    import xml.etree.ElementTree as ET
+if sys.version_info < (2, 7):
+	import catoxml.etree.ElementTree as ET
+else:
+	try:
+	    import xml.etree.cElementTree as ET
+	except (AttributeError, ImportError):
+	    import xml.etree.ElementTree as ET
 
 def vmw_list_images(TE, step):
 
@@ -39,14 +42,14 @@ def vmw_list_images(TE, step):
                 values = f.findall("./values/value")
                 value_list = []
                 for v in values:
-                    #TE.logger.debug("value is %s" % (v.findtext(".", "")))
+                    # TE.logger.debug("value is %s" % (v.findtext(".", "")))
                     value_list.append(v.findtext(".", ""))
                 the_filter[name] = value_list
     else:
         the_filter = None
         
     instances = cloud.server.list_instances(instanceUuid=instance_uuid, filter=the_filter)
-    #TE.logger.info(instances)
+    # TE.logger.info(instances)
 
     results = []
     msg = "%s\n" % (catosphere.get_all_property_names())
