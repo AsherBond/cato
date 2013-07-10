@@ -310,6 +310,7 @@ CREATE TABLE `deployment_sequence` (
   `sequence_desc` varchar(255) DEFAULT NULL,
   `icon` varchar(64) DEFAULT NULL,
   `prompts` text,
+  `options` text,
   PRIMARY KEY (`sequence_id`),
   UNIQUE KEY `sequence_name_deployment` (`deployment_id`,`sequence_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

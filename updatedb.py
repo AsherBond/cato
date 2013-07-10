@@ -94,6 +94,7 @@ versions = [
              ],
             ["1.18", [
                       ["addcolumn", "deployment", "runstate", "varchar(16) NULL after `health`"],
+                      ["addcolumn", "deployment_sequence", "options", "TEXT NULL"],
                       ["addcolumn", "application_settings", "license", "TEXT NULL"],
                       ["changecolumn", "task_step_user_settings", "button", "button varchar(1024)"],
                       ["sql", "delete from task_step_user_settings"]
