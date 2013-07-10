@@ -69,37 +69,52 @@ class sysMethods:
         if not has_required:
             return resp
 
-
         # what types of things were in this backup?  what are their new ids?
         items = []
 
+        # here's a save function that's used no matter the format
+        def _save(t):
+            result, err = t.DBSave()
+            if result:
+                catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Created by import.")
+
+                items.append({"type" : "task", "id" : t.ID, "Name" : t.Name, "Info" : "Success"}) 
+            else:
+                if err:
+                    items.append({"type" : "task", "id" : t.ID, "Name" : t.Name, "Info" : err}) 
+                else:
+                    items.append({"type" : "task", "id" : t.ID, "Name" : t.Name, "Info" : "Unable to create Task. No error available."}) 
+            
         # parse it as a validation, and to find out what's in it.
         xd = None
+        js = None
         try:
             xd = catocommon.ET.fromstring(args["xml"])
         except catocommon.ET.ParseError:
-            return R(err_code=R.Codes.Exception, err_detail="File is not properly formatted XML.")
+            try:
+                js = json.loads(args["xml"])
+            except:
+                return json.dumps({"error" : "Data is not properly formatted XML or JSON."})
         
         if xd is not None:
             for xtask in xd.findall("task"):
                 logger.info("Importing Task [%s]" % xtask.get("name", "Unknown"))
                 t = task.Task()
                 t.FromXML(catocommon.ET.tostring(xtask))
-
-                result, err = t.DBSave()
-                if result:
-                    catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Created by import.")
-
-                    items.append({"type" : "task", "id" : t.ID, "Name" : t.Name, "Info" : "Success"}) 
-                else:
-                    if err:
-                        items.append({"type" : "task", "id" : t.ID, "Name" : t.Name, "Info" : err}) 
-                    else:
-                        items.append({"type" : "task", "id" : t.ID, "Name" : t.Name, "Info" : "Unable to create Task. No error available."}) 
+                _save(t)
+        # otherwise it might have been JSON
+        elif js is not None:
+            # if js isn't a list, bail...
+            if not isinstance(js, list):
+                js = [js]
                 
-
+            for jstask in js:
+                logger.info("Importing Task [%s]" % jstask.get("name", "Unknown"))
+                t = task.Task()
+                t.FromJSON(json.dumps(jstask))
+                _save(t)
         else:
-            items.append({"info" : "Unable to create Task from backup XML."})
+            items.append({"info" : "Unable to create Task from backup JSON/XML."})
         
         if args["output_format"] == "json":
             return R(response=catocommon.ObjectOutput.IterableAsJSON(items))

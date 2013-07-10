@@ -1111,7 +1111,7 @@ class uiMethods:
         elif js is not None:
             # if js isn't a list, bail...
             if not isinstance(js, list):
-                return json.dumps({"error" : "JSON data must be a list of Tasks."})
+                js = [js]
                 
             for jstask in js:
                 uiCommon.log("Importing Task [%s]" % jstask.get("name", "Unknown"))
