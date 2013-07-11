@@ -153,7 +153,7 @@ class depMethods:
                 <td class="selectable">{3}</td>
                 
                 </tr>
-                """.format(row["ID"], row["Name"], row["Status"], row["Description"] if row["Description"] else "")
+                """.format(row["ID"], row["Name"], row["RunState"], row.get("Description", ""))
 
         return json.dumps({"pager" : uiCommon.packJSON(pager_html), "rows" : uiCommon.packJSON(sHTML)})
             

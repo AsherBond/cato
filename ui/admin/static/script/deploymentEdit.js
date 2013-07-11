@@ -45,9 +45,11 @@ function GetDetails() {
 	var deployment = ajaxPost("depMethods/wmGetDeployment", args);
 	if (deployment) {
 		$("#txtDeploymentName").val(deployment.Name);
-		$("#txtCurrentStatus").val(deployment.Status);
+		$("#txtRunState").val(deployment.RunState);
 		$("#lblDeploymentHeader").html(deployment.Name);
 		$("#txtDescription").val(deployment.Description);
+		$("#txtServiceCount").val(deployment.ServiceCount);
+		$("#txtInstanceCount").val(deployment.InstanceCount);
 	}
 }
 
