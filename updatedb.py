@@ -104,7 +104,6 @@ versions = [
 
 import os
 import sys
-import argparse
 
 base_path = os.path.dirname(os.path.abspath(sys.argv[0]))
 lib_path = os.path.join(base_path, "lib")
@@ -227,10 +226,24 @@ def _v16_updates():
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("user", help="Cato root db user.")
-    parser.add_argument("-p", "--password", help="Cato root db password.")
-    args = parser.parse_args()
+    args = None
+    if sys.version_info < (2, 7):
+        from optparse import OptionParser
+        parser = OptionParser()
+        parser.add_option("-u", "--user", help="Cato root db user.")
+        parser.add_option("-p", "--password", help="Cato root db password.")
+         
+        (options, args) = parser.parse_args()
+    else:
+        import argparse
+        parser = argparse.ArgumentParser()
+        parser.add_argument("user", help="Cato root db user.")
+        parser.add_argument("-p", "--password", help="Cato root db password.")
+        args = parser.parse_args()
+        
+    if not args:
+        raise Exception("Unable to continue - unable to parse command line arguments.")
+
     UID = args.user
     PWD = args.password if args.password else ""
 
