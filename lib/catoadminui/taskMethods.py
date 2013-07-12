@@ -205,15 +205,8 @@ class taskMethods:
         sTaskCode = uiCommon.unpackJSON(uiCommon.getAjaxArg("sTaskCode"))
         sTaskDesc = uiCommon.unpackJSON(uiCommon.getAjaxArg("sTaskDesc"))
 
-        t = task.Task()
-        t.FromArgs(sTaskName, sTaskCode, sTaskDesc)
-
-        bSuccess, sErr = t.DBSave()
-        if not bSuccess:
-            raise Exception(sErr)
-        
-            # add security log
-            uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "");
+        t = task.Task.DBCreateNew(sTaskName, sTaskCode, sTaskDesc)
+        uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "");
 
         return json.dumps({"id" : t.ID})
 

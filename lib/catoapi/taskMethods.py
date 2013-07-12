@@ -49,21 +49,15 @@ class taskMethods:
         code = args["code"] if args.has_key("code") else ""
         desc = args["desc"] if args.has_key("desc") else ""
 
-        t = task.Task()
-        t.FromArgs(args["name"], code, desc)
-
-        result, msg = t.DBSave()
-
-        if result:
-            catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Task created.")
-            if args["output_format"] == "json":
-                return R(response=t.AsJSON())
-            elif args["output_format"] == "text":
-                return R(response=t.AsText(args.get("output_delimiter"), args.get("header")))
-            else:
-                return R(response=t.AsXML())
+        t = task.Task().DBCreateNew(args["name"], code, desc)
+        catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Task created.")
+        
+        if args["output_format"] == "json":
+            return R(response=t.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=t.AsText(args.get("output_delimiter"), args.get("header")))
         else:
-            return R(err_code=R.Codes.CreateError, err_detail=msg)
+            return R(response=t.AsXML())
             
     def create_task_from_json(self, args):        
         """
