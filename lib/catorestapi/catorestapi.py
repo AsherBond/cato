@@ -363,101 +363,27 @@ class index:
         out.append("- Cloud Sidekick REST API -")
         out.append("---------------------------\n")
         
-        try:
-            from catoapi import taskMethods
-            
-            for attname in dir(taskMethods.taskMethods):
-                att = getattr(taskMethods.taskMethods, attname, None)
-                if att:
-                    if hasattr(att, "__name__"):
-                        if listonly:
-                            out.append("taskMethods/%s" % att.__name__)
-                        else:
-                            out.append("----------\n")
-                            out.append("Method: taskMethods/%s" % att.__name__)
-                            if att.__doc__:
-                                out.append("%s" % att.__doc__)
-                        
+        endpoints = api.endpoints
+        
+        # If Maestro is enabled, load those endpoints
+        if MAESTRO_HOME:
+            from maestroapi import api as mapi
+            endpoints = dict(endpoints.items() + mapi.endpoints.items())
 
-            from catoapi import cloudMethods
+        for endpoint, path in sorted(endpoints.iteritems()):
+            modname, methodname = path.split('/')
+            pkgname, classname = modname.split('.', 1)
             
-            for attname in dir(cloudMethods.cloudMethods):
-                att = getattr(cloudMethods.cloudMethods, attname, None)
-                if att:
-                    if hasattr(att, "__name__"):
-                        if listonly:
-                            out.append("cloudMethods/%s" % att.__name__)
-                        else:
-                            out.append("----------\n")
-                            out.append("Method: cloudMethods/%s" % att.__name__)
-                            if att.__doc__:
-                                out.append("%s" % att.__doc__)
-                        
-
-            from catoapi import sysMethods
+            mod = __import__(modname, globals(), locals(), classname)
+            cls = getattr(mod, classname, None)
+            att = getattr(cls(), methodname, None)
             
-            for attname in dir(sysMethods.sysMethods):
-                att = getattr(sysMethods.sysMethods, attname, None)
-                if att:
-                    if hasattr(att, "__name__"):
-                        if listonly:
-                            out.append("sysMethods/%s" % att.__name__)
-                        else:
-                            out.append("----------\n")
-                            out.append("Method: sysMethods/%s" % att.__name__)
-                            if att.__doc__:
-                                out.append("%s" % att.__doc__)
-                        
-            try:      
-                from catoapi import depMethods
-                
-                msg = "- The following API commands are available only if Cloud Sidekick Maestro is installed. -"
-                out.append("-" * len(msg))
-                out.append(msg)
-                out.append("-" * len(msg))
-                                    
-                for attname in dir(depMethods.depMethods):
-                    att = getattr(depMethods.depMethods, attname, None)
-                    if att:
-                        if hasattr(att, "__name__"):
-                            if listonly:
-                                out.append("depMethods/%s" % att.__name__)
-                            else:
-                                out.append("----------\n")
-                                out.append("Method: depMethods/%s" % att.__name__)
-                                if att.__doc__:
-                                    out.append("%s" % att.__doc__)
-            except ImportError:
-                # depMethods is a Maestro module, don't error if it's missing.
-                pass
+            out.append("%s" % endpoint)
+            if att.__doc__ and not listonly:
+                out.append("----------\n")
+                out.append("%s\n" % att.__doc__.replace("        ", "").strip())
 
-                    
-            try:      
-                from catoapi import dsMethods
-                
-                for attname in dir(dsMethods.dsMethods):
-                    att = getattr(dsMethods.dsMethods, attname, None)
-                    if att:
-                        if hasattr(att, "__name__"):
-                            if listonly:
-                                out.append("dsMethods/%s" % att.__name__)
-                            else:
-                                out.append("----------\n")
-                                out.append("Method: dsMethods/%s" % att.__name__)
-                                if att.__doc__:
-                                    out.append("%s" % att.__doc__)
-            except ImportError:
-                # dsMethods is a Maestro module, don't error if it's missing.
-                pass
-
-            
-            out.append("\n")
-                    
-                    
-        except Exception as ex:
-            out.append(ex.__str__())
-        finally:
-            return "\n".join(out)
+        return "\n".join(out)
 
 class ExceptionHandlingApplication(web.application):
     """
