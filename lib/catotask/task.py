@@ -1298,6 +1298,7 @@ class TaskInstance(object):
     Error = None
     def __init__(self, sTaskInstance, sTaskID="", sAssetID=""):
         self.Instance = sTaskInstance
+        self.summary = None
         db = catocommon.new_conn()
         # we could define a whole model here, but it's not necessary... all we want is the data
         # since this won't be acted on as an object.
