@@ -233,7 +233,7 @@ if __name__ == "__main__":
         parser.add_option("-u", "--user", help="Cato root db user.")
         parser.add_option("-p", "--password", help="Cato root db password.")
          
-        (options, args) = parser.parse_args()
+        (args, arglist) = parser.parse_args()
     else:
         import argparse
         parser = argparse.ArgumentParser()
