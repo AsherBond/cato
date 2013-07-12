@@ -67,7 +67,7 @@ tar -xvzf /tmp/cato-$RELEASE.tar.gz -C $CATO_HOME --strip-components=1
 
 if [ "$DBROOTUID" != "" ] && [ "$DBROOTPWD" != "" ]; then
 	echo "Updating the Database..."
-	$CATO_HOME/updatedb.py $DBROOTUID -p$DBROOTPWD
+	$CATO_HOME/updatedb.py -u$DBROOTUID -p$DBROOTPWD
 else
     echo "<dbrootuid> and <dbrootpwd> not provided - not updating the database!"
 fi

@@ -227,25 +227,44 @@ class Task(object):
         # if so this will contain a user id.
         self.IncludeSettingsForUser = None
 
-    def FromArgs(self, sName, sCode, sDesc):
+    @staticmethod
+    def DBCreateNew(sName, sCode, sDesc):
+        # This function is for creating a simple, new Task (invoked by the UI or API).
+        # DBSave is used for import and conflict resolution - it's far more complex than we need 
+        # for when a user manually requests to create a Task.
         if not sName:
             raise InfoException("Error building Task object: Name is required.")
 
-        self.ID = catocommon.new_guid()
-        self.OriginalTaskID = self.ID
-        self.Name = sName
-        self.Code = sCode
-        self.Description = sDesc
-        self.CheckDBExists()
+        db = catocommon.new_conn()
+        ID = catocommon.new_guid()
 
+        sql = """insert task
+            (task_id, original_task_id, version, default_version, task_name, task_code, task_desc, created_dt)
+            values
+            (%s, %s, 1.000, 1, %s, %s, %s, now())"""
+        if not db.exec_db_noexcep(sql, (ID, ID, sName, sCode, sDesc)):
+            if db.error == "key_violation":
+                raise Exception("A Task with that name already exists.  Please select another name.")
+            else: 
+                raise Exception(db.error)
+
+        sql = "insert task_codeblock (task_id, codeblock_name) values (%s, 'MAIN')"
+        db.exec_db_noexcep(sql, (ID))
+
+        db.close()
+        
+        t = Task()
+        t.FromID(ID)
+        return t
+                
     def FromID(self, sTaskID, bIncludeUserSettings=False, include_code=True):
         db = catocommon.new_conn()
-        sSQL = "select task_id, original_task_id, task_name, task_code, task_status, version, default_version," \
-                " task_desc, use_connector_system, concurrent_instances, queue_depth, parameter_xml" \
-                " from task" \
-                " where task_id = '" + sTaskID + "'"
+        sSQL = """select task_id, original_task_id, task_name, task_code, task_status, version, default_version,
+                task_desc, use_connector_system, concurrent_instances, queue_depth, parameter_xml
+                from task
+                where task_id = %s"""
 
-        dr = db.select_row_dict(sSQL)
+        dr = db.select_row_dict(sSQL, (sTaskID))
         db.close()
         if not dr:
             raise InfoException("Unable to find Task for ID [%s]" % sTaskID)
@@ -690,7 +709,7 @@ class Task(object):
             logger.warning("No Codeblocks were defined on this Task. Creating 'MAIN'...")
             self.Codeblocks["MAIN"] = Codeblock(self.ID, "MAIN")
         if "MAIN" not in self.Codeblocks.iterkeys():
-            logger.warning("REquired 'MAIN' Codeblock does not exist. Creating...")
+            logger.warning("Required 'MAIN' Codeblock does not exist. Creating...")
             self.Codeblocks["MAIN"] = Codeblock(self.ID, "MAIN")
             
         for c in self.Codeblocks.itervalues():
@@ -1298,6 +1317,7 @@ class TaskInstance(object):
     Error = None
     def __init__(self, sTaskInstance, sTaskID="", sAssetID=""):
         self.Instance = sTaskInstance
+        self.summary = None
         db = catocommon.new_conn()
         # we could define a whole model here, but it's not necessary... all we want is the data
         # since this won't be acted on as an object.

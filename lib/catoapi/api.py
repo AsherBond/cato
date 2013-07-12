@@ -75,6 +75,7 @@ endpoints = {
 			 "get_task_instance_status" : "catoapi.taskMethods/get_task_instance_status",
 			 "get_task_log" : "catoapi.taskMethods/get_task_log",
 			 "get_task_parameters" : "catoapi.taskMethods/get_task_parameters",
+			 "get_token" : "catoapi.sysMethods/get_token",
 			 "import_backup" : "catoapi.sysMethods/import_backup",
 			 "list_cloud_accounts" : "catoapi.cloudMethods/list_cloud_accounts",
 			 "list_cloud_keypairs" : "catoapi.cloudMethods/list_cloud_keypairs",
