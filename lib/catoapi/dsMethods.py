@@ -48,7 +48,7 @@ class dsMethods:
         
         Optional Arguments: 
             collection - a document collection.  'Default' if omitted.
-            filter - will filter a value match in the Document ID or data.
+            filter - will filter a value match in the Document ID or data.  (Filter is a JSON object formatted as a Mongo query.)
         
         Returns: A list of Document IDs.
         """
@@ -68,7 +68,7 @@ class dsMethods:
         Lists all Datastore Document Collections.
         
         Optional Arguments: 
-            filter - will filter results on the Collection name.
+            filter - will filter results on the Collection name.  (A string to match in the Collection name.)
         
         Returns: A list of Document Collections.
         """

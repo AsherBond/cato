@@ -382,7 +382,7 @@ class taskMethods:
             Only 'Default' versions are shown.
         
         Optional Arguments: 
-            filter - will filter a value match in Task Name, Code or Description.
+            filter - will filter a value match in Task Name, Code or Description.  (Multiple filter arguments can be provided, delimited by spaces.)
             show_all_versions - if provided, will display all versions. ('False' if omitted.)
         
         Returns: An array of all Tasks with basic attributes.

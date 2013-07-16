@@ -34,7 +34,7 @@ class cloudMethods:
         Lists all Clouds.
         
         Optional Arguments: 
-            filter - will filter a value match in Cloud Name, Provider, Default Account Name or API URL.
+            filter - will filter a value match in Cloud Name, Provider, Default Account Name or API URL.  (Multiple filter arguments can be provided, delimited by spaces.)
         
         Returns: An list of all Clouds.
         """
@@ -53,7 +53,7 @@ class cloudMethods:
         Lists all Cloud Accounts.
         
         Optional Arguments: 
-            filter - will filter a value match in Account Name, Account Number, Provider, Login ID and Default Cloud Name.
+            filter - will filter a value match in Account Name, Account Number, Provider, Login ID and Default Cloud Name.  (Multiple filter arguments can be provided, delimited by spaces.)
         
         Returns: An list of all Cloud Accounts.
         """

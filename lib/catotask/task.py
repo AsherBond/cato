@@ -1554,7 +1554,7 @@ class TaskInstances(object):
             sWhereString += " and ti.task_id = '%s'" % sTaskID
 
         if sFilter:
-            aSearchTerms = sFilter.split(",")
+            aSearchTerms = sFilter.split()
             for term in aSearchTerms:
                 if term:
                     sWhereString += " and (ti.task_instance like '%%" + term + "%%' " \

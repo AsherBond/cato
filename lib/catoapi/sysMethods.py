@@ -409,7 +409,7 @@ class sysMethods:
         Lists all registered Users.
         
         Optional Arguments: 
-            filter - will filter a value match in User's Full Name, Role or Email address.
+            filter - will filter a value match in User's Full Name, Role or Email address.  (Multiple filter arguments can be provided, delimited by spaces.)
         
         Returns: A list of all Users.
         """
@@ -598,7 +598,7 @@ class sysMethods:
         Lists all Shared Credentials.
         
         Optional Arguments: 
-            filter - will filter a value match in Credential Name, Username, Domain or Description.
+            filter - will filter a value match in Credential Name, Username, Domain or Description.  (Multiple filter arguments can be provided, delimited by spaces.)
         
         Returns: A list of Shared Credentials.
         """
@@ -669,7 +669,7 @@ class sysMethods:
         Lists all Tags.
         
         Optional Arguments: 
-            filter - will filter a value match in Task Name, Code or Description.
+            filter - will filter a value match in Tag Name.  (Multiple filter arguments can be provided, delimited by spaces.)
         
         Returns: A list of all Tags.
         """
