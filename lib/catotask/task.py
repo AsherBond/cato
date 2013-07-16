@@ -1275,6 +1275,10 @@ class TaskRunLog(object):
                     
                 sLimitClause = " limit " + str(sRows)
                 
+        # what is the task_id?
+        sSQL = "select task_id from task_instance_log where task_instance = %s"
+        self.task_id = db.select_col_noexcep(sSQL, (sTaskInstance))
+        
         # how many log rows are there?
         sSQL = "select count(*) from task_instance_log where task_instance = %s"
         self.numrows = db.select_col_noexcep(sSQL, (sTaskInstance))
