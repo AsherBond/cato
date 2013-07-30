@@ -14,6 +14,8 @@
 # limitations under the License.
 #########################################################################
 
+import sys
+
 if sys.version_info < (2, 7):
 	import catoxml.etree.ElementTree as ET
 else:
