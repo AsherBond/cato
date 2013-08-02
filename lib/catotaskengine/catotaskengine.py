@@ -1454,13 +1454,37 @@ class TaskEngine():
         self.logger.info("Updating task instance %s to %s" % (self.task_instance, task_status))
 
         sql = "update task_instance set task_status = %s, completed_dt = now() where task_instance = %s" 
-        self.db.exec_db(sql, (task_status, self.task_instance))
+
+        ii = 0
+        while True:
+            try:
+                self.db.exec_db(sql, (task_status, self.task_instance))
+            except Exception as e:
+                if e.args[0] == 1213 and ii < 5:
+                    time.sleep(1)
+                    ii += 1
+                else:
+                    raise e
+            else:
+                break
 
     def update_ti_pid(self):
 
         sql = """update task_instance set pid = %s, task_status = 'Processing', 
             started_dt = now() where task_instance = %s""" 
-        self.db.exec_db(sql, (os.getpid(), self.task_instance))
+        ii = 0
+        while True:
+            try:
+                self.db.exec_db(sql, (os.getpid(), self.task_instance))
+            except Exception as e:
+                if e.args[0] == 1213 and ii < 5:
+                    time.sleep(1)
+                    ii += 1
+                else:
+                    raise e
+            else:
+                break
+
 
     def time_diff_ms(self, td):
 
