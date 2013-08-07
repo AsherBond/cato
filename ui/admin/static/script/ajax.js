@@ -81,7 +81,7 @@ catoAjax.deployment = function() {
 
 catoAjax.deployment.getTemplatesTable = function(filter, page) {"use strict";
 	var args = {};
-	args.sFilter = filter;
+	args.sSearch = filter;
 	args.sPage = page;
 	return ajaxPost("depMethods/wmGetTemplatesTable", args);
 }
