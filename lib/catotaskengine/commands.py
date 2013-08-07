@@ -1444,7 +1444,7 @@ def winrm_cmd_cmd(self, task, step):
             buff = "%s\n%s" % (buff, err)
         # else:
         #    buff = err
-
+    buff = re.sub("\r\n", "\n", buff)
     c.handle.cleanup_command(c.shell_id, command_id)
 
     
