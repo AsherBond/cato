@@ -818,7 +818,7 @@ class TaskEngine():
                              
                 elif typ == "regex":
                     pattern = v[7]
-                    match = re.search(pattern, line)
+                    match = re.search(pattern, line, flags=re.MULTILINE)
                     if not match:
                         value = ""
                     else:
