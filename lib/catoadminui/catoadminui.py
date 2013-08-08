@@ -296,7 +296,6 @@ def auth_app_processor(handle):
 
     # requests that are allowed, no matter what
     if path in [
-        "/",
         "/favicon.ico",
         "/uiMethods/wmAttemptLogin",
         "/uiMethods/wmGetQuestion",
