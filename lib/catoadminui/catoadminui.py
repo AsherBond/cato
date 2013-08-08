@@ -275,20 +275,6 @@ class logout:
     def GET(self):
         uiCommon.ForceLogout("")
         
-class tokenauth:        
-    def GET(self):
-        # if anything goes wrong, just redirect to the login page
-        response = uiCommon.AttemptLogin("Cato Admin UI")
-        response = json.loads(response)
-        print response
-        if response.get("result") == "success":
-            raise web.seeother('/home')
-        
-        logger.info("Token Authentication failed... [%s]" % response.get("info"))
-        
-        session.kill()
-        raise web.seeother('/static/login.html?msg=Token%20Authentication%20failed')
-
 class appicon:        
     def GET(self, name):
         img = uiCommon.GetAppIcon(name)
@@ -326,6 +312,18 @@ def auth_app_processor(handle):
         ]:
         return handle()
 
+    # ok, now we know the requested page requires a session...
+    # is there a 'token' argument?  If so, attempt to authenticate:
+    i = web.input(page=None, token=None)
+    if i.token:
+        # if anything goes wrong, just redirect to the login page
+        response = uiCommon.AttemptLogin("Cato Admin UI")
+        response = json.loads(response)
+        if response.get("result") != "success":
+            logger.info("Token Authentication failed... [%s]" % response.get("info"))
+            session.kill()
+            raise web.seeother('/static/login.html?msg=Token%20Authentication%20failed')
+    
     # any other request requires an active session ... kick it out if there's not one.
     # best (most consistent) way to check? Get the user...
     uiCommon.GetSessionUserID()
@@ -623,7 +621,7 @@ if __name__ != app_name:
         
     # the LAST LINE must be our /(.*) catchall, which is handled by uiMethods.
     urls = (
-        '/', 'login',
+        '/', 'home',
         '/login', 'login',
         '/tokenauth', 'tokenauth',
         '/logout', 'logout',

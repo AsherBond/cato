@@ -399,6 +399,7 @@ class User(object):
                 logger.warning("Config setting [ui_token_lifespan] not found or is not a number.  Using the default (30 minutes).")
             
             if (now_ts - row["created_dt"]) > timedelta (minutes=mins):
+                logger.warning("The provided login token has expired. Tokens are good for %s minutes." % (mins))
                 return False, "expired"
             
             # at the moment, UI tokens can't be kept current.  Once they expire they're gone.
