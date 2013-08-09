@@ -34,7 +34,8 @@ $(document).ready(function() {
 	$("#refresh_btn").button({
 		icons : {
 			primary : "ui-icon-refresh"
-		}, text: false
+		},
+		text : false
 	});
 
 	//refresh button
@@ -69,8 +70,9 @@ $(document).ready(function() {
 
 	//show the abort button if applicable
 	status = $("#lblStatus").text();
-	if ("Submitted,Processing,Queued".indexOf(status) > -1)
+	if ("Submitted,Processing,Queued".indexOf(status) > -1) {
 		$("#abort_btn").removeClass("hidden");
+	}
 
 	$("#abort_dialog").dialog({
 		autoOpen : false,
@@ -126,10 +128,11 @@ $(document).ready(function() {
 
 	//repost and ask for the whole log
 	$(".get_all").click(function() {
-		if (confirm("This may take a long time.\n\nAre you sure?"))
+		if (confirm("This may take a long time.\n\nAre you sure?")) {
 			// we use this class programatically later to determine if
 			// all rows have been requested.
 			$(".get_all").removeClass("vis_btn_off");
+		}
 		$("#get_all_bottom").hide();
 		doGetLog("all");
 	});
@@ -170,13 +173,21 @@ $(document).ready(function() {
 				var svc_inst_lbl = $("#lblServiceInstanceLabel").text();
 				var account_name = $("#lblAccountName").text();
 
-				var args = '{"task_id":"' + task_id + '", "task_name":"' + task_name + '", "debug_level":"' + debug_level + '", "instance":"' + instance + '"';
+				// SOME NOTES!!!!!
+				// 1) it should display the parameters from this instance in the launch dialog
+				// 2) it must use the same account id (wiether or not we need to pass this is unknown)
+				// 3) it must know the deployment and service, as well as the instance
+				var args = {};
+				args.task_id = task_id;
+				args.task_name = task_name;
+				args.debug_level = debug_level;
+				args.task_instance = instance;
+				args.scope_id = svc_inst_id;
 
-				if (account_id)
-					args += ', "account_id":"' + account_id + '", "account_name":"' + account_name + '"';
-
-				args += '}';
-
+				if (account_id) {
+					args.account_id = account_id;
+					args.account_name = account_name;
+				}
 				// this time we allow the user to select whether or not they want a new run log window.
 				$(".new_runlog_window").show();
 
@@ -191,9 +202,9 @@ $(document).ready(function() {
 	hidePleaseWait();
 
 	//if there's no value in the CELogfile ... hide the button.
-	if ($("#hidCELogFile").val() == "")
+	if ($("#hidCELogFile").val() == "") {
 		$("#show_logfile").hide();
-
+	}
 	doGetDetails();
 
 });
@@ -205,8 +216,9 @@ function doGetDetails() {
 		sAssetID : g_asset_id
 	});
 	if (instance) {
-		if (instance.error)
+		if (instance.error) {
 			showInfo(instance.error);
+		}
 
 		$("#hidInstanceID").val(instance.task_instance);
 		$("#hidTaskID").val(instance.task_id);
@@ -230,36 +242,39 @@ function doGetDetails() {
 		$("#lblServiceInstanceLabel").text(instance.instance_label);
 		$("#lblAccountName").text(instance.account_name);
 
-		if (instance.submitted_by_instance != "")
+		if (instance.submitted_by_instance != "") {
 			$("#lblSubmittedByInstance").addClass("link");
-
+		}
 		//if we got a "resubmit_message"...
-		if (instance.resubmit_message)
+		if (instance.resubmit_message) {
 			$("#lblResubmitMessage").text(instance.resubmit_message);
-		else
+		} else {
 			$("#lblResubmitMessage").text("");
+		}
 
 		//don't show the cancel button if it's not running
-		if (instance.allow_cancel == "false")
+		if (instance.allow_cancel == "false") {
 			$("#abort_btn").hide();
-		else
+		} else {
 			$("#abort_btn").show();
+		}
 
 		//if the log file is local to this server, show a link
-		if (instance.logfile_name)
+		if (instance.logfile_name) {
 			$("#view_logfile_btn").show();
-		else
+		} else {
 			$("#view_logfile_btn").hide();
+		}
 
 		//if the other instances array has stuff in it, then
 		if (instance.other_instances) {
 			if (instance.other_instances.length) {
-				html = ""
+				var html = "";
 				$(instance.other_instances).each(function(idx, row) {
-					html += '<tr task_instance="' + row.task_instance + '"> \
-						<td tag="selectable" class="pointer">' + row.task_instance + '</td> \
-						<td tag="selectable" class="pointer">' + row.task_status + '</td> \
-						</tr>';
+					html += '<tr task_instance="' + row.task_instance + '">';
+					html += '<td tag="selectable" class="pointer">' + row.task_instance + '</td>';
+					html += '<td tag="selectable" class="pointer">' + row.task_status + '</td>';
+					html += '</tr>';
 				});
 				$("#other_instances").empty().append(html);
 				initJtable();
@@ -275,19 +290,20 @@ function doGetDetails() {
 
 		//we rely on the details to get the log
 		// and we get all rows if that's previously been selected.
-		if ($(".get_all").hasClass("vis_btn_off"))
+		if ($(".get_all").hasClass("vis_btn_off")) {
 			doGetLog(200);
-		else
+		} else {
 			doGetLog("all");
-
+		}
 	}
 }
 
 function doGetLog(rows) {
 	var instance = $("#hidInstanceID").val();
 
-	if (instance == '')
+	if (instance == '') {
 		return;
+	}
 
 	$("#ltLog").empty();
 	$("#ltSummary").empty();
@@ -297,13 +313,14 @@ function doGetLog(rows) {
 		sRows : rows
 	});
 	if (response) {
-		if (response.log)
+		if (response.log) {
 			$("#ltLog").html(unpackJSON(response.log));
-
-		if (response.summary)
+		}
+		if (response.summary) {
 			$("#ltSummary").replaceWith(unpackJSON(response.summary));
-
-		if (response.totalrows)
+			$("#result_summary").show();
+		}
+		if (response.totalrows) {
 			if (rows == "all") {
 				$("#row_count_lbl").text(" - all " + response.totalrows + " rows.");
 				$("#get_all_bottom").hide();
@@ -313,15 +330,16 @@ function doGetLog(rows) {
 				$("#row_count_lbl").text(" - " + rows + "/" + response.totalrows + " rows.");
 				$("#get_all_bottom").show();
 			}
+		}
 	}
 }
 
 function doGetLogfile() {
 	instance = $("#hidInstanceID").val();
 
-	if (instance == '')
+	if (instance == '') {
 		return;
-
+        }
 	var response = ajaxPost("taskMethods/wmGetTaskLogfile", {
 		sTaskInstance : instance
 	}, "text");
@@ -332,11 +350,12 @@ function doGetLogfile() {
 function doDebugStop() {
 	instance = $("#hidInstanceID").val();
 
-	if (instance == '')
+	if (instance == '') {
 		return;
-
+	}
 	var response = ajaxPost("taskMethods/wmStopTask", {
 		sInstance : instance
 	});
 	location.reload();
 }
+

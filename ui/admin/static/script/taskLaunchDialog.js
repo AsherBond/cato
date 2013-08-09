@@ -385,13 +385,11 @@ function getParamXML(id, type, filter_id) {
 	bindParameterToolTips();
 }
 
-function ShowTaskLaunchDialog(jsonargs) {
+function ShowTaskLaunchDialog(args) {
 	$('.current_time').load('uiMethods/wmGetDatabaseTime');
 
 	//function takes a json array as arguments
 	//'{"task_id":"","task_name":"","account_id":"","account_name":"","task_instance":"","asset_id":""}'
-
-	var args = jQuery.parseJSON(jsonargs);
 
 	//work out the mandatory arguments...
 	if (!args.task_id || !args.task_name) {
