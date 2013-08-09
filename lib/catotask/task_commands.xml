@@ -1,7 +1,7 @@
 <categories>
 	<category name="connect" label="Connect" description="Commands for connecting to and disconnecting from Assets." icon="static/images/icons/connect_no_32.png">
 		<commands>
-			<command name="new_connection" label="New Connection" description="Creates a new connection to an Asset." help="New Connection will create a named connection to an Asset.&lt;br /&gt; Select the connection type, pick the Asset and Name the connection to be used in the task." icon="static/images/icons/connect_creating_32.png">
+			<command name="new_connection" label="New Connection" description="Creates a new connection to an Asset." help="New Connection will create a named connection to an Asset.&lt;br /&gt;Non EC3 - ssh connection allowed values:&lt;br /&gt;&lt;br /&gt;address - ip address or fqdn&lt;br /&gt;userid - user name or id&lt;br /&gt;password - password to use&lt;br /&gt;port - optional port&lt;br /&gt;protocol - applicable to winrm, http or https. Http default&lt;br /&gt;db_name - for database connections&lt;br /&gt;shared_cred - shared credential name, an alias for a Cato stored user id and password&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;EC2 - ssh connection syntax:&lt;br /&gt;username@instanceId" icon="static/images/icons/connect_creating_32.png">
 				<function name="new_connection" snip="conn_name">
 					<conn_type input_type="select">ssh</conn_type>
 					<cloud_name input_type="dropdown" style="combo" />
