@@ -122,13 +122,7 @@
 				"label": "Read the Documentation",
 				"icon": "static/images/icons/documentation_24.png",
 				"target": "_blank",
-				"href": "https://github.com/cloudsidekick/cato/wiki"
-			}, {
-				"roles": "all",
-				"label": "Browse the Forums",
-				"icon": "static/images/icons/forums_24.png",
-				"target": "_blank",
-				"href": "https://groups.google.com/forum/#!forum/cato-users"
+				"href": "http://docs.cloudsidekick.com/docs/cato"
 			}, {
 				"roles": "all",
 				"label": "Report an Issue",
