@@ -68,6 +68,10 @@ class Scheduler(catoprocess.CatoService):
         sql = """delete from application_registry where timestampdiff(minute, heartbeat, now()) > 20"""
         self.db.exec_db(sql)
 
+        sql = """update task_instance set task_status = 'Cancelled' 
+            where task_status = 'Aborting' and ce_node is NULL"""
+        self.db.exec_db(sql)
+
         sql = """update application_registry set master = 0 
             where timestampdiff(second, heartbeat, now()) > (%s * 2)
             and master = 1 and app_name = 'cato_poller'"""
