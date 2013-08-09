@@ -17,7 +17,7 @@
 from catotaskengine import classes
 from vcloudpy import vcloudpy
 
-def vcloud_connect(TE, step):
+def vcloud_connect(TE, step, timeout):
 
     cloud_name = TE.get_command_params(step.command, "endpoint_name")[0]
     cloud_name = TE.replace_variables(cloud_name)
@@ -30,30 +30,45 @@ def vcloud_connect(TE, step):
         cloud = classes.Cloud(cloud_name)
         TE.cloud_conns[cloud_name] = cloud
 
-    print "cloudname = %s" % (cloud_name)
+    #print "cloudname = %s" % (cloud_name)
 
     if cloud.provider != "vCloud":
         msg = "The endpoint named cloud_name is not a vCloud configured endpoint" % (cloud_name)
         raise Exception(msg)
 
     if not cloud.conn:
-        cloud.conn = vcloudpy.VCloudConn(TE.cloud_login_id, TE.cloud_login_password, cloud.url, debug=False)
+        if not timeout:
+            timeout = 30
+        cloud.conn = vcloudpy.VCloudConn(TE.cloud_login_id, TE.cloud_login_password, cloud.url, debug=False, timeout=timeout)
 
     return cloud
+
+def _convert_timeout(timeout):
+
+    if not len(timeout):
+        timeout = None
+    else:
+        try:
+            timeout = float(timeout)
+        except ValueError:
+            msg = "Invalid timeout value %s, must be integer or floating decimal number" % (timeout)
+    return timeout
 
 
 def vcloud_call_parse(te, step):
 
-    cloud = vcloud_connect(te, step)
-    path, meth_or_href, action, data, type, xpath, out_var = te.get_command_params(step.command, "path", "method_or_href", 
-        "action", "data", "content_type", "xpath", "output_var")[:]
+    path, meth_or_href, action, data, type, xpath, out_var, timeout = te.get_command_params(step.command, "path", "method_or_href", 
+        "action", "data", "content_type", "xpath", "output_var", "timeout")[:]
     path = te.replace_variables(path) 
     xpath = te.replace_variables(xpath) 
     data = te.replace_variables(data) 
     type = te.replace_variables(type) 
+    timeout = te.replace_variables(timeout) 
+    timeout = _convert_timeout(timeout) 
     values = te.get_node_list(step.command, "values/value", "name", "variable", "type")
+    cloud = vcloud_connect(te, step, timeout)
 
-    result = _vcloud_make_call(cloud, path, action, data, type, meth_or_href)
+    result = _vcloud_make_call(cloud, path, action, data, type, meth_or_href, timeout=timeout)
 
     msg = "vCloud API Call %s\n%s" % (path, result)
     te.insert_audit(step.function_name, msg, "")
@@ -65,33 +80,35 @@ def vcloud_call_parse(te, step):
 
 def vcloud_call(te, step):
 
-    cloud = vcloud_connect(te, step)
-    path, meth_or_href, action, data, type, out_var = te.get_command_params(step.command, "path", "method_or_href", 
-        "action", "data", "content_type", "output_var")[:]
+    path, meth_or_href, action, data, type, out_var, timeout = te.get_command_params(step.command, "path", "method_or_href", 
+        "action", "data", "content_type", "output_var", "timeout")[:]
     path = te.replace_variables(path) 
     data = te.replace_variables(data) 
     type = te.replace_variables(type) 
+    timeout = te.replace_variables(timeout) 
+    timeout = _convert_timeout(timeout) 
+    cloud = vcloud_connect(te, step, timeout)
 
-    result = _vcloud_make_call(cloud, path, action, data, type, meth_or_href)
+    result = _vcloud_make_call(cloud, path, action, data, type, meth_or_href, timeout=timeout)
 
     msg = "vCloud API Call %s\n%s" % (path, result)
     te.insert_audit(step.function_name, msg, "")
     if len(out_var):
         te.rt.set(out_var, result)
 
-def _vcloud_make_call(cloud, path, action, data, type, meth_or_href):
+def _vcloud_make_call(cloud, path, action, data, type, meth_or_href, timeout):
 
     if not len(type):
         type = None
     if not len(data):
         data = None
 
-    print meth_or_href
+    #print meth_or_href
 
     if meth_or_href == "href":
-        result = cloud.conn.make_href_request_path(path, action, data=data, type=type)
+        result = cloud.conn.make_href_request_path(path, action, data=data, type=type, timeout=timeout)
     else:
-        result = cloud.conn.make_method_request(path, action)
+        result = cloud.conn.make_method_request(path, action, timeout=timeout)
 
     return result
 
@@ -128,7 +145,7 @@ def _vcloud_parse_data(te, xml, path, values):
         for k,v in variables.iteritems():
             if ii == 1:
                 te.rt.clear(v)
-            print "key %s, variable %s" % (k, v)
+            #print "key %s, variable %s" % (k, v)
             if k in row:
-                print "setting %s to %s" % (v,  row[k])
+                #print "setting %s to %s" % (v,  row[k])
                 te.rt.set(v, row[k], ii)
