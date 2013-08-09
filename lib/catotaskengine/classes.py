@@ -137,12 +137,13 @@ class System:
 
 
 class Connection:
-    def __init__(self, conn_name, conn_type=None, system=None):
+    def __init__(self, conn_name, conn_type=None, system=None, debug=False):
 
         self.conn_name = conn_name
         self.conn_handle = None
         self.conn_type = conn_type
         self.system = system
+        self.debug = debug
 
 
 class TaskHandle:

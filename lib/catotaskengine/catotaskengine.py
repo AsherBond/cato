@@ -180,7 +180,7 @@ class TaskEngine():
             pass
 
 
-    def connect_expect(self, type, host, user, password=None, passphrase=None, key=None, default_prompt=None):
+    def connect_expect(self, type, host, user, password=None, passphrase=None, key=None, default_prompt=None, debug=False):
 
         at_prompt = False
         timeout = 20
@@ -204,15 +204,20 @@ class TaskEngine():
             pexpect.EOF,
             pexpect.TIMEOUT]
 
+        if debug:
+            verbose = "-vv"
+        else:
+            verbose = ""
+
         if key:
             kf_name = "%s/%s.pem" % (self.tmpdir, self.new_uuid())
             kf = file(kf_name, "w",)
             kf.write(key)
             kf.close()
             os.chmod(kf_name, 0400)
-            cmd = "ssh -i %s -o ForwardAgent=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s" % (kf_name, user, host)
+            cmd = "ssh %s -i %s -o ForwardAgent=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s" % (verbose, kf_name, user, host)
         else:
-            cmd = "ssh -o ForwardAgent=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s" % (user, host)
+            cmd = "ssh %s -o ForwardAgent=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s" % (verbose, user, host)
 
         reattempt = True
         attempt = 1
@@ -1345,7 +1350,7 @@ class TaskEngine():
         if c.conn_type == "ssh":
 
             # c.handle = self.connect_ssh_telnet("ssh", c.system.address, c.system.userid, password=c.system.password)
-            c.handle = self.connect_expect("ssh", c.system.address, c.system.userid, password=c.system.password)
+            c.handle = self.connect_expect("ssh", c.system.address, c.system.userid, password=c.system.password, debug=c.debug)
 
         elif c.conn_type == "telnet":
 
@@ -1357,7 +1362,7 @@ class TaskEngine():
             # c.handle = self.connect_ssh_telnet("ssh", c.system.address, c.system.userid, 
             #    pk_password=c.system.p_password, key=c.system.private_key)
             c.handle = self.connect_expect("ssh", c.system.address, c.system.userid, password=c.system.password,
-                passphrase=c.system.p_password, key=c.system.private_key)
+                passphrase=c.system.p_password, key=c.system.private_key, debug=c.debug)
             
         elif c.conn_type == "winrm":
 

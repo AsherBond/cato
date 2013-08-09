@@ -978,7 +978,7 @@ def end_cmd(self, task, step):
 # work in progress, not complete.
 def new_connection_cmd(self, task, step):
 
-    conn_type, conn_name, asset, cloud_name = self.get_command_params(step.command, "conn_type", "conn_name", "asset", "cloud_name")[:]
+    conn_type, conn_name, asset, cloud_name, debug = self.get_command_params(step.command, "conn_type", "conn_name", "asset", "cloud_name", "debug")[:]
     conn_name = self.replace_variables(conn_name)
     asset = self.replace_variables(asset)
     cloud_name = self.replace_variables(cloud_name)
@@ -1048,6 +1048,7 @@ def new_connection_cmd(self, task, step):
             # we haven't loaded it before, let's disect the asset string
 
             address = userid = password = port = db_name = protocol = shared_cred = None
+            debug = False
 
             for pair in asset.split(" "):
                 k, v = pair.split("=")
@@ -1084,7 +1085,7 @@ def new_connection_cmd(self, task, step):
             self.systems[name] = s
 
     # we've made it this far, let's create the new connection object
-    conn = classes.Connection(conn_name, conn_type=conn_type, system=s)
+    conn = classes.Connection(conn_name, conn_type=conn_type, system=s, debug=debug)
     self.connections[conn_name] = conn
         
     # and make the connection. We'll store any connection handle we get back for later use
