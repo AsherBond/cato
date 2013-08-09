@@ -74,7 +74,10 @@ $(document).ready(function() {
 		var task_name = $("#lblTaskNameHeader").html() + " - " + $("#lblVersionHeader").html();
 		var asset_id = $("#txtTestAsset").attr("asset_id");
 
-		var args = '{"task_id":"' + g_task_id + '", "task_name":"' + task_name + '", "debug_level":"4"}';
+		var args = {};
+		args.task_id = g_task_id;
+		args.task_name = task_name;
+		args.debug_level = 4;
 
 		//note: we are not passing the account_id - the dialog will use the default
 		ShowTaskLaunchDialog(args);

@@ -116,7 +116,11 @@ function GetItems(page) {
 			event.stopPropagation();
 			var task_id = $(this).parent().attr("task_id");
 			var task_name = $(this).parent().find("td")[2].innerHTML + " - " + $(this).parent().find("td")[3].innerHTML;
-			var args = '{"task_id":"' + task_id + '", "task_name":"' + task_name + '", "debug_level":"4"}';
+
+			var args = {};
+			args.task_id = task_id;
+			args.task_name = task_name;
+			args.debug_level = 4;
 
 			//note: we are not passing the account_id - the dialog will use the default
 			ShowTaskLaunchDialog(args);
