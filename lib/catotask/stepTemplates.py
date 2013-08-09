@@ -177,7 +177,7 @@ def GetStepTemplate(oStep):
     # (styles, etc.)
 
     if sFunction.lower() == "new_connection":
-        sHTML = NewConnection(oStep)
+        sHTML, sOptionHTML = NewConnection(oStep)
     elif sFunction.lower() == "codeblock":
         sHTML = Codeblock(oStep)
     elif sFunction.lower() == "if":
@@ -2481,6 +2481,7 @@ def NewConnection(oStep):
     xConnName = xd.find("conn_name")
     xConnType = xd.find("conn_type")
     xCloudName = xd.find("cloud_name")
+    xDebug = xd.find("debug")
     sAssetID = ("" if xAsset is None else ("" if xAsset.text is None else xAsset.text))
     sConnType = ("ssh" if xConnType is None else ("ssh" if xConnType.text is None else xConnType.text))
     sCloudName = ("" if xCloudName is None else ("" if xCloudName.text is None else xCloudName.text))
@@ -2584,8 +2585,11 @@ def NewConnection(oStep):
             " onchange=\"javascript:pushStepFieldChangeVia(this, '" + sElementID + "');\"" \
             " >" + sAssetName + "</textarea>\n"
         
+    sOptionHTML = ""
+    if xDebug is not None:
+        sOptionHTML = DrawField(xDebug, "debug", oStep)
 
-    return sHTML
+    return sHTML, sOptionHTML
 
 def NewConnection_View(oStep):
     UI.log("New Connection command:", 4)
