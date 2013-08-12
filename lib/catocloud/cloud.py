@@ -284,14 +284,29 @@ class Cloud(object):
     # creates this Cloud as a new record in the db
     # and returns the object
     @staticmethod
-    def DBCreateNew(sCloudName, sProvider, sAPIUrl, sAPIProtocol, sRegion="", sDefaultAccountID=""):
+    def DBCreateNew(sCloudName, sProvider, sAPIUrl, sAPIProtocol, sRegion="", sDefaultAccount=""):
         db = catocommon.new_conn()
         sNewID = catocommon.new_guid()
         sRegion = "'%s'" % sRegion if sRegion else "null"
-        sDefaultAccountID = "'%s'" % sDefaultAccountID if sDefaultAccountID else "null"
         
+        # some sanity checks...
+        # 1) is the provider valid?
+        providers = CloudProviders(include_products=False, include_clouds=False)
+        if sProvider not in providers.iterkeys():
+            raise InfoException("The specified Provider [%s] is not a valid Cato Cloud Provider." % sProvider)
+        
+        # 2) if given, does the 'default cloud account' exist
+        if sDefaultAccount:
+            ca = CloudAccount()
+            ca.FromName(sDefaultAccount)
+            if not ca.ID:
+                raise InfoException("The specified default Cloud Account [%s] is not defined." % sDefaultAccount)
+            sDefaultAccount = ca.ID
+            
+        sDefaultAccount = "'%s'" % sDefaultAccount if sDefaultAccount else "null"
+
         sSQL = """insert into clouds (cloud_id, cloud_name, provider, api_url, api_protocol, region, default_account_id)
-            values ('%s', '%s', '%s', '%s', '%s', %s, %s)""" % (sNewID, sCloudName, sProvider, sAPIUrl, sAPIProtocol, sRegion, sDefaultAccountID)
+            values ('%s', '%s', '%s', '%s', '%s', %s, %s)""" % (sNewID, sCloudName, sProvider, sAPIUrl, sAPIProtocol, sRegion, sDefaultAccount)
         if not db.exec_db_noexcep(sSQL):
             if db.error == "key_violation":
                 raise InfoException("A Cloud with that name already exists.  Please select another name.")
