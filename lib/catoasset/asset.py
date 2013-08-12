@@ -223,13 +223,9 @@ class Asset(object):
                 if c.SharedOrLocal == "1":
                     c.Name = self.ID
 
-                result, msg = c.DBCreateNew()
-                if not result:
-                    return None, msg
+                c.DBCreateNew()
             elif credential_update_mode == "existing":
-                result, msg = c.DBUpdate()
-                if not result:
-                    return None, msg
+                c.DBUpdate()
             elif credential_update_mode == "selected":
                 #  user selected a shared credential
                 #  remove the local credential if one exists
