@@ -99,6 +99,14 @@ versions = [
                       ["changecolumn", "task_step_user_settings", "button", "button varchar(1024)"],
                       ["sql", "delete from task_step_user_settings"]
                       ]
+             ],
+            ["1.19", [
+                      ["addindex", "deployment_log", "IX_dep_log_1", "`deployment_id` ASC"],
+                      ["addindex", "deployment_log", "IX_dep_log_2", "`deployment_id` ASC, `task_instance` ASC"],
+                      ["addindex", "deployment_log", "IX_dep_log_3", "`deployment_id` ASC, `deployment_service_id` ASC"],
+                      ["addindex", "deployment_log", "IX_dep_log_4", "`deployment_id` ASC, `instance_id` ASC"],
+                      ["addindex", "deployment_log", "IX_dep_log_5", "`deployment_id` ASC, `seq_instance` ASC"]
+                      ]
              ]
         ]
 
@@ -121,6 +129,7 @@ def main(argv):
             tblexists = None
             colexists = None
             pkexists = None
+            ixexists = None
             
             # these apply to several cases below
             if item[0] in ["addcolumn", "dropcolumn", "modifycolumn", "changecolumn"]:        
@@ -143,6 +152,11 @@ def main(argv):
                     AND table_name = %s
                     AND constraint_type = 'PRIMARY KEY'"""
                 pkexists = db.select_col(sql, (item[1]))
+            if item[0] in ["addindex", "dropindex"]:        
+                sql = """SELECT count(*) FROM information_schema.statistics 
+                    where table_name = %s
+                    and index_name = %s"""
+                ixexists = db.select_col(sql, (item[1], item[2]))
 
             sql = ""
             if item[0] == "comment":
@@ -159,6 +173,12 @@ def main(argv):
             elif item[0] == "addpk":
                 if not tblexists:
                     sql = "alter table `%s` add primary key (%s)" % (item[1], item[2])
+            elif item[0] == "dropindex":
+                if ixexists:
+                    sql = "alter table `%s` drop index `%s`" % (item[1], item[2])
+            elif item[0] == "addindex":
+                if not ixexists:
+                    sql = "alter table `%s` add index `%s` (%s)" % (item[1], item[2], item[3])
             elif item[0] == "addcolumn":
                 if not colexists:
                     sql = "alter table `%s` add column `%s` %s" % (item[1], item[2], item[3])
