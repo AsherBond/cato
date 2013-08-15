@@ -105,7 +105,8 @@ versions = [
                       ["addindex", "deployment_log", "IX_dep_log_2", "`deployment_id` ASC, `task_instance` ASC"],
                       ["addindex", "deployment_log", "IX_dep_log_3", "`deployment_id` ASC, `deployment_service_id` ASC"],
                       ["addindex", "deployment_log", "IX_dep_log_4", "`deployment_id` ASC, `instance_id` ASC"],
-                      ["addindex", "deployment_log", "IX_dep_log_5", "`deployment_id` ASC, `seq_instance` ASC"]
+                      ["addindex", "deployment_log", "IX_dep_log_5", "`deployment_id` ASC, `seq_instance` ASC"],
+                      ["addindex", "task_instance", "IX_task_instance_sched_id", "`schedule_id` ASC"]
                       ]
              ]
         ]
