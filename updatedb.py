@@ -258,7 +258,7 @@ if __name__ == "__main__":
     else:
         import argparse
         parser = argparse.ArgumentParser()
-        parser.add_argument("user", help="Cato root db user.")
+        parser.add_argument("-u", "--user", help="Cato root db user.")
         parser.add_argument("-p", "--password", help="Cato root db password.")
         args = parser.parse_args()
         
