@@ -301,7 +301,12 @@ CREATE TABLE `deployment_log` (
   `action_id` varchar(36) DEFAULT NULL,
   `task_instance` bigint(20) DEFAULT NULL,
   `log_msg` text,
-  PRIMARY KEY (`log_id`)
+  PRIMARY KEY (`log_id`),
+  KEY `IX_dep_log_1` (`deployment_id`),
+  KEY `IX_dep_log_2` (`deployment_id`,`task_instance`),
+  KEY `IX_dep_log_3` (`deployment_id`,`deployment_service_id`),
+  KEY `IX_dep_log_4` (`deployment_id`,`instance_id`),
+  KEY `IX_dep_log_5` (`deployment_id`,`seq_instance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `deployment_sequence` (
   `sequence_id` varchar(36) NOT NULL,
