@@ -164,6 +164,7 @@ def safe_config():
 
     cfg["user_ui_port"] = CONFIG["user_ui_port"]
     cfg["admin_ui_port"] = CONFIG["admin_ui_port"]
+    cfg["dash_api_port"] = CONFIG["dash_api_port"]
     cfg["user_ui_enable_refresh"] = CONFIG["user_ui_enable_refresh"]
 
     cfg["admin_ui_protocol"] = "https" if CONFIG["admin_ui_use_ssl"] == "true" else "http"
