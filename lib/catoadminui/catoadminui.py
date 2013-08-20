@@ -300,7 +300,6 @@ def auth_app_processor(handle):
         "/uiMethods/wmAttemptLogin",
         "/uiMethods/wmGetQuestion",
         "/version",
-        "/tokenauth",
         "/login",
         "/logout",
         "/notAllowed",
@@ -622,7 +621,6 @@ if __name__ != app_name:
     urls = (
         '/', 'home',
         '/login', 'login',
-        '/tokenauth', 'tokenauth',
         '/logout', 'logout',
         '/home', 'home',
         '/importObject', 'importObject',
