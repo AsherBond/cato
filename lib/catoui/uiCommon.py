@@ -778,7 +778,8 @@ def AttemptLogin(app_name):
     current_user["email"] = u.Email
     current_user["ip_address"] = address
     SetSessionObject("user", current_user)
-
+    SetCookie("applink", base64.b64encode(catocommon.cato_encrypt(u.ID)))
+    
     log("Login granted for: %s" % (u.FullName), 3)
     log(uiGlobals.session.user, 4)
 
