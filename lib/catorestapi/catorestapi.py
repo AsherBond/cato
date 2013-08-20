@@ -170,6 +170,14 @@ class wmHandler:
 #    def POST(self, method):
 #        return catocommon.FindAndCall("catoapi." + method)
 
+class favicon():
+    """
+    This isn't a typical web server, but requests from a browser will ask for a favicon.
+    So, we handle the request but return nothing.
+    """
+    def GET(self):
+        return ""
+        
 class getlog():
     """
     delivers an html page with a refresh timer.  content is the last n rows of the logfile
@@ -472,6 +480,7 @@ def main():
         '/configure', 'configure',
         '/getlog', 'getlog',
         '/setdebug', 'setdebug',
+        '/favicon.ico', 'favicon',
         '/(.*)', 'wmHandler'
     )
 

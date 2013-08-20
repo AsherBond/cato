@@ -116,9 +116,9 @@ def authenticate(action, args):
 			row = db.select_row_dict(sql, (args.get("token")))
 			
 			if not row:
-				return False, None
+				return False, "Token authentication - token not found."
 			if not row["created_dt"] or not row["user_id"]:
-				return False, None
+				return False, "Token authentication - token not found."
 			
 			# check the expiration date of the token
 			now_ts = datetime.utcnow()
@@ -130,7 +130,7 @@ def authenticate(action, args):
 				logger.warning("Config setting [rest_api_token_lifespan] not found or is not a number.  Using the default (30 minutes).")
 			
 			if (now_ts - row["created_dt"]) > timedelta (minutes=mins):
-				return False, None
+				return False, "Token expired."
 			
 			# still all good?  Update the created_dt.
 			sql = """update api_tokens set created_dt = str_to_date('{0}', '%%Y-%%m-%%d %%H:%%i:%%s')
@@ -139,6 +139,7 @@ def authenticate(action, args):
 				
 			return True, row["user_id"]
 		else:
+			logger.info("Token authentication is not enabled (rest_api_enable_tokenauth in cato.conf).")
 			return False, None
 	
 
