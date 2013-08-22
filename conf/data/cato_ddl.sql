@@ -558,7 +558,8 @@ CREATE TABLE `task_instance` (
   KEY `IX_task_instance_status_pid` (`task_status`,`pid`),
   KEY `IX_task_instance_task_id` (`task_id`),
   KEY `IX_task_instance_task_status` (`task_status`),
-  KEY `IX_task_instance_schedule_instance` (`schedule_instance`)
+  KEY `IX_task_instance_schedule_instance` (`schedule_instance`),
+  KEY `IX_task_instance_sched_id` (`schedule_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `task_instance_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

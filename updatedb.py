@@ -105,7 +105,8 @@ versions = [
                       ["addindex", "deployment_log", "IX_dep_log_2", "`deployment_id` ASC, `task_instance` ASC"],
                       ["addindex", "deployment_log", "IX_dep_log_3", "`deployment_id` ASC, `deployment_service_id` ASC"],
                       ["addindex", "deployment_log", "IX_dep_log_4", "`deployment_id` ASC, `instance_id` ASC"],
-                      ["addindex", "deployment_log", "IX_dep_log_5", "`deployment_id` ASC, `seq_instance` ASC"]
+                      ["addindex", "deployment_log", "IX_dep_log_5", "`deployment_id` ASC, `seq_instance` ASC"],
+                      ["addindex", "task_instance", "IX_task_instance_sched_id", "`schedule_id` ASC"]
                       ]
              ]
         ]
@@ -257,7 +258,7 @@ if __name__ == "__main__":
     else:
         import argparse
         parser = argparse.ArgumentParser()
-        parser.add_argument("user", help="Cato root db user.")
+        parser.add_argument("-u", "--user", help="Cato root db user.")
         parser.add_argument("-p", "--password", help="Cato root db password.")
         args = parser.parse_args()
         
