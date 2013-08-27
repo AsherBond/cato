@@ -690,7 +690,7 @@ def sql_exec_cmd(self, task, step):
     self.logger.debug("conn type is %s" % (c.conn_type))
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "position")
     if c.conn_type == "mysql":
-        _sql_exec_mysql(self, sql, variables, c.handle)
+        _sql_exec_mysql(self, sql, variables, c.handle, mode)
     elif c.conn_type in ["sqlanywhere", "sqlserver", "oracle"]:
         _sql_exec_dbi(self, sql, variables, c.handle)
 
@@ -718,12 +718,28 @@ def _sql_exec_dbi(self, sql, variables, conn):
     if rows:
         self.process_list_buffer(rows, variables)
 
-def _sql_exec_mysql(self, sql, variables, conn):
+def _sql_exec_mysql(self, sql, variables, conn, mode):
 
+    print("%s" % mode)
+    if mode == "COMMIT":
+        #conn.tran_commit()
+        sql = "commit"
+        #rows = ""
+    elif mode == "BEGIN":
+        sql = "start transaction"
+    elif mode == "ROLLBACK":
+        #conn.tran_rollback()
+        sql = "rollback"
+        #rows = ""
+    elif mode in ["EXEC", "PL/SQL", "PREPARE", "RUN"]:
+        msg = "Mode %s not supported for MySQL connections. Skipping" % (mode)
+        self.insert_audit("sql_exec", msg, "")
+        return
     rows = self.select_all(sql, conn)
+    if rows:
+        self.process_list_buffer(rows, variables)
     msg = "%s\n%s" % (sql, rows)
     self.insert_audit("sql_exec", msg, "")
-    self.process_list_buffer(rows, variables)
 
 
 def store_private_key_cmd(self, task, step):
