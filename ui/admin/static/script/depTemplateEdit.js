@@ -117,7 +117,7 @@ $(document).ready(function() {"use strict";
 	$("#editor_save_btn").click(function() {
 		//since this function updates from a control not a data argument,
 		//move the editor text to the text box...
-		$("#txtTemplate").val(JSON.stringify(editor.get()));
+		$("#txtTemplate").val(JSON.stringify(editor.get(), null, "    "));
 		var isvalid = doAnalyze($("#txtTemplate").val());
 		doDetailFieldUpdate($("#txtTemplate"));
 	});
@@ -143,7 +143,7 @@ $(document).ready(function() {"use strict";
 	$("#editor_analyze_btn").click(function() {
 		//since this function updates from a control not a data argument,
 		//move the editor text to the text box...
-		$("#txtTemplate").val(JSON.stringify(editor.get()));
+		$("#txtTemplate").val(JSON.stringify(editor.get(), null, "    "));
 		var isvalid = doAnalyze($("#txtTemplate").val());
 		if (isvalid) {
 			showInfo("Template is Valid.");
@@ -157,14 +157,14 @@ $(document).ready(function() {"use strict";
 			// the CURRENT editor to the TARGET editor
 			if ($.trim(ui.tab.text) === "Text") {
 				//move the editor code to the text box
-				$("#txtTemplate").val(JSON.stringify(editor.get()));
+				$("#txtTemplate").val(JSON.stringify(editor.get(), null, "    "));
 				validateTemplateJSON();
 			}
 			if ($.trim(ui.tab.text) === "Editor") {
 				//move the text box code to the editor
 				var jstxt = $("#txtTemplate").val();
 				try {
-					var jsobj = JSON.parse(jstxt)
+					var jsobj = JSON.parse(jstxt);
 					editor.set(jsobj);
 				} catch (ex) {
 					showAlert("Unable to display Template in editor: \n" + ex.message);
