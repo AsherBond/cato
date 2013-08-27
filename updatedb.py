@@ -42,46 +42,6 @@ as simply as this, should be added to the bottom.
 
 # For each version supported, add a set of statements to the dictionary
 versions = [
-            ["1.16", [                  
-                      ["createtable", "dep_template_category", """(`category_id` VARCHAR(36) NOT NULL ,
-                                                            `category_name` VARCHAR(32) NOT NULL ,
-                                                            `icon` MEDIUMBLOB NULL ,
-                                                            UNIQUE INDEX `category_name_UNIQUE` (`category_name` ASC) ,
-                                                            PRIMARY KEY (`category_id`) )"""],
-                     ["addcolumn", "deployment_template", "icon", "MEDIUMBLOB NULL"],
-                     ["addcolumn", "deployment_template", "categories", "varchar(1024) NULL"],
-                     ["addcolumn", "deployment_template", "svc_count", "int(11) NULL DEFAULT 0"],
-                     ["addcolumn", "deployment_template", "available", "int(11) NULL DEFAULT 0"],
-                     
-                     ["dropcolumn", "deployment", "grouping"],
-                     
-                     ["addcolumn", "deployment_step_service", "original_task_id", "varchar(36)"],
-                     ["addcolumn", "deployment_step_service", "task_version", "decimal(18,3)"],
-                     ["addcolumn", "deployment_step_service", "run_level", "int(11)"],
-                     ["dropcolumn", "deployment_step_service", "initial_state"],
-                     
-                     ["addcolumn", "deployment_service_inst", "run_level", "int(11)"],
-                     
-                     ["dropcolumn", "deployment_service_inst", "desired_state"],
-                     ["dropcolumn", "deployment_service_inst", "task_instance"],
-                     
-                     ["dropcolumn", "deployment_log", "state"],
-                     ["dropcolumn", "deployment_log", "next_state"],
-                     
-                     ["dropcolumn", "dep_seq_inst_tran", "state"],
-                     ["dropcolumn", "dep_seq_inst_tran", "next_state"],
-                     
-                     ["dropcolumn", "dep_seq_inst_step_svc", "state"],
-                     ["dropcolumn", "dep_seq_inst_step_svc", "next_state"],
-                     
-                     ["dropcolumn", "dep_seq_tran_params", "state"],
-                     ["dropcolumn", "dep_seq_tran_params", "next_state"],
-                     
-                     ["droptable", "dep_service_inst_params", "NO LONGER NEEDED WAS FOR MANUAL STATE TRANSITION"],
-
-                     ["function", "_v16_updates"],
-                     ]
-             ],
             ["1.17", [
                       ["createtable", "api_tokens", """(`user_id` varchar(36) NOT NULL,
                                                             `token` varchar(36) NOT NULL,
@@ -108,6 +68,83 @@ versions = [
                       ["addindex", "deployment_log", "IX_dep_log_5", "`deployment_id` ASC, `seq_instance` ASC"],
                       ["addindex", "task_instance", "IX_task_instance_sched_id", "`schedule_id` ASC"]
                       ]
+             ],
+            ["1.20", [
+                      ["createtable", "dep_action_plan", """(
+                          `plan_id` bigint(20) NOT NULL AUTO_INCREMENT,
+                          `schedule_id` varchar(36) DEFAULT NULL,
+                          `type` varchar(16) NOT NULL DEFAULT '',
+                          `original_task_id` varchar(36) NOT NULL DEFAULT '',
+                          `task_version` decimal(18, 3) DEFAULT NULL,
+                          `run_on_dt` datetime NOT NULL,
+                          `instance_id` varchar(36) DEFAULT NULL,
+                          `state` varchar(32) DEFAULT NULL,
+                          `account_id` varchar(36) DEFAULT NULL,
+                          `cloud_id` varchar(36) DEFAULT NULL,
+                          `parameter_xml` mediumtext NOT NULL,
+                          `debug_level` int(11) DEFAULT NULL,
+                          PRIMARY KEY (`plan_id`)
+                        ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8"""],
+                      ["createtable", "dep_action_plan_history", """(
+                          `plan_id` bigint(20) NOT NULL AUTO_INCREMENT,
+                          `schedule_id` varchar(36) DEFAULT NULL,
+                          `type` varchar(16) NOT NULL DEFAULT '',
+                          `task_id` varchar(36) NOT NULL DEFAULT '',
+                          `task_instance` decimal(18, 3) DEFAULT NULL,
+                          `run_on_dt` datetime NOT NULL,
+                          `instance_id` varchar(36) DEFAULT NULL,
+                          `state` varchar(32) DEFAULT NULL,
+                          `account_id` varchar(36) DEFAULT NULL,
+                          `cloud_id` varchar(36) DEFAULT NULL,
+                          `parameter_xml` mediumtext NOT NULL,
+                          `debug_level` int(11) DEFAULT NULL,
+                          PRIMARY KEY (`plan_id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8"""],
+                      ["createtable", "dep_action_schedule", """(
+                          `schedule_id` varchar(36) NOT NULL DEFAULT '',
+                          `type` varchar(16) NOT NULL DEFAULT '',
+                          `original_task_id` varchar(36) NOT NULL DEFAULT '',
+                          `task_version` decimal(18, 3) DEFAULT NULL,
+                          `instance_id` varchar(36) DEFAULT NULL,
+                          `state` varchar(32) DEFAULT NULL,
+                          `account_id` varchar(36) DEFAULT NULL,
+                          `cloud_id` varchar(36) DEFAULT NULL,
+                          `months` varchar(27) DEFAULT NULL,
+                          `days_or_weeks` int(11) DEFAULT NULL,
+                          `days` varchar(84) DEFAULT NULL,
+                          `hours` varchar(62) DEFAULT NULL,
+                          `minutes` varchar(172) DEFAULT NULL,
+                          `parameter_xml` mediumtext NOT NULL,
+                          `debug_level` int(11) DEFAULT NULL,
+                          `label` varchar(64) DEFAULT NULL,
+                          `descr` varchar(512) DEFAULT NULL,
+                          PRIMARY KEY (`schedule_id`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8"""],
+                      ["createtable", "dep_monitor_inst", """(
+                          `instance_id` varchar(36) NOT NULL,
+                          `task_instance` bigint(20) DEFAULT NULL,
+                          `status` varchar(32) NOT NULL,
+                          `state` varchar(32) DEFAULT NULL,
+                          `task_id` varchar(36) DEFAULT NULL,
+                          PRIMARY KEY (`instance_id`,`task_instance`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8"""],
+                      ["createtable", "dash_resource", """(
+                          `id` varchar(36) NOT NULL,
+                          `project` varchar(32) NOT NULL,
+                          `component` varchar(45) NOT NULL,
+                          `name` varchar(45) NOT NULL,
+                          `data` text,
+                          PRIMARY KEY (`id`),
+                          UNIQUE KEY `proj_comp_name` (`project`,`component`,`name`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8"""],
+                      ["createtable", "dash_image", """(
+                          `path` varchar(255) NOT NULL,
+                          `data` mediumblob NOT NULL,
+                          PRIMARY KEY (`path`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8"""],
+                      ["droptable", "dep_service_inst_mon", "NO LONGER NEEDED with the new Maestro scheduler."],
+                      
+                    ]
              ]
         ]
 
@@ -210,40 +247,6 @@ def main(argv):
                 
 
         print "    .... done."
-
-
-def _v16_updates():
-    # doing 'noexcep' updates here, so it won't fail if they already exist
-
-    sql = "ALTER TABLE deployment ADD COLUMN `template_id` VARCHAR(36) NULL AFTER `deployment_name`"
-    db.exec_db_noexcep(sql)
-
-    sql = """update deployment d
-        join deployment_template dt on d.template_name = dt.template_name 
-            and d.template_version = dt.template_version
-        set d.template_id = dt.template_id"""
-    db.exec_db_noexcep(sql)
-    
-    sql = "ALTER TABLE deployment CHANGE COLUMN `template_id` `template_id` VARCHAR(36) NOT NULL"
-    db.exec_db_noexcep(sql)
-
-    # rename the old columns, but keep them for now as a backup in case something crashes
-    sql = "ALTER TABLE deployment CHANGE COLUMN `template_name` `_template_name` VARCHAR(64) NULL"
-    db.exec_db_noexcep(sql)
-    sql = "ALTER TABLE deployment CHANGE COLUMN `template_version` `_template_version` VARCHAR(8) NULL"
-    db.exec_db_noexcep(sql)
-
-    # move task info from deployment_service_state to deployment_step_service
-    sql = """update deployment_step_service dss
-        join deployment_service_state dss2 
-          on dss.deployment_service_id = dss2.deployment_service_id
-            and dss.initial_state = dss2.state
-            and dss.desired_state = dss2.next_state
-        set dss.original_task_id = dss2.original_task_id, 
-          dss.task_version = dss2.task_version,
-          dss.run_level = dss2.run_level"""
-    db.exec_db_noexcep(sql)
-    
 
 
 if __name__ == "__main__":
