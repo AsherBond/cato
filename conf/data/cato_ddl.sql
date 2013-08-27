@@ -147,12 +147,84 @@ CREATE TABLE `clouds_keypair` (
   PRIMARY KEY (`cloud_id`,`keypair_name`),
   UNIQUE KEY `keypair_id_UNIQUE` (`keypair_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dash_image` (
+  `path` varchar(255) NOT NULL,
+  `data` mediumblob NOT NULL,
+  PRIMARY KEY (`path`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dash_resource` (
+  `id` varchar(36) NOT NULL,
+  `project` varchar(32) NOT NULL,
+  `component` varchar(45) NOT NULL,
+  `name` varchar(45) NOT NULL,
+  `data` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `proj_comp_name` (`project`,`component`,`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_action_inst` (
   `action_id` varchar(36) NOT NULL,
   `task_instance` bigint(20) NOT NULL,
   `status` varchar(32) NOT NULL,
   `instance_id` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`action_id`,`task_instance`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_action_plan` (
+  `plan_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `schedule_id` varchar(36) DEFAULT NULL,
+  `type` varchar(16) NOT NULL DEFAULT '',
+  `original_task_id` varchar(36) NOT NULL DEFAULT '',
+  `task_version` decimal(18,3) DEFAULT NULL,
+  `run_on_dt` datetime NOT NULL,
+  `instance_id` varchar(36) DEFAULT NULL,
+  `state` varchar(32) DEFAULT NULL,
+  `account_id` varchar(36) DEFAULT NULL,
+  `cloud_id` varchar(36) DEFAULT NULL,
+  `parameter_xml` mediumtext NOT NULL,
+  `debug_level` int(11) DEFAULT NULL,
+  PRIMARY KEY (`plan_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_action_plan_history` (
+  `plan_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `schedule_id` varchar(36) DEFAULT NULL,
+  `type` varchar(16) NOT NULL DEFAULT '',
+  `task_id` varchar(36) NOT NULL DEFAULT '',
+  `task_instance` decimal(18,3) DEFAULT NULL,
+  `run_on_dt` datetime NOT NULL,
+  `instance_id` varchar(36) DEFAULT NULL,
+  `state` varchar(32) DEFAULT NULL,
+  `account_id` varchar(36) DEFAULT NULL,
+  `cloud_id` varchar(36) DEFAULT NULL,
+  `parameter_xml` mediumtext NOT NULL,
+  `debug_level` int(11) DEFAULT NULL,
+  PRIMARY KEY (`plan_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_action_schedule` (
+  `schedule_id` varchar(36) NOT NULL DEFAULT '',
+  `type` varchar(16) NOT NULL DEFAULT '',
+  `original_task_id` varchar(36) NOT NULL DEFAULT '',
+  `task_version` decimal(18,3) DEFAULT NULL,
+  `instance_id` varchar(36) DEFAULT NULL,
+  `state` varchar(32) DEFAULT NULL,
+  `account_id` varchar(36) DEFAULT NULL,
+  `cloud_id` varchar(36) DEFAULT NULL,
+  `months` varchar(27) DEFAULT NULL,
+  `days_or_weeks` int(11) DEFAULT NULL,
+  `days` varchar(84) DEFAULT NULL,
+  `hours` varchar(62) DEFAULT NULL,
+  `minutes` varchar(172) DEFAULT NULL,
+  `parameter_xml` mediumtext NOT NULL,
+  `debug_level` int(11) DEFAULT NULL,
+  `label` varchar(64) DEFAULT NULL,
+  `descr` varchar(512) DEFAULT NULL,
+  PRIMARY KEY (`schedule_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `dep_monitor_inst` (
+  `instance_id` varchar(36) NOT NULL,
+  `task_instance` bigint(20) NOT NULL,
+  `status` varchar(32) NOT NULL,
+  `state` varchar(32) DEFAULT NULL,
+  `task_id` varchar(36) DEFAULT NULL,
+  PRIMARY KEY (`instance_id`,`task_instance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_seq_inst` (
   `seq_instance` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -210,11 +282,6 @@ CREATE TABLE `dep_seq_tran_params` (
   `deployment_service_id` varchar(36) NOT NULL,
   `parameter_xml` mediumtext NOT NULL,
   PRIMARY KEY (`sequence_id`,`step_number`,`deployment_service_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `dep_service_inst_mon` (
-  `instance_id` varchar(36) NOT NULL,
-  `schedule_id` varchar(36) NOT NULL,
-  PRIMARY KEY (`instance_id`,`schedule_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_service_inst_proc` (
   `instance_id` varchar(36) NOT NULL,
