@@ -1015,7 +1015,7 @@ class TaskEngine():
         return value 
 
 
-    def get_aws_system_info(self, instance_id, user_id, region):
+    def get_aws_system_info(self, instance_id, user_id, region, password=None, port=None, debug=False):
 
         # number of times to retry checking the status of the instance
         num_retries = 20
@@ -1057,23 +1057,26 @@ class TaskEngine():
                 msg = msg + ", state stuck in a pending status"
             raise Exception(msg)
 
-        keyname = self.aws_get_result_var(result, "//instancesSet/item/keyName")
         platform = self.aws_get_result_var(result, "//instancesSet/item/platform")
         address = self.aws_get_result_var(result, "//instancesSet/item/dnsName")
         if not len(platform):
             platform = "linux"
-        pk = self.retrieve_private_key(keyname, region)
-        if not pk:
-            msg = "The key named %s for cloud %s is not defined in the database" % (keyname, region)
-            raise Exception(msg)
-        p_key = catocommon.cato_decrypt(pk[0])
-        password = catocommon.cato_decrypt(pk[1])
-        del(pk)
+        if password:
+            p_key = None
+            keyname = None
+        else:
+            # if password, we are using password auth, not a private key for auth
+            keyname = self.aws_get_result_var(result, "//instancesSet/item/keyName")
+            pk = self.retrieve_private_key(keyname, region)
+            if not pk:
+                msg = "The key named %s for cloud %s is not defined in the database" % (keyname, region)
+                raise Exception(msg)
+            p_key = catocommon.cato_decrypt(pk[0])
+            password = catocommon.cato_decrypt(pk[1])
+            del(pk)
 
         s = classes.System(instance_id, address=address, userid=user_id, password=password,
             private_key=p_key, private_key_name=keyname, cloud_name=region)
-
-        self.systems[instance_id] = s
 
         return s
 

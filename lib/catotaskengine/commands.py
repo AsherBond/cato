@@ -1065,6 +1065,9 @@ def new_connection_cmd(self, task, step):
     asset = self.replace_variables(asset).strip()
     cloud_name = self.replace_variables(cloud_name)
 
+    if len(debug) == 0:
+        debug = False
+
     if len(asset) == 0:
         raise Exception("New Connection command requires an Asset or connection details.")
 
@@ -1090,17 +1093,56 @@ def new_connection_cmd(self, task, step):
         # format should be like: username@instanceid
         # cloud_name is not required, it will use the account default if not specified
 
-        if "@" not in asset:
-            msg = "ssh - ec2 connection type requires the following format: username@instanceid, found [%s]." % asset
-            raise Exception(msg)
-        user_id, instance_id = asset.split("@")[:2]
+        if "@" in asset:
+            # original implementation, user@instanceId
 
+            password = port = None
+            userid, instance_id = asset.split("@")[:2]
+
+        else:
+            # new way, supports user id and password auth for ec2
+
+            userid = password = port = shared_cred = None
+            #debug = False
+
+            for pair in asset.split(" "):
+                k, v = pair.split("=")
+                if k == "userid":
+                    userid = v
+                elif k == "instance":
+                    instance_id = v
+                elif k == "password":
+                    password = v
+                elif k == "port":
+                    port = v
+                elif k == "shared_cred":
+                    shared_cred = v
+                elif k == "shared_credential":
+                    shared_cred = v
+                else:
+                    msg = "Unsupported key-value pair [%s], skipping..." % (pair)
+                    self.logger.info(msg)
+            if shared_cred:
+                c = catocommon.lookup_shared_cred(shared_cred)
+                if c:
+                    userid = c[0]
+                    password = c[1]
+                else:
+                    raise Exception("Unable to find Shared Credential using name [%s]." % (shared_cred))
+
+            if not instance_id or not userid:
+                msg = "ssh - ec2 connection type requires either of the following formats: username@instanceid or instance=instanceid userid=username, found [%s]." % asset
+                raise Exception(msg)
+
+        # we need to give this asset a name, so we'll create one based on the hash
+        name = hash(asset)
         try:
             # we've loaded it before
-            s = self.systems[asset]
+            s = self.systems[name]
         except KeyError:
             # not been loaded yet, get it from aws
-            s = self.get_aws_system_info(instance_id, user_id, cloud_name)
+            s = self.get_aws_system_info(instance_id, userid, cloud_name, password=password, port=port)
+            self.systems[name] = s
 
     elif " " not in asset:
         # this is a traditional, fixed asset connection
@@ -1130,7 +1172,7 @@ def new_connection_cmd(self, task, step):
             # we haven't loaded it before, let's disect the asset string
 
             address = userid = password = port = db_name = protocol = shared_cred = None
-            debug = False
+            #debug = False
 
             for pair in asset.split(" "):
                 k, v = pair.split("=")
