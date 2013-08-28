@@ -305,6 +305,26 @@
 					</columns>
 				</function>
 			</command>
+			<command name="datastore_find_and_modify" label="Datastore Find and Modify" description="Used to find a value and modify it in a Datastore document. The values found will be returned to the command and can be used to populate variables." help="Specify a standard JSON query to find a document to modify.  The document will be updated or removed. Specify 'columns' (keys in the document) and provide new values. Select 'Upsert' to create a document if the query matches nothing.&lt;br /&gt;&lt;b&gt;&lt;i&gt;If more than one document matches the selection query, only the first match will be updated.&lt;/i&gt;&lt;/b&gt; Specify 'outcolumns' (keys in the document) to populate named variables." icon="static/images/icons/datastore_update.png">
+				<function name="datastore_find_and_modify">
+					<collection input_type="text" required="true" label="Collection" />
+					<upsert input_type="checkbox" label="Upsert?" />
+					<remove input_type="checkbox" label="Remove?" />
+					<query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
+					<columns is_array="true">
+						<column>
+							<name input_type="text" label="Name" />
+							<value input_type="text" label="Value" style="width: 50%;" />
+						</column>
+					</columns>
+					<outcolumns is_array="true" label="Out Columns">
+						<column>
+							<name input_type="text" label="Name" />
+							<value input_type="text" label="Value" style="width: 50%;" />
+						</column>
+					</outcolumns>
+				</function>
+			</command>
 			<command name="datastore_delete" label="Datastore Delete" description="Delete a Datastore document." help="Specify a standard JSON query to identify document(s) to be deleted." icon="static/images/icons/datastore_delete.png">
 				<function name="datastore_delete">
 					<collection input_type="text" label="Collection" />
