@@ -254,11 +254,6 @@ class depMethods:
         # (sometimes the javascript and .net libs don't translate exactly, google it.)
         sValue = uiCommon.unpackJSON(sValue)
 
-        #  check for existing name
-        if sColumn == "Name":
-            if dt.Name == sValue:
-                return sValue + " exists, please choose another name."
-
         # cool, update the class attribute by name, using getattr!
         # python is so cool.. I don't even need to check if the attribute I wanna set exists.
         # just set it
