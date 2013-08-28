@@ -1062,7 +1062,7 @@ def new_connection_cmd(self, task, step):
 
     conn_type, conn_name, asset, cloud_name, debug = self.get_command_params(step.command, "conn_type", "conn_name", "asset", "cloud_name", "debug")[:]
     conn_name = self.replace_variables(conn_name)
-    asset = self.replace_variables(asset)
+    asset = self.replace_variables(asset).strip()
     cloud_name = self.replace_variables(cloud_name)
 
     if len(asset) == 0:
