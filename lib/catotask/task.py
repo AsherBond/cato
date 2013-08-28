@@ -190,7 +190,9 @@ class Tasks(object):
         docs = []
         for t in tasks:
             if outformat == "json":
+                # exported Tasks don't have any identifiers
                 del t.ID
+                del t.OriginalTaskID
                 for c in t.Codeblocks.itervalues():
                     for s in c.Steps.itervalues():
                         del s.ID
@@ -433,7 +435,9 @@ class Task(object):
     def AsXML(self, include_code=False):
         root = catocommon.ET.fromstring('<task />')
         
-        root.set("original_task_id", self.OriginalTaskID)
+        # OriginalTaskID won't be included if the caller removed it from the object.
+        if hasattr(self, "OriginalTaskID"):
+            root.set("original_task_id", self.OriginalTaskID)
         root.set("name", str(self.Name))
         root.set("code", str(self.Code))
         root.set("version", str(self.Version))
@@ -479,7 +483,6 @@ class Task(object):
             "Code" : self.Code,
             "Version" : self.Version,
             "Status" : self.Status,
-            "OriginalTaskID" : self.OriginalTaskID,
             "IsDefaultVersion" : self.IsDefaultVersion,
             "Description" : self.Description,
             "ConcurrentInstances" : self.ConcurrentInstances,
@@ -492,6 +495,8 @@ class Task(object):
         }
         if hasattr(self, "ID"):
             t["ID"] = self.ID
+        if hasattr(self, "OriginalTaskID"):
+            t["OriginalTaskID"] = self.OriginalTaskID
         
         if include_code:
             # parameters
