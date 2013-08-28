@@ -212,6 +212,74 @@ def datastore_create_index_cmd(self, task, step):
     self.insert_audit(step.function_name, msg, "")
 
 
+def datastore_find_and_modify_cmd(self, task, step):
+
+    collection, query_string, upsert, remove = self.get_command_params(step.command, "collection", "query", "upsert", "remove")[:]
+    pairs = self.get_node_list(step.command, "columns/column", "name", "value")
+    outpairs = self.get_node_list(step.command, "outcolumns/column", "name", "value")
+    collection = self.replace_variables(collection)
+    query_string = self.replace_variables(query_string)
+
+    # validate and prepare the query
+    query_dict = _fix_mongo_query(query_string)
+
+    if len(collection) == 0:
+        raise Exception("Datastore Find and Modify requires a collection name")
+
+    db = catocommon.new_mongo_conn()
+    if collection in db.collection_names():
+        coll = db[collection]
+    else:
+        msg = "Datastore Find and Modify error: a collection named %s does not exist" % (collection)
+        raise Exception(msg)
+
+    _vars = {}
+    _outvars = []
+    cols = {}
+    if remove == "1":
+        remove = True
+    else:
+        remove = False
+    if upsert == "1":
+        upsert = True
+    else:
+        upsert = False
+    for p in pairs:
+        name = self.replace_variables(p[0])
+        _vars[name] = self.replace_variables(p[1])
+
+    for p in outpairs:
+        name = self.replace_variables(p[0])
+        if len(name):
+            _outvars.append([name, p[1]])
+            cols[name] = True
+    if "_id" not in cols.keys():
+        cols["_id"] = False
+
+    if len(_vars):
+        update_json = {"$set" : _vars}
+    else:
+        update_json = None
+    if not len(cols):
+        cols = None
+    msg = "Collection %s, Find and Modify %s, Set %s, Columns %s, Upsert %s, Remove %s" % (collection, query_dict, json.dumps(_vars), cols.keys(), upsert, remove)
+    row = coll.find_and_modify(query_dict, update=update_json, fields=cols, upsert=upsert, remove=remove)
+    msg = "%s\n%s" % (msg, json.dumps(row, default=json_util.default))
+    for v in _outvars:
+        name = v[0]
+        variable = v[1]
+        try:
+            value = row[name]
+        except KeyError:
+            value = ""
+        except Exception as e:
+            raise Exception(e)
+        # print "name %s, value %s" % (name, value)
+        self.rt.set(variable, value)
+
+    catocommon.mongo_disconnect(db)
+    self.insert_audit(step.function_name, msg, "")
+
 def datastore_update_cmd(self, task, step):
 
     collection, query_string, upsert = self.get_command_params(step.command, "collection", "query", "upsert")[:]
@@ -548,7 +616,6 @@ def generate_password_cmd(self, task, step):
             raise Exception(e)
 
     p = catocommon.generate_password(i_len) 
-    print p
     self.rt.set(v_name, p)
     msg = "Generated random password of length %s and stored in variable %s" % (i_len, v_name)
     self.insert_audit(step.function_name, msg, "")
@@ -690,7 +757,7 @@ def sql_exec_cmd(self, task, step):
     self.logger.debug("conn type is %s" % (c.conn_type))
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "position")
     if c.conn_type == "mysql":
-        _sql_exec_mysql(self, sql, variables, c.handle)
+        _sql_exec_mysql(self, sql, variables, c.handle, mode)
     elif c.conn_type in ["sqlanywhere", "sqlserver", "oracle"]:
         _sql_exec_dbi(self, sql, variables, c.handle)
 
@@ -718,12 +785,27 @@ def _sql_exec_dbi(self, sql, variables, conn):
     if rows:
         self.process_list_buffer(rows, variables)
 
-def _sql_exec_mysql(self, sql, variables, conn):
+def _sql_exec_mysql(self, sql, variables, conn, mode):
 
+    if mode == "COMMIT":
+        #conn.tran_commit()
+        sql = "commit"
+        #rows = ""
+    elif mode == "BEGIN":
+        sql = "start transaction"
+    elif mode == "ROLLBACK":
+        #conn.tran_rollback()
+        sql = "rollback"
+        #rows = ""
+    elif mode in ["EXEC", "PL/SQL", "PREPARE", "RUN"]:
+        msg = "Mode %s not supported for MySQL connections. Skipping" % (mode)
+        self.insert_audit("sql_exec", msg, "")
+        return
     rows = self.select_all(sql, conn)
+    if rows:
+        self.process_list_buffer(rows, variables)
     msg = "%s\n%s" % (sql, rows)
     self.insert_audit("sql_exec", msg, "")
-    self.process_list_buffer(rows, variables)
 
 
 def store_private_key_cmd(self, task, step):
@@ -980,7 +1062,7 @@ def new_connection_cmd(self, task, step):
 
     conn_type, conn_name, asset, cloud_name, debug = self.get_command_params(step.command, "conn_type", "conn_name", "asset", "cloud_name", "debug")[:]
     conn_name = self.replace_variables(conn_name)
-    asset = self.replace_variables(asset)
+    asset = self.replace_variables(asset).strip()
     cloud_name = self.replace_variables(cloud_name)
 
     if len(asset) == 0:
