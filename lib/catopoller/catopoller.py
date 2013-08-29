@@ -60,12 +60,12 @@ class Poller(catoprocess.CatoService):
                         
     def update_to_error(self, the_pid):
     
-        self.logger.info("Setting tasks with PID %s and Processing status to Error..." % (the_pid))                  
+        self.logger.info("Setting task with PID %s and Processing status to Error. Process not found" % (the_pid))                  
 
         sql = """update task_instance set task_status = 'Error',
             completed_dt = now() 
-            where pid = %s and task_status = 'Processing'"""
-        self.db.exec_db(sql, (the_pid))
+            where pid = %s and task_status = 'Processing' and ce_node = %s"""
+        self.db.exec_db(sql, (the_pid, self.instance_id))
 
     def update_cancelled(self, task_instance):
 
@@ -93,20 +93,23 @@ class Poller(catoprocess.CatoService):
         rows = self.db.select_all(sql, (self.instance_id))
         if rows:
             for row in rows:
-                db_pids.append(row[0])
+                db_pids.append(str(row[0]))
 
-        cmd_line = """ps U%s -opid | grep "%s/services/bin/cato_task_engine" | grep -v grep""" % (self.user, self.home)
+            cmd_line = """ps U%s -A -opid -ocommand |grep "python %s/services/bin/cato_task_engine" | grep -v grep| awk '{print $1}'""" % (self.user, self.home)
 
-        #os_pids = os.system(cmd_line)
-        #print cmd_line
-        #print os_pids
-        #print db_pids
-        not_running_pids = list(set(db_pids)-set(os_pids))
-        for pid in not_running_pids:
-            self.update_to_error(pid)
+            os_pids = os.popen(cmd_line).read().strip().split("\n")
+            #print cmd_line
+            #print "os pids %s" % os_pids
+            #print set(os_pids)
+            #print "db pids %s" % db_pids
+            #print set(db_pids)
+            
+            not_running_pids = list(set(db_pids)-set(os_pids))
+            for pid in not_running_pids:
+                self.update_to_error(pid)
 
     def update_load(self):
-        
+            
         loads = os.getloadavg()
         sql = """update application_registry set load_value = %s 
             where id = %s"""
@@ -152,7 +155,7 @@ class Poller(catoprocess.CatoService):
 
         self.update_load()
         self.get_aborting()
-        #self.check_processing()
+        self.check_processing()
 
         # don't kick off any new work if the poller isn't enabled.
         if self.poller_enabled:
