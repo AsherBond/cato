@@ -266,16 +266,19 @@ def datastore_find_and_modify_cmd(self, task, step):
     row = coll.find_and_modify(query_dict, update=update_json, fields=cols, upsert=upsert, remove=remove)
     msg = "%s\n%s" % (msg, json.dumps(row, default=json_util.default))
     for v in _outvars:
-        name = v[0]
-        variable = v[1]
-        try:
-            value = row[name]
-        except KeyError:
-            value = ""
-        except Exception as e:
-            raise Exception(e)
-        # print "name %s, value %s" % (name, value)
-        self.rt.set(variable, value)
+        self.rt.clear(v[0])
+    if row:
+        for v in _outvars:
+            name = v[0]
+            variable = v[1]
+            try:
+                value = row[name]
+            except KeyError:
+                value = ""
+            except Exception as e:
+                raise Exception(e)
+            # print "name %s, value %s" % (name, value)
+            self.rt.set(variable, value)
 
     catocommon.mongo_disconnect(db)
     self.insert_audit(step.function_name, msg, "")
