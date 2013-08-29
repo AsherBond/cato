@@ -30,6 +30,10 @@ from catosettings import settings
 class Poller(catoprocess.CatoService):
 
     poller_enabled = ""
+    # check_processing whenever loop counter is 0
+    loop_counter = 0
+    # roller over check_processing counter when it gets to the following
+    rollover_counter = 5
 
     def start_submitted_tasks(self, get_num):
 
@@ -155,7 +159,14 @@ class Poller(catoprocess.CatoService):
 
         self.update_load()
         self.get_aborting()
-        self.check_processing()
+        if self.loop_counter == 0:
+            self.check_processing()
+            self.loop_counter += 1
+        elif self.loop_counter == self.rollover_counter:
+            self.loop_counter = 0
+        else:
+            self.loop_counter += 1
+        
 
         # don't kick off any new work if the poller isn't enabled.
         if self.poller_enabled:
