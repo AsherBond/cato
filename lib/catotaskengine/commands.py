@@ -1038,6 +1038,7 @@ def get_shared_cred_cmd(self, task, step):
     if c:
         userid = c[0]
         password = c[1]
+        self.add_to_sensitive(password)
     else:
         raise Exception("Unable to find Shared Credential using name [%s]." % (alias))
     self.rt.set(u, userid)
@@ -1134,6 +1135,7 @@ def new_connection_cmd(self, task, step):
                 msg = "ssh - ec2 connection type requires either of the following formats: username@instanceid or instance=instanceid userid=username, found [%s]." % asset
                 raise Exception(msg)
 
+        self.add_to_sensitive(password)
         # we need to give this asset a name, so we'll create one based on the hash
         name = hash(asset)
         try:
@@ -1203,6 +1205,7 @@ def new_connection_cmd(self, task, step):
                 else:
                     raise Exception("Unable to find Shared Credential using name [%s]." % (shared_cred))
                  
+            self.add_to_sensitive(password)
             s = classes.System(name, address=address, userid=userid, password=password,
                 port=port, db_name=db_name, protocol=protocol)
 

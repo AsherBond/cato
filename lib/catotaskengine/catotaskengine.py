@@ -88,6 +88,8 @@ class TaskEngine():
         self.submitted_by_email = ""
         self.http_response = -1
         self.instance_id = ""
+        self.sensitive = []
+        self.sensitive_re = None
 
     # ## internal methods here
 
@@ -452,6 +454,12 @@ class TaskEngine():
     def new_uuid(self):
 
         return str(uuid.uuid4())
+
+    def add_to_sensitive(self, s):
+
+        if s and len(s) and s not in self.sensitive:
+            self.sensitive.append(s)
+            self.sensitive_re = re.compile("|".join(self.sensitive))
     
     def insert_audit(self, command, log, conn=""):
 
@@ -460,6 +468,10 @@ class TaskEngine():
             if at > 0:
                 if step_id == "":
                     step_id = "NULL"
+
+                # the following masks passwords and the like
+                if self.sensitive_re:
+                    log = re.sub(self.sensitive_re, "********", log)
 
                 sql = """insert into task_instance_log 
                     (task_instance, step_id, entered_dt, connection_name, log, command_text) 
