@@ -147,11 +147,6 @@ CREATE TABLE `clouds_keypair` (
   PRIMARY KEY (`cloud_id`,`keypair_name`),
   UNIQUE KEY `keypair_id_UNIQUE` (`keypair_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `dash_image` (
-  `path` varchar(255) NOT NULL,
-  `data` mediumblob NOT NULL,
-  PRIMARY KEY (`path`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dash_resource` (
   `id` varchar(36) NOT NULL,
   `project` varchar(32) NOT NULL,

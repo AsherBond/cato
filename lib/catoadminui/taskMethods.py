@@ -2378,7 +2378,7 @@ class taskMethods:
 
         # what are we gonna call this file?
         seconds = str(int(time.time()))
-        filename = "%s_%s.csk" % (helpername.replace(" ", "").replace("/", ""), seconds)
+        filename = "%s_%s.xml" % (helpername.replace(" ", "").replace("/", ""), seconds)
         with open(os.path.join(catoconfig.CONFIG["tmpdir"], filename), 'w') as f_out:
             if not f_out:
                 uiCommon.log("ERROR: unable to write task export file.")

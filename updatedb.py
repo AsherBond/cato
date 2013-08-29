@@ -137,11 +137,6 @@ versions = [
                           PRIMARY KEY (`id`),
                           UNIQUE KEY `proj_comp_name` (`project`,`component`,`name`)
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8"""],
-                      ["createtable", "dash_image", """(
-                          `path` varchar(255) NOT NULL,
-                          `data` mediumblob NOT NULL,
-                          PRIMARY KEY (`path`)
-                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8"""],
                       ["droptable", "dep_service_inst_mon", "NO LONGER NEEDED with the new Maestro scheduler."],
                       
                     ]
