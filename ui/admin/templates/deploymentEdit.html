@@ -1,24 +1,25 @@
 $def with ()
-$var jsfiles: toolbox.js deploymentEdit.js tags.js
+$var jsfiles: toolbox.js deploymentEdit.js tags.js logViewDialog.js
 $var cssfiles: taskEdit.css taskView.css
 <div id="left_panel_te">
-	<div id="toolbox">
-		<div id="toolbox_tabs" class="toolbox_tabs_1row">
-			<span
-			id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top ui-state-active toolbox_tab">Details</span><!--<span
-			id="tab_datastore" linkto="div_datastore" class="ui-state-default ui-corner-top toolbox_tab">Datastore</span>--><span
-			id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>
-		</div>
-		<div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel">
-			<div style="padding: 0 0 0 5px;">
-				<span class="detail_label">Name:</span>
-				<input type="text" id="txtDeploymentName" class="task_details code" te_group="detail_fields" column="Name" />
-				<br />
-				<span class="detail_label">Description:</span>
-				<br />
-				<textarea id="txtDescription" rows="5" class="code" te_group="detail_fields" column="Description"></textarea>
-				<br />
-				<br />
+    <div id="toolbox">
+        <div id="toolbox_tabs" class="toolbox_tabs_1row">
+            <span
+            id="tab_details" linkto="div_details" class="ui-state-default ui-corner-top ui-state-active toolbox_tab">Details</span><!--<span
+            id="tab_datastore" linkto="div_datastore" class="ui-state-default ui-corner-top toolbox_tab">Datastore</span>--><span
+            id="tab_groups" linkto="div_groups" class="ui-state-default ui-corner-top toolbox_tab">Groups</span><span
+            id="tab_tags" linkto="div_tags" class="ui-state-default ui-corner-top toolbox_tab">Tags</span>
+        </div>
+        <div id="div_details" class="ui-widget-content ui-corner-top toolbox_panel">
+            <div style="padding: 0 0 0 5px;">
+                <span class="detail_label">Name:</span>
+                <input type="text" id="txtDeploymentName" class="task_details code" te_group="detail_fields" column="Name" />
+                <br />
+                <span class="detail_label">Description:</span>
+                <br />
+                <textarea id="txtDescription" rows="5" class="code" te_group="detail_fields" column="Description"></textarea>
+                <br />
+                <br />
                 <span class="detail_label">Run State:</span>
                 <input type="text" id="txtRunState" class="task_details code" readonly="readonly" />
                 <br />
@@ -27,24 +28,44 @@ $var cssfiles: taskEdit.css taskView.css
                 <br />
                 <span class="detail_label">Instances:</span>
                 <input type="text" id="txtInstanceCount" class="task_details code" readonly="readonly" />
-                <br />
-			</div>
-		</div>
-		<div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
-			<span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
-			<ul id="objects_tags"></ul>
-		</div>
-	</div>
+                <center>
+                    <span id="show_log_link">Change Log</span>
+                </center>
+            </div>
+        </div>
+        <div id="div_groups" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+            <ul id="deployment_groups"></ul>
+            <div class="ui-widget-content ui-corner-all">
+                <div class="floatleft">
+                    Add Group: 
+                    <input id="new_group_name" type="text" />
+                </div>
+                <div class="floatright">
+                    <span id = "new_group_btn" class="ui-icon ui-icon-plus pointer"></span>
+                </div>
+                <div class="clearfloat"></div>
+            </div>
+        </div>
+        <div id="div_tags" class="ui-widget-content ui-corner-top toolbox_panel hidden">
+            <span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
+            <ul id="objects_tags"></ul>
+        </div>
+    </div>
 </div>
 <div id="content_te">
-	<center>
-		<h3><span id="lblDeploymentHeader"></span></h3>
-	</center>
-	<div id="div_details_detail" class="detail_panel hidden">
-	</div>
-	<div id="div_datastore_detail" class="detail_panel hidden">
-		<div id="jsoneditor" style="width: 100%;"></div>
-	</div>
+    <center>
+        <h3><span id="lblDeploymentHeader"></span></h3>
+    </center>
+    <div id="div_details_detail" class="detail_panel">
+        <span class="detail_label">Options:</span>
+        <textarea id="txtOptions" rows="10" class="code" te_group="detail_fields" column="OptionsJSON"></textarea>
+        <br />
+        <span class="detail_label">Prompts:</span>
+        <textarea id="txtPrompts" rows="10" class="code" te_group="detail_fields" column="PromptsJSON"></textarea>
+    </div>
+    <div id="div_datastore_detail" class="detail_panel hidden">
+        <div id="jsoneditor" style="width: 100%;"></div>
+    </div>
 </div>
 <input id="hidPageSaveType" type="hidden" value="dynamic" />
 <input id="hidObjectType" type="hidden" value="70" />

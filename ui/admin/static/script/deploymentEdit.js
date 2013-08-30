@@ -35,11 +35,40 @@ $(document).ready(function() {
 		doDetailFieldUpdate(this);
 	});
 
+	// TEMPORARILY INCLUDING these fields ... this should go away when these properties get a json editor
+	$("#div_details_detail :input[te_group='detail_fields']").change(function() {
+		doDetailFieldUpdate(this);
+	});
+
+	// add a new group button
+	$("#new_group_btn").click(function() {
+		var newgroup = $("#new_group_name").val();
+		if (newgroup) {
+			ajaxPostAsync("depMethods/wmAddDeploymentGroup", {
+				"id" : g_id,
+				"group_name" : newgroup
+			}, function(response) {
+				$("#update_success_msg").text("Update Successful").fadeOut(2000);
+				addGroupToList(newgroup);
+			});
+		}
+	});
+
+	//the show log link
+	$("#show_log_link").button({
+		icons : {
+			primary : "ui-icon-document"
+		}
+	});
+	$("#show_log_link").click(function() {
+		ShowLogViewDialog(70, g_id, true);
+	});
+
 	GetDetails();
 });
 
 function GetDetails() {
-	args = {}
+	args = {};
 	args.id = g_id;
 
 	var deployment = ajaxPost("depMethods/wmGetDeployment", args);
@@ -50,7 +79,38 @@ function GetDetails() {
 		$("#txtDescription").val(deployment.Description);
 		$("#txtServiceCount").val(deployment.ServiceCount);
 		$("#txtInstanceCount").val(deployment.InstanceCount);
+
+		// TODO: these should be on a different tab, and validated as JSON
+		$("#txtOptions").val(JSON.stringify(deployment.Options, null, 4));
+		$("#txtPrompts").val(JSON.stringify(deployment.Prompts, null, 4));
+
+		// groups
+		$("#deployment_groups").empty();
+		$.each(deployment.Groups, function(index, groupname) {
+			addGroupToList(groupname);
+		});
 	}
+}
+
+function addGroupToList(groupname) {
+	var $li = $('<li class="ui-widget-content ui-corner-all">').append($('<div class="floatleft">').append(groupname));
+	var $trashcan = $('<span class="ui-icon ui-icon-trash pointer">').data("groupname", groupname);
+	$trashcan.click(function() {
+		deleteGroup($li, $(this).data("groupname"));
+	});
+	$li.append($('<div class="floatright">').append($trashcan));
+	$li.append($('<div class="clearfloat">'));
+	$("#deployment_groups").append($li);
+}
+
+function deleteGroup($li, groupname) {
+	ajaxPostAsync("depMethods/wmDeleteDeploymentGroup", {
+		"id" : g_id,
+		"group_name" : groupname
+	}, function(response) {
+		$("#update_success_msg").text("Update Successful").fadeOut(2000);
+		$li.remove();
+	});
 }
 
 function tabWasClicked(tab) {

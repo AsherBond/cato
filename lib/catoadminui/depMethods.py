@@ -142,7 +142,7 @@ class depMethods:
             start, end, pager_html = uiCommon.GetPager(len(deps.rows), maxrows, sPage)
 
             for row in deps.rows[start:end]:
-                sHTML += """
+                sHTML += u"""
                 <tr deployment_id="{0}">
                 <td class="chkboxcolumn">    
                     <input type="checkbox" class="chkbox" id="chk_{0}" object_id="{0}" tag="chk" />
@@ -238,6 +238,37 @@ class depMethods:
             
             d.DBUpdate()
             uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Deployment, sDeploymentID, sColumn, sValue)
+
+        return json.dumps({"result" : "success"})
+
+    def wmAddDeploymentGroup(self):
+        sDeploymentID = uiCommon.getAjaxArg("id")
+        sGroupName = uiCommon.getAjaxArg("group_name")
+
+        if sGroupName:
+            sUserID = uiCommon.GetSessionUserID()
+    
+            if catocommon.is_guid(sDeploymentID) and catocommon.is_guid(sUserID):
+                d = deployment.Deployment()
+                d.FromID(sDeploymentID)
+    
+                d.AddGroup(sGroupName)
+                uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Deployment, sDeploymentID, d.Name, "Added Group [%s]" % (sGroupName))
+
+        return json.dumps({"result" : "success"})
+
+    def wmDeleteDeploymentGroup(self):
+        sDeploymentID = uiCommon.getAjaxArg("id")
+        sGroupName = uiCommon.getAjaxArg("group_name")
+
+        sUserID = uiCommon.GetSessionUserID()
+    
+        if catocommon.is_guid(sDeploymentID) and catocommon.is_guid(sUserID):
+            d = deployment.Deployment()
+            d.FromID(sDeploymentID)
+    
+            d.DeleteGroup(sGroupName)
+            uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Deployment, sDeploymentID, d.Name, "Removed Group [%s]" % (sGroupName))
 
         return json.dumps({"result" : "success"})
 
