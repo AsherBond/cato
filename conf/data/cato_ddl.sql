@@ -152,7 +152,7 @@ CREATE TABLE `dash_resource` (
   `project` varchar(32) NOT NULL,
   `component` varchar(45) NOT NULL,
   `name` varchar(45) NOT NULL,
-  `data` text,
+  `data` mediumblob,
   PRIMARY KEY (`id`),
   UNIQUE KEY `proj_comp_name` (`project`,`component`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -344,6 +344,11 @@ CREATE TABLE `deployment_action` (
   PRIMARY KEY (`action_id`),
   UNIQUE KEY `service_action` (`action_name`,`deployment_id`,`deployment_service_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `deployment_group` (
+  `deployment_id` varchar(36) NOT NULL,
+  `group_name` varchar(45) NOT NULL,
+  PRIMARY KEY (`deployment_id`,`group_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `deployment_host` (
   `deployment_id` varchar(36) NOT NULL,
   `host_id` varchar(36) NOT NULL,
@@ -432,6 +437,7 @@ CREATE TABLE `deployment_template` (
   `categories` varchar(1024) DEFAULT NULL,
   `svc_count` int(11) DEFAULT '0',
   `available` int(11) DEFAULT '0',
+  `groups` varchar(1024) DEFAULT NULL,
   PRIMARY KEY (`template_id`),
   UNIQUE KEY `name_version` (`template_name`,`template_version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
