@@ -319,7 +319,7 @@ CREATE TABLE `deployment` (
   `owner_user_id` varchar(36) DEFAULT NULL,
   `deployment_desc` varchar(512) DEFAULT NULL,
   `health` varchar(16) DEFAULT 'unknown',
-  `runstate` varchar(16) DEFAULT NULL,
+  `runstate` varchar(16) DEFAULT 'stopped',
   `expiration_dt` datetime DEFAULT NULL,
   `uptime` varchar(45) DEFAULT NULL,
   `archive` int(11) DEFAULT NULL,
