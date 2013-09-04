@@ -1228,6 +1228,26 @@
 					<result_name label="Result Variable" break_before="true" input_type="text" />
 				</function>
 			</command>
+            <command name="aws_ec2_DescribeInstanceStatus" label="DescribeInstanceStatus" description="" help="&lt;a href='http://docs.amazonwebservices.com/AWSEC2/latest/APIReference/ApiReference-query-DescribeInstanceStatus.html' target='_blank'&gt;AWS documentation for DescribeInstanceStatus&lt;/a&gt;" icon="static/images/icons/aws/ec2.png">
+                <function name="aws_ec2_DescribeInstanceStatus">
+                    <aws_region input_type="dropdown" label="AWS Region" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAWSClouds" />
+					<InstanceId.n is_array="true">
+						<InstanceId input_type="text" />
+					</InstanceId.n>
+                    <IncludeAllInstances input_type="text" />
+                    <MaxResults input_type="text" />
+                    <NextToken input_type="text" />
+					<Filter.n is_array="true">
+						<Filter>
+							<Name input_type="text" />
+							<Value.m is_array="true">
+								<Value input_type="text" />
+							</Value.m>
+						</Filter>
+					</Filter.n>
+                    <result_name label="Result Variable" break_before="true" input_type="text" />
+                </function>
+            </command>
 			<command name="aws_ec2_DescribeKeyPairs" label="DescribeKeyPairs" description="" help="&lt;a href='http://docs.amazonwebservices.com/AWSEC2/latest/APIReference/ApiReference-query-DescribeKeyPairs.html' target='_blank'&gt;AWS documentation for DescribeKeyPairs&lt;/a&gt;" icon="static/images/icons/aws/ec2.png">
 				<function name="aws_ec2_DescribeKeyPairs">
 					<aws_region input_type="dropdown" label="AWS Region" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAWSClouds" />
