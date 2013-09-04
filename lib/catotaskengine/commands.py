@@ -1560,6 +1560,7 @@ def winrm_cmd_cmd(self, task, step):
     command_id = c.handle.run_command(c.shell_id, cmd)
     buff, err, return_code = c.handle.get_command_output(c.shell_id, command_id)
 
+    buff = re.sub("\r\n", "\n", buff)
     self.logger.info("WinRM return code %s" % return_code)
     self.logger.info("Buffer returned is %s" % buff)
     self.logger.info("Error result is %s" % err)
@@ -1576,7 +1577,6 @@ def winrm_cmd_cmd(self, task, step):
             buff = "%s\n%s" % (buff, err)
         # else:
         #    buff = err
-    buff = re.sub("\r\n", "\n", buff)
     c.handle.cleanup_command(c.shell_id, command_id)
 
     
