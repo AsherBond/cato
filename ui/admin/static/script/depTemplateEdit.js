@@ -317,12 +317,12 @@ function drawicon(imgurl) {
 	img.src = imgurl;
 	img.onload = function() {
 		ctx.drawImage(img, 0, 0);
-	}
+	};
 }
 
 function saveicon(ev) {
 	// console.log(ev);
-	var ctx = document.getElementById('canvas').getContext('2d')
+	var ctx = document.getElementById('canvas').getContext('2d');
 	var img = new Image();
 	var f = document.getElementById("uploadimage").files[0];
 	var url = window.URL || window.webkitURL;
@@ -339,5 +339,5 @@ function saveicon(ev) {
 		dataurl = document.getElementById("canvas").toDataURL();
 		$("#iconb64").val(dataurl.replace("data:image/png;base64,", ""));
 		$("#iconb64").change();
-	}
+	};
 }
