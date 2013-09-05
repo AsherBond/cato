@@ -524,7 +524,7 @@ def RemoveDefaultNamespacesFromXML(xml):
         xml = xml.replace(match.group(), "")
     return xml
     
-def AddTaskInstance(sUserID, sTaskID, sScopeID, sAccountID, sAssetID, sParameterXML, sDebugLevel):
+def AddTaskInstance(sUserID, sTaskID, sAccountID, sAssetID, sParameterXML, sDebugLevel, options=None):
     if not sUserID: return ""
     if not sTaskID: return ""
     
@@ -534,11 +534,11 @@ def AddTaskInstance(sUserID, sTaskID, sScopeID, sAccountID, sAssetID, sParameter
     sParameterXML = PrepareAndEncryptParameterXML(sParameterXML);                
 
     if catocommon.is_guid(sTaskID) and catocommon.is_guid(sUserID):
-        ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, sScopeID, sAccountID)
-        log("Starting Task [%s] ... Instance is [%s] ... Scope is [%s]" % (sTaskID, ti, sScopeID), 3)
+        ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, account_id=sAccountID, options=options)
+        log("Starting Task [%s] ... Instance is [%s] ... with options %s" % (sTaskID, ti, options), 3)
         return ti
     else:
-        log("Unable to run task. Missing or invalid task [" + sTaskID + "] or user [" + sUserID + "] id.")
+        log("Unable to run task. Missing or invalid task [%s] or user [%s] id." % (sTaskID, sUserID))
 
     # uh oh, return nothing
     return ""

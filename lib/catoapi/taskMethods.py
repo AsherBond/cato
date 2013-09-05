@@ -213,10 +213,10 @@ class taskMethods:
             
         Optional Arguments:
             log_level - an integer (0-4) where 0 is none, 2 is normal and 4 is verbose.  Default is 2.
-            service_instance - the ID or Name of a Service Instance.  Certain Task commands are scoped to this Service Instance.
             account - the ID or Name of a Cloud Account.  Certain Task commands require a Cloud Account.
             parameters - A JSON or XML document defining parameters for the Task.
-
+            options - a JSON object defining certain options for this Task.  Typically used to provide scope for extensions to the Task Engine, such as Maestro.
+            
         Returns: A JSON object, the Task Instance.
             If 'output_format' is set to 'text', returns only a Task Instance ID.
         """
@@ -243,7 +243,7 @@ class taskMethods:
         
         # not verifying this optional value because that would require importing a maestro lib
         # just use it as-is
-        service_instance_id = args["service_instance"] if args.has_key("service_instance") else ""
+        options = args["options"] if args.has_key("options") else ""
         
         # same for account
         account_id = ""
@@ -301,7 +301,7 @@ class taskMethods:
 
 
         # try to launch it
-        ti = catocommon.add_task_instance(task_id, api._USER_ID, debug, pxml, service_instance_id, account_id)
+        ti = catocommon.add_task_instance(task_id, api._USER_ID, debug, pxml, account_id=account_id, options=options)
         
         if ti:
             if args["output_format"] == "text":

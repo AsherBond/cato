@@ -95,7 +95,7 @@ class taskMethods:
                 sHTML += "<td class=\"selectable\">%s</td>" % row["StartedBy"]
                 sHTML += "<td class=\"selectable\">%s</td>" % (row["CEName"] if row["CEName"] else "")
                 sHTML += "<td class=\"selectable\">%s</td>" % str((row["ProcessID"] if row["ProcessID"] else ""))
-                sHTML += "<td class=\"selectable\">%s</td>" % (row["ServiceInstanceLabel"] if row["ServiceInstanceLabel"] else "")
+#                 sHTML += "<td class=\"selectable\">%s</td>" % (row["ServiceInstanceLabel"] if row["ServiceInstanceLabel"] else "")
                 sHTML += "<td class=\"selectable\">%s<br />%s</td>" % (
                     ("(s)&nbsp;%s" % row["SubmittedDate"].replace(" ", "&nbsp;") if row["SubmittedDate"] else ""),
                     ("(c)&nbsp;%s" % row["CompletedDate"].replace(" ", "&nbsp;") if row["CompletedDate"] else "")
@@ -1356,14 +1356,13 @@ class taskMethods:
 
     def wmRunTask(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
-        sScopeID = uiCommon.getAjaxArg("sScopeID")
         sAccountID = uiCommon.getAjaxArg("sAccountID")
         sAssetID = uiCommon.getAjaxArg("sAssetID")
         sParameterXML = uiCommon.getAjaxArg("sParameterXML")
         sDebugLevel = uiCommon.getAjaxArg("iDebugLevel")
         
         sUserID = uiCommon.GetSessionUserID()
-        return uiCommon.AddTaskInstance(sUserID, sTaskID, sScopeID, sAccountID, sAssetID, sParameterXML, sDebugLevel)
+        return uiCommon.AddTaskInstance(sUserID, sTaskID, sAccountID, sAssetID, sParameterXML, sDebugLevel)
 
     """
         PARAMETER WEB METHODS and supporting static methods.

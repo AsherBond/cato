@@ -696,11 +696,13 @@ def run_task_cmd(self, task, step):
     
     merged_params = self.merge_parameters(task_params, parameters)
     
+    # NOTE, since this command is called from inside a running task, we will send the 'options' of the current
+    # task instance along to any child tasks.  This will ensure all extension options are available down the line.
     
     ti = catocommon.add_task_instance(task_id=task_id, user_id=self.submitted_by, debug_level=self.debug_level,
-        parameter_xml=merged_params, scope_id=self.instance_id, account_id=self.cloud_account,
+        parameter_xml=merged_params, account_id=self.cloud_account,
         plan_id=self.plan_id, schedule_id=self.schedule_id, submitted_by_instance=self.task_instance,
-        cloud_id=self.cloud_id) 
+        cloud_id=self.cloud_id, options=self.options) 
 
     h = classes.TaskHandle()
     self.task_handles[handle] = h

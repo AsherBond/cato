@@ -107,12 +107,11 @@ class Scheduler(catoprocess.CatoService):
             start_dt = row[7]
             task_id = row[8]
             action_id = row[9]
-            scope_id = row[10]
-            parameter_xml = row[11]
-            debug_level = row[12]
-            start_instances = row[13]
-            account_id = row[14]
-            cloud_id = row[15]
+            parameter_xml = row[10]
+            debug_level = row[11]
+            start_instances = row[12]
+            account_id = row[13]
+            cloud_id = row[14]
     
             # print "Number to start = ", start_instances
             if not start_dt:
@@ -146,16 +145,16 @@ class Scheduler(catoprocess.CatoService):
                 date = citer.get_next(datetime)
                 # print date
                 sql = """insert into action_plan 
-                        (task_id,run_on_dt,action_id,ecosystem_id,parameter_xml,debug_level,source,schedule_id, account_id, cloud_id)
+                        (task_id,run_on_dt,action_id,parameter_xml,debug_level,source,schedule_id, account_id, cloud_id)
                         values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-                self.db.exec_db(sql, (task_id, date, action_id, scope_id, parameter_xml, debug_level, 'schedule', schedule_id, account_id, cloud_id))
+                self.db.exec_db(sql, (task_id, date, action_id, parameter_xml, debug_level, 'schedule', schedule_id, account_id, cloud_id))
         except Exception as ex:
             self.logger.error("Unable to expand schedule or insert into action_plan.\n" + ex.__str__())
 
     def expand_schedules(self):
         try:
             sql = """select distinct(a.schedule_id), unix_timestamp() as now, a.months, a.days_or_weeks, a.days, 
-                        a.hours, a.minutes, max(unix_timestamp(ap.run_on_dt)), a.task_id, a.action_id, a.ecosystem_id,
+                        a.hours, a.minutes, max(unix_timestamp(ap.run_on_dt)), a.task_id, a.action_id,
                         a.parameter_xml, a.debug_level, %s - count(ap.schedule_id) as num_to_start, a.account_id, a.cloud_id
                     from action_schedule a
                     left outer join action_plan ap on ap.schedule_id = a.schedule_id
@@ -177,25 +176,24 @@ class Scheduler(catoprocess.CatoService):
             plan_id = instance_row[1]
             task_id = instance_row[2]
             action_id = instance_row[3]
-            scope_id = instance_row[4]
-            parameter_xml = instance_row[5]
-            debug_level = instance_row[6]
-            run_on_dt = instance_row[7]
-            account_id = instance_row[8]
-            cloud_id = instance_row[9]
+            parameter_xml = instance_row[4]
+            debug_level = instance_row[5]
+            run_on_dt = instance_row[6]
+            account_id = instance_row[7]
+            cloud_id = instance_row[8]
     
-            ti = catocommon.add_task_instance(task_id, "", debug_level, parameter_xml, scope_id, account_id, plan_id, schedule_id, cloud_id=cloud_id)
+            ti = catocommon.add_task_instance(task_id, "", debug_level, parameter_xml, account_id, plan_id, schedule_id, cloud_id=cloud_id)
             print ti
             self.logger.info("Started task instance %s for schedule id %s and plan id %s" % (ti, schedule_id, plan_id))
             sql = """insert into action_plan_history (plan_id, task_id, run_on_dt, action_id, 
-                    ecosystem_id, parameter_xml, debug_level, source, schedule_id, task_instance, account_id, cloud_id)
+                    parameter_xml, debug_level, source, schedule_id, task_instance, account_id, cloud_id)
                     values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     on duplicate key update task_id=%s, run_on_dt=%s, action_id=%s, 
-                    ecosystem_id=%s, parameter_xml=%s, debug_level=%s, source=%s, 
+                    parameter_xml=%s, debug_level=%s, source=%s, 
                     schedule_id=%s, task_instance=%s, account_id=%s, cloud_id=%s"""
-            self.db.exec_db(sql, (plan_id, task_id, run_on_dt, action_id, scope_id, parameter_xml,
+            self.db.exec_db(sql, (plan_id, task_id, run_on_dt, action_id, parameter_xml,
                 debug_level, 'schedule', schedule_id, ti, account_id, cloud_id,
-                task_id, run_on_dt, action_id, scope_id, parameter_xml,
+                task_id, run_on_dt, action_id, parameter_xml,
                 debug_level, 'schedule', schedule_id, ti, account_id, cloud_id))
 
             sql = """delete from action_plan where plan_id = %s"""
@@ -246,7 +244,7 @@ class Scheduler(catoprocess.CatoService):
     def check_schedules(self):
         try:
             sql = """select ap.schedule_id, min(ap.plan_id) as plan_id, ap.task_id,
-                    ap.action_id, ap.ecosystem_id, ap.parameter_xml, ap.debug_level, min(ap.run_on_dt), ap.account_id, ap.cloud_id
+                    ap.action_id, ap.parameter_xml, ap.debug_level, min(ap.run_on_dt), ap.account_id, ap.cloud_id
                     from action_plan  ap
                     where run_on_dt < now() group by schedule_id"""
     

@@ -170,7 +170,6 @@ $(document).ready(function() {
 				var debug_level = $("#hidDebugLevel").val();
 
 				var task_name = $("#lblTaskName").text();
-				var svc_inst_lbl = $("#lblServiceInstanceLabel").text();
 				var account_name = $("#lblAccountName").text();
 
 				// SOME NOTES!!!!!
@@ -182,7 +181,6 @@ $(document).ready(function() {
 				args.task_name = task_name;
 				args.debug_level = debug_level;
 				args.task_instance = instance;
-				args.scope_id = svc_inst_id;
 
 				if (account_id) {
 					args.account_id = account_id;
@@ -239,7 +237,7 @@ function doGetDetails() {
 		$("#lblCENode").text(instance.ce_node);
 		$("#lblPID").text(instance.pid);
 		$("#lblSubmittedByInstance").text(instance.submitted_by_instance);
-		$("#lblServiceInstanceLabel").text(instance.instance_label);
+		$("#lblCloud").text(instance.cloud_name);
 		$("#lblAccountName").text(instance.account_name);
 
 		if (instance.submitted_by_instance != "") {

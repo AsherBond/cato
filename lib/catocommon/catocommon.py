@@ -403,16 +403,8 @@ def lookup_shared_cred(alias):
         ret = None
     return ret
 
-def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id=None, account_id=None, plan_id=None, schedule_id=None, submitted_by_instance=None, cloud_id=None, options=None):
+def add_task_instance(task_id, user_id, debug_level, parameter_xml, account_id=None, plan_id=None, schedule_id=None, submitted_by_instance=None, cloud_id=None, options=None):
     """This *should* be the only place where rows are added to task_instance."""
-#     user_id = "'%s'" % user_id if user_id else "null"
-#     account_id = "'%s'" % account_id if account_id else "null"
-#     scope_id = "'%s'" % scope_id if scope_id else "null"
-#     plan_id = "'%s'" % plan_id if plan_id else "null"
-#     schedule_id = "'%s'" % schedule_id if schedule_id else "null"
-#     submitted_by_instance = "'%s'" % submitted_by_instance if submitted_by_instance else "null"
-#     cloud_id = "'%s'" % cloud_id if cloud_id else "null"
-
     # stringify the options dict
     options = ObjectOutput.AsJSON(options) if options else None
     
@@ -436,7 +428,6 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id=Non
             schedule_instance,
             schedule_id,
             submitted_by_instance,
-            ecosystem_id,
             account_id,
             cloud_id,
             options
@@ -451,13 +442,10 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id=Non
             %s,
             %s,
             %s,
-            %s,
             %s
         )"""
     
-    if not db.tran_exec_noexcep(sql, (task_id, debug_level, user_id, plan_id, schedule_id, submitted_by_instance, scope_id, account_id, cloud_id, options)):
-        raise Exception("Unable to run task [%s].%s" % (task_id, db.error))
-    
+    db.tran_exec(sql, (task_id, debug_level, user_id, plan_id, schedule_id, submitted_by_instance, account_id, cloud_id, options))
     task_instance = db.conn.insert_id()
     
     if not task_instance:

@@ -1359,17 +1359,17 @@ class TaskInstance(object):
         self.task_instance = sTaskInstance
 
         sSQL = """select ti.task_instance, ti.task_id, '' as asset_id, ti.task_status, ti.submitted_by_instance,
-            ti.submitted_dt, ti.started_dt, ti.completed_dt, ti.ce_node, ti.pid, ti.debug_level,
+            ti.submitted_dt, ti.started_dt, ti.completed_dt, ti.ce_node, ti.pid, ti.debug_level, ti.options,
             t.task_name, t.version, '' as asset_name, u.full_name,
             ar.app_instance, ar.platform, ar.hostname,
             t.concurrent_instances, t.queue_depth,
-            d.instance_id, d.instance_label, ti.account_id, ca.account_name
+            ti.account_id, ca.account_name, ti.cloud_id, c.cloud_name
             from task_instance ti
             join task t on ti.task_id = t.task_id
             left outer join users u on ti.submitted_by = u.user_id
             left outer join application_registry ar on ti.ce_node = ar.id
             left outer join cloud_account ca on ti.account_id = ca.account_id
-            left outer join deployment_service_inst d on ti.ecosystem_id = d.instance_id
+            left outer join clouds c on ti.cloud_id = c.cloud_id
             where ti.task_instance = %s""" % sTaskInstance
 
         dr = db.select_row_dict(sSQL)
@@ -1390,10 +1390,11 @@ class TaskInstance(object):
 
             self.submitted_by_instance = ("" if not dr["submitted_by_instance"] else dr["submitted_by_instance"])
 
-            self.instance_id = (dr["instance_id"] if dr["instance_id"] else "")
-            self.instance_label = (dr["instance_label"] if dr["instance_label"] else "")
+            self.options = json.loads(dr["options"]) if dr["options"] else ""
             self.account_id = (dr["account_id"] if dr["account_id"] else "")
             self.account_name = (dr["account_name"] if dr["account_name"] else "")
+            self.cloud_id = (dr["cloud_id"] if dr["cloud_id"] else "")
+            self.cloud_name = (dr["cloud_name"] if dr["cloud_name"] else "")
 
             self.submitted_by = (dr["full_name"] if dr["full_name"] else "Scheduler")
 
@@ -1616,12 +1617,11 @@ class TaskInstances(object):
             ti.pid as ProcessID, 
             ti.task_status as Status, 
             t.task_name as TaskName,
+            ti.options as Options,
             ifnull(u.full_name, '') as StartedBy,
             t.version as Version, 
             ar.hostname as CEName, 
             ar.platform as CEType,
-            d.instance_label as ServiceInstanceLabel, 
-            d.instance_id as ServiceInstanceID,
             convert(ti.submitted_dt, CHAR(20)) as SubmittedDate,
             convert(ti.started_dt, CHAR(20)) as StartedDate,
             convert(ti.completed_dt, CHAR(20)) as CompletedDate
@@ -1629,7 +1629,6 @@ class TaskInstances(object):
             left join task t on t.task_id = ti.task_id
             %s
             left outer join application_registry ar on ti.ce_node = ar.id
-            left outer join deployment_service_inst d on ti.ecosystem_id = d.instance_id
             left join users u on u.user_id = ti.submitted_by
             left join asset a on a.asset_id = ti.asset_id
             %s %s
