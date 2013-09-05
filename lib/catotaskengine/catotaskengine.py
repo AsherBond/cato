@@ -57,6 +57,23 @@ class TaskEngine():
         self.home = catoconfig.BASEPATH
         self.tmpdir = catoconfig.CONFIG["tmpdir"]
         self.math = matheval.MathEval()
+        
+        # see augment() and sub_globals() for details about global_variables
+        # TODO: Add _PUBLIC_IP, _PRIVATE_IP, _DATE
+        self.global_variables = [
+                      ("_TASK_INSTANCE", "task_instance"),
+                      ("_CLOUD_NAME", "cloud_name"),
+                      ("_CLOUD_LOGIN_PASS", "cloud_login_password"),
+                      ("_CLOUD_LOGIN_ID", "cloud_login_id"),
+                      ("_CLOUD_PROVIDER", "provider"),
+                      ("_TASK_NAME", "task_name"),
+                      ("_TASK_VERSION", "task_version"),
+                      ("_SUBMITTED_BY_EMAIL", "submitted_by_email"),
+                      ("_SUBMITTED_BY", "submitted_by_user"),
+                      ("_HTTP_RESPONSE", "http_response"),
+                      ("_ASSET", "system_id"),
+                      ("_SUMMARY", "summary")
+                      ]
 
         self.task_instance = task_instance
         
@@ -667,75 +684,74 @@ class TaskEngine():
 
 
     def sub_global(self, s):
+        """
+        This will spin self.global_variables list, and attempt to reconcile _VARNAMES to self.properties.
+        A match means the self.property will be used any time the [[_VARNAME]] is referenced.
+        
+        NOTE: Two special cases for UUIDS might not actually belong here, as they are functions not properties.
+        """
 
-        v = ""
-        s = s.upper()
-        if s == "_TASK_INSTANCE":
-            v = self.task_instance
-        elif s == "_HOST_ID":
-            v = self.host_id
-        elif s == "_HOST":
-            v = self.host_name
-        elif s == "_HOST_ADDRESS":
-            v = self.host_address
-        elif s == "_INSTANCE_INDEX":
-            v = self.instance_index if hasattr(self, "instance_index") else ""
-        elif s == "_INSTANCE_ID":
-            v = self.instance_id if hasattr(self, "instance_id") else ""
-        elif s == "_INSTANCE_NAME":
-            v = self.instance_name if hasattr(self, "instance_name") else ""
-        elif s == "_SERVICE_ID":
-            v = self.service_id if hasattr(self, "service_id") else ""
-        elif s == "_SERVICE_NAME":
-            v = self.service_name if hasattr(self, "service_name") else ""
-        elif s == "_SERVICE_DOCID":
-            v = self.service_docid if hasattr(self, "service_docid") else ""
-        elif s == "_DEPLOYMENT_ID":
-            v = self.deployment_id if hasattr(self, "deployment_id") else ""
-        elif s == "_DEPLOYMENT_NAME":
-            v = self.deployment_name if hasattr(self, "deployment_name") else ""
-        elif s == "_DEPLOYMENT_DOCID":
-            v = self.deployment_docid if hasattr(self, "deployment_docid") else ""
-        elif s == "_UUID":
-            v = self.new_uuid()
-        elif s == "_UUID2":
-            v = self.new_uuid().replace("-", "")
-        elif s == "_CLOUD_NAME":
-            v = self.cloud_name
-        elif s == "_CLOUD_LOGIN_PASS":
-            v = self.cloud_login_password
-        elif s == "_CLOUD_LOGIN_ID":
-            v = self.cloud_login_id
-        elif s == "_CLOUD_PROVIDER":
-            v = self.provider
-        elif s == "_TASK_NAME":
-            v = self.task_name
-        elif s == "_TASK_VERSION":
-            v = self.task_version
-        elif s == "_SUBMITTED_BY_EMAIL":
-            v = self.submitted_by_email
-        elif s == "_SUBMITTED_BY":
-            v = self.submitted_by_user
-        elif s == "_HTTP_RESPONSE":
-            v = self.http_response
-        elif s == "_ASSET":
-            v = self.system_id
-        elif s == "_SUMMARY":
-            v = self.summary
-        elif s == "_PUBLIC_IP":
-            # TODO
-            v = ""
-        elif s == "_PRIVATE_IP":
-            # TODO
-            v = ""
-        elif s == "_DATE":
-            # TODO
-            v = ""
-        else:
-            v = ""
+        # we expect the variable name to be upper case
+        #$ WE ALSO allow a comma in the variable name, but we don't want it just yet...
+        full_var_name = s.upper()
+        s = full_var_name.split(",")[0]
+        
+        # is it one of our helper functions?
+        if s == "_UUID":
+            return self.new_uuid()
+        if s == "_UUID2":
+            return self.new_uuid().replace("-", "")
+        
+        # guess not, so spin the global_variables list
+        for varname, prop in self.global_variables:
+            if s == varname:
+                p = getattr(self, prop, "")
+                # if there's a comma in 's' AND the variable is a list... try to return just the requested index.
+                # now, if 's' didn't match the varname, it MIGHT be because s contains an index lookup.
+                if "," in full_var_name and isinstance(p, list):
+                    # IF THIS PROPERTY IS A LIST, we can emulate how we look up regular runtime vars using index
+                    # just remember, this *isn't* a regular runtime variable.
+                    if "," in full_var_name:
+                        # it's got a comma, so it's either an array value or count
+                        # we'll determine the index
+                        
+                        # but don't bother if the length of the var is 0
+                        if len(p) > 0:
+                            comma = full_var_name.find(",")
+                            index = full_var_name[comma + 1:]
+                            if index == "*":
+                                # return the list count
+                                return len(p)
+                            else:
+                                # return the index from the list
+                                try:
+                                    # NOTE: but we must shove a bunk value onto the front of the list
+                                    # because loops and such are all '1' based.
+                                    p.insert(0, None)
+                                    x = p[int(index)]
+                                    p.pop(0)
+                                    return x
+                                except ValueError:
+                                    msg = "The array index [%s] for variable [%s] is not a valid integer." % (index, full_var_name)
+                                    raise Exception(msg)
+                                except IndexError:
+                                    # if the requested index doesn't exist, just log an error and continue
+                                    self.logger.error("The array index [%s] for variable [%s] doesn't exist.  Full array is: \n%s" % (index, full_var_name, p))
+                                    return ""
+                                except Exception as ex:
+                                    raise Exception(ex)
+                        else:
+                            self.logger.info("An index lookup was specified for variable [%s], but the full array is empty." % (full_var_name))
+                            return ""
+                    else:
+                        return p
+                else:
+                    # we presume it's a string value
+                    return p
 
-        return v
-
+        # no rules at all matched, but logs indicate why.  Return an empty string.
+        return ""
+          
 
     def replace_variables(self, s):
 
@@ -1653,26 +1669,35 @@ class TaskEngine():
         
 
     def startup(self):
+        """
+        The critical order of things...
+            establish a database connection
+            update the ti row in the db (update_ti_pid)
+            get the task instance from the db (get_task_instance)
+            set the proper debug level to control the logging output (set_debug)
+            ... 
+        """
         try:
-            self.logger.info("""
-    #######################################
-        Starting up %s
-    #######################################""" % self.process_name)
             self.db = catodb.Db()
             self.db.connect_db(server=catoconfig.CONFIG["server"], port=catoconfig.CONFIG["port"],
                 user=catoconfig.CONFIG["user"],
                 password=catoconfig.CONFIG["password"], database=catoconfig.CONFIG["database"])
             self.config = catoconfig.CONFIG
     
-    
-            self.logger.info("Task Instance: %s - PID: %s" % 
-                (self.task_instance, os.getpid()))
             self.update_ti_pid()
             self.get_task_instance()
-            self.get_task_params()
+            self.set_debug(self.debug_level)
+
+            self.logger.info("""
+    #######################################
+        Starting up %s
+    #######################################""" % self.process_name)
+    
+            self.logger.info("Task Instance: %s - PID: %s" % (self.task_instance, os.getpid()))
             self.logger.info("Task Name: %s - Version: %s, DEBUG LEVEL: %s, Service Instance id: %s" % 
                 (self.task_name, self.task_version, self.debug_level, self.instance_id))
     
+            self.get_task_params()
     
             self.cloud_name = None
             if self.cloud_account:
@@ -1684,7 +1709,7 @@ class TaskEngine():
                 self.cloud_name = self.get_cloud_name(self.cloud_id)
                 
     
-            self.logger.info("cloud_account is %s, cloud_name is %s " % (self.cloud_account, self.cloud_name))
+            self.logger.info("Cloud Account: %s, Cloud Name: %s " % (self.cloud_account, self.cloud_name))
     
             
     
@@ -1699,6 +1724,23 @@ class TaskEngine():
                         for f in files:
                             if f == "augment_te.py":
                                 self.augment("%s.augment_te" % os.path.basename(root))
+                                
+            
+            # print all the attributes of the Task Engine if the debug level is high enough
+            # just to keep things safe here, we are ...
+            # a) removing internals from the results
+            # b) not crashing if there's an exception
+            x = self.__dict__
+            out = []
+            try:
+                for k, v in x.iteritems():
+                    out.append("%s -> %s" % (k, v))
+                
+                self.logger.debug("TASK ENGINE CONFIGURATION:\n%s" % ("\n".join(out)))
+            except Exception as ex:
+                self.logger.error("An exception occured resolving the _DEBUG global variable.\n%s" % (ex.__str__()))
+
+            
         except Exception as e:
             self.logger.info(e)
             self.update_status('Error')
@@ -1706,8 +1748,15 @@ class TaskEngine():
         
 
     def augment(self, modname):
+        """
+        Will add properties and other setup to the TaskEngine class.  Used to support full 'extensions' to the Task Engine, 
+        such as Maestro.
         
-        self.logger.info("augmenting from [%s] ..." % modname)
+        If defined in the extension __augment__ function, may also append to the 'extension_globals' property.
+        'extension_globals' are additional global [[_VARIABLES]] included with the extension. 
+        """
+        
+        self.logger.info("... augmenting from [%s] ..." % modname)
         try:
             mod = importlib.import_module(modname)
         except ImportError as ex:

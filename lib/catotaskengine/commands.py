@@ -1514,7 +1514,8 @@ def set_debug_level_cmd(self, task, step):
 
     dl = self.get_command_params(step.command, "debug_level")[0]
     dl = self.replace_variables(dl)
-    self.logger.info("Setting the debug level to [%s]..." % dl)
+    # changing the logging level raises a critical message, so it's always seen for clarity.
+    self.logger.critical("Setting the debug level to [%s]..." % dl)
     
     self.set_debug(dl)
 
