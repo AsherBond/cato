@@ -278,19 +278,6 @@ CREATE TABLE `dep_seq_tran_params` (
   `parameter_xml` mediumtext NOT NULL,
   PRIMARY KEY (`sequence_id`,`step_number`,`deployment_service_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `dep_service_inst_proc` (
-  `instance_id` varchar(36) NOT NULL,
-  `proc_name` varchar(32) NOT NULL,
-  `desired_count` int(11) DEFAULT NULL,
-  PRIMARY KEY (`instance_id`,`proc_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `dep_service_inst_proc_inst` (
-  `instance_id` varchar(36) NOT NULL,
-  `proc_name` varchar(32) NOT NULL,
-  `pid` int(11) NOT NULL DEFAULT '0',
-  `start_dt` datetime DEFAULT NULL,
-  PRIMARY KEY (`instance_id`,`proc_name`,`pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_service_state_mon` (
   `deployment_service_id` varchar(36) NOT NULL,
   `state` varchar(16) NOT NULL,

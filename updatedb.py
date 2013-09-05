@@ -143,6 +143,8 @@ versions = [
                           PRIMARY KEY (`deployment_id`,`group_name`)
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8"""],
                       ["droptable", "dep_service_inst_mon", "NO LONGER NEEDED with the new Maestro scheduler."],
+                      ["droptable", "dep_service_inst_proc", "Removing a demo feature."],
+                      ["droptable", "dep_service_inst_proc_inst", "Removing a demo feature."],
                       ["addcolumn", "deployment_template", "groups", "varchar(1024) NULL"],
                       ["changecolumn", "deployment", "runstate", "`runstate` VARCHAR(16) NULL DEFAULT 'stopped'"]                    
                     ]
