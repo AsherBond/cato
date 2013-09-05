@@ -412,8 +412,15 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id=Non
     schedule_id = "'%s'" % schedule_id if schedule_id else "null"
     submitted_by_instance = "'%s'" % submitted_by_instance if submitted_by_instance else "null"
     cloud_id = "'%s'" % cloud_id if cloud_id else "null"
-    # just in case
-    debug_level = str(debug_level)
+    # going into the database, the debug level must be set to one of the python logger levels. (10 based)
+    # it'll default to INFO (20) if anything goes wrong
+    debug_level = 20
+    try:
+        x = int(debug_level)
+        if x < 10:
+            debug_level = x*10
+    except:
+        logger.warning("Debug Level [%s] could not be normalized." % (debug_level))
     
     db = new_conn()
     sql = """insert into task_instance (
