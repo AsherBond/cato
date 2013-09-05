@@ -2510,18 +2510,16 @@ class taskMethods:
             
             # so, we have the cato menu.  Are there any extensions with menu additions?
             # extension paths are defined in config.
-            if catoconfig.CONFIG.has_key("extension_path"):
-                expath = catoconfig.CONFIG["extension_path"].split(";")
-                for p in expath:
-                    uiCommon.log("Looking for extension task globals in [%s]..." % p, 4)
-                    for root, subdirs, files in os.walk(p):
-                        for f in files:
-                            if f == "task_globals.json":
-                                uiCommon.log("... found one! Loading...", 4)
-        
-                                with open(os.path.join(p, f), 'r') as f:
-                                    extglobs = json.load(f)
-                                    taskglobals += extglobs
+            for n, p in catoconfig.CONFIG["extensions"].iteritems():
+                uiCommon.log("Looking for extension task globals in [%s - %s]..." % (n, p), 4)
+                for root, subdirs, files in os.walk(p):
+                    for f in files:
+                        if f == "task_globals.json":
+                            uiCommon.log("... found one! Loading...", 4)
+    
+                            with open(os.path.join(p, f), 'r') as f:
+                                extglobs = json.load(f)
+                                taskglobals += extglobs
             
             for gvar in taskglobals:
                 sHTML += "<div class=\"ui-widget-content ui-corner-all value_picker_value\">%s</div>" % gvar

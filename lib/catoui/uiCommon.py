@@ -364,7 +364,7 @@ def IsObjectAllowed(object_id, object_type):
 #        }
 
     
-#this one returns just one specific function
+# this one returns just one specific function
 def GetTaskFunction(sFunctionName):
     funcs = uiGlobals.FunctionCategories.Functions
     if funcs:
@@ -870,11 +870,7 @@ def LoadTaskCommands():
     # and append to sErr if it failed, but not crash or die.
     
     # extension paths are defined in config.
-    expath = []
-    if catoconfig.CONFIG.has_key("extension_path"):
-        expath = catoconfig.CONFIG["extension_path"].split(";")
-    
-    for p in expath:
+    for n, p in catoconfig.CONFIG["extensions"].iteritems():
         for root, subdirs, files in os.walk(p):
             for f in files:
                 ext = os.path.splitext(f)[-1]

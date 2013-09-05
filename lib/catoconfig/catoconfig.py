@@ -87,6 +87,9 @@ def read_config():
     cfg["dash_api_port"] = "4002"
     cfg["dash_api_debug"] = "20"
     cfg["dash_api_use_ssl"] = "false"
+    
+    # extensions are name/value pairs, so the 'extensions' setting is actually a dictionary.
+    cfg["extensions"] = {}
 
     
     if not os.path.isfile(CONFFILE):
@@ -123,6 +126,13 @@ def read_config():
                 enc_pass = value
             elif key == "mongodb.password":
                 enc_mongo_pass = value
+            elif key == "extensions":
+                # extensions require a little parsing
+                pairs = value.split(";")
+                for p in pairs:
+                    n, v = p.split(":")
+                    if n and v:
+                        cfg["extensions"][n] = v
             else:
                 cfg[key] = value
 

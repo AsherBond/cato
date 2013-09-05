@@ -413,24 +413,22 @@ def CacheMenu():
         menus = json.load(f)
     
     # so, we have the cato menu.  Are there any extensions with menu additions?
-    # extension paths are defined in config.
-    if catoconfig.CONFIG.has_key("extension_path"):
-        expath = catoconfig.CONFIG["extension_path"].split(";")
-        for p in expath:
-            logger.debug("Looking for extension menus in [%s]..." % p)
-            for root, subdirs, files in os.walk(p):
-                for f in files:
-                    if f == "menu.json":
-                        logger.debug("... found one! Loading...")
+    # extensions and their paths are defined in config.
+    for n, p in catoconfig.CONFIG["extensions"].iteritems():
+        logger.debug("Looking for extension menus in [%s - %s]..." % (n, p))
+        for root, subdirs, files in os.walk(p):
+            for f in files:
+                if f == "menu.json":
+                    logger.debug("... found one! Loading...")
 
-                        with open(os.path.join(p, f), 'r') as f:
-                            extmenus = json.load(f)
+                    with open(os.path.join(p, f), 'r') as f:
+                        extmenus = json.load(f)
 
-                        # now, let's manipulate our menu
-                        for extmenu in extmenus:
-                            pos = extmenu.get("insert_at")
-                            if pos is not None:
-                                menus.insert(pos, extmenu)
+                    # now, let's manipulate our menu
+                    for extmenu in extmenus:
+                        pos = extmenu.get("insert_at")
+                        if pos is not None:
+                            menus.insert(pos, extmenu)
     
     sAdminMenu = ""
     sDevMenu = ""

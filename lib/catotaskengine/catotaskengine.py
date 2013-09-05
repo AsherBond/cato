@@ -1736,14 +1736,19 @@ class TaskEngine():
     
             
     
-            # extension paths are defined in config.
-            if catoconfig.CONFIG.has_key("extension_path"):
-                expath = catoconfig.CONFIG["extension_path"].split(";")
-                for p in expath:
-                    self.logger.info("Appending extension path [%s]" % p)
-                    sys.path.append(p)
+            # We will only load an extension if 
+            # a) it's specified in the options and 
+            # b) the path for that extension name can be found in the config
+            # more than one extension can be defined in the options.
+            # the list values are NAMES of extensions defined in cato.conf
+            augs = self.options.get("Augments", [])
+            for exname in augs:
+                expath = catoconfig.CONFIG["extensions"].get(exname)
+                if expath:
+                    self.logger.info("Appending extension [%s] path [%s]" % (exname, expath))
+                    sys.path.append(expath)
             
-                    for root, subdirs, files in os.walk(p):
+                    for root, subdirs, files in os.walk(expath):
                         for f in files:
                             if f == "augment_te.py":
                                 self.augment("%s.augment_te" % os.path.basename(root))
