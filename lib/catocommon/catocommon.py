@@ -403,15 +403,19 @@ def lookup_shared_cred(alias):
         ret = None
     return ret
 
-def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id=None, account_id=None, plan_id=None, schedule_id=None, submitted_by_instance=None, cloud_id=None):
+def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id=None, account_id=None, plan_id=None, schedule_id=None, submitted_by_instance=None, cloud_id=None, options=None):
     """This *should* be the only place where rows are added to task_instance."""
-    user_id = "'%s'" % user_id if user_id else "null"
-    account_id = "'%s'" % account_id if account_id else "null"
-    scope_id = "'%s'" % scope_id if scope_id else "null"
-    plan_id = "'%s'" % plan_id if plan_id else "null"
-    schedule_id = "'%s'" % schedule_id if schedule_id else "null"
-    submitted_by_instance = "'%s'" % submitted_by_instance if submitted_by_instance else "null"
-    cloud_id = "'%s'" % cloud_id if cloud_id else "null"
+#     user_id = "'%s'" % user_id if user_id else "null"
+#     account_id = "'%s'" % account_id if account_id else "null"
+#     scope_id = "'%s'" % scope_id if scope_id else "null"
+#     plan_id = "'%s'" % plan_id if plan_id else "null"
+#     schedule_id = "'%s'" % schedule_id if schedule_id else "null"
+#     submitted_by_instance = "'%s'" % submitted_by_instance if submitted_by_instance else "null"
+#     cloud_id = "'%s'" % cloud_id if cloud_id else "null"
+
+    # stringify the options dict
+    options = ObjectOutput.AsJSON(options) if options else None
+    
     # going into the database, the debug level must be set to one of the python logger levels. (10 based)
     # it'll default to INFO (20) if anything goes wrong
     debug_level = 20
@@ -434,12 +438,14 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id=Non
             submitted_by_instance,
             ecosystem_id,
             account_id,
-            cloud_id
+            cloud_id,
+            options
         ) values (
             'Submitted',
             now(),
-            '%s',
-            '%s',
+            %s,
+            %s,
+            %s,
             %s,
             %s,
             %s,
@@ -447,10 +453,9 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, scope_id=Non
             %s,
             %s,
             %s
-        )
-        """ % (task_id, debug_level, user_id, plan_id, schedule_id, submitted_by_instance, scope_id, account_id, cloud_id)
+        )"""
     
-    if not db.tran_exec_noexcep(sql):
+    if not db.tran_exec_noexcep(sql, (task_id, debug_level, user_id, plan_id, schedule_id, submitted_by_instance, scope_id, account_id, cloud_id, options)):
         raise Exception("Unable to run task [%s].%s" % (task_id, db.error))
     
     task_instance = db.conn.insert_id()

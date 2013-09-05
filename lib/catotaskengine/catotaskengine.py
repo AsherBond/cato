@@ -26,6 +26,7 @@ import re
 import pwd
 import importlib                   
 import pexpect
+import json
 from jsonpath import jsonpath
 
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
@@ -36,7 +37,6 @@ sys.path.insert(0, lib_path)
 from catocommon import catocommon
 from catodb import catodb
 from catoruntimes import runtimes
-from bson.json_util import dumps
 import uuid
 from awspy import awspy
 import base64
@@ -58,6 +58,9 @@ class TaskEngine():
         self.tmpdir = catoconfig.CONFIG["tmpdir"]
         self.math = matheval.MathEval()
         
+        # see augment() for details about self.extension_modules
+        self.extension_modules = []
+        
         # see augment() and sub_globals() for details about global_variables
         # TODO: Add _PUBLIC_IP, _PRIVATE_IP, _DATE
         self.global_variables = [
@@ -72,6 +75,7 @@ class TaskEngine():
                       ("_SUBMITTED_BY", "submitted_by_user"),
                       ("_HTTP_RESPONSE", "http_response"),
                       ("_ASSET", "system_id"),
+                      ("_OPTIONS", "options"),
                       ("_SUMMARY", "summary")
                       ]
 
@@ -104,7 +108,6 @@ class TaskEngine():
         self.submitted_by_user = ""
         self.submitted_by_email = ""
         self.http_response = -1
-        self.instance_id = ""
         self.sensitive = []
         self.sensitive_re = None
 
@@ -701,6 +704,11 @@ class TaskEngine():
             return self.new_uuid()
         if s == "_UUID2":
             return self.new_uuid().replace("-", "")
+        if s == "_DEBUG":
+            out = []
+            for k, v in self.__dict__.iteritems():
+                out.append("%s -> %s" % (k, v))
+            return "\n".join(out)
         
         # guess not, so spin the global_variables list
         for varname, prop in self.global_variables:
@@ -708,7 +716,7 @@ class TaskEngine():
                 p = getattr(self, prop, "")
                 # if there's a comma in 's' AND the variable is a list... try to return just the requested index.
                 # now, if 's' didn't match the varname, it MIGHT be because s contains an index lookup.
-                if "," in full_var_name and isinstance(p, list):
+                if isinstance(p, list):
                     # IF THIS PROPERTY IS A LIST, we can emulate how we look up regular runtime vars using index
                     # just remember, this *isn't* a regular runtime variable.
                     if "," in full_var_name:
@@ -744,7 +752,7 @@ class TaskEngine():
                             self.logger.info("An index lookup was specified for variable [%s], but the full array is empty." % (full_var_name))
                             return ""
                     else:
-                        return p
+                        return json.dumps(p)
                 else:
                     # we presume it's a string value
                     return p
@@ -1289,7 +1297,7 @@ class TaskEngine():
 
         try:
             task = self.tasks[task_id]
-        except KeyError as ex:
+        except KeyError:
             task = classes.Task(task_id)
             self.tasks[task_id] = task
 
@@ -1300,7 +1308,7 @@ class TaskEngine():
         sql = """select B.task_name, A.asset_id, 
                 C.asset_name, A.submitted_by, 
                 B.task_id, B.version, A.debug_level, A.schedule_instance, A.schedule_id,
-                A.ecosystem_id, A.account_id, A.cloud_id
+                A.account_id, A.cloud_id, A.options
             from task_instance A 
             join task B on A.task_id = B.task_id
             left outer join asset C on A.asset_id = C.asset_id
@@ -1310,8 +1318,11 @@ class TaskEngine():
 
         if row:
             self.task_name, self.system_id, self.system_name, self.submitted_by, self.task_id, \
-                self.task_version, self.debug_level, self.plan_id, self.schedule_id, self.instance_id, \
-                self.cloud_account, self.cloud_id = row[:]
+                self.task_version, self.debug_level, self.plan_id, self.schedule_id, \
+                self.cloud_account, self.cloud_id, opts = row[:]
+        
+        # options need to be json loaded
+        self.options= json.loads(opts) if opts else {}
 
         if self.submitted_by:
             sql = """select username, email from users where user_id = %s"""
@@ -1487,9 +1498,13 @@ class TaskEngine():
 
     def update_status(self, task_status):
 
-        self.logger.info("Updating task instance %s to %s" % (self.task_instance, task_status))
-
-        sql = "update task_instance set task_status = %s, completed_dt = now() where task_instance = %s" 
+        self.logger.info("Updating Task Instance [%s] to [%s]" % (self.task_instance, task_status))
+        
+        # we don't update the completed_dt unless it's actually done.
+        if task_status in ("Completed", "Error", "Cancelled"):
+            sql = "update task_instance set task_status = %s, completed_dt = now() where task_instance = %s"
+        else:  
+            sql = "update task_instance set task_status = %s where task_instance = %s"
 
         ii = 0
         while True:
@@ -1503,11 +1518,18 @@ class TaskEngine():
                     raise e
             else:
                 break
+            
+        # EXTENSIONS - spin the extensions and call any update_status defined there.
+        # won't fail if the extension doesn't have the function defined.
+        for extmod in self.extension_modules:
+            try:
+                extmod.update_status(task_status)
+            except AttributeError:
+                pass
 
     def update_ti_pid(self):
 
-        sql = """update task_instance set pid = %s, task_status = 'Processing', 
-            started_dt = now() where task_instance = %s""" 
+        sql = """update task_instance set pid = %s, started_dt = now() where task_instance = %s""" 
         ii = 0
         while True:
             try:
@@ -1675,6 +1697,7 @@ class TaskEngine():
             update the ti row in the db (update_ti_pid)
             get the task instance from the db (get_task_instance)
             set the proper debug level to control the logging output (set_debug)
+            update the status (will also call any extensions update_status)
             ... 
         """
         try:
@@ -1694,8 +1717,8 @@ class TaskEngine():
     #######################################""" % self.process_name)
     
             self.logger.info("Task Instance: %s - PID: %s" % (self.task_instance, os.getpid()))
-            self.logger.info("Task Name: %s - Version: %s, DEBUG LEVEL: %s, Service Instance id: %s" % 
-                (self.task_name, self.task_version, self.debug_level, self.instance_id))
+            self.logger.info("Task Name: %s - Version: %s, DEBUG LEVEL: %s" % 
+                (self.task_name, self.task_version, self.debug_level))
     
             self.get_task_params()
     
@@ -1725,6 +1748,9 @@ class TaskEngine():
                             if f == "augment_te.py":
                                 self.augment("%s.augment_te" % os.path.basename(root))
                                 
+            # NOTE: we do NOT update the status to Processing until any extensions are loaded.
+            # why?  Because update_status also calls into extensions own status updater functions
+            self.update_status("Processing")
             
             # print all the attributes of the Task Engine if the debug level is high enough
             # just to keep things safe here, we are ...
@@ -1752,6 +1778,9 @@ class TaskEngine():
         Will add properties and other setup to the TaskEngine class.  Used to support full 'extensions' to the Task Engine, 
         such as Maestro.
         
+        Each module, when imported, becomes part of the Task Engine.  A ref to each module is stored in
+        self.extension_modules.  They can be looped at start/end to perform additional init/cleanup.
+        
         If defined in the extension __augment__ function, may also append to the 'extension_globals' property.
         'extension_globals' are additional global [[_VARIABLES]] included with the extension. 
         """
@@ -1762,6 +1791,9 @@ class TaskEngine():
         except ImportError as ex:
             raise ex
 
+        # put a pointer in self.extension_modules
+        self.extension_modules.append(mod)
+        
         # evidently the module exists... try to call the function
         method_to_call = getattr(mod, "__augment__", None)
 
