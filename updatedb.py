@@ -137,6 +137,11 @@ versions = [
                           PRIMARY KEY (`id`),
                           UNIQUE KEY `proj_comp_name` (`project`,`component`,`name`)
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8"""],
+                      ["createtable", "deployment_group", """(
+                          `deployment_id` varchar(36) NOT NULL,
+                          `group_name` varchar(45) NOT NULL,
+                          PRIMARY KEY (`deployment_id`,`group_name`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8"""],
                       ["droptable", "dep_service_inst_mon", "NO LONGER NEEDED with the new Maestro scheduler."],
                       ["addcolumn", "deployment_template", "groups", "varchar(1024) NULL"],
                       ["changecolumn", "deployment", "runstate", "`runstate` VARCHAR(16) NULL DEFAULT 'stopped'"]                    
