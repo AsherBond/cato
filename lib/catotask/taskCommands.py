@@ -37,6 +37,7 @@ class FunctionCategories(object):
             for xCategory in xCategories:
                 self.BuildCategory(xCategory)
 
+
     def BuildCategory(self, xCategory):
 
         catname = xCategory.get("name", None)
@@ -61,32 +62,74 @@ class FunctionCategories(object):
             logger.debug("Creating extension category = [%s]" % cat.Name)
             self.Categories.append(cat)
 
+        # NOW, the category MIGHT have subcategories
+        lst_subcats = xCategory.findall("subcategory")
+        if len(lst_subcats) > 0:
+            logger.debug("[%s] has subcategories." % cat.Name)
+            for xSubcat in lst_subcats:
+                self.BuildSubcategory(cat, xSubcat)
 
-        # load up this category with it's functions
-        for xFunction in xCategory.findall("commands/command"):
-            # not crashing... just skipping
-            if not xCategory.get("name", None):
-                return None
+        # a Category can also have commands directly under it.
+        commands = xCategory.findall("commands/command")
+        for xFunction in commands:
+            self.BuildFunction(cat, xFunction)
 
-            # ok, minimal data is intact... proceed...
-            fn = Function(cat)
-            fn.Name = xFunction.get("name")
-            fn.Label = xFunction.get("label", fn.Name)
-            fn.Description = xFunction.get("description", "")
-            fn.Help = xFunction.get("help", "")
-            fn.Icon = xFunction.get("icon", "")
-            
-            func = xFunction.find("function")
-            if func is not None:
-                fn.TemplateXML = catocommon.ET.tostring(func)
-                fn.TemplateXDoc = func
 
-            cat.Functions.append(fn)
-            
-            # while we're here, it's a good place to append this funcion to the 
-            # complete dict on this class
-            self.Functions[fn.Name] = fn
+    def BuildSubcategory(self, catobj, xSubcategory):
 
+        subcatname = xSubcategory.get("name", None)
+        # not crashing... just skipping
+        if not subcatname:
+            return None
+        
+        # if this category has already been added, find it and append to it instead
+        subcat = None
+        for sc in catobj.Subcategories:
+            if sc.Name == xSubcategory.get("name"):
+                logger.debug("Appending to subcategory [%s]..." % sc.Name)
+                subcat = sc
+
+        if not subcat:
+            # new category.
+            subcat = Category()
+            subcat.Name = xSubcategory.get("name")
+            subcat.Label = xSubcategory.get("label", subcat.Name)
+            subcat.Description = xSubcategory.get("description", "")
+            subcat.Icon = xSubcategory.get("icon", "")
+            logger.debug("Creating [%s] subcategory [%s]" % (catobj.Name, subcat.Name))
+            catobj.Subcategories.append(subcat)
+
+        commands = xSubcategory.findall("commands/command")
+        for xFunction in commands:
+            self.BuildFunction(subcat, xFunction)
+
+
+    def BuildFunction(self, parent_obj, xFunction):
+        # xParent might be a Category or a Subcategory, doesn't matter to us in here
+
+        # not crashing... just skipping
+        if not xFunction.get("name", None):
+            return None
+
+        # ok, minimal data is intact... proceed...
+        fn = Function(parent_obj)
+        fn.Name = xFunction.get("name")
+        fn.Label = xFunction.get("label", fn.Name)
+        fn.Description = xFunction.get("description", "")
+        fn.Help = xFunction.get("help", "")
+        fn.Icon = xFunction.get("icon", "")
+        
+        func = xFunction.find("function")
+        if func is not None:
+            fn.TemplateXML = catocommon.ET.tostring(func)
+            fn.TemplateXDoc = func
+
+        # logger.debug("Adding [%s] to [%s]" % (fn.Name, parent_obj.Name))
+        parent_obj.Functions.append(fn)
+        
+        # while we're here, it's a good place to append this funcion to the 
+        # complete dict on this class
+        self.Functions[fn.Name] = fn
 
 class Category(object):
     def __init__(self):
@@ -94,7 +137,17 @@ class Category(object):
         self.Label = None
         self.Description = None
         self.Icon = None
-        # Category CONTAINS a list of Function objects
+        # Category MIGHT contain either a list of Subcategory OR Function objects, but never both.
+        self.Subcategories = []
+        self.Functions = []
+
+class Subcategory(object):
+    def __init__(self):
+        self.Name = None
+        self.Label = None
+        self.Description = None
+        self.Icon = None
+        # Subcategory CONTAINS a list of Function objects
         self.Functions = []
 
 class Function(object):

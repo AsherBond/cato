@@ -341,63 +341,100 @@ def auth_app_processor(handle):
             return "Some content on this page isn't available to your user."
 
 def CacheTaskCommands():
-    # creates the html cache file
-    try:
-        cathtml = ""
-        funhtml = ""
-        helphtml = ""
+    """
+    Creates the html cache file for Task Command categories, functions and help.
+    
+    The loops build global html objects, which are ultimately written out to files.
+    Even though the FunctionCategories class has a hierarchy, we are writing flat files.
+    The browser will take care of showing things according to their hierarchy.
+    """
+    cathtml = ""
+    funhtml = ""
+    helphtml = ""
 
-        # so, we will use the FunctionCategories class in the session that was loaded at login, and build the list items for the commands tab.
-        cats = uiGlobals.FunctionCategories
-        if not cats:
-            logger.error("Task Function Categories class is not in the datacache.")
-        else:
-            for cat in cats.Categories:
-                cathtml += """<div class="ui-widget-content ui-corner-all command_item category" id="cat_{0}" name="{0}">
+    # this internal def builds the html for a subcategory, and associates it's child functions with it
+    # NOTE: the dubcats are in the categories file, but they are hidden and indented with css.
+    def _build_subcategory(parent, subcat):
+        return """<div class="category subcategory" id="cat_{0}_sub_{1}" name="{1}">
+            <div class="ui-widget-content ui-corner-all command_item"">
+                <img class="category_icon" src="{3}" alt="" />
+                <span>{2}</span>
+                <div class="hidden">{4}</div>
+            </div>
+        </div>""".format(parent.Name, subcat.Name, subcat.Label, subcat.Icon, subcat.Description)
+    
+    # this internal def builds the html for a single function
+    def _build_func_html(parent, domparentid):
+        helpout = ""
+        funcout = """<div class="functions hidden" id="{0}_functions">""".format(domparentid)
+        # now, let's work out the functions.
+        # we can just draw them all... they are hidden and will display on the client as clicked
+        for fn in parent.Functions:
+            funcout += """
+            <div class="ui-widget-content ui-corner-all command_item function" id="fn_{0}" name="fn_{0}">
+            <img class="function_icon" src="{2}" alt="" />
+            <span>{1}</span>
+            <div class="funchelp hidden">{3}</div>
+            </div>""".format(fn.Name, fn.Label, fn.Icon, fn.Description)
+
+            helpout = """<div>
+            <img src="{0}" alt="" style="height: 16px; width: 16px;" />
+            <span style="font-weight: bold; padding-left: 10px;">{1} : {2}</span>
+            </div>
+            <div style="margin-top: 6px;">{3}</div>
+            <hr />""".format(fn.Icon, fn.Category.Label, fn.Label, fn.Help)
+
+        funcout += "</div>"
+        
+        return funcout, helpout
+    
+    # so, we will use the FunctionCategories class in the session that was loaded at login, and build the list items for the commands tab.
+    cats = uiGlobals.FunctionCategories
+    if not cats:
+        logger.error("Task Function Categories class is not in the datacache.")
+    else:
+        for cat in cats.Categories:
+            cathtml += """<div class="category" id="cat_{0}" name="{0}">
+                <div class="ui-widget-content ui-corner-all command_item">
                     <img class="category_icon" src="{2}" alt="" />
                     <span>{1}</span>
-                    </div>
-                    <div id="help_text_{0}" class="hidden">{3}</div>""".format(cat.Name, cat.Label, cat.Icon, cat.Description)
-                
-                funhtml += """<div class="functions hidden" id="cat_{0}_functions">""".format(cat.Name)
-                # now, let's work out the functions.
-                # we can just draw them all... they are hidden and will display on the client as clicked
-                for fn in cat.Functions:
-                    funhtml += """
-                    <div class="ui-widget-content ui-corner-all command_item function" id="fn_{0}" name="fn_{0}">
-                    <img class="function_icon" src="{2}" alt="" />
-                    <span>{1}</span>
-                    <div id="help_text_fn_{0}" class="hidden">{3}</div>
-                    </div>""".format(fn.Name, fn.Label, fn.Icon, fn.Description)
+                    <div class="cathelp hidden">{3}</div>
+                </div>""".format(cat.Name, cat.Label, cat.Icon, cat.Description)
+            
+            # So... the category MIGHT have subcategories, which have functions.
+            if cat.Subcategories:
+                cathtml += """<div class="subcategories hidden">"""
+                for subcat in cat.Subcategories:
+                    cathtml += _build_subcategory(cat, subcat)
+                    
+                    f, h = _build_func_html(subcat, "cat_%s_sub_%s" % (cat.Name, subcat.Name))
+                    funhtml += f
+                    helphtml += h
+                cathtml += "</div>"
+            cathtml += "</div>"
+            
+            # it can also have direct functions.
+            f, h = _build_func_html(cat, "cat_%s" % (cat.Name))
+            funhtml += f
+            helphtml += h
+            
+    path = catoconfig.CONFIG["uicache"]
 
-                    helphtml += """<div>
-                    <img src="{0}" alt="" style="height: 16px; width: 16px;" />
-                    <span style="font-weight: bold; padding-left: 10px;">{1} : {2}</span>
-                    </div>
-                    <div style="margin-top: 6px;">{3}</div>
-                    <hr />""".format(fn.Icon, fn.Category.Label, fn.Label, fn.Help)
-    
-                funhtml += "</div>"
+    with open("%s/_categories.html" % (path), 'w') as f_out:
+        if not f_out:
+            logger.error("Unable to create %s/_categories.html." % (path))
+        f_out.write(cathtml)
 
-        path = catoconfig.CONFIG["uicache"]
-    
-        with open("%s/_categories.html" % (path), 'w') as f_out:
-            if not f_out:
-                logger.error("Unable to create %s/_categories.html." % (path))
-            f_out.write(cathtml)
+    with open("%s/_functions.html" % (path), 'w') as f_out:
+        if not f_out:
+            logger.error("Unable to create %s/_functions.html." % (path))
+        f_out.write(funhtml)
 
-        with open("%s/_functions.html" % (path), 'w') as f_out:
-            if not f_out:
-                logger.error("Unable to create %s/_functions.html." % (path))
-            f_out.write(funhtml)
+    with open("%s/_command_help.html" % (path), 'w') as f_out:
+        if not f_out:
+            logger.error("Unable to create %s/_command_help.html." % (path))
+        f_out.write(helphtml)
 
-        with open("%s/_command_help.html" % (path), 'w') as f_out:
-            if not f_out:
-                logger.error("Unable to create %s/_command_help.html." % (path))
-            f_out.write(helphtml)
-
-    except Exception as ex:
-        logger.error(ex.__str__())
 
 def CacheMenu():
     with open(os.path.join(lib_path, "catoadminui/menu.json"), 'r') as f:

@@ -273,26 +273,54 @@ function doGetCommands() {
 	$("#div_commands #categories").load("uiMethods/wmGetCategories", function() {
 		//set the help text on hover over a category
 		$("#toolbox .category").hover(function() {
-			$(this).addClass("command_item_hover");
-			$("#te_help_box_detail").html($("#help_text_" + $(this).attr("name")).html());
+			$(this).children(":first").addClass("command_item_hover");
+			$("#te_help_box_detail").html($(this).find(".cathelp").html());
 		}, function() {
-			$(this).removeClass("command_item_hover");
+			$(this).children(":first").removeClass("command_item_hover");
 			$("#te_help_box_detail").html("");
 		});
 
 		//toggle categories
-		$("#toolbox .category").click(function() {
-			//unselect all the categories
-			$("#toolbox .category").removeClass("category_selected");
+		$("#toolbox .category").click(function(event) {
+			// so subcat clicks won't roll up...
+			event.stopPropagation();
 
-			//and select this one you clicked
-			//alert($(this).attr("id"));
-			$(this).addClass("category_selected");
+			// our visible element is wrapped in a container... meaning we are always adding/removing classes
+			// from our first child.  Make it easier.
+			$visible_me = $(this).children(":first");
 
-			//hide 'em all
+			var i_am_selected = $visible_me.hasClass("category_selected");
+			var $my_subs = $(this).find(".subcategories");
+			var i_have_subs = $my_subs.length > 0;
+
+			// unselect everything
+			$("#toolbox .category_selected").removeClass("category_selected");
+
+			// select ourselves and our parent if relevant
+			$visible_me.addClass("category_selected");
+			if ($(this).hasClass("subcategory")) {
+				$(this).parent().parent().children(":first").addClass("category_selected");
+			}
+
+			if (i_have_subs) {
+				// if I have subs, toggle them
+				if ($my_subs.hasClass("hidden")) {
+					$my_subs.removeClass("hidden");
+				} else {
+					$my_subs.addClass("hidden");
+					$visible_me.removeClass("category_selected");
+				}
+			} else if ($(this).hasClass("subcategory")) {
+				// if I don't have subs, perhaps I *AM* a sub?
+			} else {
+				// I neither have subs nor am a sub, so hide all subs.
+				$("#toolbox .subcategories").addClass("hidden");
+			}
+
+			//hide all functions
 			$("#toolbox .functions").addClass("hidden");
 
-			//show the one you clicked
+			// of course, always show functions, even cats with subcats may have root level functions
 			$("#" + $(this).attr("id") + "_functions").removeClass("hidden");
 
 			// and scroll to the top
@@ -494,7 +522,7 @@ function initDraggable() {
 		stop : function(event, ui) {
 			$("#dd_dragging").val("false");
 		}
-	})
+	});
 
 	//unbind it first so they don't stack (since hover doesn't support "live")
 	$("#toolbox .function").unbind("mouseenter mouseleave");
@@ -502,7 +530,7 @@ function initDraggable() {
 	//set the help text on hover over a function
 	$("#toolbox .function").hover(function() {
 		$(this).addClass("command_item_hover");
-		$("#te_help_box_detail").html($("#help_text_" + $(this).attr("name")).html());
+		$("#te_help_box_detail").html($(this).find(".funchelp").html());
 	}, function() {
 		$(this).removeClass("command_item_hover");
 		$("#te_help_box_detail").html("");
