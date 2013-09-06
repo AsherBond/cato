@@ -295,7 +295,8 @@ class Credentials(object):
             credential_name as Name, 
             username as Username, 
             domain as Domain, 
-            shared_cred_desc as Description
+            shared_cred_desc as Description,
+            case when private_key is not null then 'Private Key' else 'User' end as Type
             from asset_credential
             where shared_or_local = 0 %s order by credential_name""" % sWhereString
 
@@ -323,8 +324,9 @@ class Credential(object):
         self.Description = None
         self.Domain = None
         self.PrivilegedPassword = None
+        self.PrivateKey = None
         
-    def FromArgs(self, sName, sDesc, sUsername, sPassword, sShared, sDomain, sPrivPassword):
+    def FromArgs(self, sName, sDesc, sUsername, sPassword, sShared, sDomain, sPrivPassword, sPrivateKey):
         self.Name = sName
         self.Description = sDesc
         self.Username = sUsername
@@ -332,6 +334,7 @@ class Credential(object):
         self.SharedOrLocal = sShared
         self.Domain = sDomain
         self.PrivilegedPassword = sPrivPassword
+        self.PrivateKey = sPrivateKey
 
         # if created by args, it may or may not have an ID.
         # but it needs one.
@@ -340,7 +343,8 @@ class Credential(object):
 
     def FromID(self, credential_id):
         db = catocommon.new_conn()
-        sSQL = """select credential_id, credential_name, username, domain, shared_cred_desc, shared_or_local
+        sSQL = """select credential_id, credential_name, username, domain, shared_cred_desc, shared_or_local,
+            case when private_key is not null then 'Private Key' else 'User' end as type
             from asset_credential
             where credential_id = %s"""
 
@@ -368,7 +372,7 @@ class Credential(object):
 
     def FromRow(self, dr):
         """
-            Note the absence of password or privileged_password in this method.
+            Note the absence of private key, password or privileged_password in this method.
             We don't store passwords, even encrypted, in the object.
         """
         self.ID = dr["credential_id"]
@@ -377,6 +381,7 @@ class Credential(object):
         self.SharedOrLocal = dr["shared_or_local"]
         self.Domain = ("" if not dr["domain"] else dr["domain"])
         self.Description = ("" if not dr["shared_cred_desc"] else dr["shared_cred_desc"])
+        self.Type = dr["type"]
 
 
     def FromDict(self, cred):
@@ -401,9 +406,9 @@ class Credential(object):
             db.exec_db(sSQL, (self.Name))
         
         sSQL = """insert into asset_credential
-            (credential_id, credential_name, username, password, domain, shared_or_local, shared_cred_desc, privileged_password)
-            values (%s, %s, %s, %s, %s, %s, %s, %s)"""
-        params = (self.ID, self.Name, self.Username, catocommon.cato_encrypt(self.Password), self.Domain, self.SharedOrLocal, self.Description, sPriviledgedPasswordUpdate)
+            (credential_id, credential_name, username, password, domain, shared_or_local, shared_cred_desc, privileged_password, private_key)
+            values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+        params = (self.ID, self.Name, self.Username, catocommon.cato_encrypt(self.Password), self.Domain, self.SharedOrLocal, self.Description, sPriviledgedPasswordUpdate, catocommon.cato_encrypt(self.PrivateKey))
         if not db.exec_db_noexcep(sSQL, params):
             if db.error == "key_violation":
                 raise Exception("A Credential with that name already exists.  Please select another name.")
@@ -443,11 +448,12 @@ class Credential(object):
             credential_name = %s,
             username = %s,
             domain = %s,
+            private_key = %s,
             shared_or_local = %s,
             shared_cred_desc = %s {0} {1}
             where credential_id = %s""".format(sPasswordUpdate, sPriviledgedPasswordUpdate) 
             
-        db.exec_db(sSQL, (self.Name, self.Username, self.Domain, self.SharedOrLocal, self.Description, self.ID))
+        db.exec_db(sSQL, (self.Name, self.Username, self.Domain, self.PrivateKey, self.SharedOrLocal, self.Description, self.ID))
         db.close()        
     
         return True

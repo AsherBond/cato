@@ -146,6 +146,7 @@ versions = [
                       ["droptable", "dep_service_inst_proc", "Removing a demo feature."],
                       ["droptable", "dep_service_inst_proc_inst", "Removing a demo feature."],
                       ["addcolumn", "deployment_template", "groups", "varchar(1024) NULL"],
+                      ["addcolumn", "asset_credential", "private_key", "varchar(4096) NULL"],
                       ["changecolumn", "deployment", "runstate", "`runstate` VARCHAR(16) NULL DEFAULT 'stopped'"]                    
                     ]
              ]

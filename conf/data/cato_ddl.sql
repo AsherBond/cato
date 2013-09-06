@@ -111,6 +111,7 @@ CREATE TABLE `asset_credential` (
   `shared_cred_desc` varchar(256) DEFAULT NULL,
   `privileged_password` varchar(512) DEFAULT NULL,
   `credential_name` varchar(64) NOT NULL,
+  `private_key` varchar(4096) DEFAULT NULL,
   PRIMARY KEY (`credential_id`),
   UNIQUE KEY `credential_name_UNIQUE` (`credential_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

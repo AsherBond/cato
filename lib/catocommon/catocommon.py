@@ -398,7 +398,8 @@ def lookup_shared_cred(alias):
     if row:
         user = row[0]
         password = cato_decrypt(row[1])
-        ret = (user,password)
+        pk = cato_decrypt(row[2])
+        ret = (user, password, pk)
     else:
         ret = None
     return ret
@@ -414,7 +415,7 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, account_id=N
     try:
         x = int(debug_level)
         if x < 10:
-            debug_level = x*10
+            debug_level = x * 10
     except:
         logger.warning("Debug Level [%s] could not be normalized." % (debug_level))
     

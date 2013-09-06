@@ -909,19 +909,15 @@ class uiMethods:
             start, end, pager_html = uiCommon.GetPager(len(c.rows), maxrows, sPage)
 
             for row in c.rows[start:end]:
-                sHTML += "<tr credential_id=\"" + row["ID"] + "\">"
-                sHTML += "<td class=\"chkboxcolumn\">"
-                sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
-                " id=\"chk_" + row["ID"] + "\"" \
-                " tag=\"chk\" />"
-                sHTML += "</td>"
-                
-                sHTML += "<td class=\"selectable\">%s</td>" % row["Name"]
-                sHTML += "<td class=\"selectable\">%s</td>" % row["Username"]
-                sHTML += "<td class=\"selectable\">%s</td>" % (row["Domain"] if row["Domain"] else "")
-                sHTML += "<td class=\"selectable\">%s</td>" % (row["Description"] if row["Description"] else "")
-                
-                sHTML += "</tr>"
+                sHTML += """<tr credential_id="{0}">
+                    <td class="chkboxcolumn">
+                        <input type="checkbox" class="chkbox" id="chk_{0}" tag="chk" />
+                    </td>
+                    <td class="selectable">{1}</td>
+                    <td class="selectable">{2}</td>
+                    <td class="selectable">{3}</td>
+                </tr>
+                """.format(row["ID"], row["Name"], row["Type"], row["Description"])
 
         return json.dumps({"pager" : uiCommon.packJSON(pager_html), "rows" : uiCommon.packJSON(sHTML)})
         
@@ -1021,7 +1017,7 @@ class uiMethods:
         # a little different than the others ... credential objects must be instantiated before calling DBCreateNew
         c = asset.Credential()
         c.FromArgs(args["Name"], args["Description"], args["Username"], args["Password"],
-                 args["SharedOrLocal"], args["Domain"], args["PrivilegedPassword"])
+                 args["SharedOrLocal"], args["Domain"], args["PrivilegedPassword"], args["PrivateKey"])
         result = c.DBCreateNew()
         if not result:
             json.dumps({"error" : "Unable to create Credential."})

@@ -36,7 +36,7 @@ $(document).ready(function() {
 	$("#edit_dialog").dialog({
 		autoOpen : false,
 		modal : true,
-		width : 500,
+		width : 800,
 		bgiframe : true,
 		buttons : {
 			"Save" : function() {
@@ -46,8 +46,9 @@ $(document).ready(function() {
 				$("#edit_dialog").dialog("close");
 			}
 		}
-
 	});
+
+	$("#edit_dialog_tabs").tabs();
 
 	var tip = "For uncommon cases where a system requires multiple authentication prompts, for example certain brands of TCP/IP switches.";
 	$("#priv_mode_info").attr("title", tip);
@@ -62,7 +63,7 @@ $(document).ready(function() {
 
 function GetItems(page) {
 	if (!page)
-		page = "1"
+		page = "1";
 	var response = ajaxPost("uiMethods/wmGetCredentialsTable", {
 		sSearch : $("#txtSearch").val(),
 		sPage : page
@@ -95,8 +96,13 @@ function LoadEditDialog(editID) {
 	if (cred) {
 		$("#txtCredName").val(cred.Name);
 		$("#txtCredUsername").val(cred.Username);
-		$("#txtCredDomain").val(cred.Domain)
+		$("#txtCredDomain").val(cred.Domain);
 		$("#txtCredDescription").val(cred.Description);
+
+		if (cred.Type == "Private Key") {
+			$("#txtPrivateKey").val("********");
+			$('#edit_dialog_tabs').tabs('select', 1);
+		}
 
 		$("#hidMode").val("edit");
 		$("#edit_dialog").dialog("option", "title", "Modify Credential");
@@ -112,13 +118,14 @@ function SaveCredential() {
 	var sCredentialID = $("#hidCurrentEditID").val();
 	var sCredentialName = $("#txtCredName").val();
 	var sCredUsername = $("#txtCredUsername").val();
+	var sPrivateKey = $("#txtPrivateKey").val();
 	if (sCredentialName == '') {
 		bSave = false;
 		strValidationError += 'Credential Name required.<br />';
 	};
-	if (sCredUsername == '') {
+	if (sCredUsername == '' && sPrivateKey == '') {
 		bSave = false;
-		strValidationError += 'User Name required.<br />';
+		strValidationError += 'User Name or Private Key required.<br />';
 	};
 
 	if ($("#txtCredPassword").val() != $("#txtCredPasswordConfirm").val()) {
@@ -135,15 +142,16 @@ function SaveCredential() {
 		return false;
 	}
 
-	var cred = {}
+	var cred = {};
 	cred.ID = sCredentialID;
 	cred.Name = sCredentialName;
-	cred.Description = $("#txtCredDescription").val()
+	cred.Description = $("#txtCredDescription").val();
 	cred.Username = sCredUsername;
-	cred.Password = $("#txtCredPassword").val()
+	cred.Password = $("#txtCredPassword").val();
 	cred.SharedOrLocal = "0";
-	cred.Domain = $("#txtCredDomain").val()
-	cred.PrivilegedPassword = $("#txtPrivilegedPassword").val()
+	cred.Domain = $("#txtCredDomain").val();
+	cred.PrivilegedPassword = $("#txtPrivilegedPassword").val();
+	cred.PrivateKey = sPrivateKey;
 
 	if ($("#hidMode").val() == "edit") {
 		var response = ajaxPost("uiMethods/wmUpdateCredential", cred);
