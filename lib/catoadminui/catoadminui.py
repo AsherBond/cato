@@ -343,9 +343,9 @@ def auth_app_processor(handle):
 def CacheTaskCommands():
     # creates the html cache file
     try:
-        sCatHTML = ""
-        sFunHTML = ""
-        sHelpHTML = ""
+        cathtml = ""
+        funhtml = ""
+        helphtml = ""
 
         # so, we will use the FunctionCategories class in the session that was loaded at login, and build the list items for the commands tab.
         cats = uiGlobals.FunctionCategories
@@ -353,57 +353,48 @@ def CacheTaskCommands():
             logger.error("Task Function Categories class is not in the datacache.")
         else:
             for cat in cats.Categories:
-                sCatHTML += "<div class=\"ui-widget-content ui-corner-all command_item category\""
-                sCatHTML += " id=\"cat_" + cat.Name + "\""
-                sCatHTML += " name=\"" + cat.Name + "\">"
-                sCatHTML += "<img class=\"category_icon\" src=\"" + cat.Icon + "\" alt=\"\" />"
-                sCatHTML += "<span>" + cat.Label + "</span>"
-                sCatHTML += "</div>"
-                sCatHTML += "<div id=\"help_text_" + cat.Name + "\" class=\"hidden\">"
-                sCatHTML += cat.Description
-                sCatHTML += "</div>"
+                cathtml += """<div class="ui-widget-content ui-corner-all command_item category" id="cat_{0}" name="{0}">
+                    <img class="category_icon" src="{2}" alt="" />
+                    <span>{1}</span>
+                    </div>
+                    <div id="help_text_{0}" class="hidden">{3}</div>""".format(cat.Name, cat.Label, cat.Icon, cat.Description)
                 
-                sFunHTML += "<div class=\"functions hidden\" id=\"cat_" + cat.Name + "_functions\">"
+                funhtml += """<div class="functions hidden" id="cat_{0}_functions">""".format(cat.Name)
                 # now, let's work out the functions.
                 # we can just draw them all... they are hidden and will display on the client as clicked
                 for fn in cat.Functions:
-                    sFunHTML += "<div class=\"ui-widget-content ui-corner-all command_item function\""
-                    sFunHTML += " id=\"fn_" + fn.Name + "\""
-                    sFunHTML += " name=\"fn_" + fn.Name + "\">"
-                    sFunHTML += "<img class=\"function_icon\" src=\"" + fn.Icon + "\" alt=\"\" />"
-                    sFunHTML += "<span>" + fn.Label + "</span>"
-                    sFunHTML += "<div id=\"help_text_fn_" + fn.Name + "\" class=\"hidden\">"
-                    sFunHTML += fn.Description
-                    sFunHTML += "</div>"
-                    sFunHTML += "</div>"
+                    funhtml += """
+                    <div class="ui-widget-content ui-corner-all command_item function" id="fn_{0}" name="fn_{0}">
+                    <img class="function_icon" src="{2}" alt="" />
+                    <span>{1}</span>
+                    <div id="help_text_fn_{0}" class="hidden">{3}</div>
+                    </div>""".format(fn.Name, fn.Label, fn.Icon, fn.Description)
 
-                    sHelpHTML += "<div>"
-                    sHelpHTML += "<img src=\"" + fn.Icon + "\" alt=\"\" style=\"height: 16px; width: 16px;\" />"
-                    sHelpHTML += "<span style=\"font-weight: bold; padding-left: 10px;\">" + fn.Category.Label + " : " + fn.Label + "</span>"
-                    sHelpHTML += "</div>"
-                    sHelpHTML += "<div style=\"margin-top: 6px;\">"
-                    sHelpHTML += fn.Help
-                    sHelpHTML += "</div>"
-                    sHelpHTML += "<hr />"
+                    helphtml += """<div>
+                    <img src="{0}" alt="" style="height: 16px; width: 16px;" />
+                    <span style="font-weight: bold; padding-left: 10px;">{1} : {2}</span>
+                    </div>
+                    <div style="margin-top: 6px;">{3}</div>
+                    <hr />""".format(fn.Icon, fn.Category.Label, fn.Label, fn.Help)
     
-                sFunHTML += "</div>"
+                funhtml += "</div>"
 
         path = catoconfig.CONFIG["uicache"]
     
-        with open("%s/_categories.html" % path, 'w') as f_out:
+        with open("%s/_categories.html" % (path), 'w') as f_out:
             if not f_out:
-                logger.error("Unable to create %s/_categories.html." % path)
-            f_out.write(sCatHTML)
+                logger.error("Unable to create %s/_categories.html." % (path))
+            f_out.write(cathtml)
 
-        with open("%s/_functions.html" % path, 'w') as f_out:
+        with open("%s/_functions.html" % (path), 'w') as f_out:
             if not f_out:
-                logger.error("Unable to create %s/_functions.html." % path)
-            f_out.write(sFunHTML)
+                logger.error("Unable to create %s/_functions.html." % (path))
+            f_out.write(funhtml)
 
-        with open("%s/_command_help.html" % path, 'w') as f_out:
+        with open("%s/_command_help.html" % (path), 'w') as f_out:
             if not f_out:
-                logger.error("Unable to create %s/_command_help.html." % path)
-            f_out.write(sHelpHTML)
+                logger.error("Unable to create %s/_command_help.html." % (path))
+            f_out.write(helphtml)
 
     except Exception as ex:
         logger.error(ex.__str__())
