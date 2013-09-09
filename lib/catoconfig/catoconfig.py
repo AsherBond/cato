@@ -130,9 +130,10 @@ def read_config():
                 # extensions require a little parsing
                 pairs = value.split(";")
                 for p in pairs:
-                    n, v = p.split(":")
-                    if n and v:
-                        cfg["extensions"][n] = v
+                    if ":" in p:
+                        n, v = p.split(":")
+                        if n and v:
+                            cfg["extensions"][n.strip()] = v.strip()
             else:
                 cfg[key] = value
 
