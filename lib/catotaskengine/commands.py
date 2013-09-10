@@ -1178,7 +1178,7 @@ def new_connection_cmd(self, task, step):
         except KeyError:
             # we haven't loaded it before, let's disect the asset string
 
-            address = userid = password = port = db_name = protocol = shared_cred = None
+            address = userid = password = port = db_name = protocol = shared_cred = pk = None
             #debug = False
 
             for pair in asset.split(" "):
@@ -1205,14 +1205,18 @@ def new_connection_cmd(self, task, step):
             if shared_cred:
                 c = catocommon.lookup_shared_cred(shared_cred)
                 if c:
-                    userid = c[0]
-                    password = c[1]
+                    if c[0] and len(c[0]):
+                        userid = c[0]
+                    if c[1] and len(c[1]):
+                        password = c[1]
+                    if c[2] and len(c[2]):
+                        pk = c[2]
                 else:
                     raise Exception("Unable to find Shared Credential using name [%s]." % (shared_cred))
                  
             self.add_to_sensitive(password)
             s = classes.System(name, address=address, userid=userid, password=password,
-                port=port, db_name=db_name, protocol=protocol)
+                port=port, db_name=db_name, protocol=protocol, private_key=pk)
 
             self.systems[name] = s
 

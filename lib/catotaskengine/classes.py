@@ -77,44 +77,6 @@ class Task:
                 self.codeblocks[cb_name] = Codeblock(self.task_id, cb_name)
 
 
-class Asset:
-
-    def __init__(self, asset_id):
-
-        self.asset_id = asset_id
-        self.name = None
-        self.address = None
-        self.port = None
-        self.db_name = None
-        self.conn_type = None
-        self.userid = None
-        self.password = None
-        self.priv_password = None
-        self.domain = None
-        self.conn_string = None
-        self.private_key = None
-        self.private_key_name = None
-
-    def get(self):
-        
-        db = catocommon.new_conn()
-        sql = """select a.asset_name, a.address, a.port, a.db_name , a.connection_type, ac.username, 
-                ac.password, ac.domain, ac.privileged_password, a.conn_string 
-            from asset a left outer join asset_credential ac on a.credential_id = ac.credential_id
-            where asset_id = %s"""
-        row = db.select_row(sql, (self.asset_id))
-        db.close()
-        if len(row) == 0:
-            raise Exception("An Asset record for the asset id %s does not exist" % (self.asset_id))
-
-        self.name, self.address, self.port, self.db_name, self.conn_type, self.userid, password, priv_password, \
-            self.domain, self.conn_string, self.private_key, self.private_key_name = row[:]
-
-        if len(password):
-            self.password = catocommon.cato_decrypt(password)
-        if len(priv_password):
-            self.priv_password = catocommon.cato_decrypt(priv_password)
-        
 class System:
     def __init__(self, name, address=None, port=None, db_name=None, conn_type=None, userid=None,
         password=None, p_password=None, domain=None, conn_string=None, private_key=None,

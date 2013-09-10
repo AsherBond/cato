@@ -1001,7 +1001,7 @@ class TaskEngine():
     def gather_system_info(self, asset_id):
 
         sql = """select a.asset_name, a.address, a.port, a.db_name , a.connection_type, 
-            ac.username, ac.password, ac.domain, ac.privileged_password, a.conn_string 
+            ac.username, ac.password, ac.domain, ac.privileged_password, a.conn_string, ac.private_key,
             from asset a left outer join asset_credential ac on a.credential_id = ac.credential_id
             where asset_id = %s"""
         row = self.db.select_row(sql, (asset_id))
@@ -1020,7 +1020,7 @@ class TaskEngine():
                 p_password = ""
 
             s = classes.System(row[0], address=row[1], port=row[2], db_name=row[3], conn_type=row[4], userid=row[5],
-                password=password, p_password=p_password, domain=row[7], conn_string=row[9])
+                password=password, p_password=p_password, domain=row[7], conn_string=row[9], private_key=row[10])
 
             self.systems[asset_id] = s
 
@@ -1392,7 +1392,8 @@ class TaskEngine():
         if c.conn_type == "ssh":
 
             # c.handle = self.connect_ssh_telnet("ssh", c.system.address, c.system.userid, password=c.system.password)
-            c.handle = self.connect_expect("ssh", c.system.address, c.system.userid, password=c.system.password, debug=c.debug)
+            c.handle = self.connect_expect("ssh", c.system.address, c.system.userid, password=c.system.password, 
+                key=c.system.private_key, debug=c.debug)
 
         elif c.conn_type == "telnet":
 
@@ -1467,14 +1468,6 @@ class TaskEngine():
         else:
             r = False
         return r
-
-    def get_asset_info(self, asset_id):
-
-        try:
-            a = self.assets[asset_id]
-        except KeyError as ex:
-            a = classes.Asset(asset_id)
-            self.assets[asset_id] = a
 
 
     def get_cloud_connection(self, endpoint_name):

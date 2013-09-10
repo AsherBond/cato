@@ -391,7 +391,7 @@ def tick_slash(s):
 
 def lookup_shared_cred(alias):
 
-    sql = "select username, password from asset_credential where credential_name = %s"
+    sql = "select username, password, private_key from asset_credential where credential_name = %s"
     db = new_conn()
     row = db.select_row(sql, (alias))
     db.close()    
