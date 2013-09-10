@@ -316,7 +316,6 @@ class Credential(object):
     
     def __init__(self):
         self.ID = catocommon.new_guid()
-        self.ID = None
         self.Username = None
         self.Password = None
         self.SharedOrLocal = None
@@ -335,11 +334,6 @@ class Credential(object):
         self.Domain = sDomain
         self.PrivilegedPassword = sPrivPassword
         self.PrivateKey = sPrivateKey
-
-        # if created by args, it may or may not have an ID.
-        # but it needs one.
-        if not self.ID:
-            self.ID = catocommon.new_guid()
 
     def FromID(self, credential_id):
         db = catocommon.new_conn()
@@ -387,11 +381,6 @@ class Credential(object):
     def FromDict(self, cred):
         for k, v in cred.items():
             setattr(self, k, v)
-            
-        # if created by args, it may or may not have an ID.
-        # but it needs one.
-        if not self.ID:
-            self.ID = catocommon.new_guid()
 
     def DBCreateNew(self):
         db = catocommon.new_conn()
@@ -444,16 +433,20 @@ class Credential(object):
             else:
                 sPriviledgedPasswordUpdate = ", privileged_password = '" + catocommon.cato_encrypt(self.PrivilegedPassword) + "'"
     
+        # same for private key, but a different rule since it's a textarea
+        sPKUpdate = ""
+        if self.PrivateKey and self.PrivateKey != "********":
+            sPKUpdate = ", private_key = '" + catocommon.cato_encrypt(self.PrivateKey) + "'"
+    
         sSQL = """update asset_credential set
             credential_name = %s,
             username = %s,
             domain = %s,
-            private_key = %s,
             shared_or_local = %s,
-            shared_cred_desc = %s {0} {1}
-            where credential_id = %s""".format(sPasswordUpdate, sPriviledgedPasswordUpdate) 
+            shared_cred_desc = %s {0} {1} {2}
+            where credential_id = %s""".format(sPasswordUpdate, sPriviledgedPasswordUpdate, sPKUpdate) 
             
-        db.exec_db(sSQL, (self.Name, self.Username, self.Domain, self.PrivateKey, self.SharedOrLocal, self.Description, self.ID))
+        db.exec_db(sSQL, (self.Name, self.Username, self.Domain, self.SharedOrLocal, self.Description, self.ID))
         db.close()        
     
         return True
@@ -468,6 +461,6 @@ class Credential(object):
         del self.PrivilegedPassword
         return catocommon.ObjectOutput.AsXML(self.__dict__, "Credential")
 
-    def AsText(self, delimiter):
+    def AsText(self, delimiter, headers):
         return catocommon.ObjectOutput.AsText(self.__dict__, ["Name", "Username", "SharedOrLocal", "Description"], delimiter, headers)
 
