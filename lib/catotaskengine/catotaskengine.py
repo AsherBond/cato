@@ -782,6 +782,7 @@ class TaskEngine():
             r_del = self.tochar(step.row_delimiter)
             buff = buff.split(r_del)
             row_count = len(buff)
+            print row_count
 
         variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
             "range_begin", "prefix", "range_end", "suffix", "regex", "xpath")
@@ -806,8 +807,8 @@ class TaskEngine():
                     c_pos = int(v[2]) - 1
                     self.logger.debug("col delim = " + step.col_delimiter)
                     c_del = self.tochar(step.col_delimiter)
-                    self.logger.debug(">>>" + c_del + "<<<<")
-                    self.logger.debug(line.split(c_del))
+                    #self.logger.debug(">>>" + c_del + "<<<<")
+                    #self.logger.debug(line.split(c_del))
                     try:
                         value = line.split(c_del)[c_pos]
                     except IndexError:

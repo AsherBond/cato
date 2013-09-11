@@ -1567,10 +1567,13 @@ def winrm_cmd_cmd(self, task, step):
     command_id = c.handle.run_command(c.shell_id, cmd)
     buff, err, return_code = c.handle.get_command_output(c.shell_id, command_id)
 
-    buff = re.sub("\r\n", "\n", buff)
+    buff = re.sub("\r\n", "\n", buff).rstrip("\n")
     self.logger.info("WinRM return code %s" % return_code)
-    self.logger.info("Buffer returned is %s" % buff)
+    self.logger.info("Buffer returned is >%s<" % buff)
     self.logger.info("Error result is %s" % err)
+
+    if c.debug:
+        self.logger.info(':'.join(x.encode('hex') for x in buff))
     
     # if return_code > 0:
     #    # return code of > 0 seems to be a winrm error. bad
@@ -1624,6 +1627,7 @@ def cmd_line_cmd(self, task, step):
     self.logger.info("Issuing command:\n%s" % (cmd))
     buff = self.execute_expect(c.handle, cmd, pos, neg, timeout)
     self.insert_audit(step.function_name, "%s\n%s" % (cmd, buff), conn_name)
+    # print(':'.join(x.encode('hex') for x in buff))
 
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
         "range_begin", "prefix", "range_end", "suffix", "regex", "xpath")
