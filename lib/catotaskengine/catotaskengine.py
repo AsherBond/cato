@@ -784,7 +784,6 @@ class TaskEngine():
             r_del = self.tochar(step.row_delimiter)
             buff = buff.split(r_del)
             row_count = len(buff)
-            print row_count
 
         variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
             "range_begin", "prefix", "range_end", "suffix", "regex", "xpath")
