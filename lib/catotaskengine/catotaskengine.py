@@ -65,12 +65,13 @@ class TaskEngine():
         # TODO: Add _PUBLIC_IP, _PRIVATE_IP, _DATE
         self.global_variables = [
                       ("_TASK_INSTANCE", "task_instance"),
+                      ("_TASK_ID", "task_id"),
+                      ("_TASK_NAME", "task_name"),
+                      ("_TASK_VERSION", "task_version"),
                       ("_CLOUD_NAME", "cloud_name"),
                       ("_CLOUD_LOGIN_PASS", "cloud_login_password"),
                       ("_CLOUD_LOGIN_ID", "cloud_login_id"),
                       ("_CLOUD_PROVIDER", "provider"),
-                      ("_TASK_NAME", "task_name"),
-                      ("_TASK_VERSION", "task_version"),
                       ("_SUBMITTED_BY_EMAIL", "submitted_by_email"),
                       ("_SUBMITTED_BY", "submitted_by_user"),
                       ("_HTTP_RESPONSE", "http_response"),
@@ -686,73 +687,74 @@ class TaskEngine():
         return z
 
 
-    def sub_global(self, s):
+    def sub_global(self, varname):
         """
         This will spin self.global_variables list, and attempt to reconcile _VARNAMES to self.properties.
         A match means the self.property will be used any time the [[_VARNAME]] is referenced.
         
         NOTE: Two special cases for UUIDS might not actually belong here, as they are functions not properties.
+        
+        NOTE: this function MUST return a string, not an object it might have found using jsonpath
+        Also, if the response actually is an object (dict, list), it must be dumped pretty printed
+        otherwise nested lists might appear as [[1,2,3]], which replace_vars will assume is a variable and try to replace it! :-(
         """
+
+        def _use_jsonpath(vname, obj, keypath):
+            if keypath:
+                v = jsonpath(obj, keypath)
+                if v:
+                    # finally, jsonpath *always* returns a list, because xpath might have matched multiples
+                    # but, if there's only one item in the list, just return the item directly.  (90% of cases)
+                    if len(v) > 1:
+                        return catocommon.ObjectOutput.AsJSON(v)
+                    else:
+                        return catocommon.ObjectOutput.AsJSON(v[0])
+                # not found :-(
+                self.logger.info("Object variable [%s] - key [%s] not found." % (vname, keypath))
+            else:
+                return catocommon.ObjectOutput.AsJSON(obj)
+
 
         # we expect the variable name to be upper case
         #$ WE ALSO allow a comma in the variable name, but we don't want it just yet...
-        full_var_name = s.upper()
-        s = full_var_name.split(",")[0]
+        full_var_name = varname
+        x = full_var_name.split(",")
+        varname = x[0]
+        keypath = None
+        docount = False
+        if len(x) > 1:
+            docount = True if x[1] == "*" else False
         
+        if ":" in full_var_name:
+            x = full_var_name.split(":", 1)
+            varname = x[0]
+            keypath = "" if len(x) == 1 else x[1]
+            
         # is it one of our helper functions?
-        if s == "_UUID":
+        if varname == "_UUID":
             return self.new_uuid()
-        if s == "_UUID2":
+        if varname == "_UUID2":
             return self.new_uuid().replace("-", "")
-        if s == "_DEBUG":
+        if varname == "_DEBUG":
             out = []
             for k, v in self.__dict__.iteritems():
                 out.append("%s -> %s" % (k, v))
             return "\n".join(out)
         
+
         # guess not, so spin the global_variables list
-        for varname, prop in self.global_variables:
-            if s == varname:
+        for g_varname, prop in self.global_variables:
+            if varname.upper() == g_varname:
                 p = getattr(self, prop, "")
-                # if there's a comma in 's' AND the variable is a list... try to return just the requested index.
-                # now, if 's' didn't match the varname, it MIGHT be because s contains an index lookup.
-                if isinstance(p, list):
-                    # IF THIS PROPERTY IS A LIST, we can emulate how we look up regular runtime vars using index
-                    # just remember, this *isn't* a regular runtime variable.
-                    if "," in full_var_name:
-                        # it's got a comma, so it's either an array value or count
-                        # we'll determine the index
-                        
-                        # but don't bother if the length of the var is 0
-                        if len(p) > 0:
-                            comma = full_var_name.find(",")
-                            index = full_var_name[comma + 1:]
-                            if index == "*":
-                                # return the list count
-                                return len(p)
-                            else:
-                                # return the index from the list
-                                try:
-                                    # NOTE: but we must shove a bunk value onto the front of the list
-                                    # because loops and such are all '1' based.
-                                    p.insert(0, None)
-                                    x = p[int(index)]
-                                    p.pop(0)
-                                    return x
-                                except ValueError:
-                                    msg = "The array index [%s] for variable [%s] is not a valid integer." % (index, full_var_name)
-                                    raise Exception(msg)
-                                except IndexError:
-                                    # if the requested index doesn't exist, just log an error and continue
-                                    self.logger.error("The array index [%s] for variable [%s] doesn't exist.  Full array is: \n%s" % (index, full_var_name, p))
-                                    return ""
-                                except Exception as ex:
-                                    raise Exception(ex)
-                        else:
-                            self.logger.info("An index lookup was specified for variable [%s], but the full array is empty." % (full_var_name))
-                            return ""
-                    else:
-                        return json.dumps(p)
+                
+                # very simple... jsonpath can look into complex combinations of lists and dicts.
+                # so, if the root object is a list or a dict, use jsonpath
+                # otherwise return the whole object
+                if isinstance(p, list) or isinstance(p, dict):
+                    if docount:
+                        return len(p)
+                    
+                    return _use_jsonpath(varname, p, keypath)
                 else:
                     # we presume it's a string value
                     return p
