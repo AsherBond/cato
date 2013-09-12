@@ -256,7 +256,7 @@ class TaskEngine():
             while not at_prompt:
 
                 index = c.expect_list(cpl)
-                if index in [0,7,8]:
+                if index in [0, 7, 8]:
                     if attempt != 10:
                         log_msg = "ssh connection address %s unreachable on attempt %d. Sleeping and reattempting" % (host, attempt)
                         self.insert_audit("new_connection", log_msg, "")
@@ -284,7 +284,7 @@ class TaskEngine():
                     c.sendline(password)
                     # c.logfile=sys.stdout 
                     c.delaybeforesend = 0
-                #elif index == 7:
+                # elif index == 7:
                 #    msg = "The connection to %s closed unexpectedly." % (host)
                 if msg:
                     try: 
@@ -576,7 +576,7 @@ class TaskEngine():
                     value = self.get_handle_var(found_var)
                 elif found_var.startswith("$"):
                     # this is an "object" lookup (likely set by Read JSON)
-                    index = 1 # in case no index is explicitly set, so we don't need two lookup blocks in if cases below
+                    index = 1  # in case no index is explicitly set, so we don't need two lookup blocks in if cases below
                     new_found_var = found_var
                     if "," in found_var:
                         # it's got a comma, so it's either an array value or count
@@ -716,7 +716,7 @@ class TaskEngine():
 
 
         # we expect the variable name to be upper case
-        #$ WE ALSO allow a comma in the variable name, but we don't want it just yet...
+        # $ WE ALSO allow a comma in the variable name, but we don't want it just yet...
         full_var_name = varname
         x = full_var_name.split(",")
         varname = x[0]
@@ -1324,7 +1324,7 @@ class TaskEngine():
                 self.cloud_account, self.cloud_id, opts = row[:]
         
         # options need to be json loaded
-        self.options= json.loads(opts) if opts else {}
+        self.options = json.loads(opts) if opts else {}
 
         if self.submitted_by:
             sql = """select username, email from users where user_id = %s"""
@@ -1394,7 +1394,7 @@ class TaskEngine():
         if c.conn_type == "ssh":
 
             # c.handle = self.connect_ssh_telnet("ssh", c.system.address, c.system.userid, password=c.system.password)
-            c.handle = self.connect_expect("ssh", c.system.address, c.system.userid, password=c.system.password, 
+            c.handle = self.connect_expect("ssh", c.system.address, c.system.userid, password=c.system.password,
                 key=c.system.private_key, debug=c.debug)
 
         elif c.conn_type == "telnet":
@@ -1541,7 +1541,7 @@ class TaskEngine():
 
     def time_diff_ms(self, td):
 
-        return int(round(td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6)) / 1000
+        return int(round(td.microseconds + (td.seconds + td.days * 24 * 3600) * 10 ** 6)) / 1000
 
     def extract_xml_string(self, xml, node_name):
 
@@ -1730,19 +1730,21 @@ class TaskEngine():
             self.logger.info("Cloud Account: %s, Cloud Name: %s " % (self.cloud_account, self.cloud_name))
     
             
-    
-            # We will only load an extension if 
-            # a) it's specified in the options and 
-            # b) the path for that extension name can be found in the config
-            # more than one extension can be defined in the options.
-            # the list values are NAMES of extensions defined in cato.conf
+            # loading extensions has two parts:
+            # 1) append into the sys.path, all extensions found in the config
+            # 2) if self.options has Augments: [], AND it references one of the defined extension...
+            #    ... then try to run the augment_te module from that extension
+
+            # 1) append all extensions to the sys.path
+            for exname, expath in catoconfig.CONFIG["extensions"].iteritems():
+                self.logger.info("Appending extension [%s] path [%s]" % (exname, expath))
+                sys.path.append(expath)
+                
+            # 2) check if any extensions are meant to augment the TE
             augs = self.options.get("Augments", [])
             for exname in augs:
                 expath = catoconfig.CONFIG["extensions"].get(exname)
                 if expath:
-                    self.logger.info("Appending extension [%s] path [%s]" % (exname, expath))
-                    sys.path.append(expath)
-            
                     for root, subdirs, files in os.walk(expath):
                         for f in files:
                             if f == "augment_te.py":
