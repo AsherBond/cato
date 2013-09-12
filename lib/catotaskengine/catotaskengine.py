@@ -402,7 +402,7 @@ class TaskEngine():
     def get_xml_val(self, xml, path, index=0):
 
         root = catocommon.ET.fromstring(xml)
-        nodes = root.findall(path)
+        nodes = root.findall(path.strip())
         if nodes:
             try:
                 node = nodes[index]
