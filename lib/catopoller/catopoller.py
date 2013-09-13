@@ -53,13 +53,14 @@ class Poller(catoprocess.CatoService):
                 if task_instance > 0:
                     self.logger.info("Starting process ...")
 
+                    sql = """update task_instance set task_status = 'Staged'
+                        where task_instance = %s"""
+                    self.db.exec_db(sql, (task_instance))
+
                     cmd_line = "nohup %s/services/bin/cato_task_engine %d >> %s/ce/%d.log 2>&1 &" % (self.home, task_instance, catolog.LOGPATH, task_instance)
 
                     ret = os.system(cmd_line)
                     self.logger.info("Task instance %d started with return code of %d" % (task_instance, ret))
-                    sql = """update task_instance set task_status = 'Staged'
-                        where task_instance = %s"""
-                    self.db.exec_db(sql, (task_instance))
                     time.sleep(0.01)
                         
     def update_to_error(self, the_pid):
