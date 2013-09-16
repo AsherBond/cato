@@ -145,8 +145,8 @@ class StreamToLogger(object):
 
 
     def write(self, buf):
-        msg = buf.rstrip()
-        if msg and msg != "\n":
+        if buf and buf != "\n":
+            msg = buf.rstrip()
             # this also can suppress HTTP messages from the built in web server
             # NOTE: this is a specific pattern that matches the web.py output
             if catoconfig.CONFIG.has_key("write_http_logs"):
