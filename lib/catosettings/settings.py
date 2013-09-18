@@ -1,6 +1,7 @@
 """
     All of the settings for the Cato modules.
 """
+import json
 
 from catocommon import catocommon
 from catolog import catolog
@@ -14,6 +15,7 @@ class settings(object):
         self.Marshaller = self.marshaller().__dict__
         self.Messenger = self.messenger().__dict__
         self.Scheduler = self.scheduler().__dict__
+        self.Maestro = self.maestro().__dict__
         
     def AsJSON(self):
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
@@ -171,6 +173,36 @@ class settings(object):
 
         def AsXML(self):
             return catocommon.ObjectOutput.AsXML(self.__dict__, "Poller")
+    
+        def AsText(self, delimiter):
+            out = []
+            for k, v in self.__dict__.iteritems():
+                out.append("    %s : %s\n" % (k, v))
+            return "".join(out)
+    
+    class maestro(object):
+        """
+            General settings for Maestro.
+        """
+        MenuCanvas = ""
+        HomeCanvas = ""
+        PortalCanvas = ""
+        
+        def __init__(self):
+            s = settings.get_application_section("maestro")
+            self.MenuCanvas = s.get("MenuCanvas", "")
+            self.HomeCanvas = s.get("HomeCanvas", "")
+            self.PortalCanvas = s.get("PortalCanvas", "")
+            
+        def DBSave(self):
+            result, msg = settings.set_application_section("maestro", json.dumps(self.__dict__))
+            return True
+
+        def AsJSON(self):
+            return catocommon.ObjectOutput.AsJSON(self.__dict__)
+
+        def AsXML(self):
+            return catocommon.ObjectOutput.AsXML(self.__dict__, "Marshaller")
     
         def AsText(self, delimiter):
             out = []
@@ -374,12 +406,79 @@ class settings(object):
                 out.append("    %s : %s\n" % (k, v))
             return "".join(out)
     
+    
+    
     """
-        Application Settings are stored as XML in a separate table.
-        They aren't hardcoded settings and aren't required - can be added/deleted as needed.
+        APPLICATION SETTINGS are stored as JSON.
+        These ARE actual user-configurable settings.
+        
+        The document is a dictionary, and each top level item is a section.
+        
+        TODO: this method will take over all the individual tables above.
     """
     @staticmethod
-    def get_application_setting(xpath):
+    def get_application_section(section):
+        # this will return a whole section of the document
+        sql = "select settings_json from application_settings where id = 1"
+        
+        db = catocommon.new_conn()
+        sjson = db.select_col(sql)
+        db.close()
+        if sjson:
+            doc = json.loads(sjson)
+            return doc.get(section)
+        return {}
+        
+    @staticmethod
+    def set_application_section(section, value):
+        if not section:
+            logger.warning("Info: attempt to set application section - missing section [%s]." % (section))
+            return False, "Section is required."
+        
+        doc = {}
+        
+        sql = "select settings_json from application_settings where id = 1"
+        db = catocommon.new_conn()
+        sjson = db.select_col(sql)
+        db.close()
+        if sjson:
+            doc = json.loads(sjson)
+
+        doc[section] = json.loads(value)
+        
+        sql = "update application_settings set settings_json=%s where id = 1"
+        db = catocommon.new_conn()
+        if not db.exec_db_noexcep(sql, catocommon.ObjectOutput.AsJSON(doc)):
+            raise Exception("Info: attempt to set application section [%s] failed." % (section))
+        
+        return True, ""
+
+    @staticmethod
+    def get_application_setting(section, setting):
+        # given a section, this will return a single setting
+        sql = "select settings_json from application_settings where id = 1"
+        
+        db = catocommon.new_conn()
+        sjson = db.select_col(sql)
+        db.close()
+        if sjson:
+            doc = json.loads(sjson)
+            return doc.get(section, {}).get(setting)
+        
+#     @staticmethod
+#     def set_application_setting(section, setting, value):
+#         if not section or not setting:
+#             logger.warning("Info: attempt to set application setting - missing section or setting name [%s/%s]." % (section, setting))
+#             return False, "Section and Setting are required."
+        
+
+    """
+        APPLICATION DETAILS are stored as XML.
+        These ARE NOT settings - they are hidden details that are set/read programatically.
+        Users cannot edit these details.
+    """
+    @staticmethod
+    def get_application_detail(xpath):
         sql = "select setting_xml from application_settings where id = 1"
         
         db = catocommon.new_conn()
@@ -391,7 +490,7 @@ class settings(object):
                 return xdoc.findtext(xpath, "")
         
     @staticmethod
-    def set_application_setting(category, setting, value):
+    def set_application_detail(category, setting, value):
         # key is required, category is not
         if not setting:
             logger.warning("Info: attempt to set application setting - missing setting name [%s/%s]." % (category, setting))

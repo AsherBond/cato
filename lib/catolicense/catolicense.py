@@ -21,7 +21,7 @@ def check_license(app=""):
         
     # the value will either be 'agreed' or ''
     from catosettings import settings
-    license_status = settings.settings.get_application_setting("general/%slicense_status" % ("%s_" % app if app else ""))
+    license_status = settings.settings.get_application_detail("general/%slicense_status" % ("%s_" % app if app else ""))
     
     # the value will either be 'agreed' or ''
     if license_status == "agreed":

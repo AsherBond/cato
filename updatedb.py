@@ -149,6 +149,10 @@ versions = [
                       ["addcolumn", "asset_credential", "private_key", "varchar(4096) NULL"],
                       ["changecolumn", "deployment", "runstate", "`runstate` VARCHAR(16) NULL DEFAULT 'stopped'"]                    
                     ]
+             ],
+            ["1.21", [
+                      ["addcolumn", "application_settings", "settings_json", "text NULL"]
+                      ]
              ]
         ]
 

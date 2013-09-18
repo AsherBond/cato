@@ -52,11 +52,11 @@ class uiMethods:
         category = uiCommon.getAjaxArg("sCategory")
         setting = uiCommon.getAjaxArg("sSetting")
         value = uiCommon.getAjaxArg("sValue")
-        settings.settings.set_application_setting(category, setting, value)
+        settings.settings.set_application_detail(category, setting, value)
             
     def wmLicenseAgree(self):
-        settings.settings.set_application_setting("general", "license_status", "agreed")
-        settings.settings.set_application_setting("general", "license_datetime", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
+        settings.settings.set_application_detail("general", "license_status", "agreed")
+        settings.settings.set_application_detail("general", "license_datetime", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
         return ""
             
     def wmGetDBInfo(self):
@@ -76,7 +76,7 @@ class uiMethods:
         user_role = uiCommon.GetSessionUserRole()
         if user_role == "Administrator":
             items = []
-            regstatus = sset.get_application_setting("general/register_cato")
+            regstatus = sset.get_application_detail("general/register_cato")
             if regstatus not in ["skipped", "registered"]:
                 items.append("Register Cato to receive updates about the latest versions, plus the latest news and Community support.")
                 sHTML += self.DrawGettingStartedItem("registercato", "Register Cato", items,

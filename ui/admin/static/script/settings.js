@@ -61,7 +61,7 @@ function GetSettings() {
 					var value = mod_settings[key].toString();
 					//cast to a string for booleans
 					var selector = "#div_" + modulename.toLowerCase() + "_detail #" + key;
-					var $ctl = $(selector)
+					var $ctl = $(selector);
 
 					var type = $ctl.get(0).tagName.toLowerCase();
 					var typeattr = $ctl.attr("type");
@@ -91,7 +91,7 @@ function GetSettings() {
 //THIS SHOULD just be one function
 //in fact, I still wanna put all this in one table.
 function SaveSettings(type) {
-	args = $("#div_" + type + "_detail :input").serializeArray()
+	args = $("#div_" + type + "_detail :input").serializeArray();
 
 	/* Because serializeArray() ignores unset checkboxes and radio buttons: */
 	args = args.concat($("#div_" + type + "_detail :input[type=checkbox]:not(:checked)").map(function() {
@@ -99,7 +99,7 @@ function SaveSettings(type) {
 		return {
 			"name" : this.name,
 			"value" : "off"
-		}
+		};
 	}).get());
 
 	var response = catoAjax.saveSettings(type, args);
