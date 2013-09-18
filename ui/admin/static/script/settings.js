@@ -68,7 +68,7 @@ function GetSettings() {
 
 					if (type == "input") {
 						if (typeattr == "checkbox") {
-							if (value == "true" || value > 0)
+							if (value === true || value == "true" || value > 0)
 								$ctl.attr("checked", "checked");
 							else
 								$ctl.removeAttr("checked");
@@ -95,10 +95,10 @@ function SaveSettings(type) {
 
 	/* Because serializeArray() ignores unset checkboxes and radio buttons: */
 	args = args.concat($("#div_" + type + "_detail :input[type=checkbox]:not(:checked)").map(function() {
-		// NOT checked is 'off'
+		// NOT checked is false
 		return {
 			"name" : this.name,
-			"value" : "off"
+			"value" : false
 		};
 	}).get());
 

@@ -34,6 +34,7 @@ lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 
 
+from catosettings import settings
 from catocommon import catocommon
 from catodb import catodb
 from catoruntimes import runtimes
@@ -1662,12 +1663,11 @@ class TaskEngine():
 
     def notify_error(self, msg):
 
-        sql = "select admin_email from messenger_settings where id = 1"
-        row = self.db.select_row(sql)
-        if row and len(row[0]):
+        mset = settings.settings.messenger()
+        if mset.AdminEmail:
             s = "Task Error on %s: Task = %s, Task Instance = %s" % (os.uname()[1], self.task_name, self.task_instance)
             b = "<html>Task Error on %s<br><br>Task = %s<br>Task Instance = %s<br><br>Error:%s</html>" % (os.uname()[1], self.task_name, self.task_instance, msg)
-            self.send_email(to=row[0], sub=s, body=b)
+            self.send_email(to=mset.AdminEmail, sub=s, body=b)
 
     def get_task_params(self):
 

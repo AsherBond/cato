@@ -86,6 +86,7 @@ CREATE TABLE `application_settings` (
   `id` int(11) NOT NULL,
   `setting_xml` text NOT NULL,
   `license` text,
+  `settings_json` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `asset` (
@@ -104,13 +105,13 @@ CREATE TABLE `asset` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `asset_credential` (
   `credential_id` varchar(36) NOT NULL,
-  `username` varchar(128) NOT NULL,
-  `password` varchar(2048) NOT NULL,
-  `domain` varchar(128) DEFAULT NULL,
+  `credential_name` varchar(64) NOT NULL,
   `shared_or_local` int(11) NOT NULL,
   `shared_cred_desc` varchar(256) DEFAULT NULL,
+  `username` varchar(128) DEFAULT NULL,
+  `password` varchar(2048) DEFAULT NULL,
+  `domain` varchar(128) DEFAULT NULL,
   `privileged_password` varchar(512) DEFAULT NULL,
-  `credential_name` varchar(64) NOT NULL,
   `private_key` varchar(4096) DEFAULT NULL,
   PRIMARY KEY (`credential_id`),
   UNIQUE KEY `credential_name_UNIQUE` (`credential_name`)
@@ -434,33 +435,6 @@ CREATE TABLE `ldap_domain` (
   `address` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`ldap_domain`(64))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `login_security_settings` (
-  `id` int(11) NOT NULL,
-  `pass_max_age` int(11) NOT NULL,
-  `pass_max_attempts` int(11) NOT NULL,
-  `pass_max_length` int(11) NOT NULL,
-  `pass_min_length` int(11) NOT NULL,
-  `pass_complexity` int(11) NOT NULL,
-  `pass_age_warn_days` int(11) NOT NULL,
-  `pass_require_initial_change` int(11) NOT NULL,
-  `auto_lock_reset` int(11) NOT NULL,
-  `login_message` varchar(255) NOT NULL DEFAULT '',
-  `auth_error_message` varchar(255) NOT NULL DEFAULT '',
-  `pass_history` int(11) NOT NULL,
-  `page_view_logging` int(11) NOT NULL,
-  `report_view_logging` int(11) NOT NULL,
-  `allow_login` int(11) NOT NULL,
-  `new_user_email_message` varchar(1024) DEFAULT NULL,
-  `log_days` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `marshaller_settings` (
-  `id` int(11) NOT NULL,
-  `mode_off_on` varchar(3) NOT NULL,
-  `loop_delay_sec` int(11) NOT NULL,
-  `debug` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `message` (
   `msg_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `date_time_entered` datetime DEFAULT NULL,
@@ -495,23 +469,6 @@ CREATE TABLE `message_file_lookup` (
   `file_description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`file_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `messenger_settings` (
-  `id` int(11) NOT NULL,
-  `mode_off_on` varchar(3) NOT NULL,
-  `loop_delay_sec` int(11) NOT NULL,
-  `retry_delay_min` int(11) NOT NULL,
-  `retry_max_attempts` int(11) NOT NULL,
-  `smtp_server_addr` varchar(255) DEFAULT '',
-  `smtp_server_user` varchar(255) DEFAULT '',
-  `smtp_server_password` varchar(255) DEFAULT NULL,
-  `smtp_server_port` int(11) DEFAULT NULL,
-  `smtp_timeout` int(11) DEFAULT NULL,
-  `smtp_ssl` int(11) DEFAULT NULL,
-  `from_email` varchar(255) DEFAULT '',
-  `from_name` varchar(255) DEFAULT '',
-  `admin_email` varchar(255) DEFAULT '',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `metric_db_waits` (
   `instance_id` varchar(36) NOT NULL,
   `metric_dt` datetime NOT NULL,
@@ -527,23 +484,6 @@ CREATE TABLE `object_tags` (
   `object_type` int(11) NOT NULL,
   `tag_name` varchar(32) NOT NULL,
   PRIMARY KEY (`object_id`,`tag_name`,`object_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `poller_settings` (
-  `id` int(11) NOT NULL,
-  `mode_off_on` varchar(3) NOT NULL,
-  `loop_delay_sec` int(11) NOT NULL,
-  `max_processes` int(11) NOT NULL,
-  `app_instance` varchar(1024) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `scheduler_settings` (
-  `id` int(11) NOT NULL,
-  `mode_off_on` varchar(3) NOT NULL,
-  `loop_delay_sec` int(11) NOT NULL,
-  `schedule_min_depth` int(11) NOT NULL,
-  `schedule_max_days` int(11) NOT NULL,
-  `clean_app_registry` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `tags` (
   `tag_name` varchar(32) NOT NULL,

@@ -151,7 +151,12 @@ versions = [
                     ]
              ],
             ["1.21", [
-                      ["addcolumn", "application_settings", "settings_json", "text NULL"]
+                      ["addcolumn", "application_settings", "settings_json", "text NULL"],
+                      ["droptable", "poller_settings", "Consolidated"],
+                      ["droptable", "scheduler_settings", "Consolidated"],
+                      ["droptable", "marshaller_settings", "Consolidated"],
+                      ["droptable", "login_security_settings", "Consolidated"],
+                      ["droptable", "messenger_settings", "Consolidated"]
                       ]
              ]
         ]

@@ -23,7 +23,7 @@ class settings(object):
     def AsXML(self):
         return catocommon.ObjectOutput.AsXML(self.__dict__, "Settings")
 
-    def AsText(self, delimiter):
+    def AsText(self, delimiter, headers=False):
         out = []
         for mod, sets in self.__dict__.iteritems():
             out.append("%s\n" % (mod.capitalize()))
@@ -56,70 +56,31 @@ class settings(object):
         AllowLogin = True  # Is the system "up" and allowing users to log in?
         
         def __init__(self):
-            sql = """select pass_max_age, pass_max_attempts, pass_max_length, pass_min_length, pass_age_warn_days,
-                    auto_lock_reset, login_message, auth_error_message, pass_complexity, pass_require_initial_change, pass_history,
-                    page_view_logging, report_view_logging, allow_login, new_user_email_message
-                    from login_security_settings
-                    where id = 1"""
-            
-            db = catocommon.new_conn()
-            row = db.select_row_dict(sql)
-            db.close()
-            if row:
-                self.PassMaxAge = row["pass_max_age"]
-                self.PassMaxAttempts = row["pass_max_attempts"]
-                self.PassMaxLength = row["pass_max_length"]
-                self.PassMinLength = row["pass_min_length"]
-                self.PassComplexity = catocommon.is_true(row["pass_complexity"])
-                self.PassAgeWarn = row["pass_age_warn_days"]
-                self.PasswordHistory = row["pass_history"]
-                self.PassRequireInitialChange = catocommon.is_true(row["pass_require_initial_change"])
-                self.AutoLockReset = row["auto_lock_reset"]
-                self.LoginMessage = row["login_message"]
-                self.AuthErrorMessage = row["auth_error_message"]
-                self.NewUserMessage = row["new_user_email_message"]
-                self.PageViewLogging = catocommon.is_true(row["page_view_logging"])
-                self.ReportViewLogging = catocommon.is_true(row["report_view_logging"])
-                self.AllowLogin = catocommon.is_true(row["allow_login"])
+            s = settings.get_application_section("security")
+            self.PassMaxAge = s.get("PassMaxAge", self.PassMaxAge)
+            self.PassMaxAttempts = s.get("PassMaxAttempts", self.PassMaxAttempts)
+            self.PassMaxLength = s.get("PassMaxLength", self.PassMaxLength)
+            self.PassMinLength = s.get("PassMinLength", self.PassMinLength)
+            self.PassComplexity = s.get("PassComplexity", self.PassComplexity)
+            self.PassAgeWarn = s.get("PassAgeWarn", self.PassAgeWarn)
+            self.PasswordHistory = s.get("PasswordHistory", self.PasswordHistory)
+            self.PassRequireInitialChange = s.get("PassRequireInitialChange", self.PassRequireInitialChange)
+            self.AutoLockReset = s.get("AutoLockReset", self.AutoLockReset)
+            self.LoginMessage = s.get("LoginMessage", self.LoginMessage)
+            self.AuthErrorMessage = s.get("AuthErrorMessage", self.AuthErrorMessage)
+            self.NewUserMessage = s.get("NewUserMessage", self.NewUserMessage)
+            self.PageViewLogging = s.get("PageViewLogging", self.PageViewLogging)
+            self.ReportViewLogging = s.get("ReportViewLogging", self.ReportViewLogging)
+            self.AllowLogin = s.get("AllowLogin", self.AllowLogin)
             
         def DBSave(self):
-            db = catocommon.new_conn()
-            sql = """update login_security_settings set
-                pass_max_age=%s,
-                pass_max_attempts=%s,
-                pass_max_length=%s,
-                pass_min_length=%s,
-                pass_complexity=%s,
-                pass_age_warn_days=%s,
-                pass_history=%s,
-                pass_require_initial_change=%s,
-                auto_lock_reset=%s,
-                login_message=%s,
-                auth_error_message=%s,
-                new_user_email_message=%s,
-                page_view_logging=%s,
-                report_view_logging=%s,
-                allow_login=%s
-                where id = 1"""
-
-            params = (self.PassMaxAge,
-                      self.PassMaxAttempts,
-                      self.PassMaxLength,
-                      self.PassMinLength,
-                      ("1" if catocommon.is_true(self.PassComplexity) else "0"),
-                      self.PassAgeWarn,
-                      self.PasswordHistory,
-                      ("1" if catocommon.is_true(self.PassRequireInitialChange) else "0"),
-                      ("1" if catocommon.is_true(self.AutoLockReset) else "0"),
-                      self.LoginMessage.replace("'", "''"),
-                      self.AuthErrorMessage.replace("'", "''").replace(";", ""),
-                      self.NewUserMessage.replace("'", "''").replace(";", ""),
-                      ("1" if catocommon.is_true(self.PageViewLogging) else "0"),
-                      ("1" if catocommon.is_true(self.ReportViewLogging) else "0"),
-                      ("1" if self.AllowLogin else "0"))
-
-            db.exec_db(sql, params)
-            db.close()
+            self.PassComplexity = catocommon.is_true(self.PassComplexity)
+            self.PassRequireInitialChange = catocommon.is_true(self.PassRequireInitialChange)
+            self.AutoLockReset = catocommon.is_true(self.AutoLockReset)
+            self.PageViewLogging = catocommon.is_true(self.PageViewLogging)
+            self.ReportViewLogging = catocommon.is_true(self.ReportViewLogging)
+            self.AllowLogin = catocommon.is_true(self.AllowLogin)
+            settings.set_application_section("security", json.dumps(self.__dict__))
             return True
 
         def AsJSON(self):
@@ -128,7 +89,7 @@ class settings(object):
         def AsXML(self):
             return catocommon.ObjectOutput.AsXML(self.__dict__, "Security")
     
-        def AsText(self, delimiter):
+        def AsText(self, delimiter, headers=False):
             out = []
             for k, v in self.__dict__.iteritems():
                 out.append("    %s : %s\n" % (k, v))
@@ -143,29 +104,14 @@ class settings(object):
         MaxProcesses = 32  # maximum number of task engines at one time
         
         def __init__(self):
-            sql = """select mode_off_on, loop_delay_sec, max_processes
-                from poller_settings
-                where id = 1"""
-            
-            db = catocommon.new_conn()
-            row = db.select_row_dict(sql)
-            db.close()
-            if row:
-                self.Enabled = catocommon.is_true(row["mode_off_on"])
-                self.LoopDelay = row["loop_delay_sec"]
-                self.MaxProcesses = row["max_processes"]
+            s = settings.get_application_section("poller")
+            self.Enabled = s.get("Enabled", self.Enabled)
+            self.LoopDelay = s.get("LoopDelay", self.LoopDelay)
+            self.MaxProcesses = s.get("MaxProcesses", self.MaxProcesses)
             
         def DBSave(self):
-            sql = """update poller_settings set
-                mode_off_on=%s,
-                loop_delay_sec=%s,
-                max_processes=%s"""
-
-            params = (("1" if catocommon.is_true(self.Enabled) else "0"), str(self.LoopDelay), str(self.MaxProcesses))
-            
-            db = catocommon.new_conn()
-            db.exec_db(sql, params)
-            db.close()
+            self.Enabled = catocommon.is_true(self.Enabled)
+            settings.set_application_section("poller", json.dumps(self.__dict__))
             return True
 
         def AsJSON(self):
@@ -174,7 +120,7 @@ class settings(object):
         def AsXML(self):
             return catocommon.ObjectOutput.AsXML(self.__dict__, "Poller")
     
-        def AsText(self, delimiter):
+        def AsText(self, delimiter, headers=False):
             out = []
             for k, v in self.__dict__.iteritems():
                 out.append("    %s : %s\n" % (k, v))
@@ -195,16 +141,16 @@ class settings(object):
             self.PortalCanvas = s.get("PortalCanvas", "")
             
         def DBSave(self):
-            result, msg = settings.set_application_section("maestro", json.dumps(self.__dict__))
+            settings.set_application_section("maestro", json.dumps(self.__dict__))
             return True
 
         def AsJSON(self):
             return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
         def AsXML(self):
-            return catocommon.ObjectOutput.AsXML(self.__dict__, "Marshaller")
+            return catocommon.ObjectOutput.AsXML(self.__dict__, "Maestro")
     
-        def AsText(self, delimiter):
+        def AsText(self, delimiter, headers=False):
             out = []
             for k, v in self.__dict__.iteritems():
                 out.append("    %s : %s\n" % (k, v))
@@ -219,27 +165,14 @@ class settings(object):
         Debug = 20  # the debug level
         
         def __init__(self):
-            sql = """select mode_off_on, loop_delay_sec, debug 
-                from marshaller_settings where id = 1"""
-            
-            db = catocommon.new_conn()
-            row = db.select_row_dict(sql)
-            db.close()
-            if row:
-                self.Enabled = catocommon.is_true(row["mode_off_on"])
-                self.LoopDelay = row["loop_delay_sec"]
-                self.Debug = row["debug"]
+            s = settings.get_application_section("marshaller")
+            self.Enabled = s.get("Enabled", self.Enabled)
+            self.LoopDelay = s.get("LoopDelay", self.LoopDelay)
+            self.Debug = s.get("Debug", self.Debug)
             
         def DBSave(self):
-            mode = ("1" if catocommon.is_true(self.Enabled) else "0")
-            sql = """update marshaller_settings set 
-                mode_off_on = %s,
-                loop_delay_sec = %s,
-                debug = %s"""
-
-            db = catocommon.new_conn()
-            db.exec_db(sql, (mode, self.LoopDelay, self.Debug))
-            db.close()
+            self.Enabled = catocommon.is_true(self.Enabled)
+            settings.set_application_section("marshaller", json.dumps(self.__dict__))
             return True
 
         def AsJSON(self):
@@ -248,7 +181,7 @@ class settings(object):
         def AsXML(self):
             return catocommon.ObjectOutput.AsXML(self.__dict__, "Marshaller")
     
-        def AsText(self, delimiter):
+        def AsText(self, delimiter, headers=False):
             out = []
             for k, v in self.__dict__.iteritems():
                 out.append("    %s : %s\n" % (k, v))
@@ -273,69 +206,35 @@ class settings(object):
         AdminEmail = ""
         
         def __init__(self):
-            sql = """select mode_off_on, loop_delay_sec, retry_delay_min, retry_max_attempts,
-                smtp_server_addr, smtp_server_user, smtp_server_password, smtp_server_port, smtp_timeout, smtp_ssl, 
-                from_email, from_name, admin_email
-                from messenger_settings
-                where id = 1"""
-            
-            db = catocommon.new_conn()
-            row = db.select_row_dict(sql)
-            db.close()
-            if row:
-                self.Enabled = catocommon.is_true(row["mode_off_on"])
-                self.PollLoop = row["loop_delay_sec"]
-                self.RetryDelay = row["retry_delay_min"]
-                self.RetryMaxAttempts = row["retry_max_attempts"]
-                self.SMTPServerAddress = row["smtp_server_addr"]
-                self.SMTPUserAccount = row["smtp_server_user"]
-                self.SMTPUserPassword = catocommon.cato_decrypt(row["smtp_server_password"])
-                self.SMTPServerPort = row["smtp_server_port"]
-                self.SMTPConnectionTimeout = row["smtp_timeout"]
-                self.SMTPLegacySSL = row["smtp_ssl"]
-                self.FromEmail = row["from_email"]
-                self.FromName = row["from_name"]
-                self.AdminEmail = row["admin_email"]
+            s = settings.get_application_section("messenger")
+            self.Enabled = s.get("Enabled", self.Enabled)
+            self.PollLoop = s.get("PollLoop", self.PollLoop)
+            self.RetryDelay = s.get("RetryDelay", self.RetryDelay)
+            self.RetryMaxAttempts = s.get("RetryMaxAttempts", self.RetryMaxAttempts)
+            self.SMTPServerAddress = s.get("SMTPServerAddress", self.SMTPServerAddress)
+            self.SMTPUserAccount = s.get("SMTPUserAccount", self.SMTPUserAccount)
+            self.SMTPServerPort = s.get("SMTPServerPort", self.SMTPServerPort)
+            self.SMTPConnectionTimeout = s.get("SMTPConnectionTimeout", self.SMTPConnectionTimeout)
+            self.SMTPLegacySSL = s.get("SMTPLegacySSL", self.SMTPLegacySSL)
+            self.FromEmail = s.get("FromEmail", self.FromEmail)
+            self.FromName = s.get("FromName", self.FromName)
+            self.AdminEmail = s.get("AdminEmail", self.AdminEmail)
+
+            if s.get("SMTPUserPassword"):
+                self.SMTPUserPassword = catocommon.cato_decrypt(s["SMTPUserPassword"])
             
         def DBSave(self):
             """ 
             The messenger has some special considerations when updating!
             """
-            sql = """update messenger_settings set 
-                mode_off_on=%s,
-                loop_delay_sec=%s,
-                retry_delay_min=%s,
-                retry_max_attempts=%s,
-                smtp_server_addr=%s,
-                smtp_server_user=%s,
-                smtp_server_port=%s,
-                smtp_timeout=%s,
-                smtp_ssl=%s,
-                from_email=%s,
-                from_name=%s,
-                admin_email=%s"""
-            
+            self.Enabled = catocommon.is_true(self.Enabled)
+            self.SMTPLegacySSL = catocommon.is_true(self.SMTPLegacySSL)
+
             # only update password if it has been changed.  This "filler" is set in the gui to show stars so ignore it.
-            sPasswordFiller = "~!@@!~"
-            if self.SMTPUserPassword and self.SMTPUserPassword != sPasswordFiller:
-                sql += ",smtp_server_password='%s'" % catocommon.cato_encrypt(self.SMTPUserPassword)
+            if self.SMTPUserPassword and self.SMTPUserPassword != "~!@@!~":
+                self.SMTPUserPassword = catocommon.cato_encrypt(self.SMTPUserPassword)
 
-            params = (("1" if catocommon.is_true(self.Enabled) else "0"),
-                    str(self.PollLoop),
-                    str(self.RetryDelay),
-                    str(self.RetryMaxAttempts),
-                    self.SMTPServerAddress,
-                    self.SMTPUserAccount,
-                    str(self.SMTPServerPort),
-                    str(self.SMTPConnectionTimeout),
-                    ("1" if catocommon.is_true(self.SMTPLegacySSL) else "0"),
-                    self.FromEmail,
-                    self.FromName,
-                    self.AdminEmail)
-
-            db = catocommon.new_conn()
-            db.exec_db(sql, params)
-            db.close()
+            settings.set_application_section("messenger", json.dumps(self.__dict__))
             return True
 
         def AsJSON(self):
@@ -344,7 +243,7 @@ class settings(object):
         def AsXML(self):
             return catocommon.ObjectOutput.AsXML(self.__dict__, "Messenger")
     
-        def AsText(self, delimiter):
+        def AsText(self, delimiter, headers=False):
             out = []
             for k, v in self.__dict__.iteritems():
                 out.append("    %s : %s\n" % (k, v))
@@ -361,37 +260,16 @@ class settings(object):
         CleanAppRegistry = 5  # time in minutes when items in application_registry are assumed defunct and removed
         
         def __init__(self):
-            sql = """select mode_off_on, loop_delay_sec, schedule_min_depth, schedule_max_days, clean_app_registry
-                from scheduler_settings
-                where id = 1"""
-            
-            db = catocommon.new_conn()
-            row = db.select_row_dict(sql)
-            db.close()
-            if row:
-                self.Enabled = catocommon.is_true(row["mode_off_on"])
-                self.LoopDelay = row["loop_delay_sec"]
-                self.ScheduleMinDepth = row["schedule_min_depth"]
-                self.ScheduleMaxDays = row["schedule_max_days"]
-                self.CleanAppRegistry = row["clean_app_registry"]
+            s = settings.get_application_section("scheduler")
+            self.Enabled = s.get("Enabled", self.Enabled)
+            self.LoopDelay = s.get("LoopDelay", self.LoopDelay)
+            self.ScheduleMinDepth = s.get("ScheduleMinDepth", self.ScheduleMinDepth)
+            self.ScheduleMaxDays = s.get("ScheduleMaxDays", self.ScheduleMaxDays)
+            self.CleanAppRegistry = s.get("CleanAppRegistry", self.CleanAppRegistry)
             
         def DBSave(self):
-            sql = """update scheduler_settings set
-                mode_off_on=%s,
-                loop_delay_sec=%s,
-                schedule_min_depth=%s,
-                schedule_max_days=%s,
-                clean_app_registry=%s"""
-
-            params = (("1" if catocommon.is_true(self.Enabled) else "0"),
-                      str(self.LoopDelay),
-                      str(self.ScheduleMinDepth),
-                      str(self.ScheduleMaxDays),
-                      str(self.CleanAppRegistry))
-
-            db = catocommon.new_conn()
-            db.exec_db(sql, params)
-            db.close()
+            self.Enabled = catocommon.is_true(self.Enabled)
+            settings.set_application_section("scheduler", json.dumps(self.__dict__))
             return True
 
         def AsJSON(self):
@@ -400,7 +278,7 @@ class settings(object):
         def AsXML(self):
             return catocommon.ObjectOutput.AsXML(self.__dict__, "Scheduler")
     
-        def AsText(self, delimiter):
+        def AsText(self, delimiter, headers=False):
             out = []
             for k, v in self.__dict__.iteritems():
                 out.append("    %s : %s\n" % (k, v))
@@ -426,15 +304,11 @@ class settings(object):
         db.close()
         if sjson:
             doc = json.loads(sjson)
-            return doc.get(section)
+            return doc.get(section, {})
         return {}
         
     @staticmethod
     def set_application_section(section, value):
-        if not section:
-            logger.warning("Info: attempt to set application section - missing section [%s]." % (section))
-            return False, "Section is required."
-        
         doc = {}
         
         sql = "select settings_json from application_settings where id = 1"
@@ -450,8 +324,6 @@ class settings(object):
         db = catocommon.new_conn()
         if not db.exec_db_noexcep(sql, catocommon.ObjectOutput.AsJSON(doc)):
             raise Exception("Info: attempt to set application section [%s] failed." % (section))
-        
-        return True, ""
 
     @staticmethod
     def get_application_setting(section, setting):
