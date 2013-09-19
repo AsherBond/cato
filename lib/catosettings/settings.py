@@ -234,6 +234,9 @@ class settings(object):
             if self.SMTPUserPassword and self.SMTPUserPassword != "~!@@!~":
                 self.SMTPUserPassword = catocommon.cato_encrypt(self.SMTPUserPassword)
 
+            # don't put these in the settings, they're utility
+            del self.SMTPPasswordConfirm
+
             settings.set_application_section("messenger", json.dumps(self.__dict__))
             return True
 

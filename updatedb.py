@@ -152,17 +152,22 @@ versions = [
              ],
             ["1.21", [
                       ["addcolumn", "application_settings", "settings_json", "text NULL"],
-                      ["droptable", "poller_settings", "Consolidated"],
-                      ["droptable", "scheduler_settings", "Consolidated"],
-                      ["droptable", "marshaller_settings", "Consolidated"],
-                      ["droptable", "login_security_settings", "Consolidated"],
-                      ["droptable", "messenger_settings", "Consolidated"]
+                      ["function", "_v121_updates"]
+                      ]
+             ],
+            ["1.22", [
+                      ["comment", "droptable", "poller_settings", "Consolidated"],
+                      ["comment", "droptable", "scheduler_settings", "Consolidated"],
+                      ["comment", "droptable", "marshaller_settings", "Consolidated"],
+                      ["comment", "droptable", "login_security_settings", "Consolidated"],
+                      ["comment", "droptable", "messenger_settings", "Consolidated"]
                       ]
              ]
         ]
 
 import os
 import sys
+import json
 
 base_path = os.path.dirname(os.path.abspath(sys.argv[0]))
 lib_path = os.path.join(base_path, "lib")
@@ -170,6 +175,7 @@ sys.path.insert(0, lib_path)
 
 from catoconfig import catoconfig
 from catodb import catodb
+from catocommon import catocommon
 
 def main(argv):
     # now, lets go through each defined version, and apply the changes...
@@ -262,6 +268,92 @@ def main(argv):
         print "    .... done."
 
 
+def _v121_updates():
+    # the changes to the settings tables in 1.21 ... we need to convert the data
+    # from the settings tables into the new json document format
+    print "    v1.21 - refactoring settings..."
+    
+    settings = {}
+
+    # poller
+    sql = "select * from poller_settings where id = 1"
+    row = db.select_row_dict(sql)
+    
+    settings["poller"] = {
+            "Enabled" : catocommon.is_true(row["mode_off_on"]),
+            "LoopDelay" : row["loop_delay_sec"],
+            "MaxProcesses" : row["max_processes"]
+        }
+
+    # marshaller
+    sql = "select * from marshaller_settings where id = 1"
+    row = db.select_row_dict(sql)
+    
+    settings["marshaller"] = {
+            "Enabled" : catocommon.is_true(row["mode_off_on"]),
+            "LoopDelay" : row["loop_delay_sec"]
+        }
+
+    # messenger
+    sql = "select * from messenger_settings where id = 1"
+    row = db.select_row_dict(sql)
+    
+    settings["messenger"] = {
+            "Enabled" : catocommon.is_true(row["mode_off_on"]),
+            "PollLoop" : row["loop_delay_sec"],
+            "RetryDelay" : row["retry_delay_min"],
+            "RetryMaxAttempts" : row["retry_max_attempts"],
+            "SMTPServerAddress" : row["smtp_server_addr"],
+            "SMTPUserAccount" : row["smtp_server_user"],
+            "SMTPUserPassword" : row["smtp_server_password"],
+            "SMTPServerPort" : row["smtp_server_port"],
+            "SMTPConnectionTimeout" : row["smtp_timeout"],
+            "SMTPLegacySSL" : catocommon.is_true(row["smtp_ssl"]),
+            "FromEmail" : row["from_email"],
+            "FromName" : row["from_name"],
+            "AdminEmail" : row["admin_email"]
+        }
+
+    # scheduler
+    sql = "select * from scheduler_settings where id = 1"
+    row = db.select_row_dict(sql)
+    
+    settings["scheduler"] = {
+            "Enabled" : catocommon.is_true(row["mode_off_on"]),
+            "LoopDelay" : row["loop_delay_sec"],
+            "ScheduleMinDepth" : row["schedule_min_depth"],
+            "ScheduleMaxDays" : row["schedule_max_days"],
+            "CleanAppRegistry" : row["clean_app_registry"]
+        }
+
+    # security
+    sql = "select * from login_security_settings where id = 1"
+    row = db.select_row_dict(sql)
+    
+    settings["security"] = {
+            "PassMaxAge" : row["pass_max_age"],
+            "PassMaxAttempts" : row["pass_max_attempts"],
+            "PassMaxLength" : row["pass_max_length"],
+            "PassMinLength" : row["pass_min_length"],
+            "PassComplexity" : catocommon.is_true(row["pass_complexity"]),
+            "PassAgeWarn" : row["pass_age_warn_days"],
+            "PasswordHistory" : row["pass_history"],
+            "PassRequireInitialChange" : catocommon.is_true(row["pass_require_initial_change"]),
+            "AutoLockReset" : catocommon.is_true(row["auto_lock_reset"]),
+            "LoginMessage" : row["login_message"],
+            "AuthErrorMessage" : row["auth_error_message"],
+            "NewUserMessage" : row["new_user_email_message"],
+            "PageViewLogging" : catocommon.is_true(row["page_view_logging"]),
+            "ReportViewLogging" : catocommon.is_true(row["report_view_logging"]),
+            "AllowLogin" : catocommon.is_true(row["allow_login"])
+        }
+
+    sql = "update application_settings set settings_json = %s"
+    db.exec_db(sql, (json.dumps(settings, indent=4)))
+
+
+    
+    
 if __name__ == "__main__":
     args = None
     if sys.version_info < (2, 7):
