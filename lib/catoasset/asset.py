@@ -94,9 +94,9 @@ class Asset(object):
             """
         
         if asset_id:
-            sSQL += " where a.asset_id = '%s'""" % asset_id
+            sSQL += " where a.asset_id = '%s'""" % (asset_id)
         elif asset_name:
-            sSQL += " where a.asset_name = '%s'""" % asset_name
+            sSQL += " where a.asset_name = '%s' or asset_id = '%s'""" % (asset_name, asset_name)
 
         dr = db.select_row_dict(sSQL)
         db.close()        

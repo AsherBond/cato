@@ -390,10 +390,10 @@ def tick_slash(s):
 
 
 def lookup_shared_cred(alias):
-
-    sql = "select username, password, private_key from asset_credential where credential_name = %s"
+    """ Get a Credential (including passwords!) by ID or Name. """
+    sql = "select username, password, private_key from asset_credential where credential_id = %s or credential_name = %s"
     db = new_conn()
-    row = db.select_row(sql, (alias))
+    row = db.select_row(sql, (alias, alias))
     db.close()    
     if row:
         user = row[0]
