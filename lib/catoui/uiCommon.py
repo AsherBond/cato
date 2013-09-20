@@ -90,14 +90,14 @@ def CatoDecrypt(s):
 
 def getAjaxArgs():
     """Just returns the whole posted json as a json dictionary"""
-    data = web.data()
-    if data:
-        return json.loads(data)
-    else:
         # maybe it was a GET?  check web.input()
-        data = dict(web.input())
+    data = dict(web.input())
+    if data:
+        return dict(data)
+    else:
+        data = web.data()
         if data:
-            return dict(data)
+            return json.loads(data)
         else:
             return {}
     
