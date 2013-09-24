@@ -1004,7 +1004,7 @@ class TaskEngine():
     def gather_system_info(self, asset_id):
 
         sql = """select a.asset_name, a.address, a.port, a.db_name , a.connection_type, 
-            ac.username, ac.password, ac.domain, ac.privileged_password, a.conn_string, ac.private_key,
+            ac.username, ac.password, ac.domain, ac.privileged_password, a.conn_string, ac.private_key
             from asset a left outer join asset_credential ac on a.credential_id = ac.credential_id
             where asset_id = %s"""
         row = self.db.select_row(sql, (asset_id))
