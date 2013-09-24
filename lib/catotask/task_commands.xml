@@ -149,6 +149,7 @@
 					<conn_name input_type="text" label="Connection" connection_picker="true" />
 					<command input_type="textarea" rows="3" label="Command" class="w95pct" style="display: block;" />
 					<timeout input_type="text" option_tab="Options" label="Timeout" break_after="true" />
+					<return_code input_type="text" option_tab="Options" label="Return Code" break_after="true" />
 				</function>
 			</command>
 			<command name="send_email" label="Send Email" description="Sends an email to the specified list of recipients." help="Send Email is used to send email messages. Enter the email addresses in the To: field, comma seperated. The Subject field takes the subject and the Message field accepts the body of the message. Html formatting is allowed in the message field only." icon="static/images/icons/mail_send_32.png">

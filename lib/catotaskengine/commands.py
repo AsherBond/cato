@@ -1547,9 +1547,10 @@ def break_loop_cmd(self, task, step):
 
 def winrm_cmd_cmd(self, task, step):
     
-    conn_name, cmd, timeout = self.get_command_params(step.command, "conn_name", "command", "timeout")[:]
+    conn_name, cmd, timeout, return_code = self.get_command_params(step.command, "conn_name", "command", "timeout", "return_code")[:]
     conn_name = self.replace_variables(conn_name)
     cmd = self.replace_variables(cmd)
+    return_code = self.replace_variables(return_code)
     timeout = self.replace_variables(timeout)
 
     try:
@@ -1565,31 +1566,24 @@ def winrm_cmd_cmd(self, task, step):
 
     self.logger.info("WinRM - executing:\n%s" % cmd)
     command_id = c.handle.run_command(c.shell_id, cmd)
-    buff, err, return_code = c.handle.get_command_output(c.shell_id, command_id)
+    buff, err, r_code = c.handle.get_command_output(c.shell_id, command_id)
 
+    # add stderr to the end of stdout
+    buff += err
+
+    # replace CRLF with LF for easier processing
     buff = re.sub("\r\n", "\n", buff).rstrip("\n")
-    self.logger.info("WinRM return code %s" % return_code)
+    self.logger.info("WinRM return code >%s<" % r_code)
     self.logger.info("Buffer returned is >%s<" % buff)
-    self.logger.info("Error result is %s" % err)
+    self.logger.info("Error result is >%s<" % err)
 
     if c.debug:
         self.logger.info(':'.join(x.encode('hex') for x in buff))
     
-    # if return_code > 0:
-    #    # return code of > 0 seems to be a winrm error. bad
-    #    self.logger.info(buff)
-    #    raise Exception(err)
-    # elif return_code == -1:
-    if return_code != 0:
-        # return code of -1 seems to be an error from the command line
-        # we will pass this on to the task to figure out what to do with
-        if len(err):
-            buff = "%s\n%s" % (buff, err)
-        # else:
-        #    buff = err
     c.handle.cleanup_command(c.shell_id, command_id)
-
     
+    if len(return_code):
+        self.rt.set(return_code, r_code)
     msg = "%s\n%s" % (cmd, buff)
     self.insert_audit(step.function_name, msg)
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
