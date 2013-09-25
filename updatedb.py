@@ -133,7 +133,7 @@ versions = [
                           `project` varchar(32) NOT NULL,
                           `component` varchar(45) NOT NULL,
                           `name` varchar(45) NOT NULL,
-                          `data` text,
+                          `data` mediumblob,
                           PRIMARY KEY (`id`),
                           UNIQUE KEY `proj_comp_name` (`project`,`component`,`name`)
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8"""],
@@ -152,7 +152,10 @@ versions = [
              ],
             ["1.21", [
                       ["addcolumn", "application_settings", "settings_json", "text NULL"],
-                      ["function", "_v121_updates"]
+                      ["function", "_v121_updates"],
+                      ["changecolumn", "asset_credential", "username", "`username` VARCHAR(128) NULL DEFAULT NULL"],
+                      ["changecolumn", "asset_credential", "password", "`password` VARCHAR(2048) NULL DEFAULT NULL"],                      
+                      ["changecolumn", "dash_resource", "data", "`data` mediumblob"]                    
                       ]
              ],
             ["1.22", [
