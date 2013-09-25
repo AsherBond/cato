@@ -405,8 +405,6 @@ def main():
 
     app = ExceptionHandlingApplication(urls, globals(), autoreload=True)
 
-    uiGlobals.web = web
-    
     # setting this to True seems to show a lot more detail in UI exceptions
     web.config.debug = False
 
