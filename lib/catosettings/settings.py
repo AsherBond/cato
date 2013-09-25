@@ -80,6 +80,14 @@ class settings(object):
             self.PageViewLogging = catocommon.is_true(self.PageViewLogging)
             self.ReportViewLogging = catocommon.is_true(self.ReportViewLogging)
             self.AllowLogin = catocommon.is_true(self.AllowLogin)
+
+            self.PassMaxAge = int(self.PassMaxAge)
+            self.PassMaxAttempts = int(self.PassMaxAttempts)
+            self.PassMaxLength = int(self.PassMaxLength)
+            self.PassMinLength = int(self.PassMinLength)
+            self.PassAgeWarn = int(self.PassAgeWarn)
+            self.PasswordHistory = int(self.PasswordHistory)
+            
             settings.set_application_section("security", json.dumps(self.__dict__))
             return True
 
@@ -111,6 +119,8 @@ class settings(object):
             
         def DBSave(self):
             self.Enabled = catocommon.is_true(self.Enabled)
+            self.LoopDelay = int(self.LoopDelay)
+            self.MaxProcesses = int(self.MaxProcesses)
             settings.set_application_section("poller", json.dumps(self.__dict__))
             return True
 
@@ -172,6 +182,8 @@ class settings(object):
             
         def DBSave(self):
             self.Enabled = catocommon.is_true(self.Enabled)
+            self.LoopDelay = int(self.LoopDelay)
+            self.Debug = int(self.Debug)
             settings.set_application_section("marshaller", json.dumps(self.__dict__))
             return True
 
@@ -230,6 +242,12 @@ class settings(object):
             self.Enabled = catocommon.is_true(self.Enabled)
             self.SMTPLegacySSL = catocommon.is_true(self.SMTPLegacySSL)
 
+            self.PollLoop = int(self.PollLoop)
+            self.RetryDelay = int(self.RetryDelay)
+            self.RetryMaxAttempts = int(self.RetryMaxAttempts)
+            self.SMTPServerPort = int(self.SMTPServerPort)
+            self.SMTPConnectionTimeout = int(self.SMTPConnectionTimeout)
+
             # only update password if it has been changed.  This "filler" is set in the gui to show stars so ignore it.
             if self.SMTPUserPassword and self.SMTPUserPassword != "~!@@!~":
                 self.SMTPUserPassword = catocommon.cato_encrypt(self.SMTPUserPassword)
@@ -272,6 +290,12 @@ class settings(object):
             
         def DBSave(self):
             self.Enabled = catocommon.is_true(self.Enabled)
+
+            self.LoopDelay = int(self.LoopDelay)
+            self.ScheduleMinDepth = int(self.ScheduleMinDepth)
+            self.ScheduleMaxDays = int(self.ScheduleMaxDays)
+            self.CleanAppRegistry = int(self.CleanAppRegistry)
+
             settings.set_application_section("scheduler", json.dumps(self.__dict__))
             return True
 
