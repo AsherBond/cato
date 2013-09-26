@@ -402,7 +402,12 @@ class TaskEngine():
 
     def get_xml_val(self, xml, path, index=0):
 
-        root = catocommon.ET.fromstring(xml)
+        try:
+            root = catocommon.ET.fromstring(xml)
+        except Exception as e:
+            msg = "Could not parse XML %s, %s" % (xml, e)
+            raise Exception(msg)
+
         nodes = root.findall(path.strip())
         if nodes:
             try:
