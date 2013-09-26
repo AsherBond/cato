@@ -375,14 +375,14 @@ class taskMethods:
             and ts.codeblock_name = %s"""
         self.db.tran_exec(sSQL, (sTaskID, sCodeblockID))
 
-        sSQL = """delete from task_step
-            where ts.task_id = %s
-            and ts.codeblock_name = %s"""
+        sSQL = """delete from task_step 
+            where task_id = %s
+            and codeblock_name = %s"""
         self.db.tran_exec(sSQL, (sTaskID, sCodeblockID))
 
         sSQL = """delete from task_codeblock
-            where ts.task_id = %s
-            and ts.codeblock_name = %s"""
+            where task_id = %s
+            and codeblock_name = %s"""
         self.db.tran_exec(sSQL, (sTaskID, sCodeblockID))
 
         self.db.tran_commit()
