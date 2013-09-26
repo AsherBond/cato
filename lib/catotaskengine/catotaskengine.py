@@ -1683,11 +1683,14 @@ class TaskEngine():
 
 
     def set_debug(self, dl):
+        dl = int(dl)
         # this actually changes the debug level of the logger
         catolog.set_debug(dl)
         
         # this resets the variable, which is used for run_task, etc
-        self.debug_level = int(dl)
+        self.debug_level = dl
+        if dl == 50:
+            self.audit_trail_on = 0
         
 
     def startup(self):

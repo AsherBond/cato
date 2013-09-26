@@ -1533,8 +1533,6 @@ def set_debug_level_cmd(self, task, step):
         self.logger.critical(msg)
         self.insert_audit(step.function_name, msg, "")
         self.set_debug(dl)
-        if dl == "50":
-            self.audit_trail_on = 0
 
 def sleep_cmd(self, task, step):
 
