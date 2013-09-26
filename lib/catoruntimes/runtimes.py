@@ -107,14 +107,23 @@ class Runtimes:
         name = name.upper()
         self.data[name] = vals
 
-    def clear(self, name):
+    def clear(self, name, index=None):
         """deletes all values of named array"""
 
         name = name.upper()
-        try:
-            del(self.data[name])
-        except:
-            pass
+
+        if not index:
+            try:
+                del(self.data[name])
+            except:
+                pass
+        else:
+            # task engine index starts at 1, python list starts at 0
+            index = index - 1
+            try:
+                self.data[name].pop(index)
+            except:
+                pass
 
     def exists(self, name):
         """does the variable array exist"""

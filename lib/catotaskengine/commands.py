@@ -851,7 +851,13 @@ def clear_variable_cmd(self, task, step):
 
     variables = self.get_node_list(step.command, "variables/variable", "name")
     for var in variables:
-        self.rt.clear(var[0])
+        var = self.replace_variables(var[0])
+        if "," in var:
+            name, index = var.split(",", 2)
+            index = int(index)
+        else:
+            index = None
+        self.rt.clear(var[0], index=index)
 
 
 def set_variable_cmd(self, task, step):
