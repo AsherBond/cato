@@ -417,7 +417,7 @@ class taskMethods:
         frm = args["from"] if args.has_key("from") else ""
         to = args["to"] if args.has_key("to") else ""
         records = args["records"] if args.has_key("records") else ""
-        status = args["status"] if args.has_key("status") else "Submitted,Processing"
+        status = args["status"] if args.has_key("status") else ""
         status = "" if status.lower() == "all" else status
         
         obj = task.TaskInstances(sFilter=fltr,
