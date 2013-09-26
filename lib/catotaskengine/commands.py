@@ -195,14 +195,16 @@ def datastore_create_index_cmd(self, task, step):
     if collection in db.collection_names():
         coll = db[collection]
     else:
-        msg = "Datastore Create Index error: a collection named %s does not exist" % (collection)
-        raise Exception(msg)
+        db.create_collection(collection)
+        coll = db[collection]
+        msg = "Collection %s created" % (collection)
+        self.insert_audit(step.function_name, msg, "")
 
     index = []
     for column in columns:
         index.append((column[0], 1))
 
-    msg = "Collection %s, Columns %s, Unique %s" % (collection, str(columns), unique)
+    msg = "Collection %s index created on columns %s, Unique=%s" % (collection, str(columns), unique)
     if unique == "yes":
         unique = True
     else:
