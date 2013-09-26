@@ -6,7 +6,7 @@
 					<conn_type input_type="select">ssh</conn_type>
 					<cloud_name input_type="dropdown" style="combo" />
 					<asset input_type="text" />
-					<conn_name input_type="text" label="as" required="true" class="w200px" help="Name this connection for reference in the Task.">CONN1</conn_name>
+					<conn_name input_type="text" label="Connection Name" required="true" class="w200px" help="Name this connection for reference in the Task.">CONN1</conn_name>
 					<debug input_type="checkbox" label="Debug" break_after="true" />
 				</function>
 			</command>
