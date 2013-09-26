@@ -22,11 +22,11 @@ $(document).ready(function() {
 		Cloud Account: <span id="task_launch_dialog_account_name"></span> \
 		&nbsp;&nbsp;Logging Level:&nbsp;&nbsp; \
 		<select id="task_launch_dialog_debug_level"> \
-		   <option value="0">None</option> \
-		   <option value="1">Minimal</option> \
-		   <option value="2" selected="selected">Normal</option> \
-		   <option value="3">Enhanced</option> \
-		   <option value="4">Verbose</option> \
+		   <option value="10">Debug</option> \
+		   <option value="20" selected="selected">Info</option> \
+		   <option value="30">Warning</option> \
+		   <option value="40">Error</option> \
+		   <option value="50">Critical</option> \
 		</select> \
 		<hr /> \
 		<div id="task_launch_dialog_parameters" class="floatleft task_launch_column ui-widget-content ui-tabs ui-corner-all"> \
@@ -496,7 +496,7 @@ function CloseTaskLaunchDialog() {
 	});
 
 	//NOTE: the debug drop down actually should have item #2 selected by default.
-	$('#task_launch_dialog_debug_level option[value="2"]').attr('selected', 'selected');
+	$('#task_launch_dialog_debug_level option[value="20"]').attr('selected', 'selected');
 	return false;
 }
 
