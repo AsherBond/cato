@@ -1527,11 +1527,14 @@ def add_summary_item_cmd(self, task, step):
 def set_debug_level_cmd(self, task, step):
 
     dl = self.get_command_params(step.command, "debug_level")[0]
-    dl = self.replace_variables(dl)
-    # changing the logging level raises a critical message, so it's always seen for clarity.
-    self.logger.critical("Setting the debug level to [%s]..." % dl)
-    
-    self.set_debug(dl)
+    if len(dl):
+        # changing the logging level raises a critical message, so it's always seen for clarity.
+        msg = "Setting the debug level to [%s]..." % (dl)
+        self.logger.critical(msg)
+        self.insert_audit(step.function_name, msg, "")
+        self.set_debug(dl)
+        if dl == "50":
+            self.audit_trail_on = 0
 
 def sleep_cmd(self, task, step):
 
