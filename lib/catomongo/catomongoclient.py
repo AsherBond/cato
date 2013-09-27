@@ -122,26 +122,27 @@ def jsonpath_replace(doc, fragment, jpath, append = False):
     return len(statements)
     
 def _put(d, k, item):
-    """ Puts item at key in dict d """
+    """
+    This is a simple yet powerful function!
+    
+    Recursively drills down into the provided dictionary (d), 
+    creating keys along the way if needed,
+    to ultimately set the desired key (k) to the provided value (item.)
+    """
     if "." in k:
         key, rest = k.split(".", 1)
-#                    print d
-#                    print "key %s" % key
-#                    print "rest %s" % rest
         if key not in d:
-#                        print "%s doesn't exist, creating" % key
-            # key doesn't exist, make it a dict node
+            logger.debug("_put: [%s] doesn't exist, creating..." % (key))
+            # key DOES NOT exist, make it a dict node
             d[key] = {}
         else:
-#                        print "%s exists..." % key
-            # key does exist, and it's not already a dictionary
+            # key DOES exist!
             if rest and not type(d[key]) == dict:
                 # there are more keys coming... gotta make this into a dict
                 d[key] = {} # destroys any existing text value... no other way
 
         _put(d[key], rest, item)
     else:
-#                    print "%s is the last node, setting..." % k
         d[k] = item
 
 
