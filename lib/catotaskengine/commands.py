@@ -387,6 +387,7 @@ def _set_variable_eval(self, expr):
     Set Variable has an 'eval' modifier.  It's has a very strict mapping to 
     a set of keywords we define and translate to python expressions.
     """
+    s = ""
     self.logger.debug("Evaluating: [%s]..." % (expr))
     try:
 #         # using eval is not the best approach here.
@@ -409,11 +410,13 @@ def _set_variable_eval(self, expr):
         environment = { 
                        'parsedate': parser.parse,
                        'datetime': datetime,
-                       'datediff': timedelta
+                       'timedelta': timedelta
                        }
-        return eval(expr, environment, {})
+        s = eval(expr, environment, {})
     except Exception as ex:
         raise Exception("Expression [%s] is not valid.\n%s" % (expr, str(ex)))
+
+    return s
 
 def _eval_test_expression(self, test):
     """
