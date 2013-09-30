@@ -304,7 +304,7 @@
 			</command>
 			<command name="get_shared_cred" label="Get Shared Credentials" description="Retrieves stored shared credentials for use in a task" 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#creds' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/editcut_32.png">
+                icon="static/images/icons/encrypted_32.png">
 				<function name="get_shared_cred" >
 					<alias input_type="text" label="Alias" required="true" />
 					<userid input_type="text" label="User ID Variable" />
