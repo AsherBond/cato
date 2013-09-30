@@ -405,7 +405,7 @@
 					<upsert input_type="checkbox" label="Upsert?" />
 					<remove input_type="checkbox" label="Remove?" />
 					<query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
-					<columns is_array="true">
+					<columns is_array="true" label="Columns">
 						<column>
 							<name input_type="text" label="Name" />
 							<value input_type="text" label="Value" style="width: 50%;" />
@@ -414,7 +414,7 @@
 					<outcolumns is_array="true" label="Out Columns">
 						<column>
 							<name input_type="text" label="Name" />
-							<value input_type="text" label="Value" style="width: 50%;" />
+							<value input_type="text" label="Variable" style="width: 50%;" />
 						</column>
 					</outcolumns>
 				</function>
