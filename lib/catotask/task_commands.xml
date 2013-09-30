@@ -302,16 +302,6 @@
 					<source input_type="textarea" rows="3" label="Text" class="w95pct" required="true" label_style="display: block;" />
 				</function>
 			</command>
-			<command name="get_shared_cred" label="Get Shared Credentials" description="Retrieves stored shared credentials for use in a task" 
-                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#creds' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/encrypted_32.png">
-				<function name="get_shared_cred" >
-					<alias input_type="text" label="Alias" required="true" />
-					<userid input_type="text" label="User ID Variable" />
-					<password input_type="text" label="Password Variable" />
-					<domain input_type="text" label="Domain Variable" />
-				</function>
-			</command>
 			<command name="exists" label="Exists" description="The Exists command will check one or more variables to ensure they have values" 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#exists' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
                 icon="static/images/icons/exists.png">
@@ -329,6 +319,41 @@
 					</actions>
 				</function>
 			</command>
+		</commands>
+	</category>
+	<category name="security" label="Security" description="Commands for password and key management" icon="static/images/icons/encrypted_32.png">
+		<commands>
+			<command name="get_shared_cred" label="Get Shared Credentials" description="Retrieves stored shared credentials for use in a task" 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#creds' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
+                icon="static/images/icons/encrypted_32.png">
+				<function name="get_shared_cred" >
+					<alias input_type="text" label="Alias" required="true" />
+					<userid input_type="text" label="User ID Variable" />
+					<password input_type="text" label="Password Variable" />
+					<domain input_type="text" label="Domain Variable" />
+				</function>
+			</command>
+			<command name="store_private_key" label="Store Private Key" description="Stores the private portion of a keypair for later use.." 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#storekey' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
+                icon="static/images/icons/key_save_32.png">
+				<function name="store_private_key" snip="name">
+					<name label="Keypair Name" input_type="text" />
+					<cloud_name label="Cloud Name" input_type="text" />
+					<private_key label="Private Key" input_type="textarea" rows="1" class="w50pct" style="height:18px;vertical-align:bottom;" />
+				</function>
+			</command>
+			<command name="generate_password" label="Generate Password" description="Generates a random password" 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#dspass' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
+                icon="static/images/icons/password.png">
+				<function name="generate_password">
+					<length input_type="text" label="Length" />
+					<variable input_type="text" label="Variable Name" />
+				</function>
+			</command>
+		</commands>
+	</category>
+	<category name="datastore" label="Datastore" description="Commands for datastore management" icon="static/images/icons/datastore_query.png">
+		<commands>
 			<command name="datastore_insert" label="Datastore Insert" description="Insert a document into the Datastore." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#dsinsert' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
                 icon="static/images/icons/datastore_insert.png">
@@ -427,27 +452,6 @@
 							<name input_type="text" label="Name" />
 						</column>
 					</columns>
-				</function>
-			</command>
-			<command name="generate_password" label="Generate Password" description="Generates a random password" 
-                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#dspass' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/password.png">
-				<function name="generate_password">
-					<length input_type="text" label="Length" />
-					<variable input_type="text" label="Variable Name" />
-				</function>
-			</command>
-		</commands>
-	</category>
-	<category name="cloud" label="Cloud" description="Commands for deployment management" icon="static/images/icons/clouds_32.png">
-		<commands>
-			<command name="store_private_key" label="Store Private Key" description="Stores the private portion of a keypair for later use.." 
-                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#storekey' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/key_save_32.png">
-				<function name="store_private_key" snip="name">
-					<name label="Keypair Name" input_type="text" />
-					<cloud_name label="Cloud Name" input_type="text" />
-					<private_key label="Private Key" input_type="textarea" rows="1" class="w50pct" style="height:18px;vertical-align:bottom;" />
 				</function>
 			</command>
 		</commands>
