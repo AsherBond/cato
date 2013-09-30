@@ -431,7 +431,7 @@
 			</command>
 			<command name="generate_password" label="Generate Password" description="Generates a random password" 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#dspass' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/bookmark_add_32.png">
+                icon="static/images/icons/password.png">
 				<function name="generate_password">
 					<length input_type="text" label="Length" />
 					<variable input_type="text" label="Variable Name" />
