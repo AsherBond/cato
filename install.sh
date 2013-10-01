@@ -177,7 +177,6 @@ service ${MONGOSERVICE} start
 mkdir -p $LOGFILESDIR/te
 mkdir -p $LOGFILESDIR/se
 mkdir -p $CATOFILESDIR/ui
-mkdir -p $CATOFILESDIR/reports
 mkdir -p $TMPDIR
 
 ### Create the database, logins and permissions in MySQL

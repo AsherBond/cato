@@ -41,14 +41,14 @@ class settings(object):
             These settings are defaults if there are no values in the database.
         """
         PassMaxAge = 90  # how old can a password be?
-        PassMaxAttempts = 3
+        PassMaxAttempts = 30
         PassMaxLength = 32
         PassMinLength = 8
-        PassComplexity = True  # require 'complex' passwords (number and special character)
+        PassComplexity = False  # require 'complex' passwords (number and special character)
         PassAgeWarn = 15  # number of days before expiration to begin warning the user about password expiration
         PasswordHistory = 5  # The number of historical passwords to cache and prevent reuse.
         PassRequireInitialChange = True  # require change on initial login?
-        AutoLockReset = 5  # The number of minutes before failed password lockout expires
+        AutoLockReset = 1  # The number of minutes before failed password lockout expires
         LoginMessage = ""  # The message that appears on the login screen
         AuthErrorMessage = ""  # a customized message that appears when there are failed login attempts
         NewUserMessage = ""  # the body of an email sent to new user accounts
