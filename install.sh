@@ -174,7 +174,7 @@ service ${MONGOSERVICE} stop
 service ${MONGOSERVICE} start
 
 ### Create the supporting application directories
-mkdir -p $LOGFILESDIR/ce
+mkdir -p $LOGFILESDIR/te
 mkdir -p $LOGFILESDIR/se
 mkdir -p $CATOFILESDIR/ui
 mkdir -p $CATOFILESDIR/reports
