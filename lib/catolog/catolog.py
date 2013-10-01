@@ -106,6 +106,11 @@ def set_logfile(logfile):
     global LOGFILE
     LOGFILE = logfile
 
+    # create the log directory if it's not already there
+    dirs = os.path.dirname(LOGFILE)
+    if not os.path.exists(dirs):
+        os.makedirs(dirs)
+
     # print "...setting up a file handler using [%s]" % LOGFILE
     # add the file handler to the root logger
     root = logging.getLogger()

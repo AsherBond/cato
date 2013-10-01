@@ -16,6 +16,7 @@ class settings(object):
         self.Messenger = self.messenger().__dict__
         self.Scheduler = self.scheduler().__dict__
         self.Maestro = self.maestro().__dict__
+        self.MaestroScheduler = self.maestroscheduler().__dict__
         
     def AsJSON(self):
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
@@ -304,6 +305,45 @@ class settings(object):
 
         def AsXML(self):
             return catocommon.ObjectOutput.AsXML(self.__dict__, "Scheduler")
+    
+        def AsText(self, delimiter, headers=False):
+            out = []
+            for k, v in self.__dict__.iteritems():
+                out.append("    %s : %s\n" % (k, v))
+            return "".join(out)
+    
+    
+    class maestroscheduler(object):
+        """
+            These settings are defaults if there are no values in the database.
+        """
+        Enabled = True  # is it processing work?
+        LoopDelay = 10  # how often does it check for work?
+        ScheduleMinDepth = 10  # minimum number of queue entries
+        ScheduleMaxDays = 90  # the maximum distance in the future to que entries
+        
+        def __init__(self):
+            s = settings.get_application_section("maestroscheduler")
+            self.Enabled = s.get("Enabled", self.Enabled)
+            self.LoopDelay = s.get("LoopDelay", self.LoopDelay)
+            self.ScheduleMinDepth = s.get("ScheduleMinDepth", self.ScheduleMinDepth)
+            self.ScheduleMaxDays = s.get("ScheduleMaxDays", self.ScheduleMaxDays)
+            
+        def DBSave(self):
+            self.Enabled = catocommon.is_true(self.Enabled)
+
+            self.LoopDelay = int(self.LoopDelay)
+            self.ScheduleMinDepth = int(self.ScheduleMinDepth)
+            self.ScheduleMaxDays = int(self.ScheduleMaxDays)
+
+            settings.set_application_section("maestroscheduler", json.dumps(self.__dict__))
+            return True
+
+        def AsJSON(self):
+            return catocommon.ObjectOutput.AsJSON(self.__dict__)
+
+        def AsXML(self):
+            return catocommon.ObjectOutput.AsXML(self.__dict__, "MaestroScheduler")
     
         def AsText(self, delimiter, headers=False):
             out = []

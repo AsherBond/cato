@@ -89,7 +89,7 @@ class TaskEngine():
         logging.basicConfig(level=logging.DEBUG)
 
         # tell catolog what the LOGFILE name is, then get a logger
-        catolog.set_logfile(os.path.join(catolog.LOGPATH, "ce", self.task_instance + ".log"))
+        catolog.set_logfile(os.path.join(catolog.LOGPATH, "te", self.task_instance + ".log"))
 
         self.logger = catolog.get_logger(process_name)
 
