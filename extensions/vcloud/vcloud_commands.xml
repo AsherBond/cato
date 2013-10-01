@@ -1,7 +1,9 @@
 <categories>
 	<category name="vCloud" label="vCloud" description="Commands for interacting with the VMWare vCloud API" icon="static/images/icons/vmware/vmware.png">
 		<commands>
-			<command name="vcloud_call_parse" label="vCloud API Call and Parse" description="" icon="static/images/icons/vmware/vmware.png">
+			<command name="vcloud_call_parse" label="vCloud API Call and Parse" description="" 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#vccallparse' target='_blank'&gt;Cato Documentation&lt;/a&gt;"
+                icon="static/images/icons/vmware/vmware.png">
 				<function name="vcloud_call_parse" extension="vcloud.vcloud" >
 					<endpoint_name input_type="dropdown" label="Cloud Endpoint Name" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAllClouds" />
 					<path input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Url or Method" />
@@ -21,7 +23,9 @@
 					<output_var input_type="text" label="Output Variable" />
 				</function>
 			</command>
-			<command name="vcloud_call" label="vCloud API Call" description="" icon="static/images/icons/vmware/vmware.png">
+			<command name="vcloud_call" label="vCloud API Call" description="" 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#vccall' target='_blank'&gt;Cato Documentation&lt;/a&gt;"
+                icon="static/images/icons/vmware/vmware.png">
 				<function name="vcloud_call" extension="vcloud.vcloud" >
 					<endpoint_name input_type="dropdown" label="Cloud Endpoint Name" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAllClouds" />
 					<path input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Url or Method" />
@@ -33,7 +37,9 @@
 					<output_var input_type="text" label="Output Variable" />
 				</function>
 			</command>
-			<command name="vcloud_parse" label="vCloud Parse XML" description="" icon="static/images/icons/vmware/vmware.png">
+			<command name="vcloud_parse" label="vCloud Parse XML" description="" 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#vcparse' target='_blank'&gt;Cato Documentation&lt;/a&gt;"
+                icon="static/images/icons/vmware/vmware.png">
 				<function name="vcloud_parse" extension="vcloud.vcloud" >
 					<xml input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="XML Data" />
 					<path input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Xpath" />
