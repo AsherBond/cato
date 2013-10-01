@@ -1,7 +1,7 @@
 <categories>
 	<category name="vsphere" label="vSphere" description="Commands for interacting VMware vCenter and vSphere hosts." icon="static/images/icons/vmware/vmware.png">
 		<commands>
-			<command name="vmw_list_images" label="VMware List Images" description="" icon="static/images/icons/vmware/vmware.png">
+			<command name="vmw_list_images" label="VMware List VMs" description="" icon="static/images/icons/vmware/vmware.png">
 				<function name="vmw_list_images" extension="vmware.vmware" variables="true" parse_method="1">
 					<endpoint_name input_type="dropdown" label="vCenter Endpoint" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetVMwareClouds" />
 					<instance_uuid label="InstanceUUID" input_type="text" />
@@ -16,19 +16,19 @@
 				</function>
 			</command>
 			<command name="vmw_power_on_image" label="VMware Power On Image" description="" icon="static/images/icons/vmware/poweron.png">
-				<function name="vmw_power_on_image" extension="vmware.vmware" variables="true" parse_method="1">
+				<function name="vmw_power_on_image" extension="vmware.vmware" >
 					<endpoint_name input_type="dropdown" label="vCenter Endpoint" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetVMwareClouds" />
 					<instance_uuid label="InstanceUUID" input_type="text" />
 				</function>
 			</command>
 			<command name="vmw_power_off_image" label="VMware Power Off Image" description="" icon="static/images/icons/vmware/poweroff.png">
-				<function name="vmw_power_off_image" extension="vmware.vmware" variables="true" parse_method="1">
+				<function name="vmw_power_off_image" extension="vmware.vmware">
 					<endpoint_name input_type="dropdown" label="vCenter Endpoint" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetVMwareClouds" />
 					<instance_uuid label="InstanceUUID" input_type="text" />
 				</function>
 			</command>
 			<command name="vmw_clone_image" label="VMware Clone Image" description="" icon="static/images/icons/vmware/vmware.png">
-				<function name="vmw_clone_image" extension="vmware.vmware" variables="true" parse_method="1">
+				<function name="vmw_clone_image" extension="vmware.vmware">
 					<endpoint_name input_type="dropdown" label="vCenter Endpoint" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetVMwareClouds" />
 					<instance_uuid label="InstanceUUID" input_type="text" />
 					<name label="New Name" input_type="text" />
