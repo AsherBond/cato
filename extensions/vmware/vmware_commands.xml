@@ -1,5 +1,5 @@
 <categories>
-	<category name="vmware" label="VMware" description="Commands for interacting VMware vCenter hosts." icon="static/images/icons/vmware/vmware.png">
+	<category name="vsphere" label="vSphere" description="Commands for interacting VMware vCenter and vSphere hosts." icon="static/images/icons/vmware/vmware.png">
 		<commands>
 			<command name="vmw_list_images" label="VMware List Images" description="" icon="static/images/icons/vmware/vmware.png">
 				<function name="vmw_list_images" extension="vmware.vmware" variables="true" parse_method="1">
