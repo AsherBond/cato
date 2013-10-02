@@ -97,6 +97,7 @@ endpoints = {
 			 "update_settings" : "catoapi.sysMethods/update_settings",
 			 "update_user" : "catoapi.sysMethods/update_user",
 			 "reset_password" : "catoapi.sysMethods/reset_password",
+			 "send_message" : "catoapi.sysMethods/send_message",
 			 "add_object_tag" : "catoapi.sysMethods/add_object_tag"
 			 }
 

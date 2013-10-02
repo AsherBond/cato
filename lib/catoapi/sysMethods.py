@@ -417,7 +417,7 @@ class sysMethods:
         if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden)
 
-        fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args.get("filter", "")
 
         obj = catouser.Users(sFilter=fltr)
         if args["output_format"] == "json":
@@ -602,7 +602,7 @@ class sysMethods:
         
         Returns: A list of Shared Credentials.
         """
-        fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args.get("filter", "")
 
         obj = asset.Credentials(sFilter=fltr)
         if args["output_format"] == "json":
@@ -673,7 +673,7 @@ class sysMethods:
         
         Returns: A list of all Tags.
         """
-        fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args.get("filter", "")
 
         obj = tag.Tags(sFilter=fltr)
         if args["output_format"] == "json":
@@ -800,3 +800,76 @@ class sysMethods:
         return R(response="Tag successfully removed from object.")
 
 
+    """
+    Email and Messaging functions.
+    """
+    def send_message(self, args):        
+        """
+        Sends a message to a registered user.  Message will be 'From' the authenticated API user.
+        
+        The 'to' argument accepts both email addresses AND Cloud Sidekick Users.  Each item in the 'to' list
+        will try to look up a Cloud Sidekick User, and if it doesn't match, will assume the entry is an email address.
+        
+        Required Arguments:
+            to - a single or comma-separated list of valid email addresses or Cloud Sidekick Users.
+            subject - a subject line
+            message - the message body
+            
+        Optional Arguments: 
+            cc - a carbon copy list of comma-separated email addresses or Cloud Sidekick Users.
+            bcc - a blind carbon copy list of comma-separated email addresses or Cloud Sidekick Users.
+        
+        Returns: a success or error message.
+        """
+        
+        required_params = ["to", "subject", "message"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        cc = args.get("cc")
+        bcc = args.get("cc")
+        
+        # NOTE: we're gonna spin through the to, cc and bcc lists and separate
+        # the CSK users from plain email addresses.
+        
+        # since we'll have two sets, we'll actually make two calls to the messenger
+        # one will be users and the other emails.
+        
+        def _reconcile_recip(recip):
+            # will check the recip, and return the email address
+            try:
+                u = catouser.User()
+                u.FromFullName(recip.strip())
+                if u.Email:
+                    return u.Email
+                else:
+                    logger.info("'send_message' found a User [%s] with no email address defined.  Skipping..." % (u.FullName))
+                    return None
+            except Exception:
+                # didn't find a user or something went wrong, just use this as the address
+                return recip
+
+        torecips = []
+        ccrecips = []
+        bccrecips = []
+        
+        for to in args.get("to", "").split(","):
+            x = _reconcile_recip(to)
+            if x:
+                torecips.append(x)
+        for cc in args.get("cc", "").split(","):
+            x = _reconcile_recip(cc)
+            if x:
+                ccrecips.append(x)
+        for bcc in args.get("bcc", "").split(","):
+            x = _reconcile_recip(bcc)
+            if x:
+                bccrecips.append(x)
+            
+        # fire and forget
+        catocommon.send_email_via_messenger(",".join(torecips), args["subject"], args["message"], cc=",".join(ccrecips), bcc=",".join(bccrecips))
+        
+        return R(response="Message successfully queued.")
+
+        

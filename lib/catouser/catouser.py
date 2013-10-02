@@ -142,22 +142,33 @@ class User(object):
             
         return True, None
 
+    def FromFullName(self, sUsername):
+        # try to get the user by their "full name", then name, if that fails try it by ID
+        try:
+            self.PopulateUser(fullname=sUsername)
+        except:
+            try:
+                self.PopulateUser(login_id=sUsername)
+            except:
+                self.PopulateUser(user_id=sUsername)
+        
     def FromName(self, sUsername):
         # try to get the user by name, if that fails try it by ID
-        self.PopulateUser(login_id=sUsername)
-        if not self.ID:
+        try:
+            self.PopulateUser(login_id=sUsername)
+        except:
             self.PopulateUser(user_id=sUsername)
         
     def FromID(self, sUserID):
         self.PopulateUser(user_id=sUserID)
 
-    def PopulateUser(self, user_id="", login_id=""):
+    def PopulateUser(self, user_id="", login_id="", fullname=""):
         """
             Note the absence of password or security_answer in this method.  There are specialized 
             methods for testing passwords, etc.
         """
-        if not user_id and not login_id:
-            raise Exception("Error building User object: User ID or Login is required.");    
+        if not user_id and not login_id and not fullname:
+            raise Exception("Error building User object: User ID, Login or Name is required.");    
         
         db = catocommon.new_conn()
 
@@ -171,6 +182,8 @@ class User(object):
             sSQL += " where u.user_id = '%s'""" % user_id
         elif login_id:
             sSQL += " where u.username = '%s'""" % login_id
+        elif fullname:
+            sSQL += " where u.full_name = '%s'""" % fullname
 
         dr = db.select_row_dict(sSQL)
         
@@ -186,7 +199,7 @@ class User(object):
             self.SecurityQuestion = ("" if not dr["security_question"] else dr["security_question"])
             self.FailedLoginAttempts = (0 if not dr["failed_login_attempts"] else dr["failed_login_attempts"])
             self.ForceChange = (True if dr["force_change"] == 1 else False)
-            self.Email = ("" if not dr["email"] else dr["email"])
+            self.Email = ("" if not dr["email"] else dr["email"]).strip()
             self.SettingsXML = ("" if not dr["settings_xml"] else dr["settings_xml"])
 
             # what are the users tags?
@@ -201,7 +214,7 @@ class User(object):
                     tags.append(tag[0])
                 self.Tags = tags
         else: 
-            raise Exception("Unable to build User object. User with ID/Login [%s%s] could be found." % (user_id, login_id))
+            raise Exception("Unable to build User object. User with ID/Login/Name [%s%s%s] could be found." % (user_id, login_id, fullname))
 
     def AsJSON(self):
         if hasattr(self, "_Groups"):
@@ -254,7 +267,7 @@ class User(object):
                     
                 body = """%s - your password has been reset by an Administrator.""" % (self.FullName)
                 if self.Email:
-                    catocommon.send_email_via_messenger(self.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
+                    catocommon.send_email_via_messenger(self.Email, "Cato - Account Information", body)
                 else:
                     logger.warning("Attempt to send a password message failed - User [%s] has no email defined." % (self.FullName))
             else:
@@ -284,7 +297,7 @@ class User(object):
             body = body.replace("##FULLNAME##", self.FullName).replace("##USERNAME##", self.LoginID).replace("##PASSWORD##", sNewPassword)
 
             if self.Email:
-                catocommon.send_email_via_messenger(self.Email, "Cato - Account Information", body, "Cloud Sidekick - Cato")
+                catocommon.send_email_via_messenger(self.Email, "Cato - Account Information", body)
             else:
                 logger.warning("Attempt to send a password message failed - User [%s] has no email defined." % (self.FullName))
             # f !uiCommon.SendEmailMessage(sEmail.strip(), ag.APP_COMPANYNAME + " Account Management", "Account Action in " + ag.APP_NAME, sBody, 0000BYREF_ARG0000sErr:

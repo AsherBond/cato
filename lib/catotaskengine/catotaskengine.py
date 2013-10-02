@@ -1662,18 +1662,13 @@ class TaskEngine():
         except catocommon.ET.ParseError:
             raise Exception("Invalid or missing XML for parameters.")
 
-    def send_email(self, to, sub, body, cc="", bcc=""):
+    def send_email(self, to, sub, body, cc=None, bcc=None):
 
         msg = "Inserting into message queue : TO:{%s} SUBJECT:{%s} BODY:{%s}" % (to, sub, body)
         self.insert_audit("", msg, "")
-        # note - this logic is skipping the file attachment piece, to do
-        # also - there may need to be some additional processing to handle html, etc. messages
 
-        sql = """insert into message 
-            (date_time_entered, process_type, status, msg_to, msg_from, msg_subject, msg_body, msg_cc, msg_bcc) 
-            values 
-            (now(), 1, 0, %s, %s, %s, %s, %s, %s)"""
-        self.db.exec_db(sql, (to, self.host_domain, sub, body, cc, bcc))
+        # this used to pass self.host_domain as the 'from' property, but messenger doesn't use that anyway 
+        catocommon.send_email_via_messenger(to, sub, body, cc, bcc)
 
     def notify_error(self, msg):
 

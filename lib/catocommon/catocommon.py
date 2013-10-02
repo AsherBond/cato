@@ -133,14 +133,17 @@ def create_api_token(user_id):
     
     return token
     
-def send_email_via_messenger(to, subject, body, frm="Cloud Sidekick - Cato"):
+def send_email_via_messenger(to, subject, body, cc=None, bcc=None):
     msg = "Inserting into message queue:\nTO:[%s]\nSUBJECT:[%s]\nBODY:[%s]" % (to, subject, body)
     logger.info(msg)
+    if cc or bcc:
+        msg = "Additional:\CC:[%s]\BCC:[%s]" % (cc, bcc)
+        logger.info(msg)
 
-    sql = """insert into message (date_time_entered, process_type, status, msg_from, msg_to, msg_subject, msg_body) 
-        values (now(), 1, 0, %s, %s, %s, %s)"""
+    sql = """insert into message (date_time_entered, process_type, status, msg_to, msg_subject, msg_body, msg_cc, msg_bcc) 
+        values (now(), 1, 0, %s, %s, %s, %s, %s)"""
     db = new_conn()
-    db.exec_db(sql, (frm, to, subject, body))
+    db.exec_db(sql, (to, subject, body, cc, bcc))
     db.close()
 
 def http_get(url, timeout=30, headers={}):
