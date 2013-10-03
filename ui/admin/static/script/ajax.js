@@ -267,7 +267,8 @@ ajaxErrorCallback = function(response) {
 		showInfo("An exception occurred - please check the server logfiles for details.");
 	} else if (response.status == 280) {
 		// 280 is our custom response code to indicate we want an 'info' message
-		showInfo(response.responseText);
+		// changing this to 'no_timeout', due to complaints about not seeing the message.
+		showInfo(response.responseText, "", true);
 	} else if (response.status == 480) {
 		// 480 is our custom 'session error' response code ... lock it down
 		msg = (response.responseText) ? response.responseText : "Your session has ended or been terminated.";
