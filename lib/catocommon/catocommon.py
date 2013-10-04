@@ -794,7 +794,7 @@ class ObjectOutput(object):
     """
     @staticmethod
     def AsJSON(dict_obj):
-        return json.dumps(dict_obj, default=jsonSerializeHandler, indent=4)
+        return json.dumps(dict_obj, default=jsonSerializeHandler, indent=4, sort_keys=True, separators=(',', ': '))
 
     @staticmethod
     def AsXML(dict_obj, item_node):
@@ -836,7 +836,7 @@ class ObjectOutput(object):
                 else:
                     lst.append(item)
             
-        return json.dumps(lst, default=jsonSerializeHandler, indent=4)
+        return json.dumps(lst, default=jsonSerializeHandler, indent=4, sort_keys=True, separators=(',', ': '))
 
     @staticmethod
     def IterableAsXML(iterable, root_node, item_node):
@@ -931,3 +931,4 @@ class CatoObjectTypes(object):
     Deployment = 70
     DeploymentTemplate = 71
     DeploymentService = 72
+    DeploymentSequence = 73
