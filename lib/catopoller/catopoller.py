@@ -57,7 +57,7 @@ class Poller(catoprocess.CatoService):
                         where task_instance = %s"""
                     self.db.exec_db(sql, (task_instance))
 
-                    cmd_line = "nohup %s/services/bin/cato_task_engine %d >> %s/ce/%d.log 2>&1 &" % (self.home, task_instance, catolog.LOGPATH, task_instance)
+                    cmd_line = "nohup %s/services/bin/cato_task_engine %d >> %s/te/%d.log 2>&1 &" % (self.home, task_instance, catolog.LOGPATH, task_instance)
 
                     ret = os.system(cmd_line)
                     self.logger.info("Task instance %d started with return code of %d" % (task_instance, ret))
