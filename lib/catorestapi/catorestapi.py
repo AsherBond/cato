@@ -153,12 +153,8 @@ class wmHandler:
                     it just means the payload *inside* the jsonp callback will be xml or json as requested.)
                 """
                 payload = response.Write(output_format)
-                # base64 encode it (don't forget the three special chars)
-                # payload = base64.b64encode(payload)
-                # payload = payload.replace("=", "%3D").replace("+", "%2B").replace("/", "%2F")
-                
-                web.header('Content-Type', 'application/json')
-                return "%s('%s')" % (args["callback"], payload)
+                web.header('Content-Type', 'application/javascript')
+                return "%s(%s)" % (args["callback"], payload)
             else:
                 return response.Write(output_format)
         else:
