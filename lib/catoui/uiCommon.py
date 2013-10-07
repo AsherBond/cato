@@ -884,54 +884,6 @@ def LoadTaskCommands():
     
     return True
 
-"""
-    These two functions are called by handlers in both the UIs.
-"""  
-def GetWidget():
-    """Simply proxies an HTTP GET to another domain, and returns the results."""
-    args = getAjaxArgs()
-    url = get_dash_url()
-    result, err = catocommon.http_post("%s/widget" % url, args, 15)
-    if err:
-        return "Unable to reach the Dash API.  Is the service running?\n %s" % err
-    
-    return result
-
-def GetLayout():
-    """Simply proxies an HTTP GET to another domain, and returns the results."""
-    args = getAjaxArgs()
-    url = get_dash_url()
-    result, err = catocommon.http_post("%s/layout" % url, args, 15)
-    if err:
-        return "Unable to reach the Dash API.  Is the service running?\n %s" % err
-    
-    return result
-
-def GetDashImage():
-    """Simply proxies an HTTP GET to another domain, and returns the results."""
-    path = getAjaxArg("path")
-    url = "%s/images/%s" % (get_dash_url(), path)
-    result, err = catocommon.http_get(url, 15)
-    if err:
-        return "Unable to reach the Dash API.  Is the service running?\n %s" % err
-    
-    return result
-
-def get_dash_url():
-    url = "http://localhost"
-    if catoconfig.CONFIG.has_key("dash_api_url"):
-        url = (catoconfig.CONFIG["dash_api_url"] if catoconfig.CONFIG["dash_api_url"] else "http://localhost")
-    else:
-        log("Warning: dash_api_url setting not defined in cato.conf... using http://localhost")
-
-    port = "4002"
-    if catoconfig.CONFIG.has_key("dash_api_port"):
-        port = (catoconfig.CONFIG["dash_api_port"] if catoconfig.CONFIG["rest_api_port"] else "4002")
-    else:
-        log("Warning: dash_api_port setting not defined in cato.conf... using 4002")
-        
-    return "%s:%s" % (url, port)
-
 
 def GetLog():
     """
