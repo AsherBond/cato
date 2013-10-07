@@ -720,10 +720,16 @@ class TaskEngine():
                 if v:
                     # finally, jsonpath *always* returns a list, because xpath might have matched multiples
                     # but, if there's only one item in the list, just return the item directly.  (90% of cases)
-                    if len(v) > 1:
+                    if len(v) == 1:
+                        v = v[0]
+
+                    # a list or a dict should be json dumped
+                    # anything else is directly returned
+                    if isinstance(v, dict) or isinstance(v, list):
                         return catocommon.ObjectOutput.AsJSON(v)
                     else:
-                        return catocommon.ObjectOutput.AsJSON(v[0])
+                        return v
+                    
                 # not found :-(
                 self.logger.info("Object variable [%s] - key [%s] not found." % (vname, keypath))
             else:
