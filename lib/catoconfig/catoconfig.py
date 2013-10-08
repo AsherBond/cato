@@ -66,27 +66,34 @@ def read_config():
     cfg["ui_enable_tokenauth"] = "true"
     cfg["ui_token_lifespan"] = "30"
     
+    cfg["admin_ui_hostname"] = "localhost"
     cfg["admin_ui_port"] = "8082"
     cfg["admin_ui_debug"] = "20"
     cfg["admin_ui_use_ssl"] = "false"
     
+    cfg["user_ui_hostname"] = "localhost"
     cfg["user_ui_port"] = "8080"
     cfg["user_ui_debug"] = "20"
     cfg["user_ui_client_debug"] = "20"
     cfg["user_ui_enable_refresh"] = "true"
     cfg["user_ui_use_ssl"] = "false"
     
-    cfg["rest_api_url"] = "http://localhost"
+    cfg["rest_api_hostname"] = "localhost"
     cfg["rest_api_port"] = "4001"
     cfg["rest_api_debug"] = "20"
     cfg["rest_api_use_ssl"] = "false"
     cfg["rest_api_enable_tokenauth"] = "true"
     cfg["rest_api_token_lifespan"] = "30"
     
-    cfg["dash_api_url"] = "http://localhost"
+    cfg["dash_api_hostname"] = "localhost"
     cfg["dash_api_port"] = "4002"
     cfg["dash_api_debug"] = "20"
     cfg["dash_api_use_ssl"] = "false"
+    
+    cfg["newsfeed_api_hostname"] = "localhost"
+    cfg["newsfeed_api_port"] = "4004"
+    cfg["newsfeed_api_debug"] = "20"
+    cfg["newsfeed_api_use_ssl"] = "false"
     
     # extensions are name/value pairs, so the 'extensions' setting is actually a dictionary.
     cfg["extensions"] = {}
@@ -150,6 +157,13 @@ def read_config():
     cfg["user_ui_protocol"] = "https" if cfg["user_ui_use_ssl"] == "true" else "http"
     cfg["rest_api_protocol"] = "https" if cfg["rest_api_use_ssl"] == "true" else "http"
     cfg["dash_api_protocol"] = "https" if cfg["dash_api_use_ssl"] == "true" else "http"
+    cfg["newsfeed_api_protocol"] = "https" if cfg["newsfeed_api_use_ssl"] == "true" else "http"
+    
+    cfg["admin_ui_url"] = "%s://%s" % (cfg["admin_ui_protocol"], cfg["admin_ui_hostname"])
+    cfg["user_ui_url"] = "%s://%s" % (cfg["user_ui_protocol"], cfg["user_ui_hostname"])
+    cfg["rest_api_url"] = "%s://%s" % (cfg["rest_api_protocol"], cfg["rest_api_hostname"])
+    cfg["dash_api_url"] = "%s://%s" % (cfg["dash_api_protocol"], cfg["dash_api_hostname"])
+    cfg["newsfeed_api_url"] = "%s://%s" % (cfg["newsfeed_api_protocol"], cfg["newsfeed_api_hostname"])
     
     # something else here... 
     # the root cato directory should have a VERSION file.
@@ -172,16 +186,25 @@ def safe_config():
     cfg = {}
     cfg["version"] = CONFIG.get("version", "NOT SET")
     cfg["database"] = CONFIG.get("server", "Unknown")
-
-    cfg["user_ui_port"] = CONFIG["user_ui_port"]
-    cfg["admin_ui_port"] = CONFIG["admin_ui_port"]
-    cfg["dash_api_port"] = CONFIG["dash_api_port"]
     cfg["user_ui_enable_refresh"] = CONFIG["user_ui_enable_refresh"]
+
+    cfg["admin_ui_url"] = CONFIG["admin_ui_url"]
+    cfg["user_ui_url"] = CONFIG["user_ui_url"]
+    cfg["rest_api_url"] = CONFIG["rest_api_url"]
+    cfg["dash_api_url"] = CONFIG["dash_api_url"]
+    cfg["newsfeed_api_url"] = CONFIG["newsfeed_api_url"]
+
+    cfg["admin_ui_port"] = CONFIG["admin_ui_port"]
+    cfg["user_ui_port"] = CONFIG["user_ui_port"]
+    cfg["rest_api_port"] = CONFIG["rest_api_port"]
+    cfg["dash_api_port"] = CONFIG["dash_api_port"]
+    cfg["newsfeed_api_port"] = CONFIG["newsfeed_api_port"]
 
     cfg["admin_ui_protocol"] = "https" if CONFIG["admin_ui_use_ssl"] == "true" else "http"
     cfg["user_ui_protocol"] = "https" if CONFIG["user_ui_use_ssl"] == "true" else "http"
     cfg["rest_api_protocol"] = "https" if CONFIG["rest_api_use_ssl"] == "true" else "http"
     cfg["dash_api_protocol"] = "https" if CONFIG["dash_api_use_ssl"] == "true" else "http"
+    cfg["newsfeed_api_protocol"] = "https" if CONFIG["newsfeed_api_use_ssl"] == "true" else "http"
 
     return cfg
 
