@@ -334,7 +334,7 @@ class taskMethods:
 #                # if it's a guid it's a bogus codeblock (for export only)
 #                if catocommon.is_guid(cb.Name):
 #                    continue
-                html += '''<li class="ui-widget-content codeblock" id="cb_{0}">
+                html += '''<li class="ui-widget-content ui-corner-all codeblock" id="cb_{0}" name="cb_{0}">
                     <div>
                         <div class="codeblock_title" name="{0}">
                             <span>{0}</span>

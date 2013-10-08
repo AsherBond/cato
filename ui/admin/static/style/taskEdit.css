@@ -104,6 +104,9 @@
 #codeblock_add_btn {
 	margin: 6px 0px 6px 0px;
 }
+#codeblocks {
+	padding: 4px;
+}
 .codeblock {
 	padding: 5px 0px 10px 10px;
 	color: #404040;
@@ -111,9 +114,9 @@
 	height: 10px;
 	width: 200px;
 	list-style-type: none;
-	border-top: none;
-	border-left: none;
-	border-right: none;
+}
+.codeblock:hover {
+	background: #dddddd;
 }
 .codeblock_title {
 	margin: 0px 0px 0px 0px;
