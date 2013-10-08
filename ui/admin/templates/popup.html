@@ -24,25 +24,25 @@ $def with (content)
         <link type="text/css" href="static/style/main.css" rel="stylesheet" />
         <link type="text/css" href="static/style/tipTip.css" rel="stylesheet" />
         <!--jQuery -->
-        <script type="text/javascript" src="static/script/jquery/jquery-1.7.2.min.js"></script>
-        <script type="text/javascript" src="static/script/jquery/jquery-ui-1.8.21.min.js"></script>
+        <script src="static/script/jquery/jquery-1.7.2.min.js"></script>
+        <script src="static/script/jquery/jquery-ui-1.8.21.min.js"></script>
         <!-- Plugins -->
-        <script type="text/javascript" src="static/script/jquery/jquery.blockUI.js"></script>
-        <script type="text/javascript" src="static/script/jquery/jquery.textarea.js"></script>
-        <script type="text/javascript" src="static/script/jquery/jquery.scrollTo.js"></script>
-        <script type="text/javascript" src="static/script/jquery/jquery.tipTip.js"></script>
-        <script type="text/javascript" src="static/script/jquery/jquery.timepicker.js"></script>
-        <script type="text/javascript" src="static/script/jquery/jquery.base64.js"></script>
+        <script src="static/script/jquery/jquery.blockUI.js"></script>
+        <script src="static/script/jquery/jquery.textarea.js"></script>
+        <script src="static/script/jquery/jquery.scrollTo.js"></script>
+        <script src="static/script/jquery/jquery.tipTip.js"></script>
+        <script src="static/script/jquery/jquery.timepicker.js"></script>
+        <script src="static/script/jquery/jquery.base64.js"></script>
         <!-- JavaScript -->
-        <script type="text/javascript" src="static/script/masterpage.js"></script>
-        <script type="text/javascript" src="static/script/MainScript.js"></script>
-        <script type="text/javascript" src="static/script/validation.js"></script>
-		<script type="text/javascript" src="static/script/ajax.js"></script>
+        <script src="static/script/masterpage.js"></script>
+        <script src="static/script/MainScript.js"></script>
+        <script src="static/script/validation.js"></script>
+		<script src="static/script/ajax.js"></script>
 
         <!--Any .js files defined on the content page.-->
         $if content.jsfiles:
             $for f in content.jsfiles.split():
-                <script type="text/javascript" src="static/script/$f"></script>
+                <script src="static/script/$f"></script>
 
         <!--Any .css files defined on the content page.-->
         $if content.cssfiles:
@@ -53,6 +53,6 @@ $def with (content)
     <body>
         $:content
         <!-- dynamic divs below here -->
-        <script type="text/javascript" src="static/script/site.master.common.js"></script>
+        <script src="static/script/site.master.common.js"></script>
     </body>
 </html>
