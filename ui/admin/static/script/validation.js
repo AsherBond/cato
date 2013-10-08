@@ -15,31 +15,31 @@
 
 //dynamic field validation based on custom xhtml tags
 $(document).ready(function() {
-	$(":input[validate_as='number']").live("keypress", function(e) {
+	$(document).on("keypress", ":input[validate_as='number']", function(e) {
 		return restrictEntryToNumber(e, this);
 	});
-	$(":input[validate_as='posint']").live("keypress", function(e) {
+	$(document).on("keypress", ":input[validate_as='posint']", function(e) {
 		return restrictEntryToPositiveInteger(e, this);
 	});
-	$(":input[validate_as='posnum']").live("keypress", function(e) {
+	$(document).on("keypress", ":input[validate_as='posnum']", function(e) {
 		return restrictEntryToPositiveNumber(e, this);
 	});
-	$(":input[validate_as='variable']").live("keypress", function(e) {
+	$(document).on("keypress", ":input[validate_as='variable']", function(e) {
 		return restrictEntryCustom(e, this, /[\[\]a-zA-Z0-9_\-,]/);
 	});
-	$(":input[validate_as='identifier']").live("keypress", function(e) {
+	$(document).on("keypress", ":input[validate_as='identifier']", function(e) {
 		return restrictEntryToIdentifier(e, this);
 	});
-	$(":input[validate_as='email']").live("keypress", function(e) {
+	$(document).on("keypress", ":input[validate_as='email']", function(e) {
 		return restrictEntryToEmail(e, this);
 	});
-	$(":input[validate_as='username']").live("keypress", function(e) {
+	$(document).on("keypress", ":input[validate_as='username']", function(e) {
 		return restrictEntryToUsername(e, this);
 	});
-	$(":input[validate_as='hostname']").live("keypress", function(e) {
+	$(document).on("keypress", ":input[validate_as='hostname']", function(e) {
 		return restrictEntryToHostname(e, this);
 	});
-	$(":input[validate_as='tag']").live("keypress", function(e) {
+	$(document).on("keypress", ":input[validate_as='tag']", function(e) {
 		return restrictEntryToTag(e, this);
 	});
 
@@ -48,7 +48,7 @@ $(document).ready(function() {
 	//but we still wanted to handle and process them the same as more typical validations
 
 	//an example of specific validation for handling a special case
-	$(":input[validate_as='my_special_case']").live("keypress", function(e) {
+	$(document).on("keypress", ":input[validate_as='my_special_case']", function(e) {
 		//do logic here...
 
 		//then

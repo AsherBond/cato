@@ -348,7 +348,9 @@ function doGetSteps() {
 	}, function(response) {//the result is an html snippet
 		//we have to redo the sortable for the new content
 		$("#steps").empty();
-		$("#steps").sortable("destroy");
+		if ($("#steps").hasClass("ui-sortable")) {
+			$("#steps").sortable("destroy");
+		}
 		$("#steps").append(response);
 		initSortable();
 		validateStep();
@@ -451,7 +453,7 @@ function doDropZoneEnable($ctl) {
 			backgroundColor : "#ffbbbb"
 		}, 999).animate({
 			backgroundColor : "#ffeeee"
-		}, 999)
+		}, 999);
 	});
 
 	$ctl.droppable({
@@ -467,8 +469,9 @@ function doDropZoneEnable($ctl) {
 			}
 
 			$ctl.removeClass("step_nested_drop_target_active");
-			$ctl.droppable("destroy");
-
+			if ($ctl.hasClass("ui-droppable")) {
+				$ctl.droppable("destroy");
+			}
 			//DO NOT init the sortable if the command you just dropped has an embedded command
 			//at this time it's IF and LOOP, EXISTS and WHILE
 			if (func != "fn_if" && func != "fn_loop" && func != "fn_exists" && func != "fn_while")
@@ -482,7 +485,9 @@ function doDropZoneDisable(id) {
 	$("#" + id).css("background-color", "#ffeeee");
 	$("#" + id).html("Click here to add a command.");
 	$("#" + id).removeClass("step_nested_drop_target_active");
-	$("#" + id).droppable("destroy");
+	if ($("#" + id).hasClass("ui-droppable")) {
+		$("#" + id).droppable("destroy");
+	}
 	initSortable();
 }
 
@@ -507,7 +512,9 @@ function doGetClips() {
 
 function initDraggable() {
 	//initialize the 'commands' tab and the clipboard tab to be draggable to the step list
-	$("#toolbox .function").draggable("destroy");
+	if ($("#toolbox .function").hasClass("ui-draggable")) {
+		$("#toolbox .function").draggable("destroy");
+	}
 	$("#toolbox .function").draggable({
 		distance : 30,
 		connectToSortable : '#steps',

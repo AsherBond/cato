@@ -192,7 +192,7 @@ function ShowItemAdd() {
 }
 
 function CloseDialog() {
-	$('#AddAssetTabs').tabs('select', 0);
+	$("#AddAssetTabs").tabs("option", "active", 0);
 
 	CancelCredentialAdd();
 
@@ -204,7 +204,7 @@ function CloseDialog() {
 
 function InitializeAdd() {
 	// called from button click, or the small x in the dialog
-	$('#AddAssetTabs').tabs('select', 0);
+	$("#AddAssetTabs").tabs("option", "active", 0);
 	$("#hidCurrentEditID").val("");
 
 	$("#CredentialsSubMenu").hide();
@@ -470,7 +470,7 @@ function LoadEditDialog(editCount, editAssetID) {
 		$("#CredentialSelectorLocal").empty();
 
 		// at load default to the first tab
-		$('#AddAssetTabs').tabs('select', 0);
+		$("#AddAssetTabs").tabs("option", "active", 0);
 
 		if ( typeof (GetObjectsTags) != 'undefined') {
 			GetObjectsTags(asset.ID);

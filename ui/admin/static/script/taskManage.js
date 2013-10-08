@@ -22,7 +22,6 @@ $(document).ready(function() {
 	$("#export_dialog").hide();
 
 	//define dialogs
-	$('#edit_dialog').dialog('option', 'title', 'Create a New Task');
 	$("#edit_dialog").dialog({
 		autoOpen : false,
 		modal : true,

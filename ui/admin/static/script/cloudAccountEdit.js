@@ -37,13 +37,13 @@ $(document).ready(function() {
 	});
 
 	//the Provider ddl changes a few labels based on it's value
-	$('#ddlProvider').change(function() {
+	$("#ddlProvider").change(function() {
 		setLabels();
 		GetProviderClouds();
 		ClearTestResult();
 	});
 
-	$('#ddlDefaultCloud').change(function() {
+	$("#ddlDefaultCloud").change(function() {
 		ClearTestResult();
 	});
 
@@ -189,7 +189,7 @@ function TestConnection() {
 
 function GetItems(page) {
 	if (!page)
-		page = "1"
+		page = "1";
 	var response = ajaxPost("cloudMethods/wmGetCloudAccountsTable", {
 		sSearch : $("#txtSearch").val(),
 		sPage : page
@@ -243,15 +243,15 @@ function LoadEditDialog(sEditID) {
 		sID : sEditID
 	}, function(account) {
 		$("#txtAccountName").val(account.Name);
-		$("#txtAccountNumber").val(account.AccountNumber)
+		$("#txtAccountNumber").val(account.AccountNumber);
 		$("#ddlProvider").val(account.Provider);
 		$("#txtLoginID").val(account.LoginID);
 		$("#txtLoginPassword").val(account.LoginPassword);
 		$("#txtLoginPasswordConfirm").val(account.LoginPassword);
 
 		if (account.IsDefault == "True")
-			$("#chkDefault").attr('checked', true);
-		//if (account.AutoManage == "1") $("#chkAutoManageSecurity").attr('checked', true);
+			$("#chkDefault").attr("checked", true);
+		//if (account.AutoManage == "1") $("#chkAutoManageSecurity").attr("checked", true);
 
 		//the account result will have a list of all the clouds on this account.
 		$("#ddlDefaultCloud").empty();
@@ -274,8 +274,8 @@ function LoadEditDialog(sEditID) {
 		//clear out any test results
 		ClearTestResult();
 
-		$('#edit_dialog_tabs').tabs('select', 0);
-		$('#edit_dialog_tabs').tabs("option", "disabled", []);
+		$("#edit_dialog_tabs").tabs("option", "active", 0);
+		$("#edit_dialog_tabs").tabs("option", "disabled", []);
 		$("#edit_dialog").dialog("option", "title", "Modify Account");
 		$("#edit_dialog").dialog("open");
 	});
@@ -289,11 +289,11 @@ function ClearTestResult() {
 
 function SaveItem(close_after_save) {
 	//used for changing the global dropdown if needed
-	var old_label = $('#header_cloud_accounts option:selected').text();
+	var old_label = $("#header_cloud_accounts option:selected").text();
 
 	var bSaved = false;
 	var bSave = true;
-	var strValidationError = '';
+	var strValidationError = "";
 
 	//some client side validation before we attempt to save
 	var sAccountID = $("#hidCurrentEditID").val();
@@ -301,29 +301,29 @@ function SaveItem(close_after_save) {
 	var sAccountName = $("#txtAccountName").val();
 	if (!sAccountName) {
 		bSave = false;
-		strValidationError += 'Account Name required.<br />';
+		strValidationError += "Account Name required.<br />";
 	};
 
 	var sDefaultCloudID = $("#ddlDefaultCloud").val();
 	if (!sDefaultCloudID) {
 		bSave = false;
-		strValidationError += 'Default Cloud required.<br />';
+		strValidationError += "Default Cloud required.<br />";
 	};
 
 	if ($("#txtLoginPassword").val() != $("#txtLoginPasswordConfirm").val()) {
 		bSave = false;
-		strValidationError += 'Passwords do not match.';
+		strValidationError += "Passwords do not match.";
 	};
 
 	if (bSave != true) {
 		var prv = $("#ddlProvider option:selected").text();
 		url = "/cloudEdit?add=true&provider=" + prv;
 
-		showInfo(strValidationError, "<a href='" + url + "'>Click here</a> to create a new Cloud.", true);
+		showInfo(strValidationError, '<a href="' + url + '">Click here</a> to create a new Cloud.', true);
 		return false;
 	}
 
-	var args = {}
+	var args = {};
 	args.sMode = $("#hidMode").val();
 	args.sAccountID = sAccountID;
 	args.sAccountName = sAccountName;
@@ -342,10 +342,10 @@ function SaveItem(close_after_save) {
 		$("#txtSearch").val("");
 		GetItems();
 
-		var dropdown_label = account.Name + ' (' + account.Provider + ')';
+		var dropdown_label = account.Name + " (" + account.Provider + ")";
 		//if we are adding a new one, add it to the dropdown too
 		if ($("#hidMode").val() == "add") {
-			$('#header_cloud_accounts').append($('<option>', {
+			$("#header_cloud_accounts").append($("<option>", {
 				value : account.ID
 			}).text(dropdown_label));
 			//if this was the first one, get it in the session by nudging the change event.
@@ -383,9 +383,9 @@ function ShowItemAdd() {
 	//clear out any test results
 	ClearTestResult();
 
-	$('#edit_dialog_tabs').tabs('select', 0);
-	$('#edit_dialog_tabs').tabs("option", "disabled", [1]);
-	$('#edit_dialog').dialog('option', 'title', 'Create a New Account');
+	$("#edit_dialog_tabs").tabs("option", "active", 0);
+	$("#edit_dialog_tabs").tabs("option", "disabled", [1]);
+	$("#edit_dialog").dialog("option", "title", "Create a New Account");
 	$("#edit_dialog").dialog("open");
 	$("#txtAccountName").focus();
 }
@@ -401,7 +401,7 @@ function DeleteItems() {
 		var current = $("#header_cloud_accounts option:selected").val();
 
 		//remove the deleted ones from the cloud account dropdown
-		myArray = $("#hidSelectedArray").val().split(',');
+		myArray = $("#hidSelectedArray").val().split(",");
 		$.each(myArray, function(name, value) {
 			//whack it
 			$('#header_cloud_accounts option[value="' + value + '"]').remove();
@@ -411,7 +411,7 @@ function DeleteItems() {
 		});
 
 		if (do_refresh)
-			$('#header_cloud_accounts').change();
+			$("#header_cloud_accounts").change();
 
 		//update the list in the dialog
 		$("#hidSelectedArray").val("");

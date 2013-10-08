@@ -21,7 +21,6 @@ $(document).ready(function() {
 	$("#delete_dialog").hide();
 
 	//define dialogs
-	$('#edit_dialog').dialog('option', 'title', 'New Deployment');
 	$("#edit_dialog").dialog({
 		autoOpen : false,
 		modal : true,

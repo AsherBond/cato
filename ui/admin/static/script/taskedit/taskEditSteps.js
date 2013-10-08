@@ -551,7 +551,9 @@ function initSortable() {
 	//validateStep();
 
 	//set up the sortable
-	$("#steps").sortable("destroy");
+	if ($("#steps").hasClass("ui-sortable")) {
+		$("#steps").sortable("destroy");
+	}
 	$("#steps").sortable({
 		handle : $(".step_header"),
 		distance : 20,
@@ -573,7 +575,7 @@ function initSortable() {
 
 	//this turns on the "combobox" controls on steps.
 	$(function() {
-		$("#steps select:.combo").ufd({
+		$("#steps select.combo").ufd({
 			submitFreeText : true,
 			css : {
 				input : "ui-widget-content code",
@@ -584,7 +586,7 @@ function initSortable() {
 
 		//NOTE: we are using the ufd plugin, but in this case we need more.
 		//This copies all the attributes from the source 'select' onto the new 'input' it created.
-		$("#steps select:.combo").each(function(i, cbo) {
+		$("#steps select.combo").each(function(i, cbo) {
 			var id = $(cbo).attr("id");
 			$(cbo.attributes).each(function(i, attrib) {
 				var name = attrib.name;

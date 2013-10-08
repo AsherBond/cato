@@ -101,7 +101,7 @@ function LoadEditDialog(editID) {
 
 		if (cred.Type == "Private Key") {
 			$("#txtPrivateKey").val("********");
-			$('#edit_dialog_tabs').tabs('select', 1);
+			$("#edit_dialog_tabs").tabs("option", "active", 1);
 		}
 
 		$("#hidMode").val("edit");
@@ -112,29 +112,29 @@ function LoadEditDialog(editID) {
 
 function SaveCredential() {
 	var bSave = true;
-	var strValidationError = '';
+	var strValidationError = "";
 
 	//some client side validation before we attempt to save
 	var sCredentialID = $("#hidCurrentEditID").val();
 	var sCredentialName = $("#txtCredName").val();
 	var sCredUsername = $("#txtCredUsername").val();
 	var sPrivateKey = $("#txtPrivateKey").val();
-	if (sCredentialName == '') {
+	if (sCredentialName == "") {
 		bSave = false;
-		strValidationError += 'Credential Name required.<br />';
+		strValidationError += "Credential Name required.<br />";
 	};
-	if (sCredUsername == '' && sPrivateKey == '') {
+	if (sCredUsername == "" && sPrivateKey == "") {
 		bSave = false;
-		strValidationError += 'User Name or Private Key required.<br />';
+		strValidationError += "User Name or Private Key required.<br />";
 	};
 
 	if ($("#txtCredPassword").val() != $("#txtCredPasswordConfirm").val()) {
 		bSave = false;
-		strValidationError += 'Passwords do not match.<br />';
+		strValidationError += "Passwords do not match.<br />";
 	};
 	if ($("#txtPrivilegedPassword").val() != $("#txtPrivilegedConfirm").val()) {
 		bSave = false;
-		strValidationError += 'Priviledged passwords do not match.<br />';
+		strValidationError += "Priviledged passwords do not match.<br />";
 	};
 
 	if (bSave != true) {
@@ -172,7 +172,7 @@ function ShowItemAdd() {
 	$("#hidMode").val("add");
 
 	clearEditDialog();
-	$('#edit_dialog').dialog("option", "title", 'Create a New Credential');
+	$("#edit_dialog").dialog("option", "title", "Create a New Credential");
 
 	$("#edit_dialog").dialog("open");
 	$("#txtCredName").focus();

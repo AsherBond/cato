@@ -1,11 +1,11 @@
 //Copyright 2012 Cloud Sidekick
-// 
+//
 //Licensed under the Apache License, Version 2.0 (the "License");
 //you may not use this file except in compliance with the License.
 //You may obtain a copy of the License at
-// 
+//
 //    http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //Unless required by applicable law or agreed to in writing, software
 //distributed under the License is distributed on an "AS IS" BASIS,
 //WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,51 +24,37 @@ g_config = catoAjax.getConfig();
 g_config.user_ui_url = g_config.user_ui_protocol + '://' + window.location.hostname + ':' + g_config.user_ui_port;
 g_config.admin_ui_url = g_config.admin_ui_protocol + '://' + window.location.hostname + ':' + g_config.admin_ui_port;
 
+$(document).ready(function() {
+	//NOTE: this is the main jQuery function that will execute
+	//when the DOM is ready.  Things you want defined on 'page load' should
+	//go in here.
 
-$(document).ready(function () {
-    //NOTE: this is the main jQuery function that will execute
-    //when the DOM is ready.  Things you want defined on 'page load' should 
-    //go in here.
+	//use this to define constants, set up jQuery objects, etc.
 
-    //use this to define constants, set up jQuery objects, etc.
-
-    $("#main-menu").load("uiMethods/wmGetMenu", function() {
-	    $("ul.sf-menu").supersubs({
-	        minWidth: 18,   // minimum width of sub-menus in em units 
-	        maxWidth: 27,   // maximum width of sub-menus in em units 
-	        extraWidth: .5     // extra width can ensure lines don't sometimes turn over 
-	        // due to slight rounding differences and font-family 
-	    }).superfish();  // call supersubs first, then superfish, so that subs are 
-	    // not display:none when measuring. Call before initialising 
-	    // containing tabs for same reason.
+	$("#main-menu").load("uiMethods/wmGetMenu", function() {
+		$("ul.sf-menu").supersubs({
+			minWidth : 18, // minimum width of sub-menus in em units
+			maxWidth : 27, // maximum width of sub-menus in em units
+			extraWidth : .5 // extra width can ensure lines don't sometimes turn over
+			// due to slight rounding differences and font-family
+		}).superfish();
+		// call supersubs first, then superfish, so that subs are
+		// not display:none when measuring. Call before initialising
+		// containing tabs for same reason.
 	});
 
 	getCloudAccounts();
-	
-    //note the selected one for other functions
-    $("#header_cloud_accounts").change(function () {
-    	$.cookie("selected_cloud_account", $(this).val());
-    	$.cookie("selected_cloud_provider", $("#header_cloud_accounts option:selected").attr("provider"));
-    	
-        if (typeof CloudAccountWasChanged == 'function') {
-	    	CloudAccountWasChanged();
-        }
-    });
-});
 
+	//note the selected one for other functions
+	$("#header_cloud_accounts").change(function() {
+		$.cookie("selected_cloud_account", $(this).val());
+		$.cookie("selected_cloud_provider", $("#header_cloud_accounts option:selected").attr("provider"));
 
-// Menu
-$(function () {
-    var tabContainers = $('div.tabs > div');
-    tabContainers.hide().filter(':home').hide();
-    $('div.tabs ul.tabNavigation a').click(function () {
-        tabContainers.slideUp();
-        tabContainers.filter(this.hash).slideDown();
-        //$('div.tabs ul.tabNavigation a').removeClass('selected');
-        //$(this).addClass('selected');
-    }).filter(':first').click();
+		if ( typeof CloudAccountWasChanged == 'function') {
+			CloudAccountWasChanged();
+		}
+	});
 });
-// End Menu
 
 function updateHeartbeat() {"use strict";
 	ajaxGet("uiMethods/wmUpdateHeartbeat");
@@ -104,13 +90,15 @@ function lockDown(msg) {
 
 	// this nice little bit gets the index of a new setTimeout, then clears every outstanding timeout.
 	// very useful for when dynamic content like user-defined reports are setting timeouts
-	var x = setTimeout(function(){}, 0);
+	var x = setTimeout(function() {
+	}, 0);
 	for (var i = 0; i < x; i++) {
 		clearTimeout(i);
 	}
 
 	//same magic to clear intervals
-	var x = setInterval(function(){}, 0);
+	var x = setInterval(function() {
+	}, 0);
 	for (var i = 0; i < x; i++) {
 		clearInterval(i);
 	}
@@ -125,14 +113,13 @@ function getCloudAccounts() {
 	}
 }
 
-function registerCato()
-{
+function registerCato() {
 	//update the setting
-	updateSetting("general","register_cato","registered");
-	
+	updateSetting("general", "register_cato", "registered");
+
 	//open the form
 	openWindow('http://community.cloudsidekick.com/register-cato?utm_source=cato_app&amp;utm_medium=menu&amp;utm_campaign=app', 'ask', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');
-	
+
 	//this might not be visible, but try to remove it anyway.
 	$("#registercato").remove();
 }

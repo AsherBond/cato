@@ -240,7 +240,7 @@ $(document).ready(function() {
 	$("#liDaysAll").click(function() {
 		$("#liDaysWeek").removeClass("plan_datepoint_active");
 		$("#liDates").removeClass("plan_datepoint_active");
-		$("#olWeek").hide()
+		$("#olWeek").hide();
 		$("#olWeek li").removeClass("plan_datepoint_active");
 		$("#olDates li").removeClass("plan_datepoint_active");
 
@@ -351,7 +351,7 @@ function checkRequiredParams() {
 		});
 
 		if (warn == true) {
-			ask = confirm("Some Parameters have empty values.\n\nWhile Parameters are allowed to be blank, " + " the highlighted ones are required.\n\nClick 'OK' to proceed, or 'Cancel' to update the Parameters.")
+			ask = confirm("Some Parameters have empty values.\n\nWhile Parameters are allowed to be blank, " + " the highlighted ones are required.\n\nClick 'OK' to proceed, or 'Cancel' to update the Parameters.");
 			if (ask) {
 				//if they selected OK, clear the highlights and proceed
 				$(".task_launch_parameter_required").removeClass("ui-state-highlight");
@@ -369,7 +369,7 @@ function getParamXML(id, type, filter_id) {
 	var task_parameter_xml = "";
 
 	if (filter_id === undefined || filter_id === null)
-		filter_id = ""
+		filter_id = "";
 
 	var task_parameter_xml = ajaxPost("taskMethods/wmGetParameterXML", {
 		sType : type,
@@ -541,7 +541,7 @@ function RunNow() {
 			doGetDebug();
 		}
 	} else {
-		alert("The Task may not have started... no Task Instance was returned.")
+		alert("The Task may not have started... no Task Instance was returned.");
 	}
 
 	$("#update_success_msg").fadeOut(2000);
@@ -673,7 +673,7 @@ function RunRepeatedly() {
 
 		//refresh and change to the "Plan" tab so the user knows something happened
 		getPlans();
-		$('#task_launch_dialog_schedule').tabs('select', 3);
+		$('#task_launch_dialog_schedule').tabs("option", "active", 3);
 	}
 }
 
@@ -706,7 +706,7 @@ function RunLater() {
 
 		//refresh and change to the "Plan" tab so the user knows something happened
 		getPlans();
-		$('#task_launch_dialog_schedule').tabs('select', 3);
+		$('#task_launch_dialog_schedule').tabs("option", "active", 3);
 	}
 }
 
@@ -730,7 +730,7 @@ function SaveRecurringPlan() {
 			sDaysOrWeeks : tt.dorw,
 			sParameterXML : parameter_xml,
 			iDebugLevel : debug_level
-		}
+		};
 
 		var response = ajaxPost("uiMethods/wmSaveSchedule", args, "text");
 		if (response) {
@@ -739,7 +739,7 @@ function SaveRecurringPlan() {
 			//change to the "Plan" tab so the user knows something happened
 			getPlans();
 			//this refreshes the plans tabs because labels have changed.
-			$('#task_launch_dialog_schedule').tabs('select', 3);
+			$('#task_launch_dialog_schedule').tabs("option", "active", 3);
 
 			//will refresh the parent page, if it has an appropriate function
 			if ( typeof doGetPlans == 'function') {
@@ -770,7 +770,7 @@ function SavePlan() {
 
 		//change to the "Plan" tab so the user knows something happened
 		//unlike SaveRecurringPlan - no need to refresh the plan tab here
-		$('#task_launch_dialog_schedule').tabs('select', 3);
+		$('#task_launch_dialog_schedule').tabs("option", "active", 3);
 
 		//will refresh the parent page, if it has an appropriate function
 		if ( typeof doGetPlans == 'function') {
@@ -919,7 +919,7 @@ function populateTimetable(timetable) {
 	if (Months == "0,1,2,3,4,5,6,7,8,9,10,11") {
 		$("#liMonthsAll").addClass("plan_datepoint_active");
 	} else {
-		var valueArray = Months.split(",")
+		var valueArray = Months.split(",");
 		for (var i = 0; i < valueArray.length; i++) {
 			$("#mo_" + valueArray[i]).addClass("plan_datepoint_active");
 		}
@@ -928,7 +928,7 @@ function populateTimetable(timetable) {
 	// Days or weekdays
 	var dorw = timetable.sDaysOrWeeks;
 	var days = timetable.sDays;
-	valueArray = days.split(",")
+	valueArray = days.split(",");
 
 	switch (dorw) {
 		case '0':
@@ -966,7 +966,7 @@ function populateTimetable(timetable) {
 
 	// Hours
 	var Hours = timetable.sHours;
-	valueArray = Hours.split(",")
+	valueArray = Hours.split(",");
 	if (Hours == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23") {
 		$("#liHoursAll").addClass("plan_datepoint_active");
 	} else {
@@ -977,7 +977,7 @@ function populateTimetable(timetable) {
 
 	// Minutes
 	var Minutes = timetable.sMinutes;
-	valueArray = Minutes.split(",")
+	valueArray = Minutes.split(",");
 	if (Minutes == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59") {
 		$("#liMinutesAll").addClass("plan_datepoint_active");
 	} else {

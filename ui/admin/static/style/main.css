@@ -2,7 +2,7 @@
 @import url('text.css');
 @import url('input.css');
 @import url('sizing.css');
-@import url('jquery-ui-1.8.21.custom.css');
+@import url('//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css');
 /*@import url('menu/menu.css');
  @import url('ac_pro/css/ac_pro/jquery-ui-1.7.1.custom.css');*/
 
@@ -38,7 +38,6 @@ body {
 #content {
 	/*overflow: auto;*/
 	position: absolute;
-	z-index: 1;
 	top: 45px;
 	left: 200px;
 	right: 2px;
@@ -60,7 +59,6 @@ body {
 	width: 100%;
 	overflow: auto;
 	position: absolute;
-	z-index: -1;
 	border-top: 39px solid #f0f0f0; /*border-bottom: 20px solid #f0f0f0;*/
 	border-left: 200px solid #f0f0f0;
 }
@@ -89,7 +87,6 @@ body {
 	width: 100%;
 	height: 38px;
 	border: none; /*overrides the border from the ui-widget_header class*/ /*background-image: url( 'images/header-bg.png' ); 	background-repeat: repeat-x; 	background-attachment: fixed;*/
-	z-index: 2;
 	font-family: 'Lato', sans-serif;
 	font-size: 12px;
 }
@@ -109,7 +106,6 @@ body {
 	top: 39px;
 	width: 200px;
 	font-size: 1.2em;
-	z-index: 0;
 	overflow: auto;
 	background-repeat: no-repeat;
 	padding: 2px 2px 2px 2px;
@@ -119,7 +115,6 @@ body {
 	height: 100%;
 	top: 0px;
 	bottom: 0px;
-	z-index: 0;
 	border-top: 39px solid #f0f0f0; /*border-bottom: 20px solid #f0f0f0;*/
 	color: #444;
 }

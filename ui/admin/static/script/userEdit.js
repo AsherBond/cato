@@ -120,7 +120,7 @@ $(document).ready(function() {
 
 function GetItems(page) {
 	if (!page)
-		page = "1"
+		page = "1";
 	var response = ajaxPost("uiMethods/wmGetUsersTable", {
 		sSearch : $("#txtSearch").val(),
 		sPage : page
@@ -187,7 +187,7 @@ function CloseDialog() {
 
 function InitializeUserAdd() {
 	// called from button click, or the small x in the dialog
-	$('#AddUserTabs').tabs('select', 0);
+	$("#AddUserTabs").tabs("option", "active", 0);
 	$("[id*='lblNewUserMessage']").html('');
 	$("#hidCurrentEditID").val("");
 	$("#objects_tags").empty();
@@ -462,7 +462,7 @@ function LoadEditDialog(editCount, editUserID) {
 	});
 	if (user) {
 		$("#txtUserLoginID").val(user.LoginID);
-		$("#txtUserFullName").val(user.FullName)
+		$("#txtUserFullName").val(user.FullName);
 		$("#txtUserEmail").val(user.Email);
 		//$("#txtUserPassword").val(user.sPasswordMasked);
 		//$("#txtUserPasswordConfirm").val(user.sPasswordMasked)
@@ -496,7 +496,7 @@ function ShowItemModify() {
 	SetPasswordControls();
 
 	//load up the first or only user to modify
-	var sFirstUserID = myArray[0].toString()
+	var sFirstUserID = myArray[0].toString();
 
 	// load the user for editing
 	LoadEditDialog(userCount, sFirstUserID);

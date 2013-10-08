@@ -130,7 +130,9 @@ function doGetCodeblocks() {
 		$("#codeblock_delete_btn_MAIN").remove();
 
 		//crazy... we can drag out of the codeblock selector!
-		$("#codeblock_selector .codeblock").draggable("destroy");
+		if ($("#codeblock_selector .codeblock").hasClass("ui-draggable")) {
+			$("#codeblock_selector .codeblock").draggable("destroy");
+		}
 		$("#codeblock_selector .codeblock").draggable({
 			distance : 30,
 			connectToSortable : '#steps',
@@ -147,7 +149,7 @@ function doGetCodeblocks() {
 			stop : function(event, ui) {
 				$("#dd_dragging").val("false");
 			}
-		})
+		});
 	}, "html");
 }
 
@@ -165,7 +167,7 @@ function ShowCodeblockEdit(codeblock_name) {
 		$("#new_codeblock_name").val(codeblock_name);
 		$("#codeblock_edit_dialog").dialog("option", "buttons", {
 			"Save" : function() {
-				doCodeblockUpdate(codeblock_name)
+				doCodeblockUpdate(codeblock_name);
 			},
 			"Cancel" : function() {
 				$(this).dialog("close");
@@ -176,7 +178,7 @@ function ShowCodeblockEdit(codeblock_name) {
 		$("#new_codeblock_name").val('');
 		$("#codeblock_edit_dialog").dialog("option", "buttons", {
 			"Add" : function() {
-				doCodeblockAdd()
+				doCodeblockAdd();
 			},
 			"Cancel" : function() {
 				$(this).dialog("close");
@@ -217,7 +219,7 @@ function doCodeblockUpdate(old_name) {
 
 		$("#update_success_msg").text("Update Successful").fadeOut(2000);
 	}
-	
+
 	// since we are reloading the codeblock list, remove the delete button again for the MAIN codeblock
 	$("#codeblock_delete_btn_MAIN").remove();
 	$("#codeblock_rename_btn_MAIN").remove();

@@ -153,7 +153,7 @@ $(document).ready(function() {
 	});
 
 	//the Provider ddl changes a few things
-	$('#ddlProvider').change(function() {
+	$("#ddlProvider").change(function() {
 		GetProviderAccounts();
 	});
 
@@ -268,7 +268,7 @@ function TestConnection() {
 
 function GetItems(page) {
 	if (!page)
-		page = "1"
+		page = "1";
 	var response = ajaxPost("cloudMethods/wmGetCloudsTable", {
 		sSearch : $("#txtSearch").val(),
 		sPage : page
@@ -300,7 +300,7 @@ function LoadEditDialog(editID) {
 	clearEditDialog();
 	$("#hidMode").val("edit");
 
-	$('#edit_dialog_tabs').tabs("enable", 1);
+	$("#edit_dialog_tabs").tabs("enable", 1);
 
 	$("#hidCurrentEditID").val(editID);
 
@@ -335,21 +335,21 @@ function ClearTestResult() {
 function SaveItem(close_after_save) {
 	var bSaved = false;
 	var bSave = true;
-	var strValidationError = '';
+	var strValidationError = "";
 
 	//some client side validation before we attempt to save
 	var sCloudID = $("#hidCurrentEditID").val();
 
 	var sCloudName = $("#txtCloudName").val();
-	if (sCloudName == '') {
+	if (sCloudName == "") {
 		bSave = false;
-		strValidationError += 'Cloud Name required.<br />';
+		strValidationError += "Cloud Name required.<br />";
 	};
 
 	var sAPIUrl = $("#txtAPIUrl").val();
-	if (sAPIUrl == '') {
+	if (sAPIUrl == "") {
 		bSave = false;
-		strValidationError += 'API URL required.';
+		strValidationError += "API URL required.";
 	};
 
 	if (bSave != true) {
@@ -357,7 +357,7 @@ function SaveItem(close_after_save) {
 		return false;
 	}
 
-	var acct_id = ($("#ddlDefaultAccount").val() !== null) ? $("#ddlDefaultAccount").val() : '';
+	var acct_id = ($("#ddlDefaultAccount").val() !== null) ? $("#ddlDefaultAccount").val() : "";
 
 	var args = {
 		sMode : $("#hidMode").val(),
@@ -401,9 +401,9 @@ function ShowItemAdd() {
 
 	$("#hidMode").val("add");
 
-	$('#edit_dialog_tabs').tabs('select', 0);
-	$('#edit_dialog_tabs').tabs("option", "disabled", [1]);
-	$('#edit_dialog').dialog('option', 'title', 'Create a New Cloud');
+	$("#edit_dialog_tabs").tabs("option", "active", 0);
+	$("#edit_dialog_tabs").tabs("option", "disabled", [1]);
+	$("#edit_dialog").dialog("option", "title", "Create a New Cloud");
 	$("#edit_dialog").dialog("open");
 	$("#txtCloudName").focus();
 }
@@ -428,7 +428,7 @@ function GetKeyPairs(sEditID) {
 	var response = ajaxPost("cloudMethods/wmGetKeyPairs", {
 		sID : sEditID
 	}, "html");
-	$('#keypairs').html(response);
+	$("#keypairs").html(response);
 }
 
 function SaveKeyPair() {
@@ -445,11 +445,11 @@ function SaveKeyPair() {
 	}
 
 	//some client side validation before we attempt to save
-	if (name == '') {
+	if (name == "") {
 		showInfo("KeyPair Name is required.");
 		return false;
 	};
-	if ($("#keypair_private_key").val() == '') {
+	if ($("#keypair_private_key").val() == "") {
 		showInfo("Private Key is required.");
 		return false;
 	};
@@ -468,9 +468,9 @@ function SaveKeyPair() {
 			//find the label and update it
 			$("#kp_" + kpid + " .keypair_label").html(name);
 			if (!pp) {
-				$("#kp_" + kpid).attr("has_pp", "")
+				$("#kp_" + kpid).attr("has_pp", "");
 			} else {
-				$("#kp_" + kpid).attr("has_pp", "true")
+				$("#kp_" + kpid).attr("has_pp", "true");
 			}
 		} else {
 			//re-get the list
