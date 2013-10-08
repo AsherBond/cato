@@ -69,9 +69,9 @@ function GetSettings() {
 					if (type == "input") {
 						if (typeattr == "checkbox") {
 							if (value === true || value == "true" || value > 0)
-								$ctl.attr("checked", "checked");
+								$ctl.prop("checked", true);
 							else
-								$ctl.removeAttr("checked");
+								$ctl.prop("checked", false);
 						} else {
 							$ctl.val(value);
 						}

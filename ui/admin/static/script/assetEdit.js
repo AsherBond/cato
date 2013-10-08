@@ -99,7 +99,7 @@ $(document).ready(function() {
 	$("#EditCredential").hide();
 
 	$("#btnCredSelect").click(function() {
-		$("input[name=rbShared]:checked").val("0")
+		$("input[name=rbShared]:checked").val("0");
 		$("#hidCredentialType").val("selected");
 		$('#hidCredentialID').val('');
 		$('#CredentialSelectorTabs').show();
@@ -113,7 +113,7 @@ $(document).ready(function() {
 	});
 
 	$("#btnCredAdd").click(function() {
-		$("input[name=rbShared]:checked").val("1")
+		$("input[name=rbShared]:checked").val("1");
 		$("#hidCredentialType").val("new");
 		$("#hidCredentialID").val("");
 		$("#CredentialSelectorTabs").hide();
@@ -135,7 +135,7 @@ $(document).ready(function() {
 
 function GetItems(page) {
 	if (!page)
-		page = "1"
+		page = "1";
 	var response = ajaxPost("uiMethods/wmGetAssetsTable", {
 		sSearch : $("#txtSearch").val(),
 		sPage : page
@@ -269,7 +269,7 @@ function SaveAsset() {
 	var sCredentialName = $("#txtCredName").val();
 	var sCredentialDescr = $("#txtCredDescription").val();
 	var sDomain = $("#txtCredDomain").val();
-	var sCredentialType = $("#hidCredentialType").val()
+	var sCredentialType = $("#hidCredentialType").val();
 	var sCredentialID = $("#hidCredentialID").val();
 
 	if (sCredentialType == 'selected') {
@@ -310,7 +310,7 @@ function SaveAsset() {
 		sTags[idx] = $(this).attr("val");
 	});
 
-	var cred = {}
+	var cred = {};
 	cred.ID = sCredentialID;
 	cred.Name = sCredentialName;
 	cred.Description = sCredentialDescr;
@@ -346,7 +346,7 @@ function SaveAsset() {
 			var wereInArray = myArray.length;
 
 			if (jQuery.inArray(sEditID, myArray) > -1) {
-				$("#chk_" + sEditID).attr("checked", false);
+				$("#chk_" + sEditID).prop("checked", false);
 				myArray.remove(sEditID);
 			}
 
@@ -411,7 +411,7 @@ function LoadEditDialog(editCount, editAssetID) {
 		// show the assets current values
 		$("#txtAssetName").val(asset.Name);
 		$("#ddlAssetStatus").val(asset.Status);
-		$("#txtPort").val(asset.Port)
+		$("#txtPort").val(asset.Port);
 		$("#txtDbName").val(asset.DBName);
 		var sAddress = asset.Address.replace("||", "\\\\");
 		sAddress = sAddress.replace(/\|/g, "\\");
@@ -506,12 +506,12 @@ function LoadCredentialSelector() {
 	if (creds) {
 		$("#credentials").html("");
 		$.each(creds, function(index, cred) {
-			s = "<tr class=\"select_credential\" credential_id=\"" + cred.ID + "\">"
-			s += "<td class=\"selectablecrd row\">" + cred.Name + "</td>"
-			s += "<td class=\"selectablecrd row\">" + cred.Username + "</td>"
-			s += "<td class=\"selectablecrd row\">" + cred.Domain + "</td>"
-			s += "<td class=\"selectablecrd row\">" + cred.Description + "</td>"
-			s += "</tr>"
+			s = "<tr class=\"select_credential\" credential_id=\"" + cred.ID + "\">";
+			s += "<td class=\"selectablecrd row\">" + cred.Name + "</td>";
+			s += "<td class=\"selectablecrd row\">" + cred.Username + "</td>";
+			s += "<td class=\"selectablecrd row\">" + cred.Domain + "</td>";
+			s += "<td class=\"selectablecrd row\">" + cred.Description + "</td>";
+			s += "</tr>";
 
 			$("#credentials").append(s);
 		});

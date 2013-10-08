@@ -111,7 +111,7 @@ $(document).ready(function() {
 	});
 
 	//hover effect
-	$("#codeblock_selector .codeblock").live("hover", function() {
+	$("#codeblock_selector .codeblock").live("mouseenter mouseleave", function() {
 		$("#te_help_box_detail").html("Click a Codeblock to edit its steps.");
 	}, function() {
 		$("#te_help_box_detail").html("");

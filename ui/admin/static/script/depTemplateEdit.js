@@ -92,7 +92,7 @@ $(document).ready(function() {"use strict";
 		}
 	});
 	$("#validate").click(function() {
-		var reformat = ($('#chk_reformat').attr('checked') === "checked" ? true : false);
+		var reformat = ($('#chk_reformat').prop('checked') ? true : false);
 		jsl.interactions.validate($("#txtTemplate"), $("#json_parse_msg"), reformat, false);
 		return false;
 	});
@@ -190,17 +190,17 @@ function getDetails() {"use strict";
 		$("#txtDescription").val(template.Description);
 		$("#txtTemplate").val(template.Text);
 
-		$("#chkTemplateAvailable").attr("checked", (template.Available == 1) ? true : false);
+		$("#chkTemplateAvailable").prop("checked", (template.Available == 1) ? true : false);
 
 		// if (account.IsDefault == "True")
-			// $("#chkDefault").attr('checked', true);
+			// $("#chkDefault").prop('checked', true);
 
 		// draw the icon on the canvas
 		// FROM OUR SPECIAL appicon url that handles delivering an image from the db.
 		drawicon("/appicon/" + template.ID);
 
 		try {
-			var jsobj = JSON.parse(template.Text)
+			var jsobj = JSON.parse(template.Text);
 			editor.set(jsobj);
 		} catch (ex) {
 			showAlert("Unable to display Template in editor: \n" + ex.message);
@@ -300,7 +300,7 @@ function validateTemplateJSON() {"use strict";
 
 	//each source type has a slightly different behavior
 	//call the validate function
-	var reformat = ($('#chk_reformat').attr('checked') === "checked" ? true : false);
+	var reformat = ($('#chk_reformat').prop('checked') ? true : false);
 	jsl.interactions.validate($("#txtTemplate"), $("#json_parse_msg"), reformat, false);
 
 	//if the validation failed (the box has the error class), disable the create button

@@ -249,9 +249,9 @@ function LoadEditDialog(sEditID) {
 		$("#txtLoginPassword").val(account.LoginPassword);
 		$("#txtLoginPasswordConfirm").val(account.LoginPassword);
 
-		if (account.IsDefault == "True")
-			$("#chkDefault").attr("checked", true);
-		//if (account.AutoManage == "1") $("#chkAutoManageSecurity").attr("checked", true);
+		if (account.IsDefault)
+			$("#chkDefault").prop("checked", true);
+		//if (account.AutoManage == "1") $("#chkAutoManageSecurity").prop("checked", true);
 
 		//the account result will have a list of all the clouds on this account.
 		$("#ddlDefaultCloud").empty();
@@ -333,8 +333,8 @@ function SaveItem(close_after_save) {
 	args.sLoginID = $("#txtLoginID").val();
 	args.sLoginPassword = $("#txtLoginPassword").val();
 	args.sLoginPasswordConfirm = $("#txtLoginPasswordConfirm").val();
-	args.sIsDefault = ($("#chkDefault").attr("checked") ? "1" : "0");
-	args.sAutoManageSecurity = ($("#chkAutoManageSecurity").attr("checked") ? "1" : "0");
+	args.sIsDefault = ($("#chkDefault").prop("checked") ? "1" : "0");
+	args.sAutoManageSecurity = ($("#chkAutoManageSecurity").prop("checked") ? "1" : "0");
 
 	var account = ajaxPost("cloudMethods/wmSaveAccount", args);
 	if (account) {

@@ -21,10 +21,10 @@ $(document).ready(function() {
 	$("#chkAll").live("click", function() {
 		if (this.checked) {
 			this.checked = true;
-			$("[tag='chk']").attr("checked", true);
+			$("[tag='chk']").prop("checked", true);
 		} else {
 			this.checked = false;
-			$("[tag='chk']").attr("checked", false);
+			$("[tag='chk']").prop("checked", false);
 		}
 
 		//now build out the array
@@ -52,7 +52,7 @@ $(document).ready(function() {
 		//we do not have logic here to check the chkAll box if all items are checked.
 		//that's not necessary right now.
 		if (!this.checked) {
-			$("#chkAll").attr("checked", false)
+			$("#chkAll").prop("checked", false);
 		}
 
 		//now build out the array
@@ -122,7 +122,7 @@ function GetProvider() {
 			sProvider : selected_provider
 		}, function(provider) {
 			if (provider.info) {
-				showInfo(provider.info)
+				showInfo(provider.info);
 			} else {
 				// loop the clouds
 				$("#ddlClouds").empty();
@@ -147,8 +147,8 @@ function GetProvider() {
 			}
 		});
 	} else {
-		showInfo("There are no Cloud Accounts defined.")
-		
+		showInfo("There are no Cloud Accounts defined.");
+
 	}
 }
 

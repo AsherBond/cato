@@ -39,7 +39,7 @@ $(document).ready(function() {
 				$("#lblItemsSelected").html("0");
 
 				// nice, clear all checkboxes selected in a single line!
-				$(':input', (".jtable")).attr('checked', false);
+				$(':input', (".jtable")).prop('checked', false);
 
 				$(this).dialog("close");
 			}
@@ -82,7 +82,7 @@ $(document).ready(function() {
 
 function GetItems(page) {
 	if (!page)
-		page = "1"
+		page = "1";
 	var response = ajaxPost("taskMethods/wmGetTasksTable", {
 		sSearch : $("#txtSearch").val(),
 		sPage : page
@@ -166,7 +166,7 @@ function ShowItemCopy() {
 	//alert(myArray[0]);
 	var task_name = $("[task_id=" + task_copy_original_id +"] td")[2].innerHTML;
 	$("#lblTaskCopy").html('<b>Copying Task ' + task_name + '</b><br />&nbsp;<br />');
-	$("[tag='chk']").attr("checked", false);
+	$("[tag='chk']").prop("checked", false);
 	$("#hidSelectedArray").val('');
 	$("#hidCopyTaskID").val(task_copy_original_id);
 	$("#lblItemsSelected").html("0");
@@ -234,7 +234,7 @@ function DeleteItems() {
 		GetItems();
 		hidePleaseWait();
 		$("#update_success_msg").text("Delete Successful").show().fadeOut(2000);
-		$("#delete_dialog_force").attr("checked", false);
+		$("#delete_dialog_force").prop("checked", false);
 		$("#delete_dialog").dialog("close");
 	}
 }

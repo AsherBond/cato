@@ -41,7 +41,7 @@ $(document).ready(function() {
 				$("#lblItemsSelected").html("0");
 
 				// nice, clear all checkboxes selected in a single line!
-				$(':input', (".jtable")).attr('checked', false);
+				$(':input', (".jtable")).prop('checked', false);
 
 				$(this).dialog("close");
 			}
@@ -96,7 +96,7 @@ $(document).ready(function() {
 		}
 	});
 	$("#validate").click(function() {
-		var reformat = ($('#chk_reformat').attr('checked') == "checked" ? true : false);
+		var reformat = ($('#chk_reformat').prop('checked') ? true : false);
 		jsl.interactions.validate($("#txtTemplateFile"), $("#json_parse_msg"), reformat, false);
 		return false;
 	});
@@ -117,7 +117,7 @@ $(document).ready(function() {
 
 function GetItems(page) {
 	if (!page)
-		page = "1"
+		page = "1";
 	var response = catoAjax.deployment.getTemplatesTable($("#txtSearch").val(), page);
 	if (response) {
 		pager = unpackJSON(response.pager);
@@ -147,7 +147,7 @@ function ShowItemAdd() {
 	clearEditDialog();
 
 	//but we want the Format box to be checked
-	$('#chk_reformat').attr('checked', 'checked')
+	$('#chk_reformat').prop('checked', true);
 	$("#edit_dialog").dialog("open");
 	$("#txtTemplateName").focus();
 }
@@ -247,7 +247,7 @@ function validateTemplateJSON() {
 		return;
 	} else {
 		//call the validate function
-		var reformat = ($('#chk_reformat').attr('checked') == "checked" ? true : false);
+		var reformat = ($('#chk_reformat').prop('checked') ? true : false);
 		jsl.interactions.validate($("#txtTemplateFile"), $("#json_parse_msg"), reformat, false);
 
 		//if the validation failed (the box has the error class), disable the create button
@@ -277,7 +277,7 @@ function ShowItemCopy() {
 	var src_name = $("[template_id=" + copy_id +"] td")[1].innerHTML;
 	var src_ver = $("[template_id=" + copy_id +"] td")[2].innerHTML;
 	$("#lblTemplateCopy").html('<b>Copying ' + src_name + ' Version ' + src_ver + '</b><br />&nbsp;<br />');
-	$("[tag='chk']").attr("checked", false);
+	$("[tag='chk']").prop("checked", false);
 	$("#hidSelectedArray").val('');
 	$("#hidCopyTemplateID").val(copy_id);
 	$("#lblItemsSelected").html("0");

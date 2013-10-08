@@ -318,7 +318,7 @@ function SaveUserEdits() {
 			var wereInArray = myArray.length;
 
 			if (jQuery.inArray(sEditID, myArray) > -1) {
-				$("#chk_" + sEditID).attr("checked", false);
+				$("#chk_" + sEditID).prop("checked", false);
 				myArray.remove(sEditID);
 			}
 
@@ -394,7 +394,7 @@ function SaveNewUser() {
 
 	//passwords must match, unless the check box is checked
 	var sUserPassword = $("#txtUserPassword").val();
-	var sGeneratePW = ($("#chkGeneratePW").attr("checked") == "checked" ? 1 : 0);
+	var sGeneratePW = ($("#chkGeneratePW").prop("checked") ? 1 : 0);
 	if (sGeneratePW == 0) {
 		if ($("#txtUserPassword").val() == '') {
 			bSave = false;
@@ -470,7 +470,7 @@ function LoadEditDialog(editCount, editUserID) {
 		$("#ddlUserStatus").val(user.Status);
 		$("#txtExpirationDT").val(user.ExpirationDT);
 		$("#ddlUserRole").val(user.Role);
-		$("#cbNewUserForcePasswordChange").attr('checked', user.ForceChange);
+		$("#cbNewUserForcePasswordChange").prop('checked', user.ForceChange);
 		$("#lblFailedLoginAttempts").html(user.FailedLoginAttempts);
 
 		SetPasswordControls();

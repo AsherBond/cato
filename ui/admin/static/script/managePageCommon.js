@@ -16,7 +16,7 @@
 //only fires on initial load of the page.
 $(document).ready(function () {
     // nice, clear all checkboxes selected in a single line!
-    $(':input', (".jtable")).attr('checked', false);
+    $(':input', (".jtable")).prop('checked', false);
 
 
 
@@ -97,10 +97,10 @@ $(document).ready(function () {
     $("#chkAll").live("click", function () {
         if (this.checked) {
             this.checked = true;
-            $("[tag='chk']").attr("checked", true);
+            $("[tag='chk']").prop("checked", true);
         } else {
             this.checked = false;
-            $("[tag='chk']").attr("checked", false);
+            $("[tag='chk']").prop("checked", false);
         }
 
         //now build out the array
@@ -128,7 +128,7 @@ $(document).ready(function () {
         //we do not have logic here to check the chkAll box if all items are checked.
         //that's not necessary right now.
         if (!this.checked) {
-            $("#chkAll").attr("checked", false)
+            $("#chkAll").prop("checked", false);
         }
 
         //now build out the array
@@ -188,7 +188,7 @@ function ShowItemDelete() {
 function ClearSelectedRows() {
     $("#hidSelectedArray").val("");
     $("#lblItemsSelected").html("0");
-    $(':input', (".jtable")).attr('checked', false);
+    $(':input', (".jtable")).prop('checked', false);
 }
 
 function clearEditDialog() {
@@ -210,7 +210,7 @@ function clearEditDialog() {
 Array.prototype.remove = function (s) {
     var i = IsInArray(this, s);
     if (i != -1) this.splice(i, 1);
-}
+};
 
 // this should handle the odd problem on ie where "indexOf" doesn't exist
 function IsInArray(myArray, searchString) {
@@ -222,7 +222,7 @@ function IsInArray(myArray, searchString) {
                 }
             }
             return -1;
-        }
+        };
     } else {
         return myArray.indexOf(searchString);
     }

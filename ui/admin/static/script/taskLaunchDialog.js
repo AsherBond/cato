@@ -421,16 +421,16 @@ function ShowTaskLaunchDialog(args) {
 
 	//if a debug level was passed, set it
 	if (args.debug_level && args.debug_level != "")
-		$('#task_launch_dialog_debug_level option[value=' + args.debug_level + ']').attr('selected', 'selected');
+		$('#task_launch_dialog_debug_level option[value=' + args.debug_level + ']').prop('selected', true);
 
 	//ALL DONE WITH Arguments... now let's build out the dialog...
 
 	//what XML do we actually go get?
 	if (args.task_instance && args.task_instance != "") {//if there's an instance let's get it!
-		$("#rbPrevious").attr("checked", "checked");
+		$("#rbPrevious").prop("checked", true);
 		getParamXML(args.task_instance, "instance");
 	} else {//task defaults by default!
-		$("#rbDefault").attr("checked", "checked");
+		$("#rbDefault").prop("checked", true);
 		getParamXML(args.task_id, "task");
 	}
 
@@ -496,7 +496,7 @@ function CloseTaskLaunchDialog() {
 	});
 
 	//NOTE: the debug drop down actually should have item #2 selected by default.
-	$('#task_launch_dialog_debug_level option[value="20"]').attr('selected', 'selected');
+	$('#task_launch_dialog_debug_level option[value="20"]').prop('selected', true);
 	return false;
 }
 
@@ -854,7 +854,7 @@ function presentScheduleParams(schedule_id, schedule_name) {
 	$("#plan_edit_name").html(schedule_name);
 
 	//uncheck all radio buttons as an indicator the data didn't come from there
-	$("input[name='radio']").removeAttr("checked");
+	$("input[name='radio']").prop("checked", false);
 
 	//get the params for this plan
 	getParamXML(schedule_id, "schedule", "");
@@ -868,7 +868,7 @@ function presentPlanParams(plan_id, plan_name) {
 	$("#plan_edit_name").html(plan_name);
 
 	//uncheck all radio buttons as an indicator the data didn't come from there
-	$("input[name='radio']").removeAttr("checked");
+	$("input[name='radio']").prop("checked", false);
 
 	//get the params for this plan
 	getParamXML(plan_id, "plan", "");
@@ -881,7 +881,7 @@ function dismissPlanParams() {
 	var plan_id = $("#plan_edit_plan_id").val();
 
 	//get the default parameters for the task again
-	$("#rbDefault").attr("checked", "checked");
+	$("#rbDefault").prop("checked", true);
 	getParamXML(task_id, "task");
 
 	//put it back

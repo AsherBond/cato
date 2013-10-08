@@ -41,7 +41,7 @@ $(document).ready(function() {
 				$("#lblItemsSelected").html("0");
 
 				// nice, clear all checkboxes selected in a single line!
-				$(':input', (".jtable")).attr('checked', false);
+				$(':input', (".jtable")).prop('checked', false);
 
 				$(this).dialog("close");
 			}
@@ -68,7 +68,7 @@ $(document).ready(function() {
 
 function GetItems(page) {
 	if (!page)
-		page = "1"
+		page = "1";
 	var response = ajaxPost("depMethods/wmGetDeploymentsTable", {
 		sSearch : $("#txtSearch").val(),
 		sPage : page
