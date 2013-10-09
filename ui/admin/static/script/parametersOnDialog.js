@@ -16,13 +16,12 @@
 //Shared functionality for any page or dialog that captures parameter values.
 
 $(document).ready(function () {
-    $(".parameter_dialog_remove_btn").live('click', function () {
-        $(this).parent().remove();
-    });
+	$(document).on("click", ".parameter_dialog_remove_btn", function() {
+		$(this).parent().remove();
+	});
 
-
-    //adding a value on the launch dialog
-    $(".parameter_dialog_add_btn").live("click", function () {
+	//adding a value on the launch dialog
+	$(document).on("click", ".parameter_dialog_add_btn", function() {
         //construct a new input section
         var output = "";
         output += "<div class=\"task_launch_parameter_value\">";
@@ -36,13 +35,13 @@ $(document).ready(function () {
     
    
     //any change to a value at all sets the dirty flag
-    $(".task_launch_parameter_value_input").live('change', function () {
+	$(document).on("change", ".task_launch_parameter_value_input", function() {
         $(this).attr("dirty","true");
     });
     
     /*
 	//encrypted fields are a pair of fields... 
-	$(".encunderlay").live("keydown", function(event) {
+	$(document).on("keydown", ".encunderlay", function(event) {
 		var $ovr = $(this).next(".encoverlay");
 		var stars = "";
 		
@@ -275,7 +274,7 @@ function buildXMLToSubmit() {
 				}
 
                 xml += "<value" + attr + ">";
-                xml += val
+                xml += val;
                 xml += "</value>\n";
             });
             

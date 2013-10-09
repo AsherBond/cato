@@ -32,11 +32,11 @@ $(document).ready(function() {
 	});
 
 	//the onclick event of the 'add' link for codeblocks
-	$("#codeblock_add_btn").live("click", function() {
+	$("#codeblock_add_btn").click(function() {
 		ShowCodeblockEdit('');
 	});
 	// also if the user hits the enter key in the new codeblock textbox
-	//    $("#new_codeblock_name").live("keypress", function(e) {
+	//    $("#new_codeblock_name").keypress(function(e) {
 	//        //alert('keypress');
 	//        if (e.which == 13) {
 	//            doCodeblockAdd();
@@ -45,7 +45,7 @@ $(document).ready(function() {
 	//    });
 
 	//the onclick event of the 'copy' link of each codeblock
-	$("#codeblock_selector .codeblock_copy_btn").live("click", function() {
+	$("#codeblock_selector").on("click", ".codeblock_copy_btn", function() {
 		$("#update_success_msg").text("Copying...").show();
 
 		var cb = $(this).attr("codeblock_name");
@@ -62,13 +62,13 @@ $(document).ready(function() {
 	});
 
 	//the onclick event of the 'delete' link of each codeblock
-	$("#codeblock_selector .codeblock_delete_btn").live("click", function() {
+	$("#codeblock_selector").on("click", ".codeblock_delete_btn", function() {
 		$("#codeblock_to_delete").val($(this).attr("remove_id"));
 		$("#codeblock_delete_confirm_dialog").dialog("open");
 	});
 
 	//the onclick event of the 'codeblock' elements
-	$("#codeblock_selector .codeblock_title").live("click", function() {
+	$("#codeblock_selector").on("click", ".codeblock_title", function() {
 		cb = $(this).attr("name");
 
 		$("#hidCodeblockName").val(cb);
@@ -76,7 +76,7 @@ $(document).ready(function() {
 		$("#codeblock_selector").hide();
 	});
 	//the onclick event of the 'codeblock rename icon'
-	$("#codeblock_selector .codeblock_rename").live("click", function() {
+	$("#codeblock_selector").on("click", ".codeblock_rename", function() {
 		cb = $(this).attr("codeblock_name");
 		ShowCodeblockEdit(cb);
 	});
@@ -111,9 +111,10 @@ $(document).ready(function() {
 	});
 
 	//hover effect
-	$("#codeblock_selector .codeblock").live("mouseenter mouseleave", function() {
-		$("#te_help_box_detail").html("Click a Codeblock to edit its steps.");
-	}, function() {
+	$("#codeblock_selector").on("mouseenter", ".codeblock", function() {
+		$("#te_help_box_detail").html("Click a Codeblock to edit its steps.  Drag it onto the Step list to create a Codeblock Step.");
+	});
+	$("#codeblock_selector").on("mouseleave", ".codeblock", function() {
 		$("#te_help_box_detail").html("");
 	});
 

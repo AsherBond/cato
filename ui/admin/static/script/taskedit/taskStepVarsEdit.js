@@ -15,7 +15,7 @@
 
 $(document).ready(function() {
 	//specific field validation and masking
-	$("#step_var_edit_dialog .var_name").live("keypress", function(e) {
+	$("#step_var_edit_dialog").on("keypress", ".var_name", function(e) {
 		return restrictEntryToIdentifier(e, this);
 	});
 	$("#new_delimited_position").keypress(function(e) {
@@ -156,7 +156,7 @@ $(document).ready(function() {
 	//END PARSED
 
 	//the onclick event of the 'popout' icon of each step
-	$("#steps .variable_popup_btn").live("click", function() {
+	$("#steps").on("click", ".variable_popup_btn", function() {
 		var step_id = $(this).attr("step_id");
 		var xppfx = $(this).attr("xpath_prefix");
 		var response = ajaxPost("taskMethods/wmGetStepVarsEdit", {
@@ -176,7 +176,7 @@ $(document).ready(function() {
 			$("#step_var_edit_dialog #phVars").empty().html(unpackJSON(response.html));
 
 			//we have to hook up all the bindings for the vars that were just added to the DOM
-			wireEmUp()
+			wireEmUp();
 
 			$("#step_var_edit_dialog").dialog("open");
 		}
@@ -188,7 +188,7 @@ function wireEmUp() {
 	//against all the other value fields.
 	//(because you can't have two of the same values)
 	$("#edit_variables .var_name").change(function() {
-		checkForNameConflicts()
+		checkForNameConflicts();
 	});
 
 	//the change event of the value fields, specifically to do some validation testing
@@ -254,12 +254,12 @@ function wireEmUp() {
 				$("#new_parsed_var_name").focus();
 				break;
 			default:
-				$("#step_var_edit_dialog #edit_variables").prepend("Warning: Parse method is " + opm + ", and this feature shouldn't be available, or the parse type is being returned incorrectly.")
+				$("#step_var_edit_dialog #edit_variables").prepend("Warning: Parse method is " + opm + ", and this feature shouldn't be available, or the parse type is being returned incorrectly.");
 		}
 	});
 
 	//the variable delete button
-	$("#step_var_edit_dialog .variable_delete_btn").live("click", function(event) {
+	$("#step_var_edit_dialog").on("click", ".variable_delete_btn", function(event) {
 		$("#" + $(this).attr("remove_id")).remove();
 		checkForNameConflicts();
 	});
@@ -571,7 +571,7 @@ function addParsedVar() {
 function doUpdate() {
 	//not doing anything if any of the fields are marked as conflicted
 	if ($("#edit_variables .conflicted_value").length > 0) {
-		showInfo("One or more values are invalid and need attention.")
+		showInfo("One or more values are invalid and need attention.");
 		return false;
 	}
 

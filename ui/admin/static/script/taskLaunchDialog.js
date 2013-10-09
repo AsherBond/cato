@@ -103,7 +103,7 @@ $(document).ready(function() {
 			primary : "ui-icon-play"
 		}
 	});
-	$("#run_now_btn").live("click", function() {
+	$("#task_launch_dialog").on("click", "#run_now_btn", function() {
 		if (checkRequiredParams() == true && checkParamConstraints() == true)
 			RunNow();
 	});
@@ -112,7 +112,7 @@ $(document).ready(function() {
 			primary : "ui-icon-seek-next"
 		}
 	});
-	$("#run_later_btn").live("click", function() {
+	$("#task_launch_dialog").on("click", "#run_later_btn", function() {
 		if (checkRequiredParams() == true && checkParamConstraints() == true)
 			RunLater();
 	});
@@ -121,7 +121,7 @@ $(document).ready(function() {
 			primary : "ui-icon-calculator"
 		}
 	});
-	$("#run_repeatedly_btn").live("click", function() {
+	$("#task_launch_dialog").on("click", "#run_repeatedly_btn", function() {
 		if (checkRequiredParams() == true && checkParamConstraints() == true)
 			RunRepeatedly();
 	});
@@ -171,14 +171,14 @@ $(document).ready(function() {
 	});
 
 	//changing the radio button on the dialog
-	$("#rbDefault").live("click", function() {
+	$("#task_launch_dialog").on("click", "#rbDefault", function() {
 		var task_id = $("#task_launch_dialog_task_id").val();
 		$("#task_launch_dialog_params").fadeOut(500, function() {
 			getParamXML(task_id, "task");
 		});
 		$("#task_launch_dialog_params").fadeIn(500);
 	});
-	$("#rbPrevious").live("click", function() {
+	$("#task_launch_dialog").on("click", "#rbPrevious", function() {
 		//see if there is an instance first, if not use the task_id
 		var id = $("#task_launch_dialog_task_instance").val();
 		if (id == "")
@@ -190,20 +190,20 @@ $(document).ready(function() {
 	});
 
 	//click on an action plan
-	$("#task_launch_dialog_plans .action_plan_name").live("click", function() {
+	$("#task_launch_dialog_plans").on("click", ".action_plan_name", function() {
 		ShowPlanEditDialog(this);
 	});
 	//remove an action plan
-	$(".action_plan_remove_btn").live("click", function() {
+	$("#task_launch_dialog").on("click", ".action_plan_remove_btn", function() {
 		deleteActionPlan(this);
 	});
 
 	//click on a schedule
-	$("#task_launch_dialog_schedules .schedule_name").live("click", function() {
+	$("#task_launch_dialog_schedules").on("click", ".schedule_name", function() {
 		ShowPlanEditDialog(this);
 	});
 	//remove a schedule
-	$(".schedule_remove_btn").live("click", function() {
+	$("#task_launch_dialog").on("click", ".schedule_remove_btn", function() {
 		deleteSchedule(this);
 	});
 
@@ -212,7 +212,7 @@ $(document).ready(function() {
 	//-------------------------------------------------
 
 	//what happens when you click on any picker?
-	$(".plan_datepoint").live("click", function() {
+	$("#task_launch_dialog").on("click", ".plan_datepoint", function() {
 		$(this).toggleClass("plan_datepoint_active");
 	});
 

@@ -73,20 +73,11 @@ $(document).ready(function() {
 		ShowLogViewDialog(2, sAssetID, true);
 	});
 
-	$("#rbShared").live("change", function() {
+	$("#rbShared").change(function() {
 		$(".SharedCredFields").show();
 	});
-	$("#rbLocal").live("change", function() {
+	$("#rbLocal").change(function() {
 		$(".SharedCredFields").hide();
-	});
-
-	//what happens when you click a asset row
-	$(".selectablecrd").live("click", function() {
-		$("#hidCredentialID").val($(this).parent().attr("credential_id"));
-		$('#tblCredentialSelector td').removeClass('row_over');
-		//unselect them all
-		$(this).parent().find('td').addClass("row_over");
-		//select this one
 	});
 
 	// end live version
@@ -506,14 +497,23 @@ function LoadCredentialSelector() {
 	if (creds) {
 		$("#credentials").html("");
 		$.each(creds, function(index, cred) {
-			s = "<tr class=\"select_credential\" credential_id=\"" + cred.ID + "\">";
-			s += "<td class=\"selectablecrd row\">" + cred.Name + "</td>";
-			s += "<td class=\"selectablecrd row\">" + cred.Username + "</td>";
-			s += "<td class=\"selectablecrd row\">" + cred.Domain + "</td>";
-			s += "<td class=\"selectablecrd row\">" + cred.Description + "</td>";
-			s += "</tr>";
+			var $s = $('<tr class="select_credential" credential_id="' + cred.ID + '">');
+			$s.append('<td class="selectablecrd row">' + cred.Name + '</td>');
+			$s.append('<td class="selectablecrd row">' + cred.Username + '</td>');
+			$s.append('<td class="selectablecrd row">' + cred.Domain + '</td>');
+			$s.append('<td class="selectablecrd row">' + cred.Description + '</td>');
+			
+			//what happens when you click a asset row
+			$s.find(".selectablecrd").click(function() {
+				$("#hidCredentialID").val($(this).parent().attr("credential_id"));
+				$('#tblCredentialSelector td').removeClass('row_over');
+				//unselect them all
+				$(this).parent().find('td').addClass("row_over");
+				//select this one
+			});
 
-			$("#credentials").append(s);
+			$("#credentials").append($s);
+
 		});
 	}
 	$('#CredentialSelectorTabs').show();

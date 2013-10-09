@@ -126,7 +126,7 @@ $(document).ready(function() {
 	});
 
 	//clear just one clip
-	$(".btn_clear_clip").live("click", function() {
+	$("#clipboard").on("click", ".btn_clear_clip", function() {
 		doClearClipboard($(this).attr("remove_id"));
 	});
 
@@ -137,7 +137,7 @@ $(document).ready(function() {
 		width : 800
 	});
 	//pop up the clip to view it
-	$(".btn_view_clip").live("click", function() {
+	$("#clipboard").on("click", ".btn_view_clip", function() {
 		var clip_id = $(this).attr("view_id");
 
 		var html = $("#" + clip_id).html();
@@ -167,7 +167,7 @@ $(document).ready(function() {
 			}
 		}
 	});
-	$(".big_box_btn").live("click", function() {
+	$("#steps").on("click", ".big_box_btn", function() {
 		var ctl = $(this).attr("link_to");
 
 		$("#big_box_link").val(ctl);
@@ -180,7 +180,7 @@ $(document).ready(function() {
 	$("#big_box_text").tabby();
 
 	//activating the dropzone for nested steps
-	$("#steps .step_nested_drop_target").live("click", function() {
+	$("#steps").on("click", ".step_nested_drop_target", function() {
 		doDropZoneEnable($(this));
 	});
 
@@ -512,9 +512,6 @@ function doGetClips() {
 
 function initDraggable() {
 	//initialize the 'commands' tab and the clipboard tab to be draggable to the step list
-	if ($("#toolbox .function").hasClass("ui-draggable")) {
-		$("#toolbox .function").draggable("destroy");
-	}
 	$("#toolbox .function").draggable({
 		distance : 30,
 		connectToSortable : '#steps',

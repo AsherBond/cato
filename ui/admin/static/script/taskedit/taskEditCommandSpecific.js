@@ -22,7 +22,7 @@ Here is all the code relevant to Steps and their dynamic nature.
 //This link can appears anywhere it is needed.
 //it clears a field and enables it for data entry.
 $(document).ready(function() {
-	$(".fn_field_clear_btn").live("click", function() {
+	$("#steps").on("click", ".fn_field_clear_btn", function() {
 		var field_id_to_clear = $(this).attr("clear_id");
 
 		//clear it
@@ -36,7 +36,7 @@ $(document).ready(function() {
 	});
 
 	//the parameter edit dialog button for Run Task command
-	$(".fn_runtask_edit_parameters_btn").live("click", function() {
+	$("#steps").on("click", ".fn_runtask_edit_parameters_btn", function() {
 		//trying globals!!!  Maybe we'll do this using AmplifyJS one day.
 		rt_task_id = $(this).attr("task_id");
 		rt_step_id = $(this).attr("step_id");
@@ -67,7 +67,7 @@ $(document).ready(function() {
 
 	//the SUBTASK command
 	//this will get the parameters in read only format for each subtask command.
-	$("#steps .subtask_view_parameters_btn").live("click", function() {
+	$("#steps").on("click", ".subtask_view_parameters_btn", function() {
 		var task_id = $(this).attr("id").replace(/stvp_/, "");
 		var target = $(this).parent().find(".subtask_view_parameters");
 
@@ -88,7 +88,7 @@ $(document).ready(function() {
 
 	//the CODEBLOCK command
 	//the onclick event of the 'codeblock' elements
-	$("#steps .codeblock_goto_btn").live("click", function() {
+	$("#steps").on("click", ".codeblock_goto_btn", function() {
 		cb = $(this).attr("codeblock");
 		$("#hidCodeblockName").val(cb);
 		doGetSteps();
@@ -97,18 +97,18 @@ $(document).ready(function() {
 
 	//the SUBTASK and RUN TASK commands
 	//the view link
-	$("#steps .task_print_btn").live("click", function() {
+	$("#steps").on("click", ".task_print_btn", function() {
 		var url = "taskPrint?task_id=" + $(this).attr("task_id");
 		openWindow(url, "taskPrint", "location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700");
 	});
 	//the edit link
-	$("#steps .task_open_btn").live("click", function() {
+	$("#steps").on("click", ".task_open_btn", function() {
 		location.href = "taskEdit?task_id=" + $(this).attr("task_id");
 	});
 	// end SUBTASK and RUN TASK commands
 
 	//the IF command has a special add mechanism all to itself.
-	$("#steps .fn_if_add_btn").live("click", function() {
+	$("#steps").on("click", ".fn_if_add_btn", function() {
 		var step_id = $(this).attr("step_id");
 		var idx = $(this).attr("next_index");
 		var add_to = $(this).attr("add_to_node");
@@ -116,13 +116,13 @@ $(document).ready(function() {
 		doAddIfSection(step_id, add_to, idx);
 	});
 
-	$("#steps .fn_if_addelse_btn").live("click", function() {
+	$("#steps").on("click", ".fn_if_addelse_btn", function() {
 		var step_id = $(this).attr("step_id");
 		var add_to = $(this).attr("add_to_node");
 
 		doAddIfSection(step_id, add_to, -1);
 	});
-	$("#steps .compare_templates").live("change", function() {
+	$("#steps").on("change", ".compare_templates", function() {
 		// add whatever was selected into the textarea
 		var textarea_id = $(this).attr("textarea_id");
 		var tVal = $("#" + textarea_id).val();
@@ -136,7 +136,7 @@ $(document).ready(function() {
 	//Key/Value pairs can appear on lots of different command types
 	//and on each type there is a specific list of relevant lookup values
 	//So, switch on the function and popup a picker
-	$("#steps .key_picker_btn").live("click", function(e) {
+	$("#steps").on("click", ".key_picker_btn", function(e) {
 		//hide any open pickers
 		$("div[id$='_picker']").hide();
 		var field = $("#" + $(this).attr("link_to"));
@@ -176,7 +176,7 @@ $(document).ready(function() {
 		});
 		$("#key_picker").slideDown();
 	});
-	$("#key_picker_close_btn").live("click", function(e) {
+	$("#key_picker_close_btn").click(function(e) {
 		//hide any open pickers
 		$("div[id$='_picker']").hide();
 	});

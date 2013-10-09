@@ -91,7 +91,7 @@ $(document).ready(function() {
 		},
 		text : false
 	});
-	$("#test_connection_btn").live("click", function() {
+	$("#test_connection_btn").click(function() {
 		TestConnection();
 	});
 

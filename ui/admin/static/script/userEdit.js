@@ -32,7 +32,7 @@ $(document).ready(function() {
 	});
 
 	// change action for dropdown list, saves a callback
-	$("#ddlUserAuthType").live("change", function() {
+	$("#ddlUserAuthType").change(function() {
 		SetPasswordControls();
 	});
 
@@ -71,7 +71,7 @@ $(document).ready(function() {
 		},
 		text : false
 	});
-	$("#clear_failed_btn").live("click", function() {
+	$("#clear_failed_btn").click(function() {
 		ClearFailedLoginAttempts();
 	});
 
@@ -80,7 +80,7 @@ $(document).ready(function() {
 			primary : "ui-icon-mail-closed"
 		}
 	});
-	$("#pw_reset_btn").live("click", function() {
+	$("#pw_reset_btn").click(function() {
 		if (confirm("Are you sure?")) {
 			ResetPassword();
 		}

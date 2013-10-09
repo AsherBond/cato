@@ -33,20 +33,6 @@ $(document).ready(function() {
 		}
 	});
 
-	// the component log links
-	$(".view_component_log").live("click", function() {
-		component = $(this).attr("component");
-
-		if (component == '')
-			return;
-
-		var response = catoAjax.getProcessLogfile(component);
-		if (response) {
-			$("#logfile_text").html(unpackJSON(response));
-			$("#logfile_dialog").dialog("open");
-		}
-	});
-
 	//this page updates every 30 seconds
 	setInterval("GetData()", 30000);
 });
@@ -56,6 +42,20 @@ function GetData() {
 		$("#processes").html(response.processes);
 		$("#users").html(response.users);
 		$("#messages").html(response.messages);
+
+		// the component log links
+		$(".view_component_log").click(function() {
+			component = $(this).attr("component");
+
+			if (component == '')
+				return;
+
+			var response = catoAjax.getProcessLogfile(component);
+			if (response) {
+				$("#logfile_text").html(unpackJSON(response));
+				$("#logfile_dialog").dialog("open");
+			}
+		});
 
 		initJtable(true, true);
 	});

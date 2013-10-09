@@ -18,7 +18,7 @@
 //only fires on initial load of the page.
 $(document).ready(function() {
 	//check/uncheck all checkboxes
-	$("#chkAll").live("click", function() {
+	$("#results_list").on("click", "#chkAll", function() {
 		if (this.checked) {
 			this.checked = true;
 			$("[tag='chk']").prop("checked", true);
@@ -46,7 +46,7 @@ $(document).ready(function() {
 
 	//this spins thru the check boxes on the page and builds the array.
 	//yes it rebuilds the list on every selection, but it's fast.
-	$("[tag='chk']").live("click", function() {
+	$("#results_list").on("click", "[tag='chk']", function() {
 		//first, deal with some 'check all' housekeeping
 		//if I am being unchecked, uncheck the chkAll box too.
 		//we do not have logic here to check the chkAll box if all items are checked.
@@ -72,7 +72,7 @@ $(document).ready(function() {
 
 	});
 
-	$(".group_tab").live("click", function() {
+	$("#cloud_object_types").on("click", ".group_tab", function() {
 		showPleaseWait("Querying the Cloud...");
 
 		//style tabs

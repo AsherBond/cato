@@ -32,7 +32,7 @@ $(function() {"use strict";
 	});
 
 	//what happens when you select a value in the tag picker?
-	$("#tag_picker_dialog .tag_picker_tag").live("click", function() {
+	$("#tag_picker_dialog").on("click", ".tag_picker_tag", function() {
 		//if the item already exists... we can't add it again.
 		//but the user will never know, they'll just think they added it even though it was already there.
 		var id = $(this).attr("id").replace(/tpt_/, "ot_");
@@ -71,18 +71,19 @@ $(function() {"use strict";
 	});
 
 	//hover shows the description for the tag
-	$("#tag_picker_dialog .tag_picker_tag").live("mouseover", function() {
+	$("#tag_picker_dialog").on("mouseover", ".tag_picker_tag", function() {
 		$(this).addClass("tag_picker_tag_hover");
 		$("#tag_picker_description").html($(this).attr("desc"));
 	});
-	$("#tag_picker_dialog .tag_picker_tag").live("mouseout", function() {
+	$("#tag_picker_dialog").on("mouseout", ".tag_picker_tag", function() {
 		$(this).removeClass("tag_picker_tag_hover");
+		$("#tag_picker_description").html("");
 	});
 
 	//NOW! this stuff can hopefully stay here, as the mechanism for adding/removing tags from an object should be the same
 	//styles might be different on the task/proc pages?
 	//remove a tag
-	$(".tag_remove_btn").live("click", function() {
+	$(document).on("click", ".tag_remove_btn", function() {
 		$("#" + $(this).attr("remove_id").replace(/ /g, "")).remove();
 
 		//commit the tag removal
@@ -130,7 +131,7 @@ function GetCurrentObjectID() {
 	var oid = "";
 
 	// on modernized pages, it'll probably be g_id
-	if (typeof g_id !== "undefined") {
+	if ( typeof g_id !== "undefined") {
 		oid = g_id;
 	}
 

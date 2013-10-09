@@ -21,14 +21,14 @@ $(document).ready(function () {
 
 
     //search button
-    $(".search_text").live("keypress", function (e) {
+    $(".search_text").keypress(function (e) {
         if (e.which == 13) {
             GetItems();
             return false;
         }
     });
 
-    $(".pager_button").live("click", function () {
+    $("#content").on("click", ".pager_button", function () {
         // since we are changing pages,
         // the selected array and selected label goes away
 
@@ -43,32 +43,32 @@ $(document).ready(function () {
 
 
     // sorting the list
-    $(".col_header").live("click", function () {
+    $().on("click", ".col_header", function () {
 		//may not be needed when we implement a sortable pagable grid.
     });
 
 
 
     //button bindings
-    $("#clear_selected_btn").live("click", function () {
+    $("#content").on("click", "#clear_selected_btn", function () {
         ClearSelectedRows();
     });
-    $("#item_create_btn").live("click", function () {
+    $("#content").on("click", "#item_create_btn", function () {
         ShowItemAdd();
     });
-    $("#item_delete_btn").live("click", function () {
+    $("#content").on("click", "#item_delete_btn", function () {
         ShowItemDelete();
     });
-    $("#item_copy_btn").live("click", function () {
+    $("#content").on("click", "#item_copy_btn", function () {
         ShowItemCopy();
     });
-    $("#item_export_btn").live("click", function () {
+    $("#content").on("click", "#item_export_btn", function () {
         ShowItemExport();
     });
-    $("#item_modify_btn").live("click", function () {
+    $("#content").on("click", "#item_modify_btn", function () {
         ShowItemModify();
     });
-    $("#item_search_btn").live("click", function () {
+    $("#content").on("click", "#item_search_btn", function () {
         GetItems();
     });
     
@@ -94,7 +94,7 @@ $(document).ready(function () {
     });
 
     //check/uncheck all checkboxes
-    $("#chkAll").live("click", function () {
+    $("#content").on("click", "#chkAll", function () {
         if (this.checked) {
             this.checked = true;
             $("[tag='chk']").prop("checked", true);
@@ -122,7 +122,7 @@ $(document).ready(function () {
 
 	//this spins thru the check boxes on the page and builds the array.
     //yes it rebuilds the list on every selection, but it's fast.
-    $("[tag='chk']").live("click", function () {
+    $("#content").on("click", "[tag='chk']", function () {
         //first, deal with some 'check all' housekeeping
         //if I am being unchecked, uncheck the chkAll box too.
         //we do not have logic here to check the chkAll box if all items are checked.

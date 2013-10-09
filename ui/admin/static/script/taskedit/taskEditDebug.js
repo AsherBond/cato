@@ -106,14 +106,14 @@ $(document).ready(function() {
 
 	//////ASSET PICKER
 	//the onclick event of the 'asset picker' buttons everywhere
-	$(".asset_picker_btn").live("click", function() {
+	$(document).on("click", ".asset_picker_btn", function() {
 		$("#asset_picker_target_field").val($(this).attr("link_to"));
 		$("#asset_picker_target_name_field").val($(this).attr("target_field_id"));
 		$("#asset_picker_dialog").dialog("open");
 		$("#asset_search_text").focus();
 	});
 	// when you hit enter inside an asset search
-	$("#asset_search_text").live("keypress", function(e) {
+	$(document).on("keypress", "#asset_search_text", function(e) {
 		//alert('keypress');
 		if (e.which == 13) {
 			$("#asset_search_btn").click();

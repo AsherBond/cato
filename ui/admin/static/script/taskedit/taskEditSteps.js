@@ -17,7 +17,7 @@ var fieldWithFocus = null;
 
 $(document).ready(function() {
 	//toggle it when you click on a step
-	$("#steps .step_toggle_btn").live("click", function() {
+	$("#steps").on("click", ".step_toggle_btn", function() {
 		//alert($(this).attr("id").replace(/step_header_/, ""));
 		var step_id = $(this).attr("step_id");
 		var visible = 0;
@@ -49,7 +49,7 @@ $(document).ready(function() {
 	});
 
 	//toggle all of them
-	$("#step_toggle_all_btn").live("click", function() {
+	$("#step_toggle_all_btn").click(function() {
 		//if all are closed, open them all, else close them all
 		// also change the expand images
 		if ($("#steps .step_collapsed").length == $(".step_detail").length) {
@@ -74,7 +74,7 @@ $(document).ready(function() {
 
 	//common details within a step
 	//toggle it when you click on one of the buttons
-	$("#steps .step_common_button").live("click", function() {
+	$("#steps").on("click", ".step_common_button", function() {
 		var btn = "";
 		var dtl = $(this).attr("id").replace(/btn_/, "");
 		var stp = $(this).closest(".step_common").attr("step_id");
@@ -123,7 +123,7 @@ $(document).ready(function() {
 	});
 
 	//the onclick event of the 'skip' icon of each step
-	$("#steps .step_skip_btn").live("click", function() {
+	$("#steps").on("click", ".step_skip_btn", function() {
 		//click the hidden field and fire the change event
 		var step_id = $(this).attr("step_id");
 		var skip = $(this).attr("skip");
@@ -158,13 +158,13 @@ $(document).ready(function() {
 	});
 
 	//the onclick event of the 'delete' link of each step
-	$("#steps .step_delete_btn").live("click", function() {
+	$("#steps").on("click", ".step_delete_btn", function() {
 		$("#hidStepDelete").val($(this).attr("remove_id"));
 		$("#step_delete_confirm_dialog").dialog("open");
 	});
 
 	//the onclick event of the 'copy' link of each step
-	$("#steps .step_copy_btn").live("click", function() {
+	$("#steps").on("click", ".step_copy_btn", function() {
 		$("#update_success_msg").text("Copying...").show();
 		var step_id = $(this).attr("step_id");
 
@@ -177,7 +177,7 @@ $(document).ready(function() {
 	});
 
 	//the onclick event of the 'remove' link of embedded steps
-	$("#steps .embedded_step_delete_btn").live("click", function() {
+	$("#steps").on("click", ".embedded_step_delete_btn", function() {
 		$("#embedded_step_remove_xpath").val($(this).attr("remove_xpath"));
 		$("#embedded_step_parent_id").val($(this).attr("parent_id"));
 		$("#embedded_step_delete_confirm_dialog").dialog("open");
@@ -185,7 +185,7 @@ $(document).ready(function() {
 	});
 
 	//the onclick event of 'connection picker' buttons on selected fields
-	$("#steps .conn_picker_btn").live("click", function(e) {
+	$("#steps").on("click", ".conn_picker_btn", function(e) {
 		//hide any open pickers
 		$("div[id$='_picker']").hide();
 		var field = $("#" + $(this).attr("link_to"));
@@ -220,18 +220,18 @@ $(document).ready(function() {
 		$("#conn_picker").slideDown();
 	});
 
-	$("#conn_picker_close_btn").live("click", function(e) {
+	$(document).on("click", "#conn_picker_close_btn", function(e) {
 		//hide any open pickers
 		$("div[id$='_picker']").hide();
 	});
-	$("#var_picker_close_btn").live("click", function(e) {
+	$(document).on("click", "#var_picker_close_btn", function(e) {
 		//hide any open pickers
 		$("div[id$='_picker']").hide();
 	});
 
 	//// CODEBLOCK PICKER
 	//the onclick event of 'codeblock picker' buttons on selected fields
-	$("#steps .codeblock_picker_btn").live("click", function(e) {
+	$(document).on("click", ".codeblock_picker_btn", function(e) {
 		//hide any open pickers
 		$("div[id$='_picker']").hide();
 		field = $("#" + $(this).attr("link_to"));
@@ -264,14 +264,14 @@ $(document).ready(function() {
 		});
 		$("#codeblock_picker").slideDown();
 	});
-	$("#codeblock_picker_close_btn").live("click", function(e) {
+	$(document).on("click", "#codeblock_picker_close_btn", function(e) {
 		//hide any open pickers
 		$("[id$='_picker']").hide();
 	});
 
 	//////TASK PICKER
 	//the onclick event of the 'task picker' buttons everywhere
-	$("#steps .task_picker_btn").live("click", function() {
+	$("#steps").on("click", ".task_picker_btn", function() {
 		$("#task_picker_target_field_id").val($(this).attr("target_field_id"));
 		//alert($(this).attr("target_field_id") + "\n" + $(this).prev().prev().val());
 		$("#task_picker_step_id").val($(this).attr("step_id"));
@@ -279,7 +279,7 @@ $(document).ready(function() {
 	});
 
 	// when you hit enter inside 'task picker' for a subtask
-	$("#task_search_text").live("keypress", function(e) {
+	$("#task_search_text").keypress(function(e) {
 		//alert('keypress');
 		if (e.which == 13) {
 			$("#task_search_btn").click();
@@ -301,8 +301,7 @@ $(document).ready(function() {
 			$("#task_picker_results .task_picker_value").disableSelection();
 
 			//gotta kill previously bound clicks or it will stack 'em! = bad.
-			$("#task_picker_results li[tag='task_picker_row']").die();
-			$("#task_picker_results li[tag='task_picker_row']").live("click", function() {
+			$("#task_picker_results").on("click", "li[tag='task_picker_row']", function() {
 				$("#task_steps").block({
 					message : null
 				});
@@ -325,14 +324,6 @@ $(document).ready(function() {
 		}, "html");
 	});
 	//////END TASK PICKER
-
-	//COMMENTED OUT THE BEGINNING OF EDITING A WHOLE STEP AT ONCE.
-	//Possible, but cosmic and not crucial right now.
-
-	//////    $("[te_group='step_fields']").live("focus", function() {
-	//////        //stick the step_id in a hidden field so we'll know when we move off of it.
-	//////        $("editing_step_id").val($(this).attr("step_id"));
-	//////    });
 
 	//////DIALOGS
 	//init the step delete confirm dialog
@@ -404,7 +395,7 @@ $(document).ready(function() {
 
 	// NODE ADD
 	// This single binding handles all the places where a new content node is added to a step.
-	$("#steps .fn_node_add_btn").live("click", function() {
+	$("#steps").on("click", ".fn_node_add_btn", function() {
 
 		// these fully dynamic commands read the section they are gonna add from the original template xml
 		// so, it needs the function name and a template xpath in order to be able to look that up.
@@ -435,7 +426,7 @@ $(document).ready(function() {
 
 	// NODE DELETE
 	// this single binding hook up every command node deletion function
-	$("#steps .fn_node_remove_btn").live("click", function() {
+	$("#steps").on("click", ".fn_node_remove_btn", function() {
 		if (confirm("Are you sure?")) {
 			var step_id = $(this).attr("step_id");
 			var remove_path = $(this).attr("remove_path");
@@ -835,7 +826,7 @@ function doStepDetailUpdate(field, step_id, func, xpath) {
 		}
 
 		//clear out the div of the stuff we just updated!
-		$("#step_update_array").empty()
+		$("#step_update_array").empty();
 	}
 }
 
@@ -875,7 +866,7 @@ function validateStep(in_element_id) {
 	// spin and check each input
 	$(container + " :input").each(function(intIndex) {
 		var step_id = $(this).attr("step_id");
-		var msg = ""
+		var msg = "";
 		$(this).next(".fielderror").remove();
 		$(this).removeClass("is_required");
 

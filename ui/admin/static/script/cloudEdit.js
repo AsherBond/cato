@@ -71,7 +71,7 @@ $(document).ready(function() {
 	});
 
 	//keypair delete button
-	$(".keypair_delete_btn").live("click", function() {
+	$("#edit_dialog").on("click", ".keypair_delete_btn", function() {
 		if (confirm("Are you sure?")) {
 			$("#update_success_msg").text("Deleting...").show().fadeOut(2000);
 
@@ -90,7 +90,7 @@ $(document).ready(function() {
 	});
 
 	//edit a keypair
-	$(".keypair_label").live("click", function() {
+	$("#edit_dialog").on("click", ".keypair_label", function() {
 		//clear the optional fields
 		$("#keypair_private_key").val("");
 		$("#keypair_passphrase").val("");
@@ -117,7 +117,7 @@ $(document).ready(function() {
 		},
 		text : false
 	});
-	$(".test_connection_btn").live("click", function() {
+	$(".test_connection_btn").click(function() {
 		TestConnection();
 	});
 

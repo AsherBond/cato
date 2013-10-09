@@ -64,33 +64,26 @@ $(document).ready(function() {
 	$("#parameter_add_btn").click(function() {
 		ShowParameterEdit("");
 	});
-	$("#parameters .parameter_name").live("click", function() {
-		ShowParameterEdit($(this).attr("id"));
-	});
-	$("#parameters .parameter_remove_btn").live("click", function() {
-		$("#hidParamDelete").val($(this).attr("remove_id"));
-		$("#param_delete_confirm_dialog").dialog("open");
-	});
 
 	//bind the tooltips for parameter descriptions
 	bindParameterToolTips();
 
-	$("#param_edit_value_add_btn").live("click", function() {
+	$("#param_edit_dialog").on("click", "#param_edit_value_add_btn", function() {
 		//something unique on the page until it is posted.
 		var id = "pv" + new Date().getTime();
 		var html = '<div id="' + id + '">';
-		html +=	'<textarea class="param_edit_value" rows="1"></textarea>';
+		html += '<textarea class="param_edit_value" rows="1"></textarea>';
 		html += '<span class="ui-icon ui-icon-close forceinline param_edit_value_remove_btn pointer" remove_id="' + id + '"></span>';
 		html += '</div>';
 
 		$("#param_edit_values").append(html);
 		$("#" + id + " textarea:first").focus();
 	});
-	$("#param_edit_values .param_edit_value_remove_btn").live("click", function() {
+	$("#param_edit_dialog").on("click", "#param_edit_values .param_edit_value_remove_btn", function() {
 		$("#" + $(this).attr("remove_id")).remove();
 	});
 
-	$("#param_edit_present_as").live("change", function() {
+	$("#param_edit_dialog").on("change", "#param_edit_present_as", function() {
 		if ($(this).val() == "value") {
 			$(".param_edit_value_remove_btn").addClass("hidden");
 			$("#param_edit_value_add_btn").addClass("hidden");
@@ -101,7 +94,7 @@ $(document).ready(function() {
 	});
 
 	//any change to a value at all sets the dirty flag
-	$(".param_edit_value").live('change', function() {
+	$("#param_edit_dialog").on("change", ".param_edit_value", function() {
 		$(this).attr("dirty", "true");
 	});
 
@@ -270,18 +263,16 @@ function doGetParams(type, id, editable, snip, readonly) {
 	}, function(response) {
 		$("#parameters").html(response);
 
+		$("#parameters .parameter_name").click(function() {
+			ShowParameterEdit($(this).attr("id"));
+		});
+		$("#parameters .parameter_remove_btn").click(function() {
+			$("#hidParamDelete").val($(this).attr("remove_id"));
+			$("#param_delete_confirm_dialog").dialog("open");
+		});
+
 		//have to rebind the tooltips here
 		bindParameterToolTips();
 	}, "html");
 
-}
-
-function bindParameterToolTips() {
-	$("#parameters .parameter_help_btn").tipTip({
-		defaultPosition : "right",
-		keepAlive : false,
-		activation : "hover",
-		maxWidth : "500px",
-		fadeIn : 100
-	});
 }
