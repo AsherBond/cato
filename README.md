@@ -32,6 +32,8 @@ https://github.com/cloudsidekick/cato-tasks
 
 ## Bug and Feature Requests
 
+We use Github Issues for bug and feature tracking:
+
 https://github.com/cloudsidekick/cato/issues
 
 ## Requirements
