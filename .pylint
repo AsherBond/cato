@@ -46,7 +46,7 @@ load-plugins=
 # Set the output format. Available formats are text, parseable, colorized, msvs
 # (visual studio) and html. You can also give a reporter class, eg
 # mypackage.mymodule.MyReporterClass.
-output-format=text
+#output-format=parseable
 
 # Put messages in a separate file for each module / package specified on the
 # command line instead of printing them on stdout. Reports (if any) will be
@@ -54,7 +54,7 @@ output-format=text
 files-output=no
 
 # Tells whether to display a full report or only the messages
-reports=yes
+reports=no
 
 # Python expression which should return a note less than 10 (10 is the highest
 # note). You have access to the variables errors warning, statement which
@@ -69,7 +69,7 @@ comment=no
 
 # Template used to display messages. This is a python new-style format string
 # used to format the massage information. See doc for all details
-#msg-template=
+msg-template={path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 
 
 [BASIC]
@@ -136,7 +136,7 @@ max-line-length=80
 ignore-long-lines=^\s*(# )?<?https?://\S+>?$
 
 # Maximum number of lines in a module
-max-module-lines=1000
+max-module-lines=10000
 
 # String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
 # tab).
