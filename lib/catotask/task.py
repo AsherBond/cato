@@ -1094,7 +1094,7 @@ class Step(object):
         # command_type is for backwards compatilibity in importing tasks from 1.0.8
         self.FunctionName = xFunc.get("name", xFunc.get("command_type", ""))
     
-    def FromDict(self, step="", sCodeblockName=""):
+    def FromDict(self, step, sCodeblockName=""):
         if sCodeblockName == "": return None
         
         # when created from a dict, steps always get a new id
