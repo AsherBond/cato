@@ -366,7 +366,7 @@ class Task(object):
         for xCB in xCodeblocks:
             cbname = xCB.get("name", "")
             if not cbname:
-                logger.error("Codeblock 'name' attribute is required.", 1)
+                logger.error("Codeblock 'name' attribute is required.")
         
             newcb = Codeblock(self.ID, cbname)
             newcb.FromXML(catocommon.ET.tostring(xCB))
