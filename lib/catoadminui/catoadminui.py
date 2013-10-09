@@ -158,7 +158,7 @@ class taskEdit:
             if allowed:
                 task_status = taskMethods.GetTaskStatus(i.task_id)
                 if task_status == "Approved":
-                    logger.warning("Attempt to explicitly access an Approved Task in the editor.", 2)
+                    logger.warning("Attempt to explicitly access an Approved Task in the editor.")
                     return render.taskView()
                 else:
                     return render.taskEdit()
