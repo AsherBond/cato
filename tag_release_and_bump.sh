@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+## this script is to be run in a local git repo only
+
 version=$1
 
 if [ "$version" = "" ] ; then
