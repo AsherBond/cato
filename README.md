@@ -11,17 +11,13 @@ automation routines are executed by the services component.
 
 https://github.com/cloudsidekick/cato
 
-To download _the latest_ (potentially unstable) source:
+To download _the latest_ stable release:
 
 ```
-curl -Lk --output cato.tar.gz https://github.com/cloudsidekick/cato/tarball/master
+curl -Lk --output cato.tar.gz https://github.com/cloudsidekick/cato/archive/latest.tar.gz
 ```
 
-Specific release tarballs are here:
-
-https://github.com/cloudsidekick/cato/tags
-
-or clone in git:
+or clone in git (potentially unstable):
 
 ```
 git clone git://github.com/cloudsidekick/cato.git
