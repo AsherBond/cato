@@ -3159,7 +3159,7 @@ def DrawCommandParameterSection(sParameterXML, bEditable, bSnipValues):
                         if bSnipValues:
                             sValue = UI.GetSnip(sValue, 64)
                         else:
-                            sValue = UI.FixBreaks(sValue, "")
+                            sValue = UI.FixBreaks(sValue)
 
                     sHTML += "<div class=\"ui-widget-content ui-corner-tl ui-corner-bl parameter_value\">" + sValue + "</div>"
 

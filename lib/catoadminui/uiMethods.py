@@ -1232,13 +1232,3 @@ class uiMethods:
         
         return ""
           
-    """
-        The Cloud Sidekick reporting tool is a standalone web service.
-        Because of cross site scripting rules, we have proxy the http connection here.
-    """  
-    def wmGetWidget(self):
-        return uiCommon.GetWidget()
-
-    def wmGetLayout(self):
-        return uiCommon.GetLayout()
-        

@@ -553,7 +553,7 @@ class sysMethods:
         # a little different than the others ... credential objects must be instantiated before calling DBCreateNew
         obj = asset.Credential()
         obj.FromArgs(args["name"], args.get("description"), args["username"], args["password"],
-                 0, args.get("domain"), args.get("privileged"))
+                 0, args.get("domain"), args.get("privileged"), None)
         result = obj.DBCreateNew()
         if not result:
             return R(err_code=R.Codes.CreateError, err_detail="Unable to create Credential.")
