@@ -41,3 +41,7 @@ See the INSTALL.md file in this directory.
 ## Installation
 
 See the INSTALL.md file in this directory.
+
+## Documentation
+
+http://docs.cloudsidekick.com/docs/cato
