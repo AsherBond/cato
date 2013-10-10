@@ -958,6 +958,93 @@ class Task(object):
         self.NextMinorVersion = str(float(self.Version) + .001)
         self.NextMajorVersion = str(int(float(self.MaxVersion) + 1)) + ".000"
 
+    def RunLater(self, run_dt, parameter_xml=None, debug_level=None, account_id=None):
+        """
+        Will add a row to action_plan directly, so this Task will execute one time in the future.
+        """
+        if not run_dt:
+            raise Exception("Task RunLater requires a run date.")
+        
+        db = catocommon.new_conn()
+
+        # we gotta peek into the XML and encrypt any newly keyed values
+        parameter_xml = Task.PrepareAndEncryptParameterXML(parameter_xml)
+
+        datestr = " str_to_date('" + run_dt + "', '%%m/%%d/%%Y %%H:%%i')"
+        sql = """insert into action_plan
+            (task_id, account_id, parameter_xml, debug_level, source, run_on_dt)
+            values (%s, %s, %s, %s, 'manual', {0})""".format(datestr)
+
+        db.exec_db(sql, (self.ID, account_id, parameter_xml, debug_level))
+        db.close()
+        
+    def RunRepeatedly(self, sched_def, parameter_xml=None, debug_level=None, account_id=None):
+        """
+        Will add a row to action_plan directly, so this Task will execute one time in the future.
+        """
+        if not sched_def.get("months") or not sched_def.get("days") or not sched_def.get("hours") or not sched_def.get("minutes") or not sched_def.get("days_or_weekdays"):
+            raise Exception("Task RunRepeatedly requires complete scheduling information.")
+        
+        db = catocommon.new_conn()
+        parameter_xml = Task.PrepareAndEncryptParameterXML(parameter_xml)          
+
+
+        # figure out a label and a description
+        sLabel, sDesc = catocommon.GenerateScheduleLabel(sched_def["months"],
+                                                         sched_def["days"],
+                                                         sched_def["hours"],
+                                                         sched_def["minutes"],
+                                                         sched_def["days_or_weekdays"])
+
+        sql = "insert into action_schedule (schedule_id, task_id, account_id," \
+            " months, days, hours, minutes, days_or_weeks, label, descr, parameter_xml, debug_level)" \
+               " values (" \
+            " '" + catocommon.new_guid() + "'," \
+            " '" + self.ID + "'," \
+            + (" '" + account_id + "'" if account_id else "null") + "," \
+            " '" + ",".join([str(x) for x in sched_def["months"]]) + "'," \
+            " '" + ",".join([str(x) for x in sched_def["days"]]) + "'," \
+            " '" + ",".join([str(x) for x in sched_def["hours"]]) + "'," \
+            " '" + ",".join([str(x) for x in sched_def["minutes"]]) + "'," \
+            " '" + sched_def["days_or_weekdays"] + "'," \
+            + (" '" + sLabel + "'" if sLabel else "null") + "," \
+            + (" '" + sDesc + "'" if sDesc else "null") + "," \
+            + (" '" + catocommon.tick_slash(parameter_xml) + "'" if parameter_xml else "null") + "," \
+            + (debug_level if debug_level > "-1" else "null") + \
+            ")"
+
+        db.exec_db(sql)
+        db.close()
+        
+    @staticmethod
+    def PrepareAndEncryptParameterXML(sParameterXML):
+        """
+        Parameter xml can be created in many places.  This function parses it and encrypts any values flagged as such.
+        """
+        if sParameterXML:
+            xDoc = catocommon.ET.fromstring(sParameterXML)
+            if xDoc is None:
+                logger.info("Parameter XML data is invalid.")
+    
+            # now, all we're doing here is:
+            #  a) encrypting any new values
+            #  b) moving any oev values from an attribute to a value
+            
+            #  a) encrypt new values
+            for xToEncrypt in xDoc.findall("parameter/values/value[@do_encrypt='true']"):
+                xToEncrypt.text = catocommon.cato_encrypt(xToEncrypt.text)
+                del xToEncrypt.attrib["do_encrypt"]
+    
+            # b) unbase64 any oev's and move them to values
+            for xToEncrypt in xDoc.findall("parameter/values/value[@oev='true']"):
+                xToEncrypt.text = catocommon.unpackData(xToEncrypt.text)
+                del xToEncrypt.attrib["oev"]
+            
+            return catocommon.ET.tostring(xDoc)
+        else:
+            return ""
+    
+        
 class Codeblock(object):
     def __init__(self, sTaskID, sName, IncludeSettingsForUser=None):
         self.Name = sName

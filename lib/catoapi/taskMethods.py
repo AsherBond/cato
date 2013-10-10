@@ -216,9 +216,11 @@ class taskMethods:
             account - the ID or Name of a Cloud Account.  Certain Task commands require a Cloud Account.
             parameters - A JSON or XML document defining parameters for the Task.
             options - a JSON object defining certain options for this Task.  Typically used to provide scope for extensions to the Task Engine, such as Maestro.
+            run_later - if provided, the Task will be scheduled to run at the specified date/time.  ex. "7/4/1776 15:30"
             
         Returns: A JSON object, the Task Instance.
             If 'output_format' is set to 'text', returns only a Task Instance ID.
+            If 'run_later' was specified, will return a success or error message.
         """
         # this is a developer function
         if not api._DEVELOPER:
@@ -239,22 +241,22 @@ class taskMethods:
             return R(err_code=R.Codes.Forbidden)
             
         task_id = obj.ID
-        debug = args["log_level"] if args.has_key("log_level") else "2"
+        debug = args.get("log_level", "20")
         
         # not verifying this optional value because that would require importing a maestro lib
         # just use it as-is
-        options = args["options"] if args.has_key("options") else ""
+        options = args.get("options", "")
         
         # same for account
         account_id = ""
-        account = args["account"] if args.has_key("account") else ""
+        account = args.get("account", "")
         if account:
             ca = cloud.CloudAccount()
             ca.FromName(args["account"])
             if ca:
                 account_id = ca.ID
 
-        parameters = args["parameters"] if args.has_key("parameters") else ""
+        parameters = args.get("parameters", "")
         pjson = ""
         pxml = ""
         if parameters:
@@ -299,19 +301,22 @@ class taskMethods:
                 return R(err_code=R.Codes.Exception, err_detail="Parameters template could not be parsed as valid JSON or XML.")
 
 
-
-        # try to launch it
-        ti = catocommon.add_task_instance(task_id, api._USER_ID, debug, pxml, account_id=account_id, options=options)
-        
-        if ti:
-            if args["output_format"] == "text":
-                return ti
-            else:
-                instance = task.TaskInstance(ti)
-                if args["output_format"] == "json":
-                    return R(response=instance.AsJSON())
+        if args.get("run_later"):
+            obj.RunLater(args.get("run_later"), pxml, debug, account_id)
+            return R(response="[%s] successfully scheduled." % obj.Name)
+        else:
+            # try to launch it
+            ti = catocommon.add_task_instance(task_id, api._USER_ID, debug, pxml, account_id=account_id, options=options)
+            
+            if ti:
+                if args["output_format"] == "text":
+                    return ti
                 else:
-                    return R(response=instance.AsXML())
+                    instance = task.TaskInstance(ti)
+                    if args["output_format"] == "json":
+                        return R(response=instance.AsJSON())
+                    else:
+                        return R(response=instance.AsXML())
 
         # uh oh, something went wrong but we don't know what.
         return R(err_code=R.Codes.GetError, err_detail="Unable to run Task [%s%s].  Check the log for details." % (args["task"], " %s" % (ver) if ver else ""))

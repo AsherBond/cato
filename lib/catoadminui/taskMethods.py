@@ -1362,7 +1362,21 @@ class taskMethods:
         sDebugLevel = uiCommon.getAjaxArg("iDebugLevel")
         
         sUserID = uiCommon.GetSessionUserID()
-        return uiCommon.AddTaskInstance(sUserID, sTaskID, sAccountID, sAssetID, sParameterXML, sDebugLevel)
+
+        sParameterXML = catocommon.unpackData(sParameterXML)
+                        
+        # we gotta peek into the XML and encrypt any newly keyed values
+        sParameterXML = task.Task.PrepareAndEncryptParameterXML(sParameterXML);                
+    
+        if catocommon.is_guid(sTaskID) and catocommon.is_guid(sUserID):
+            ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, account_id=sAccountID)
+            uiCommon.log("Starting Task [%s] ... Instance is [%s]" % (sTaskID, ti), 3)
+            return ti
+        else:
+            uiCommon.log("Unable to run task. Missing or invalid task [%s] or user [%s] id." % (sTaskID, sUserID))
+    
+        # uh oh, return nothing
+        return ""
 
     """
         PARAMETER WEB METHODS and supporting static methods.
@@ -1669,7 +1683,7 @@ class taskMethods:
             sXML = uiCommon.unpackJSON(sXML)
 
             # we gotta peek into the XML and encrypt any newly keyed values
-            sXML = uiCommon.PrepareAndEncryptParameterXML(sXML);                
+            sXML = task.Task.PrepareAndEncryptParameterXML(sXML);                
 
             # so, like when we read it, we gotta spin and compare, and build an XML that only represents *changes*
             # to the defaults on the task.
@@ -2138,7 +2152,7 @@ class taskMethods:
                 if sVal.find("oev:") > -1:
                     sReadyValue = uiCommon.unpackJSON(sVal.replace("oev:", ""))
                 else:
-                    sReadyValue = uiCommon.CatoEncrypt(uiCommon.unpackJSON(sVal))
+                    sReadyValue = catocommon.cato_encrypt(uiCommon.unpackJSON(sVal))
             else:
                 sReadyValue = uiCommon.unpackJSON(sVal)
                 
@@ -2205,8 +2219,8 @@ class taskMethods:
             return json.dumps({"error" : ti.Error})
         
         # one last thing... does the logfile for this run exist on this server?
-        if os.path.exists(r"%s/ce/%s.log" % (catolog.LOGPATH, sTaskInstance)):
-            ti.logfile_name = "%s/ce/%s.log" % (catolog.LOGPATH, sTaskInstance)
+        if os.path.exists(r"%s/te/%s.log" % (catolog.LOGPATH, sTaskInstance)):
+            ti.logfile_name = "%s/te/%s.log" % (catolog.LOGPATH, sTaskInstance)
 
         # all done, serialize our output dictionary
         return ti.AsJSON()
@@ -2330,7 +2344,7 @@ class taskMethods:
         instance = uiCommon.getAjaxArg("sTaskInstance")
         logfile = ""
         if instance:
-            logfile = "%s/ce/%s.log" % (catolog.LOGPATH, instance)
+            logfile = "%s/te/%s.log" % (catolog.LOGPATH, instance)
             if os.path.exists(logfile):
                 if os.path.getsize(logfile) > 20971520:  # 20 meg is a pretty big logfile for the browser.
                     return uiCommon.packJSON("Logfile is too big to view in a web browser.")
