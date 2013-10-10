@@ -221,7 +221,7 @@ function showInfo(msg, info, no_timeout) {
 			}
 		});
 	} else {
-		$("#info_dialog").dialog("removebutton", "OK");
+		$("#info_dialog").dialog("option", "buttons", null);
 		setTimeout("hideInfo()", 2000);
 	}
 
