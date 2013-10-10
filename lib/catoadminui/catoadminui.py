@@ -54,9 +54,11 @@ class wmHandler:
     # the GET and POST methods here are hooked by web.py.
     # whatever method is requested, that function is called.
     def GET(self, method):
+        web.header('X-CSK-Method', method)
         return catocommon.FindAndCall("catoadminui." + method)
 
     def POST(self, method):
+        web.header('X-CSK-Method', method)
         return catocommon.FindAndCall("catoadminui." + method)
 
 class getlog():
@@ -87,7 +89,7 @@ class version:
 # the login announcement hits the Cloud Sidekick web site for a news snip
 class announcement:        
     def GET(self):
-        s = catocommon.http_get_nofail("http://community.cloudsidekick.com/login-page-announcement?utm_source=cato_app&utm_medium=loginpage&utm_campaign=app")
+        s = catocommon.http_get_nofail("http://announcement.cloudsidekick.com/cato/announcement.html?utm_source=cato_app&utm_medium=loginpage&utm_campaign=app")
         if s:
             return s
         else:

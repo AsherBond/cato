@@ -173,7 +173,7 @@ function Agree() {
 		url : "../uiMethods/wmLicenseAgree",
 		data : '',
 		contentType : "application/json; charset=utf-8",
-		dataType : "json",
+		dataType : "text",
 		success : function(response) {
 			// agreement!  Hide the license.  Show the login panel.
 			$("#loginerror").hide();
@@ -221,7 +221,7 @@ function Login() {
 			}
 			if (response.result) {
 				if (response.result == "change") {
-					$("#security_answer").val("")
+					$("#security_answer").val("");
 					$("#password_change_dialog").dialog("open");
 				}
 				if (response.result == "success") {

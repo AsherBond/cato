@@ -66,6 +66,7 @@ class wmHandler:
     
     def go(self, method):
         args = web.input()
+        web.header('X-CSK-Method', method)
         # web.header('Content-Type', 'text/xml')
 
         # here's the rub - if this was a POST, there might be lots of additional data in web.data().

@@ -260,21 +260,20 @@ function ajaxGet(apiurl, on_success, datatype) {"use strict";
 }
 
 ajaxErrorCallback = function(response) {
-	// if something goes wrong on the server, many times the response will be "None" or "internal server error"
-	// trap these two with a nicer error message
-	if (response.responseText == "None" || response.status == 500) {
+	var method = response.getResponseHeader("X-CSK-Method");
+	if (response.status == 500) {
 		//only show info, as the real message will already be in the server log
-		showInfo("An exception occurred - please check the server logfiles for details.");
+		showInfo("An exception occurred - please check the server logfiles for details. (500)", method);
 	} else if (response.status == 280) {
 		// 280 is our custom response code to indicate we want an 'info' message
-		// changing this to 'no_timeout', due to complaints about not seeing the message.
-		showInfo(response.responseText, "", true);
+		showInfo(response.responseText, method);
 	} else if (response.status == 480) {
 		// 480 is our custom 'session error' response code ... lock it down
 		msg = (response.responseText) ? response.responseText : "Your session has ended or been terminated.";
 		lockDown(msg);
 	} else {
-		showAlert(response.responseText);
+		msg = (response.responseText == "None") ? "Expected a response and got 'None'." : response.responseText;
+		showAlert(msg, method);
 	}
 
 	// these might be necessary in many places

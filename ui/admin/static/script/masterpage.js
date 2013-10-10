@@ -179,8 +179,8 @@ function showAlert(msg, info) {
 	}
 
 	if (msg == "" || msg == "None") {// "None" is often returned by web methods that don't return on all code paths.
+		info = info + msg;
 		msg = "An unspecified error has occurred.  Check the server log file for details.";
-		info = info + msg
 	}
 
 	hidePleaseWait();
@@ -221,7 +221,7 @@ function showInfo(msg, info, no_timeout) {
 			}
 		});
 	} else {
-		$("#info_dialog").dialog("removebutton", "OK");
+		$("#info_dialog").dialog("option", "buttons", null);
 		setTimeout("hideInfo()", 2000);
 	}
 

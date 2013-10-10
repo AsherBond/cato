@@ -82,12 +82,6 @@ def check_roles(method):
         log("ERROR: %s does not have a role mapping." % method)
         return False
 
-def CatoEncrypt(s):
-    return catocommon.cato_encrypt(s)
-
-def CatoDecrypt(s):
-    return catocommon.cato_decrypt(s)
-
 def getAjaxArgs():
     """Just returns the whole posted json as a json dictionary"""
         # maybe it was a GET?  check web.input()
@@ -214,30 +208,6 @@ def WriteObjectChangeLog(oType, sObjectID, sObjectName, sLog=""):
 
 def WriteObjectPropertyChangeLog(oType, sObjectID, sLabel, sFrom, sTo):
     catocommon.write_property_change_log(GetSessionUserID(), oType, sObjectID, sLabel, sFrom, sTo)
-
-def PrepareAndEncryptParameterXML(sParameterXML):
-    if sParameterXML:
-        xDoc = catocommon.ET.fromstring(sParameterXML)
-        if xDoc is None:
-            log("Parameter XML data is invalid.")
-
-        # now, all we're doing here is:
-        #  a) encrypting any new values
-        #  b) moving any oev values from an attribute to a value
-        
-        #  a) encrypt new values
-        for xToEncrypt in xDoc.findall("parameter/values/value[@do_encrypt='true']"):
-            xToEncrypt.text = CatoEncrypt(xToEncrypt.text)
-            del xToEncrypt.attrib["do_encrypt"]
-
-        # b) unbase64 any oev's and move them to values
-        for xToEncrypt in xDoc.findall("parameter/values/value[@oev='true']"):
-            xToEncrypt.text = unpackJSON(xToEncrypt.text)
-            del xToEncrypt.attrib["oev"]
-        
-        return catocommon.ET.tostring(xDoc)
-    else:
-        return ""
 
 def ForceLogout(sMsg=""):
     if not sMsg:
@@ -523,25 +493,6 @@ def RemoveDefaultNamespacesFromXML(xml):
     for match in allmatches:
         xml = xml.replace(match.group(), "")
     return xml
-    
-def AddTaskInstance(sUserID, sTaskID, sAccountID, sAssetID, sParameterXML, sDebugLevel, options=None):
-    if not sUserID: return ""
-    if not sTaskID: return ""
-    
-    sParameterXML = unpackJSON(sParameterXML)
-                    
-    # we gotta peek into the XML and encrypt any newly keyed values
-    sParameterXML = PrepareAndEncryptParameterXML(sParameterXML);                
-
-    if catocommon.is_guid(sTaskID) and catocommon.is_guid(sUserID):
-        ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, account_id=sAccountID, options=options)
-        log("Starting Task [%s] ... Instance is [%s] ... with options %s" % (sTaskID, ti, options), 3)
-        return ti
-    else:
-        log("Unable to run task. Missing or invalid task [%s] or user [%s] id." % (sTaskID, sUserID))
-
-    # uh oh, return nothing
-    return ""
     
 def AddNodeToXMLColumn(sTable, sXMLColumn, sWhereClause, sXPath, sXMLToAdd):
     # BE WARNED! this function is shared by many things, and should not be enhanced

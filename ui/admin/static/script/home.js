@@ -17,10 +17,8 @@ $(document).ready(function() {
 	$("#getting_started_items").load("uiMethods/wmGetGettingStarted", function(responseText) {
 		if (responseText.length > 0) {
 			$("#skip_registration_btn").click(function() {
-				var success = updateSetting("general", "register_cato", "skipped");
-				if (success) {
-					$("#registercato").remove();
-				}
+				updateSetting("general", "register_cato", "skipped");
+				$("#registercato").remove();
 			});
 
 			$("#getting_started_message").show();

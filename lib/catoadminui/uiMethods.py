@@ -53,6 +53,7 @@ class uiMethods:
         setting = uiCommon.getAjaxArg("sSetting")
         value = uiCommon.getAjaxArg("sValue")
         settings.settings.set_application_detail(category, setting, value)
+        return ""
             
     def wmLicenseAgree(self):
         settings.settings.set_application_detail("general", "license_status", "agreed")
@@ -448,29 +449,14 @@ class uiMethods:
         iDebugLevel = uiCommon.getAjaxArg("iDebugLevel")
         sAccountID = uiCommon.getAjaxArg("sAccountID")
         
-        if not sTaskID or not sRunOn:
-            uiCommon.log("Missing Action Plan date or Task ID.")
-
         # we encoded this in javascript before the ajax call.
         # the safest way to unencode it is to use the same javascript lib.
         # (sometimes the javascript and .net libs don't translate exactly, google it.)
         sParameterXML = uiCommon.unpackJSON(sParameterXML)
         
-        # we gotta peek into the XML and encrypt any newly keyed values
-        sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML)          
-
-        sSQL = "insert into action_plan (task_id, account_id," \
-            " run_on_dt, parameter_xml, debug_level, source)" \
-            " values (" \
-            " '" + sTaskID + "'," + \
-            (" '" + sAccountID + "'" if sAccountID else "''") + "," \
-            " str_to_date('" + sRunOn + "', '%%m/%%d/%%Y %%H:%%i')," + \
-            (" '" + catocommon.tick_slash(sParameterXML) + "'" if sParameterXML else "null") + "," + \
-            (iDebugLevel if iDebugLevel > "-1" else "null") + "," \
-            " 'manual'" \
-            ")"
-
-        self.db.exec_db(sSQL)
+        t = task.Task()
+        t.FromID(sTaskID)
+        t.RunLater(sRunOn, sParameterXML, iDebugLevel, sAccountID)
 
     def wmRunRepeatedly(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
@@ -483,38 +469,22 @@ class uiMethods:
         iDebugLevel = uiCommon.getAjaxArg("iDebugLevel")
         sAccountID = uiCommon.getAjaxArg("sAccountID")
         
-        if not sTaskID or not aMonths or not aDays or not aHours or not aMinutes or not sDaysOrWeeks:
-            uiCommon.log("Missing or invalid Schedule timing or Task ID.")
-
         # we encoded this in javascript before the ajax call.
         # the safest way to unencode it is to use the same javascript lib.
         # (sometimes the javascript and .net libs don't translate exactly, google it.)
         sParameterXML = uiCommon.unpackJSON(sParameterXML)
         
-        # we gotta peek into the XML and encrypt any newly keyed values
-        sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML)                
+        sched_def = { 
+                     "months" : aMonths,
+                     "days" : aDays,
+                     "hours" : aHours,
+                     "minutes" : aMinutes,
+                     "days_or_weekdays" : sDaysOrWeeks
+                     }
 
-        # figure out a label and a description
-        sLabel, sDesc = catocommon.GenerateScheduleLabel(aMonths, aDays, aHours, aMinutes, sDaysOrWeeks)
-
-        sSQL = "insert into action_schedule (schedule_id, task_id, account_id," \
-            " months, days, hours, minutes, days_or_weeks, label, descr, parameter_xml, debug_level)" \
-               " values (" \
-            " '" + catocommon.new_guid() + "'," \
-            " '" + sTaskID + "'," \
-            + (" '" + sAccountID + "'" if sAccountID else "''") + "," \
-            " '" + ",".join([str(x) for x in aMonths]) + "'," \
-            " '" + ",".join([str(x) for x in aDays]) + "'," \
-            " '" + ",".join([str(x) for x in aHours]) + "'," \
-            " '" + ",".join([str(x) for x in aMinutes]) + "'," \
-            " '" + sDaysOrWeeks + "'," \
-            + (" '" + sLabel + "'" if sLabel else "null") + "," \
-            + (" '" + sDesc + "'" if sDesc else "null") + "," \
-            + (" '" + catocommon.tick_slash(sParameterXML) + "'" if sParameterXML else "null") + "," \
-            + (iDebugLevel if iDebugLevel > "-1" else "null") + \
-            ")"
-
-        self.db.exec_db(sSQL)
+        t = task.Task()
+        t.FromID(sTaskID)
+        t.RunRepeatedly(sched_def, sParameterXML, iDebugLevel, sAccountID)
 
     def wmSavePlan(self):
         iPlanID = uiCommon.getAjaxArg("iPlanID")
@@ -536,7 +506,7 @@ class uiMethods:
         sParameterXML = uiCommon.unpackJSON(sParameterXML)
         
         # we gotta peek into the XML and encrypt any newly keyed values
-        sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML)                
+        sParameterXML = task.Task.PrepareAndEncryptParameterXML(sParameterXML)                
 
         sSQL = """update action_plan
             set parameter_xml = %s,
@@ -572,7 +542,7 @@ class uiMethods:
         sParameterXML = uiCommon.unpackJSON(sParameterXML)
         
         # we gotta peek into the XML and encrypt any newly keyed values
-        sParameterXML = uiCommon.PrepareAndEncryptParameterXML(sParameterXML)                
+        sParameterXML = task.Task.PrepareAndEncryptParameterXML(sParameterXML)                
 
         # whack all plans for this schedule, it's been changed
         sSQL = "delete from action_plan where schedule_id = '" + sScheduleID + "'"
