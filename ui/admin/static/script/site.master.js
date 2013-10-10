@@ -57,7 +57,7 @@ $(document).ready(function() {
 });
 
 function updateHeartbeat() {"use strict";
-	ajaxGet("uiMethods/wmUpdateHeartbeat");
+	ajaxGet("uiMethods/wmUpdateHeartbeat", undefined, "text");
 }
 
 function lockDown(msg) {

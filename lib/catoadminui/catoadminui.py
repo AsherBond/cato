@@ -54,9 +54,11 @@ class wmHandler:
     # the GET and POST methods here are hooked by web.py.
     # whatever method is requested, that function is called.
     def GET(self, method):
+        web.header('X-CSK-Method', method)
         return catocommon.FindAndCall("catoadminui." + method)
 
     def POST(self, method):
+        web.header('X-CSK-Method', method)
         return catocommon.FindAndCall("catoadminui." + method)
 
 class getlog():
