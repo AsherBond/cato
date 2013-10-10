@@ -53,6 +53,7 @@ class uiMethods:
         setting = uiCommon.getAjaxArg("sSetting")
         value = uiCommon.getAjaxArg("sValue")
         settings.settings.set_application_detail(category, setting, value)
+        return ""
             
     def wmLicenseAgree(self):
         settings.settings.set_application_detail("general", "license_status", "agreed")

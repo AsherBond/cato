@@ -144,9 +144,9 @@ function initJtable(stripe, hover) {
 	if (stripe) {
 		$('.jtable tr:even td').addClass('row_alt');
 	}
-	
+
 	// make it sortable, if the headers are defined to be
-	 makeSortable($(".jtable"));
+	makeSortable($(".jtable"));
 }
 
 //THESE FUNCTION SWITCH from web formatting (<br>, &nbsp;, etc) into text formatting (\n, \t, etc)
@@ -189,23 +189,11 @@ function jumpToAnchor(anchor) {
 
 //Update a application setting...
 function updateSetting(category, setting, value) {
-	var success = false;
-	$.ajax({
-		type : "POST",
-		async : false,
-		url : "uiMethods/wmSetApplicationSetting",
-		data : '{"sCategory":"' + category + '","sSetting":"' + setting + '","sValue":"' + value + '"}',
-		contentType : "application/json; charset=utf-8",
-		dataType : "text",
-		success : function(response) {
-			success = true;
-		},
-		error : function(response) {
-			showAlert(response.responseText);
-		}
-	});
-
-	return success;
+	var response = ajaxPost("uiMethods/wmSetApplicationSetting", {
+		"sCategory" : category,
+		"sSetting" : setting,
+		"sValue" : value
+	}, "text");
 }
 
 //------------------------------------------------------------
@@ -477,40 +465,33 @@ function openWindow(URLtoOpen, windowName, windowFeatures) {
 	wOpen.focus();
 }
 
-
 // This function can sort enable sorting html table on the provided columns
 // works on any column header with the class "sortable"
 function makeSortable(table) {
-    $(".sortable")
-        .wrapInner('<span title="click to sort"/>')
-        .each(function(){
-            
-            var th = $(this),
-                thIndex = th.index(),
-                inverse = false;
-            
-            th.click(function(){
-                
-                table.find('td').filter(function(){
-                    
-                    return $(this).index() === thIndex;
-                    
-                }).sortElements(function(a, b){
-                    
-                    return $.text([a]) > $.text([b]) ?
-                        inverse ? -1 : 1
-                        : inverse ? 1 : -1;
-                    
-                }, function(){
-                    
-                    // parentNode is the element we want to move
-                    return this.parentNode;
-                    
-                });
-                
-                inverse = !inverse;
-                    
-            });
-                
-        });	
+	$(".sortable").wrapInner('<span title="click to sort"/>').each(function() {
+
+		var th = $(this), thIndex = th.index(), inverse = false;
+
+		th.click(function() {
+
+			table.find('td').filter(function() {
+
+				return $(this).index() === thIndex;
+
+			}).sortElements(function(a, b) {
+
+				return $.text([a]) > $.text([b]) ? inverse ? -1 : 1 : inverse ? 1 : -1;
+
+			}, function() {
+
+				// parentNode is the element we want to move
+				return this.parentNode;
+
+			});
+
+			inverse = !inverse;
+
+		});
+
+	});
 }
