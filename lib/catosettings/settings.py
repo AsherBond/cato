@@ -109,7 +109,7 @@ class settings(object):
             These settings are defaults if there are no values in the database.
         """
         Enabled = True  # is it processing work?
-        LoopDelay = 10  # how often does it check for work?
+        LoopDelay = 3  # how often does it check for work?
         MaxProcesses = 32  # maximum number of task engines at one time
         
         def __init__(self):
