@@ -203,7 +203,7 @@ $(document).ready(function() {
 		ShowPlanEditDialog(this);
 	});
 	//remove a schedule
-	$("#task_launch_dialog").on("click", ".schedule_remove_btn", function() {
+	$(document).on("click", ".schedule_remove_btn", function() {
 		deleteSchedule(this);
 	});
 
