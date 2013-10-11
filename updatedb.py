@@ -155,7 +155,9 @@ versions = [
                       ["function", "_v121_updates"],
                       ["changecolumn", "asset_credential", "username", "`username` VARCHAR(128) NULL DEFAULT NULL"],
                       ["changecolumn", "asset_credential", "password", "`password` VARCHAR(2048) NULL DEFAULT NULL"],                      
-                      ["changecolumn", "dash_resource", "data", "`data` mediumblob"]                    
+                      ["changecolumn", "dash_resource", "data", "`data` mediumblob"],
+                      ["addcolumn", "dep_service_state_mon", "parameter_xml", "mediumtext NULL"],
+                      ["addcolumn", "dep_service_state_mon", "debug_level", "int(11) NULL"]
                       ]
              ],
             ["1.22", [
