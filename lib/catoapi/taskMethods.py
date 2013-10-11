@@ -508,6 +508,75 @@ class taskMethods:
         else:
             return R(response="Task has no parameters defined.")
             
+    def get_task_plans(self, args):        
+        """
+        Gets a list of the queued execution plans for a Task.
+        
+        Required Arguments: 
+            task - Value can be either a Task ID or Name.
+        
+        Optional Arguments:
+            version - A specific version.  ('Default' if omitted.)
+            
+        Returns: A list of execution Plans.
+        """
+        # define the required parameters for this call
+        required_params = ["task"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        ver = args["version"] if args.has_key("version") else ""
+
+        obj = task.Task()
+        obj.FromNameVersion(args["task"], ver)
+        
+        if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
+            return R(err_code=R.Codes.Forbidden)
+        
+        if args["output_format"] == "json":
+            return R(response=obj.PlansAsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.PlansAsText(args.get("output_delimiter"), args.get("header")))
+        else:
+            return R(response=obj.PlansAsXML())
+            
+    def get_task_schedules(self, args):        
+        """
+        Gets a list of Schedule definitions for a Task.
+        
+        Required Arguments: 
+            task - Value can be either a Task ID or Name.
+        
+        Optional Arguments:
+            version - A specific version.  ('Default' if omitted.)
+            
+        Returns: A list of Schedule definitions.
+        
+            Text results do not include timing details.
+            JSON results include Schedule definitions suitable for use in the 'schedule_task' function.
+        """
+        # define the required parameters for this call
+        required_params = ["task"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        ver = args["version"] if args.has_key("version") else ""
+
+        obj = task.Task()
+        obj.FromNameVersion(args["task"], ver)
+        
+        if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
+            return R(err_code=R.Codes.Forbidden)
+        
+        if args["output_format"] == "json":
+            return R(response=obj.SchedulesAsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.SchedulesAsText(args.get("output_delimiter"), args.get("header")))
+        else:
+            return R(response=obj.SchedulesAsXML())
+            
     def get_task_parameters(self, args):        
         """
         Gets a Parameters template for a Task.
@@ -663,6 +732,7 @@ class taskMethods:
             except Exception as ex:
                 return R(err_code=R.Codes.Exception, err_detail="Schedule definition is not valid JSON. %s" % ex)
 
+        out = []
         for t in tasks:
             if not t.get("Task"):
                 return R(err_code=R.Codes.CreateError, err_detail="Each item in the schedule definition requires a 'task'.")
@@ -689,11 +759,56 @@ class taskMethods:
                 pxml = catocommon.params2xml(parameters)
 
             obj.RunRepeatedly(sched_def, pxml, t.get("Debug"), t.get("AccountID"))
-            return R(response="[%s] successfully scheduled." % obj.Name)
+            out.append("[%s] successfully scheduled." % obj.Name)
             
-#         if not api.is_object_allowed(ti.task_id, catocommon.CatoObjectTypes.Task):
-#             return R(err_code=R.Codes.Forbidden)
-#             
-#         ti.Stop()
-#         return R(response="Instance [%s] successfully stopped." % args["instance"])
+        return R(response="\n".join(out))
+
+    def delete_schedule(self, args):
+        """
+        Deletes a Task Schedule and all queued execution Plans.
+        
+        Required Arguments: 
+            schedule_id - The UUID of the Schedule to delete.
+
+        Returns: Nothing if successful, error messages on failure.
+        """
+        # this is a admin function
+        if not api._ADMIN:
+            return R(err_code=R.Codes.Forbidden)
+        
+        required_params = ["schedule_id"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        task.Task.DeleteSchedules(args["schedule_id"])
+
+        catocommon.write_delete_log(api._USER_ID, catocommon.CatoObjectTypes.Task, "", "", "Schedule [%s] deleted via API." % (args["schedule_id"]))
+        
+        return R(response="Schedule [%s] successfully deleted." % args["schedule_id"])
             
+    def delete_plan(self, args):
+        """
+        Deletes a specific queued execution Plan.
+        
+        Required Arguments: 
+            plan_id - The integer ID of the Plan to delete.
+
+        Returns: Nothing if successful, error messages on failure.
+        """
+        # this is a admin function
+        if not api._ADMIN:
+            return R(err_code=R.Codes.Forbidden)
+        
+        required_params = ["plan_id"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        task.Task.DeletePlan(args["plan_id"])
+
+        catocommon.write_delete_log(api._USER_ID, catocommon.CatoObjectTypes.Task, "", "", "Plan [%s] deleted via API." % (args["plan_id"]))
+        
+        return R(response="Plan [%s] successfully deleted." % args["plan_id"])
+            
+    

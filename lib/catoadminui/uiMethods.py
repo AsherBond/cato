@@ -313,35 +313,32 @@ class uiMethods:
         try:
             sHTML = ""
 
-            sSQL = """select plan_id, date_format(ap.run_on_dt, '%%m/%%d/%%Y %%H:%%i') as run_on_dt, ap.source, ap.action_id,
-                ap.source, ap.schedule_id
-                from action_plan ap
-                where ap.task_id = %s 
-                order by ap.run_on_dt"""
-            dt = self.db.select_all_dict(sSQL, (sTaskID))
-            if dt:
-                for dr in dt:
-                    sHTML += '''<div class="ui-widget-content ui-corner-all pointer clearfloat action_plan"
-                        id="ap_%s" plan_id="%s" run_on="%s" source="%s"
-                        schedule_id="%s">''' % (str(dr["plan_id"]), str(dr["plan_id"]), str(dr["run_on_dt"]), dr["source"], str(dr["schedule_id"]))
-                    sHTML += " <div class=\"floatleft action_plan_name\">"
+            t = task.Task()
+            t.FromID(sTaskID)
+            plans = t.GetPlans()
 
-                    # an icon denotes if it's manual or scheduled
-                    if dr["source"] == "schedule":
-                        sHTML += "<span class=\"floatleft ui-icon ui-icon-calculator\" title=\"Scheduled\"></span>"
-                    else:
-                        sHTML += "<span class=\"floatleft ui-icon ui-icon-document\" title=\"Run Later\"></span>"
+            for dr in plans:
+                sHTML += '''<div class="ui-widget-content ui-corner-all pointer clearfloat action_plan"
+                    id="ap_%s" plan_id="%s" run_on="%s" source="%s"
+                    schedule_id="%s">''' % (str(dr["PlanID"]), str(dr["PlanID"]), str(dr["RunOn"]), dr["Source"], str(dr["ScheduleID"]))
+                sHTML += " <div class=\"floatleft action_plan_name\">"
 
-                    sHTML += dr["run_on_dt"]
+                # an icon denotes if it's manual or scheduled
+                if dr["Source"] == "schedule":
+                    sHTML += "<span class=\"floatleft ui-icon ui-icon-calculator\" title=\"Scheduled\"></span>"
+                else:
+                    sHTML += "<span class=\"floatleft ui-icon ui-icon-document\" title=\"Run Later\"></span>"
 
-                    sHTML += " </div>"
+                sHTML += dr["RunOn"]
 
-                    sHTML += " <div class=\"floatright\">"
-                    sHTML += "<span class=\"ui-icon ui-icon-trash action_plan_remove_btn\" title=\"Delete Plan\"></span>"
-                    sHTML += " </div>"
+                sHTML += " </div>"
+
+                sHTML += " <div class=\"floatright\">"
+                sHTML += "<span class=\"ui-icon ui-icon-trash action_plan_remove_btn\" title=\"Delete Plan\"></span>"
+                sHTML += " </div>"
 
 
-                    sHTML += " </div>"
+                sHTML += " </div>"
 
             return sHTML
 
@@ -352,32 +349,31 @@ class uiMethods:
         sTaskID = uiCommon.getAjaxArg("sTaskID")
         sHTML = ""
 
-        sSQL = """select s.schedule_id, s.label, s.descr
-            from action_schedule s
-            where s.task_id = %s"""
-        dt = self.db.select_all_dict(sSQL, (sTaskID))
-        if dt:
-            for dr in dt:
-                sToolTip = ""
-                sToolTip += (dr["descr"] if dr["descr"] else "")
+        t = task.Task()
+        t.FromID(sTaskID)
+        schedules = t.GetSchedules()
 
-                # draw it
-                sHTML += " <div class=\"ui-widget-content ui-corner-all pointer clearfloat action_schedule\"" \
-                    " id=\"as_" + dr["schedule_id"] + "\">"
-                sHTML += " <div class=\"floatleft schedule_name\">"
+        for dr in schedules:
+            sToolTip = ""
+            sToolTip += dr.get("Description", "")
 
-                sHTML += "<span class=\"floatleft ui-icon ui-icon-calculator schedule_tip\" title=\"" + sToolTip + "\"></span>"
+            # draw it
+            sHTML += " <div class=\"ui-widget-content ui-corner-all pointer clearfloat action_schedule\"" \
+                " id=\"as_" + dr["ScheduleID"] + "\">"
+            sHTML += " <div class=\"floatleft schedule_name\">"
 
-                sHTML += (dr["schedule_id"] if not dr["label"] else dr["label"])
+            sHTML += "<span class=\"floatleft ui-icon ui-icon-calculator schedule_tip\" title=\"" + sToolTip + "\"></span>"
 
-                sHTML += " </div>"
+            sHTML += (dr["ScheduleID"] if not dr["Label"] else dr["Label"])
 
-                sHTML += " <div class=\"floatright\">"
-                sHTML += "<span class=\"ui-icon ui-icon-trash schedule_remove_btn\" title=\"Delete Schedule\"></span>"
-                sHTML += " </div>"
+            sHTML += " </div>"
+
+            sHTML += " <div class=\"floatright\">"
+            sHTML += "<span class=\"ui-icon ui-icon-trash schedule_remove_btn\" title=\"Delete Schedule\"></span>"
+            sHTML += " </div>"
 
 
-                sHTML += " </div>"
+            sHTML += " </div>"
 
         return sHTML
 
@@ -415,12 +411,7 @@ class uiMethods:
             uiCommon.log("Missing Schedule ID.")
             return "Missing Schedule ID."
 
-        sSQL = "delete from action_plan where schedule_id = %s"
-        self.db.exec_db(sSQL, (sScheduleID))
-
-        sSQL = "delete from action_schedule where schedule_id = %s"
-        self.db.exec_db(sSQL, (sScheduleID))
-
+        task.Task.DeleteSchedules(sScheduleID)
         #  if we made it here, so save the logs
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Schedule, "", "", "Schedule [" + sScheduleID + "] deleted.")
 
@@ -433,10 +424,7 @@ class uiMethods:
             uiCommon.log("Missing Action Plan ID.")
             return "Missing Action Plan ID."
 
-        sSQL = "delete from action_plan where plan_id = %s"
-
-        self.db.exec_db(sSQL, (iPlanID))
-
+        task.Task.DeletePlan(iPlanID)
         #  if we made it here, so save the logs
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Schedule, "", "", "Action Plan [" + iPlanID + "] deleted.")
 

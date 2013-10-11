@@ -978,7 +978,7 @@ class Task(object):
         db.exec_db(sql, (self.ID, account_id, parameter_xml, debug_level))
         db.close()
         
-    def RunRepeatedly(self, sched_def, parameter_xml=None, debug_level=None, account_id=None):
+    def RunRepeatedly(self, sched_def, parameter_xml=None, debug_level=20, account_id=None):
         """
         Will add a row to action_plan directly, so this Task will execute one time in the future.
         """
@@ -987,6 +987,8 @@ class Task(object):
         db = catocommon.new_conn()
         parameter_xml = Task.PrepareAndEncryptParameterXML(parameter_xml)          
 
+        debug_level = debug_level if debug_level else 20
+        
         # figure out a label and a description
         sLabel, sDesc = catocommon.GenerateScheduleLabel(months, days, hours, minutes, d_or_w)
 
@@ -996,16 +998,126 @@ class Task(object):
                values 
                (uuid(), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
-        params = (self.ID, account_id, 
-                  ",".join([str(x) for x in months]), 
-                  ",".join([str(x) for x in days]), 
-                  ",".join([str(x) for x in hours]), 
-                  ",".join([str(x) for x in minutes]), 
-                  d_or_w, 
+        params = (self.ID, account_id,
+                  ",".join([str(x) for x in months]),
+                  ",".join([str(x) for x in days]),
+                  ",".join([str(x) for x in hours]),
+                  ",".join([str(x) for x in minutes]),
+                  d_or_w,
                   sLabel, sDesc, parameter_xml, debug_level)
 
         db.exec_db(sql, params)
         db.close()
+        
+    def GetPlans(self):
+        """
+        Return a list of all execution Plans for this Task.
+        """
+        db = catocommon.new_conn()
+
+        sql = """select plan_id as PlanID,
+            date_format(ap.run_on_dt, '%%m/%%d/%%Y %%H:%%i') as RunOn, 
+            ap.source as Source, 
+            ap.action_id as ActionID, 
+            ap.schedule_id as ScheduleID
+            from action_plan ap
+            where ap.task_id = %s 
+            order by ap.run_on_dt"""
+        dt = db.select_all_dict(sql, (self.ID))
+        db.close()
+        if dt:
+            return dt
+        else:
+            return ()
+        
+    def PlansAsJSON(self):
+        return catocommon.ObjectOutput.IterableAsJSON(self.GetPlans())
+
+    def PlansAsXML(self):
+        return catocommon.ObjectOutput.IterableAsXML(self.GetPlans(), "Plans", "Plan")
+
+    def PlansAsText(self, delimiter=None, headers=None):
+        return catocommon.ObjectOutput.IterableAsText(self.GetPlans(), ['PlanID', 'RunOn', 'Source', 'ScheduleID'], delimiter, headers)
+
+    def GetSchedules(self):
+        """
+        Return a list of all Schedule definitions for this Task.
+        """
+        db = catocommon.new_conn()
+
+        sql = """select s.schedule_id as ScheduleID, s.label as Label, s.descr as Description,
+            months as Months, days as Days, hours as Hours, minutes as Minutes, days_or_weeks as DaysOrWeekdays,
+            debug_level as Debug, parameter_xml as Parameters
+            from action_schedule s
+            where s.task_id = %s"""
+        dt = db.select_all_dict(sql, (self.ID))
+        db.close()
+        if dt:
+            return dt
+        else:
+            return ()
+        
+    def SchedulesAsJSON(self):
+        # gotta fix the arrays to our standard format
+        scheds = self.GetSchedules()
+        for s in scheds:
+            months = [int(x) for x in s["Months"].split(",")]
+            s["Months"] = ("*" if months == range(0, 12) else months) 
+
+            days = [int(x) for x in s["Days"].split(",")]
+            if s["DaysOrWeekdays"] == 0:
+                s["Days"] = ("*" if days == range(0, 31) else days) 
+            else:
+                s["Days"] = ("*" if days == range(0, 7) else days) 
+
+            s["DaysOrWeekdays"] = "Days" if s["DaysOrWeekdays"] == 0 else "Weekdays"
+            
+            hours = [int(x) for x in s["Hours"].split(",")]
+            s["Hours"] = ("*" if hours == range(0, 24) else hours) 
+            
+            mins = [int(x) for x in s["Minutes"].split(",")]
+            s["Minutes"] = ("*" if mins == range(0, 60) else mins)
+            
+            # add the Task Information
+            s["Task"] = self.Name
+            if not self.IsDefaultVersion:
+                s["Version"] = self.Version
+                
+        return catocommon.ObjectOutput.IterableAsJSON(scheds)
+
+    def SchedulesAsXML(self):
+        return catocommon.ObjectOutput.IterableAsXML(self.GetSchedules(), "Schedules", "Schedule")
+
+    def SchedulesAsText(self, delimiter=None, headers=None):
+        return catocommon.ObjectOutput.IterableAsText(self.GetSchedules(), ['ScheduleID', 'Label', 'Description'], delimiter, headers)
+
+    @staticmethod
+    def DeleteSchedules(schedule_id):
+        """
+        Static Method because there isn't a "Schedule" class.
+        
+        Deletes a single schedule and all associated plans.
+        """
+        db = catocommon.new_conn()
+        sql = "delete from action_plan where schedule_id = %s"
+        db.exec_db(sql, (schedule_id))
+
+        sql = "delete from action_schedule where schedule_id = %s"
+        db.exec_db(sql, (schedule_id))
+        db.close()
+
+    @staticmethod
+    def DeletePlan(plan_id):
+        """
+        Static Method because there isn't a "Schedule" class.
+        
+        Deletes a single execution plan.
+        """
+        db = catocommon.new_conn()
+        sql = "delete from action_plan where plan_id = %s"
+        db.exec_db(sql, (plan_id))
+        db.close()
+
         
     @staticmethod
     def PrepareAndEncryptParameterXML(sParameterXML):

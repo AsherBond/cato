@@ -263,7 +263,7 @@ def params2xml(parameters):
     if pjson:
         for p in pjson:
             vals = ""
-            if p["values"]:
+            if p.get("name") and p.get("values"):
                 for v in p["values"]:
                     vals += "<value>%s</value>" % v
             pxml += "<parameter><name>%s</name><values>%s</values></parameter>" % (p["name"], vals)
@@ -465,7 +465,8 @@ def add_task_instance(task_id, user_id, debug_level, parameter_xml, account_id=N
         if x < 10:
             debug_level = x * 10
     except:
-        logger.warning("Debug Level [%s] could not be normalized." % (debug_level))
+        logger.warning("Debug Level [%s] could not be normalized.  Setting to INFO (20)" % (debug_level))
+        debug_level = 20
     
     db = new_conn()
     sql = """insert into task_instance (
@@ -700,20 +701,20 @@ def ParseScheduleDefinition(sched_def):
 
     # we should account for some properties being special directives instead of schedule details
     if months == "*":
-        months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        months = range(0, 12)
     if d_or_w.lower() == "days" or d_or_w == "0" or d_or_w == 0:
         d_or_w = 0
     else:
         d_or_w = 1
     if days == "*":
         if d_or_w == 0:
-            days = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+            days = range(0, 31)
         else:
-            days = [0, 1, 2, 3, 4, 5, 6]
+            days = range(0, 7)
     if hours == "*":
-        hours = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+        hours = range(0, 24)
     if minutes == "*":
-        minutes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+        minutes = range(0, 60)
         
     return months, days, hours, minutes, d_or_w
 
@@ -728,16 +729,16 @@ def GenerateScheduleLabel(aMo, aDa, aHo, aMi, sDW):
 
     # we can analyze the details and come up with a pretty name for this schedule.
     # this may need to be it's own web method eventually...
-    if aMo != [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]:
+    if aMo != range(0, 12):
         sDesc += "Some Months, "
 
     if str(sDW) == "0":
         # explicit days 
-        if aDa == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]:
+        if aDa == range(0, 31):
             sDesc += "Every Day, "
     else:
         # weekdays
-        if aDa == [0, 1, 2, 3, 4, 5, 6]:
+        if aDa == range(0, 7):
             sDesc += "Every Weekday, "
         else:
             sDesc += "Some Days, "
@@ -745,12 +746,12 @@ def GenerateScheduleLabel(aMo, aDa, aHo, aMi, sDW):
     # hours and minutes labels play together, and are sometimes exclusive of one another
     # we'll figure that out later...
 
-    if aHo == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]:
+    if aHo == range(0, 24):
         sDesc += "Hourly, "
     else:
         sDesc += "Selected Hours, "
 
-    if aMi == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]:
+    if aMi == range(0, 60):
         sDesc += "Every Minute"
     else:
         sDesc += "Selected Minutes"
@@ -766,7 +767,7 @@ def GenerateScheduleLabel(aMo, aDa, aHo, aMi, sDW):
     sTmp = ""
 
     # months
-    if aMo == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]:
+    if aMo == range(0, 12):
         sTmp = "Every Month"
     else:
         m2 = []
@@ -780,7 +781,7 @@ def GenerateScheduleLabel(aMo, aDa, aHo, aMi, sDW):
     # days
     sTmp = ""
     if str(sDW) == "0":
-        if aDa == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]:
+        if aDa == range(0, 31):
             sTmp = "Every Day"
         else:
             d2 = []
@@ -792,7 +793,7 @@ def GenerateScheduleLabel(aMo, aDa, aHo, aMi, sDW):
 
         sTooltip += "Days: (" + sTmp + ")<br />\n"
     else:
-        if aDa == [0, 1, 2, 3, 4, 5, 6]:
+        if aDa == range(0, 7):
             sTmp = "Every Weekday"
         else:
             d2 = []
@@ -806,7 +807,7 @@ def GenerateScheduleLabel(aMo, aDa, aHo, aMi, sDW):
 
     # hours
     sTmp = ""
-    if aHo == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]:
+    if aHo == range(0, 24):
         sTmp = "Every Hour"
     else:
         sTmp = ",".join([str(x) for x in aHo])
@@ -814,7 +815,7 @@ def GenerateScheduleLabel(aMo, aDa, aHo, aMi, sDW):
 
     # minutes
     sTmp = ""
-    if aMi == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]:
+    if aMi == range(0, 60):
         sTmp = "Every Minute"
     else:
         sTmp = ",".join([str(x) for x in aMi])
