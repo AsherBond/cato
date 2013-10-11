@@ -45,7 +45,7 @@ $(document).ready(function() {
 			sVisible : visible
 		}, function(msg) {
 			$("#update_success_msg").text("Update Successful").fadeOut(2000);
-		});
+		}, "text");
 	});
 
 	//toggle all of them
@@ -104,7 +104,7 @@ $(document).ready(function() {
 			sButton : btn
 		}, function(msg) {
 			$("#update_success_msg").text("Update Successful").fadeOut(2000);
-		});
+		}, "text");
 	});
 
 	// Command tab details
@@ -154,7 +154,7 @@ $(document).ready(function() {
 			sSkip : skip
 		}, function(msg) {
 			$("#update_success_msg").text("Update Successful").fadeOut(2000);
-		});
+		}, "text");
 	});
 
 	//the onclick event of the 'delete' link of each step
