@@ -249,6 +249,7 @@ def datastore_find_and_modify_cmd(self, task, step):
     for p in pairs:
         name = self.replace_variables(p[0])
         _vars[name] = self.replace_variables(p[1])
+        self.rt.clear(name)
 
     for p in outpairs:
         name = self.replace_variables(p[0])
@@ -349,6 +350,7 @@ def datastore_query_cmd(self, task, step):
         name = self.replace_variables(p[0])
         if len(name):
             _vars.append([name, p[1]])
+            self.rt.clear(name)
             cols[name] = True
     msg = "Collection %s, Query %s, Columns %s" % (collection, query_dict, cols.keys())
     if "_id" not in cols.keys():
