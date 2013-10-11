@@ -615,6 +615,7 @@ class TaskEngine():
                             value = var
                         else:
                             self.logger.debug("Object variable - keypath is [%s]." % (keypath))
+                            self.logger.debug(type(var))
                              
                             # [[objvar:*]] will return the number of keys INSIDE this object
                             # if the 'keypath' starts with a $, that's a JSONPATH so we'll apply that
@@ -622,20 +623,21 @@ class TaskEngine():
                             if keypath == "*":
                                 value = len(var)
                             else:
-                                # jsonpath can return an array, but if it's only one, strip the outer list
-                                matches = []
-                                try:
-                                    matches = jsonpath(var, keypath)
-                                except IndexError as ex:
-                                    self.logger.error("Dictionary Variable lookup:\n%s" % (ex.__str__))
-                                
-                                if matches:
-                                    if len(matches) == 1:
-                                        value = matches[0]
-                                    else:
-                                        value = matches
-                                else:
-                                    self.logger.info("Object variable [%s] - key [%s] not found." % (varname, keypath))
+                                value = self._use_jsonpath(varname, var, keypath)
+#                                 # jsonpath can return an array, but if it's only one, strip the outer list
+#                                 matches = []
+#                                 try:
+#                                     matches = jsonpath(var, keypath)
+#                                 except IndexError as ex:
+#                                     self.logger.error("Dictionary Variable lookup:\n%s" % (ex.__str__))
+#                                 
+#                                 if matches:
+#                                     if len(matches) == 1:
+#                                         value = matches[0]
+#                                     else:
+#                                         value = matches
+#                                 else:
+#                                     self.logger.info("Object variable [%s] - key [%s] not found." % (varname, keypath))
                     
                 elif "." in found_var:
                     # this is an xpath query
@@ -702,38 +704,39 @@ class TaskEngine():
         return z
 
 
+    def _use_jsonpath(self, vname, obj, keypath):
+        """
+        NOTE: this function MUST return a string, not an object it might have found using jsonpath
+        Also, if the response actually is an object (dict, list), it must be dumped pretty printed
+        otherwise nested lists might appear as [[1,2,3]], which replace_vars will assume is a variable and try to replace it! :-(
+        """
+        if keypath:
+            v = jsonpath(obj, keypath)
+            if v:
+                # finally, jsonpath *always* returns a list, because xpath might have matched multiples
+                # but, if there's only one item in the list, just return the item directly.  (90% of cases)
+                if len(v) == 1:
+                    v = v[0]
+
+                # a list or a dict should be json dumped
+                # anything else is directly returned
+                if isinstance(v, dict) or isinstance(v, list):
+                    return catocommon.ObjectOutput.AsJSON(v)
+                else:
+                    return v
+                
+            # not found :-(
+            self.logger.info("Object variable [%s] - key [%s] not found." % (vname, keypath))
+        else:
+            return catocommon.ObjectOutput.AsJSON(obj)
+        
     def sub_global(self, varname):
         """
         This will spin self.global_variables list, and attempt to reconcile _VARNAMES to self.properties.
         A match means the self.property will be used any time the [[_VARNAME]] is referenced.
         
         NOTE: Two special cases for UUIDS might not actually belong here, as they are functions not properties.
-        
-        NOTE: this function MUST return a string, not an object it might have found using jsonpath
-        Also, if the response actually is an object (dict, list), it must be dumped pretty printed
-        otherwise nested lists might appear as [[1,2,3]], which replace_vars will assume is a variable and try to replace it! :-(
         """
-
-        def _use_jsonpath(vname, obj, keypath):
-            if keypath:
-                v = jsonpath(obj, keypath)
-                if v:
-                    # finally, jsonpath *always* returns a list, because xpath might have matched multiples
-                    # but, if there's only one item in the list, just return the item directly.  (90% of cases)
-                    if len(v) == 1:
-                        v = v[0]
-
-                    # a list or a dict should be json dumped
-                    # anything else is directly returned
-                    if isinstance(v, dict) or isinstance(v, list):
-                        return catocommon.ObjectOutput.AsJSON(v)
-                    else:
-                        return v
-                    
-                # not found :-(
-                self.logger.info("Object variable [%s] - key [%s] not found." % (vname, keypath))
-            else:
-                return catocommon.ObjectOutput.AsJSON(obj)
 
 
         # we expect the variable name to be upper case
@@ -775,7 +778,7 @@ class TaskEngine():
                     if docount:
                         return len(p)
                     
-                    return _use_jsonpath(varname, p, keypath)
+                    return self._use_jsonpath(varname, p, keypath)
                 else:
                     # we presume it's a string value
                     return p

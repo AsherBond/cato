@@ -914,6 +914,7 @@ def set_variable_cmd(self, task, step):
         elif modifier == "FROM_JSON":
             # reads a JSON string into a dictionary variable object.
             try:
+                self.logger.debug("Set Variable - Read JSON Modifier : parsing %s" % (value))
                 value = json.loads(value)
             except Exception as ex:
                 self.logger.warning("Set Variable - Read JSON Modifier : Unable to parse string. %s" % (ex.__str__))
