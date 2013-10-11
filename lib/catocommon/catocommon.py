@@ -241,6 +241,52 @@ def http_post(url, args, tout=30, headers={}):
     # if all was well, we won't get here.
     return None, None
 
+def params2xml(parameters):
+    """
+    the add_task_instance command requires parameter XML...
+    we accept json OR xml from the client, and convert if necessary
+    """
+    pxml = ""
+    pjson = ""
+    # are the parameters json?
+    try:
+        logger.info("Checking for JSON parameters...")
+
+        # are the parameters already a list?
+        if isinstance(parameters, list):
+            pjson = parameters
+        else:
+            pjson = json.loads(parameters)
+    except Exception as ex:
+        logger.info("Trying to parse parameters as JSON failed. %s" % ex)
+            
+    if pjson:
+        for p in pjson:
+            vals = ""
+            if p["values"]:
+                for v in p["values"]:
+                    vals += "<value>%s</value>" % v
+            pxml += "<parameter><name>%s</name><values>%s</values></parameter>" % (p["name"], vals)
+        
+        pxml = "<parameters>%s</parameters>" % pxml
+    
+    # not json, maybe xml?
+    if not pxml:
+        try:
+            logger.info("Parameters are not JSON... trying XML...")
+            # just test to see if it's valid so we can throw an error if not.
+            ET.fromstring(parameters)
+            pxml = parameters # an xml STRING!!! - it gets parsed by the Task Engine
+        except Exception as ex:
+            logger.info("Trying to parse parameters as XML failed. %s" % ex)
+
+
+    # parameters were provided, but could not be validated
+    if not pxml:
+        raise Exception("Parameters could not be parsed as valid JSON or XML.")
+    
+    return pxml
+    
 def paramxml2json(pxml, basic=False):
     """
     Returns a JSON document representing a blank parameters document for running the Sequence.
@@ -632,7 +678,45 @@ def FindAndCall(method, args=None):
         db.close()    
 
     return "Method [%s] does not exist or could not be called." % method
-    
+
+def ParseScheduleDefinition(sched_def):
+    """
+    Will pick apart a schedule definition and return a tuple of components.
+    """
+    months = sched_def["Months"]
+    days = sched_def["Days"]
+    hours = sched_def["Hours"]
+    minutes = sched_def["Minutes"]
+    d_or_w = sched_def["DaysOrWeekdays"]
+
+    if not months:
+        raise Exception("Task RunRepeatedly requires 'Months'.")
+    if not days:
+        raise Exception("Task RunRepeatedly requires 'Days'.")
+    if not hours:
+        raise Exception("Task RunRepeatedly requires 'Hours'.")
+    if not minutes:
+        raise Exception("Task RunRepeatedly requires 'Minutes'.")
+
+    # we should account for some properties being special directives instead of schedule details
+    if months == "*":
+        months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    if d_or_w.lower() == "days" or d_or_w == "0" or d_or_w == 0:
+        d_or_w = 0
+    else:
+        d_or_w = 1
+    if days == "*":
+        if d_or_w == 0:
+            days = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+        else:
+            days = [0, 1, 2, 3, 4, 5, 6]
+    if hours == "*":
+        hours = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+    if minutes == "*":
+        minutes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+        
+    return months, days, hours, minutes, d_or_w
+
 def GenerateScheduleLabel(aMo, aDa, aHo, aMi, sDW):
     """
     Given the properties of a schedule, will return a printable description
@@ -647,7 +731,7 @@ def GenerateScheduleLabel(aMo, aDa, aHo, aMi, sDW):
     if aMo != [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]:
         sDesc += "Some Months, "
 
-    if sDW == "0":
+    if str(sDW) == "0":
         # explicit days 
         if aDa == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]:
             sDesc += "Every Day, "
@@ -695,7 +779,7 @@ def GenerateScheduleLabel(aMo, aDa, aHo, aMi, sDW):
 
     # days
     sTmp = ""
-    if sDW == "0":
+    if str(sDW) == "0":
         if aDa == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]:
             sTmp = "Every Day"
         else:

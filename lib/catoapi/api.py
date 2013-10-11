@@ -89,6 +89,7 @@ endpoints = {
 			 "reset_password" : "catoapi.sysMethods/reset_password",
 			 "resubmit_task_instance" : "catoapi.taskMethods/resubmit_task_instance",
 			 "run_task" : "catoapi.taskMethods/run_task",
+			 "schedule_tasks" : "catoapi.taskMethods/schedule_tasks",
 			 "set_document_value" : "catoapi.dsMethods/set_document_value",
 			 "stop_task" : "catoapi.taskMethods/stop_task",
 			 "add_object_tag" : "catoapi.sysMethods/add_object_tag",

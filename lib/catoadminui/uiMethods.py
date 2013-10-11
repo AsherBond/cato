@@ -475,11 +475,11 @@ class uiMethods:
         sParameterXML = uiCommon.unpackJSON(sParameterXML)
         
         sched_def = { 
-                     "months" : aMonths,
-                     "days" : aDays,
-                     "hours" : aHours,
-                     "minutes" : aMinutes,
-                     "days_or_weekdays" : sDaysOrWeeks
+                     "Months" : aMonths,
+                     "Days" : aDays,
+                     "Hours" : aHours,
+                     "Minutes" : aMinutes,
+                     "DaysOrWeekdays" : sDaysOrWeeks
                      }
 
         t = task.Task()

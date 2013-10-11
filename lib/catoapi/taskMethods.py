@@ -257,49 +257,10 @@ class taskMethods:
                 account_id = ca.ID
 
         parameters = args.get("parameters", "")
-        pjson = ""
         pxml = ""
         if parameters:
-            # are the parameters json?
-            try:
-                # the add_task_instance command requires parameter XML...
-                # we accept json or xml from the client
-                # convert as necessary
-                logger.info("Checking for JSON parameters...")
-
-                # are the parameters already a dict?
-                if isinstance(parameters, dict):
-                    pjson = parameters
-                else:
-                    pjson = json.loads(parameters)
-            except Exception as ex:
-                logger.info("Trying to parse parameters as JSON failed. %s" % ex)
-                    
-            if pjson:
-                for p in pjson:
-                    vals = ""
-                    if p["values"]:
-                        for v in p["values"]:
-                            vals += "<value>%s</value>" % v
-                    pxml += "<parameter><name>%s</name><values>%s</values></parameter>" % (p["name"], vals)
-                
-                pxml = "<parameters>%s</parameters>" % pxml
-            
-            # not json, maybe xml?
-            if not pxml:
-                try:
-                    logger.info("Parameters are not JSON... trying XML...")
-                    # just test to see if it's valid so we can throw an error if not.
-                    test = catocommon.ET.fromstring(parameters)
-                    pxml = parameters # an xml STRING!!! - it gets parsed by the Task Engine
-                except Exception as ex:
-                    logger.info("Trying to parse parameters as XML failed. %s" % ex)
-        
-
-            # parameters were provided, but could not be validated
-            if not pxml:
-                return R(err_code=R.Codes.Exception, err_detail="Parameters template could not be parsed as valid JSON or XML.")
-
+            # this will convert json OR xml params into the xml format we need
+            pxml = catocommon.params2xml(parameters)
 
         if args.get("run_later"):
             obj.RunLater(args.get("run_later"), pxml, debug, account_id)
@@ -325,8 +286,8 @@ class taskMethods:
         """
         Stops a running Task Instance.
         
-        Required Arguments: instance
-            The Task Instance identifier.
+        Required Arguments: 
+            instance - The Task Instance identifier.
 
         Returns: Nothing if successful, error messages on failure.
         """
@@ -656,4 +617,83 @@ class taskMethods:
             return R(response=catocommon.ObjectOutput.IterableAsJSON(docs))
         else:
             return R(response="<tasks>%s</tasks>" % "".join(docs))
+            
+    def schedule_tasks(self, args):
+        """
+        Schedules one or more Tasks.
+        
+        Required Arguments: 
+            tasks - a JSON document containing a list of Tasks and schedule details.
+            
+        Schedule definition format:
+        * all lists are zero based integers *
+        
+        [
+            { 
+                "Task" : *task name*,
+                "Version" : *optional*,
+                "Months": "*" or [list of months],
+                "DaysOrWeekdays": "Days" = days of the month, "Weekdays" = days of the week (default),
+                "Days": "*" or [list of days],
+                "Hours": "*" or [list of hours],
+                "Minutes": "*" or [list of minutes]
+            },
+            {
+                ...
+            }
+        ]
+
+        Returns: Nothing if successful, error messages on failure.
+        """
+        # this is a developer function
+        if not api._DEVELOPER:
+            return R(err_code=R.Codes.Forbidden)
+        
+        required_params = ["tasks"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        # so, we'll loop through each task and try to schedule it
+        # keeping track of errors, etc.
+        tasks = []
+        if args.get("tasks"):
+            try:
+                tasks = json.loads(args["tasks"])
+            except Exception as ex:
+                return R(err_code=R.Codes.Exception, err_detail="Schedule definition is not valid JSON. %s" % ex)
+
+        for t in tasks:
+            if not t.get("Task"):
+                return R(err_code=R.Codes.CreateError, err_detail="Each item in the schedule definition requires a 'task'.")
+                
+            obj = task.Task()
+            obj.FromNameVersion(t["Task"], t.get("Version"), False)
+    
+            if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
+                return R(err_code=R.Codes.Forbidden)
+                
+            sched_def = { 
+                         "Months" : t.get("Months"),
+                         "Days" : t.get("Days"),
+                         "Hours" : t.get("Hours"),
+                         "Minutes" : t.get("Minutes"),
+                         "DaysOrWeekdays" : t.get("DaysOrWeekdays")
+                         }
+    
+            # parameters coming from the command line are defined as json OR xml, we need xml
+            parameters = t.get("Parameters")
+            pxml = ""
+            if parameters:
+                # this will convert json OR xml params into the xml format we need
+                pxml = catocommon.params2xml(parameters)
+
+            obj.RunRepeatedly(sched_def, pxml, t.get("Debug"), t.get("AccountID"))
+            return R(response="[%s] successfully scheduled." % obj.Name)
+            
+#         if not api.is_object_allowed(ti.task_id, catocommon.CatoObjectTypes.Task):
+#             return R(err_code=R.Codes.Forbidden)
+#             
+#         ti.Stop()
+#         return R(response="Instance [%s] successfully stopped." % args["instance"])
             

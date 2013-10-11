@@ -982,38 +982,29 @@ class Task(object):
         """
         Will add a row to action_plan directly, so this Task will execute one time in the future.
         """
-        if not sched_def.get("months") or not sched_def.get("days") or not sched_def.get("hours") or not sched_def.get("minutes") or not sched_def.get("days_or_weekdays"):
-            raise Exception("Task RunRepeatedly requires complete scheduling information.")
+        months, days, hours, minutes, d_or_w = catocommon.ParseScheduleDefinition(sched_def)
         
         db = catocommon.new_conn()
         parameter_xml = Task.PrepareAndEncryptParameterXML(parameter_xml)          
 
-
         # figure out a label and a description
-        sLabel, sDesc = catocommon.GenerateScheduleLabel(sched_def["months"],
-                                                         sched_def["days"],
-                                                         sched_def["hours"],
-                                                         sched_def["minutes"],
-                                                         sched_def["days_or_weekdays"])
+        sLabel, sDesc = catocommon.GenerateScheduleLabel(months, days, hours, minutes, d_or_w)
 
-        sql = "insert into action_schedule (schedule_id, task_id, account_id," \
-            " months, days, hours, minutes, days_or_weeks, label, descr, parameter_xml, debug_level)" \
-               " values (" \
-            " '" + catocommon.new_guid() + "'," \
-            " '" + self.ID + "'," \
-            + (" '" + account_id + "'" if account_id else "null") + "," \
-            " '" + ",".join([str(x) for x in sched_def["months"]]) + "'," \
-            " '" + ",".join([str(x) for x in sched_def["days"]]) + "'," \
-            " '" + ",".join([str(x) for x in sched_def["hours"]]) + "'," \
-            " '" + ",".join([str(x) for x in sched_def["minutes"]]) + "'," \
-            " '" + sched_def["days_or_weekdays"] + "'," \
-            + (" '" + sLabel + "'" if sLabel else "null") + "," \
-            + (" '" + sDesc + "'" if sDesc else "null") + "," \
-            + (" '" + catocommon.tick_slash(parameter_xml) + "'" if parameter_xml else "null") + "," \
-            + (debug_level if debug_level > "-1" else "null") + \
-            ")"
+        sql = """insert into action_schedule 
+                (schedule_id, task_id, account_id, months, days, hours, minutes, days_or_weeks, 
+                    label, descr, parameter_xml, debug_level)
+               values 
+               (uuid(), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
-        db.exec_db(sql)
+        params = (self.ID, account_id, 
+                  ",".join([str(x) for x in months]), 
+                  ",".join([str(x) for x in days]), 
+                  ",".join([str(x) for x in hours]), 
+                  ",".join([str(x) for x in minutes]), 
+                  d_or_w, 
+                  sLabel, sDesc, parameter_xml, debug_level)
+
+        db.exec_db(sql, params)
         db.close()
         
     @staticmethod
