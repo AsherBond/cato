@@ -145,8 +145,8 @@ class Scheduler(catoprocess.CatoService):
                 date = citer.get_next(datetime)
                 # print date
                 sql = """insert into action_plan 
-                        (task_id,run_on_dt,action_id,parameter_xml,debug_level,source,schedule_id, account_id, cloud_id)
-                        values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                        (task_id, run_on_dt, action_id, parameter_xml, debug_level, source, schedule_id, account_id, cloud_id)
+                        values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
                 self.db.exec_db(sql, (task_id, date, action_id, parameter_xml, debug_level, 'schedule', schedule_id, account_id, cloud_id))
         except Exception as ex:
             self.logger.error("Unable to expand schedule or insert into action_plan.\n" + ex.__str__())
@@ -181,9 +181,9 @@ class Scheduler(catoprocess.CatoService):
             run_on_dt = instance_row[6]
             account_id = instance_row[7]
             cloud_id = instance_row[8]
-    
+
             ti = catocommon.add_task_instance(task_id, "", debug_level, parameter_xml, account_id, plan_id, schedule_id, cloud_id=cloud_id)
-            print ti
+
             self.logger.info("Started task instance %s for schedule id %s and plan id %s" % (ti, schedule_id, plan_id))
             sql = """insert into action_plan_history (plan_id, task_id, run_on_dt, action_id, 
                     parameter_xml, debug_level, source, schedule_id, task_instance, account_id, cloud_id)
