@@ -158,9 +158,9 @@ class Asset(object):
                 if c.SharedOrLocal == "1":
                     c.Name = sAssetID
 
-                result, msg = c.DBCreateNew()
+                result = c.DBCreateNew()
                 if not result:
-                    return None, msg
+                    return None, "Unable to create Credential."
             elif credential_update_mode == "selected":
                 #  user selected a shared credential
                 #  remove the local credential if one exists
@@ -381,6 +381,8 @@ class Credential(object):
     def FromDict(self, cred):
         for k, v in cred.items():
             setattr(self, k, v)
+        if not self.ID:
+            self.ID = catocommon.new_guid()
 
     def DBCreateNew(self):
         db = catocommon.new_conn()

@@ -102,6 +102,8 @@ function LoadEditDialog(editID) {
 		if (cred.Type == "Private Key") {
 			$("#txtPrivateKey").val("********");
 			$("#edit_dialog_tabs").tabs("option", "active", 1);
+		} else {
+			$("#edit_dialog_tabs").tabs("option", "active", 0);
 		}
 
 		$("#hidMode").val("edit");
