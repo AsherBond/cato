@@ -94,7 +94,7 @@ function printKeypressEvents(ctl) {"use strict";
 
 //this function shows the "please wait" blockui effect.
 function showPleaseWait(msg) {
-	var msg = ((msg == "" || msg === undefined) ? "<img title='Loading...' 'alt='' src='static/images/loading.gif'> Please Wait ..." : msg);
+	var msg = ((msg == "" || msg === undefined) ? "Please Wait ..." : msg);
 	$.blockUI({
 		message : msg,
 		css : {
@@ -116,8 +116,8 @@ function hidePleaseWait() {
 
 //PROTOTYPES
 String.prototype.replaceAll = function(s1, s2) {
-	return this.split(s1).join(s2)
-}
+	return this.split(s1).join(s2);
+};
 //SET UP ANY INSTANCES OF our "jTable" ... striped and themed
 function initJtable(stripe, hover) {
 	stripe = ((stripe == "" || stripe === undefined) ? false : true);
@@ -154,9 +154,9 @@ function formatHTMLToText(s) {
 	var replaceWith = '';
 	//firefox (moz) uses carriage returns in text areas, IE uses newlines AND carriage returns.
 	if ( typeof (screenTop) != "undefined") {
-		replaceFrom = '\r'
+		replaceFrom = '\r';
 	} else {
-		replaceFrom = '\n'
+		replaceFrom = '\n';
 	}// why?  Only IE defines screenTop, and only IE needs \r.
 	s = s.replaceAll('<br />', replaceWith);
 	s = s.replaceAll('<br>', replaceWith);
