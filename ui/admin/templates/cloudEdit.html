@@ -138,7 +138,15 @@ $var cssfiles:
 	</div>
 </div>
 <div id="delete_dialog" class="hidden" title="Delete Clouds">
-	Are you sure you want to delete these Clouds?
+    <p style="font-style: italic; padding: 2px;" class="ui-state-highlight">
+        Some of the selected Clouds may be referenced by automation.
+        <br />
+        <br />
+        Deleting a Cloud could cause automation to fail.
+        <br />
+        <br />
+        Would you like to delete these Clouds anyway?
+    </p>
 </div>
 <div id="keypair_dialog" class="hidden" title="Key Pair">
 	<table width="100%">
