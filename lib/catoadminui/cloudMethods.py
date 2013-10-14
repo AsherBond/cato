@@ -157,17 +157,11 @@ class cloudMethods:
             for row in ca.rows[start:end]:
                 sHTML += "<tr account_id=\"" + row["ID"] + "\">"
                 
-                if not row["has_services"]:
-                    sHTML += "<td class=\"chkboxcolumn\">"
-                    sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
-                    " id=\"chk_" + row["ID"] + "\"" \
-                    " tag=\"chk\" />"
-                    sHTML += "</td>"
-                else:
-                    sHTML += "<td>"
-                    sHTML += "<span class=\"ui-icon ui-icon-info forceinline account_help_btn\"" \
-                        " title=\"This account has associated Service Instances and cannot be deleted.\"></span>"
-                    sHTML += "</td>"
+                sHTML += "<td class=\"chkboxcolumn\">"
+                sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
+                " id=\"chk_" + row["ID"] + "\"" \
+                " tag=\"chk\" />"
+                sHTML += "</td>"
                 
                 sHTML += "<td class=\"selectable\">%s</td>" % row["Name"]
                 sHTML += "<td class=\"selectable\">%s</td>" % row["AccountNumber"]
