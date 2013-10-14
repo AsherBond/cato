@@ -95,7 +95,7 @@ function CloseLogViewDialog() {
 function GetLog() {
 	$("#log_view_dialog_results").empty();
 
-	args = {}
+	args = {};
 	args.sObjectID = g_log_object_id;
 	args.sObjectType = g_log_object_type;
 	args.sSearch = $("#log_view_dialog_search").val();
