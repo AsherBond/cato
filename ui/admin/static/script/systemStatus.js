@@ -18,7 +18,7 @@ $(document).ready(function() {
 
 	//the hook for the 'show log' link
 	$("#show_log_link").click(function() {
-		ShowLogViewDialog(1, '', true);
+		ShowLogViewDialog(0, '', true);
 	});
 
 	$("#logfile_dialog").dialog({
