@@ -494,7 +494,7 @@ function doDropZoneDisable(id) {
 function doClearClipboard(id) {
 	ajaxPostAsync("taskMethods/wmRemoveFromClipboard", {
 		sStepID : id
-	});
+	}, undefined, "text");
 	// we can just whack it from the dom
 	if (id == "ALL")
 		$("#clipboard").empty();

@@ -173,7 +173,7 @@ $(document).ready(function() {
 		}, function(response) {
 			doGetClips();
 			$("#update_success_msg").text("Copy Successful").fadeOut(2000);
-		});
+		}, "text");
 	});
 
 	//the onclick event of the 'remove' link of embedded steps
