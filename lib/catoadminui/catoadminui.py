@@ -35,7 +35,7 @@ sys.path.append(web_root)
 from catocommon import catocommon, catoprocess
 from catolicense import catolicense
 from catoerrors import InfoException, SessionError
-from catoui import uiGlobals
+from catoui import uiGlobals, uiCommon
 from taskMethods import taskMethods
 
 # to avoid any path issues, "cd" to the web root.
@@ -270,7 +270,7 @@ class temp:
 class login:
     def GET(self):
         # visiting the login page kills the session and redirects to login.html
-        session.kill()
+        uiGlobals.session.kill()
         raise web.seeother('/static/login.html')
 
 class logout:        
@@ -321,7 +321,7 @@ def auth_app_processor(handle):
         response = json.loads(response)
         if response.get("result") != "success":
             logger.info("Token Authentication failed... [%s]" % response.get("info"))
-            session.kill()
+            uiGlobals.session.kill()
             raise web.seeother('/static/login.html?msg=Token%20Authentication%20failed')
     
     # any other request requires an active session ... kick it out if there's not one.
@@ -569,7 +569,7 @@ class ExceptionHandlingApplication(web.application):
                 # so if we have that header, it's ajax, otherwise we can redirect to the login page.
                 
                 # a session error means we kill the session
-                session.kill()
+                uiGlobals.session.kill()
                 
                 if web.ctx.env.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest":
                     web.ctx.status = "480 Session Error"
@@ -589,8 +589,85 @@ class ExceptionHandlingApplication(web.application):
     Main Startup
 """
 
+# the LAST LINE must be our /(.*) catchall, which is handled by uiMethods.
+urls = (
+    '/', 'home',
+    '/login', 'login',
+    '/logout', 'logout',
+    '/home', 'home',
+    '/importObject', 'importObject',
+    '/notAllowed', 'notAllowed',
+    '/cloudEdit', 'cloudEdit',
+    '/cloudAccountEdit', 'cloudAccountEdit',
+    '/cloudDiscovery', 'cloudDiscovery',
+    '/taskEdit', 'taskEdit',
+    '/taskView', 'taskView',
+    '/taskPrint', 'taskPrint',
+    '/taskRunLog', 'taskRunLog',
+    '/taskActivityLog', 'taskActivityLog',
+    '/taskManage', 'taskManage',
+    '/systemStatus', 'systemStatus',
+    '/taskStatus', 'taskStatus',
+    '/deploymentEdit', 'deploymentEdit',
+    '/deploymentManage', 'deploymentManage',
+    '/depTemplateEdit', 'depTemplateEdit',
+    '/depTemplateManage', 'depTemplateManage',
+    '/userEdit', 'userEdit',
+    '/assetEdit', 'assetEdit',
+    '/tagEdit', 'tagEdit',
+    '/imageEdit', 'imageEdit',
+    '/credentialEdit', 'credentialEdit',
+    '/announcement', 'announcement',
+    '/getlicense', 'getlicense',
+    '/upload', 'upload',
+    '/settings', 'settings',
+    '/temp/(.*)', 'temp',
+    '/bypass', 'bypass',
+    '/version', 'version',
+    '/getlog', 'getlog',
+    '/setdebug', 'setdebug',
+    '/appicon/(.*)', 'appicon',
+    '/(.*)', 'wmHandler'
+)
 
-if __name__ != app_name:
+render = web.template.render('templates', base='base')
+render_popup = web.template.render('templates', base='popup')
+render_plain = web.template.render('templates')
+
+web.config.session_parameters["cookie_name"] = app_name
+# cookies won't work in https without this!
+web.config.session_parameters.httponly = False
+# setting this to True seems to show a lot more detail in UI exceptions
+web.config.debug = False
+
+app = ExceptionHandlingApplication(urls, globals(), autoreload=True)
+
+if "uicache" in catoconfig.CONFIG:
+    uicachepath = catoconfig.CONFIG["uicache"]
+else:
+    logger.info("'uicache' not defined in cato.conf... using default /var/cato/ui")
+    uicachepath = "/var/cato/ui"
+    
+if not os.path.exists(uicachepath):
+    raise Exception("UI file cache directory defined in cato.conf does not exist. [%s]" % uicachepath)
+    exit()
+
+# Hack to make session play nice with the reloader (in debug mode)
+if web.config.get('_session') is None:
+    session = web.session.Session(app, web.session.ShelfStore(shelve.open('%s/uisession.shelf' % uicachepath)))
+    web.config._session = session
+else:
+    session = web.config._session
+
+uiGlobals.session = session
+uiGlobals.lib_path = lib_path
+uiGlobals.web_root = web_root
+uiGlobals.app_name = app_name
+
+
+def main():
+    # CATOPROCESS STARTUP
+    
     dbglvl = 20
     if "admin_ui_debug" in catoconfig.CONFIG:
         try:
@@ -621,6 +698,22 @@ if __name__ != app_name:
     logger.info("DEBUG set to %d..." % dbglvl)
     logger.info("CLIENTDEBUG set to %d..." % c_dbglvl)
 
+    # we need to build some static html here...
+    # caching in the session is a bad idea, and this stuff very very rarely changes.
+    # so, when the service is started it will update the files, and the ui 
+    # will simply pull in the files when requested.
+    
+    # put the task commands in a global for our lookups
+    # and cache the html in a flat file
+    logger.info("Reading configuration files and generating static html...")
+
+    uiCommon.LoadTaskCommands()
+    # rebuild the cache html files
+    CacheTaskCommands()
+    CacheMenu()
+
+    
+    # WEB.PY STARTUP
     if "admin_ui_port" in catoconfig.CONFIG:
         port = catoconfig.CONFIG["admin_ui_port"]
         sys.argv.append(port)
@@ -645,102 +738,11 @@ if __name__ != app_name:
     else:
         logger.info("Using standard HTTP. (Set admin_ui_use_ssl to 'true' in cato.conf to enable SSL/TLS.)")
         
-    # the LAST LINE must be our /(.*) catchall, which is handled by uiMethods.
-    urls = (
-        '/', 'home',
-        '/login', 'login',
-        '/logout', 'logout',
-        '/home', 'home',
-        '/importObject', 'importObject',
-        '/notAllowed', 'notAllowed',
-        '/cloudEdit', 'cloudEdit',
-        '/cloudAccountEdit', 'cloudAccountEdit',
-        '/cloudDiscovery', 'cloudDiscovery',
-        '/taskEdit', 'taskEdit',
-        '/taskView', 'taskView',
-        '/taskPrint', 'taskPrint',
-        '/taskRunLog', 'taskRunLog',
-        '/taskActivityLog', 'taskActivityLog',
-        '/taskManage', 'taskManage',
-        '/systemStatus', 'systemStatus',
-        '/taskStatus', 'taskStatus',
-        '/deploymentEdit', 'deploymentEdit',
-        '/deploymentManage', 'deploymentManage',
-        '/depTemplateEdit', 'depTemplateEdit',
-        '/depTemplateManage', 'depTemplateManage',
-        '/userEdit', 'userEdit',
-        '/assetEdit', 'assetEdit',
-        '/tagEdit', 'tagEdit',
-        '/imageEdit', 'imageEdit',
-        '/credentialEdit', 'credentialEdit',
-        '/announcement', 'announcement',
-        '/getlicense', 'getlicense',
-        '/upload', 'upload',
-        '/settings', 'settings',
-        '/temp/(.*)', 'temp',
-        '/bypass', 'bypass',
-        '/version', 'version',
-        '/getlog', 'getlog',
-        '/setdebug', 'setdebug',
-        '/appicon/(.*)', 'appicon',
-        '/(.*)', 'wmHandler'
-    )
 
-
-    render = web.template.render('templates', base='base')
-    render_popup = web.template.render('templates', base='popup')
-    render_plain = web.template.render('templates')
-    
-    app = ExceptionHandlingApplication(urls, globals(), autoreload=True)
-    web.config.session_parameters["cookie_name"] = app_name
-    # cookies won't work in https without this!
-    web.config.session_parameters.httponly = False
-    
-    if "uicache" in catoconfig.CONFIG:
-        uicachepath = catoconfig.CONFIG["uicache"]
-    else:
-        logger.info("'uicache' not defined in cato.conf... using default /var/cato/ui")
-        uicachepath = "/var/cato/ui"
-        
-    if not os.path.exists(uicachepath):
-        logger.critical("UI file cache directory defined in cato.conf does not exist. [%s]" % uicachepath)
-        exit()
-        
-    # Hack to make session play nice with the reloader (in debug mode)
-    if web.config.get('_session') is None:
-        session = web.session.Session(app, web.session.ShelfStore(shelve.open('%s/adminsession.shelf' % uicachepath)))
-        web.config._session = session
-    else:
-        session = web.config._session
-        
     app.add_processor(auth_app_processor)
     app.notfound = notfound
-    
-    uiGlobals.session = session
-    uiGlobals.lib_path = lib_path
-    uiGlobals.web_root = web_root
-    
-    # setting this to True seems to show a lot more detail in UI exceptions
-    web.config.debug = False
 
-    # we need to build some static html here...
-    # caching in the session is a bad idea, and this stuff very very rarely changes.
-    # so, when the service is started it will update the files, and the ui 
-    # will simply pull in the files when requested.
-    
-    # put the task commands in a global for our lookups
-    # and cache the html in a flat file
-    logger.info("Reading configuration files and generating static html...")
-
-        # NOTE: this import is here and not at the top ON PURPOSE...
-    # if it's imported at the top, catolog won't have a LOGFILE defined yet 
-    # and the uiCommon logger won't write to the file
-    from catoui import uiCommon
-    uiCommon.LoadTaskCommands()
-    # rebuild the cache html files
-    CacheTaskCommands()
-
-    CacheMenu()
+    app.run()
 
     # Uncomment the following - it will print out all the core methods in the app
     # this will be handy during the conversion, as we add functions to uiGlobals.RoleMethods.
@@ -753,11 +755,3 @@ if __name__ != app_name:
 #    for s in dir(cloudMethods):
 #        logger.debug("\"/cloudMethods/%s\" : [\"Developer\"]," % s)
 
-
-    # NOTE: this "application" attribute will only be used if we're attached to as a 
-    # wsgi module
-    application = app.wsgifunc()
-
-# and this will only run if we're executed directly.
-def main():
-    app.run()
