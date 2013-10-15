@@ -185,13 +185,6 @@ def http_get(url, timeout=30, headers={}):
 def http_get_nofail(url):
     """
     This function does not fail.  For any errors it returns an empty result.
-
-    NOTE: this function is called by unauthenticated pages.
-    DO NOT use any of the helper functions like ".log" - they look for a user and kick back to the login page 
-    if none is found.  (infinite_loop = bad)
-    
-    That's why we're using log_nouser.
-    
     """
     try:
         if not url:
