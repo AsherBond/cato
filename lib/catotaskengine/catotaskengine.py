@@ -1704,6 +1704,9 @@ class TaskEngine():
         self.debug_level = dl
         if dl == 50:
             self.audit_trail_on = 0
+        else: 
+            self.audit_trail_on = 2
+
         
 
     def startup(self):
