@@ -58,6 +58,59 @@ def _fix_mongo_query(query_string):
     
     return query
 
+def get_asset_cmd(self, task, step):
+
+    asset, address_out, db_out, port_out, conn_string_out, user_out, pass_out = self.get_command_params(step.command, 
+        "asset", "address_out", "db_out", "port_out", "conn_string_out", "user_out", "pass_out")[:]
+    asset = self.replace_variables(asset)
+    address_out = self.replace_variables(address_out)
+    db_out = self.replace_variables(db_out)
+    port_out = self.replace_variables(port_out)
+    conn_string_out = self.replace_variables(conn_string_out)
+    user_out = self.replace_variables(user_out)
+    pass_out = self.replace_variables(pass_out)
+
+    if not len(asset):
+        msg = "Get Asset Properties required an Asset Name"
+        raise Exception(msg)
+
+    if not self.is_uuid(asset):
+        # look up the asset by name
+        asset = self.get_system_id_from_name(asset)
+
+    try:
+        # we've loaded it before
+        s = self.systems[asset]
+    except KeyError:
+        # not been loaded yet, get it from the db
+        s = self.gather_system_info(asset)
+
+    if len(address_out):
+        self.rt.clear(address_out)
+        self.rt.set(address_out, s.address)
+        
+    if len(db_out):
+        self.rt.clear(db_out)
+        self.rt.set(db_out, s.db_name)
+
+    if len(port_out):
+        self.rt.clear(port_out)
+        self.rt.set(port_out, s.port)
+
+    if len(conn_string_out):
+        self.rt.clear(conn_string_out)
+        self.rt.set(conn_string_out, s.conn_string)
+
+    if len(user_out):
+        self.rt.clear(user_out)
+        self.rt.set(user_out, s.userid)
+
+    if len(pass_out):
+        self.rt.clear(pass_out)
+        self.rt.set(pass_out, s.password)
+        self.add_to_sensitive(s.password)
+
+
 def datastore_drop_collection_cmd(self, task, step):
 
     collection = self.get_command_params(step.command, "collection")[0]
@@ -246,10 +299,12 @@ def datastore_find_and_modify_cmd(self, task, step):
         upsert = True
     else:
         upsert = False
-    for p in pairs:
-        name = self.replace_variables(p[0])
-        _vars[name] = self.replace_variables(p[1])
-        self.rt.clear(name)
+    if not remove:
+        for p in pairs:
+            name = self.replace_variables(p[0])
+            if len(name):
+                _vars[name] = self.replace_variables(p[1])
+                self.rt.clear(name)
 
     for p in outpairs:
         name = self.replace_variables(p[0])
@@ -266,6 +321,7 @@ def datastore_find_and_modify_cmd(self, task, step):
     if not len(cols):
         cols = None
     msg = "Collection %s, Find and Modify %s, Set %s, Columns %s, Upsert %s, Remove %s" % (collection, query_dict, json.dumps(_vars), cols.keys(), upsert, remove)
+    print msg
     row = coll.find_and_modify(query_dict, update=update_json, fields=cols, upsert=upsert, remove=remove)
     msg = "%s\n%s" % (msg, json.dumps(row, default=json_util.default))
     for v in _outvars:

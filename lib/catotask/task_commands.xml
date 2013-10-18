@@ -19,6 +19,19 @@
 					<conn_name input_type="text" label="Connection" connection_picker="true" />
 				</function>
 			</command>
+			<command name="get_asset" label="Get Asset Properties" description="Retrieves an Asset's properties for use in connections"
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#get_asset' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
+                icon="static/images/icons/register_host.png">
+				<function name="get_asset">
+					<asset input_type="text" label="Asset Name" />
+					<address_out input_type="text" label="Address Variable (out)" />
+					<db_out input_type="text" label="DB Name Variable (out)" />
+					<port_out input_type="text" label="Port Variable (out)" />
+					<conn_string_out input_type="text" label="Conn String Variable (out)" />
+					<user_out input_type="text" label="User Variable (out)" />
+					<pass_out input_type="text" label="Password Variable (out)" />
+				</function>
+			</command>
 		</commands>
 	</category>
 	<category name="control" label="Control" description="Commands for controlling the a Task." icon="static/images/icons/configure_32.png">
