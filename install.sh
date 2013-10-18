@@ -29,6 +29,9 @@ set -ex
 
 # customize the following values to suit your needs
 
+# the network hostname where these services can be reached, for example 'csk.mycompany.com'
+CATO_HOST=`localhost`
+
 # cato target directory
 CATO_HOME=`pwd`
 # the password for the root@localhost mysql user...
@@ -198,6 +201,7 @@ ENCDBREADPASS=`$CATO_HOME/conf/catoencrypt $CATODBREADPASS $ENCRYPTIONKEY`
 ### Replace placeholders with localized config settings
 ### See the user configurable settings above
 sed -i"" -e"s|#CATO_HOME#|${CATO_HOME}|" $CONFFILE
+sed -i"" -e"s|#CATO_HOST#|${CATO_HOST}|" $CONFFILE
 sed -i"" -e"s|#CATODBNAME#|${CATODBNAME}|" $CONFFILE
 sed -i"" -e"s|#CATODBUSER#|${CATODBUSER}|" $CONFFILE
 sed -i"" -e"s|#CATODBPASS#|${ENCDBPASS}|" $CONFFILE
