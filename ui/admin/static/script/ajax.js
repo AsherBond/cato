@@ -266,7 +266,7 @@ ajaxErrorCallback = function(response) {
 		showInfo("An exception occurred - please check the server logfiles for details. (500)", method);
 	} else if (response.status == 280) {
 		// 280 is our custom response code to indicate we want an 'info' message
-		showInfo(response.responseText, method);
+		showInfo(response.responseText);
 	} else if (response.status == 480) {
 		// 480 is our custom 'session error' response code ... lock it down
 		msg = (response.responseText) ? response.responseText : "Your session has ended or been terminated.";
