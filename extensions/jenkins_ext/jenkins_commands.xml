@@ -1,0 +1,25 @@
+<categories>
+	<category name="Jenkins" label="Jenkins" description="Jenkins integration task commands" icon="static/images/icons/jenkins.png">
+		<commands>
+			<command name="jenkins_build" label="Jenkins Build Job" description="" 
+                help=""
+                icon="static/images/icons/jenkins.png">
+				<function name="jenkins_build" extension="jenkins_ext.jenkinscmds" variables="false">
+					<url label="Jenkins URL" input_type="text" class="w95pct" required="true" break_after="true"/>
+					<user label="User ID" input_type="text" class="w33pct"/>
+					<password label="Password" input_type="text" class="w33pct" break_after="true"/>
+					<token label="Token" input_type="text" class="w33pct" break_after="true"/>
+					<job label="Job Name" input_type="text" class="w33pct" required="true"/>
+					<build_var label="Build Number (output)" input_type="text" class="w33pct" break_after="true"/>
+                    <parameters is_array="true" label="Parameters">
+                        <parameter label="Parameter">
+                            <name input_type="text" label="Name" />
+                            <value input_type="text" label="Value" style="width: 50%;" />
+                        </parameter>
+                    </parameters>
+
+				</function>
+			</command>
+		</commands>
+	</category>
+	</categories>
