@@ -274,6 +274,19 @@ def main(argv):
 
 
 def _v121_updates():
+    # 1.21 has a new directory name for the Task Engine log.
+    import os
+    try:
+        print("    Renaming 'ce' log directory to 'te'.")
+        os.rename("/var/cato/log/ce", "/var/cato/log/te")
+    except:
+        print("""
+    WARNING - unable to rename  '/var/calo/log/ce' log directory to 'te'.
+        This is OK if the directory name has already been fixed.
+        If this system is configured to keep logs in a different location, please change the directory name manually.
+    """)
+        pass
+    
     # the changes to the settings tables in 1.21 ... we need to convert the data
     # from the settings tables into the new json document format
     print "    v1.21 - refactoring settings..."
