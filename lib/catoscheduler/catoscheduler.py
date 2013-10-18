@@ -187,7 +187,7 @@ class Scheduler(catoprocess.CatoService):
             self.logger.info("Started task instance %s for schedule id %s and plan id %s" % (ti, schedule_id, plan_id))
             sql = """insert into action_plan_history (plan_id, task_id, run_on_dt, action_id, 
                     parameter_xml, debug_level, source, schedule_id, task_instance, account_id, cloud_id)
-                    values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     on duplicate key update task_id=%s, run_on_dt=%s, action_id=%s, 
                     parameter_xml=%s, debug_level=%s, source=%s, 
                     schedule_id=%s, task_instance=%s, account_id=%s, cloud_id=%s"""
