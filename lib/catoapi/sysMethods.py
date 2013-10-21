@@ -872,4 +872,145 @@ class sysMethods:
         
         return R(response="Message successfully queued.")
 
+    """
+    Asset endpoints.
+    """
+    def list_assets(self, args):        
+        """
+        Lists all Assets.
+        
+        Optional Arguments: 
+            filter - will filter a value match in Asset Name, Port, Address, DB Name, Status or Credential Username.  (Multiple filter arguments can be provided, delimited by spaces.)
+        
+        Returns: A list of all Assets.
+        """
+        fltr = args.get("filter", "")
+
+        obj = asset.Assets(sFilter=fltr)
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
+        else:
+            return R(response=obj.AsXML())
+
+    def get_asset(self, args):
+        """
+        Gets an Asset.
+        
+        Required Arguments: 
+            asset - an Asset Name or ID.
+
+        Returns: An Asset object.
+        """
+        required_params = ["asset"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        obj = asset.Asset()
+        obj.FromName(args.get("asset"))
+
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
+        else:
+            return R(response=obj.AsXML())
+
+    def create_asset(self, args):
+        """
+        Creates an Asset.
+        
+        Required Arguments: 
+            name - a name for the new Asset.
+            
+        Optional Arguments: 
+            status - either 'Active' or 'Inactive'. ('Active' if omitted.)
+            db_name - a Database name.
+            address - the network address of the Asset.
+            port - a service port for the Address.
+            conn_string - some Assets make their connections via an explicit connection string.
+            user - a User ID to associate with this Asset.
+            password - a Password to associate with this Asset.
+            shared_credential - the name of a Shared Credential to use.
+
+        Regarding Credentials:
+            Credentials are optional on an Asset, however if provided there are rules.
+            Explicit details can be associated with *only this Asset*, or a Shared Credential can be specified.
+
+            The minimum required to create a LOCAL set of credentials on this Asset are:
+                user - a User ID for the Credential
+                password - a Password for the Credential
+                
+            To specify a Shared Credential, provide the `shared_credential` argument, which is the name of an existing Credential.
+        """
+        # this is a developer function
+        if not api._DEVELOPER:
+            return R(err_code=R.Codes.Forbidden)
+        
+        required_params = ["name"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        # build a dictionary suitable for creating an asset
+        _a = {
+            "Name": args.get("name"),
+            "Status": args.get("status"),
+            "DBName": args.get("db_name"),
+            "Port": args.get("port"),
+            "Address": args.get("address"),
+            "ConnString": args.get("conn_string"),
+            "Credential": {
+                "SharedOrLocal": 0 if args.get("shared_credential") else 1,
+                "Username": args.get("user"),
+                "Password": args.get("password"),
+                "Name": args.get("shared_credential")
+           }
+        }
+
+        obj, err = asset.Asset.DBCreateNew(_a)
+        if err:
+            return R(err_code=R.Codes.CreateError, err_detail=err)
+
+        catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Asset, obj.ID, obj.Name, "Asset created via API.")
+
+        if args["output_format"] == "json":
+            return R(response=obj.AsJSON())
+        elif args["output_format"] == "text":
+            return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
+        else:
+            return R(response=obj.AsXML())
+
+    def delete_asset(self, args):
+        """
+        Deletes an Asset.
+        
+        Required Arguments: 
+            asset - Either the Asset ID or Name.
+
+        Returns: Nothing if successful, error messages on failure.
+        """
+        # this is a admin function
+        if not api._ADMIN:
+            return R(err_code=R.Codes.Forbidden)
+        
+        required_params = ["asset"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        obj = asset.Asset()
+        obj.FromName(args["asset"])
+
+        if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Asset):
+            return R(err_code=R.Codes.Forbidden)
+            
+        asset.Assets.Delete(["'%s'" % obj.ID])
+        
+        catocommon.write_delete_log(api._USER_ID, catocommon.CatoObjectTypes.Asset, obj.ID, obj.Name, "Deleted via API.")
+        return R(response="[%s] successfully deleted." % obj.Name)
+            
+
         

@@ -794,17 +794,17 @@ class uiMethods:
             start, end, pager_html = uiCommon.GetPager(len(allowedrows), maxrows, sPage)
 
             for row in allowedrows[start:end]:
-                sHTML += "<tr asset_id=\"" + row["asset_id"] + "\">"
+                sHTML += "<tr asset_id=\"" + row["ID"] + "\">"
                 sHTML += "<td class=\"chkboxcolumn\">"
                 sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
-                " id=\"chk_" + row["asset_id"] + "\"" \
+                " id=\"chk_" + row["ID"] + "\"" \
                 " tag=\"chk\" />"
                 sHTML += "</td>"
                 
-                sHTML += "<td class=\"selectable\">%s</td>" % row["asset_name"]
-                sHTML += "<td class=\"selectable\">%s</td>" % row["asset_status"]
-                sHTML += "<td class=\"selectable\">%s</td>" % (row["address"] if row["address"] else "")
-                sHTML += "<td class=\"selectable\">%s</td>" % (row["credentials"] if row["credentials"] else "")
+                sHTML += "<td class=\"selectable\">%s</td>" % row["Name"]
+                sHTML += "<td class=\"selectable\">%s</td>" % row["Status"]
+                sHTML += "<td class=\"selectable\">%s</td>" % (row["Address"] if row["Address"] else "")
+                sHTML += "<td class=\"selectable\">%s</td>" % (row["Credentials"] if row["Credentials"] else "")
                 
                 sHTML += "</tr>"
 
@@ -836,16 +836,16 @@ class uiMethods:
                         break
                     
                     sHTML += "<li class=\"ui-widget-content ui-corner-all search_dialog_value\" tag=\"asset_picker_row\"" \
-                        " asset_id=\"" + row["asset_id"] + "\"" \
-                        " asset_name=\"" + row["asset_name"] + "\"" \
+                        " asset_id=\"" + row["ID"] + "\"" \
+                        " asset_name=\"" + row["Name"] + "\"" \
                         "\">"
                     sHTML += "<div class=\"search_dialog_value_name\">"
                     if bAllowMultiSelect:
-                        sHTML += "<input type='checkbox' name='assetcheckboxes' id='assetchk_" + row["asset_id"] + "' value='assetchk_" + row["asset_id"] + "'>"
-                    sHTML += "<span>" + row["asset_name"] + "</span>"
+                        sHTML += "<input type='checkbox' name='assetcheckboxes' id='assetchk_" + row["ID"] + "' value='assetchk_" + row["ID"] + "'>"
+                    sHTML += "<span>" + row["Name"] + "</span>"
                     sHTML += "</div>"
 
-                    sHTML += "<span class=\"search_dialog_value_inline_item\">Address: " + row["address"] + "</span>"
+                    sHTML += "<span class=\"search_dialog_value_inline_item\">Address: " + row["Address"] + "</span>"
 
                     sHTML += "</li>"
                     
@@ -897,8 +897,7 @@ class uiMethods:
     def wmCreateAsset(self):
         args = uiCommon.getAjaxArgs()
 
-        a, sErr = asset.Asset.DBCreateNew(args["Name"], args["Status"], args["DBName"], args["Port"],
-          args["Address"], args["ConnString"], args["Tags"], args["CredentialMode"], args["Credential"])
+        a, sErr = asset.Asset.DBCreateNew(args)
         if sErr:
             return json.dumps({"error" : sErr})
         if a == None:
@@ -929,45 +928,16 @@ class uiMethods:
         
     def wmDeleteAssets(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
-        if len(sDeleteArray) < 36:
-            return json.dumps({"info" : "Unable to delete - no selection."})
+        sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
 
-        # for this one, 'now' will be all the assets that don't have history.
-        # and 'later' will get updated to 'inactive' status
-        now = []
-        later = []
-        aAssets = sDeleteArray.split(",")
-        for sAsset in aAssets:
-            if len(sAsset) == 36:  # a guid + quotes
-                # this will mark an asset as Disabled if it has history
-                # it returns True if it's safe to delete now
-                if asset.Asset.HasHistory(sAsset):
-                    later.append(sAsset)
-                else:
-                    now.append(sAsset)
+        if not sDeleteArray:
+            raise Exception("Unable to delete - no selection.")
+            
+        asset.Assets.Delete(sDeleteArray.split(","))
+        
+        uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Asset, "Multiple", "Original Asset IDs", sDeleteArray)
+        return json.dumps({"result" : "success"})
 
-        # delete some now
-        if now:
-            sql = """delete from asset_credential
-                where shared_or_local = 1
-                and credential_id in (select credential_id from asset where asset_id in (%s))
-                """ % "'%s'" % "','".join(now)
-            self.db.tran_exec(sql)
-
-            sql = "delete from asset where asset_id in (%s)" % "'%s'" % "','".join(now)
-            self.db.tran_exec(sql)
-
-        #  deactivate the others...
-        if later:
-            sql = "update asset set asset_status = 'Inactive' where asset_id in (%s)" % "'%s'" % "','".join(later)
-            self.db.tran_exec(sql)
-
-        self.db.tran_commit()
-
-        if later:
-            raise InfoException("One or more assets could not be deleted due to historical information.  These Assets have been marked as Inactive.")
-        else:
-            return json.dumps({"result" : "success"})
                 
     def wmCreateCredential(self):
         args = uiCommon.getAjaxArgs()

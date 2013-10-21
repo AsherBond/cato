@@ -18,6 +18,7 @@
     Why?  Because it isn't only used by the UI.
 """
 from catocommon import catocommon
+from catoerrors import InfoException
 from catolog import catolog
 logger = catolog.get_logger(__name__)
 
@@ -38,9 +39,12 @@ class Assets(object):
                         "or a.asset_status like '%%" + term + "%%' " \
                         "or ac.username like '%%" + term + "%%') "
 
-        sSQL = """select a.asset_id, a.asset_name, a.asset_status, a.address,
-            case when ac.shared_or_local = 1 then 'Local - ' else 'Shared - ' end as shared_or_local,
-            case when ac.domain <> '' then concat(ac.domain, cast(char(92) as char), ac.username) else ac.username end as credentials,
+        sSQL = """select a.asset_id as ID, 
+            a.asset_name as Name,
+            a.asset_status as Status,
+            a.address as Address,
+            case when ac.shared_or_local = 1 then 'Local' else 'Shared' end as SharedOrLocal,
+            case when ac.domain <> '' then concat(ac.domain, cast(char(92) as char), ac.username) else ac.username end as Credentials,
             group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
             from asset a
             left outer join object_tags ot on a.asset_id = ot.object_id
@@ -52,6 +56,58 @@ class Assets(object):
 
     def AsJSON(self):
         return catocommon.ObjectOutput.IterableAsJSON(self.rows)
+
+    def AsXML(self):
+        return catocommon.ObjectOutput.IterableAsXML(self.rows, "Assets", "Asset")
+
+    def AsText(self, delimiter=None, headers=None):
+        return catocommon.ObjectOutput.IterableAsText(self.rows, ['Name', 'Status', 'Address', 'SharedOrLocal', 'Credentials'], delimiter, headers)
+
+    @staticmethod
+    def Delete(ids):
+        """
+        Delete a list of Assets.
+
+        Done here instead of in the Asset class - no point to instantiate one just to delete it.
+        """
+        db = catocommon.new_conn()
+
+
+        # for this one, 'now' will be all the assets that don't have history.
+        # and 'later' will get updated to 'inactive' status
+        now = []
+        later = []
+        for aid in ids:
+            # this will mark an asset as Disabled if it has history
+            # it returns True if it's safe to delete now
+            if Asset.HasHistory(aid):
+                later.append(aid)
+            else:
+                now.append(aid)
+ 
+        # delete some now
+        if now:
+            sql = """delete from asset_credential
+                where shared_or_local = 1
+                and credential_id in (select credential_id from asset where asset_id in (%s))
+                """ % (",".join(now))
+            db.tran_exec(sql)
+ 
+            sql = "delete from asset where asset_id in (%s)" % (",".join(now))
+            db.tran_exec(sql)
+ 
+        #  deactivate the others...
+        if later:
+            sql = "update asset set asset_status = 'Inactive' where asset_id in (%s)" % (",".join(later))
+            db.tran_exec(sql)
+ 
+        db.tran_commit()
+ 
+        if later:
+            raise InfoException("One or more Assets could not be deleted due to historical information.  These Assets have been marked as 'Inactive'.")
+
+        return True
+
 
 class Asset(object):
     def __init__(self):
@@ -121,6 +177,12 @@ class Asset(object):
     def AsJSON(self):
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
 
+    def AsText(self, delimiter=None, headers=None):
+        return catocommon.ObjectOutput.AsText(self.__dict__, ["Name", "Status", "Address", "DBName", "Port"], delimiter, headers)
+
+    def AsXML(self):
+        return catocommon.ObjectOutput.AsXML(self.__dict__, "Asset")
+
     @staticmethod
     def HasHistory(asset_id):
         """Returns True if the asset has historical data."""
@@ -131,9 +193,9 @@ class Asset(object):
         return catocommon.is_true(iResults)
 
     @staticmethod
-    def DBCreateNew(sAssetName, sStatus, sDbName, sPort, sAddress, sConnString, tags, credential_update_mode, credential=None):
+    def DBCreateNew(args):
         """
-        Creates a new Asset.  Requires a credential object to be sent along.  If not provided, the 
+        Creates a new Asset from an Asset definition.  Requires a credential object to be sent along.  If not provided, the 
         Asset is created with no credentials.
         
         As a convenience, any tags sent along will also be added.
@@ -141,52 +203,47 @@ class Asset(object):
         db = catocommon.new_conn()
 
         sAssetID = catocommon.new_guid()
-
-        if credential:
-            c = Credential()
-            c.FromDict(credential)
+        sCredentialID = None
         
-            sCredentialID = (c.ID if c.ID else "")
+        sStatus = args["Status"] if args["Status"] else "Active"
 
-            #  there are three CredentialType's 
-            #  1) 'selected' = user selected a different credential, just save the credential_id
-            #  2) 'new' = user created a new shared or local credential
-            #  3) 'existing' = same credential, just update the username,description ad password
-            if credential_update_mode == "new":
+        # if a credential is provided... we'll look it up.
+        # if we find it by ID or Name, we'll use it.
+        # if not, we'll create it
+        if args.get("Credential"):
+            c = Credential()
+            # FromName throws an Exception if it doesn't exist
+            try:
+                if args["Credential"].get("ID"):
+                    c.FromID(args["Credential"]["ID"])
+                else:
+                    # no joy? try the name, and fail if that doesn't work
+                    c.FromName(args["Credential"].get("Name"))
+            except Exception:
+                # so let's build it from the info provided, and save it!
+                c.FromDict(args["Credential"])
+
                 # if it's a local credential, the credential_name is the asset_id.
                 # if it's shared, there will be a name.
-                if c.SharedOrLocal == "1":
+                if str(c.SharedOrLocal) == "1":
                     c.Name = sAssetID
-
+    
                 result = c.DBCreateNew()
                 if not result:
                     return None, "Unable to create Credential."
-            elif credential_update_mode == "selected":
-                #  user selected a shared credential
-                #  remove the local credential if one exists
-                sSQL = """delete from asset_credential
-                    where shared_or_local = 1
-                    and credential_id in (select credential_id from asset where asset_id = '%s')""" % sAssetID
-                if not db.tran_exec_noexcep(sSQL):
-                    return False, db.error
+
+            sCredentialID = c.ID
 
 
-        sSQL = "insert into asset" \
-        " (asset_id, asset_name, asset_status, address, conn_string, db_name, port, credential_id)" \
-        " values (" \
-        "'" + sAssetID + "'," \
-        "'" + sAssetName + "'," \
-        "'" + sStatus + "'," \
-        "'" + sAddress + "'," \
-        "'" + sConnString + "'," \
-        "'" + sDbName + "'," + \
-        ("NULL" if sPort == "" else "'" + sPort + "'") + "," \
-        "'" + sCredentialID + "'" \
-        ")"
-        if not db.tran_exec_noexcep(sSQL):
+        sSQL = """insert into asset
+            (asset_id, asset_name, asset_status, address, conn_string, db_name, port, credential_id)
+            values (%s, %s, %s, %s, %s, %s, %s, %s)"""
+        params = (sAssetID, args["Name"], sStatus, args.get("Address"), args.get("ConnString"), args.get("DBName"), args.get("Port"), sCredentialID)
+
+        if not db.tran_exec_noexcep(sSQL, params):
             logger.error(db.error)
             if db.error == "key_violation":
-                return None, "Asset Name '" + sAssetName + "' already in use, choose another."
+                return None, "Asset Name [%s] already in use, choose another." % (args.get("Name"))
             else: 
                 return None, db.error
 
@@ -196,7 +253,7 @@ class Asset(object):
         # now it's inserted... lets get it back from the db as a complete object for confirmation.
         a = Asset()
         a.FromID(sAssetID)
-        a.RefreshTags(tags)
+        a.RefreshTags(args.get("Tags"))
         return a, None
 
     def DBUpdate(self, tags="", credential_update_mode="", credential=None):
@@ -352,17 +409,13 @@ class Credential(object):
 
     def FromName(self, name):
         db = catocommon.new_conn()
-        sSQL = """select credential_id, credential_name, username, domain, shared_cred_desc, shared_or_local
+        sSQL = """select credential_id
             from asset_credential
             where (credential_id = %s or credential_name = %s)"""
 
-        dr = db.select_row_dict(sSQL, (name, name))
+        aid = db.select_col_noexcep(sSQL, (name, name))
         db.close()
-        
-        if dr is not None:
-            self.FromRow(dr)
-        else: 
-            raise Exception("No Credential found using ID or Name [%s]" % (name))
+        self.FromID(aid)
 
     def FromRow(self, dr):
         """
@@ -386,6 +439,8 @@ class Credential(object):
 
     def DBCreateNew(self):
         db = catocommon.new_conn()
+        if not self.Username:
+            raise Exception("A Credential requires a User Name.  ")
 
         sPriviledgedPasswordUpdate = catocommon.cato_encrypt(self.PrivilegedPassword) if self.PrivilegedPassword else None
 
