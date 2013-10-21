@@ -259,7 +259,7 @@ function SaveRunTaskParameters() {
 	args.sBaseXPath = rt_base_xpath;
 	args.sXML = packJSON(buildXMLToSubmit());
 
-	var response = ajaxPost("taskMethods/wmSaveDefaultParameterXML", args);
+	var response = ajaxPost("taskMethods/wmSaveDefaultParameterXML", args, "text");
 	if (response) {
 		$("#update_success_msg").text("Save Successful").fadeOut(2000);
 		CloseRunTaskParameterEdit();
