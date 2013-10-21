@@ -17,17 +17,90 @@
 from jenkinsapi.jenkins import Jenkins
 from jenkinsapi.custom_exceptions import UnknownJob
 
-def jenkins_build(TE, step):
+JENKINS_CONNS={}
 
-    url, user, password, job, build_var, token = TE.get_command_params(step.command, "url", "user", "password", "job", "build_var", "token")[:]
-    pairs = TE.get_node_list(step.command, "parameters/parameter", "name", "value")
+def jenkins_new_connection(TE, step):
+
+    url, user, password, conn_name = TE.get_command_params(step.command, "url", "user", "password", "conn_name")[:]
 
     url = TE.replace_variables(url)
     user = TE.replace_variables(user)
     password = TE.replace_variables(password)
+    conn_name = TE.replace_variables(conn_name)
+
+    if not len(url):
+        msg = "Jenkins Create Connection command requires a url"
+        raise Exception(msg)
+    if not len(conn_name):
+        msg = "Jenkins Create Connection command requires a connection name"
+        raise Exception(msg)
+
+    if not len(user):
+        user = None
+    if not len(password):
+        password = None
+
+    j = Jenkins(url, user, password)
+
+    JENKINS_CONNS[conn_name] = j
+
+    msg = "Creating a Jenkins connection to url %s, user %s" % (url, user)
+    TE.insert_audit("jenkins_build", msg, "")
+
+def jenkins_build_status(TE, step):
+
+    conn_name, job, build_num, status_var = TE.get_command_params(step.command, "conn_name", "job", "build_num", "status_var")[:]
+
+    conn_name = TE.replace_variables(conn_name)
+    job = TE.replace_variables(job)
+    build_num = TE.replace_variables(build_num)
+    status_var = TE.replace_variables(status_var)
+
+    if not len(build_num):
+        msg = "Jenkins Get Build Status command requires a Build Number"
+        raise Exception(msg)
+    else:
+        build_num = int(build_num)
+    if not len(job):
+        msg = "Jenkins Get Build Status command requires a Job Name"
+        raise Exception(msg)
+    if not len(conn_name):
+        msg = "Jenkins Get Build Status command requires a connection name"
+        raise Exception(msg)
+
+    try:
+        j = JENKINS_CONNS[conn_name]
+    except KeyError:
+        msg = "A Jenkins connection by the name of %s does not exist." % (conn_name)
+        raise Exception(msg)
+
+    b = j[job].get_build(build_num)
+    status = b.get_status()
+    if not status:
+        status = ""
+
+    msg = "Jenkins Job %s, build number %s has a status of %s" % (job, build_num, status)
+    TE.insert_audit("jenkins_build", msg, "")
+
+    if len(status_var):
+        TE.rt.set(status_var, status)
+
+def jenkins_build(TE, step):
+
+    conn_name, job, build_var, token = TE.get_command_params(step.command, "conn_name", "job", "build_var", "token")[:]
+    pairs = TE.get_node_list(step.command, "parameters/parameter", "name", "value")
+
+    conn_name = TE.replace_variables(conn_name)
     job = TE.replace_variables(job)
     build_var = TE.replace_variables(build_var)
     token = TE.replace_variables(token)
+
+    if not len(conn_name):
+        msg = "Jenkins Build Job command requires a connection name"
+        raise Exception(msg)
+    if not len(job):
+        msg = "Jenkins Build Job command requires a job"
+        raise Exception(msg)
 
     params = {}
     for p in pairs:
@@ -37,17 +110,17 @@ def jenkins_build(TE, step):
             params[name] = value
     print "token is %s" % token
 
-    msg = "Attempting to start Jenkins Job %s at address %s with user %s\nparameters = %s\n please wait ..." % (job, url, user, params)
+    msg = "Attempting to start Jenkins Job %s \nparameters = %s\n please wait ..." % (job, params)
     TE.insert_audit("jenkins_build", msg, "")
 
-    if not len(user):
-        user = None
-    if not len(password):
-        password = None
     if not len(token):
         token = None
 
-    j = Jenkins(url, user, password)
+    try:
+        j = JENKINS_CONNS[conn_name]
+    except KeyError:
+        msg = "A Jenkins connection by the name of %s does not exist." % (conn_name)
+        raise Exception(msg)
 
     try:
         i = j[job].invoke(securitytoken=token, build_params=params)
