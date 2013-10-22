@@ -205,56 +205,6 @@ def http_get_nofail(url):
         logger.warning(ex)
         return ""
 
-def http_post(url, args, uid=None, pwd=None, auth_mode=None, tout=30, headers={"Content-type": "text/plain"}):
-    """
-    Make an HTTP POST request, with a configurable timeout and optional headers.
-    """
-    if not url:
-        return "", "URL not provided."
-    
-    logger.info("Trying an HTTP POST to %s..." % url)
-    logger.debug("   using args:\n%s" % args)
-    logger.debug("   auth mode: %s" % auth_mode)
-
-    try:
-        data = json.dumps(args)
-        request = urllib2.Request(url, data=data, headers=headers)
-        
-        # if we have creds, use them for BASIC AUTHENTICATION
-        if auth_mode == "direct" and uid and pwd:
-            logger.debug("Attempting Basic Authentication...")
-            base64string = base64.b64encode("%s:%s" % (uid, pwd))
-            request.add_header("Authorization", "Basic %s" % base64string)
-        
-        response = urllib2.urlopen(request, timeout=tout)
-        result = response.read()
-        if result:
-            return result, None
-
-    except urllib2.URLError as ex:
-        if hasattr(ex, "reason"):
-            logger.warning("http_post: failed to reach a server.")
-            logger.error(ex.reason)
-            return None, ex.reason
-        elif hasattr(ex, "code"):
-            if ex.code != 401:
-                logger.warning("http_post: The server couldn\'t fulfill the request.")
-                logger.error(ex.__str__())
-                return None, ex.__str__()
-            else:
-                # it's a 401, it could be an actual error we wanna raise (if it was "direct" auth)
-                # or if it's challenge auth, we won't have tried auth yet, so re-call ourselves
-                if auth_mode == "challenge":
-                    # but this time change the mode to "direct" (to make this a one time retry)
-                    http_post(url, args, uid=uid, pwd=pwd, auth_mode="direct", tout=tout, headers=headers)
-                else:
-                    logger.warning("http_post: Authentication exception.")
-                    logger.error(ex.__str__())
-                    return None, ex.__str__()
-    
-    # if all was well, we won't get here.
-    return None, None
-
 def params2xml(parameters):
     """
     the add_task_instance command requires parameter XML...

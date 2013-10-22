@@ -26,7 +26,6 @@ from catocloud import cloud
 from catoasset import asset
 from catotask import task
 from catosettings import settings
-from catoerrors import InfoException
 
 from catoui import uiCommon
 

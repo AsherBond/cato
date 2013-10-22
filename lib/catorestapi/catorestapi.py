@@ -70,13 +70,14 @@ class wmHandler:
         # web.header('Content-Type', 'text/xml')
 
         # here's the rub - if this was a POST, there might be lots of additional data in web.data().
-        # but the keys in web.input() are valid too.
+        # the keys above in web.input() are valid too, but the post args take precedence.
         # so, merge them.
         if web.data():
             postargs = json.loads(web.data())
-            logger.info("Post Data: %s" % postargs)
-            for k, v in postargs.iteritems():
-                args[k] = v
+            if postargs:
+                logger.info("Post Data: %s" % postargs)
+                for k, v in postargs.iteritems():
+                    args[k] = v
     
 
         logger.info("Request: %s" % method)
