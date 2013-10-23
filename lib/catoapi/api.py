@@ -355,9 +355,10 @@ class response:
 	def Write(self, output_format=""):
 		"""Returns the response in whatever format is specified here."""
 		
-		# IF there's an error code, set the HTTP status to 400
+		# IF there's an error code, set the HTTP status to 400, and write to the logfile
 		if self.ErrorCode:
 			web.ctx.status = "400 Bad Request"
+			logger.error("%s, %s, %s" % (self.ErrorCode, self.ErrorMessage, self.ErrorDetail))
 
 		if output_format == "text":
 			return self.asText()
