@@ -11,8 +11,8 @@
                     <action input_type="dropdown" label="Action" datasource="local" dataset="GET|POST|DELETE|PUT">GET</action>
 					<data input_type="textarea" rows="3" class="w90pct" label_style="display: block;" label="Data" />
 					<content_type input_type="text" class="w90pct" label="Content Type" />
-					<xpath input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Xpath" />
                     <timeout input_type="text" option_tab="Options" label="Timeout" break_after="true" />
+					<xpath input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Xpath" />
                     <values label="Values to Extract" is_array="true">
                         <value label="Value">
                             <name input_type="text" label="Attribute or Element Name" />
