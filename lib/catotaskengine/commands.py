@@ -29,6 +29,7 @@ import dateutil.parser as parser
 from bson.objectid import ObjectId
 from pymongo.errors import InvalidName
 from awspy import awspy
+from catoconfig import catoconfig
 
 from catocommon import catocommon
 from . import classes
@@ -161,7 +162,7 @@ def datastore_create_collection_cmd(self, task, step):
 def datastore_insert_cmd(self, task, step):
 
     collection, object_id = self.get_command_params(step.command, "collection", "object_id")[:]
-    pairs = self.get_node_list(step.command, "pairs/pair", "name", "value")
+    pairs = self.get_node_list(step.command, "pairs/pair", "name", "value", "json_value")
     collection = self.replace_variables(collection)
     docvar = self.replace_variables(object_id)
 
@@ -185,10 +186,16 @@ def datastore_insert_cmd(self, task, step):
 
     for p in pairs:
         name = self.replace_variables(p[0])
-        value = self.replace_variables(p[1])
-        if value == "datetime.now()":
-            value = datetime.now()
-        document[name] = value
+        v = self.replace_variables(p[1])
+        if p[2] == "1":
+            try:
+                v = json.loads(v)
+            except ValueError as e:
+                msg = "Error converting string %s to json\n%s" % (v, e)
+                raise Exception(msg)
+        elif v == "datetime.now()":
+            v = datetime.now()
+        document[name] = v
 
     self.logger.debug(document)
     doc_id = coll.insert(document)
@@ -270,7 +277,7 @@ def datastore_create_index_cmd(self, task, step):
 def datastore_find_and_modify_cmd(self, task, step):
 
     collection, query_string, upsert, remove = self.get_command_params(step.command, "collection", "query", "upsert", "remove")[:]
-    pairs = self.get_node_list(step.command, "columns/column", "name", "value")
+    pairs = self.get_node_list(step.command, "columns/column", "name", "value", "json_value")
     outpairs = self.get_node_list(step.command, "outcolumns/column", "name", "value")
     collection = self.replace_variables(collection)
     query_string = self.replace_variables(query_string)
@@ -302,15 +309,25 @@ def datastore_find_and_modify_cmd(self, task, step):
     if not remove:
         for p in pairs:
             name = self.replace_variables(p[0])
+            v = self.replace_variables(p[1])
+            if p[2] == "1":
+                try:
+                    v = json.loads(v)
+                except ValueError as e:
+                    msg = "Error converting string %s to json\n%s" % (v, e)
+                    raise Exception(msg)
+            elif v == "datetime.now()":
+                v = datetime.now()
+            _vars[name] = v
             if len(name):
-                _vars[name] = self.replace_variables(p[1])
-                self.rt.clear(name)
+                _vars[name] = v
 
     for p in outpairs:
         name = self.replace_variables(p[0])
         if len(name):
             _outvars.append([name, p[1]])
             cols[name] = True
+
     if "_id" not in cols.keys():
         cols["_id"] = False
 
@@ -325,7 +342,7 @@ def datastore_find_and_modify_cmd(self, task, step):
     row = coll.find_and_modify(query_dict, update=update_json, fields=cols, upsert=upsert, remove=remove)
     msg = "%s\n%s" % (msg, json.dumps(row, default=json_util.default))
     for v in _outvars:
-        self.rt.clear(v[0])
+        self.rt.clear(v[1])
     if row:
         for v in _outvars:
             name = v[0]
@@ -344,8 +361,8 @@ def datastore_find_and_modify_cmd(self, task, step):
 
 def datastore_update_cmd(self, task, step):
 
-    collection, query_string, upsert = self.get_command_params(step.command, "collection", "query", "upsert")[:]
-    pairs = self.get_node_list(step.command, "columns/column", "name", "value")
+    collection, query_string, upsert, addtoset = self.get_command_params(step.command, "collection", "query", "upsert", "addtoset")[:]
+    pairs = self.get_node_list(step.command, "columns/column", "name", "value", "json_value")
     collection = self.replace_variables(collection)
     query_string = self.replace_variables(query_string)
 
@@ -371,11 +388,27 @@ def datastore_update_cmd(self, task, step):
         upsert = True
     else:
         upsert = False
+
+    if addtoset == "1":
+        modifier = "$addToSet"
+    else:
+        modifier = "$set"
+
     for p in pairs:
         name = self.replace_variables(p[0])
-        _vars[name] = self.replace_variables(p[1])
+        v = self.replace_variables(p[1])
+        if p[2] == "1":
+            try:
+                v = json.loads(v)
+            except ValueError as e:
+                msg = "Error converting string %s to json\n%s" % (v, e)
+                raise Exception(msg)
+        elif v == "datetime.now()":
+            v = datetime.now()
+        _vars[name] = v
+
     msg = "Collection %s, Update %s, Set %s, Upsert %s" % (collection, query_dict, json.dumps(_vars), upsert)
-    coll.update(query_dict, {"$set" : _vars}, multi=True, upsert=upsert)
+    coll.update(query_dict, {modifier : _vars}, multi=True, upsert=upsert)
     catocommon.mongo_disconnect(db)
     self.insert_audit(step.function_name, msg, "")
 
@@ -404,9 +437,11 @@ def datastore_query_cmd(self, task, step):
     cols = {}
     for p in pairs:
         name = self.replace_variables(p[0])
+        variable = self.replace_variables(p[1])
         if len(name):
-            _vars.append([name, p[1]])
-            self.rt.clear(name)
+            if len(variable):
+                _vars.append([name, variable])
+                self.rt.clear(variable)
             cols[name] = True
     msg = "Collection %s, Query %s, Columns %s" % (collection, query_dict, cols.keys())
     if "_id" not in cols.keys():
@@ -1334,13 +1369,15 @@ def _cato_sign_string(host, method, access_key, secret_key):
 
 def cato_web_service_cmd(self, task, step):
 
-    host, method, userid, password, result_var, error_var, timeout = self.get_command_params(step.command,
-        "host", "method", "userid", "password", "result_var", "error_var", "timeout")[:]
+    host, method, userid, password, result_var, error_var, timeout, xpath = self.get_command_params(step.command,
+        "host", "method", "userid", "password", "result_var", "error_var", "timeout", "xpath")[:]
     host = self.replace_variables(host)
     method = self.replace_variables(method)
     userid = self.replace_variables(userid)
     password = self.replace_variables(password)
     timeout = self.replace_variables(timeout)
+    xpath = self.replace_variables(xpath)
+    values = self.get_node_list(step.command, "values/value", "name", "variable", "type")
     try:
         timeout = 5 if not timeout else int(timeout)
     except:
@@ -1348,7 +1385,10 @@ def cato_web_service_cmd(self, task, step):
     
 
     if not len(host):
-        raise Exception("Cato Web Service Call command requires Host value")
+        url = catoconfig.CONFIG["rest_api_url"]
+        port = str(catoconfig.CONFIG["rest_api_port"])
+        host = url + ":" + port
+
     if not len(method):
         raise Exception("Cato Web Service Call command requires Method value")
     if not len(userid):
@@ -1407,6 +1447,9 @@ def cato_web_service_cmd(self, task, step):
     self.insert_audit(step.function_name, log)
     if len(result_var):
         self.rt.set(result_var, buff)
+
+    if len(xpath):
+         self.parse_xml(buff, xpath, values)
 
 def route53_cmd(self, task, step):
 

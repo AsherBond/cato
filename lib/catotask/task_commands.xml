@@ -254,20 +254,28 @@
 			<command name="cato_web_service" label="Cato API Call" description="Makes a call to the Cato REST API to manage the Cato environment." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#api' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
                 icon="static/images/icons/network_service_32.png">
-				<function name="cato_web_service" variables="true" >
+				<function name="cato_web_service"  >
 					<host input_type="text" label="Host" class="w90pct" break_after="true" />
+					<userid input_type="text" label="UserId" />
+					<password input_type="text" label="Password" break_after="true" />
 					<method input_type="text" label="Method" class="w90pct" required="true" break_after="true" />
-					<userid input_type="text" label="UserId" required="true"  />
-					<password input_type="text" label="Password" required="true" break_after="true" />
-					<result_var input_type="text" label="Result Variable" />
-					<error_var input_type="text" label="Error Variable" />
-					<timeout input_type="text" label="Timeout" />
 					<pairs label="Parameters" is_array="true">
 						<pair label="Parameter">
 							<key input_type="text" label="Name" />
 							<value input_type="text" label="Value" class="w50pct" />
 						</pair>
-					</pairs>
+					</pairs> 
+                   <xpath input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Xpath to Extract" />
+                    <values label="Values to Extract" is_array="true">
+                        <value label="Value">
+                            <name input_type="text" label="Attribute or Element Name" />
+                            <variable input_type="text" label="Out Variable" />
+                            <type input_type="dropdown" label="Type" datasource="local" dataset="attribute|element">element</type>
+                        </value>
+                    </values>
+					<result_var input_type="text" label="Result Variable" />
+					<error_var input_type="text" option_tab="Options" label="Error Variable" />
+					<timeout input_type="text" option_tab="Options" label="Timeout" />
 				</function>
 			</command>
 		</commands>
@@ -377,6 +385,7 @@
 						<pair>
 							<name input_type="text" label="Name" />
 							<value input_type="text" label="Value" style="width: 50%;" />
+                            <json_value input_type="checkbox" label="Json?" />
 						</pair>
 					</pairs>
 				</function>
@@ -401,11 +410,13 @@
 				<function name="datastore_update">
 					<collection input_type="text" required="true" label="Collection" />
 					<upsert input_type="checkbox" label="Upsert?" />
+					<addtoset input_type="checkbox" label="Add To Set?" />
 					<query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
 					<columns is_array="true">
 						<column>
 							<name input_type="text" label="Name" />
 							<value input_type="text" label="Value" style="width: 50%;" />
+                            <json_value input_type="checkbox" label="Json?" />
 						</column>
 					</columns>
 				</function>
@@ -422,6 +433,7 @@
 						<column>
 							<name input_type="text" label="Name" />
 							<value input_type="text" label="Value" style="width: 50%;" />
+                            <json_value input_type="checkbox" label="Json?" />
 						</column>
 					</columns>
 					<outcolumns is_array="true" label="Out Columns">
