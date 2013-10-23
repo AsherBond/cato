@@ -50,7 +50,7 @@ class dsMethods:
             collection - a document collection.  'Default' if omitted.
             filter - will filter a value match in the Document ID or data.  (Filter is a JSON object formatted as a Mongo query.)
         
-        Returns: A list of Document IDs.
+        Returns: A list of Documents.
         """
         collection = args["collection"] if args.has_key("collection") else ""
         fltr = args["filter"] if args.has_key("filter") else ""
