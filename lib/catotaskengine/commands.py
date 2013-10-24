@@ -696,6 +696,7 @@ def log_msg_cmd(self, task, step):
 
     msg = self.get_command_params(step.command, "message")[0]
     msg = self.replace_variables(msg)
+    self.audit_trail_on = 1
     self.insert_audit(step.function_name, msg, "")
 
 
