@@ -506,7 +506,7 @@ class TaskEngine():
                     (%s, %s, now(), %s, %s, %s)"""
                 self.db.exec_db(sql, (self.task_instance, step_id, conn, log, command))
 
-                self.logger.info(log)
+                self.logger.critical(log)
             if at == 1:
                 self.audit_trail_on = 0
 

@@ -45,7 +45,7 @@ def jenkins_new_connection(TE, step):
     JENKINS_CONNS[conn_name] = j
 
     msg = "Creating a Jenkins connection to url %s, user %s" % (url, user)
-    TE.insert_audit("jenkins_build", msg, "")
+    TE.insert_audit("jenkins_new_connection", msg, "")
 
 def jenkins_build_status(TE, step):
 
@@ -80,7 +80,7 @@ def jenkins_build_status(TE, step):
         status = ""
 
     msg = "Jenkins Job %s, build number %s has a status of %s" % (job, build_num, status)
-    TE.insert_audit("jenkins_build", msg, "")
+    TE.insert_audit("jenkins_build_status", msg, "")
 
     if len(status_var):
         TE.rt.set(status_var, status)
