@@ -290,6 +290,8 @@ CREATE TABLE `dep_service_state_mon` (
   `days` varchar(84) DEFAULT NULL,
   `hours` varchar(62) DEFAULT NULL,
   `minutes` varchar(172) DEFAULT NULL,
+  `parameter_xml` mediumtext,
+  `debug_level` int(11) DEFAULT NULL,
   PRIMARY KEY (`deployment_service_id`,`state`,`original_task_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `dep_template_category` (
@@ -469,16 +471,6 @@ CREATE TABLE `message_file_lookup` (
   `file_description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`file_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-CREATE TABLE `metric_db_waits` (
-  `instance_id` varchar(36) NOT NULL,
-  `metric_dt` datetime NOT NULL,
-  `class` varchar(45) NOT NULL,
-  `total_waits` int(11) DEFAULT NULL,
-  `pct_waits` decimal(4,2) DEFAULT NULL,
-  `avg_wait_time` decimal(4,2) DEFAULT NULL,
-  `pct_time` decimal(4,2) DEFAULT NULL,
-  PRIMARY KEY (`instance_id`,`metric_dt`,`class`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `object_tags` (
   `object_id` varchar(36) NOT NULL,
   `object_type` int(11) NOT NULL,
@@ -642,12 +634,14 @@ CREATE TABLE `user_security_log` (
   CONSTRAINT `FK_user_security_log_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `user_session` (
-  `user_id` varchar(36) NOT NULL DEFAULT '',
-  `address` varchar(255) NOT NULL DEFAULT '',
+  `session_id` bigint(20) NOT NULL,
+  `user_id` varchar(36) NOT NULL,
+  `address` varchar(255) NOT NULL,
   `login_dt` datetime NOT NULL,
   `heartbeat` datetime NOT NULL,
   `kick` int(11) NOT NULL,
-  PRIMARY KEY (`user_id`,`address`),
+  PRIMARY KEY (`session_id`),
+  UNIQUE KEY `IX_user_id_address` (`user_id`,`address`),
   KEY `FK_user_session_users` (`user_id`),
   CONSTRAINT `FK_user_session_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

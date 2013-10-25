@@ -317,7 +317,7 @@ def auth_app_processor(handle):
     i = web.input(page=None, token=None)
     if i.token:
         # if anything goes wrong, just redirect to the login page
-        response = uiCommon.AttemptLogin("Cato Admin UI")
+        response = uiCommon.AttemptLogin("Cato Admin UI", token=i.token)
         response = json.loads(response)
         if response.get("result") != "success":
             logger.info("Token Authentication failed... [%s]" % response.get("info"))

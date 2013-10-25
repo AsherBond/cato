@@ -664,7 +664,7 @@ def RemoveNodeFromXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToRemove):
 
     return
 
-def AttemptLogin(app_name):
+def AttemptLogin(app_name, token=None, sid=None):
     if not app_name:
         raise Exception("Missing Application Name.")
     if not web.ctx.ip:
@@ -679,16 +679,22 @@ def AttemptLogin(app_name):
     new_pwd = unpackJSON(new_pwd)
     answer = getAjaxArg("answer")
     answer = unpackJSON(answer)
-    token = getAjaxArg("token")
 
     u = catouser.User()
     
     if token:
-        log("Trying Token Authentication using [%s]" % token, 3)
+        log("Trying Token Authentication using [%s]." % token, 3)
         result, code = u.AuthenticateToken(token, address)
         if not result:
             return json.dumps({"info" : code})
+    elif sid:
+        log("Attempting to trust another CSK application using [%s]." % sid, 3)
+        result, code = u.AuthenticateSession(sid, address)
+        if not result:
+            return json.dumps({"info" : code})
+
     else:
+        log("Attempting Authentication using POST args.", 3)
         # Authenticate will return the codes so we will know
         # how to respond to the login page
         # (must change password, password expired, etc)
@@ -721,6 +727,7 @@ def AttemptLogin(app_name):
     # yes, I said SESSION not a cookie, otherwise it could be hacked client side
     
     current_user = {}
+    current_user["session_id"] = u.SessionID
     current_user["user_id"] = u.ID
     current_user["user_name"] = u.LoginID
     current_user["full_name"] = u.FullName
@@ -729,7 +736,7 @@ def AttemptLogin(app_name):
     current_user["email"] = u.Email
     current_user["ip_address"] = address
     SetSessionObject("user", current_user)
-    SetCookie("applink", base64.b64encode(catocommon.cato_encrypt(u.ID)))
+    SetCookie("applink", base64.b64encode(u.SessionID))
     
     log("Login granted for: %s" % (u.FullName), 3)
     log(uiGlobals.session.user, 4)

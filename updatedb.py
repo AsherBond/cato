@@ -157,7 +157,21 @@ versions = [
                       ["changecolumn", "asset_credential", "password", "`password` VARCHAR(2048) NULL DEFAULT NULL"],                      
                       ["changecolumn", "dash_resource", "data", "`data` mediumblob"],
                       ["addcolumn", "dep_service_state_mon", "parameter_xml", "mediumtext NULL"],
-                      ["addcolumn", "dep_service_state_mon", "debug_level", "int(11) NULL"]
+                      ["addcolumn", "dep_service_state_mon", "debug_level", "int(11) NULL"],
+                      ["droptable", "metric_db_waits", "Not used, was for an early demo."],
+                      ["droptable", "user_session", "Recreating in the next step..."],
+                      ["createtable", "user_session", """(
+                          `session_id` bigint NOT NULL,
+                          `user_id` varchar(36) NOT NULL,
+                          `address` varchar(255) NOT NULL,
+                          `login_dt` datetime NOT NULL,
+                          `heartbeat` datetime NOT NULL,
+                          `kick` int(11) NOT NULL,
+                          PRIMARY KEY (`session_id`),
+                          UNIQUE INDEX `IX_user_id_address` (`user_id` ASC, `address` ASC),
+                          KEY `FK_user_session_users` (`user_id`),
+                          CONSTRAINT `FK_user_session_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8"""]
                       ]
              ],
             ["1.22", [
