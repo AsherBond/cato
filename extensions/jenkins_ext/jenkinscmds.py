@@ -130,7 +130,7 @@ def jenkins_build(TE, step):
     except Exception as e:
             raise Exception(e)
 
-    i.block_until_not_queued(timeout=120, delay=3)
+    i.block_until_not_queued(timeout=1200, delay=3)
     if len(build_var):
         n = i.get_build_number()
         TE.rt.set(build_var, n)
