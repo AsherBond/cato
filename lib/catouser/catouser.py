@@ -100,6 +100,10 @@ class User(object):
         self.SettingsXML = ""
         self.LoginToken = None
         self.Tags = []
+        
+        # only set in the Authenticate method - contains the session_id that *was just issued*.
+        # NOT a part of a regular user object, as there can be multiple sessions - one per ui.
+        self.SessionID = None
     
     def GetToken(self):
         if self.ID:
@@ -325,7 +329,7 @@ class User(object):
             if self.Status in ("enabled", "disabled", "locked"):
                 self.Status = 0 if self.Status.lower() == "disabled" else (-1 if self.Status.lower() == "locked" else 1)
 
-            if self.Status in (-1, 0, 1):
+            if self.Status in (-1, 0, 1, "-1", "0", "1"):
                 sql_bits.append("status='%s'" % (self.Status))
             else:
                 logger.warning("User.DBUpdate : Status must be 'enabled' (1), 'disabled' (0) or 'locked' (-1).")
@@ -344,7 +348,8 @@ class User(object):
         # (does anything even do this???)
         f = 0
         try:
-            f = int(self.FailedLoginAttempts)
+            if self.FailedLoginAttempts:
+                f = int(self.FailedLoginAttempts)
         except:
             logger.warning("User.DBUpdate : FailedLoginAttempts property must be an integer.  Setting to 0.")
             f = 0
@@ -384,11 +389,49 @@ class User(object):
         db.close()
         return True
                     
-                            
+    """ These next few _ functions are shared across the Authenticate methods """
+    def _create_user_session(self):
+        db = catocommon.new_conn()
+
+        sql = "update users set failed_login_attempts=0, last_login_dt=now() where user_id=%s"
+        db.exec_db(sql, (self.ID))
+    
+        sid = catocommon.unix_now_millis()
+        self.SessionID = str(sid)
+        sql = """insert into user_session (session_id, user_id, address, login_dt, heartbeat, kick)
+            values ('{0}', '{1}', '{2}', now(), now(), 0)
+            on duplicate key update user_id = '{1}', address ='{2}'""".format(sid, self.ID, self.ClientIP)
+        db.exec_db(sql)
+
+                          
+    def AuthenticateSession(self, sid, client_ip):
+        """
+        Will authenticate from the session_id of another authenticated CSK application.
+        """
+        self.ClientIP = client_ip
+
+        db = catocommon.new_conn()
+        sql = "select user_id from user_session where session_id = %s"
+        uid = db.select_col_noexcep(sql, (sid))
+        db.close()
+        if not uid:
+            logger.warning("Attempting to trust remote app session failed.  Provided Session ID is not valid.")
+
+        self.PopulateUser(user_id=uid)
+    
+        # Check for "locked" or "disabled" status
+        if self.Status < 1:
+            return False, "disabled"
+
+        self._create_user_session()
+        return True, ""
+        
     def AuthenticateToken(self, token, client_ip):
         """
         The rules for authenticating from a token are different than uid/pwd.
         """
+        self.ClientIP = client_ip
+        
         # tokens are only allowed if the configuration file says so.
         if catocommon.is_true(catoconfig.CONFIG.get("ui_enable_tokenauth")):
             db = catocommon.new_conn()
@@ -424,23 +467,13 @@ class User(object):
 
             self.PopulateUser(user_id=row["user_id"])
         
-            # These checks happen BEFORE we verify the password
-            
             # Check for "locked" or "disabled" status
             if self.Status < 1:
                 return False, "disabled"
 
-            # ALL GOOD!
-            # reset the user counters and last_login
-            sql = "update users set failed_login_attempts=0, last_login_dt=now() where user_id=%s"
-            db.exec_db(sql, (self.ID))
-        
-            sql = """insert into user_session (user_id, address, login_dt, heartbeat, kick)
-                values ('{0}', '{1}', now(), now(), 0)
-                on duplicate key update user_id = '{0}', address ='{1}'""".format(self.ID, client_ip)
-            db.exec_db(sql)
-    
             db.close()
+            
+            self._create_user_session()
             return True, ""
         else:
             return False, None
@@ -454,6 +487,8 @@ class User(object):
             return False, "id required"
         if not password and not answer:
             return False, "Password required."
+        
+        self.ClientIP = client_ip
         
         # alrighty, lets check the password
         # we do this by encrypting the form submission and comparing, 
@@ -521,7 +556,6 @@ class User(object):
         
         # force change
         # the user authenticated, but they are required to change their password
-        change_clause = ""
         if self.ForceChange:
             if change_password:
                 # a new password was provided
@@ -533,22 +567,14 @@ class User(object):
                 self.AddPWToHistory(change_password)
                 
                 # and update with the new one
-                change_clause = ",force_change=0, user_password='%s'" % catocommon.cato_encrypt(change_password)
+                sql = "update users set force_change=0, user_password=%s where user_id=%s"
+                db.exec_db(sql, (catocommon.cato_encrypt(change_password), self.ID))
             else:
                 return False, "change"
         
         
+        self._create_user_session()
         
-        # ALL GOOD!
-        # reset the user counters and last_login
-        sql = "update users set failed_login_attempts=0, last_login_dt=now() %s where user_id='%s'" % (change_clause, self.ID)
-        db.exec_db(sql)
-    
-        sql = """insert into user_session (user_id, address, login_dt, heartbeat, kick)
-            values ('{0}', '{1}', now(), now(), 0)
-            on duplicate key update user_id = '{0}', address ='{1}'""".format(self.ID, client_ip)
-        db.exec_db(sql)
-
         db.close()
         return True, ""
 
