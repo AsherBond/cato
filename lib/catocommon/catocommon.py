@@ -24,6 +24,7 @@ import json
 import calendar
 import sys
 from datetime import datetime
+import time
 from bson.objectid import ObjectId
 
 from catoconfig import catoconfig
@@ -326,6 +327,13 @@ def unpackData(sIn):
     sOut = sOut.decode("utf-8")
     
     return sOut
+
+def unix_now():
+    return int(time.time())
+
+def unix_now_millis():
+    x = ("%f" % time.time()).replace(".","")
+    return int(x)
 
 def new_guid():
     return str(uuid.uuid1())
