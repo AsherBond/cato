@@ -30,7 +30,7 @@ set -ex
 # customize the following values to suit your needs
 
 # the network hostname where these services can be reached, for example 'csk.mycompany.com'
-CATO_HOST=`localhost`
+CATO_HOST="localhost"
 
 # cato target directory
 CATO_HOME=`pwd`
