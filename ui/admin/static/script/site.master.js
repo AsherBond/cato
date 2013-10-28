@@ -21,8 +21,6 @@ window.setInterval(updateHeartbeat, 120000);
 // THIS IS AWESOME
 // get some important python configuration settings that have relevance on the client
 g_config = catoAjax.getConfig();
-g_config.user_ui_url = g_config.user_ui_protocol + '://' + window.location.hostname + ':' + g_config.user_ui_port;
-g_config.admin_ui_url = g_config.admin_ui_protocol + '://' + window.location.hostname + ':' + g_config.admin_ui_port;
 
 $(document).ready(function() {
 	//NOTE: this is the main jQuery function that will execute

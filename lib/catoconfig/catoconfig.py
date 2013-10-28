@@ -162,11 +162,11 @@ def read_config():
     cfg["dash_api_protocol"] = "https" if cfg["dash_api_use_ssl"] == "true" else "http"
     cfg["newsfeed_api_protocol"] = "https" if cfg["newsfeed_api_use_ssl"] == "true" else "http"
     
-    cfg["admin_ui_url"] = "%s://%s" % (cfg["admin_ui_protocol"], cfg["admin_ui_hostname"])
-    cfg["user_ui_url"] = "%s://%s" % (cfg["user_ui_protocol"], cfg["user_ui_hostname"])
-    cfg["rest_api_url"] = "%s://%s" % (cfg["rest_api_protocol"], cfg["rest_api_hostname"])
-    cfg["dash_api_url"] = "%s://%s" % (cfg["dash_api_protocol"], cfg["dash_api_hostname"])
-    cfg["newsfeed_api_url"] = "%s://%s" % (cfg["newsfeed_api_protocol"], cfg["newsfeed_api_hostname"])
+    cfg["admin_ui_url"] = "%s://%s:%s" % (cfg["admin_ui_protocol"], cfg["admin_ui_hostname"], cfg["admin_ui_port"])
+    cfg["user_ui_url"] = "%s://%s:%s" % (cfg["user_ui_protocol"], cfg["user_ui_hostname"], cfg["user_ui_port"])
+    cfg["rest_api_url"] = "%s://%s:%s" % (cfg["rest_api_protocol"], cfg["rest_api_hostname"], cfg["rest_api_port"])
+    cfg["dash_api_url"] = "%s://%s:%s" % (cfg["dash_api_protocol"], cfg["dash_api_hostname"], cfg["dash_api_port"])
+    cfg["newsfeed_api_url"] = "%s://%s:%s" % (cfg["newsfeed_api_protocol"], cfg["newsfeed_api_hostname"], cfg["newsfeed_api_port"])
     
     # something else here... 
     # the root cato directory should have a VERSION file.

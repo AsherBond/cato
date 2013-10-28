@@ -1387,8 +1387,6 @@ def cato_web_service_cmd(self, task, step):
 
     if not len(host):
         url = catoconfig.CONFIG["rest_api_url"]
-        port = str(catoconfig.CONFIG["rest_api_port"])
-        host = url + ":" + port
 
     if not len(method):
         raise Exception("Cato Web Service Call command requires Method value")
