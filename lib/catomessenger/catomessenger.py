@@ -74,6 +74,13 @@ class Messenger(catoprocess.CatoService):
             self.logger.info("*** Control Change: Enabled is now %s" % 
                 (self.messenger_enabled))
 
+        if not self.smtp_server or self.smtp_server == "":
+            msg = "Messenger SMTP server address not set. See messenger configuration settings"
+            raise Exception(msg)
+        if not self.smtp_port or self.smtp_port == "":
+            msg = "Messenger SMTP server port not set. See messenger configuration settings"
+            raise Exception(msg)
+
     def update_msg_status(self, msg_id, status, err_msg):
 
         if status == 1:
