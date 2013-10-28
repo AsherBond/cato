@@ -1,5 +1,5 @@
 web.py==0.37
-croniter==3.3
+croniter==0.3.3
 PyMySQL==0.6.1
 pymongo==2.6.3
 jsonpath==0.54
