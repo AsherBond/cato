@@ -400,7 +400,7 @@ class User(object):
         self.SessionID = str(sid)
         sql = """insert into user_session (session_id, user_id, address, login_dt, heartbeat, kick)
             values ('{0}', '{1}', '{2}', now(), now(), 0)
-            on duplicate key update user_id = '{1}', address ='{2}'""".format(sid, self.ID, self.ClientIP)
+            on duplicate key update session_id = '{0}', user_id = '{1}', address ='{2}'""".format(sid, self.ID, self.ClientIP)
         db.exec_db(sql)
 
                           
@@ -412,10 +412,12 @@ class User(object):
 
         db = catocommon.new_conn()
         sql = "select user_id from user_session where session_id = %s"
-        uid = db.select_col_noexcep(sql, (sid))
+        uid = db.select_col(sql, (sid))
         db.close()
         if not uid:
-            logger.warning("Attempting to trust remote app session failed.  Provided Session ID is not valid.")
+            msg = "Attempting to trust remote app session failed.  Provided Session ID is not valid."
+            logger.warning(msg)
+            return False, msg
 
         self.PopulateUser(user_id=uid)
     
