@@ -736,7 +736,10 @@ def AttemptLogin(app_name, token=None, sid=None):
     current_user["email"] = u.Email
     current_user["ip_address"] = address
     SetSessionObject("user", current_user)
-    SetCookie("applink", base64.b64encode(u.SessionID))
+    
+    # bit of a hack here... this function was given a pretty "app_name", but we want the non-pretty one.
+    cookiename = "%s-applink" % (app_name.replace(" ", "_").lower())
+    SetCookie(cookiename, base64.b64encode(u.SessionID))
     
     log("Login granted for: %s" % (u.FullName), 3)
     log(uiGlobals.session.user, 4)
