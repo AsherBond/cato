@@ -492,6 +492,7 @@ class TaskEngine():
 
             at = self.audit_trail_on
             step_id = self.current_step_id
+            print at
             if at > 0:
                 if step_id == "":
                     step_id = "NULL"
@@ -1933,8 +1934,10 @@ class TaskEngine():
             self.release_all()
         except Exception as e:
             msg = "ERROR -> %s" % (e)
-            self.logger.info(msg)
+            self.logger.critical(msg)
             traceback.print_exc(file=sys.stderr)
+            self.debug_level = 10
+            self.audit_trail_on = 2
             self.insert_audit("", msg, "")
             self.update_status('Error')
             self.result_summary()
