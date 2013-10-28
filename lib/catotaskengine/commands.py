@@ -338,7 +338,6 @@ def datastore_find_and_modify_cmd(self, task, step):
     if not len(cols):
         cols = None
     msg = "Collection %s, Find and Modify %s, Set %s, Columns %s, Upsert %s, Remove %s" % (collection, query_dict, json.dumps(_vars), cols.keys(), upsert, remove)
-    print msg
     row = coll.find_and_modify(query_dict, update=update_json, fields=cols, upsert=upsert, remove=remove)
     msg = "%s\n%s" % (msg, json.dumps(row, default=json_util.default))
     for v in _outvars:

@@ -492,7 +492,6 @@ class TaskEngine():
 
             at = self.audit_trail_on
             step_id = self.current_step_id
-            print at
             if at > 0:
                 if step_id == "":
                     step_id = "NULL"
@@ -505,7 +504,7 @@ class TaskEngine():
                     (task_instance, step_id, entered_dt, connection_name, log, command_text) 
                     values 
                     (%s, %s, now(), %s, %s, %s)"""
-                self.db.exec_db(sql, (self.task_instance, step_id, conn, log, command))
+                self.db.exec_db(sql, (self.task_instance, step_id, conn, log.decode("utf8"), command))
 
                 self.logger.critical(log)
             if at == 1:
