@@ -77,17 +77,17 @@ class settings(object):
         def DBSave(self):
             self.PassComplexity = catocommon.is_true(self.PassComplexity)
             self.PassRequireInitialChange = catocommon.is_true(self.PassRequireInitialChange)
-            self.AutoLockReset = catocommon.is_true(self.AutoLockReset)
             self.PageViewLogging = catocommon.is_true(self.PageViewLogging)
             self.ReportViewLogging = catocommon.is_true(self.ReportViewLogging)
             self.AllowLogin = catocommon.is_true(self.AllowLogin)
 
-            self.PassMaxAge = int(self.PassMaxAge)
-            self.PassMaxAttempts = int(self.PassMaxAttempts)
-            self.PassMaxLength = int(self.PassMaxLength)
-            self.PassMinLength = int(self.PassMinLength)
-            self.PassAgeWarn = int(self.PassAgeWarn)
-            self.PasswordHistory = int(self.PasswordHistory)
+            self.PassMaxAge = int(self.PassMaxAge) if self.PassMaxAge.isdigit() else 90
+            self.PassMaxAttempts = int(self.PassMaxAttempts) if self.PassMaxAttempts.isdigit() else 30
+            self.PassMaxLength = int(self.PassMaxLength) if self.PassMaxLength.isdigit() else 32
+            self.PassMinLength = int(self.PassMinLength) if self.PassMinLength.isdigit() else 8
+            self.PassAgeWarn = int(self.PassAgeWarn) if self.PassAgeWarn.isdigit() else 15
+            self.PasswordHistory = int(self.PasswordHistory) if self.PasswordHistory.isdigit() else 5
+            self.AutoLockReset = int(self.AutoLockReset) if self.AutoLockReset.isdigit() else 1
             
             settings.set_application_section("security", json.dumps(self.__dict__))
             return True
@@ -120,8 +120,8 @@ class settings(object):
             
         def DBSave(self):
             self.Enabled = catocommon.is_true(self.Enabled)
-            self.LoopDelay = int(self.LoopDelay)
-            self.MaxProcesses = int(self.MaxProcesses)
+            self.LoopDelay = int(self.LoopDelay) if self.LoopDelay.isdigit() else 3
+            self.MaxProcesses = int(self.MaxProcesses) if self.MaxProcesses.isdigit() else 32
             settings.set_application_section("poller", json.dumps(self.__dict__))
             return True
 
@@ -183,8 +183,8 @@ class settings(object):
             
         def DBSave(self):
             self.Enabled = catocommon.is_true(self.Enabled)
-            self.LoopDelay = int(self.LoopDelay)
-            self.Debug = int(self.Debug)
+            self.LoopDelay = int(self.LoopDelay) if self.LoopDelay.isdigit() else 10
+            self.Debug = int(self.Debug) if self.Debug.isdigit() else 20
             settings.set_application_section("marshaller", json.dumps(self.__dict__))
             return True
 
@@ -211,8 +211,8 @@ class settings(object):
         SMTPServerAddress = ""
         SMTPUserAccount = ""
         SMTPUserPassword = ""
-        SMTPServerPort = ""
-        SMTPConnectionTimeout = ""
+        SMTPServerPort = 25
+        SMTPConnectionTimeout = 30
         SMTPLegacySSL = ""
         FromEmail = ""
         FromName = ""
@@ -243,11 +243,11 @@ class settings(object):
             self.Enabled = catocommon.is_true(self.Enabled)
             self.SMTPLegacySSL = catocommon.is_true(self.SMTPLegacySSL)
 
-            self.PollLoop = int(self.PollLoop)
-            self.RetryDelay = int(self.RetryDelay)
-            self.RetryMaxAttempts = int(self.RetryMaxAttempts)
-            self.SMTPServerPort = int(self.SMTPServerPort)
-            self.SMTPConnectionTimeout = int(self.SMTPConnectionTimeout)
+            self.PollLoop = int(self.PollLoop) if self.PollLoop.isdigit() else 30
+            self.RetryDelay = int(self.RetryDelay) if self.RetryDelay.isdigit() else 5
+            self.RetryMaxAttempts = int(self.RetryMaxAttempts) if self.RetryMaxAttempts.isdigit() else 3
+            self.SMTPServerPort = int(self.SMTPServerPort) if self.SMTPServerPort.isdigit() else 25
+            self.SMTPConnectionTimeout = int(self.SMTPConnectionTimeout) if self.SMTPConnectionTimeout.isdigit() else 30
 
             # only update password if it has been changed.  This "filler" is set in the gui to show stars so ignore it.
             if self.SMTPUserPassword and self.SMTPUserPassword != "~!@@!~":
@@ -292,10 +292,10 @@ class settings(object):
         def DBSave(self):
             self.Enabled = catocommon.is_true(self.Enabled)
 
-            self.LoopDelay = int(self.LoopDelay)
-            self.ScheduleMinDepth = int(self.ScheduleMinDepth)
-            self.ScheduleMaxDays = int(self.ScheduleMaxDays)
-            self.CleanAppRegistry = int(self.CleanAppRegistry)
+            self.LoopDelay = int(self.LoopDelay) if self.LoopDelay.isdigit() else 10
+            self.ScheduleMinDepth = int(self.ScheduleMinDepth) if self.ScheduleMinDepth.isdigit() else 10
+            self.ScheduleMaxDays = int(self.ScheduleMaxDays) if self.ScheduleMaxDays.isdigit() else 90
+            self.CleanAppRegistry = int(self.CleanAppRegistry) if self.CleanAppRegistry.isdigit() else 5
 
             settings.set_application_section("scheduler", json.dumps(self.__dict__))
             return True
@@ -332,9 +332,9 @@ class settings(object):
         def DBSave(self):
             self.Enabled = catocommon.is_true(self.Enabled)
 
-            self.LoopDelay = int(self.LoopDelay)
-            self.ScheduleMinDepth = int(self.ScheduleMinDepth)
-            self.ScheduleMaxDays = int(self.ScheduleMaxDays)
+            self.LoopDelay = int(self.LoopDelay) if self.LoopDelay.isdigit() else 10
+            self.ScheduleMinDepth = int(self.ScheduleMinDepth) if self.ScheduleMinDepth.isdigit() else 10
+            self.ScheduleMaxDays = int(self.ScheduleMaxDays) if self.ScheduleMaxDays.isdigit() else 90
 
             settings.set_application_section("maestroscheduler", json.dumps(self.__dict__))
             return True

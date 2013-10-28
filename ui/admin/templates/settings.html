@@ -1,5 +1,5 @@
 $def with ()
-$var jsfiles: settings.js
+$var jsfiles: settings.js validation.js
 $var cssfiles:
 
 <style type="text/css">
@@ -11,7 +11,7 @@ $var cssfiles:
 	}
 </style>
 <div id="content">
-    <form  autocomplete="off">
+    <form autocomplete="off">
         <div id="div_security_detail" class="detail_panel hidden">
             <div class="ui-widget-content ui-corner-all">
                 <div class="ui-widget-header">
@@ -22,25 +22,25 @@ $var cssfiles:
                     <tr>
                         <td width="150px" class="row_odd"> Password Maximum Age </td>
                         <td width="300" class="row_odd">
-                        <input type="text" id="PassMaxAge" name="PassMaxAge" class="usertextbox"/>
+                        <input type="text" id="PassMaxAge" name="PassMaxAge" class="usertextbox" validate_as="posint" />
                         </td>
                     </tr>
                     <tr>
                         <td class="row_even"> Password Maximum Attempts </td>
                         <td class="row_even">
-                        <input type="text" id="PassMaxAttempts" name="PassMaxAttempts" class="usertextbox"/>
+                        <input type="text" id="PassMaxAttempts" name="PassMaxAttempts" class="usertextbox" validate_as="posint" />
                         </td>
                     </tr>
                     <tr>
                         <td class="row_odd"> Password Maximum Length </td>
                         <td class="row_odd">
-                        <input type="text" id="PassMaxLength" name="PassMaxLength" class="usertextbox"/>
+                        <input type="text" id="PassMaxLength" name="PassMaxLength" class="usertextbox" validate_as="posint" />
                         </td>
                     </tr>
                     <tr>
                         <td class="row_even"> Password Minimum Length </td>
                         <td class="row_even">
-                        <input type="text" id="PassMinLength" name="PassMinLength" class="usertextbox" />
+                        <input type="text" id="PassMinLength" name="PassMinLength" class="usertextbox" validate_as="posint" />
                         </td>
                     </tr>
                     <tr>
@@ -52,13 +52,13 @@ $var cssfiles:
                     <tr>
                         <td class="row_even"> Password Age Warning Days </td>
                         <td class="row_even">
-                        <input type="text" id="PassAgeWarn" name="PassAgeWarn" class="usertextbox" />
+                        <input type="text" id="PassAgeWarn" name="PassAgeWarn" class="usertextbox" validate_as="posint" />
                         </td>
                     </tr>
                     <tr>
                         <td class="row_odd"> Password History </td>
                         <td class="row_odd">
-                        <input type="text" id="PasswordHistory" name="PasswordHistory" class="usertextbox" />
+                        <input type="text" id="PasswordHistory" name="PasswordHistory" class="usertextbox" validate_as="posint" />
                         </td>
                     </tr>
                     <tr>
@@ -70,7 +70,7 @@ $var cssfiles:
                     <tr>
                         <td class="row_odd"> Auto Lock Reset </td>
                         <td class="row_odd">
-                        <input type="text" id="AutoLockReset" name="AutoLockReset" class="usertextbox" />
+                        <input type="text" id="AutoLockReset" name="AutoLockReset" class="usertextbox" validate_as="posint" />
                         </td>
                     </tr>
                     <tr>
@@ -126,14 +126,14 @@ $var cssfiles:
                     <tr>
                         <td class="row_even"> Loop Delay (seconds) </td>
                         <td class="row_even">
-                        <input type="text" id="LoopDelay" name="LoopDelay" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+                        <input type="text" id="LoopDelay" name="LoopDelay" validate_as="posint"
                         class="usertextbox" MaxLength="5" />
                         </td>
                     </tr>
                     <tr>
                         <td class="row_odd"> Concurrent Instances </td>
                         <td class="row_odd">
-                        <input type="text" id="MaxProcesses" name="MaxProcesses" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+                        <input type="text" id="MaxProcesses" name="MaxProcesses" validate_as="posint"
                         class="usertextbox" MaxLength="5" />
                         </td>
                     </tr>
@@ -160,28 +160,28 @@ $var cssfiles:
                     <tr>
                         <td class="row_even"> Loop Delay (seconds) </td>
                         <td class="row_even">
-                        <input type="text" id="LoopDelay" name="LoopDelay" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+                        <input type="text" id="LoopDelay" name="LoopDelay" validate_as="posint"
                         class="usertextbox" MaxLength="5" />
                         </td>
                     </tr>
                     <tr>
                         <td class="row_odd"> Schedule Minimum Depth </td>
                         <td class="row_odd">
-                        <input type="text" id="ScheduleMinDepth" name="ScheduleMinDepth" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+                        <input type="text" id="ScheduleMinDepth" name="ScheduleMinDepth" validate_as="posint"
                         class="usertextbox" MaxLength="5" />
                         </td>
                     </tr>
                     <tr>
                         <td class="row_even"> Schedule Max Days </td>
                         <td class="row_even">
-                        <input type="text" id="ScheduleMaxDays" name="ScheduleMaxDays" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+                        <input type="text" id="ScheduleMaxDays" name="ScheduleMaxDays" validate_as="posint"
                         class="usertextbox" MaxLength="5" />
                         </td>
                     </tr>
                     <tr>
                         <td class="row_odd"> Clean App Registry (minutes) </td>
                         <td class="row_odd">
-                        <input type="text" id="CleanAppRegistry" name="CleanAppRegistry" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+                        <input type="text" id="CleanAppRegistry" name="CleanAppRegistry" validate_as="posint"
                         class="usertextbox" MaxLength="5" />
                         </td>
                     </tr>
@@ -207,19 +207,19 @@ $var cssfiles:
                     <tr>
                         <td class="row_odd"> Poll Loop </td>
                         <td class="row_odd">
-                        <input type="text" id="PollLoop" name="PollLoop" class="usertextbox" MaxLength="5" />
+                        <input type="text" id="PollLoop" name="PollLoop" class="usertextbox" MaxLength="5" validate_as="posint" />
                         </td>
                     </tr>
                     <tr>
                         <td class="row_even"> Retry Delay </td>
                         <td class="row_even">
-                        <input type="text" id="RetryDelay" name="RetryDelay" class="usertextbox" MaxLength="5" onkeypress="Javascript:return restrictEntryToNumber(event, this);" />
+                        <input type="text" id="RetryDelay" name="RetryDelay" class="usertextbox" MaxLength="5" validate_as="posint" />
                         </td>
                     </tr>
                     <tr>
                         <td class="row_odd"> Retry Max Attempts </td>
                         <td class="row_odd">
-                        <input type="text" id="RetryMaxAttempts" name="RetryMaxAttempts" class="usertextbox" MaxLength="5" onkeypress="Javascript:return restrictEntryToNumber(event, this);" />
+                        <input type="text" id="RetryMaxAttempts" name="RetryMaxAttempts" class="usertextbox" MaxLength="5" validate_as="posint" />
                         </td>
                     </tr>
                     <tr>
@@ -249,7 +249,7 @@ $var cssfiles:
                     <tr>
                         <td class="row_even"> SMTP Server Port </td>
                         <td class="row_even">
-                        <input type="text" id="SMTPServerPort" name="SMTPServerPort" class="usertextbox" MaxLength="5" onkeypress="Javascript:return restrictEntryToNumber(event, this);" />
+                        <input type="text" id="SMTPServerPort" name="SMTPServerPort" class="usertextbox" MaxLength="5" validate_as="posint" />
                         </td>
                     </tr>
                     <tr>
@@ -261,7 +261,7 @@ $var cssfiles:
                     <tr>
                         <td class="row_even"> SMTP Connection Timeout </td>
                         <td class="row_even">
-                        <input type="text" id="SMTPConnectionTimeout" name="SMTPConnectionTimeout" class="usertextbox" MaxLength="5" onkeypress="Javascript:return restrictEntryToNumber(event, this);"  />
+                        <input type="text" id="SMTPConnectionTimeout" name="SMTPConnectionTimeout" class="usertextbox" MaxLength="5" validate_as="posint"  />
                         </td>
                     </tr>
                     <tr>
@@ -334,14 +334,14 @@ $var cssfiles:
                     <tr>
                         <td class="row_even"> Loop Delay (seconds) </td>
                         <td class="row_even">
-                        <input type="text" id="LoopDelay" name="LoopDelay" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+                        <input type="text" id="LoopDelay" name="LoopDelay" validate_as="posint"
                         class="usertextbox" MaxLength="5" />
                         </td>
                     </tr>
                     <tr>
                         <td class="row_odd"> Debug </td>
                         <td class="row_odd">
-                        <input type="text" id="Debug" name="Debug" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+                        <input type="text" id="Debug" name="Debug" validate_as="posint"
                         class="usertextbox" MaxLength="5" />
                         </td>
                     </tr>
@@ -368,21 +368,21 @@ $var cssfiles:
                     <tr>
                         <td class="row_even"> Loop Delay (seconds) </td>
                         <td class="row_even">
-                        <input type="text" id="LoopDelay" name="LoopDelay" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+                        <input type="text" id="LoopDelay" name="LoopDelay" validate_as="posint"
                         class="usertextbox" MaxLength="5" />
                         </td>
                     </tr>
                     <tr>
                         <td class="row_odd"> Schedule Minimum Depth </td>
                         <td class="row_odd">
-                        <input type="text" id="ScheduleMinDepth" name="ScheduleMinDepth" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+                        <input type="text" id="ScheduleMinDepth" name="ScheduleMinDepth" validate_as="posint"
                         class="usertextbox" MaxLength="5" />
                         </td>
                     </tr>
                     <tr>
                         <td class="row_even"> Schedule Max Days </td>
                         <td class="row_even">
-                        <input type="text" id="ScheduleMaxDays" name="ScheduleMaxDays" onkeypress="Javascript:return restrictEntryToNumber(event, this);"
+                        <input type="text" id="ScheduleMaxDays" name="ScheduleMaxDays" validate_as="posint"
                         class="usertextbox" MaxLength="5" />
                         </td>
                     </tr>
