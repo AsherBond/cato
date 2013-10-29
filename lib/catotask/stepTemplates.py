@@ -2449,6 +2449,7 @@ def SetVariable(oStep):
         sHTML += "  <option " + SetOption("FROM_JSON", sMod) + " value=\"FROM_JSON\">Read JSON</option>\n"
         sHTML += "  <option " + SetOption("EVAL", sMod) + " value=\"EVAL\">Evaluate</option>\n"
         sHTML += "  <option " + SetOption("Math", sMod) + " value=\"Math\">Math</option>\n"
+        sHTML += "  <option " + SetOption("NO_SUBST", sMod) + " value=\"NO_SUBST\">No Substitution</option>\n"
         sHTML += "</select></td>\n"
 
         sHTML += "<td class=\"w1pct\">"

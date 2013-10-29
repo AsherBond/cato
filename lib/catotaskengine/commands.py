@@ -965,19 +965,21 @@ def set_variable_cmd(self, task, step):
     for var in variables:
         name, value, modifier = var[:]
         name = self.replace_variables(name)
-        value = self.replace_variables(value)
         if "," in name:
             name, index = name.split(",", 2)
             index = int(index)
         else:
             index = None
-        # FIXUP - need to do modifers logic here
+
         self.logger.info("Setting variable [%s] to [%s]..." % (name, value))
 
         if modifier:
             self.logger.info("... using modifier [%s]..." % (modifier))
+
+        if modifier != "NO_SUBST":
+            value = self.replace_variables(value)
             
-        if modifier == "Math":
+        if modifier in ("Math", "MATH"):
             value = self.math.eval_expr(value)
         elif modifier == "TO_UPPER":
             value = value.upper()
