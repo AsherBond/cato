@@ -65,6 +65,8 @@ curl -Lk --output /tmp/cato-$RELEASE.tar.gz https://github.com/cloudsidekick/cat
 echo "Updating..."
 tar -xvzf /tmp/cato-$RELEASE.tar.gz -C $CATO_HOME --strip-components=1
 
+sudo pip install -r $CATO_HOME/requirements.txt
+
 if [ "$DBROOTUID" != "" ] && [ "$DBROOTPWD" != "" ]; then
 	echo "Updating the Database..."
 	$CATO_HOME/updatedb.py -u$DBROOTUID -p$DBROOTPWD
