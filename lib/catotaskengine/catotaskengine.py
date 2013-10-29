@@ -24,7 +24,7 @@ import traceback
 import time
 import re
 import pwd
-import importlib                   
+#import importlib                   
 import pexpect
 import json
 from jsonpath import jsonpath
@@ -1366,7 +1366,8 @@ class TaskEngine():
         
         self.logger.info("loading extension [%s] ..." % (extension))
         try:
-            mod = importlib.import_module(extension)
+            #mod = importlib.import_module(extension)
+            mod = __import__(extension, fromlist=[''])
         except ImportError as ex:
             self.logger.error(ex.__str__())
             msg = "Extension module [%s] does not exist." % (extension)
@@ -1894,7 +1895,8 @@ class TaskEngine():
         
         self.logger.info("... augmenting from [%s] ..." % modname)
         try:
-            mod = importlib.import_module(modname)
+            #mod = importlib.import_module(modname)
+            mod = __import__(modname, fromlist=[''])
         except ImportError as ex:
             raise ex
 
