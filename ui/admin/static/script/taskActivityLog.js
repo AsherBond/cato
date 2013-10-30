@@ -39,7 +39,7 @@ function GetItems() {
 		});
 
 		$(".task_edit_btn").click(function(event) {
-			event.stopPropagation()
+			event.stopPropagation();
 			location.href = 'taskEdit?task_id=' + $(this).attr("task_id");
 		});
 
