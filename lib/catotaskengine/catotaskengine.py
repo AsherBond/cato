@@ -1728,30 +1728,30 @@ class TaskEngine():
         
         
     def parse_input_params(self, params):
-
-        try:
-            root = catocommon.ET.fromstring(params)
-            nodes = root.findall("./parameter")
-            for node in nodes:
-                name = node.findtext("name", "").strip()
-
-                encrypt = node.attrib.get("encrypt")
-                if encrypt and encrypt == "true":
-                    encrypt_flag = True
-                else:
-                    encrypt_flag = False
-
-                v_nodes = node.findall("./values/value")
-                ii = 0
-                for v_node in v_nodes:
-                    ii += 1
-                    val = v_node.text.strip() if v_node.text is not None else ""
-                    if encrypt_flag:
-                        val = catocommon.cato_decrypt(val)
-                    self.rt.set(name, val, ii)
-            del(root)
-        except catocommon.ET.ParseError:
-            raise Exception("Invalid or missing XML for parameters.")
+        if params:
+            try:
+                root = catocommon.ET.fromstring(params)
+                nodes = root.findall("./parameter")
+                for node in nodes:
+                    name = node.findtext("name", "").strip()
+    
+                    encrypt = node.attrib.get("encrypt")
+                    if encrypt and encrypt == "true":
+                        encrypt_flag = True
+                    else:
+                        encrypt_flag = False
+    
+                    v_nodes = node.findall("./values/value")
+                    ii = 0
+                    for v_node in v_nodes:
+                        ii += 1
+                        val = v_node.text.strip() if v_node.text is not None else ""
+                        if encrypt_flag:
+                            val = catocommon.cato_decrypt(val)
+                        self.rt.set(name, val, ii)
+                del(root)
+            except catocommon.ET.ParseError:
+                raise Exception("Invalid Parameter XML.")
 
     def send_email(self, to, sub, body, cc=None, bcc=None):
 
