@@ -43,7 +43,8 @@ class Tasks(object):
                         or t.task_name like '%%{0}%%'
                         or t.task_code like '%%{0}%%'
                         or t.task_desc like '%%{0}%%'
-                        or t.task_status like '%%{0}%%')""".format(term)
+                        or t.task_status like '%%{0}%%'
+                        or ot.tag_name like '%%{0}%%')""".format(term)
 
         if show_all_versions:
             sSQL = """select 
