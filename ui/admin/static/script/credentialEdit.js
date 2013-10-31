@@ -103,6 +103,7 @@ function LoadEditDialog(editID) {
 			$("#txtPrivateKey").val("********");
 			$("#edit_dialog_tabs").tabs("option", "active", 1);
 		} else {
+			$("#txtPrivateKey").val("");
 			$("#edit_dialog_tabs").tabs("option", "active", 0);
 		}
 

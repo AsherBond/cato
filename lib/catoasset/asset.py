@@ -353,7 +353,7 @@ class Credentials(object):
             username as Username, 
             domain as Domain, 
             shared_cred_desc as Description,
-            case when private_key is not null then 'Private Key' else 'User' end as Type
+            case when ifnull(private_key, '') <> '' then 'Private Key' else 'User' end as Type
             from asset_credential
             where shared_or_local = 0 %s order by credential_name""" % sWhereString
 
@@ -395,7 +395,7 @@ class Credential(object):
     def FromID(self, credential_id):
         db = catocommon.new_conn()
         sSQL = """select credential_id, credential_name, username, domain, shared_cred_desc, shared_or_local,
-            case when private_key is not null then 'Private Key' else 'User' end as type
+            case when ifnull(private_key, '') <> '' then 'Private Key' else 'User' end as type
             from asset_credential
             where credential_id = %s"""
 
@@ -492,7 +492,7 @@ class Credential(object):
     
         # same for private key, but a different rule since it's a textarea
         sPKUpdate = ""
-        if self.PrivateKey and self.PrivateKey != "********":
+        if self.PrivateKey != "********":
             sPKUpdate = ", private_key = '" + catocommon.cato_encrypt(self.PrivateKey) + "'"
     
         sSQL = """update asset_credential set
