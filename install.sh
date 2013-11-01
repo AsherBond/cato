@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -e
 
 #########################################################################
 # Copyright 2011 Cloud Sidekick
@@ -26,11 +26,36 @@ set -ex
 ### This version of the script has been testing on Ubuntu Precise.
 ### It should work on Ubuntu Hardy forward.  
 
+function usage_and_exit()
+{
+    echo "USAGE:"
+    echo "$0 -h <host address>"
+    echo -e "\t-? show this help"
+    exit
+}
+
+while getopts h:? flag
+do
+    case $flag in
+        h)
+            HOSTADDRESS=$OPTARG;;
+        ?)
+            usage_and_exit;;
+    esac
+
+done
+
+if [[ -z "$CATO_HOST" ]];
+then
+    echo "missing a required parameter -h"
+    usage_and_exit
+fi
+
+echo "Using Host Address $CATO_HOST"
+
+set -ex
 
 # customize the following values to suit your needs
-
-# the network hostname where these services can be reached, for example 'csk.mycompany.com'
-CATO_HOST="localhost"
 
 # cato target directory
 CATO_HOME=`pwd`
