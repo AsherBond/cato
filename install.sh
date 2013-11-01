@@ -47,7 +47,7 @@ done
 
 if [[ -z "$CATO_HOST" ]];
 then
-    echo "missing a required parameter -h"
+    echo "missing a required parameter host address"
     usage_and_exit
 fi
 
