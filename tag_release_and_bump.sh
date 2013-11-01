@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -x
 
 ## this script is to be run in a local git repo only
 
@@ -24,4 +25,4 @@ git commit -m "Bumped Version to [$version]."
 git push
 git tag -a latest -m "Version $version"
 git tag -a $version -m "Version $version"
-git push --tags
+git push --tags --force
