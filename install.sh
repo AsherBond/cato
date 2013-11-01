@@ -38,7 +38,7 @@ while getopts h:? flag
 do
     case $flag in
         h)
-            HOSTADDRESS=$OPTARG;;
+            CATO_HOST=$OPTARG;;
         ?)
             usage_and_exit;;
     esac
