@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <!--
 //Copyright 2012 Cloud Sidekick
-// 
+//
 //Licensed under the Apache License, Version 2.0 (the "License");
 //you may not use this file except in compliance with the License.
 //You may obtain a copy of the License at
-// 
+//
 //    http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 //Unless required by applicable law or agreed to in writing, software
 //distributed under the License is distributed on an "AS IS" BASIS,
 //WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,28 +39,32 @@
                     <div id="loginbox">
                         <span id="lblMessage"></span>
                         <div id="pnlLogin">
-                            <table style="width: 100%;">
-                                <tr>
-                                    <td> Username: </td>
-                                    <td>
-                                    <input type="text" id="username" name="username" class="loginfield" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td> Password: </td>
-                                    <td>
-                                    <input type="password" id="password" name="password" class="loginfield" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="text-align: center;" colspan="2"><span id="attempt_login_btn">Login</span></td>
-                                </tr>
-                            </table>
+                            <form id="login_form" method="get" action="/home">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td> Username: </td>
+                                        <td>
+                                        <input type="text" id="username" name="username" class="loginfield" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td> Password: </td>
+                                        <td>
+                                        <input type="password" id="password" name="password" class="loginfield" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center;" colspan="2"><span id="attempt_login_btn">Login</span></td>
+                                    </tr>
+                                </table>
+                            </form>
                             <div>
                                 <a id="forgot_password_btn" class="pointer">Forgot password? <img src="images/icons/password.png" alt="" style="vertical-align: middle;" /> </a>
                             </div>
                         </div>
-                        <div style="font-weight: normal; font-size: 0.9em; margin-top: 10px; text-align: center;">By using Cato, you agree to the <a style="color: #FFFFFF;" target="_blank" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Terms and Conditions</a>.</div>
+                        <div style="font-weight: normal; font-size: 0.9em; margin-top: 10px; text-align: center;">
+                            By using Cato, you agree to the <a style="color: #FFFFFF;" target="_blank" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Terms and Conditions</a>.
+                        </div>
                         <div id="app_version" style="font-weight: normal; font-size: 0.9em; margin-top: 10px; text-align: center;"></div>
                     </div>
                 </div>

@@ -226,7 +226,9 @@ function Login() {
 				}
 				if (response.result == "success") {
 					// TODO check for expiration warnings and let the user know.
-					location.href = "../home";
+					// posting the form does not auth... we are already authenticated.
+					// it DOES trigger different browser mechanisms for saving passwords.
+					$("#login_form").submit();
 				}
 			}
 		},

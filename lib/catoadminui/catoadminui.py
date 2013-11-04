@@ -111,9 +111,22 @@ class index:
     def GET(self):
         return render.home()
 
-class home:        
+class home:
+    """
+    We have a POST handler here, because the login screen does a post after auth...
+        (this is so browsers will offer to remember passwords, even tho our auth is ajax.)
+    
+    But, when we get a POST, we do a redirect!  Why?  So refreshed of the /home page
+        won't nag about "are you sure you wanna resubmit this form.)
+        
+    Why not do a GET login form?  Doh! The credentials would be on the querystring = bad.
+    """  
     def GET(self):
         return render.home()
+
+    def POST(self):
+        raise web.seeother('/home')
+
 
 class notAllowed:        
     def GET(self):
