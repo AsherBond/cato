@@ -116,7 +116,7 @@ function registerCato() {
 	updateSetting("general", "register_cato", "registered");
 
 	//open the form
-	openWindow('http://community.cloudsidekick.com/register-cato?utm_source=cato_app&amp;utm_medium=menu&amp;utm_campaign=app', 'ask', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');
+	openWindow('http://cato.cloudsidekick.com/register-cato.html?utm_source=cato_app&amp;utm_medium=menu&amp;utm_campaign=app', 'register', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');
 
 	//this might not be visible, but try to remove it anyway.
 	$("#registercato").remove();
