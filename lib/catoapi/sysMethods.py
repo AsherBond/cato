@@ -754,6 +754,14 @@ class sysMethods:
             object_type - The numeric type of the object.
             
         Returns: Success message successful, error message on failure.
+        
+        Valid and currently implemented `object_type` values are:
+            User = 1
+            Asset = 2
+            Task = 3
+            CanvasItem = 50
+            Deployment = 70
+            DeploymentTemplate = 71
         """
         # this is a admin function
         if not api._ADMIN:
