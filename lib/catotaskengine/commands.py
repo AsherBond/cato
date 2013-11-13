@@ -1388,7 +1388,7 @@ def cato_web_service_cmd(self, task, step):
     
 
     if not len(host):
-        url = catoconfig.CONFIG["rest_api_url"]
+        host = catoconfig.CONFIG["rest_api_url"]
 
     if not len(method):
         raise Exception("Cato Web Service Call command requires Method value")
