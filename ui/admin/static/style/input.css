@@ -8,9 +8,10 @@
 
 input
 {
-	padding: 2px 4px 2px 2px;
+	padding: 2px 4px 2px 4px;
 	margin: 6px 0px 6px 0px;
 	border: solid 1px #C5DBEC;
+	border-radius: 5px;
 	line-height: normal;
 	font-size-adjust: none;
 	font-stretch: normal;
@@ -22,6 +23,7 @@ textarea
 	padding: 2px 2px 2px 2px;
 	margin: 2px 2px 2px 0px;
 	border: solid 1px #C5DBEC;
+	border-radius: 5px;
 	font-style: normal;
 	font-variant: normal;
 	font-weight: normal;
@@ -51,6 +53,7 @@ input[type="checkbox"]
 	border: none;
 	width: 15px;
 	line-height: 36px;
+	border-radius: 5px;
 }
 
 select
