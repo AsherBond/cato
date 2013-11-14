@@ -1411,6 +1411,7 @@ class taskMethods:
         return self.GetObjectParameterXML(sType, sID, sFilterID)
 
     def GetObjectParameterXML(self, sType, sID, sFilterID, sXPath=""):
+        sParameterXML = ""
         if sType == "runtask":
             # run task needs xpath to find the xml in step function xml
 
@@ -1420,9 +1421,14 @@ class taskMethods:
             func_xml = self.db.select_col(sSQL)
                 
             xroot = catocommon.ET.fromstring(func_xml)
-            prefix = "%s/" if sXPath else ""
-            xparams = xroot.find("%sparameters" % prefix)
-            sParameterXML = catocommon.ET.tostring(xparams)
+            
+            xp = "parameters"
+            if sXPath:
+                xp = "%s/%s" % (sXPath, xp)
+
+            xparams = xroot.find(xp)
+            if xparams is not None:
+                sParameterXML = catocommon.ET.tostring(xparams)
 
         else:
             # other types can select it directly from their repspective tables
