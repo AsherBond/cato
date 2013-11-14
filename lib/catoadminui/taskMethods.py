@@ -2569,19 +2569,17 @@ class taskMethods:
         sTaskID = uiCommon.getAjaxArg("sTaskID")
 
         if catocommon.is_guid(sTaskID):
-            sSQL = "select conn_name from (" \
-                "select distinct ExtractValue(function_xml, '//conn_name[1]') as conn_name" \
-                " from task_step" \
-                    " where function_name = 'new_connection'" \
-                    " and task_id = '" + sTaskID + "'" \
-                    " ) foo" \
-                " where ifnull(conn_name,'') <> ''" \
-                " order by conn_name"
+            sSQL = """select conn_name from (
+                select distinct ExtractValue(function_xml, '//conn_name') as conn_name
+                from task_step
+                    where task_id = %s
+                    ) foo
+                where ifnull(conn_name,'') <> ''
+                order by conn_name"""
 
-            dt = self.db.select_all_dict(sSQL)
+            dt = self.db.select_all_dict(sSQL, sTaskID)
 
             sHTML = ""
-
             if dt:
                 for dr in dt:
                     sHTML += "<div class=\"ui-widget-content ui-corner-all value_picker_value\">" + dr["conn_name"] + "</div>"
