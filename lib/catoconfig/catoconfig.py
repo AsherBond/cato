@@ -90,8 +90,8 @@ def read_config():
     cfg["dash_api_debug"] = "20"
     cfg["dash_api_use_ssl"] = "false"
     cfg["dash_api_tmpdir"] = "/tmp"
-    cfg["dash_api_post_index"] = "canvas/index/index-post.layout"
-    cfg["dash_api_get_index"] = "canvas/index/index-get.layout"
+    cfg["dash_api_post_index"] = "canvas/home/home-post.layout"
+    cfg["dash_api_get_index"] = "canvas/home/home.layout"
     
     cfg["newsfeed_api_hostname"] = "localhost"
     cfg["newsfeed_api_port"] = "4004"
