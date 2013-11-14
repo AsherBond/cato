@@ -98,123 +98,123 @@ function DrawParameterEditForm(parameter_xml) {
 				}
 			}
 			
-            //well, we basically show it unless prompt is false
-            if (prompt != "false") {
-                //show the required one slightly different
-                var required_class = (required == "true" ? "task_launch_parameter_required" : "");
+			//if prompt is false we will be adding the 'hidden' class to the parameter
+			var hidden_prompt = (prompt === "false") ? " hidden" : "";
 
-                output += "<div id=\"tlp" + parameter_id + "\" class=\"task_launch_parameter " + required_class + "\" param_name=\"" + parameter_name + "\" present_as=\"" + present_as + "\"" + encryptattr + ">";
-                var label = (parameter_desc) ? parameter_desc : parameter_name;
-                output += "<div class=\"task_launch_parameter_name\">" + label + "</div>";
+			//show the required one slightly different
+			var required_class = (required === "true" ? " task_launch_parameter_required" : "");
 
-                //don't show tooltip icons for empty descriptions
-                if (parameter_desc > "") {
-                    output += "<div class=\"task_launch_parameter_icons\">" +
-                    "<span class=\"floatright ui-icon ui-icon-info parameter_help_btn\" title=\"" + parameter_desc + "\"></span>" +
-                    "</div>";
-				}
-				
-                //values
-                //if "present_as" is missing or invalid, default to a single "value"
-                if (present_as == "dropdown") {
-                    output += "<br />Select One: <select class=\"task_launch_parameter_value_input\">";
+            output += "<div id=\"tlp" + parameter_id + "\" class=\"task_launch_parameter" + required_class + hidden_prompt + "\" param_name=\"" + parameter_name + "\" present_as=\"" + present_as + "\"" + encryptattr + ">";
+            var label = (parameter_desc) ? parameter_desc : parameter_name;
+            output += "<div class=\"task_launch_parameter_name\">" + label + "</div>";
 
-                    $($values).each(function (vidx, v) {
-                        var is_selected = $(v).attr("selected");
-                        var selected = (is_selected == "true" ? "selected=\"selected\"" : "");
+            //don't show tooltip icons for empty descriptions
+            if (parameter_desc > "") {
+                output += "<div class=\"task_launch_parameter_icons\">" +
+                "<span class=\"floatright ui-icon ui-icon-info parameter_help_btn\" title=\"" + parameter_desc + "\"></span>" +
+                "</div>";
+			}
+			
+            //values
+            //if "present_as" is missing or invalid, default to a single "value"
+            if (present_as == "dropdown") {
+                output += "<br />Select One: <select class=\"task_launch_parameter_value_input\">";
 
-                        output += "<option " + selected + ">" + $(v).text() + "</option>";
-                    });
+                $($values).each(function (vidx, v) {
+                    var is_selected = $(v).attr("selected");
+                    var selected = (is_selected == "true" ? "selected=\"selected\"" : "");
 
-                    output += "</select>";
-                }
-                else if (present_as == "list") {
-                    $($values).each(function (vidx, v) {
-						var attr = "";
-		
-                        output += "<div class=\"task_launch_parameter_value\">";
+                    output += "<option " + selected + ">" + $(v).text() + "</option>";
+                });
 
-	                    if (encrypt) {
-	                    	//what's the oev?
-				            if ($(v).attr("oev") != null)
-			            		attr = "oev=\"" + $(v).attr("oev") + "\"";
-                        }
-
-                    	//the actual textarea
-                    	//don't break it to multiple lines or it adds spaces!
-						output += "<textarea id=\"v_" + uniq++ + "\" class=\"task_launch_parameter_value_input\" rows=\"1\" " + attr + ">" + $(v).text() + "</textarea>";
-
-                                                                                                                                                
-                        //don't draw the 'x' on the first value... make at least one value required.
-                        if (vidx > 0) {
-                            output += "<span class=\"floatright ui-icon ui-icon-trash parameter_dialog_remove_btn\" title=\"Remove Value\"></span>";
-                        }
-
-                        output += "</div>";
-                    });
-
-                    //draw an add link.
-                    output += "<div class=\"parameter_dialog_add_btn pointer\" add_to=\"" + parameter_id + "\"><span class=\"ui-icon ui-icon-plus forceinline\"></span>( click to add another value )</div>";
-                }
-                else {
-                    //if there happen to be more than one defined somehow... too bad.  Just show the first one
-                    $($values).each(function (vidx, v) {
-                        //break out after the first one
-                        if (vidx > 0)
-                            return false;
-
-                        var attribs = "";
-                        
-                        output += "<div class=\"task_launch_parameter_value\">";
-
-	                    //if it's "encrypt", draw a hidden field, and flag the entry one for input masking
-	                    //NOTE: any value here will be encrypted because it came from the database.
-	                    
-	                    //MORE IMPORTANT NOTE: if the value is changed by the user, it will NOT be encrypted any more
-	                    //see the document.ready for the binding of the change event that sets a dirty flag in this case.
-	                    
-	                    if (encrypt) {
-	                    	//what's the oev?
-				            if ($(v).attr("oev") != null)
-			            		attribs = "oev=\"" + $(v).attr("oev") + "\"";
-
-	                    	
-            				//TODO: PARAMS: hidden field/masking crap
-	                    	//ALL THIS IS A GOOD IDEA... just will take hours of tinkering to get it right.
-	                    	
-	                    	//give the main textarea the "encunderlay" class
-	                    	/*
-	                    	var stars = "";
-							var ln = $(v).text().length;
-							for (i=0;i<=ln;i++) 
-							{
-								stars += "*";
-							}
-
-	                    	//and this covering div lies over it
-	                    	output += "<textarea class=\"encoverlay\">" + stars + "</textarea>";
-	                    	*/
-                    	}
-	                    
-	                    //the parameter has some extra field level validations such as lengths, type and a regex constraint
-	                    //they are enforced in the client, but we have to pass the attributes along here.
-                    	attribs += (minlength ?  ' minlength="' + minlength + '"' : '');
-                    	attribs += (maxlength ? ' maxlength="' + maxlength + '"' : '');
-                    	attribs += (minvalue ? ' minvalue="' + minvalue + '"' : '');
-                    	attribs += (maxvalue ? ' maxvalue="' + maxvalue + '"' : '');
-                    	attribs += (constraint ? ' constraint="' + constraint + '"' : '');
-                    	attribs += (constraint_msg ? ' constraint_msg="' + constraint_msg + '"' : '');
-
-	                    
-                    	//the actual textarea
-						output += "<textarea id=\"v_" + uniq++ + "\" class=\"task_launch_parameter_value_input\" rows=\"1\" " + attribs + ">" + $(v).text() + "</textarea>";
-
-                        output += "</div>";
-                    });
-                }
-
-                output += "</div>";
+                output += "</select>";
             }
+            else if (present_as == "list") {
+                $($values).each(function (vidx, v) {
+					var attr = "";
+	
+                    output += "<div class=\"task_launch_parameter_value\">";
+
+                    if (encrypt) {
+                    	//what's the oev?
+			            if ($(v).attr("oev") != null)
+		            		attr = "oev=\"" + $(v).attr("oev") + "\"";
+                    }
+
+                	//the actual textarea
+                	//don't break it to multiple lines or it adds spaces!
+					output += "<textarea id=\"v_" + uniq++ + "\" class=\"task_launch_parameter_value_input\" rows=\"1\" " + attr + ">" + $(v).text() + "</textarea>";
+
+                                                                                                                                            
+                    //don't draw the 'x' on the first value... make at least one value required.
+                    if (vidx > 0) {
+                        output += "<span class=\"floatright ui-icon ui-icon-trash parameter_dialog_remove_btn\" title=\"Remove Value\"></span>";
+                    }
+
+                    output += "</div>";
+                });
+
+                //draw an add link.
+                output += "<div class=\"parameter_dialog_add_btn pointer\" add_to=\"" + parameter_id + "\"><span class=\"ui-icon ui-icon-plus forceinline\"></span>( click to add another value )</div>";
+            }
+            else {
+                //if there happen to be more than one defined somehow... too bad.  Just show the first one
+                $($values).each(function (vidx, v) {
+                    //break out after the first one
+                    if (vidx > 0)
+                        return false;
+
+                    var attribs = "";
+                    
+                    output += "<div class=\"task_launch_parameter_value\">";
+
+                    //if it's "encrypt", draw a hidden field, and flag the entry one for input masking
+                    //NOTE: any value here will be encrypted because it came from the database.
+                    
+                    //MORE IMPORTANT NOTE: if the value is changed by the user, it will NOT be encrypted any more
+                    //see the document.ready for the binding of the change event that sets a dirty flag in this case.
+                    
+                    if (encrypt) {
+                    	//what's the oev?
+			            if ($(v).attr("oev") != null)
+		            		attribs = "oev=\"" + $(v).attr("oev") + "\"";
+
+                    	
+        				//TODO: PARAMS: hidden field/masking crap
+                    	//ALL THIS IS A GOOD IDEA... just will take hours of tinkering to get it right.
+                    	
+                    	//give the main textarea the "encunderlay" class
+                    	/*
+                    	var stars = "";
+						var ln = $(v).text().length;
+						for (i=0;i<=ln;i++) 
+						{
+							stars += "*";
+						}
+
+                    	//and this covering div lies over it
+                    	output += "<textarea class=\"encoverlay\">" + stars + "</textarea>";
+                    	*/
+                	}
+                    
+                    //the parameter has some extra field level validations such as lengths, type and a regex constraint
+                    //they are enforced in the client, but we have to pass the attributes along here.
+                	attribs += (minlength ?  ' minlength="' + minlength + '"' : '');
+                	attribs += (maxlength ? ' maxlength="' + maxlength + '"' : '');
+                	attribs += (minvalue ? ' minvalue="' + minvalue + '"' : '');
+                	attribs += (maxvalue ? ' maxvalue="' + maxvalue + '"' : '');
+                	attribs += (constraint ? ' constraint="' + constraint + '"' : '');
+                	attribs += (constraint_msg ? ' constraint_msg="' + constraint_msg + '"' : '');
+
+                    
+                	//the actual textarea
+					output += "<textarea id=\"v_" + uniq++ + "\" class=\"task_launch_parameter_value_input\" rows=\"1\" " + attribs + ">" + $(v).text() + "</textarea>";
+
+                    output += "</div>";
+                });
+            }
+
+            output += "</div>";
         }
     });
 
