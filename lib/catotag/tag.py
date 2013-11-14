@@ -147,12 +147,13 @@ class ObjectTags(list):
         sql = """select tag_name
             from object_tags
             where object_type = %s
-            and object_id = %s"""
+            and object_id = %s
+            order by tag_name"""
         
         rows = db.select_all(sql, (object_type, object_id))
         db.close()
         if rows:
-            list.__init__(self, [r[0] for r in rows])
+            list.__init__(self, list(rows))
 
     def AsJSON(self):
         return catocommon.ObjectOutput.IterableAsJSON(self)

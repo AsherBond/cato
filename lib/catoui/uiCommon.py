@@ -278,20 +278,40 @@ def SetSessionObject(key, obj, category=""):
     else:
         uiGlobals.session[key] = obj
     
-def FilterSetByTag(rows):
+def FilterSetByTag(set_to_filter):
+    """
+    Accepts input of a comma delimited string OR a list.
+    
+    Returns a subset of the input - only items that match the user's tags. 
+
     # if permissions checking is turned off, everything is allowed
+    """
+
     if catoconfig.CONFIG["ui_permissions"] == "false":
-        return rows
+        return set_to_filter
     
     if GetSessionUserRole() == "Administrator":
-        return rows
+        return set_to_filter
     else:
         tags = tag.ObjectTags(1, GetSessionUserID())
         filtered = []
-        if tags and rows:
-            for row in rows:
-                if set(tags) & set(row["Tags"].split(",") if row["Tags"] else []):
-                    filtered.append(row)
+        if tags and set_to_filter:
+            try:
+                for item in set_to_filter:
+                    s1 = set(tags)
+    
+                    # now, if the input isn't a list or csv, raise an exception
+                    s2 = []
+                    if isinstance(item["Tags"], list):
+                        s2 = set(item["Tags"])
+                    elif isinstance(item["Tags"], basestring):
+                        s2 = set(item["Tags"].split(","))
+
+                    if s1 and s2:
+                        filtered.append(item)
+            except Exception as ex:
+                    raise Exception("Unable to reconcile User/Object Tags - input isn't a valid list of Tags.\n%s" % ex.__str__())
+            
         return filtered
         
 def IsObjectAllowed(object_id, object_type):
