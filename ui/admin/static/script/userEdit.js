@@ -171,6 +171,8 @@ function ShowItemAdd() {
 
 	SetPasswordControls();
 
+	$("#cbNewUserForcePasswordChange").prop('checked', true);
+
 	$("#edit_dialog").dialog("open");
 
 	$("#txtUserLoginID").focus();
@@ -256,10 +258,8 @@ function SaveUserEdits() {
 		};
 	}
 
-	var sForcePasswordChange = '0';
-	if ($("#cbNewUserForcePasswordChange").is(':checked')) {
-		sForcePasswordChange = '1';
-	}
+	var sForcePasswordChange = ($("#cbNewUserForcePasswordChange").prop("checked") ? '1' : '0');
+
 	if (!$("#ddlUserRole").val()) {
 		bSave = false;
 		strValidationError += 'Role required.<br />';
@@ -353,7 +353,7 @@ function SaveNewUser() {
 	var strValidationError = '';
 
 	//some fields are fixed on a new user
-	var sForcePasswordChange = '1';
+	var sForcePasswordChange = ($("#cbNewUserForcePasswordChange").prop("checked") ? '1' : '0');
 
 	//some client side validation before we attempt to save the user
 	var sLoginID = $("#txtUserLoginID").val();
