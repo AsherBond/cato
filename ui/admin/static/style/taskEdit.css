@@ -112,7 +112,7 @@
 	color: #404040;
 	font-weight: bold;
 	height: 10px;
-	width: 200px;
+	min-width: 300px;
 	list-style-type: none;
 }
 .codeblock:hover {
