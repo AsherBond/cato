@@ -127,7 +127,7 @@
 				"roles": "all",
 				"label": "Report an Issue",
 				"icon": "static/images/icons/issue_24.png",
-				"onclick": "openWindow('http://cato.cloudsidekick.com/report-an-issue.html?utm_source=cato_app&utm_medium=menu&utm_campaign=app', 'report', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');"
+				"onclick": "reportAnIssue();"
 			}, {
 				"roles": "all",
 				"label": "Register Cato",

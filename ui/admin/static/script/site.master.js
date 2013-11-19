@@ -111,12 +111,22 @@ function getCloudAccounts() {
 	}
 }
 
+function reportAnIssue() {
+	var ver = g_config.version;
+	var exts = g_config.extensions.join(",");
+	var qs = "utm_source=cato_app&utm_medium=menu&utm_campaign=app&ver=" + ver + "&exts=" + exts;
+	openWindow('http://cato.cloudsidekick.com/report-an-issue.html?' + qs, 'report', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');	
+}
+
 function registerCato() {
 	//update the setting
 	updateSetting("general", "register_cato", "registered");
 
 	//open the form
-	openWindow('http://cato.cloudsidekick.com/register-cato.html?utm_source=cato_app&amp;utm_medium=menu&amp;utm_campaign=app', 'register', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');
+	var ver = g_config.version;
+	var exts = g_config.extensions.join(",");
+	var qs = "utm_source=cato_app&utm_medium=menu&utm_campaign=app&ver=" + ver + "&exts=" + exts;
+	openWindow('http://cato.cloudsidekick.com/register-cato.html?' + qs, 'register', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');
 
 	//this might not be visible, but try to remove it anyway.
 	$("#registercato").remove();

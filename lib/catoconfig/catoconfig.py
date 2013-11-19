@@ -190,7 +190,7 @@ def safe_config():
     cfg["version"] = CONFIG.get("version", "NOT SET")
     cfg["database"] = CONFIG.get("server", "Unknown")
     cfg["user_ui_enable_refresh"] = CONFIG["user_ui_enable_refresh"]
-
+    
     cfg["admin_ui_url"] = CONFIG["admin_ui_url"]
     cfg["user_ui_url"] = CONFIG["user_ui_url"]
     cfg["rest_api_url"] = CONFIG["rest_api_url"]
@@ -208,6 +208,10 @@ def safe_config():
     cfg["rest_api_protocol"] = "https" if CONFIG["rest_api_use_ssl"] == "true" else "http"
     cfg["dash_api_protocol"] = "https" if CONFIG["dash_api_use_ssl"] == "true" else "http"
     cfg["newsfeed_api_protocol"] = "https" if CONFIG["newsfeed_api_use_ssl"] == "true" else "http"
+
+    # "safe" config lists extensions, but not the path
+    cfg["extensions"] = [x for x in CONFIG["extensions"].iterkeys()]
+
 
     return cfg
 
