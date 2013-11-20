@@ -346,10 +346,7 @@ def delete_doc(doc):
 class Connection(pymongo.Connection):
     """ Cato mongodb client"""
 
-    def __init__(self, host, port, username=None, password=None):
-        #logger.debug('host: %s, port: %s, username: %s' % (host, port, username))
-        self.username = username
-        self.password = password
+    def __init__(self, host, port):
         pymongo.Connection.__init__(self, host, port)
         
     
