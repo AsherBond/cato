@@ -83,7 +83,7 @@ class TaskEngine():
 
         # the following errors tell us the connection to the db was severed
         # the first was is because of a pymysql bug, issued a pull request on 2013-11-21
-        self.connection_errors = ["global name 'EINTR' is not defined", "Connection reset by peer"]
+        self.connection_errors = ["Broken pipe", "Connection reset by peer", "global name 'EINTR' is not defined"]
 
         self.task_instance = task_instance
         
