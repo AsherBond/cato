@@ -116,6 +116,8 @@ class TaskEngine():
         self.http_response = -1
         self.sensitive = []
         self.sensitive_re = None
+        self.on_error = None
+        self.parameter_xml = None
 
     # ## internal methods here
 
@@ -1863,6 +1865,7 @@ class TaskEngine():
         sql = "select parameter_xml from task_instance_parameter where task_instance = %s"
         row = self.select_row(sql, (self.task_instance))
         if row:
+            self.parameter_xml = row[0]
             self.parse_input_params(row[0])
 
 
@@ -2005,6 +2008,13 @@ class TaskEngine():
             self.logger.error("augment_te module found, but doesn't contain __augment__()")
         
 
+    def create_one_like_me(self):
+
+        ti = catocommon.add_task_instance(task_id=self.task_id, user_id=self.submitted_by, debug_level=self.debug_level,
+            parameter_xml=self.parameter_xml, account_id=self.cloud_account,
+            plan_id=self.plan_id, schedule_id=self.schedule_id, submitted_by_instance=self.task_instance,
+            cloud_id=self.cloud_id, options=self.options)
+
 
     def end(self):
         self.db.close()
@@ -2033,4 +2043,8 @@ class TaskEngine():
             self.result_summary()
             self.release_all()
             self.notify_error(msg)
+            if self.on_error:
+                self.logger.critical("on error directive set, creating a new task based on this one")
+                self.create_one_like_me()
+    
             raise Exception(msg)
