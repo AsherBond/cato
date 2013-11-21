@@ -1026,7 +1026,10 @@ def set_variable_cmd(self, task, step):
             else:
                 self.rt.set(name, value, index)
 
-        self.rt.set(name, value, index)
+        if name == "_ON_ERROR" and value == "restart":
+            self.on_error = "restart"
+        else:
+            self.rt.set(name, value, index)
 
     
 def cancel_task_cmd(self, task, step):
