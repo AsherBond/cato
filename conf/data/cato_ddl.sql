@@ -332,6 +332,7 @@ CREATE TABLE `deployment_action` (
   `original_task_id` varchar(36) DEFAULT NULL,
   `task_version` decimal(18,3) DEFAULT NULL,
   `parameter_defaults` text,
+  `options` text,
   PRIMARY KEY (`action_id`),
   UNIQUE KEY `service_action` (`action_name`,`deployment_id`,`deployment_service_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

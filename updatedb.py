@@ -175,11 +175,12 @@ versions = [
                       ]
              ],
             ["1.22", [
-                      ["comment", "droptable", "poller_settings", "Consolidated"],
-                      ["comment", "droptable", "scheduler_settings", "Consolidated"],
-                      ["comment", "droptable", "marshaller_settings", "Consolidated"],
-                      ["comment", "droptable", "login_security_settings", "Consolidated"],
-                      ["comment", "droptable", "messenger_settings", "Consolidated"]
+                      ["droptable", "poller_settings", "Consolidated"],
+                      ["droptable", "scheduler_settings", "Consolidated"],
+                      ["droptable", "marshaller_settings", "Consolidated"],
+                      ["droptable", "login_security_settings", "Consolidated"],
+                      ["droptable", "messenger_settings", "Consolidated"],
+                      ["addcolumn", "deployment_action", "options", "TEXT NULL"]
                       ]
              ]
         ]
