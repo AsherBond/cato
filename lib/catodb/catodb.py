@@ -30,7 +30,7 @@ class Db(object):
                 user=user, passwd=password, db=database)
             self.conn.autocommit(1)
         except Exception as e:
-            raise e
+            raise Exception(e)
     
     def ping_db(self):
         self.conn.ping(True)
@@ -47,7 +47,7 @@ class Db(object):
             result = c.fetchall()
             c.close()
         except Exception as e:
-            raise e
+            raise Exception(e)
 
         if result:
             return result
@@ -67,7 +67,7 @@ class Db(object):
             result = c.fetchone()
             c.close()
         except Exception as e:
-            raise e
+            raise Exception(e)
 
         if result:
             return result
@@ -86,7 +86,7 @@ class Db(object):
             result = c.fetchone()
             c.close()
         except Exception as e:
-            raise e
+            raise Exception(e)
 
         if result:
             return result[0]
@@ -105,7 +105,7 @@ class Db(object):
             self.conn.commit()
             c.close()
         except Exception as e:
-            raise e
+            raise Exception(e)
 
         return True
 
@@ -120,7 +120,7 @@ class Db(object):
             c.execute(sql, params)
             c.close()
         except Exception as e:
-            raise e
+            raise Exception(e)
 
         return True
 
@@ -165,7 +165,7 @@ class Db(object):
             result = c.fetchall()
             c.close()
         except Exception as e:
-            raise e
+            raise Exception(e)
 
         if result:
             return result
@@ -185,7 +185,7 @@ class Db(object):
             result = c.fetchone()
             c.close()
         except Exception as e:
-            raise e
+            raise Exception(e)
 
         if result:
             return result
@@ -209,7 +209,7 @@ class Db(object):
             # we will discard any additional result sets
             self.conn.next_result()
         except Exception as e:
-            raise e
+            raise Exception(e)
 
         if result:
             return result
