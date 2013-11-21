@@ -81,6 +81,10 @@ class TaskEngine():
                       ("_SUMMARY", "summary")
                       ]
 
+        # the following errors tell us the connection to the db was severed
+        # the first was is because of a pymysql bug, issued a pull request on 2013-11-21
+        self.connection_errors = ["global name 'EINTR' is not defined", "Connection reset by peer"]
+
         self.task_instance = task_instance
         
         # tell catoconfig what the LOGFILE name is, then get a logger
@@ -487,7 +491,13 @@ class TaskEngine():
         if s and len(s) and s not in self.sensitive:
             self.sensitive.append(s)
             self.sensitive_re = re.compile("|".join(self.sensitive))
+
+    def keep_alive(self):
+        # a hack to keep the mysql connection from timing out 
+        #self.db.ping_db()
+        pass
     
+
     def insert_audit(self, command, log, conn=""):
 
             at = self.audit_trail_on
@@ -504,9 +514,10 @@ class TaskEngine():
                     (task_instance, step_id, entered_dt, connection_name, log, command_text) 
                     values 
                     (%s, %s, now(), %s, %s, %s)"""
-                self.db.exec_db(sql, (self.task_instance, step_id, conn, log.decode("utf8"), command))
+                self.exec_db(sql, (self.task_instance, step_id, conn, log.decode("utf8"), command))
 
                 self.logger.critical(log)
+
             if at == 1:
                 self.audit_trail_on = 0
 
@@ -596,12 +607,12 @@ class TaskEngine():
         
         self.logger.info("Registering connection in task conn log")
         sql = """insert into task_conn_log (task_instance, address, userid, conn_type, conn_dt) values (%s,%s,%s,%s,now())"""
-        self.db.exec_db(sql, (self.task_instance, address, userid, conn_type))
+        self.exec_db(sql, (self.task_instance, address, userid, conn_type))
 
     def get_cloud_name(self, cloud_id):
 
         sql = """select cloud_name from clouds where cloud_id = %s"""
-        row = self.db.select_row(sql, (cloud_id))
+        row = self.select_row(sql, (cloud_id))
         if row:
             return row[0]
         else:
@@ -611,7 +622,7 @@ class TaskEngine():
 
         sql = """select ca.default_cloud_id from cloud_account ca 
             where ca.account_id = %s"""
-        row = self.db.select_row(sql, (account_id))
+        row = self.select_row(sql, (account_id))
         if row:
             return row[0]
 
@@ -985,7 +996,7 @@ class TaskEngine():
 
         sql = """select private_key, passphrase from clouds_keypair ck, clouds c 
             where c.cloud_name = %s and ck.keypair_name = %s and c.cloud_id = ck.cloud_id"""
-        row = self.db.select_row(sql, (cloud, keyname))
+        row = self.select_row(sql, (cloud, keyname))
         return row
 
     def get_handle_var(self, var):
@@ -1064,7 +1075,7 @@ class TaskEngine():
             join task t on ti.task_id = t.task_id 
             left outer join asset a on a.asset_id = ti.asset_id 
             where ti.task_instance = %s"""
-        row = self.db.select_row(sql, (ti))
+        row = self.select_row(sql, (ti))
     
         if row:
             h.status = row[0]
@@ -1085,7 +1096,7 @@ class TaskEngine():
     def get_task_status(self, ti):
 
         sql = "select task_status from task_instance where task_instance = %s"
-        row = self.db.select_row(sql, (ti))
+        row = self.select_row(sql, (ti))
         if row:
             status = row[0]
         else:
@@ -1096,7 +1107,7 @@ class TaskEngine():
     def get_system_id_from_name(self, asset_name):
 
         sql = """select asset_id from asset where asset_name = %s"""
-        row = self.db.select_row(sql, (asset_name))
+        row = self.select_row(sql, (asset_name))
         if row:
             return row[0]
         else:
@@ -1111,7 +1122,7 @@ class TaskEngine():
             ac.username, ac.password, ac.domain, ac.privileged_password, a.conn_string, ac.private_key
             from asset a left outer join asset_credential ac on a.credential_id = ac.credential_id
             where asset_id = %s"""
-        row = self.db.select_row(sql, (asset_id))
+        row = self.select_row(sql, (asset_id))
         if row:
             # print row
             password = row[6]
@@ -1316,6 +1327,8 @@ class TaskEngine():
         
 
     def process_step(self, task, step):
+
+        self.keep_alive()
         msg = """
         **************************************************************
         **** PROCESSING STEP %s ****
@@ -1422,7 +1435,7 @@ class TaskEngine():
             left outer join asset C on A.asset_id = C.asset_id
             where  A.task_instance = %s"""
 
-        row = self.db.select_row(sql, (self.task_instance))
+        row = self.select_row(sql, (self.task_instance))
 
         if row:
             self.task_name, self.system_id, self.system_name, self.submitted_by, self.task_id, \
@@ -1434,7 +1447,7 @@ class TaskEngine():
 
         if self.submitted_by:
             sql = """select username, email from users where user_id = %s"""
-            row = self.db.select_row(sql, (self.submitted_by))
+            row = self.select_row(sql, (self.submitted_by))
             if row:
                 self.submitted_by_user, self.submitted_by_email = row[:]
             
@@ -1446,7 +1459,7 @@ class TaskEngine():
 
         sql = """select ca.provider, ca.login_id, ca.login_password from cloud_account ca 
             where ca.account_id=%s"""
-        row = self.db.select_row(sql, (account_id))
+        row = self.select_row(sql, (account_id))
         if row:
             self.provider, self.cloud_login_id, password = row[:]
             self.cloud_login_password = catocommon.cato_decrypt(password)
@@ -1591,11 +1604,87 @@ class TaskEngine():
    
         return cloud
 
-    def select_all(self, sql, conn=None):
+
+    def exec_db(self, sql, params=None, conn=None):
 
         if not conn:
+            # to the cato database
             conn = self.db
-        return conn.select_all(sql)
+
+        # only going to try one additional attempt
+        for ii in range(2):
+            try:
+                result = conn.exec_db(sql, params)
+                break
+            except Exception as e:
+                if any(m in e.message for m in self.connection_errors) and ii == 0:
+                    # the following attempts a reconnect
+                    msg = "lost mysql connection, attempting a reconnect and retrying the query"
+                    self.logger.critical(msg)
+                    conn.ping_db()
+                    # let's try once more
+                    continue
+                else:
+                    # not a severed connection or we already tried once
+                    raise Exception(e)
+    
+        # all's well
+        return result
+
+
+    def select_all(self, sql, params=None, conn=None):
+
+        if not conn:
+            # to the cato database
+            conn = self.db
+
+        # only going to try one additional attempt
+        for ii in range(2):
+            try:
+                result = conn.select_all(sql, params)
+                break
+            except Exception as e:
+                if any(m in e.message for m in self.connection_errors) and ii == 0:
+                    # the following attempts a reconnect
+                    msg = "lost mysql connection, attempting a reconnect and retrying the query"
+                    self.logger.critical(msg)
+                    conn.ping_db()
+                    # let's try once more
+                    continue
+                else:
+                    # not a severed connection or we already tried once
+                    raise Exception(e)
+    
+        # all's well
+        return result
+
+
+    def select_row(self, sql, params=None, conn=None):
+
+        if not conn:
+            # to the cato database
+            conn = self.db
+
+        # only going to try one additional attempt
+        for ii in range(2):
+            try:
+                result = conn.select_row(sql, params)
+                break
+            except Exception as e:
+                if any(m in e.message for m in self.connection_errors) and ii == 0:
+                    # the following attempts a reconnect
+                    msg = "lost mysql connection, attempting a reconnect and retrying the query"
+                    self.logger.critical(msg)
+                    conn.ping_db()
+                    # let's try once more
+                    continue
+                else:
+                    # not a severed connection or we already tried once
+                    raise Exception(e)
+    
+        # all's well
+        return result
+
 
     def update_status(self, task_status):
 
@@ -1610,7 +1699,7 @@ class TaskEngine():
         ii = 0
         while True:
             try:
-                self.db.exec_db(sql, (task_status, self.task_instance))
+                self.exec_db(sql, (task_status, self.task_instance))
             except Exception as e:
                 if e.args[0] == 1213 and ii < 5:
                     time.sleep(1)
@@ -1634,7 +1723,7 @@ class TaskEngine():
         ii = 0
         while True:
             try:
-                self.db.exec_db(sql, (os.getpid(), self.task_instance))
+                self.exec_db(sql, (os.getpid(), self.task_instance))
             except Exception as e:
                 if e.args[0] == 1213 and ii < 5:
                     time.sleep(1)
@@ -1772,7 +1861,7 @@ class TaskEngine():
     def get_task_params(self):
 
         sql = "select parameter_xml from task_instance_parameter where task_instance = %s"
-        row = self.db.select_row(sql, (self.task_instance))
+        row = self.select_row(sql, (self.task_instance))
         if row:
             self.parse_input_params(row[0])
 

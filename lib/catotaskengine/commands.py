@@ -729,10 +729,10 @@ def subtask_cmd(self, task, step):
     self.logger.debug("subtask [%s] version [%s]" % (subtask_name, subtask_version))
     if len(subtask_version):
         sql = """select task_id from task where task_name = %s and version = %s"""
-        row = self.db.select_row(sql, (subtask_name, subtask_version))
+        row = self.select_row(sql, (subtask_name, subtask_version))
     else:
         sql = """select task_id from task where task_name = %s and default_version = 1"""
-        row = self.db.select_row(sql, (subtask_name))
+        row = self.select_row(sql, (subtask_name))
 
     task_id = row[0]
 
@@ -771,10 +771,10 @@ def run_task_cmd(self, task, step):
     sql = """select task_id, version, default_version, parameter_xml, now() from task where task_name = %s"""
     if len(version):
         sql = sql + " and version = %s"
-        row = self.db.select_row(sql, (task_name, version))
+        row = self.select_row(sql, (task_name, version))
     else:
         sql = sql + " and default_version = 1"
-        row = self.db.select_row(sql, (task_name))
+        row = self.select_row(sql, (task_name))
 
     if row:
         task_id = row[0]
@@ -905,7 +905,7 @@ def _sql_exec_mysql(self, sql, variables, conn, mode):
         msg = "Mode %s not supported for MySQL connections. Skipping" % (mode)
         self.insert_audit("sql_exec", msg, "")
         return
-    rows = self.select_all(sql, conn)
+    rows = self.select_all(sql, params=None, conn=conn)
     if rows:
         self.process_list_buffer(rows, variables)
     msg = "%s\n%s" % (sql, rows)
@@ -927,7 +927,7 @@ def store_private_key_cmd(self, task, step):
         raise Exception("Keyname is required.")
 
     sql = """select cloud_id from clouds where cloud_name = %s"""
-    row = self.db.select_row(sql, (cloud_name))
+    row = self.select_row(sql, (cloud_name))
     if not row:
         msg = "Cloud [%s] is not defined in Cato." % (cloud_name)
         raise Exception(msg)
@@ -937,7 +937,7 @@ def store_private_key_cmd(self, task, step):
     private_key = catocommon.cato_encrypt(private_key)
     sql = """insert into clouds_keypair (keypair_id, cloud_id, keypair_name, private_key) 
         values (uuid(),%s,%s,%s) ON DUPLICATE KEY UPDATE private_key = %s"""
-    self.db.exec_db(sql, (cloud_id, key_name, private_key, private_key))
+    self.exec_db(sql, (cloud_id, key_name, private_key, private_key))
     msg = "Stored private key [%s] on Cloud [%s]." % (key_name, cloud_name)
     self.insert_audit(step.function_name, msg, "")
 
@@ -1039,13 +1039,13 @@ def cancel_task_cmd(self, task, step):
             self.insert_audit(step.function_name, msg, "")
             sql = """update task_instance set task_status = 'Aborting' 
                 where task_instance = %s and task_status in ('Submitted','Staged','Processing')"""
-            self.db.exec_db(sql, (ti))
+            self.exec_db(sql, (ti))
             log = """Cancelling task instance [%s] by other task instance number [%s]""" % (ti, self.task_instance)
             sql = """insert into task_instance_log 
                 (task_instance, step_id, entered_dt, connection_name, log, command_text) 
                 values 
                 (%s, '', now(), '', %s, '')"""
-            self.db.exec_db(sql, (self.task_instance, log))
+            self.exec_db(sql, (self.task_instance, log))
         else:
             raise Exception("Cancel Task error: invalid Task instance: [%s]. Value must be an integer." % (ti))
 
