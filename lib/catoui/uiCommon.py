@@ -278,6 +278,37 @@ def SetSessionObject(key, obj, category=""):
     else:
         uiGlobals.session[key] = obj
     
+def UserTagsMatch(tags2check):
+    """
+    Accepts input of a comma delimited string OR a list of Tags.
+    
+    Returns a boolean. 
+
+    # if permissions checking is turned off, everything is allowed
+    """
+
+    if catoconfig.CONFIG["ui_permissions"] == "false":
+        return True
+    
+    if GetSessionUserRole() == "Administrator":
+        return True
+    else:
+        usertags = GetSessionUserTags()
+        if usertags and tags2check:
+            try:
+                s2 = []
+                if isinstance(tags2check, list):
+                    s2 = set(tags2check)
+                elif isinstance(tags2check, basestring):
+                    s2 = set(tags2check.split(","))
+
+                if s2.intersection(usertags):
+                    return True
+            except Exception as ex:
+                    raise Exception("Unable to reconcile User Tags - input isn't a valid list of Tags.\n%s" % ex.__str__())
+            
+        return False
+    
 def FilterSetByTag(set_to_filter):
     """
     Accepts input of a comma delimited string OR a list.
