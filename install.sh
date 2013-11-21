@@ -34,6 +34,8 @@ function usage_and_exit()
     exit
 }
 
+CATO_HOST=""
+
 while getopts h:? flag
 do
     case $flag in
@@ -45,13 +47,11 @@ do
 
 done
 
-if [[ -z "$CATO_HOST" ]];
+if [[ -n "$CATO_HOST" ]];
 then
-    echo "missing a required parameter host address"
-    usage_and_exit
+	echo "Using Host Address $CATO_HOST"
 fi
 
-echo "Using Host Address $CATO_HOST"
 
 set -ex
 

@@ -66,26 +66,22 @@ def read_config():
     cfg["ui_enable_tokenauth"] = "true"
     cfg["ui_token_lifespan"] = "30"
     
-    cfg["admin_ui_hostname"] = "localhost"
     cfg["admin_ui_port"] = "8082"
     cfg["admin_ui_debug"] = "20"
     cfg["admin_ui_use_ssl"] = "false"
     
-    cfg["user_ui_hostname"] = "localhost"
     cfg["user_ui_port"] = "8080"
     cfg["user_ui_debug"] = "20"
     cfg["user_ui_client_debug"] = "20"
     cfg["user_ui_enable_refresh"] = "true"
     cfg["user_ui_use_ssl"] = "false"
     
-    cfg["rest_api_hostname"] = "localhost"
     cfg["rest_api_port"] = "4001"
     cfg["rest_api_debug"] = "20"
     cfg["rest_api_use_ssl"] = "false"
     cfg["rest_api_enable_tokenauth"] = "true"
     cfg["rest_api_token_lifespan"] = "30"
     
-    cfg["dash_api_hostname"] = "localhost"
     cfg["dash_api_port"] = "4002"
     cfg["dash_api_debug"] = "20"
     cfg["dash_api_use_ssl"] = "false"
@@ -93,7 +89,6 @@ def read_config():
     cfg["dash_api_post_index"] = "canvas/home/home-post.layout"
     cfg["dash_api_get_index"] = "canvas/home/home.layout"
     
-    cfg["newsfeed_api_hostname"] = "localhost"
     cfg["newsfeed_api_port"] = "4004"
     cfg["newsfeed_api_debug"] = "20"
     cfg["newsfeed_api_use_ssl"] = "false"
@@ -162,12 +157,6 @@ def read_config():
     cfg["dash_api_protocol"] = "https" if cfg["dash_api_use_ssl"] == "true" else "http"
     cfg["newsfeed_api_protocol"] = "https" if cfg["newsfeed_api_use_ssl"] == "true" else "http"
     
-    cfg["admin_ui_url"] = "%s://%s:%s" % (cfg["admin_ui_protocol"], cfg["admin_ui_hostname"], cfg["admin_ui_port"])
-    cfg["user_ui_url"] = "%s://%s:%s" % (cfg["user_ui_protocol"], cfg["user_ui_hostname"], cfg["user_ui_port"])
-    cfg["rest_api_url"] = "%s://%s:%s" % (cfg["rest_api_protocol"], cfg["rest_api_hostname"], cfg["rest_api_port"])
-    cfg["dash_api_url"] = "%s://%s:%s" % (cfg["dash_api_protocol"], cfg["dash_api_hostname"], cfg["dash_api_port"])
-    cfg["newsfeed_api_url"] = "%s://%s:%s" % (cfg["newsfeed_api_protocol"], cfg["newsfeed_api_hostname"], cfg["newsfeed_api_port"])
-    
     # something else here... 
     # the root cato directory should have a VERSION file.
     # read it's value into a config setting
@@ -191,12 +180,6 @@ def safe_config():
     cfg["database"] = CONFIG.get("server", "Unknown")
     cfg["user_ui_enable_refresh"] = CONFIG["user_ui_enable_refresh"]
     
-    cfg["admin_ui_url"] = CONFIG["admin_ui_url"]
-    cfg["user_ui_url"] = CONFIG["user_ui_url"]
-    cfg["rest_api_url"] = CONFIG["rest_api_url"]
-    cfg["dash_api_url"] = CONFIG["dash_api_url"]
-    cfg["newsfeed_api_url"] = CONFIG["newsfeed_api_url"]
-
     cfg["admin_ui_port"] = CONFIG["admin_ui_port"]
     cfg["user_ui_port"] = CONFIG["user_ui_port"]
     cfg["rest_api_port"] = CONFIG["rest_api_port"]
@@ -215,6 +198,33 @@ def safe_config():
 
     return cfg
 
+def get_url(service, default_host):
+    """
+    Will use some smarts to build a URL for each service.
+    """
+    # Rules:
+    # 1) now, if an explicit _hostname is defined, use it.
+    # 2) otherwise use the default passed in from the client
+    
+    out = ""
+    if service == "admin_ui":
+        host = CONFIG.get("admin_ui_hostname", default_host)
+        out = "%s://%s:%s" % (CONFIG["admin_ui_protocol"], host, CONFIG["admin_ui_port"])
+    if service == "user_ui":
+        host = CONFIG.get("user_ui_hostname", default_host)
+        out = "%s://%s:%s" % (CONFIG["user_ui_protocol"], host, CONFIG["user_ui_port"])
+    if service == "rest_api":
+        host = CONFIG.get("rest_api_hostname", default_host)
+        out = "%s://%s:%s" % (CONFIG["rest_api_protocol"], host, CONFIG["rest_api_port"])
+    if service == "dash_api":
+        host = CONFIG.get("dash_api_hostname", default_host)
+        out = "%s://%s:%s" % (CONFIG["dash_api_protocol"], host, CONFIG["dash_api_port"])
+    if service == "newsfeed_api":
+        host = CONFIG.get("newsfeed_api_hostname", default_host)
+        out = "%s://%s:%s" % (CONFIG["newsfeed_api_protocol"], host, CONFIG["newsfeed_api_port"])
+    
+    return out
+        
 
 # if not os.environ.get("CATO_CONFIG"):
 #    print "CATO_CONFIG environment variable not set - trying default..."

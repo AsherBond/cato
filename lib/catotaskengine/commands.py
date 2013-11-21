@@ -1390,6 +1390,8 @@ def cato_web_service_cmd(self, task, step):
     if not len(host):
         host = catoconfig.CONFIG["rest_api_url"]
 
+    if not len(host):
+        raise Exception("Cato Web Service Call command requires Host value, and no default is set in cato.conf.")
     if not len(method):
         raise Exception("Cato Web Service Call command requires Method value")
     if not len(userid):
