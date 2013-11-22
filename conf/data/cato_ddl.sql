@@ -478,6 +478,11 @@ CREATE TABLE `object_tags` (
   `tag_name` varchar(32) NOT NULL,
   PRIMARY KEY (`object_id`,`tag_name`,`object_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `tag_permissions` (
+  `tag_name` varchar(32) NOT NULL,
+  `permission` varchar(64) NOT NULL,
+  PRIMARY KEY (`tag_name`,`permission`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `tags` (
   `tag_name` varchar(32) NOT NULL,
   `tag_desc` varchar(256) DEFAULT NULL,

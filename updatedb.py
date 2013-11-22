@@ -180,7 +180,12 @@ versions = [
                       ["droptable", "marshaller_settings", "Consolidated"],
                       ["droptable", "login_security_settings", "Consolidated"],
                       ["droptable", "messenger_settings", "Consolidated"],
-                      ["addcolumn", "deployment_action", "options", "TEXT NULL"]
+                      ["addcolumn", "deployment_action", "options", "TEXT NULL"],
+                      ["createtable", "tag_permissions", """(
+                          `tag_name` varchar(32) NOT NULL,
+                          `permission` varchar(64) NOT NULL,
+                          PRIMARY KEY (`tag_name`, `permission`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8"""]
                       ]
              ]
         ]
