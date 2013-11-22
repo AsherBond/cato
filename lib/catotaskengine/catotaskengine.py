@@ -494,11 +494,6 @@ class TaskEngine():
             self.sensitive.append(s)
             self.sensitive_re = re.compile("|".join(self.sensitive))
 
-    def keep_alive(self):
-        # a hack to keep the mysql connection from timing out 
-        #self.db.ping_db()
-        pass
-    
 
     def insert_audit(self, command, log, conn=""):
 
@@ -1330,7 +1325,6 @@ class TaskEngine():
 
     def process_step(self, task, step):
 
-        self.keep_alive()
         msg = """
         **************************************************************
         **** PROCESSING STEP %s ****
