@@ -29,7 +29,9 @@
         <script src="script/login.js"></script>
     </head>
     <body>
-        <img id="csklogo" src="images/csk-logo.png" />
+        <div id="csklogo" class="floatleft pointer" onclick="location.href='/';">
+            <span style="font-family: MuseoSlab-Light;">cloud</span><b>sidekick</b>
+        </div>
         <div id="wrapper">
             <div>
                 <img alt="" src="images/login-logo.png" />
@@ -62,11 +64,11 @@
                                 <a id="forgot_password_btn" class="pointer">Forgot password? <img src="images/icons/password.png" alt="" style="vertical-align: middle;" /> </a>
                             </div>
                         </div>
-                        <div style="font-weight: normal; font-size: 0.9em; margin-top: 10px; text-align: center;">
-                            By using Cato, you agree to the <a style="color: #FFFFFF;" target="_blank" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Terms and Conditions</a>.
-                        </div>
-                        <div id="app_version" style="font-weight: normal; font-size: 0.9em; margin-top: 10px; text-align: center;"></div>
                     </div>
+                    <div style="font-weight: normal; font-size: 0.9em; margin-top: 10px; text-align: center;">
+                        By using Cato, you agree to the <a style="color: #FFFFFF;" target="_blank" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Terms and Conditions</a>.
+                    </div>
+                    <div id="app_version" style="font-weight: normal; font-size: 0.9em; margin-top: 10px; text-align: center;"></div>
                 </div>
                 <div id="loginerror" class="loginerror">
                     <span id="error_msg"></span>

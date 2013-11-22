@@ -1,7 +1,10 @@
+@import url('fonts.css');
 /* Login Page */
 body
 {
-	font: normal 12px Arial, lucida, sans-serif;
+	color: #58595B;
+	font-family: 'MuseoSans-Light', Lato, Arial, lucida, sans-serif;
+	font-size: 10pt;
 }
 #wrapper
 {
@@ -10,18 +13,20 @@ body
 	width: 600px;
 }
 #csklogo {
+	font-size: 24pt;
+	color: #58595B;
 	position: absolute;
     right: 10px;
     top: 10px;
-    height: 50px;
 }
 #loginpanel
 {
+	color: #FFFFFF;
 	padding-top: 20px;
-	height: 220px;
+	height: 232px;
 	background-image: url(../images/login-banner.gif);
 	background-repeat: no-repeat;
-	background-position: -220px 54%; /* shorten it a bit */
+	background-position: -186px 54%; /* shorten it a bit */
 	box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
 	border-radius: 6px 6px 6px 6px;
 }
@@ -32,9 +37,16 @@ body
 	font-weight: bold;
 	margin-left: auto;
 	margin-right: auto;
-	width: 50%;
+	width: 75%;
 	box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
 	border-radius: 6px 6px 6px 6px;
+}
+.loginfield {
+	border-radius: 8px;
+	border: 1px solid #BCBEC0;
+	width: 200px;
+	padding: 4px;
+	font-size: 1.1em;
 }
 .loginerror
 {
