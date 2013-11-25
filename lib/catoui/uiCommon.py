@@ -250,7 +250,7 @@ def GetSessionUserRole():
 def GetSessionUserTags():
     tags = GetSessionObject("user", "tags")
     if tags:
-        return tags
+        return tags if tags else []
     else:
         raise SessionError("Server Session has expired (3). Please log in again.")
 
@@ -278,6 +278,33 @@ def SetSessionObject(key, obj, category=""):
     else:
         uiGlobals.session[key] = obj
     
+def GetPermissions():
+    """
+    Returns a list of ALL permissions for a User.
+    """
+    tags = GetSessionUserTags()
+    if tags:
+        x = ["'%s'" % (t) for t in tags]
+        tstr = ",".join(x)
+
+        sql = """select permission from tag_permissions
+            where tag_name in (%s)""" % (tstr)  
+        db = catocommon.new_conn()
+        result = db.select_all(sql)
+        db.close()
+        
+        return [x[0] for x in result] if result else []
+    return []
+
+def GetPermission(p):
+    """
+    Returns True if a specific permission exists for a User.
+    """
+    perms = GetPermissions()
+    if p in perms:
+        return True
+    return False
+
 def UserTagsMatch(tags2check):
     """
     Accepts input of a comma delimited string OR a list of Tags.
