@@ -93,8 +93,8 @@ class taskMethods:
         """
         Gets just the Status of a Task Instance.
         
-        Required Arguments: instance
-            The Task Instance identifier.
+        Required Arguments: 
+            instance - The Task Instance identifier.
 
         Returns: The Instance Status.
         """
@@ -118,8 +118,8 @@ class taskMethods:
         """
         Gets the details of a Task Instance.
         
-        Required Arguments: instance
-            The Task Instance identifier.
+        Required Arguments: 
+            instance - The Task Instance identifier.
 
         Returns: A Task Instance object.
         """
@@ -181,8 +181,8 @@ class taskMethods:
         """
         Gets the run log for a Task Instance.
         
-        Required Arguments: instance
-            The Task Instance identifier.
+        Required Arguments: 
+            instance - The Task Instance identifier.
 
         Returns: A JSON array of log entries.
         """

@@ -1458,6 +1458,8 @@ class TaskRunLog(object):
     summary_rows = {}
     numrows = 0
     def __init__(self, sTaskInstance, sRows=""):
+        self.instance = sTaskInstance
+        
         db = catocommon.new_conn()
         sLimitClause = " limit 200"
 
@@ -1472,9 +1474,9 @@ class TaskRunLog(object):
                     
                 sLimitClause = " limit " + str(sRows)
                 
-        # what is the task_id?
-        sSQL = "select task_id from task_instance_log where task_instance = %s"
-        self.task_id = db.select_col_noexcep(sSQL, (sTaskInstance))
+        # what is the task_id and status?
+        sSQL = "select task_id, task_status from task_instance where task_instance = %s"
+        self.task_id, self.task_status = db.select_row(sSQL, (sTaskInstance))
         
         # how many log rows are there?
         sSQL = "select count(*) from task_instance_log where task_instance = %s"
