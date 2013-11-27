@@ -36,28 +36,26 @@ from . import classes
 
 RESERVED_COLLECTIONS = ["deployments", "services", "default", "system.indexes"]
 
-def _fix_mongo_query(query_string):
-    # since we started with a JSON document, any reference to the _id field will likely be 
-    # a string representation of the ObjectId.  We gotta cheat that into a real BSON ObjectId.
-    if len(query_string):
-        try:
-            query = json.loads(query_string)
-        except ValueError as e:
-            msg = "Datastore Query error: query not properly formed json: %s, %s" % (query_string, str(e))
-            raise Exception(msg)
-        except Exception as e:
-            raise Exception(e)
-        if not isinstance(query, dict):
-            msg = "Datastore Query error: query is not properly formed json key, value pair object %s" % (query_string)
-            raise Exception(msg)
-    else:
-        query = {}
-        
-    if query.has_key('_id'):
-        if isinstance(query['_id'], unicode) or isinstance(query['_id'], str):
-            query['_id'] = ObjectId(query['_id'])
-    
-    return query
+def _eval(expr):
+    """
+    Set Variable has an 'eval' modifier.  It's has a very strict mapping to 
+    a set of keywords we define and translate to python expressions.
+    """
+    s = ""
+    try:
+        # we expose only specific objects in our environment and pass it as 'globals' to eval.
+        environment = { 
+                       'parsedate': parser.parse,
+                       'datetime': datetime,
+                       'timedelta': timedelta,
+                       'ObjectId' : ObjectId
+                       }
+        s = eval(expr, environment, {})
+    except Exception as ex:
+        raise Exception("Expression %s is not valid.\n%s" % (expr, str(ex)))
+
+    return s
+
 
 def get_asset_cmd(self, task, step):
 
@@ -182,20 +180,15 @@ def datastore_insert_cmd(self, task, step):
         raise Exception(e)
 
     document = {}
-    # document["timestamp"] = datetime.now()
 
     for p in pairs:
         name = self.replace_variables(p[0])
-        v = self.replace_variables(p[1])
-        if p[2] == "1":
-            try:
-                v = json.loads(v)
-            except ValueError as e:
-                msg = "Error converting string %s to json\n%s" % (v, e)
-                raise Exception(msg)
-        elif v == "datetime.now()":
-            v = datetime.now()
-        document[name] = v
+        if len(name):
+            v = self.replace_variables(p[1])
+            if p[2] == "1":
+                # evaluate box is checked
+                v = _eval(v)
+            document[name] = v
 
     self.logger.debug(document)
     doc_id = coll.insert(document)
@@ -212,7 +205,7 @@ def datastore_delete_cmd(self, task, step):
     query_string = self.replace_variables(query_string)
 
     # validate and prepare the query
-    query_dict = _fix_mongo_query(query_string)
+    query_dict = _eval(query_string)
 
     if len(collection) == 0:
         raise Exception("Datastore Delete requires a collection name")
@@ -283,7 +276,7 @@ def datastore_find_and_modify_cmd(self, task, step):
     query_string = self.replace_variables(query_string)
 
     # validate and prepare the query
-    query_dict = _fix_mongo_query(query_string)
+    query_dict = _eval(query_string)
 
     if len(collection) == 0:
         raise Exception("Datastore Find and Modify requires a collection name")
@@ -309,17 +302,11 @@ def datastore_find_and_modify_cmd(self, task, step):
     if not remove:
         for p in pairs:
             name = self.replace_variables(p[0])
-            v = self.replace_variables(p[1])
-            if p[2] == "1":
-                try:
-                    v = json.loads(v)
-                except ValueError as e:
-                    msg = "Error converting string %s to json\n%s" % (v, e)
-                    raise Exception(msg)
-            elif v == "datetime.now()":
-                v = datetime.now()
-            _vars[name] = v
             if len(name):
+                v = self.replace_variables(p[1])
+                if p[2] == "1":
+                    # evaluate box is checked
+                    v = _eval[v]
                 _vars[name] = v
 
     for p in outpairs:
@@ -366,7 +353,7 @@ def datastore_update_cmd(self, task, step):
     query_string = self.replace_variables(query_string)
 
     # validate and prepare the query
-    query_dict = _fix_mongo_query(query_string)
+    query_dict = _eval(query_string)
     
     if len(collection) == 0:
         raise Exception("Datastore Update requires a collection name")
@@ -395,16 +382,12 @@ def datastore_update_cmd(self, task, step):
 
     for p in pairs:
         name = self.replace_variables(p[0])
-        v = self.replace_variables(p[1])
-        if p[2] == "1":
-            try:
-                v = json.loads(v)
-            except ValueError as e:
-                msg = "Error converting string %s to json\n%s" % (v, e)
-                raise Exception(msg)
-        elif v == "datetime.now()":
-            v = datetime.now()
-        _vars[name] = v
+        if len(name):
+            v = self.replace_variables(p[1])
+            if p[2] == "1":
+                # evaluate box is checked
+                v = _eval(v)
+            _vars[name] = v
 
     msg = "Collection %s, Update %s, Set %s, Upsert %s" % (collection, query_dict, json.dumps(_vars), upsert)
     coll.update(query_dict, {modifier : _vars}, multi=True, upsert=upsert)
@@ -420,7 +403,7 @@ def datastore_query_cmd(self, task, step):
     query_string = self.replace_variables(query_string)
 
     # validate and prepare the query
-    query_dict = _fix_mongo_query(query_string)
+    query_dict = _eval(query_string)
 
     if len(collection) == 0:
         raise Exception("Datastore Query requires a collection name")
@@ -474,41 +457,6 @@ def codeblock_cmd(self, task, step):
     name = self.replace_variables(name)
     self.process_codeblock(task, name.upper())
 
-def _set_variable_eval(self, expr):
-    """
-    Set Variable has an 'eval' modifier.  It's has a very strict mapping to 
-    a set of keywords we define and translate to python expressions.
-    """
-    s = ""
-    self.logger.debug("Evaluating: [%s]..." % (expr))
-    try:
-#         # using eval is not the best approach here.
-#         bad_strings = ['import', 'os', 'sys', 'open', '#', '"""']
-#         for s in bad_strings:
-#             if s in expr:
-#                 raise Exception("Invalid keyword in evaluation phrase.")
-
-#         keywords = ["parsedate", "datediff"]
-#         for k in keywords:
-#             if k in test:
-#                 self.logger.debug("Evaluating keyword expression [%s]" % (k))
-#                 allow_globals = True
-         
-#         # replace the keywords with their python counterparts
-#         expr = expr.replace("parsedate", "parser.parse")
-#         expr = expr.replace("datediff", "timedelta")
-
-        # we expose only specific objects in our environment and pass it as 'globals' to eval.
-        environment = { 
-                       'parsedate': parser.parse,
-                       'datetime': datetime,
-                       'timedelta': timedelta
-                       }
-        s = eval(expr, environment, {})
-    except Exception as ex:
-        raise Exception("Expression [%s] is not valid.\n%s" % (expr, str(ex)))
-
-    return s
 
 def _eval_test_expression(self, test):
     """
@@ -992,7 +940,7 @@ def set_variable_cmd(self, task, step):
         elif modifier == "FROM_BASE64":
             value = base64.b64decode(value)
         elif modifier == "EVAL":
-            value = _set_variable_eval(self, value)
+            value = _eval(value)
                 
         elif modifier == "TO_JSON":
             # assumes the value is a variable name, containing a dictionary, most likely created by the Read JSON option.
