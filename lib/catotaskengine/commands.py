@@ -42,17 +42,18 @@ def _eval(expr):
     a set of keywords we define and translate to python expressions.
     """
     s = ""
-    try:
-        # we expose only specific objects in our environment and pass it as 'globals' to eval.
-        environment = { 
-                       'parsedate': parser.parse,
-                       'datetime': datetime,
-                       'timedelta': timedelta,
-                       'ObjectId' : ObjectId
-                       }
-        s = eval(expr, environment, {})
-    except Exception as ex:
-        raise Exception("Expression %s is not valid.\n%s" % (expr, str(ex)))
+    if len(expr):
+        try:
+            # we expose only specific objects in our environment and pass it as 'globals' to eval.
+            environment = { 
+                           'parsedate': parser.parse,
+                           'datetime': datetime,
+                           'timedelta': timedelta,
+                           'ObjectId' : ObjectId
+                           }
+            s = eval(expr, environment, {})
+        except Exception as ex:
+            raise Exception("Expression %s is not valid.\n%s" % (expr, str(ex)))
 
     return s
 
@@ -206,6 +207,8 @@ def datastore_delete_cmd(self, task, step):
 
     # validate and prepare the query
     query_dict = _eval(query_string)
+    if not len(query_dict): 
+        query_dict = {}
 
     if len(collection) == 0:
         raise Exception("Datastore Delete requires a collection name")
@@ -269,14 +272,18 @@ def datastore_create_index_cmd(self, task, step):
 
 def datastore_find_and_modify_cmd(self, task, step):
 
-    collection, query_string, upsert, remove = self.get_command_params(step.command, "collection", "query", "upsert", "remove")[:]
+    collection, query_string, upsert, remove, sort, limit = self.get_command_params(step.command, "collection", "query", "upsert", "remove", "sort", "limit")[:]
     pairs = self.get_node_list(step.command, "columns/column", "name", "value", "json_value")
     outpairs = self.get_node_list(step.command, "outcolumns/column", "name", "value")
     collection = self.replace_variables(collection)
     query_string = self.replace_variables(query_string)
+    sort = self.replace_variables(sort)
+    limit = self.replace_variables(limit)
 
     # validate and prepare the query
     query_dict = _eval(query_string)
+    if not len(query_dict): 
+        query_dict = {}
 
     if len(collection) == 0:
         raise Exception("Datastore Find and Modify requires a collection name")
@@ -299,6 +306,14 @@ def datastore_find_and_modify_cmd(self, task, step):
         upsert = True
     else:
         upsert = False
+    if not len(sort):
+        sort = None
+    else:
+        sort = _eval(sort)
+    if not len(limit):
+        limit = 0
+    else:
+        limit = int(limit)
     if not remove:
         for p in pairs:
             name = self.replace_variables(p[0])
@@ -325,7 +340,7 @@ def datastore_find_and_modify_cmd(self, task, step):
     if not len(cols):
         cols = None
     msg = "Collection %s, Find and Modify %s, Set %s, Columns %s, Upsert %s, Remove %s" % (collection, query_dict, json.dumps(_vars), cols.keys(), upsert, remove)
-    row = coll.find_and_modify(query_dict, update=update_json, fields=cols, upsert=upsert, remove=remove)
+    row = coll.find_and_modify(query_dict, update=update_json, fields=cols, upsert=upsert, remove=remove, limit=limit, sort=sort)
     msg = "%s\n%s" % (msg, json.dumps(row, default=json_util.default))
     for v in _outvars:
         self.rt.clear(v[1])
@@ -354,6 +369,8 @@ def datastore_update_cmd(self, task, step):
 
     # validate and prepare the query
     query_dict = _eval(query_string)
+    if not len(query_dict): 
+        query_dict = {}
     
     if len(collection) == 0:
         raise Exception("Datastore Update requires a collection name")
@@ -397,13 +414,17 @@ def datastore_update_cmd(self, task, step):
 
 def datastore_query_cmd(self, task, step):
 
-    collection, query_string = self.get_command_params(step.command, "collection", "query")[:]
+    collection, query_string, sort, limit = self.get_command_params(step.command, "collection", "query", "sort", "limit")[:]
     pairs = self.get_node_list(step.command, "columns/column", "name", "variable")
     collection = self.replace_variables(collection)
     query_string = self.replace_variables(query_string)
+    limit = self.replace_variables(limit)
+    sort = self.replace_variables(sort)
 
     # validate and prepare the query
     query_dict = _eval(query_string)
+    if not len(query_dict): 
+        query_dict = {}
 
     if len(collection) == 0:
         raise Exception("Datastore Query requires a collection name")
@@ -414,6 +435,14 @@ def datastore_query_cmd(self, task, step):
     else:
         msg = "Datastore Query error: a collection named %s does not exist" % (collection)
         raise Exception(msg)
+    if not len(sort):
+        sort = None
+    else:
+        sort = _eval(sort)
+    if not len(limit):
+        limit = 0
+    else:
+        limit = int(limit)
 
     _vars = []
     cols = {}
@@ -428,7 +457,7 @@ def datastore_query_cmd(self, task, step):
     msg = "Collection %s, Query %s, Columns %s" % (collection, query_dict, cols.keys())
     if "_id" not in cols.keys():
         cols["_id"] = False
-    cur = coll.find(query_dict, fields=cols)
+    cur = coll.find(query_dict, fields=cols, sort=sort, limit=limit)
     if cur:
         rows = list(cur)
     index = 0

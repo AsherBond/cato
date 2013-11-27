@@ -396,6 +396,8 @@
 				<function name="datastore_query">
 					<collection input_type="text" label="Collection" />
 					<query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
+					<sort input_type="text" class="w35pct" label="Sort" />
+					<limit input_type="text" class="w35pct" label="Limit" />
 					<columns is_array="true">
 						<column>
 							<name input_type="text" label="Column Name" />
@@ -429,6 +431,8 @@
 					<upsert input_type="checkbox" label="Upsert?" />
 					<remove input_type="checkbox" label="Remove?" />
 					<query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
+					<sort input_type="text" class="w35pct" label="Sort" />
+					<limit input_type="text" class="w35pct" label="Limit" />
 					<columns is_array="true" label="Columns">
 						<column>
 							<name input_type="text" label="Name" />
