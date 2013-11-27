@@ -385,7 +385,7 @@
 						<pair>
 							<name input_type="text" label="Name" />
 							<value input_type="text" label="Value" style="width: 50%;" />
-                            <json_value input_type="checkbox" label="Json?" />
+                            <json_value input_type="checkbox" label="Evaluate?" />
 						</pair>
 					</pairs>
 				</function>
@@ -416,7 +416,7 @@
 						<column>
 							<name input_type="text" label="Name" />
 							<value input_type="text" label="Value" style="width: 50%;" />
-                            <json_value input_type="checkbox" label="Json?" />
+                            <json_value input_type="checkbox" label="Evaluate?" />
 						</column>
 					</columns>
 				</function>
@@ -433,7 +433,7 @@
 						<column>
 							<name input_type="text" label="Name" />
 							<value input_type="text" label="Value" style="width: 50%;" />
-                            <json_value input_type="checkbox" label="Json?" />
+                            <json_value input_type="checkbox" label="Evaluate?" />
 						</column>
 					</columns>
 					<outcolumns is_array="true" label="Out Columns">
