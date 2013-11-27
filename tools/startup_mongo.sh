@@ -15,5 +15,5 @@ $MONGOD --fork --logpath $LOG --logappend
 # if you see something like this:
 #   [websvr] admin web console waiting for connections on port 28017
 #   it means startup went OK.
-echo 'tail $LOG'
-tail -f $LOG
+#echo 'tail $LOG'
+#tail -f $LOG
