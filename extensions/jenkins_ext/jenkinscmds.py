@@ -40,7 +40,27 @@ def jenkins_new_connection(TE, step):
     if not len(password):
         password = None
 
-    j = Jenkins(url, user, password)
+    try:
+        j = Jenkins(url, user, password)
+    except Exception as e:
+        TE.logger.critical(e)
+        if "<title>Error 404 Not Found</title>" in str(e.message):
+            msg = "Problem attempting to access Jenkins server. Check the Jenkins URL: %s.\nDoes the url have the proper prefix?" % (url)
+            raise Exception(msg)
+        elif "Operation timed out" in str(e.message):
+            msg = "Timeout attempting to access Jenkins server. Check the Jenkins URL: %s.\nCheck the address, port and protocol." % (url)
+            raise Exception(msg)
+        elif "Connection refused" in str(e.message):
+            msg = "Problem attempting to access Jenkins server, connection refused. Check the Jenkins URL: %s.\nCheck the address, port and protocol." % (url)
+            raise Exception(msg)
+        elif "unknown protocol" in str(e.message):
+            msg = "Problem attempting to access Jenkins server, unknown protocol. Check the Jenkins URL: %s.\nCheck the address, port and protocol." % (url)
+            raise Exception(msg)
+        elif "<title>Error 401 Bad credentials</title>" in str(e.message):
+            msg = "Wrong credentials attempting to login to the Jenkins server. Check the user id and password for user: %s." % (user)
+            raise Exception(msg)
+        else:
+            raise Exception(e)
 
     JENKINS_CONNS[conn_name] = j
 
@@ -69,15 +89,29 @@ def jenkins_build_status(TE, step):
         raise Exception(msg)
 
     try:
-        j = JENKINS_CONNS[conn_name]
+        conn = JENKINS_CONNS[conn_name]
     except KeyError:
         msg = "A Jenkins connection by the name of %s does not exist." % (conn_name)
         raise Exception(msg)
+    try:
+        j = conn[job]
+    except KeyError as e:
+        msg = "The Jenkins job %s does not exist on the server" % (job)
+        raise Exception(msg)
+    except Exception as e:
+        raise Exception(e)
 
-    b = j[job].get_build(build_num)
+    try:
+        b = j.get_build(build_num)
+    except KeyError as e:
+        msg = "The build number %s for Jenkins job %s does not exist" % (build_num, job)
+        raise Exception(msg)
+    except Exception as e:
+        raise Exception(e)
+
     status = b.get_status()
     if not status:
-        status = ""
+        status = "UNKNOWN"
 
     msg = "Jenkins Job %s, build number %s has a status of %s" % (job, build_num, status)
     TE.insert_audit("jenkins_build_status", msg, "")
@@ -87,13 +121,12 @@ def jenkins_build_status(TE, step):
 
 def jenkins_build(TE, step):
 
-    conn_name, job, build_var, token = TE.get_command_params(step.command, "conn_name", "job", "build_var", "token")[:]
+    conn_name, job, build_var = TE.get_command_params(step.command, "conn_name", "job", "build_var")[:]
     pairs = TE.get_node_list(step.command, "parameters/parameter", "name", "value")
 
     conn_name = TE.replace_variables(conn_name)
     job = TE.replace_variables(job)
     build_var = TE.replace_variables(build_var)
-    token = TE.replace_variables(token)
 
     if not len(conn_name):
         msg = "Jenkins Build Job command requires a connection name"
@@ -108,13 +141,9 @@ def jenkins_build(TE, step):
         if len(name):
             value = TE.replace_variables(p[1])
             params[name] = value
-    print "token is %s" % token
 
     msg = "Attempting to start Jenkins Job %s \nparameters = %s\n please wait ..." % (job, params)
     TE.insert_audit("jenkins_build", msg, "")
-
-    if not len(token):
-        token = None
 
     try:
         j = JENKINS_CONNS[conn_name]
@@ -123,11 +152,18 @@ def jenkins_build(TE, step):
         raise Exception(msg)
 
     try:
-        i = j[job].invoke(securitytoken=token, build_params=params)
+        i = j[job].invoke(build_params=params)
     except UnknownJob:
-        msg = "The Jenkins job named %s does not exist" % (job)
+        msg = "The Jenkins job named %s does not exist on this Jenkins server" % (job)
         raise Exception(msg)
     except Exception as e:
+        TE.logger.critical(e)
+        if "Operation failed" in str(e.message):
+            msg = """Attempting to start the Jenkins job %s failed. Possible causes:
+                    - calling a job with parameters when the job is not defined for parameters
+                    - calling a job without parameters when the job is defined with parameters""" % (job)
+            raise Exception(msg)
+        else:
             raise Exception(e)
 
     i.block_until_not_queued(timeout=1200, delay=3)

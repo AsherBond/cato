@@ -16,7 +16,6 @@
                 icon="static/images/icons/jenkins.png">
 				<function name="jenkins_build" extension="jenkins_ext.jenkinscmds" variables="false">
 					<conn_name label="Connection Name" input_type="text" required="true" class="w33pct" break_after="true"/>
-					<token label="Token" input_type="text" class="w33pct" break_after="true"/>
 					<job label="Job Name" input_type="text" class="w33pct" required="true"/>
 					<build_var label="Build Number (output)" input_type="text" class="w33pct" break_after="true"/>
                     <parameters is_array="true" label="Parameters">
