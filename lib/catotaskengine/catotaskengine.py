@@ -377,7 +377,7 @@ class TaskEngine():
 
         from pytds import dbapi
         try:
-            conn = dbapi.connect(server=server, user=user, password=password, database=database)
+            conn = dbapi.connect(server=server, user=user, password=password, database=database, autocommit=True)
         except Exception as e:
             msg = "Could not connect to the database. Error message -> %s" % (e)
             raise Exception(msg)
