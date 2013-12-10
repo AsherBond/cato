@@ -945,7 +945,7 @@ class TaskEngine():
                             self.rt.set(name, value, ii + 1)
                             continue
                         else:
-                            begin += 1
+                            begin += len(prefix)
                     else:  # we are using a number index to find the start
                         begin = int(range_begin) - 1
                     if not len(range_end):  # we are using a suffix to find the end
