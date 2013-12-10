@@ -936,6 +936,29 @@ def clear_variable_cmd(self, task, step):
         self.rt.clear(var[0], index=index)
 
 
+
+def replace_cmd(self, task, step):
+
+    source, v_name = self.get_command_params(step.command, "source", "variable_name")[:]
+    source = self.replace_variables(source)
+    v_name = self.replace_variables(v_name)
+
+    if len(v_name) == 0:
+        raise Exception("Replace command requires a Variable Name.")
+
+    patterns = self.get_node_list(step.command, "patterns/pattern", "old", "new", "regsub")
+    for p in patterns:
+        old, new, reg = p[:]
+        old = self.replace_variables(old)
+        new = self.replace_variables(new)
+        if reg == "1":
+            source = re.sub(old, new, source,flags=re.MULTILINE)
+        else:
+            source = source.replace(old, new)
+
+    self.rt.set(v_name, source)
+
+
 def set_variable_cmd(self, task, step):
 
     variables = self.get_node_list(step.command, "variables/variable", "name", "value", "modifier")

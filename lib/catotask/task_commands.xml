@@ -295,6 +295,21 @@
 					</variables>
 				</function>
 			</command>
+			<command name="replace" label="Replace" description="Replaces string patterns within a source string." 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#replace' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
+                icon="static/images/icons/bookmark_toolbar_32.png">
+				<function name="replace">
+					<source input_type="textarea" rows="3" label="Text" class="w95pct" required="true" label_style="display: block;" />
+					<variable_name input_type="text" label="Variable (out)" required="true" />
+					<patterns label="Patterns" is_array="true">
+						<pattern label="Pattern">
+							<old input_type="text" label="Old" />
+							<new input_type="text" label="New" />
+                            <regsub input_type="checkbox" label="Regsub?" />
+						</pattern>
+					</patterns>
+				</function>
+			</command>
 			<command name="clear_variable" label="Clear Variables" description="Removes variables from memory." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#clear' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
                 icon="static/images/icons/bookmark_delete_32.png">
