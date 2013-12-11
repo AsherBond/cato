@@ -245,6 +245,10 @@ class configure:
                 VALUES ('0002bdaf-bfd5-4b9d-82d1-fd39c2947d19',now(),%s)"""
             db.exec_db_noexcep(sql, (pw))            
 
+            msg = "    ... done."
+            out.append(msg)
+            logger.info(msg)
+
         else:
             msg = "    ... exists ... not changing."
             out.append(msg)
