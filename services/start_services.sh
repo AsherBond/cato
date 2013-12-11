@@ -1,33 +1,36 @@
 #!/bin/bash
 . $HOME/.profile
+
+echo ""
+echo "Starting Cato..."
 date
+
 if [ -z "$CATO_HOME" ]; then
-    
-    #EX_FILE=`readlink -f $0`
     EX_FILE=`python -c "import os; print os.path.realpath('$0')"`
     EX_HOME=${EX_FILE%/*}
     CATO_HOME=${EX_HOME%/*}
-    echo "CATO_HOME not set, assuming $CATO_HOME"
+    echo "    CATO_HOME not set, assuming [$CATO_HOME]"
     export CATO_HOME
 fi
+echo "CATO_HOME is [$CATO_HOME]"
+
 if [ -z "$CATO_CONFIG" ]; then
     
     CATO_CONFIG=/etc/cato/cato.conf
-    echo "CATO_CONFIG not set, assuming $CATO_CONFIG"
+    echo "    CATO_CONFIG not set, assuming [$CATO_CONFIG]"
     export CATO_CONFIG
 fi
 
 CATO_LOGS=`grep "^logfiles" $CATO_CONFIG | awk '{print $2}'`
-echo "logfile location $CATO_LOGS"
+echo "Logfile location is [$CATO_LOGS]"
 if [ -z "$CATO_LOGS" ]; then
     CATO_LOGS=/var/cato/log
-    echo "'logfiles' setting not set, assuming $CATO_LOGS"
+    echo "    'logfiles' setting not set, assuming [$CATO_LOGS]"
 fi
 export CATO_LOGS
 
 start_other_procs() {
     count=0
-    echo "Looking for processes to start"
     while read line
     do
         CATO_EXE="$CATO_HOME/services/bin/$line"
@@ -39,14 +42,9 @@ start_other_procs() {
         fi
         if [ ! "$PID" ]; then
             echo "Starting ${CATO_EXE}"
-            #nohup ${CATO_EXE} >> /dev/null 2>&1 &
             nohup ${CATO_EXE} >> /dev/null 2> ${CATO_LOG} &
-        else
-            echo "${CATO_EXE} is already running"
         fi
     done < $CATO_HOME/services/cato_services
-
-    echo "Ending starting processes"
 }
 
 export LD_LIBRARY_PATH=${CATO_HOME}/lib:${LD_LIBRARY_PATH}
@@ -76,11 +74,13 @@ fi
 
 crontab -l | grep ${CATO_HOME}/services/start_services.sh 2>&1 1>/dev/null
 if [ $? -eq 1 ]; then
-    echo "Adding start_services.sh to crontab"
+    echo "Adding start_services.sh to crontab..."
     crontab -l > /tmp/crontab.backup 2>/dev/null
     echo "0-59 * * * * $CATO_HOME/services/start_services.sh >> $CATO_LOGS/startup.log 2>&1" >> /tmp/crontab.backup
     crontab -r 2>/dev/null
     crontab /tmp/crontab.backup
     rm /tmp/crontab.backup
 fi
+
+echo ""
 

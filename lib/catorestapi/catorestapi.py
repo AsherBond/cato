@@ -230,7 +230,7 @@ class configure:
         sql = "select count(*) from users where username = 'Administrator'"
         cnt = db.select_col_noexcep(sql)
         if not cnt:
-            msg = "    Administrator account not found, creating..."
+            msg = "    Configuring Administrator account..."
             out.append(msg)
             logger.info(msg)
             pw = catocommon.cato_encrypt("password")
@@ -246,7 +246,7 @@ class configure:
             db.exec_db_noexcep(sql, (pw))            
 
         else:
-            msg = "    Administrator account already exists."
+            msg = "    ... exists ... not changing."
             out.append(msg)
             logger.info(msg)
 
@@ -260,7 +260,7 @@ class configure:
             logger.info(msg)
             success = cloud.create_static_clouds()
             if success:
-                msg = "... done."
+                msg = "    ... done."
                 out.append(msg)
                 logger.info(msg)
             else:

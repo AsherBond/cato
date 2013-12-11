@@ -19,7 +19,7 @@ if [ -z "$CATO_HOME" ]; then
     EX_FILE=`python -c "import os; print os.path.realpath('$0')"`
     EX_HOME=${EX_FILE%/*}
     CATO_HOME=${EX_HOME%/*}
-    echo "CATO_HOME not set, assuming $CATO_HOME"
+    echo "CATO_HOME not set, assuming [$CATO_HOME]"
     export CATO_HOME
 fi
 
