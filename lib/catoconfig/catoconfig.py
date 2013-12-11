@@ -205,22 +205,26 @@ def get_url(service, default_host):
     # Rules:
     # 1) now, if an explicit _hostname is defined, use it.
     # 2) otherwise use the default passed in from the client
-    
     out = ""
     if service == "admin_ui":
-        host = CONFIG.get("admin_ui_hostname", default_host)
+        host = CONFIG.get("admin_ui_hostname")
+        host = host if host else default_host
         out = "%s://%s:%s" % (CONFIG["admin_ui_protocol"], host, CONFIG["admin_ui_port"])
     if service == "user_ui":
-        host = CONFIG.get("user_ui_hostname", default_host)
+        host = CONFIG.get("user_ui_hostname")
+        host = host if host else default_host
         out = "%s://%s:%s" % (CONFIG["user_ui_protocol"], host, CONFIG["user_ui_port"])
     if service == "rest_api":
-        host = CONFIG.get("rest_api_hostname", default_host)
+        host = CONFIG.get("rest_api_hostname")
+        host = host if host else default_host
         out = "%s://%s:%s" % (CONFIG["rest_api_protocol"], host, CONFIG["rest_api_port"])
     if service == "dash_api":
-        host = CONFIG.get("dash_api_hostname", default_host)
+        host = CONFIG.get("dash_api_hostname")
+        host = host if host else default_host
         out = "%s://%s:%s" % (CONFIG["dash_api_protocol"], host, CONFIG["dash_api_port"])
     if service == "newsfeed_api":
-        host = CONFIG.get("newsfeed_api_hostname", default_host)
+        host = CONFIG.get("newsfeed_api_hostname")
+        host = host if host else default_host
         out = "%s://%s:%s" % (CONFIG["newsfeed_api_protocol"], host, CONFIG["newsfeed_api_port"])
     
     return out
