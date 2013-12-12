@@ -2356,7 +2356,7 @@ class taskMethods:
                     return uiCommon.packJSON("Logfile is too big to view in a web browser.")
                 with open(logfile, 'r') as f:
                     if f:
-                        return uiCommon.packJSON(uiCommon.SafeHTML(f.read().decode("utf8")))
+                        return uiCommon.packJSON(uiCommon.SafeHTML(f.read().decode("utf8", "ignore")))
         
         return uiCommon.packJSON("Unable to read logfile. [%s]" % logfile)
             
