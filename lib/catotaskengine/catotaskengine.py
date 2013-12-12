@@ -511,7 +511,7 @@ class TaskEngine():
                     (task_instance, step_id, entered_dt, connection_name, log, command_text) 
                     values 
                     (%s, %s, now(), %s, %s, %s)"""
-                self.exec_db(sql, (self.task_instance, step_id, conn, log.decode("utf8"), command))
+                self.exec_db(sql, (self.task_instance, step_id, conn, log.decode("utf8", "ignore"), command))
 
                 self.logger.critical(log)
 
