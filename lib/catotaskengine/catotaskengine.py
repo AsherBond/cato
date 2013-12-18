@@ -1617,6 +1617,7 @@ class TaskEngine():
                     # the following attempts a reconnect
                     msg = "lost mysql connection, attempting a reconnect and retrying the query"
                     self.logger.critical(msg)
+                    time.sleep(.5)
                     conn.ping_db()
                     # let's try once more
                     continue
@@ -1644,6 +1645,7 @@ class TaskEngine():
                     # the following attempts a reconnect
                     msg = "lost mysql connection, attempting a reconnect and retrying the query"
                     self.logger.critical(msg)
+                    time.sleep(.5)
                     conn.ping_db()
                     # let's try once more
                     continue
@@ -1671,6 +1673,7 @@ class TaskEngine():
                     # the following attempts a reconnect
                     msg = "lost mysql connection, attempting a reconnect and retrying the query"
                     self.logger.critical(msg)
+                    time.sleep(.5)
                     conn.ping_db()
                     # let's try once more
                     continue
