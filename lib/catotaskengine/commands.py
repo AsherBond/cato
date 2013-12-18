@@ -1154,11 +1154,19 @@ def get_shared_cred_cmd(self, task, step):
     if c:
         userid = c[0]
         password = c[1]
+        pk = c[2]
         self.add_to_sensitive(password)
     else:
         raise Exception("Unable to find Shared Credential using name [%s]." % (alias))
-    self.rt.set(u, userid)
-    self.rt.set(p, password)
+
+    if len(u):
+        self.rt.set(u, userid)
+
+    if len(p):
+        if pk and len(pk):
+            self.rt.set(p, pk)
+        else:
+            self.rt.set(p, password)
 
 def end_cmd(self, task, step):
 
@@ -1225,6 +1233,8 @@ def new_connection_cmd(self, task, step):
             for pair in asset.split(" "):
                 k, v = pair.split("=")
                 if k == "userid":
+                    userid = v
+                elif k == "user":
                     userid = v
                 elif k == "instance":
                     instance_id = v
@@ -1296,6 +1306,8 @@ def new_connection_cmd(self, task, step):
                 k, v = pair.split("=")
                 if k == "address":
                     address = v
+                elif k == "user":
+                    userid = v
                 elif k == "userid":
                     userid = v
                 elif k == "password":
