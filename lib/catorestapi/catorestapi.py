@@ -108,6 +108,13 @@ class wmHandler:
         u = catouser.User()
         u.FromID(user_id)
         if u:
+            logger.debug("""Authenticated:
+                User: %s
+                Full Name: %s
+                Role: %s
+                Tags: %s
+                Token: %s""" % (u.LoginID, u.FullName, u.Role, u.Tags, u.LoginToken))
+            
             api._USER_ID = u.ID
 
             api._USER_ROLE = u.Role

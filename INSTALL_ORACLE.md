@@ -31,16 +31,29 @@ sudo yum -y install unzip libaio.x86_64
 Download the Oracle Instant Client and SDK. For convenience, these downloads are
 provided with the following commands:
 
+
+### FOR 32 BIT SERVERS
+
+```
+curl -Lk http://downloads.cloudsidekick.com/thirdpartylibs/instantclient-sdk-linux-11.2.0.3.0.zip -o instantclient-sdk-linux-11.2.0.3.0.zip
+curl -Lk http://downloads.cloudsidekick.com/thirdpartylibs/instantclient-basiclite-linux-11.2.0.3.0.zip -o instantclient-basiclite-linux-11.2.0.3.0.zip
+
+unzip instantclient-basiclite-linux-11.2.0.3.0.zip -d /tmp
+unzip instantclient-sdk-linux-11.2.0.3.0.zip -d /tmp
+```
+
+### FOR 64 BIT SERVERS
 ```
 curl -Lk http://downloads.cloudsidekick.com/thirdpartylibs/instantclient-sdk-linux.x64-11.2.0.3.0.zip -o instantclient-sdk-linux.x64-11.2.0.3.0.zip
 curl -Lk http://downloads.cloudsidekick.com/thirdpartylibs/instantclient-basiclite-linux.x64-11.2.0.3.0.zip -o instantclient-basiclite-linux.x64-11.2.0.3.0.zip
-```
 
-Unzip these files and move them into the cato application directory.
-
-```
 unzip instantclient-basiclite-linux.x64-11.2.0.3.0.zip -d /tmp
 unzip instantclient-sdk-linux.x64-11.2.0.3.0.zip -d /tmp
+```
+
+Move the files into the Cato application directory ($CATO_HOME).
+
+```
 mv /tmp/instantclient_11_2 ${CATO_HOME}/lib/.
 mv ${CATO_HOME}/lib/instantclient_11_2/sdk/include ${CATO_HOME}/lib/instantclient_11_2/include
 ```
