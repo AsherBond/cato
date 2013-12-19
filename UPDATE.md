@@ -53,9 +53,9 @@ Run the update script, `update-cato.sh`. This script will update Cato.
 
     /tmp/update-cato.sh ${VER} root cloudsidekick
 
-### Step 5 - Verify Version Numbers
+### Step 5 - Verify Version Number
 
-Verify both applications were updated.  The results of the following commands should match the desired version set in Step 1.
+Verify the application were updated.  The results of the following command should match the desired version set in Step 1.
 
 	cat $CATO_HOME/VERSION
 
@@ -77,7 +77,7 @@ Should show:
     cato_rest_api
     cato_scheduler
     
-> Cato has a messenger component as well, but it will not be running unless it is configured.
+> Cato has a `cato_messenger` component as well, but it will not be running unless it is configured.
 
 
 If all processes are not running, check the logfiles for errors. 
