@@ -99,7 +99,7 @@ class System:
 
 
 class Connection:
-    def __init__(self, conn_name, conn_type=None, system=None, debug=False, initial_prompt=None):
+    def __init__(self, conn_name, conn_type=None, system=None, debug=False, initial_prompt=None, winrm_transport=None):
 
         self.conn_name = conn_name
         self.conn_handle = None
@@ -107,6 +107,7 @@ class Connection:
         self.system = system
         self.debug = debug
         self.initial_prompt = initial_prompt
+        self.winrm_transport = winrm_transport
 
 
 class TaskHandle:

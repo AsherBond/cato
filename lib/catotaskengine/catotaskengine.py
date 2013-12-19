@@ -1038,7 +1038,7 @@ class TaskEngine():
         return value
         
 
-    def connect_winrm(self, server, port, user, password, protocol):
+    def connect_winrm(self, server, port, user, password, protocol, winrm_transport):
 
         if not port:
             port = "5985"
@@ -1054,6 +1054,17 @@ class TaskEngine():
             transport = "plaintext"
         else:
             transport = "ssl"
+
+        # unfortunately the pywinrm lib considers protocol and transport the same
+        # therefore if kerberos is set, we will override the protocol decision above
+        # until we can confirm that kerberos can run on plaintext or ssl
+        if winrm_transport == "kerberos":
+            transport = "kerberos"
+        elif winrm_transport == "ssl":
+            transport = "ssl"
+        elif winrm_transport == "plaintext":
+            transport = "plaintext"
+        print "transport is %s" % transport
 
         address = "%s://%s:%s/wsman" % (protocol, server, port)
         import winrm
@@ -1552,7 +1563,7 @@ class TaskEngine():
         elif c.conn_type == "winrm":
 
             c.handle = self.connect_winrm(server=c.system.address, port=c.system.port, user=c.system.userid,
-                password=c.system.password, protocol=c.system.protocol)
+                password=c.system.password, protocol=c.system.protocol, winrm_transport=c.winrm_transport)
 
             c.shell_id = self.get_winrm_shell(c.handle)
             
