@@ -214,9 +214,10 @@ class TaskEngine():
 
         at_prompt = False
         timeout = 20
+        buffer = ""
             
         if not default_prompt:
-            default_prompt = "~ #|# $|% $|\$ $"
+            default_prompt = "~ #|# $|% $|\$ $|> $"
 
         if not host:
             raise Exception("Connection address is required to establish a connection")
@@ -224,8 +225,8 @@ class TaskEngine():
             raise Exception("User id is required to establish a connection")
         
         expect_list = [
-            "No route to host|Permission denied|Network is unreachable|onnection reset by peer|onnection refused|onnection closed by|Read from socket failed|Name or service not known|Connection timed out",
-            "Please login as the user .* rather than the user|expired|Old password:|Host key verification failed|Authentication failed|denied|incorrect|Login Failed|This Account is NOT Valid",
+            "No route to host|Network is unreachable|onnection reset by peer|onnection refused|onnection closed by|Read from socket failed|Name or service not known|Connection timed out",
+            "Please login as the user .* rather than the user|expired|Old password:|Host key verification failed|Authentication failed|Permission denied|denied|incorrect|Login Failed|This Account is NOT Valid",
             "yes/no",
             "passphrase for key.*:",
             default_prompt,
@@ -234,7 +235,7 @@ class TaskEngine():
             pexpect.EOF,
             pexpect.TIMEOUT]
 
-        if debug:
+        if debug == "1":
             verbose = "-vv"
         else:
             verbose = ""
@@ -253,6 +254,7 @@ class TaskEngine():
         attempt = 1
         while reattempt is True:
             c = pexpect.spawn(cmd, timeout=timeout, logfile=sys.stdout)
+            buffer = cmd + "\n"
 
             # TODO - telnet support
             # TODO - regenerate host key if failure
@@ -260,20 +262,40 @@ class TaskEngine():
             msg = None
             cpl = c.compile_pattern_list(expect_list)
                 
+            sent_password = False
             while not at_prompt:
 
                 index = c.expect_list(cpl)
+                try:
+                    buffer += c.before + c.after
+                except:
+                    buffer += c.before
+                if debug == "1":
+                    self.logger.warning("%s" % str(c))
+
                 if index in [0, 7, 8]:
+                    msg = ""
+                    if index == 7:
+                        msg = "The connection to %s closed unexpectedly." % (host)
+                    elif index == 8:
+                        if sent_password:
+                            msg = "Authenticated but timeout waiting for initial prompt using regular expression \"%s\" on address %s." % (default_prompt, host)
+                        else:
+                            msg = "Timeout attempting waiting for password prompt on address %s." % (host)
                     if attempt != 10:
-                        log_msg = "ssh connection address %s unreachable on attempt %d. Sleeping and reattempting" % (host, attempt)
-                        self.insert_audit("new_connection", log_msg, "")
+                        msg = "%s\nssh connection address %s unreachable on attempt %d. %s Sleeping and reattempting" % (buffer, host, attempt, msg)
+                        self.insert_audit("new_connection", msg, "")
                         time.sleep(20)
                         attempt += 1
                         break
                     else:
-                        msg = "The address %s is unreachable, check network or firewall settings" % (host)
+                        msg = "%s\nThe address %s is unreachable, check network or firewall settings %s" % (buffer, host, msg)
                 elif index == 1:
-                    msg = "Authentication failed for address %s, user %s" % (host, user)
+                    if key:
+                        more_msg = "key authentication. Check that the private key matches the server public key or that the user has permission to login to this server using ssh."
+                    else:
+                        more_msg = "password authentication. Check that the password for the user is correct or that the user has permission to login to this server using ssh."
+                    msg = "%s\nAuthentication failed for address %s, user %s using ssh %s" % (buffer, host, user, more_msg)
                 elif index == 2:
                     c.sendline ("yes")
                 elif index == 3:
@@ -285,19 +307,19 @@ class TaskEngine():
                     self.logger.warning("The password for user %s will expire soon! Continuing ..." % (user))
                     c.logfile = None
                     c.sendline(password)
+                    sent_password = True
                     # c.logfile=sys.stdout 
                 elif index == 6:
                     c.logfile = None
                     c.sendline(password)
+                    sent_password = True
                     # c.logfile=sys.stdout 
                     c.delaybeforesend = 0
-                # elif index == 7:
-                #    msg = "The connection to %s closed unexpectedly." % (host)
                 if msg:
-                    try: 
-                        msg = msg + "\n" + c.before + c.match.group() + c.after
-                    except:
-                        pass
+                    #try: 
+                    #    msg = msg + "\n" + c.before + c.after
+                    #except:
+                    #    pass
                     if key:
                         self.remove_pk(kf_name)
                     raise Exception(msg)
@@ -307,6 +329,7 @@ class TaskEngine():
 
         c.sendline("unset PROMPT_COMMAND;export PS1='PROMPT>'")
         index = c.expect(["PROMPT>.*PROMPT>$", pexpect.EOF, pexpect.TIMEOUT])
+        buffer += c.before + c.after
         if index == 0:
             pass
         elif index == 1:
@@ -325,6 +348,7 @@ class TaskEngine():
             raise Exception(msg)
         c.sendline ("stty -onlcr;export PS2='';stty -echo;unalias ls")
         index = c.expect (["PROMPT>$", pexpect.EOF, pexpect.TIMEOUT])
+        buffer += c.before + c.after
         if index == 0:
             pass
         elif index == 1:
@@ -342,7 +366,8 @@ class TaskEngine():
                 pass
             raise Exception(msg)
 
-        self.logger.info("ssh connected to address %s with user %s established" % (host, user))
+        self.insert_audit("New Connection", buffer, "")
+        self.logger.info("ssh connected to address %s with user %s established\n%s" % (host, user, buffer))
 
         return c
 
@@ -1510,12 +1535,12 @@ class TaskEngine():
 
             # c.handle = self.connect_ssh_telnet("ssh", c.system.address, c.system.userid, password=c.system.password)
             c.handle = self.connect_expect("ssh", c.system.address, c.system.userid, password=c.system.password,
-                key=c.system.private_key, debug=c.debug)
+                key=c.system.private_key, debug=c.debug, default_prompt=c.initial_prompt)
 
         elif c.conn_type == "telnet":
 
             # c.handle = self.connect_ssh_telnet("telnet", c.system.address, c.system.userid, password=c.system.password)
-            c.handle = self.connect_expect("telnet", c.system.address, c.system.userid, password=c.system.password)
+            c.handle = self.connect_expect("telnet", c.system.address, c.system.userid, password=c.system.password, default_prompt=c.initial_prompt)
             
         elif c.conn_type == "ssh - ec2":
 
@@ -1618,7 +1643,7 @@ class TaskEngine():
                     msg = "lost mysql connection, attempting a reconnect and retrying the query"
                     self.logger.critical(msg)
                     time.sleep(.5)
-                    conn.ping_db()
+                    conn.reconnect_db()
                     # let's try once more
                     continue
                 else:
@@ -1646,7 +1671,7 @@ class TaskEngine():
                     msg = "lost mysql connection, attempting a reconnect and retrying the query"
                     self.logger.critical(msg)
                     time.sleep(.5)
-                    conn.ping_db()
+                    conn.reconnect_db()
                     # let's try once more
                     continue
                 else:
@@ -1674,7 +1699,7 @@ class TaskEngine():
                     msg = "lost mysql connection, attempting a reconnect and retrying the query"
                     self.logger.critical(msg)
                     time.sleep(.5)
-                    conn.ping_db()
+                    conn.reconnect_db()
                     # let's try once more
                     continue
                 else:

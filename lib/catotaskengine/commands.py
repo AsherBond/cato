@@ -1209,6 +1209,8 @@ def new_connection_cmd(self, task, step):
 
         self.drop_connection(conn_name)
 
+    initial_prompt = None
+
     # for the asset string, we can either have an asset_id, an asset name,
     # a user@instanceid or a dynamically created connection string
 
@@ -1299,12 +1301,18 @@ def new_connection_cmd(self, task, step):
         except KeyError:
             # we haven't loaded it before, let's disect the asset string
 
-            address = userid = password = port = db_name = protocol = shared_cred = pk = None
-            #debug = False
+            asset_name = address = userid = password = port = db_name = protocol = shared_cred = pk = None
 
-            for pair in asset.split(" "):
+            # the following was added to support quoting values, e.g. asset="asset 1"
+            pairs = re.findall(r'\w+=".+?"', asset) + re.findall(r'\w+=[^"][\S.]+[^" ]',asset)
+            for pair in pairs:
+                print pair
                 k, v = pair.split("=")
-                if k == "address":
+                # strip quotes if they used them
+                v = v.strip("\"")
+                if k == "asset":
+                    asset_name = v
+                elif k == "address":
                     address = v
                 elif k == "user":
                     userid = v
@@ -1320,6 +1328,8 @@ def new_connection_cmd(self, task, step):
                     db_name = v
                 elif k == "shared_cred":
                     shared_cred = v
+                elif k == "initial_prompt":
+                    initial_prompt = v
                 elif k == "shared_credential":
                     shared_cred = v
                 else:
@@ -1336,15 +1346,20 @@ def new_connection_cmd(self, task, step):
                         pk = c[2]
                 else:
                     raise Exception("Unable to find Shared Credential using name [%s]." % (shared_cred))
-                 
-            self.add_to_sensitive(password)
-            s = classes.System(name, address=address, userid=userid, password=password,
-                port=port, db_name=db_name, protocol=protocol, private_key=pk)
+
+            if asset_name:
+                asset_id = self.get_system_id_from_name(asset_name)
+                s = self.gather_system_info(asset_id)
+            else:
+                if password and len(password):
+                    self.add_to_sensitive(password)
+                s = classes.System(name, address=address, userid=userid, password=password,
+                    port=port, db_name=db_name, protocol=protocol, private_key=pk)
 
             self.systems[name] = s
 
     # we've made it this far, let's create the new connection object
-    conn = classes.Connection(conn_name, conn_type=conn_type, system=s, debug=debug)
+    conn = classes.Connection(conn_name, conn_type=conn_type, system=s, debug=debug, initial_prompt=initial_prompt)
     self.connections[conn_name] = conn
         
     # and make the connection. We'll store any connection handle we get back for later use

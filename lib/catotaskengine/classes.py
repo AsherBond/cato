@@ -99,13 +99,14 @@ class System:
 
 
 class Connection:
-    def __init__(self, conn_name, conn_type=None, system=None, debug=False):
+    def __init__(self, conn_name, conn_type=None, system=None, debug=False, initial_prompt=None):
 
         self.conn_name = conn_name
         self.conn_handle = None
         self.conn_type = conn_type
         self.system = system
         self.debug = debug
+        self.initial_prompt = initial_prompt
 
 
 class TaskHandle:
