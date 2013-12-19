@@ -19,11 +19,34 @@ import pymysql
 class Db(object):
 
     def __init__(self):
-        self.conn = ""
+        self.conn = None
         self.error = ""
+        self.server = ""
+        self.port = ""
+        self.database = ""
+        self.user = ""
+        self.password = ""
 
+    def reconnect_db(self):
+
+        if self.conn:
+            del(self.conn)
+        try:
+            self.conn = pymysql.connect(charset='utf8', host=self.server, port=self.port, 
+                user=self.user, passwd=self.password, db=self.database)
+            self.conn.autocommit(1)
+        except Exception as e:
+            raise Exception(e)
+    
+        
     def connect_db(self, server="", port=3306, database="", user="", password=""):
         """Establishes a connection as a class property."""
+
+        self.server = server
+        self.port = int(port)
+        self.database = database
+        self.user = user
+        self.password = password
 
         try:
             self.conn = pymysql.connect(charset='utf8', host=server, port=int(port), 
