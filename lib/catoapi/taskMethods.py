@@ -133,7 +133,7 @@ class taskMethods:
             return R(err_code=R.Codes.GetError, err_detail=obj.Error)
 
         if not api.is_object_allowed(obj.task_id, catocommon.CatoObjectTypes.Task):
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to details of this Task.")
             
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
@@ -153,7 +153,7 @@ class taskMethods:
         """
         # this is a developer function
         if not api._DEVELOPER:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
         
         required_params = ["instance"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -169,7 +169,7 @@ class taskMethods:
 #                    deployment.WriteDeploymentLog(msg, dep_id=deployment_id, seq_inst=sequence_instance)
 
         if not api.is_object_allowed(obj.task_id, catocommon.CatoObjectTypes.Task):
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to details of this Task.")
             
         result, err = obj.Resubmit(api._USER_ID)
         if result:
@@ -194,7 +194,7 @@ class taskMethods:
         obj = task.TaskRunLog(args["instance"])
 
         if not api.is_object_allowed(obj.task_id, catocommon.CatoObjectTypes.Task):
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
             
         if args["output_format"] == "json":
             return R(response=obj.AsJSON())
@@ -224,7 +224,7 @@ class taskMethods:
         """
         # this is a developer function
         if not api._DEVELOPER:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
         
         required_params = ["task"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -238,7 +238,7 @@ class taskMethods:
         obj.FromNameVersion(args["task"], ver, False)
 
         if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
             
         task_id = obj.ID
         debug = args.get("log_level", "20")
@@ -293,7 +293,7 @@ class taskMethods:
         """
         # this is a developer function
         if not api._DEVELOPER:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
         
         required_params = ["instance"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -303,7 +303,7 @@ class taskMethods:
         ti = task.TaskInstance(args["instance"])
 
         if not api.is_object_allowed(ti.task_id, catocommon.CatoObjectTypes.Task):
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
             
         ti.Stop()
         return R(response="Instance [%s] successfully stopped." % args["instance"])
@@ -322,7 +322,7 @@ class taskMethods:
         """
         # this is a admin function
         if not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
         
         required_params = ["task"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -335,7 +335,7 @@ class taskMethods:
         obj.FromNameVersion(name=args["task"], include_code=False)
 
         if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
             
         task.Tasks.Delete(["'%s'" % obj.ID], force)
         
@@ -425,7 +425,7 @@ class taskMethods:
         obj.FromNameVersion(args["task"], ver)
         
         if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
             
         if args["output_format"] == "json":
             return R(response=obj.AsJSON(include_code=ic))
@@ -458,7 +458,7 @@ class taskMethods:
         obj.FromNameVersion(args["task"], ver)
 
         if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
             
         if obj.ParameterXDoc:
             """
@@ -532,7 +532,7 @@ class taskMethods:
         obj.FromNameVersion(args["task"], ver)
         
         if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
         
         if args["output_format"] == "json":
             return R(response=obj.PlansAsJSON())
@@ -568,7 +568,7 @@ class taskMethods:
         obj.FromNameVersion(args["task"], ver)
         
         if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
         
         if args["output_format"] == "json":
             return R(response=obj.SchedulesAsJSON())
@@ -607,7 +607,7 @@ class taskMethods:
         obj.FromNameVersion(args["task"], ver)
 
         if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
             
         if obj.ParameterXDoc:
             """
@@ -676,7 +676,7 @@ class taskMethods:
         obj.FromNameVersion(args["task"], args.get("version"))
 
         if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
             
         tids = [obj.ID]
         
@@ -716,7 +716,7 @@ class taskMethods:
         """
         # this is a developer function
         if not api._DEVELOPER:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
         
         required_params = ["tasks"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -741,7 +741,7 @@ class taskMethods:
             obj.FromNameVersion(t["Task"], t.get("Version"), False)
     
             if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
-                return R(err_code=R.Codes.Forbidden)
+                return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
                 
             sched_def = { 
                          "Months" : t.get("Months"),
@@ -774,7 +774,7 @@ class taskMethods:
         """
         # this is a admin function
         if not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
         
         required_params = ["schedule_id"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -798,7 +798,7 @@ class taskMethods:
         """
         # this is a admin function
         if not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
         
         required_params = ["plan_id"]
         has_required, resp = api.check_required_params(required_params, args)

@@ -193,7 +193,7 @@ class sysMethods:
 
         # this is a admin function, kick out 
         if user and not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
 
         # the only way to reset an "Administrator" role password
         # is to BE an Administrator and SPECIFY a user, even if the user is you
@@ -251,7 +251,7 @@ class sysMethods:
 
         # this is a admin function, kick out 
         if not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
 
         # define the required parameters for this call
         required_params = ["user", "name", "role"]
@@ -338,7 +338,7 @@ class sysMethods:
 
         # this is a admin function, kick out 
         if not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
 
         # define the required parameters for this call
         required_params = ["user"]
@@ -415,7 +415,7 @@ class sysMethods:
         """
         # this is a admin function, kick out 
         if not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
 
         fltr = args.get("filter", "")
 
@@ -451,7 +451,7 @@ class sysMethods:
 
         # this is a admin function, kick out 
         if not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
 
         required_params = ["module", "settings"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -502,7 +502,7 @@ class sysMethods:
         """
         # this is a admin function, kick out 
         if not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
 
         mod = args.get("module")
         obj = None
@@ -543,7 +543,7 @@ class sysMethods:
 
         # this is a admin function, kick out 
         if not api._DEVELOPER:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
 
         # define the required parameters for this call
         required_params = ["name", "username", "password"]
@@ -578,7 +578,7 @@ class sysMethods:
         """
         # this is a developer function
         if not api._DEVELOPER:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
         
         required_params = ["credential"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -631,7 +631,7 @@ class sysMethods:
         """
         # this is a admin function, kick out 
         if not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
 
         out = []        
         rows = catocommon.get_security_log(oid=args.get("object_id"), otype=args.get("object_type"),
@@ -698,7 +698,7 @@ class sysMethods:
         """
         # this is a admin function, kick out 
         if not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
     
         # define the required parameters for this call
         required_params = ["name"]
@@ -728,7 +728,7 @@ class sysMethods:
         """
         # this is a admin function, kick out 
         if not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
     
         # define the required parameters for this call
         required_params = ["name"]
@@ -765,7 +765,7 @@ class sysMethods:
         """
         # this is a admin function
         if not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
     
         # define the required parameters for this call
         required_params = ["tag", "object_id", "object_type"]
@@ -793,7 +793,7 @@ class sysMethods:
         """
         # this is a admin function
         if not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
     
         # define the required parameters for this call
         required_params = ["tag", "object_id", "object_type"]
@@ -955,7 +955,7 @@ class sysMethods:
         """
         # this is a developer function
         if not api._DEVELOPER:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
         
         required_params = ["name"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -1002,7 +1002,7 @@ class sysMethods:
         """
         # this is a admin function
         if not api._ADMIN:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
         
         required_params = ["asset"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -1013,7 +1013,7 @@ class sysMethods:
         obj.FromName(args["asset"])
 
         if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Asset):
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Asset.")
             
         asset.Assets.Delete(["'%s'" % obj.ID])
         

@@ -84,7 +84,7 @@ class cloudMethods:
         """
         # this is a developer function
         if not api._DEVELOPER:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
         
         required_params = ["name", "provider", "login", "password", "default_cloud"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -121,7 +121,7 @@ class cloudMethods:
         """
         # this is a developer function
         if not api._DEVELOPER:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
         
         required_params = ["name"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -183,7 +183,7 @@ class cloudMethods:
         """
         # this is a developer function
         if not api._DEVELOPER:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
         
         required_params = ["name", "provider", "apiurl", "apiprotocol"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -223,7 +223,7 @@ class cloudMethods:
         """
         # this is a developer function
         if not api._DEVELOPER:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
         
         required_params = ["name"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -312,7 +312,7 @@ class cloudMethods:
         """
         # this is a developer function
         if not api._DEVELOPER:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
         
         required_params = ["cloud", "name", "private_key"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -346,7 +346,7 @@ class cloudMethods:
         """
         # this is a developer function
         if not api._DEVELOPER:
-            return R(err_code=R.Codes.Forbidden)
+            return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
         
         required_params = ["cloud", "name"]
         has_required, resp = api.check_required_params(required_params, args)
