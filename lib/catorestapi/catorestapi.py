@@ -348,7 +348,7 @@ class ExceptionHandlingApplication(web.application):
             args = web.input()
             web.ctx.status = "280 Informational Response"
             output_format = args["output_format"] if args.has_key("output_format") else ""
-            logger.exception(ex.__str__())
+            logger.info(ex.message)
             response = api.response(err_code=api.response.Codes.Exception, err_detail=ex.__str__())
             return response.Write(output_format)
         except Exception as ex:

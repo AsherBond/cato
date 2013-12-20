@@ -55,7 +55,7 @@ Run the update script, `update-cato.sh`. This script will update Cato.
 
 ### Step 5 - Verify Version Number
 
-Verify the application were updated.  The results of the following command should match the desired version set in Step 1.
+Verify the application was updated.  The results of the following command should match the desired version set in Step 1.
 
 	cat $CATO_HOME/VERSION
 
