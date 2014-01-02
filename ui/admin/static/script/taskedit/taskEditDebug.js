@@ -63,8 +63,8 @@ $(document).ready(function() {
 	//    }
 
 	//temporary
-	$("#debug_run_btn").removeClass("debug_btn_dim")
-	$("#debug_stop_btn").removeClass("debug_btn_dim")
+	$("#debug_run_btn").removeClass("debug_btn_dim");
+	$("#debug_stop_btn").removeClass("debug_btn_dim");
 
 	//the click events for the 'debug' buttons
 	$("#debug_run_btn").click(function() {
@@ -141,20 +141,20 @@ $(document).ready(function() {
 			$("#asset_picker_results li[tag='asset_picker_row']").click(function() {
 
 				if ($("#asset_picker_target_field").val() == "txtTestAsset") {
-					field.val($(this).attr("asset_name"))
+					field.val($(this).attr("asset_name"));
 					//this is the picker for the Debug tab
 					field.attr("asset_id", $(this).attr("asset_id"));
 					doSaveDebugAsset();
 
 				} else {
 					// this is a picker somewhere on a step
-					field.val($(this).attr("asset_id"))
+					field.val($(this).attr("asset_name"));
 					// we need an id hidden, and a name displayed
 					var namefield = $("#" + $("#asset_picker_target_name_field").val());
-					namefield.val($(this).attr("asset_name"))
+					namefield.val($(this).attr("asset_name"));
 
 					//disable the "name" field...
-					namefield.attr('disabled', 'disabled');
+					//namefield.attr('disabled', 'disabled');
 
 					//turn off any syntax checking on the "name" field... and reset the style
 					namefield.removeAttr('syntax');
