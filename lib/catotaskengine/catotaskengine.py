@@ -398,16 +398,21 @@ class TaskEngine():
         return conn
 
 
-    def connect_mssql(self, server="", port="", uid="", pwd="", database=""):
+    def connect_mssql(self, system=None):
 
         from pytds import dbapi, login
         conn = None
+        # server=c.system.address, port=port, uid=c.system.userid, pwd=c.system.password, database=c.system.db_name
         
         # If the username has a \ in it... it's NTLM authentication...
-        if "\\" in uid:
-            self.logger.debug("SQL Server - UID contains a backslash ... attempting NTLM authentication...")
+        if system.domain:
+            self.logger.debug("SQL Server - Domain provided... attempting NTLM authentication...")
             try:
-                conn = dbapi.connect(server=server, auth=login.NtlmAuth(user_name=uid, password=pwd), database=database, autocommit=True)
+                conn = dbapi.connect(server=system.address, 
+                                     port=system.port,
+                                     auth=login.NtlmAuth(user_name="%s\\%s" % (system.domain, system.userid), password=system.password), 
+                                     database=system.db_name, 
+                                     autocommit=True)
             except Exception as e:
                 msg = "Could not connect to the database. Error message -> %s" % (e)
                 raise Exception(msg)
@@ -416,7 +421,12 @@ class TaskEngine():
             self.logger.debug("SQL Server - authenticating using a local database account...")
             # regular auth using a sql server native account
             try:
-                conn = dbapi.connect(server=server, user=uid, password=pwd, database=database, autocommit=True)
+                conn = dbapi.connect(server=system.address, 
+                                     port=system.port,
+                                     user=system.userid, 
+                                     password=system.password, 
+                                     database=system.db_name, 
+                                     autocommit=True)
             except Exception as e:
                 msg = "Could not connect to the database. Error message -> %s" % (e)
                 raise Exception(msg)
@@ -1554,7 +1564,7 @@ class TaskEngine():
 
     def connect_system(self, c):
 
-        msg = "Going into system %s userid %s with conn type of %s" % (c.system.address, c.system.userid, c.conn_type)
+        msg = "Going into system [%s] userid [%s] with conn type of [%s]." % (c.system.address, c.system.userid, c.conn_type)
         self.logger.info(msg)
 
         if c.conn_type == "ssh":
@@ -1613,9 +1623,7 @@ class TaskEngine():
             else:
                 port = 1433
                
-            c.handle = self.connect_mssql(server=c.system.address, port=port, uid=c.system.userid,
-                pwd=c.system.password, database=c.system.db_name)
-
+            c.handle = self.connect_mssql(system=c.system)
         elif c.conn_type == "oracle":
         
             if not c.system.port or c.system.port == "":
