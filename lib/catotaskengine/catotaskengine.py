@@ -182,7 +182,7 @@ class TaskEngine():
         elif index == 1:
             msg = "The connection to closed unexpectedly."
             try:
-                msg = msg + "\n" + c.before + c.match.group() + c.after
+                msg = msg + "\n" + str(c.before) + c.match.group() + str(c.after)
             except:
                 pass
             raise Exception(msg)
@@ -192,13 +192,13 @@ class TaskEngine():
         elif index == 3:
             msg = "Negative response %s received ..." % (neg)
             try:
-                msg = cmd + "\n" + msg + "\n" + c.before + c.match.group() + c.after
+                msg = cmd + "\n" + msg + "\n" + str(c.before) + c.match.group() + str(c.after)
             except:
                 pass
             raise Exception(msg)
 
         # remove any trailing newline
-        return c.before.rstrip("\n")
+        return str(c.before).rstrip("\n")
 
 
     def remove_pk(self, kf_name):
@@ -267,9 +267,9 @@ class TaskEngine():
 
                 index = c.expect_list(cpl)
                 try:
-                    buffer += c.before + c.after
+                    buffer += str(c.before) + str(c.after)
                 except:
-                    buffer += c.before
+                    buffer += str(c.before)
                 if debug == "1":
                     self.logger.warning("%s" % str(c))
 
@@ -329,45 +329,45 @@ class TaskEngine():
 
         c.sendline("unset PROMPT_COMMAND;export PS1='PROMPT>'")
         index = c.expect(["PROMPT>.*PROMPT>$", pexpect.EOF, pexpect.TIMEOUT])
-        buffer += c.before + c.after
+        buffer += str(c.before) + str(c.after)
         if index == 0:
             pass
         elif index == 1:
             msg = "The connection to %s closed unexpectedly." % (host)
             try:
-                msg = msg + "\n" + c.before + c.match.group() + c.after
+                msg = msg + "\n" + str(c.before) + c.match.group() + str(c.after)
             except:
                 pass
             raise Exception(msg)
         elif index == 2:
-            msg = "Timeout resetting command prompt"
+            msg = "Timeout resetting command prompt."
             try:
-                msg = msg + "\n" + c.before + c.match.group() + c.after
+                msg = msg + "\n" + str(c.before) + c.match.group() + str(c.after)
             except:
                 pass
             raise Exception(msg)
         c.sendline ("stty -onlcr;export PS2='';stty -echo;unalias ls")
         index = c.expect (["PROMPT>$", pexpect.EOF, pexpect.TIMEOUT])
-        buffer += c.before + c.after
+        buffer += str(c.before) + str(c.after)
         if index == 0:
             pass
         elif index == 1:
             msg = "The connection to %s closed unexpectedly." % (host)
             try:
-                msg = msg + "\n" + c.before + c.match.group() + c.after
+                msg = msg + "\n" + str(c.before) + c.match.group() + str(c.after)
             except:
                 pass
             raise Exception(msg)
         elif index == 2:
-            msg = "Timeout resetting command prompt"
+            msg = "Timeout configuring TTY."
             try:
-                msg = msg + "\n" + c.before + c.match.group() + c.after
+                msg = msg + "\n" + str(c.before) + c.match.group() + str(c.after)
             except:
                 pass
             raise Exception(msg)
 
         self.insert_audit("New Connection", buffer, "")
-        self.logger.info("ssh connected to address %s with user %s established\n%s" % (host, user, buffer))
+        self.logger.info("ssh connected to address [%s] with user [%s] established.\n%s" % (host, user, buffer))
 
         return c
 
@@ -398,14 +398,39 @@ class TaskEngine():
         return conn
 
 
-    def connect_mssql(self, server="", port="", user="", password="", database=""):
+    def connect_mssql(self, system=None):
 
-        from pytds import dbapi
-        try:
-            conn = dbapi.connect(server=server, user=user, password=password, database=database, autocommit=True)
-        except Exception as e:
-            msg = "Could not connect to the database. Error message -> %s" % (e)
-            raise Exception(msg)
+        from pytds import dbapi, login
+        conn = None
+        # server=c.system.address, port=port, uid=c.system.userid, pwd=c.system.password, database=c.system.db_name
+        
+        # If the username has a \ in it... it's NTLM authentication...
+        if system.domain:
+            self.logger.debug("SQL Server - Domain provided... attempting NTLM authentication...")
+            try:
+                conn = dbapi.connect(server=system.address, 
+                                     port=system.port,
+                                     auth=login.NtlmAuth(user_name="%s\\%s" % (system.domain, system.userid), password=system.password), 
+                                     database=system.db_name, 
+                                     autocommit=True)
+            except Exception as e:
+                msg = "Could not connect to the database. Error message -> %s" % (e)
+                raise Exception(msg)
+            return conn
+        else:
+            self.logger.debug("SQL Server - authenticating using a local database account...")
+            # regular auth using a sql server native account
+            try:
+                conn = dbapi.connect(server=system.address, 
+                                     port=system.port,
+                                     user=system.userid, 
+                                     password=system.password, 
+                                     database=system.db_name, 
+                                     autocommit=True)
+            except Exception as e:
+                msg = "Could not connect to the database. Error message -> %s" % (e)
+                raise Exception(msg)
+    
         return conn
 
 
@@ -1539,7 +1564,7 @@ class TaskEngine():
 
     def connect_system(self, c):
 
-        msg = "Going into system %s userid %s with conn type of %s" % (c.system.address, c.system.userid, c.conn_type)
+        msg = "Going into system [%s] userid [%s] with conn type of [%s]." % (c.system.address, c.system.userid, c.conn_type)
         self.logger.info(msg)
 
         if c.conn_type == "ssh":
@@ -1598,9 +1623,7 @@ class TaskEngine():
             else:
                 port = 1433
                
-            c.handle = self.connect_mssql(server=c.system.address, port=port, user=c.system.userid,
-                password=c.system.password, database=c.system.db_name)
-
+            c.handle = self.connect_mssql(system=c.system)
         elif c.conn_type == "oracle":
         
             if not c.system.port or c.system.port == "":

@@ -1311,19 +1311,17 @@ def new_connection_cmd(self, task, step):
                 v = v.strip("\"")
                 if k == "asset":
                     asset_name = v
-                elif k == "address":
+                elif k in ["server", "address"]:
                     address = v
-                elif k == "user":
+                elif k in ["user", "userid", "uid"]:
                     userid = v
-                elif k == "userid":
-                    userid = v
-                elif k == "password":
+                elif k in ["password", "pwd"]:
                     password = v
                 elif k == "port":
                     port = v
                 elif k == "protocol":
                     protocol = v
-                elif k == "db_name":
+                elif k in ["db_name", "database"]:
                     db_name = v
                 elif k == "winrm_transport":
                     winrm_transport = v
@@ -1331,11 +1329,11 @@ def new_connection_cmd(self, task, step):
                     shared_cred = v
                 elif k == "initial_prompt":
                     initial_prompt = v
-                elif k == "shared_credential":
+                elif k in ["shared_credential", "credential"]:
                     shared_cred = v
                 else:
                     msg = "Unsupported key-value pair [%s], skipping..." % (pair)
-                    self.logger.info(msg)
+                    self.logger.warning(msg)
             if shared_cred:
                 c = catocommon.lookup_shared_cred(shared_cred)
                 if c:
