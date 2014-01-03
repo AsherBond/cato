@@ -355,9 +355,8 @@ def FilterSetByTag(set_to_filter):
         filtered = []
         if tags and set_to_filter:
             try:
+                s1 = set(tags)
                 for item in set_to_filter:
-                    s1 = set(tags)
-    
                     # now, if the input isn't a list or csv, raise an exception
                     s2 = []
                     if isinstance(item["Tags"], list):
@@ -366,7 +365,8 @@ def FilterSetByTag(set_to_filter):
                         s2 = set(item["Tags"].split(","))
 
                     if s1 and s2:
-                        filtered.append(item)
+                        if len(s1.intersection(s2)) > 0:
+                            filtered.append(item)
             except Exception as ex:
                     raise Exception("Unable to reconcile User/Object Tags - input isn't a valid list of Tags.\n%s" % ex.__str__())
             

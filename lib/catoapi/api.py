@@ -209,20 +209,29 @@ def authenticate(action, args):
 	# made it here... we're authenticated!
 	return True, key
 
-def filter_set_by_tag(rows):
+def filter_set_by_tag(set_to_filter):
 	# if permissions checking is turned off, everything is allowed
 	if catoconfig.CONFIG["ui_permissions"] == "false":
-		return rows
+		return set_to_filter
 
 	if _USER_ROLE == "Administrator":
-		return rows
+		return set_to_filter
 	else:
 		tags = tag.ObjectTags(1, _USER_ID)
 		filtered = []
-		if tags and rows:
-			for row in rows:
-				if set(tags) & set(row["Tags"].split(",") if row["Tags"] else []):
-					filtered.append(row)
+		if tags and set_to_filter:
+			s1 = set(tags)
+			for item in set_to_filter:
+				# now, if the input isn't a list or csv, raise an exception
+				s2 = []
+				if isinstance(item["Tags"], list):
+					s2 = set(item["Tags"])
+				elif isinstance(item["Tags"], basestring):
+					s2 = set(item["Tags"].split(","))
+
+				if s1 and s2:
+					if len(s1.intersection(s2)) > 0:
+						filtered.append(item)
 		return filtered
 
 def is_object_allowed(object_id, object_type):
