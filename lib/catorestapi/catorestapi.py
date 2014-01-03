@@ -104,6 +104,11 @@ class wmHandler:
         # we wanna stick a few things in there we might need.
         args["output_format"] = output_format
         
+        # THESE FLAGS GRANT SPECIAL ABILITIES!!!!
+        # ensure they are cleared before authenticating each request
+        api._ADMIN = False
+        api._DEVELOPER = False
+        
         # the API commands do some logging that use these detail properties
         u = catouser.User()
         u.FromID(user_id)
@@ -122,9 +127,11 @@ class wmHandler:
             
             # flags are set so certain methods can have restricted access.
             if u.Role == "Administrator":
+                logger.info("[%s] is operating with ADMIN privileges." % (u.FullName))
                 api._ADMIN = True
                 api._DEVELOPER = True
             if u.Role == "Developer":
+                logger.info("[%s] is operating with DEVELOPER privileges." % (u.FullName))
                 api._DEVELOPER = True
                 
             # Tags are placed in a global for any access checks
