@@ -17,9 +17,9 @@
 import os
 import sys
 
-# ## requires croniter from https://github.com/taichino/croniter
-from croniter import croniter
 from datetime import datetime
+
+from . import schedcommon
 
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 lib_path = os.path.join(base_path, "lib")
@@ -100,8 +100,6 @@ class Scheduler(catoprocess.CatoService):
             months = row[2]
             days_or_weeks = row[3]
             days = row[4]
-            # hours [split_clean = row[5]]
-            # minutes [split_clean = row[6]]
             hours = row[5]
             minutes = row[6]
             start_dt = row[7]
@@ -113,37 +111,11 @@ class Scheduler(catoprocess.CatoService):
             account_id = row[13]
             cloud_id = row[14]
     
-            # print "Number to start = ", start_instances
-            if not start_dt:
-                start_dt = now
-            else:
-                start_dt = start_dt + 1
-    
-            # days = self.split_clean(self.string map(self.day_map, days))
-            # months = self.split_clean(months)
-    
-            # the_dates = ""
-            # print days_or_weeks
-            # print days
-            if days_or_weeks == 1:
-                # this will be days of the week, 0 - 6
-                # 0 = sunday, 1 = monday, ... 6 = saturday
-                dow = days
-                dom = "*"
-            else:
-                # this will be days of the month, 1 - 31
-                dow = "*"
-                dom = days
-    
-            months = ",".join([str((int(i) + 1)) for i in months.split(",")])
-            # start_dt = start_dt + 600000
-            the_start_dt = datetime.fromtimestamp(start_dt)
-            cron_string = minutes + " " + hours + " " + dom + " " + months + " " + dow
-            # print cron_string
-            citer = croniter(cron_string, the_start_dt) 
+            citer = schedcommon.get_cron(start_dt, now, months, days_or_weeks, days, hours, minutes)
+
+            # for however many total date instances we want need to add, iterate and insert
             for _ in range(start_instances):
                 date = citer.get_next(datetime)
-                # print date
                 sql = """insert into action_plan 
                         (task_id, run_on_dt, action_id, parameter_xml, debug_level, source, schedule_id, account_id, cloud_id)
                         values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
@@ -153,6 +125,9 @@ class Scheduler(catoprocess.CatoService):
 
     def expand_schedules(self):
         try:
+            # get any schedules that are below their minimum pre-loaded depth
+            # for example: if we have a schedule that has 4 pre-loaded instances but the min depth is 5
+            # we need to add more pre-loaded schedule up to the max amount (e.g. 10)
             sql = """select distinct(a.schedule_id), unix_timestamp() as now, a.months, a.days_or_weeks, a.days, 
                         a.hours, a.minutes, max(unix_timestamp(ap.run_on_dt)), a.task_id, a.action_id,
                         a.parameter_xml, a.debug_level, %s - count(ap.schedule_id) as num_to_start, a.account_id, a.cloud_id
@@ -164,8 +139,6 @@ class Scheduler(catoprocess.CatoService):
             rows = self.db.select_all(sql, (self.min_depth, self.min_depth))
             if rows:
                 for row in rows:
-                    # print "row is"
-                    # print row
                     self.expand_this_schedule(row)
         except Exception as ex:
             self.logger.error("Error in expand_schedules.\n" + ex.__str__())
