@@ -1353,12 +1353,12 @@ def new_connection_cmd(self, task, step):
                 if password and len(password):
                     self.add_to_sensitive(password)
                 s = classes.System(name, address=address, userid=userid, password=password,
-                    port=port, db_name=db_name, protocol=protocol, private_key=pk)
+                    port=port, db_name=db_name, protocol=protocol, private_key=pk, winrm_transport=winrm_transport)
 
             self.systems[name] = s
 
     # we've made it this far, let's create the new connection object
-    conn = classes.Connection(conn_name, conn_type=conn_type, system=s, debug=debug, initial_prompt=initial_prompt, winrm_transport=winrm_transport)
+    conn = classes.Connection(conn_name, conn_type=conn_type, system=s, debug=debug, initial_prompt=initial_prompt, winrm_transport=s.winrm_transport)
     self.connections[conn_name] = conn
         
     # and make the connection. We'll store any connection handle we get back for later use

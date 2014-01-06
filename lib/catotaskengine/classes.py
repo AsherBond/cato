@@ -80,7 +80,7 @@ class Task:
 class System:
     def __init__(self, name, address=None, port=None, db_name=None, conn_type=None, userid=None,
         password=None, p_password=None, domain=None, conn_string=None, private_key=None,
-        private_key_name=None, cloud_name=None, protocol=None):
+        private_key_name=None, cloud_name=None, protocol=None, winrm_transport=None):
 
         self.name = name
         self.address = address
@@ -96,6 +96,7 @@ class System:
         self.private_key_name = private_key_name
         self.cloud_name = cloud_name
         self.protocol = protocol
+        self.winrm_transport = winrm_transport
 
 
 class Connection:
