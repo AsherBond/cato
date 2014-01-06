@@ -115,7 +115,8 @@ class Messenger(catoprocess.CatoService):
                     self.logger.info("tls found, using it")
                     s.starttls()
                     s.ehlo()
-                s.login(self.smtp_user, self.smtp_pass)
+                if len(self.smtp_user) > 0 and len(self.smtp_pass) > 0:
+                    s.login(self.smtp_user, self.smtp_pass)
             except Exception as e:
                 err_msg = "Error attempting to establish smtp connection to smtp server %s, port %s: %s" % (self.smtp_server, self.smtp_port, e)
                 self.logger.info(err_msg)
