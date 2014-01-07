@@ -110,6 +110,7 @@ $(document).ready(function() {
 		$("#asset_picker_target_field").val($(this).attr("link_to"));
 		$("#asset_picker_target_name_field").val($(this).attr("target_field_id"));
 		$("#asset_picker_dialog").dialog("open");
+		$("#asset_search_btn").click();
 		$("#asset_search_text").focus();
 	});
 	// when you hit enter inside an asset search
