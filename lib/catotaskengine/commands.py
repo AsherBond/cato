@@ -34,7 +34,7 @@ from catoconfig import catoconfig
 from catocommon import catocommon
 from . import classes
 
-RESERVED_COLLECTIONS = ["deployments", "services", "default", "system.indexes"]
+RESERVED_COLLECTIONS = ["default", "system.indexes"]
 
 def _eval(expr):
     """
