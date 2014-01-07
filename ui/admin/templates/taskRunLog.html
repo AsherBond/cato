@@ -34,6 +34,7 @@ $var cssfiles: taskRunLog.css
         <div class="floatright">
             <span id="show_detail" class="vis_btn vis_btn_off">Details</span><span id="show_cmd"
             class="vis_btn vis_btn_off">Commands</span><span id="show_results" class="vis_btn">Results</span>
+            <span id="view_logfile_btn" class="vis_btn vis_btn_off">Logfile</span>
             <span class="get_all vis_btn vis_btn_off">All Rows</span>
         </div>
         <div class="clearfloat"></div>
@@ -67,7 +68,7 @@ $var cssfiles: taskRunLog.css
         </table>
     </div>
 </div>
-<div id="ti_content" style="margin-top: 84px;">
+<div id="ti_content">
     <div id="pnlOtherInstances" class="ui-widget-content ui-corner-all instance_header hidden">
         <table class="jtable" cellspacing="1" cellpadding="1" width="100%">
             <thead>
@@ -88,12 +89,9 @@ $var cssfiles: taskRunLog.css
             <div id="ltSummary"></div>
         </div>
     </div>
-    <div class="ui-widget-content ui-corner-all result_summary">
+    <div id="audit" class="ui-widget-content ui-corner-all result_summary">
         <div class="ui-widget-header ui-corner-top result_summary_header">
             Log <span id="row_count_lbl"></span>
-            <div class="floatright">
-                <a id="view_logfile_btn" href="#">(view logfile) </a>
-            </div>
         </div>
         <div class="result_summary_detail">
             <div id="ltLog"></div>
@@ -101,6 +99,12 @@ $var cssfiles: taskRunLog.css
                 <span id="get_all_bottom" class="get_all vis_btn vis_btn_off pointer hidden">Get All Rows</span>
             </div>
         </div>
+    </div>
+    <div id="logfile" class="hidden ui-widget-content ui-corner-all result_summary">
+        <div class="ui-widget-header ui-corner-top result_summary_header">
+            Logfile
+        </div>
+        <pre class="log_results" id="logfile_text"></pre>
     </div>
 </div>
 <div id="resubmit_dialog" title="Run Task" class="ui-state-highlight">
@@ -113,6 +117,4 @@ $var cssfiles: taskRunLog.css
 <div id="task_launch_dialog" title="Run Task">
     <div id="plan_edit_dialog" title="Edit Plan"></div>
 </div>
-<div id="logfile_dialog" title="Logfile">
-    <pre class="log_results" id="logfile_text"></pre>
-</div>
+<a id="_bottom_anchor" name="_bottom_anchor"></a>

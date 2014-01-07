@@ -46,6 +46,10 @@ $(document).ready(function() {
 	//view logfile link
 	$("#view_logfile_btn").click(function() {
 		doGetLogfile();
+		$("#show_results").addClass("vis_btn_off");
+		$("#view_logfile_btn").removeClass("vis_btn_off");
+		$("#audit").hide();
+		$("#logfile").show();
 	});
 
 	$("#logfile_dialog").dialog({
@@ -122,8 +126,10 @@ $(document).ready(function() {
 		$("#show_cmd").toggleClass("vis_btn_off");
 	});
 	$("#show_results").click(function() {
-		$(".log_results").toggleClass("hidden");
-		$("#show_results").toggleClass("vis_btn_off");
+		$("#logfile").hide();
+		$("#audit").show();
+		$("#show_results").removeClass("vis_btn_off");
+		$("#view_logfile_btn").addClass("vis_btn_off");
 	});
 
 	//repost and ask for the whole log
@@ -205,7 +211,21 @@ $(document).ready(function() {
 	}
 	doGetDetails();
 
+	// if it's running, enable the timer
+	var status = $("#lblStatus").text();
+	if ("Completed,Error,Cancelled".indexOf(status) == -1) {
+		window.setInterval(refreshDynamic, 5000);
+	}
+
 });
+
+function refreshDynamic() {"use strict";
+	var status = $("#lblStatus").text();
+	if ("Completed,Error,Cancelled".indexOf(status) == -1) {
+		doGetDetails();
+		location.hash = "_bottom_anchor";
+	}
+}
 
 function doGetDetails() {
 	var instance = ajaxPost("taskMethods/wmGetTaskRunLogDetails", {

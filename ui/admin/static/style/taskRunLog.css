@@ -8,6 +8,9 @@
 textarea {
 	width: 90%;
 }
+#ti_content {
+	margin-top: 84px;
+}
 .result_summary {
 	margin: 2px 4px 2px 4px;
 }
@@ -26,8 +29,7 @@ textarea {
 	vertical-align: middle;
 }
 .action_bar {
-	height: 24px;
-	padding-top: 8px;
+	padding: 4px;
 }
 .instance_label {
 	font-weight: bold;
