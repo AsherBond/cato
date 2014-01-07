@@ -187,7 +187,11 @@ versions = [
                           PRIMARY KEY (`tag_name`, `permission`)
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8"""]
                       ]
+             ],
+            ["1.23", [
+                      ["addcolumn", "deployment_service_inst", "document_id", "VARCHAR(24) NULL"]
              ]
+            ]
         ]
 
 import os

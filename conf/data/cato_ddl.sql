@@ -401,6 +401,7 @@ CREATE TABLE `deployment_service_inst` (
   `host_id` varchar(36) DEFAULT NULL,
   `seq_instance` bigint(20) DEFAULT NULL,
   `run_level` int(11) DEFAULT NULL,
+  `document_id` varchar(24) DEFAULT NULL,
   PRIMARY KEY (`instance_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE `deployment_step` (
