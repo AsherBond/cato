@@ -1304,7 +1304,7 @@ def new_connection_cmd(self, task, step):
             asset_name = address = userid = password = port = db_name = protocol = shared_cred = pk = None
 
             # the following was added to support quoting values, e.g. asset="asset 1"
-            pairs = re.findall(r'\w+=".+?"', asset) + re.findall(r'\w+=[^"][\S.]+[^" ]',asset)
+            pairs = re.findall(r'\w+=".+?"', asset) + re.findall(r'\w+=[^" ]+',asset)
             for pair in pairs:
                 k, v = pair.split("=")
                 # strip quotes if they used them
