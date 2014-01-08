@@ -34,6 +34,7 @@ from catoconfig import catoconfig
 from catocommon import catocommon
 from . import classes
 
+DEPLOYMENT_COLLECTIONS = ["deployments", "services", "serviceinstances"]
 RESERVED_COLLECTIONS = ["default", "system.indexes"]
 
 def _eval(expr):
@@ -119,7 +120,7 @@ def datastore_drop_collection_cmd(self, task, step):
     if len(collection) == 0:
         raise Exception("Datastore Drop Collection command requires a collection name")
 
-    if collection in RESERVED_COLLECTIONS:
+    if collection in RESERVED_COLLECTIONS or collection in DEPLOYMENT_COLLECTIONS:
         msg = "Datastore Drop Collection error: %s is a reserved collection name" % (collection)
         raise Exception(msg)
 
@@ -142,7 +143,7 @@ def datastore_create_collection_cmd(self, task, step):
     if len(collection) == 0:
         raise Exception("Datastore Create Collection command requires a collection name")
 
-    if collection in RESERVED_COLLECTIONS:
+    if collection in RESERVED_COLLECTIONS or collection in DEPLOYMENT_COLLECTIONS:
         msg = "Datastore Create Collection error: %s is a reserved collection name" % (collection)
         raise Exception(msg)
 
@@ -213,7 +214,7 @@ def datastore_delete_cmd(self, task, step):
     if len(collection) == 0:
         raise Exception("Datastore Delete requires a collection name")
 
-    if collection in RESERVED_COLLECTIONS:
+    if collection in RESERVED_COLLECTIONS or collection in DEPLOYMENT_COLLECTIONS:
         msg = "Datastore Delete Collection error: %s is a reserved collection name" % (collection)
         raise Exception(msg)
 
@@ -243,7 +244,7 @@ def datastore_create_index_cmd(self, task, step):
         msg = "Datastore Create Index error: a list of columns is required"
         raise Exception(msg)
 
-    if collection in RESERVED_COLLECTIONS:
+    if collection in RESERVED_COLLECTIONS or collection in DEPLOYMENT_COLLECTIONS:
         msg = "Datastore Create Index error: %s is a reserved collection name" % (collection)
         raise Exception(msg)
 
@@ -287,6 +288,10 @@ def datastore_find_and_modify_cmd(self, task, step):
 
     if len(collection) == 0:
         raise Exception("Datastore Find and Modify requires a collection name")
+
+    if collection in RESERVED_COLLECTIONS:
+        msg = "Datastore Find and Modify error: %s is a reserved collection name" % (collection)
+        raise Exception(msg)
 
     db = catocommon.new_mongo_conn()
     if collection in db.collection_names():
