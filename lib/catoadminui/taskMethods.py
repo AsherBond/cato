@@ -707,8 +707,10 @@ class taskMethods:
         # the function has a fn_ or clip_ prefix on it from the HTML.  Strip it off.
         # FIX... test the string to see if it BEGINS with fn_ or clip_
         # IF SO... cut off the beginning... NOT a replace operation.
-        if sItem[:3] == "fn_": sItem = sItem[3:]
-        if sItem[:5] == "clip_": sItem = sItem[5:]
+        if sItem[:3] == "fn_":
+            sItem = sItem[3:]
+        if sItem[:5] == "clip_":
+            sItem = sItem[5:]
 
         # could also beging with cb_, which means a codeblock was dragged and dropped.
         # this special case will result in a codeblock command.
