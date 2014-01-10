@@ -206,7 +206,7 @@ class taskMethods:
         sTaskDesc = uiCommon.unpackJSON(uiCommon.getAjaxArg("sTaskDesc"))
 
         t = task.Task.DBCreateNew(sTaskName, sTaskCode, sTaskDesc)
-        uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "");
+        uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "")
 
         return json.dumps({"id" : t.ID})
 
@@ -220,7 +220,7 @@ class taskMethods:
         
         sNewTaskID = t.Copy(0, sTaskName, sTaskCode)
         
-        uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Copied from " + sCopyTaskID);
+        uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Copied from " + sCopyTaskID)
         return json.dumps({"id" : sNewTaskID})
 
     def wmDeleteTasks(self):
@@ -570,8 +570,10 @@ class taskMethods:
         # the function has a fn_ or clip_ prefix on it from the HTML.  Strip it off.
         # FIX... test the string to see if it BEGINS with fn_ or clip_
         # IF SO... cut off the beginning... NOT a replace operation.
-        if sItem[:3] == "fn_": sItem = sItem[3:]
-        if sItem[:5] == "clip_": sItem = sItem[5:]
+        if sItem[:3] == "fn_":
+            sItem = sItem[3:]
+        if sItem[:5] == "clip_":
+            sItem = sItem[5:]
 
         # could also beging with cb_, which means a codeblock was dragged and dropped.
         # this special case will result in a codeblock command.
@@ -1207,7 +1209,7 @@ class taskMethods:
                 x.text = sLProp
 
         # if it's delimited, sort it
-        if sOPM == "1" or bAllDelimited == True:
+        if sOPM == "1" or bAllDelimited:
             # They're all delimited, sort by the delimiter index
             data = []
             for elem in xVars:
@@ -1366,7 +1368,7 @@ class taskMethods:
         sParameterXML = catocommon.unpackData(sParameterXML)
                         
         # we gotta peek into the XML and encrypt any newly keyed values
-        sParameterXML = task.Task.PrepareAndEncryptParameterXML(sParameterXML);                
+        sParameterXML = task.Task.PrepareAndEncryptParameterXML(sParameterXML)
     
         if catocommon.is_guid(sTaskID) and catocommon.is_guid(sUserID):
             ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, account_id=sAccountID)
@@ -1395,7 +1397,8 @@ class taskMethods:
         if sType == "task":
             return self.GetObjectParameterXML(sType, sID, "")
         else:
-            return self.GetMergedParameterXML(sType, sID, sFilterID, sXPath);  # Merging is happening here!
+            # Merging is happening here!
+            return self.GetMergedParameterXML(sType, sID, sFilterID, sXPath)
 
     # """
     #  This method simply gets the XML directly from the db for the type.
@@ -1689,7 +1692,7 @@ class taskMethods:
             sXML = uiCommon.unpackJSON(sXML)
 
             # we gotta peek into the XML and encrypt any newly keyed values
-            sXML = task.Task.PrepareAndEncryptParameterXML(sXML);                
+            sXML = task.Task.PrepareAndEncryptParameterXML(sXML)
 
             # so, like when we read it, we gotta spin and compare, and build an XML that only represents *changes*
             # to the defaults on the task.
@@ -1868,7 +1871,7 @@ class taskMethods:
         sValuesHTML = ""
         sPresentAs = "value"
         sConstraint = ""
-        sConstraintMsg = "";                                        
+        sConstraintMsg = ""
         sMinLength = ""
         sMaxLength = ""
         sMinValue = ""
@@ -1883,13 +1886,16 @@ class taskMethods:
             sXML = self.db.select_col(sSQL)
             if sXML:
                 xd = catocommon.ET.fromstring(sXML)
-                if xd is None: raise Exception("XML parameter data is invalid.")
+                if xd is None:
+                    raise Exception("XML parameter data is invalid.")
 
                 xParameter = xd.find("parameter[@id='" + sParamID + "']")
-                if xParameter is None: return "Error: XML does not contain parameter."
+                if xParameter is None:
+                    return "Error: XML does not contain parameter."
 
                 sName = xParameter.findtext("name", "")
-                if sName is None: return "Error: XML does not contain parameter name."
+                if sName is None:
+                    return "Error: XML does not contain parameter name."
 
                 sDesc = xParameter.findtext("desc", "")
 

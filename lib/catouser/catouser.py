@@ -172,7 +172,7 @@ class User(object):
             methods for testing passwords, etc.
         """
         if not user_id and not login_id and not fullname:
-            raise Exception("Error building User object: User ID, Login or Name is required.");    
+            raise Exception("Error building User object: User ID, Login or Name is required.")
         
         db = catocommon.new_conn()
 

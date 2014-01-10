@@ -139,7 +139,7 @@ class Asset(object):
         """
         db = catocommon.new_conn()
         if not asset_id and not asset_name:
-            raise Exception("Error building Asset object: ID or Name is required.");    
+            raise Exception("Error building Asset object: ID or Name is required.")
         
         sSQL = """select a.asset_id, a.asset_name, a.asset_status, a.port, a.db_name, a.conn_string,
             a.address, ac.username, ac.domain,

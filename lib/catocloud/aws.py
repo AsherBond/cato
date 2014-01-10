@@ -34,7 +34,7 @@ class awsInterface(object):
             ca = cloud.CloudAccount()
             ca.FromID(account_id)
             if ca.ID is None:
-                msg =  "Failed to get Cloud Account details for Cloud Account ID [" + account_id + "]."
+                msg =  "Failed to get Cloud Account details for Cloud Account ID ["+account_id+"]."
                 logger.error(msg)
                 return None, msg
 
@@ -58,7 +58,7 @@ class awsInterface(object):
                 msg = "Failed to get Cloud details for Cloud ID [" + cloud_id + "]."
                 return None, msg
             
-            sURL, err = self.BuildURL(ca, c, cloud_object_type, additional_args);  
+            sURL, err = self.BuildURL(ca, c, cloud_object_type, additional_args)
             if err:
                 return None, err
             

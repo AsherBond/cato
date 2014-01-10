@@ -317,7 +317,8 @@ class Task(object):
         self.PopulateTask(dr, include_code)
 
     def FromXML(self, sTaskXML, onconflict=None):
-        if not sTaskXML: return None
+        if not sTaskXML:
+            return None
         
         xmlerr = "XML Error: Attribute not found."
         
@@ -510,7 +511,7 @@ class Task(object):
                 steps = []
                 for st in cb.Steps.itervalues():
                     steps.append(json.loads(st.AsJSON()))
-                codeblocks.append({ "Name" : name, "Steps" : steps })
+                codeblocks.append({"Name" : name, "Steps" : steps})
 
             t["Codeblocks"] = codeblocks
 
@@ -1195,7 +1196,8 @@ class Codeblock(object):
         
     # a codeblock contains a dictionary collection of steps
     def FromXML(self, sCBXML=""):
-        if sCBXML == "": return None
+        if sCBXML == "":
+            return None
         xCB = catocommon.ET.fromstring(sCBXML)
         
         self.Name = xCB.attrib["name"]
@@ -1259,8 +1261,10 @@ class Step(object):
         return catocommon.ObjectOutput.AsJSON(self.__dict__)        
 
     def FromXML(self, sStepXML="", sCodeblockName=""):
-        if sStepXML == "": return None
-        if sCodeblockName == "": return None
+        if sStepXML == "":
+            return None
+        if sCodeblockName == "":
+            return None
         
         xStep = catocommon.ET.fromstring(sStepXML)
         
@@ -1286,7 +1290,8 @@ class Step(object):
         self.FunctionName = xFunc.get("name", xFunc.get("command_type", ""))
     
     def FromDict(self, step, sCodeblockName=""):
-        if sCodeblockName == "": return None
+        if sCodeblockName == "":
+            return None
         
         # when created from a dict, steps always get a new id
         self.ID = catocommon.new_guid()

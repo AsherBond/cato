@@ -152,7 +152,7 @@ def DrawFullStep(oStep):
     return sMainHTML
 
 def GetStepTemplate(oStep):
-    if oStep.IsValid == False:
+    if oStep.IsValid is False:
         return "This step is damaged.  Check the log file for details.  It may be necessary to delete and recreate it.", "", ""
 
     sFunction = oStep.FunctionName
@@ -226,7 +226,7 @@ def DrawReadOnlyStep(oStep, bDisplayNotes):
     if fn is None:
         # the function doesn't exist (was probably deprecated)
         # we need at least a basic strip with a delete button
-        sNoFunc = "<li>";            
+        sNoFunc = "<li>"
         sNoFunc += "<div class=\"ui-state-default ui-state-highlightview_step\" id=\"" + sStepID + "\">"
         sNoFunc += "    <div class=\"view_step_header ui-state-default ui-state-highlight\" id=\"view_step_header_" + sStepID + "\"><img src=\"static/images/icons/status_unknown_16.png\" height=\"16px\" width=\"16px\" /></div>"
         sNoFunc += "    <div class=\"view_step_detail ui-state-highlight\" id=\"step_detail_" + sStepID + "\">"
@@ -710,7 +710,8 @@ def DrawField(xe, sXPath, oStep):
                             UI.log("---- Found data ... parsing ...", 4)
                             for node in nodes:
                                 sHTML += "<option " + SetOption(node.text, sNodeValue) + " value=\"" + node.text + "\">" + node.text + "</option>\n"
-                                if node.text == sNodeValue: bValueWasInData = True
+                                if node.text == sNodeValue:
+                                    bValueWasInData = True
                         else:
                             UI.log("---- Dataset found but cannot find values in [" + sValueNode + "].", 4)
                     else:
@@ -725,7 +726,8 @@ def DrawField(xe, sXPath, oStep):
                     for line in f:
                         val = line.strip()
                         sHTML += "<option " + SetOption(val, sNodeValue) + " value=\"" + val + "\">" + val + "</option>\n"
-                        if val == sNodeValue: bValueWasInData = True
+                        if val == sNodeValue:
+                            bValueWasInData = True
                         
                     f.close()
             except Exception:
@@ -742,7 +744,8 @@ def DrawField(xe, sXPath, oStep):
                     if data:
                         for key, val in sorted(data.iteritems()):
                             sHTML += "<option " + SetOption(key, sNodeValue) + " value=\"" + key + "\">" + val + "</option>\n"
-                            if key == sNodeValue: bValueWasInData = True
+                            if key == sNodeValue:
+                                bValueWasInData = True
             except Exception:
                 UI.log_nouser(traceback.format_exc(), 0)
         else:  # default is "local"
@@ -752,13 +755,14 @@ def DrawField(xe, sXPath, oStep):
             for sVal in aValues:
                 sHTML += "<option " + SetOption(sVal, sNodeValue) + " value=\"" + sVal + "\">" + sVal + "</option>\n"
 
-                if sVal == sNodeValue: bValueWasInData = True
+                if sVal == sNodeValue:
+                    bValueWasInData = True
         
         # NOTE: If it has the "combo" style and a value, that means we're allowing the user to enter a value that may not be 
         # in the dataset.  If that's the case, we must add the actual saved value to the list too. 
         if not bValueWasInData:  # we didn't find it in the data ..
             if "combo" in sCSSClasses and sNodeValue:  # and it's a combo and not empty
-                sHTML += "<option " + SetOption(sNodeValue, sNodeValue) + " value=\"" + sNodeValue + "\">" + sNodeValue + "</option>\n";            
+                sHTML += "<option " + SetOption(sNodeValue, sNodeValue) + " value=\"" + sNodeValue + "\">" + sNodeValue + "</option>\n"
 
         sHTML += "</select>"
     elif sInputType == "checkbox":
@@ -2527,13 +2531,14 @@ def NewConnection(oStep):
             for k, v in data.iteritems():
                 sHTML += "<option " + SetOption(k, sCloudName) + " value=\"" + k + "\">" + v + "</option>\n"
 
-                if k == sCloudName: bValueWasInData = True
+                if k == sCloudName:
+                    bValueWasInData = True
         
         # NOTE: we're allowing the user to enter a value that may not be 
         # in the dataset.  If that's the case, we must add the actual saved value to the list too. 
         if not bValueWasInData:  # we didn't find it in the data ..:
             if sCloudName:  # and it's a combo and not empty
-                sHTML += "<option " + SetOption(sCloudName, sCloudName) + " value=\"" + sCloudName + "\">" + sCloudName + "</option>\n";            
+                sHTML += "<option " + SetOption(sCloudName, sCloudName) + " value=\"" + sCloudName + "\">" + sCloudName + "</option>\n"
         
         sHTML += "</select>"
 

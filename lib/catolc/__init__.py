@@ -43,7 +43,7 @@ logger = None
 AUTH_VERSION = '2.0_password'
 
 # providers that require use of auth_url
-OPENSTACK_PROVIDERS = [ Provider.RACKSPACE_NOVA_BETA, Provider.RACKSPACE_NOVA_DFW ,Provider.OPENSTACK ]
+OPENSTACK_PROVIDERS = [Provider.RACKSPACE_NOVA_BETA, Provider.RACKSPACE_NOVA_DFW ,Provider.OPENSTACK]
 
 # libcloud.compute.types implements class Provider
 # we are using the definition as of libcloud-0.11.1 9/18/12
@@ -178,7 +178,7 @@ class CloudProvider:
         if not provider:
             raise UnsupportedProviderError('Provider %s not supported' % provider)
         providerId = ALL_PROVIDERS_MAP.get(provider)
-        if providerId == None:
+        if providerId is None:
             raise UnsupportedProviderError('Provider %s not supported' % provider)
         
         self._provider = provider
@@ -234,8 +234,7 @@ class CloudProvider:
         if argErrors:
             raise MissingArgumentError(', '.join(argErrors))
         driver = get_driver(self.providerId)
-        logger.debug('creating connection: username: %s, auth_url: %s' % \
-                     (self.username, self.url))
+        logger.debug('creating connection: username: %s, auth_url: %s' % (self.username, self.url))
         if self.providerId in OPENSTACK_PROVIDERS:
             raise MissingArgumentError('URL unknown')
             self._conn = driver(self.username, self.password, 

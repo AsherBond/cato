@@ -1486,7 +1486,7 @@ def cato_web_service_cmd(self, task, step):
         self.rt.set(result_var, buff)
 
     if len(xpath):
-         self.parse_xml(buff, xpath, values)
+        self.parse_xml(buff, xpath, values)
 
 def route53_cmd(self, task, step):
 

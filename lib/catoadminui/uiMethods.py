@@ -899,7 +899,7 @@ class uiMethods:
         a, sErr = asset.Asset.DBCreateNew(args)
         if sErr:
             return json.dumps({"error" : sErr})
-        if a == None:
+        if a is None:
             return json.dumps({"error" : "Unable to create Asset."})
 
         uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Asset, a.ID, a.Name, "Asset Created")

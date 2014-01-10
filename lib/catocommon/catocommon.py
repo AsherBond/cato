@@ -98,9 +98,7 @@ def mongo_disconnect(db):
     try:
         db.connection.disconnect()
     except Exception, e:
-        raise DatastoreError(
-                    "Error disconnecting %s: %s" \
-                    % db.name, e)
+        raise DatastoreError("Error disconnecting %s: %s" % db.name, e)
 
 # this common function will use the encryption key in the config, and DECRYPT the input
 def cato_decrypt(encrypted):
@@ -878,7 +876,7 @@ class ObjectOutput(object):
             for key in keys:
                 vals.append(str(getattr(obj, key)))
 
-        if header == False:
+        if header is False:
             return "%s" % (delimiter.join(vals))
         else:
             return "%s\n%s" % (delimiter.join(keys), delimiter.join(vals))
@@ -936,7 +934,7 @@ class ObjectOutput(object):
                     # but if they're not, just return the whole row
                     cols.append(str(row))
                 outrows.append(delimiter.join(cols))
-        if header == False:
+        if header is False:
             return "%s" % ("\n".join(outrows))
         else:
             return "%s\n%s" % (delimiter.join(keys), "\n".join(outrows))

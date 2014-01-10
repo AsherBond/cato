@@ -395,13 +395,15 @@ def main():
         sslcert = catoconfig.CONFIG.get("rest_api_ssl_cert", os.path.join(catoconfig.CONFDIR, "cato.crt"))
         sslkey = catoconfig.CONFIG.get("rest_api_ssl_key", os.path.join(catoconfig.CONFDIR, "cato.key"))
         try:
-            with open(sslcert): pass
+            with open(sslcert):
+                pass
             logger.debug("SSL Certificate [%s]" % sslcert)
             CherryPyWSGIServer.ssl_certificate = sslcert
         except:
             raise Exception("SSL Certificate not found at [%s]" % sslcert)
         try:
-            with open(sslkey): pass
+            with open(sslkey):
+                pass
             logger.debug("SSL Key [%s]" % sslkey)
             CherryPyWSGIServer.ssl_private_key = sslkey
         except:

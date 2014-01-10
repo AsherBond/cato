@@ -124,7 +124,7 @@ def include(elem, loader=None):
                         "cannot load %r as %r" % (href, parse)
                         )
                 if i:
-                    node = elem[i-1]
+                    node = elem[i - 1]
                     node.tail = (node.tail or "") + text + (e.tail or "")
                 else:
                     elem.text = (elem.text or "") + text + (e.tail or "")
