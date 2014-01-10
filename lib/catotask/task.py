@@ -1416,11 +1416,11 @@ class Step(object):
         self.FunctionName = dr["function_name"]
 
         # user settings, if available
-        if dr.has_key("button"):
+        if "button" in dr:
             self.UserSettings.Button = json.loads(dr["button"]) if dr["button"] else {}
-        if dr.has_key("skip"):
+        if "skip" in dr:
             self.UserSettings.Skip = (True if dr["skip"] == 1 else False)
-        if dr.has_key("visible"):
+        if "visible" in dr:
             self.UserSettings.Visible = (False if dr["visible"] == 0 else True)
 
 #        # NOTE!! :oTask can possibly be null, in lots of cases where we are just getting a step and don't know the task.

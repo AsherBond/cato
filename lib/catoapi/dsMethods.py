@@ -25,7 +25,7 @@ import json
 
 # These API endpoints require Maestro
 # we look at the MAESTRO_HOME environment variable and load the libs from that path
-if not os.environ.has_key("MAESTRO_HOME") or not os.environ["MAESTRO_HOME"]:
+if "MAESTRO_HOME" not in os.environ or not os.environ["MAESTRO_HOME"]:
     raise Exception("Maestro is required for API methods in this module.  MAESTRO_HOME environment variable not set.")
 
 MAESTRO_HOME = os.environ["MAESTRO_HOME"]
@@ -52,8 +52,8 @@ class dsMethods:
         
         Returns: A list of Documents.
         """
-        collection = args["collection"] if args.has_key("collection") else ""
-        fltr = args["filter"] if args.has_key("filter") else ""
+        collection = args["collection"] if "collection" in args else ""
+        fltr = args["filter"] if "filter" in args else ""
 
         obj = datastore.Documents(collection, fltr)
         if args["output_format"] == "json" or args["output_format"] == "text" :
@@ -72,7 +72,7 @@ class dsMethods:
         
         Returns: A list of Document Collections.
         """
-        fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args["filter"] if "filter" in args else ""
 
         obj = datastore.Collections(fltr)
         if args["output_format"] == "json":
@@ -92,8 +92,8 @@ class dsMethods:
             
         Returns: A Datastore document.
         """
-        collection = args["collection"] if args.has_key("collection") else ""
-        template = args["template"] if args.has_key("template") else ""
+        collection = args["collection"] if "collection" in args else ""
+        template = args["template"] if "template" in args else ""
 
         doc, msg = datastore.create_document(template, collection)
         if doc:
@@ -124,7 +124,7 @@ class dsMethods:
         if not has_required:
             return resp
 
-        collection = args["collection"] if args.has_key("collection") else ""
+        collection = args["collection"] if "collection" in args else ""
         query = json.loads(args["query"])
         doc = datastore.Document(query, collection)
 
@@ -157,7 +157,7 @@ class dsMethods:
         if not has_required:
             return resp
 
-        collection = args["collection"] if args.has_key("collection") else ""
+        collection = args["collection"] if "collection" in args else ""
         query = json.loads(args["query"])
         doc = datastore.Document(query, collection)
         if doc.ID:
@@ -199,8 +199,8 @@ class dsMethods:
         if not has_required:
             return resp
 
-        collection = args["collection"] if args.has_key("collection") else ""
-        value = args["value"] if args.has_key("value") else ""
+        collection = args["collection"] if "collection" in args else ""
+        value = args["value"] if "value" in args else ""
         query = json.loads(args["query"])
         doc = datastore.Document(query, collection)
         if doc.ID:

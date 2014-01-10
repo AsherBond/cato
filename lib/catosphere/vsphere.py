@@ -848,7 +848,7 @@ class VM:
         
     def _is_custom_property(self, name):
         """Returns true if given name is a custom property name"""
-        return _CUSTOM_PROPERTY_NAMES.has_key(name)
+        return name in _CUSTOM_PROPERTY_NAMES
 
 
     def _fetch_custom_property(self, name):

@@ -480,7 +480,7 @@ class CloudAccount(object):
                 return
 
             # check the CloudProvider class first ... it *should be there unless something is wrong.
-            if cp.has_key(dr["provider"]):
+            if dr["provider"] in cp:
                 self.Provider = cp[dr["provider"]]
             else:
                 raise Exception("Provider [%s] does not exist in the cloud_providers session xml." % dr["provider"])
@@ -729,7 +729,7 @@ class Provider(object):
         cp = CloudProviders()
         if cp == None:
             raise Exception("Error building Provider object: Unable to get CloudProviders.")
-        if cp.has_key(sProvider):
+        if sProvider in cp:
             return cp[sProvider]
         else:
             raise Exception("Provider [%s] does not exist in the cloud_providers session xml." % sProvider)

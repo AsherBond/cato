@@ -84,7 +84,7 @@ class wmHandler:
         logger.info("Args: %s" % args)
 
         output_format = ""
-        if args.has_key("output_format"):
+        if "output_format" in args:
             output_format = args["output_format"]
         
         is_authenticated, user_id = api.authenticate(method, args)
@@ -210,7 +210,7 @@ def notfound():
 class version:        
     def GET(self):
         args = web.input()
-        output_format = args["output_format"] if args.has_key("output_format") else ""
+        output_format = args["output_format"] if "output_format" in args else ""
         version = catoconfig.VERSION
 
         if output_format == "json":
@@ -299,7 +299,7 @@ class configure:
 class index:        
     def GET(self):
         args = web.input()
-        listonly = True if args.has_key("listonly") else False
+        listonly = True if "listonly" in args else False
         
         out = []
         out.append("---------------------------")
@@ -354,14 +354,14 @@ class ExceptionHandlingApplication(web.application):
             # we're using a custom HTTP status code to indicate 'information' back to the user.
             args = web.input()
             web.ctx.status = "280 Informational Response"
-            output_format = args["output_format"] if args.has_key("output_format") else ""
+            output_format = args["output_format"] if "output_format" in args else ""
             logger.info(ex.message)
             response = api.response(err_code=api.response.Codes.Exception, err_detail=ex.__str__())
             return response.Write(output_format)
         except Exception as ex:
             args = web.input()
             web.ctx.status = "400 Bad Request"
-            output_format = args["output_format"] if args.has_key("output_format") else ""
+            output_format = args["output_format"] if "output_format" in args else ""
             logger.exception(ex.__str__())
             response = api.response(err_code=api.response.Codes.Exception, err_detail=ex.__str__())
             return response.Write(output_format)

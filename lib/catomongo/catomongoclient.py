@@ -218,7 +218,7 @@ def update_doc(coll, doc, doc_fragment, jpath):
 
 def _do_save(coll, doc):
     # update modifed doc in db
-    if doc.has_key('_id'):
+    if '_id' in doc:
         if isinstance(doc['_id'], unicode) or isinstance(doc['_id'], str):
             doc['_id'] = ObjectId(doc['_id'])
     #filt = {'_id': ObjectId(doc['_id'])}

@@ -38,7 +38,7 @@ class cloudMethods:
         
         Returns: An list of all Clouds.
         """
-        fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args["filter"] if "filter" in args else ""
 
         obj = cloud.Clouds(sFilter=fltr)
         if args["output_format"] == "json":
@@ -57,7 +57,7 @@ class cloudMethods:
         
         Returns: An list of all Cloud Accounts.
         """
-        fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args["filter"] if "filter" in args else ""
 
         obj = cloud.CloudAccounts(sFilter=fltr)
         if args["output_format"] == "json":

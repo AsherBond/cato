@@ -471,7 +471,7 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
 
                     # is it already in my lookup table?
                     iLastIndex = 0
-                    if dictNodes.has_key(sChildNodeName):
+                    if sChildNodeName in dictNodes:
                         # there, increment it and set it
                         iLastIndex = dictNodes[sChildNodeName] + 1
                         dictNodes[sChildNodeName] = iLastIndex
@@ -567,7 +567,7 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
 
                     # is it already in my lookup table?
                     iLastIndex = 0
-                    if dictNodes.has_key(sChildNodeName):
+                    if sChildNodeName in dictNodes:
                         # there, increment it and set it
                         iLastIndex = dictNodes[sChildNodeName] + 1
                         dictNodes[sChildNodeName] = iLastIndex
