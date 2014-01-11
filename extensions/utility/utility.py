@@ -97,11 +97,9 @@ def exec_python(TE, step):
  			del bi[func]
 			
 		# let's give explicit access to only a few Task Engine features.
-		features = { 
-			"LOG" : TE.logger,
-			"AUDIT" : TE.insert_audit,
-			"VARS" : TE.rt
-		}
+		features = {"LOG" : TE.logger,
+                    "AUDIT" : TE.insert_audit,
+                    "VARS" : TE.rt}
 		
 		# now, let's eval the code we were provided
 		exec(code, bi, features)
