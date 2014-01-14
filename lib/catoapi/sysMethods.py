@@ -38,12 +38,11 @@ class sysMethods:
     # ## many of the functions here aren't done up in pretty classes.
     # ## ... this is sort of a catch-all module.
     def get_token(self, args):
-        """
-        Gets an authentication token for the API.  This token will persist for a short period of time, 
-        so several subsequent API calls can share the same authenticated session.
-        
-        Returns: A UUID authentication token.
-        """
+        """Gets an authentication token for the API.  This token will persist for a short period of time, 
+so several subsequent API calls can share the same authenticated session.
+
+Returns: A UUID authentication token.
+"""
         
         # we wouldn't be here if tradiditional authentication failed.
         # so, the _user_id is the user we wanna create a token for
@@ -51,14 +50,14 @@ class sysMethods:
         return R(response=token)
 
     def import_backup(self, args):
-        """
-        Imports an XML backup file.
-        
-        Required Arguments: 
-            xml - An XML document in the format of a Cato backup file.
-        
-        Returns: A list of items in the backup file, with the success/failure of each import.
-        """
+        """Imports an XML backup file.
+
+Required Arguments: 
+
+* `xml` - An XML document in the format of a Cato backup file.
+
+Returns: A list of items in the backup file, with the success/failure of each import.
+"""
 
         # NOTE: this function is a near identical copy of catoadminui/uiMethods.wmCreateObjectsFromXML.
         # Any changes here should be considered there as well.
@@ -124,9 +123,8 @@ class sysMethods:
             return R(response=catocommon.ObjectOutput.IterableAsXML(items, "Results", "Result"))
     
     def list_processes(self, args):        
-        """
-        Lists all Cato Processes.
-        """
+        """Lists all Cato Processes.
+"""
         db = catocommon.new_conn()
         sSQL = """select app_instance as Instance,
             app_name as Component,
@@ -168,26 +166,27 @@ class sysMethods:
             return R(err_code=R.Codes.ListError, err_detail="Unable to list Processes.")
         
     def reset_password(self, args):
-        """
-        Resets the password of the authenticated, or a specified User.
+        """Resets the password of the authenticated, or a specified User.
 
-        If a user is specified, and the authenticated user is an Administrator, 
-        this will reset the password of the specified user to the provided value.
-        
-        If no user is specified, the password of the authenticated user will be changed.
+If a user is specified, and the authenticated user is an Administrator, 
+this will reset the password of the specified user to the provided value.
 
-        NOTE: to prevent accidental change of an Administrators password, an extra trap is in place:
-            * the username (or id) MUST be provided, even if the authenticated user 
-                is the user being changed.
+If no user is specified, the password of the authenticated user will be changed.
 
-        Required Arguments: 
-            password - the new password.
-        
-        Optional Arguments:
-            user - Either the User ID or Name.
+NOTE: to prevent accidental change of an Administrators password, an extra trap is in place:
+    * the username (or id) MUST be provided, even if the authenticated user 
+        is the user being changed.
 
-        Returns: Success message if successful, error messages on failure.
-        """
+Required Arguments: 
+
+* `password` - the new password.
+
+Optional Arguments:
+
+* `user` - Either the User ID or Name.
+
+Returns: Success message if successful, error messages on failure.
+"""
         user = args.get("user")
         new_pw = args.get("password")
 
@@ -225,29 +224,30 @@ class sysMethods:
         return R(response="[%s] password operation successful." % obj.FullName)
             
     def create_user(self, args):
-        """
-        Creates a new user account.
+        """Creates a new user account.
 
-        Only an 'Administrator' can create other users.  If the credentials used for this API call 
-        are not an Administrator, the call will not succeed.
+Only an 'Administrator' can create other users.  If the credentials used for this API call 
+are not an Administrator, the call will not succeed.
 
-        Required Arguments: 
-            user - A login name for the user.
-            name - The full name of the user.
-            role - The users role.  (Valid values: Administrator, Developer, User)
-        
-        Optional Arguments:
-            password - Password for the user. If password is not provided, a random password will be generated.
-            email - Email address for the user.  Required if 'password' is omitted.
-            authtype - 'local' or 'ldap'.  Default is 'local' if omitted.
-            forcechange - Require user to change password. Default is 'true' if omitted. (Valid values: 'true' or 'false')
-            status - Status of the new account. Default is 'enabled' if omitted. (Valid values: enabled, disabled, locked)
-            expires - Expiration date for this account.  Default is 'never expires'. Must be in mm/dd/yyyy format.
-            groups - A list of groups the user belongs to. Group names cannot contain spaces. Comma delimited list.
-            get_token - If true, will return an automatic login token.  (Valid values: 1, yes, true)
+Required Arguments: 
 
-        Returns: A User object.
-        """
+* `user` - A login name for the user.
+* `name` - The full name of the user.
+* `role` - The users role.  (Valid values: Administrator, Developer, User)
+
+Optional Arguments:
+
+* `password` - Password for the user. If password is not provided, a random password will be generated.
+* `email` - Email address for the user.  Required if 'password' is omitted.
+* `authtype` - 'local' or 'ldap'.  Default is 'local' if omitted.
+* `forcechange` - Require user to change password. Default is 'true' if omitted. (Valid values: 'true' or 'false')
+* `status` - Status of the new account. Default is 'enabled' if omitted. (Valid values: enabled, disabled, locked)
+* `expires` - Expiration date for this account.  Default is 'never expires'. Must be in mm/dd/yyyy format.
+* `groups` - A list of groups the user belongs to. Group names cannot contain spaces. Comma delimited list.
+* `get_token` - If true, will return an automatic login token.  (Valid values: 1, yes, true)
+
+Returns: A User object.
+"""
 
         # this is a admin function, kick out 
         if not api._ADMIN:
@@ -304,37 +304,37 @@ class sysMethods:
             return R(err_code=R.Codes.CreateError, err_detail="Unable to create User.")
             
     def update_user(self, args):
-        """
-        Updates a user account.
+        """Updates a user account.
 
-        Only an 'Administrator' can manage other users.  If the credentials used for this API call 
-        are not an Administrator, the call will not succeed.
+Only an 'Administrator' can manage other users.  If the credentials used for this API call 
+are not an Administrator, the call will not succeed.
 
-        Properties will only be updated if the option is provided.  Omitted properties will not be changed.
-        
-        NOTE: the "username" of a user cannot be changed.
-        
-        Password cannot be updated by this method.  Use "reset_password" instead.
-        
-        If a user has 'locked' their account by numerous failed login attempts, the flag is reset 
-        by setting any property.  It's easiest to just the status to 'enabled'.
+Properties will only be updated if the option is provided.  Omitted properties will not be changed.
 
-        
-        Required Arguments: 
-            user - ID or Name of the User to update.
-        
-        Optional Arguments:
-            name - The full name of the user.
-            role - The users role.  (Valid values: Administrator, Developer, User)
-            email - Email address for the user.  Can be cleared with "None".
-            authtype - 'local' or 'ldap'.
-            forcechange - Require user to change password on next login. (Valid values: 'true' or 'false')
-            status - Status of the account. (Valid values: enabled, disabled, locked)
-            expires - Expiration date for this account.  Must be in mm/dd/yyyy format. Can be cleared with "None".
-            groups - Add to the list of groups the user belongs to. Group names cannot contain spaces. Comma delimited list.
+NOTE: the "username" of a user cannot be changed.
 
-        Returns: A User object.
-        """
+Password cannot be updated by this method.  Use "reset_password" instead.
+
+If a user has 'locked' their account by numerous failed login attempts, the flag is reset 
+by setting any property.  It's easiest to just the status to 'enabled'.
+
+Required Arguments: 
+
+* `user` - ID or Name of the User to update.
+
+Optional Arguments:
+
+* `name` - The full name of the user.
+* `role` - The users role.  (Valid values: Administrator, Developer, User)
+* `email` - Email address for the user.  Can be cleared with "None".
+* `authtype` - 'local' or 'ldap'.
+* `forcechange` - Require user to change password on next login. (Valid values: 'true' or 'false')
+* `status` - Status of the account. (Valid values: enabled, disabled, locked)
+* `expires` - Expiration date for this account.  Must be in mm/dd/yyyy format. Can be cleared with "None".
+* `groups` - Add to the list of groups the user belongs to. Group names cannot contain spaces. Comma delimited list.
+
+Returns: A User object.
+"""
 
         # this is a admin function, kick out 
         if not api._ADMIN:
@@ -405,14 +405,14 @@ class sysMethods:
             return R(response=obj.AsXML())
             
     def list_users(self, args):        
-        """
-        Lists all registered Users.
+        """Lists all registered Users.
         
-        Optional Arguments: 
-            filter - will filter a value match in User's Full Name, Role or Email address.  (Multiple filter arguments can be provided, delimited by spaces.)
-        
-        Returns: A list of all Users.
-        """
+Optional Arguments: 
+
+* `filter` - will filter a value match in User's Full Name, Role or Email address.  (Multiple filter arguments can be provided, delimited by spaces.)
+
+Returns: A list of all Users.
+"""
         # this is a admin function, kick out 
         if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
@@ -428,24 +428,24 @@ class sysMethods:
             return R(response=obj.AsXML())
 
     def update_settings(self, args):
-        """
-        Updates the settings of a Cato process or module.
+        """Updates the settings of a Cato process or module.
 
-        NOTE: the update_settings command requires submission of a JSON settings object.
-        As a guide for updating settings, first execute this command with the output_format set to json.
-        
-        For example, to update Messenger settings, first do:
-        
-        get_settings?module=messenger&output_format=json
-        
-        ...then use the result as a template for update_settings.
-        
-        Required Arguments: 
-            module - name of the module to apply the settings.
-            settings - a list of name:value setting objects.
+NOTE: the update_settings command requires submission of a JSON settings object.
+As a guide for updating settings, first execute this command with the output_format set to json.
 
-        Returns: Nothing if successful, error messages on failure.
-        """
+For example, to update Messenger settings, first do:
+
+get_settings?module=messenger&output_format=json
+
+...then use the result as a template for update_settings.
+
+Required Arguments: 
+
+* `module` - name of the module to apply the settings.
+* `settings` - a list of name:value setting objects.
+
+Returns: Nothing if successful, error messages on failure.
+"""
         mod = args.get("module")
         sets = args.get("settings")
 
@@ -492,14 +492,14 @@ class sysMethods:
                 return R(response=obj.AsXML())
 
     def get_settings(self, args):
-        """
-        Lists all the settings of Cato modules.
+        """Lists all the settings of Cato modules.
 
-        Optional Arguments: 
-            module - name of the module. If omitted, all module settings are returned.
+Optional Arguments: 
 
-        Returns: A collection of settings.
-        """
+* `module` - name of the module. If omitted, all module settings are returned.
+
+Returns: A collection of settings.
+"""
         # this is a admin function, kick out 
         if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
@@ -523,23 +523,24 @@ class sysMethods:
                 return R(response=obj.AsXML())
 
     def create_credential(self, args):
-        """
-        Creates a new Shared Credential.
+        """Creates a new Shared Credential.
 
-        Only a 'Developer' can create Credentials.
+> Only a 'Developer' can create Credentials.
 
-        Required Arguments: 
-            name - The full name of the user.
-            username - A login name for the user.
-            password - Password for the user. If password is not provided, a random password will be generated.
-        
-        Optional Arguments:
-            description - Description of the Credential.
-            privileged = Additional password required to put certain devices into 'privileged' mode.
-            domain - A domain for the Credential.
+Required Arguments: 
 
-        Returns: A Credential object.
-        """
+* `name` - The full name of the user.
+* `username` - A login name for the user.
+* `password` - Password for the user. If password is not provided, a random password will be generated.
+
+Optional Arguments:
+
+* `description` - Description of the Credential.
+* `privileged` = Additional password required to put certain devices into 'privileged' mode.
+* `domain` - A domain for the Credential.
+
+Returns: A Credential object.
+"""
 
         # this is a admin function, kick out 
         if not api._DEVELOPER:
@@ -568,14 +569,14 @@ class sysMethods:
             return R(response=obj.AsXML())
 
     def delete_credential(self, args):
-        """
-        Removes a Shared Credential.
-        
-        Required Arguments: 
-            credential - Name or ID of the Credential to delete.
-            
-        Returns: Success message if successful, error message on failure.
-        """
+        """Removes a Shared Credential.
+
+Required Arguments:
+ 
+* `credential` - Name or ID of the Credential to delete.
+    
+Returns: Success message if successful, error message on failure.
+"""
         # this is a developer function
         if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
@@ -594,14 +595,14 @@ class sysMethods:
         return R(response="Delete operation successful.")
 
     def list_credentials(self, args):        
-        """
-        Lists all Shared Credentials.
-        
-        Optional Arguments: 
-            filter - will filter a value match in Credential Name, Username, Domain or Description.  (Multiple filter arguments can be provided, delimited by spaces.)
-        
-        Returns: A list of Shared Credentials.
-        """
+        """Lists all Shared Credentials.
+
+Optional Arguments:
+ 
+* `filter` - will filter a value match in Credential Name, Username, Domain or Description.  (Multiple filter arguments can be provided, delimited by spaces.)
+
+Returns: A list of Shared Credentials.
+"""
         fltr = args.get("filter", "")
 
         obj = asset.Credentials(sFilter=fltr)
@@ -614,21 +615,21 @@ class sysMethods:
 
 
     def get_system_log(self, args):
-        """
-        Gets the Cato system log.  If all arguments are omitted, will return the most recent 100 entries.
+        """Gets the Cato system log.  If all arguments are omitted, will return the most recent 100 entries.
         
-        Optional Arguments:
-            object_id - An object_id filter to limit the results.
-            object_type - An object_type filter to limit the results.
-            log_type - A log_type filter. ('Security' or 'Object')
-            action - An action filter.
-            filter - A filter to limit the results.
-            from - a date string to set as the "from" marker. (mm/dd/yyyy format)
-            to - a date string to set as the "to" marker. (mm/dd/yyyy format)
-            records - a maximum number of results to get.
+Optional Arguments:
 
-        Returns: An array of log entries.
-        """
+* `object_id` - An object_id filter to limit the results.
+* `object_type` - An object_type filter to limit the results.
+* `log_type` - A log_type filter. ('Security' or 'Object')
+* `action` - An action filter.
+* `filter` - A filter to limit the results.
+* `from` - a date string to set as the "from" marker. (mm/dd/yyyy format)
+* `to` - a date string to set as the "to" marker. (mm/dd/yyyy format)
+* `records` - a maximum number of results to get.
+
+Returns: An array of log entries.
+"""
         # this is a admin function, kick out 
         if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
@@ -665,14 +666,14 @@ class sysMethods:
     Tagging endpoints.  Only an Administrator can manage Tags.
     """
     def list_tags(self, args):        
-        """
-        Lists all Tags.
-        
-        Optional Arguments: 
-            filter - will filter a value match in Tag Name.  (Multiple filter arguments can be provided, delimited by spaces.)
-        
-        Returns: A list of all Tags.
-        """
+        """Lists all Tags.
+
+Optional Arguments: 
+
+* `filter` - will filter a value match in Tag Name.  (Multiple filter arguments can be provided, delimited by spaces.)
+
+Returns: A list of all Tags.
+"""
         fltr = args.get("filter", "")
 
         obj = tag.Tags(sFilter=fltr)
@@ -685,17 +686,18 @@ class sysMethods:
 
 
     def create_tag(self, args):
-        """
-        Creates a new security Tag.
-        
-        Required Arguments:
-            name - The name of the new Tag.  (AlphaNumeric ONLY. Cannot contain spaces, punctuation or special characters.)
+        """Creates a new security Tag.
+
+Required Arguments:
+
+* `name` - The name of the new Tag.  (AlphaNumeric ONLY. Cannot contain spaces, punctuation or special characters.)
+
+Optional Arguments:
+
+* `description` - Describe the Tag.
     
-        Optional Arguments:
-            description - Describe the Tag.
-            
-        Returns: The new Tag if successful, error message on failure.
-        """
+Returns: The new Tag if successful, error message on failure.
+    """
         # this is a admin function, kick out 
         if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
@@ -718,14 +720,14 @@ class sysMethods:
             return R(response=obj.AsXML())
 
     def delete_tag(self, args):
-        """
-        Deletes a security Tag.
-        
-        Required Arguments:
-            name - The name of the Tag.
-            
-        Returns: Success message successful, error message on failure.
-        """
+        """Deletes a security Tag.
+
+Required Arguments:
+
+* `name` - The name of the Tag.
+    
+Returns: Success message successful, error message on failure.
+"""
         # this is a admin function, kick out 
         if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
@@ -745,24 +747,25 @@ class sysMethods:
 
 
     def add_object_tag(self, args):
-        """
-        Adds a security Tag to an object.
-        
-        Required Arguments:
-            tag - The name of the Tag.
-            object_id - The ID of the object.
-            object_type - The numeric type of the object.
-            
-        Returns: Success message successful, error message on failure.
-        
-        Valid and currently implemented `object_type` values are:
-            User = 1
-            Asset = 2
-            Task = 3
-            CanvasItem = 50
-            Deployment = 70
-            DeploymentTemplate = 71
-        """
+        """Adds a security Tag to an object.
+
+Required Arguments:
+
+* `tag` - The name of the Tag.
+* `object_id` - The ID of the object.
+* `object_type` - The numeric type of the object.
+
+Returns: Success message successful, error message on failure.
+
+Valid and currently implemented `object_type` values are:
+
+* `User` = 1
+* `Asset` = 2
+* `Task` = 3
+* `Canvas Item` = 50
+* `Deployment` = 70
+* `Application Template` = 71
+"""
         # this is a admin function
         if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
@@ -781,16 +784,16 @@ class sysMethods:
 
 
     def remove_object_tag(self, args):
-        """
-        Removes a security Tag from an object.
-        
-        Required Arguments:
-            tag - The name of the Tag.
-            object_id - The ID of the object.
-            object_type - The numeric type of the object.
-            
-        Returns: Success message successful, error message on failure.
-        """
+        """Removes a security Tag from an object.
+
+Required Arguments:
+
+* `tag` - The name of the Tag.
+* `object_id` - The ID of the object.
+* `object_type` - The numeric type of the object.
+    
+Returns: Success message successful, error message on failure.
+"""
         # this is a admin function
         if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
@@ -812,23 +815,24 @@ class sysMethods:
     Email and Messaging functions.
     """
     def send_message(self, args):        
-        """
-        Sends a message to a registered user.  Message will be 'From' the authenticated API user.
-        
-        The 'to' argument accepts both email addresses AND Cloud Sidekick Users.  Each item in the 'to' list
-        will try to look up a Cloud Sidekick User, and if it doesn't match, will assume the entry is an email address.
-        
-        Required Arguments:
-            to - a single or comma-separated list of valid email addresses or Cloud Sidekick Users.
-            subject - a subject line
-            message - the message body
-            
-        Optional Arguments: 
-            cc - a carbon copy list of comma-separated email addresses or Cloud Sidekick Users.
-            bcc - a blind carbon copy list of comma-separated email addresses or Cloud Sidekick Users.
-        
-        Returns: a success or error message.
-        """
+        """Sends a message to a registered user.  Message will be 'From' the authenticated API user.
+
+The 'to' argument accepts both email addresses AND Cloud Sidekick Users.  Each item in the 'to' list
+will try to look up a Cloud Sidekick User, and if it doesn't match, will assume the entry is an email address.
+
+Required Arguments:
+
+* `to - a single or comma-separated list of valid email addresses or Cloud Sidekick Users.
+* `subject - a subject line
+* `message - the message body
+
+Optional Arguments: 
+
+* `cc - a carbon copy list of comma-separated email addresses or Cloud Sidekick Users.
+* `bcc - a blind carbon copy list of comma-separated email addresses or Cloud Sidekick Users.
+
+Returns: a success or error message.
+"""
         
         required_params = ["to", "subject", "message"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -884,14 +888,14 @@ class sysMethods:
     Asset endpoints.
     """
     def list_assets(self, args):        
-        """
-        Lists all Assets.
-        
-        Optional Arguments: 
-            filter - will filter a value match in Asset Name, Port, Address, DB Name, Status or Credential Username.  (Multiple filter arguments can be provided, delimited by spaces.)
-        
-        Returns: A list of all Assets.
-        """
+        """Lists all Assets.
+
+Optional Arguments: 
+
+* `filter` - will filter a value match in Asset Name, Port, Address, DB Name, Status or Credential Username.  (Multiple filter arguments can be provided, delimited by spaces.)
+
+Returns: A list of all Assets.
+"""
         fltr = args.get("filter", "")
 
         obj = asset.Assets(sFilter=fltr)
@@ -903,14 +907,14 @@ class sysMethods:
             return R(response=obj.AsXML())
 
     def get_asset(self, args):
-        """
-        Gets an Asset.
-        
-        Required Arguments: 
-            asset - an Asset Name or ID.
+        """Gets an Asset.
 
-        Returns: An Asset object.
-        """
+Required Arguments: 
+
+* `asset` - an Asset Name or ID.
+
+Returns: An Asset object.
+"""
         required_params = ["asset"]
         has_required, resp = api.check_required_params(required_params, args)
         if not has_required:
@@ -927,32 +931,34 @@ class sysMethods:
             return R(response=obj.AsXML())
 
     def create_asset(self, args):
-        """
-        Creates an Asset.
-        
-        Required Arguments: 
-            name - a name for the new Asset.
-            
-        Optional Arguments: 
-            status - either 'Active' or 'Inactive'. ('Active' if omitted.)
-            db_name - a Database name.
-            address - the network address of the Asset.
-            port - a service port for the Address.
-            conn_string - some Assets make their connections via an explicit connection string.
-            user - a User ID to associate with this Asset.
-            password - a Password to associate with this Asset.
-            shared_credential - the name of a Shared Credential to use.
+        """Creates an Asset.
 
-        Regarding Credentials:
-            Credentials are optional on an Asset, however if provided there are rules.
-            Explicit details can be associated with *only this Asset*, or a Shared Credential can be specified.
+Required Arguments: 
+    name - a name for the new Asset.
+    
+Optional Arguments: 
 
-            The minimum required to create a LOCAL set of credentials on this Asset are:
-                user - a User ID for the Credential
-                password - a Password for the Credential
-                
-            To specify a Shared Credential, provide the `shared_credential` argument, which is the name of an existing Credential.
-        """
+* `status` - either 'Active' or 'Inactive'. ('Active' if omitted.)
+* `db_name` - a Database name.
+* `address` - the network address of the Asset.
+* `port` - a service port for the Address.
+* `conn_string` - some Assets make their connections via an explicit connection string.
+* `user` - a User ID to associate with this Asset.
+* `password` - a Password to associate with this Asset.
+* `shared_credential` - the name of a Shared Credential to use.
+
+**Regarding Credentials:**
+
+Credentials are optional on an Asset, however if provided there are rules.
+Explicit details can be associated with *only this Asset*, or a Shared Credential can be specified.
+
+The minimum required to create a LOCAL set of credentials on this Asset are:
+
+* `user` - a User ID for the Credential
+* `password` - a Password for the Credential
+    
+To specify a Shared Credential, provide the `shared_credential` argument, which is the name of an existing Credential.
+"""
         # this is a developer function
         if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
