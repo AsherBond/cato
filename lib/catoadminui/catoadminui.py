@@ -310,19 +310,17 @@ def auth_app_processor(handle):
     path = web.ctx.path
 
     # requests that are allowed, no matter what
-    if path in [
-        "/favicon.ico",
-        "/uiMethods/wmAttemptLogin",
-        "/uiMethods/wmGetQuestion",
-        "/version",
-        "/login",
-        "/logout",
-        "/notAllowed",
-        "/notfound",
-        "/announcement",
-        "/getlicense",
-        "/uiMethods/wmLicenseAgree"
-        ]:
+    if path in ["/favicon.ico",
+                "/uiMethods/wmAttemptLogin",
+                "/uiMethods/wmGetQuestion",
+                "/version",
+                "/login",
+                "/logout",
+                "/notAllowed",
+                "/notfound",
+                "/announcement",
+                "/getlicense",
+                "/uiMethods/wmLicenseAgree"]:
         return handle()
 
     # ok, now we know the requested page requires a session...
@@ -738,13 +736,15 @@ def main():
         sslcert = catoconfig.CONFIG.get("admin_ui_ssl_cert", os.path.join(catoconfig.CONFDIR, "cato.crt"))
         sslkey = catoconfig.CONFIG.get("admin_ui_ssl_key", os.path.join(catoconfig.CONFDIR, "cato.key"))
         try:
-            with open(sslcert): pass
+            with open(sslcert):
+                pass
             logger.debug("SSL Certificate [%s]" % sslcert)
             CherryPyWSGIServer.ssl_certificate = sslcert
         except:
             raise Exception("SSL Certificate not found at [%s]" % sslcert)
         try:
-            with open(sslkey): pass
+            with open(sslkey):
+                pass
             logger.debug("SSL Key [%s]" % sslkey)
             CherryPyWSGIServer.ssl_private_key = sslkey
         except:

@@ -1540,7 +1540,7 @@ class XMLParser(object):
         attrib = {}
         if attrib_in:
             for i in range(0, len(attrib_in), 2):
-                attrib[fixname(attrib_in[i])] = fixtext(attrib_in[i+1])
+                attrib[fixname(attrib_in[i])] = fixtext(attrib_in[i + 1])
         return self.target.start(tag, attrib)
 
     def _data(self, text):

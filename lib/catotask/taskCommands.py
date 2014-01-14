@@ -29,7 +29,7 @@ class FunctionCategories(object):
     def Load(self, sFileName):
         logger.debug("Loading commands from extension file [%s]" % sFileName)
         xRoot = catocommon.ET.parse(sFileName)
-        if xRoot == None:
+        if xRoot is None:
             # crash... we can't do anything if the XML is busted
             logger.warning("Invalid XML [%s]" % sFileName)
         else:

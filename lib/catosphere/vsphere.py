@@ -43,8 +43,7 @@ from catoerrors import MissingArgumentError, UnknownPropertyError, \
 # __all__ = [ 'Server', 'VM', 'VMPowerState']
 
 # all property names currently supported
-VM_ALL_PROPERTY_NAMES = [ 
-                          'config.instanceUuid',
+VM_ALL_PROPERTY_NAMES = ['config.instanceUuid',
                           'name',      
                           'overallStatus', 
                           'config.guestFullName',
@@ -56,10 +55,9 @@ VM_ALL_PROPERTY_NAMES = [
                           'runtime.host',
                           'guest.ipAddress',
                           'guest.net',
-                          'datacenter'
-                        ]
+                          'datacenter']
 
-_CUSTOM_PROPERTY_NAMES = { "datacenter": MORTypes.Datacenter }
+_CUSTOM_PROPERTY_NAMES = {"datacenter": MORTypes.Datacenter}
 
 # default logging location. None for stdout
 LOGFILE_DEFAULT = '/dev/tty'
@@ -308,7 +306,7 @@ class Server():
                 raise BadParameterError('instanceUuid parameter must be a string')
             if not filter:
                 filter = {}
-            filter['config.instanceUuid'] = [ instanceUuid ]
+            filter['config.instanceUuid'] = [instanceUuid]
             
         self._vmspaths = self._server.get_registered_vms(datacenter, advanced_filters = filter)
         logger.debug('list_instances: retrieved %d vm paths' % len(self._vmspaths))
@@ -412,7 +410,7 @@ class VM:
         # internal vm object cached on demand
         self._vm = None
         self._server = server._server
-        self.server = server;
+        self.server = server
         self._custom_properties = {}
     
     @property
@@ -499,16 +497,15 @@ class VM:
             if self._is_custom_property(name):
                 # check if in cache
                 val = self._custom_properties.get(name)
-                if val == None:
+                if val is None:
                     # fetch if not in cache
                     val = self._fetch_custom_property(name)
             else:
                 val = self._vm._properties.get(name)
-                if val == None:
+                if val is None:
                     raise UnknownPropertyError(name)
                 else:
-                    logger.warning('get_property: unregistered property %s=%s' \
-                                   % (name,val))
+                    logger.warning('get_property: unregistered property %s=%s' % (name,val))
                     
         return val
         
@@ -848,7 +845,7 @@ class VM:
         
     def _is_custom_property(self, name):
         """Returns true if given name is a custom property name"""
-        return _CUSTOM_PROPERTY_NAMES.has_key(name)
+        return name in _CUSTOM_PROPERTY_NAMES
 
 
     def _fetch_custom_property(self, name):

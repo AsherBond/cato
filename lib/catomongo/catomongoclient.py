@@ -105,7 +105,7 @@ def jsonpath_replace(doc, fragment, jpath, append = False):
                 statement = 'if isinstance(%s, list): %s.append(fragment)\nelse: %s = [fragment]' % \
                   (expr, expr, expr)
                 expr = statement
-            elif fragment == None:
+            elif fragment is None:
                 expr = "del %s" % expr
             else:
                 expr += " = %s" % rhs
@@ -181,8 +181,7 @@ def modify_doc(doc, doc_fragment, jpath, append = False):
         subdocs = jsonpath(doc, jpath)
         assert(subdocs)
     if not subdocs:
-        logger.debug('modify_doc: %s applied to %s yielded no results' % \
-                       (jpath, doc))
+        logger.debug('modify_doc: %s applied to %s yielded no results' % (jpath, doc))
         # create the given doc_fragment at jpath
         _put(doc, jpath, doc_fragment)
         ret = 1
@@ -218,7 +217,7 @@ def update_doc(coll, doc, doc_fragment, jpath):
 
 def _do_save(coll, doc):
     # update modifed doc in db
-    if doc.has_key('_id'):
+    if '_id' in doc:
         if isinstance(doc['_id'], unicode) or isinstance(doc['_id'], str):
             doc['_id'] = ObjectId(doc['_id'])
     #filt = {'_id': ObjectId(doc['_id'])}

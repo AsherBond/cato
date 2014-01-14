@@ -17,7 +17,7 @@
 from jenkinsapi.jenkins import Jenkins
 from jenkinsapi.custom_exceptions import UnknownJob
 
-JENKINS_CONNS={}
+JENKINS_CONNS = {}
 
 def jenkins_new_connection(TE, step):
 

@@ -417,7 +417,7 @@ class cloudMethods:
         else:  # Amazon aws, Eucalyptus, and OpenStackAws
             from catocloud import aws
             awsi = aws.awsInterface()
-            url, err = awsi.BuildURL(ca, c, cot);            
+            url, err = awsi.BuildURL(ca, c, cot)
             if err:
                 return json.dumps({"result":"fail", "error": uiCommon.packJSON(err)})
 
@@ -447,7 +447,7 @@ class cloudMethods:
         else:
             c.SaveKeyPair(sKeypairID, sName, sPK, sPP)
 
-        return json.dumps({ "result": "success"})
+        return json.dumps({"result": "success"})
 
     def wmDeleteKeyPair(self):
         sCloudID = uiCommon.getAjaxArg("sCloudID")
@@ -455,11 +455,11 @@ class cloudMethods:
         c = cloud.Cloud()
         c.FromID(sCloudID)
         c.DeleteKeyPair(sKeypairID)
-        return json.dumps({ "result": "success"})
+        return json.dumps({"result": "success"})
     
     def wmCreateStaticClouds(self):
         success = cloud.create_static_clouds()
         if success:
-            return json.dumps({ "result": "success"})
+            return json.dumps({"result": "success"})
         else:
             raise Exception("Unable to create Clouds.  Check the UI Log for more information.")

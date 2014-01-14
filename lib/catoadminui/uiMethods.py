@@ -60,7 +60,7 @@ class uiMethods:
         return ""
             
     def wmGetDBInfo(self):
-        if catoconfig.CONFIG.has_key("server"):
+        if "server" in catoconfig.CONFIG:
             return catoconfig.CONFIG["server"]
         else:
             return "Unknown"
@@ -84,7 +84,7 @@ class uiMethods:
 
 
             items = []
-            if not sset.Messenger.has_key("SMTPServerAddress") or not sset.Messenger["SMTPServerAddress"]:
+            if "SMTPServerAddress" not in sset.Messenger or not sset.Messenger["SMTPServerAddress"]:
                 items.append("Define an SMTP server.")
                 sHTML += self.DrawGettingStartedItem("messengersettings", "Messenger Settings", items, "<a href=\"/settings?module=messenger\">Click here</a> to update Messenger settings.")
 
@@ -899,7 +899,7 @@ class uiMethods:
         a, sErr = asset.Asset.DBCreateNew(args)
         if sErr:
             return json.dumps({"error" : sErr})
-        if a == None:
+        if a is None:
             return json.dumps({"error" : "Unable to create Asset."})
 
         uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Asset, a.ID, a.Name, "Asset Created")

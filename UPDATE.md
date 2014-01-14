@@ -19,7 +19,7 @@ The steps are typically similar for each release, but version specific instructi
 
 Define the desired version as an environment variable.
 
-    export VER=1.22
+    export VER=latest
 
 ### Step 2 - Environment
 

@@ -85,7 +85,7 @@ class Poller(catoprocess.CatoService):
             os.kill(int(pid), signal.SIGKILL)
             #os.wait()
         except Exception, e:
-            self.logger.info("Attempt to kill process %s failed: %s"% (pid, str(e)))
+            self.logger.info("Attempt to kill process %s failed: %s" % (pid, str(e)))
             
 
     def check_processing(self):
@@ -109,7 +109,7 @@ class Poller(catoprocess.CatoService):
             #print "db pids %s" % db_pids
             #print set(db_pids)
             
-            not_running_pids = list(set(db_pids)-set(os_pids))
+            not_running_pids = list(set(db_pids) - set(os_pids))
             for pid in not_running_pids:
                 self.update_to_error(pid)
 

@@ -68,7 +68,7 @@ def check_roles(method):
     if user_role == "Administrator":
         return True
     
-    if uiGlobals.RoleMethods.has_key(method):
+    if method in uiGlobals.RoleMethods:
         mapping = uiGlobals.RoleMethods[method]
         if mapping is True:
             return True
@@ -108,7 +108,7 @@ def getAjaxArg(sArg, sDefault=""):
             dic = dict(web.input())
 
         if dic:
-            if dic.has_key(sArg):
+            if sArg in dic:
                 if dic[sArg]:
                     return dic[sArg]
                 else:

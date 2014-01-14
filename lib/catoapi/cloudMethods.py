@@ -38,7 +38,7 @@ Optional Arguments:
 
 Returns: An list of all Clouds.
 """
-        fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args["filter"] if "filter" in args else ""
 
         obj = cloud.Clouds(sFilter=fltr)
         if args["output_format"] == "json":
@@ -57,7 +57,7 @@ Optional Arguments:
 
 Returns: An list of all Cloud Accounts.
 """
-        fltr = args["filter"] if args.has_key("filter") else ""
+        fltr = args["filter"] if "filter" in args else ""
 
         obj = cloud.CloudAccounts(sFilter=fltr)
         if args["output_format"] == "json":
@@ -370,5 +370,3 @@ Returns: A list of Key Pairs on this Cloud.
             return R(response=obj.KeyPairsAsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.KeyPairsAsXML())
-
-

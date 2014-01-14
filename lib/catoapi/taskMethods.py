@@ -47,8 +47,8 @@ Returns: A Task object.
         if not has_required:
             return resp
 
-        code = args["code"] if args.has_key("code") else ""
-        desc = args["desc"] if args.has_key("desc") else ""
+        code = args["code"] if "code" in args else ""
+        desc = args["desc"] if "desc" in args else ""
 
         t = task.Task().DBCreateNew(args["name"], code, desc)
         catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Task created.")
@@ -234,7 +234,7 @@ Returns: A JSON object, the Task Instance.
         if not has_required:
             return resp
         
-        ver = args["version"] if args.has_key("version") else ""
+        ver = args["version"] if "version" in args else ""
 
         # find the task
         obj = task.Task()
@@ -358,8 +358,8 @@ Optional Arguments:
 
 Returns: An array of all Tasks with basic attributes.
 """
-        fltr = args["filter"] if args.has_key("filter") else ""
-        showall = True if args.has_key("show_all_versions") else False
+        fltr = args["filter"] if "filter" in args else ""
+        showall = True if "show_all_versions" in args else False
 
         obj = task.Tasks(sFilter=fltr, show_all_versions=showall)
         obj.rows = obj.rows if api._ADMIN else api.filter_set_by_tag(obj.rows)
@@ -384,11 +384,11 @@ Optional Arguments:
     
 Returns: A list of Task Instances.
 """
-        fltr = args["filter"] if args.has_key("filter") else ""
-        frm = args["from"] if args.has_key("from") else ""
-        to = args["to"] if args.has_key("to") else ""
-        records = args["records"] if args.has_key("records") else ""
-        status = args["status"] if args.has_key("status") else ""
+        fltr = args["filter"] if "filter" in args else ""
+        frm = args["from"] if "from" in args else ""
+        to = args["to"] if "to" in args else ""
+        records = args["records"] if "records" in args else ""
+        status = args["status"] if "status" in args else ""
         status = "" if status.lower() == "all" else status
         
         obj = task.TaskInstances(sFilter=fltr,
@@ -424,8 +424,8 @@ Returns: A Task object.
         if not has_required:
             return resp
 
-        ver = args["version"] if args.has_key("version") else ""
-        ic = True if args.has_key("include_code") else False
+        ver = args["version"] if "version" in args else ""
+        ic = True if "include_code" in args else False
 
         obj = task.Task()
         obj.FromNameVersion(args["task"], ver)
@@ -459,7 +459,7 @@ Returns: A help document describing the Task Parameters.
         if not has_required:
             return resp
 
-        ver = args["version"] if args.has_key("version") else ""
+        ver = args["version"] if "version" in args else ""
 
         obj = task.Task()
         obj.FromNameVersion(args["task"], ver)
@@ -534,7 +534,7 @@ Returns: A list of execution Plans.
         if not has_required:
             return resp
 
-        ver = args["version"] if args.has_key("version") else ""
+        ver = args["version"] if "version" in args else ""
 
         obj = task.Task()
         obj.FromNameVersion(args["task"], ver)
@@ -571,7 +571,7 @@ Returns: A list of Schedule definitions.
         if not has_required:
             return resp
 
-        ver = args["version"] if args.has_key("version") else ""
+        ver = args["version"] if "version" in args else ""
 
         obj = task.Task()
         obj.FromNameVersion(args["task"], ver)
@@ -609,8 +609,8 @@ Returns: An XML template defining the Parameters for a Task.
         if not has_required:
             return resp
 
-        ver = args["version"] if args.has_key("version") else ""
-        basic = args["basic"] if args.has_key("basic") else None
+        ver = args["version"] if "version" in args else ""
+        basic = args["basic"] if "basic" in args else None
 
         obj = task.Task()
         obj.FromNameVersion(args["task"], ver)

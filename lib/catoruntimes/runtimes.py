@@ -33,7 +33,7 @@ class Runtimes:
         length = len(l)
         
         if index >= length:
-            l.extend(None for _ in range(length, index+1))
+            l.extend(None for _ in range(length, index + 1))
 
 
     def set(self, name, value, index=None):

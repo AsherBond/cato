@@ -29,7 +29,7 @@ import json
 # if found, we will add libs from that path
 
 # AT THE MOMENT, this is only necessary to enable the deploymentTemplate pages.
-if not os.environ.has_key("MAESTRO_HOME") or not os.environ["MAESTRO_HOME"]:
+if "MAESTRO_HOME" not in os.environ or not os.environ["MAESTRO_HOME"]:
     raise Exception("MAESTRO_HOME environment variable not set.  Maestro is required for Deployment features.")
 
 MAESTRO_HOME = os.environ["MAESTRO_HOME"]

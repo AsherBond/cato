@@ -436,7 +436,7 @@ class CloudAccount(object):
     def FromID(self, sAccountID):
         db = catocommon.new_conn()
         if not sAccountID:
-            raise Exception("Error building Cloud Account object: Cloud Account ID is required.");    
+            raise Exception("Error building Cloud Account object: Cloud Account ID is required.")
         
         sSQL = """select account_id, account_name, account_number, provider, login_id, login_password, is_default, default_cloud_id
             from cloud_account
@@ -480,7 +480,7 @@ class CloudAccount(object):
                 return
 
             # check the CloudProvider class first ... it *should be there unless something is wrong.
-            if cp.has_key(dr["provider"]):
+            if dr["provider"] in cp:
                 self.Provider = cp[dr["provider"]]
             else:
                 raise Exception("Provider [%s] does not exist in the cloud_providers session xml." % dr["provider"])
@@ -494,7 +494,7 @@ class CloudAccount(object):
         return False
 
     def AsJSON(self):
-        self.ProviderClouds = [{ "ID": c.ID, "Name" : c.Name} for c in self.Provider.Clouds]
+        self.ProviderClouds = [{"ID": c.ID, "Name" : c.Name} for c in self.Provider.Clouds]
         self.DefaultCloud = json.loads(self.DefaultCloud.AsJSON())
         self.Provider = self.Provider.Name
         del self.LoginPassword
@@ -631,7 +631,7 @@ class CloudProviders(dict):
             for xProvider in xProviders:
                 p_name = xProvider.get("name", None)
 
-                if p_name == None:
+                if p_name is None:
                     raise Exception("Cloud Providers XML: All Providers must have the 'name' attribute.")
                 
                 test_product = xProvider.get("test_product", None)
@@ -662,7 +662,7 @@ class CloudProviders(dict):
                     for xProduct in xProducts:
                         p_name = xProduct.get("name", None)
 
-                        if p_name == None:
+                        if p_name is None:
                             raise Exception("Cloud Providers XML: All Products must have the 'name' attribute.")
     
                         p = Product(pv)
@@ -677,9 +677,9 @@ class CloudProviders(dict):
                         # the product contains object type definitions
                         xTypes = xProduct.findall("object_types/type")
                         for xType in xTypes:
-                            if xType.get("id", None) == None:
+                            if xType.get("id", None) is None:
                                 raise Exception("Cloud Providers XML: All Object Types must have the 'id' attribute.")
-                            if xType.get("label", None) == None:
+                            if xType.get("label", None) is None:
                                 raise Exception("Cloud Providers XML: All Object Types must have the 'label' attribute.")
                             
                             cot = CloudObjectType(p)
@@ -694,7 +694,7 @@ class CloudProviders(dict):
                             xProperties = xType.findall("property")
                             for xProperty in xProperties:
                                 # name="ImageId" label="" xpath="imageId" id_field="1" has_icon="0" short_list="1" sort_order="1"
-                                if xProperty.get("name", None) == None:
+                                if xProperty.get("name", None) is None:
                                     raise Exception("Cloud Providers XML: All Object Type Properties must have the 'name' attribute.")
                                 
                                 cotp = CloudObjectTypeProperty(cot)
@@ -727,9 +727,9 @@ class Provider(object):
     @staticmethod
     def FromName(sProvider):
         cp = CloudProviders()
-        if cp == None:
+        if cp is None:
             raise Exception("Error building Provider object: Unable to get CloudProviders.")
-        if cp.has_key(sProvider):
+        if sProvider in cp:
             return cp[sProvider]
         else:
             raise Exception("Provider [%s] does not exist in the cloud_providers session xml." % sProvider)
@@ -850,7 +850,7 @@ class CloudObjectType(object):
         self.APIRequestRecordFilter = None
         self.XMLRecordXPath = None
         self.ParentProduct = parent
-        self.Properties = []  #!!! This is a list, not a dictionary
+        self.Properties = []  # !!! This is a list, not a dictionary
         self.Instances = {}  # a dictionary of results, keyed by the unique 'id'
 
     def IsValidForCalls(self):
@@ -918,7 +918,7 @@ def create_static_clouds():
                 # clouds are NOT user defined, check the database for these records.
                 xClouds = xProvider.findall("clouds/cloud")
                 for xCloud in xClouds:
-                    if xCloud.get("name", None) == None:
+                    if xCloud.get("name", None) is None:
                         raise Exception("Cloud Providers XML: All Clouds must have the 'name' attribute.")
                     
                     cloud_name = xCloud.get("name", "")
@@ -929,9 +929,9 @@ def create_static_clouds():
                     if not cnt:
                         logger.info("    Creating Cloud [%s] on Provider [%s]..." % (cloud_name, p_name))
 
-                        if xCloud.get("api_url", None) == None:
+                        if xCloud.get("api_url", None) is None:
                             raise Exception("Cloud Providers XML: All Clouds must have the 'api_url' attribute.")
-                        if xCloud.get("api_protocol", None) == None:
+                        if xCloud.get("api_protocol", None) is None:
                             raise Exception("Cloud Providers XML: All Clouds must have the 'api_protocol' attribute.")
                         
                         from catocloud import cloud

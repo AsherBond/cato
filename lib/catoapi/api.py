@@ -266,7 +266,7 @@ def check_required_params(required_params, args):
 	if required_params and args:
 		for param in required_params:
 			if param:
-				if not args.has_key(param):
+				if param not in args:
 					resp = response(err_code="MissingParameter", err_detail="Required parameter '%s' missing." % param)
 					return False, resp
 				elif len(args[param]) == 0:
