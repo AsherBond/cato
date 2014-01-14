@@ -28,18 +28,19 @@ class taskMethods:
     """"""
 
     def create_task(self, args):        
-        """
-        Create a new Task.
-        
-        Required Arguments: 
-            name - a name for the new Task.
-            
-        Optional Arguments:
-            code - a Task code.
-            desc - a Task description.
-        
-        Returns: A Task object.
-        """
+        """Create a new Task.
+
+Required Arguments: 
+
+* `name` - a name for the new Task.
+    
+Optional Arguments:
+
+* `code` - a Task code.
+* `desc` - a Task description.
+
+Returns: A Task object.
+"""
         # define the required parameters for this call
         required_params = ["name"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -60,14 +61,14 @@ class taskMethods:
             return R(response=t.AsXML())
             
     def create_task_from_json(self, args):        
-        """
-        Create a new Task from a JSON Task backup document.
-        
-        Required Arguments: 
-            json - A properly formatted JSON representation of a Task.
-            
-        Returns: A Task object.
-        """
+        """Create a new Task from a JSON Task backup document.
+
+Required Arguments: 
+
+* `json` - A properly formatted JSON representation of a Task.
+    
+Returns: A Task object.
+"""
         # define the required parameters for this call
         required_params = ["json"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -90,14 +91,14 @@ class taskMethods:
             return R(err_code=R.Codes.CreateError, err_detail=msg)
             
     def get_task_instance_status(self, args):
-        """
-        Gets just the Status of a Task Instance.
-        
-        Required Arguments: 
-            instance - The Task Instance identifier.
+        """Gets just the Status of a Task Instance.
 
-        Returns: The Instance Status.
-        """
+Required Arguments: 
+
+* `instance` - The Task Instance identifier.
+
+Returns: The Instance Status.
+"""
         required_params = ["instance"]
         has_required, resp = api.check_required_params(required_params, args)
         if not has_required:
@@ -115,14 +116,14 @@ class taskMethods:
             return R(response=obj.task_status)
             
     def get_task_instance(self, args):
-        """
-        Gets the details of a Task Instance.
-        
-        Required Arguments: 
-            instance - The Task Instance identifier.
+        """Gets the details of a Task Instance.
 
-        Returns: A Task Instance object.
-        """
+Required Arguments: 
+
+* `instance` - The Task Instance identifier.
+
+Returns: A Task Instance object.
+"""
         required_params = ["instance"]
         has_required, resp = api.check_required_params(required_params, args)
         if not has_required:
@@ -143,14 +144,14 @@ class taskMethods:
             return R(response=obj.AsXML())
             
     def resubmit_task_instance(self, args):
-        """
-        Resubmits a completed,errored or cancelled Task Instance.
-        
-        Required Arguments: instance
-            The Task Instance identifier.
+        """Resubmits a completed,errored or cancelled Task Instance.
 
-        Returns: Returns: Nothing if successful, error messages on failure.
-        """
+Required Arguments:
+ 
+* `instance` - The Task Instance identifier.
+
+Returns: Returns: Nothing if successful, error messages on failure.
+"""
         # this is a developer function
         if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
@@ -178,14 +179,14 @@ class taskMethods:
             return R(err_code=R.Codes.StartFailure, err_detail=err)
 
     def get_task_log(self, args):
-        """
-        Gets the run log for a Task Instance.
-        
-        Required Arguments: 
-            instance - The Task Instance identifier.
+        """Gets the run log for a Task Instance.
 
-        Returns: A JSON array of log entries.
-        """
+Required Arguments: 
+
+* `instance` - The Task Instance identifier.
+
+Returns: A JSON array of log entries.
+"""
         required_params = ["instance"]
         has_required, resp = api.check_required_params(required_params, args)
         if not has_required:
@@ -204,24 +205,26 @@ class taskMethods:
             return R(response=obj.AsXML())
 
     def run_task(self, args):
-        """
-        Runs a Cato Task.
-        
-        Required Arguments: 
-            task - Either the Task ID or Name.
-            version - The Task Version.  (Unnecessary if 'task' is an ID.)
-            
-        Optional Arguments:
-            log_level - an integer (0-4) where 0 is none, 2 is normal and 4 is verbose.  Default is 2.
-            account - the ID or Name of a Cloud Account.  Certain Task commands require a Cloud Account.
-            parameters - A JSON or XML document defining parameters for the Task.
-            options - a JSON object defining certain options for this Task.  Typically used to provide scope for extensions to the Task Engine, such as Maestro.
-            run_later - if provided, the Task will be scheduled to run at the specified date/time.  ex. "7/4/1776 15:30"
-            
-        Returns: A JSON object, the Task Instance.
-            If 'output_format' is set to 'text', returns only a Task Instance ID.
-            If 'run_later' was specified, will return a success or error message.
-        """
+        """Runs a Cato Task.
+
+Required Arguments: 
+
+* `task` - Either the Task ID or Name.
+* `version` - The Task Version.  (Unnecessary if 'task' is an ID.)
+    
+Optional Arguments:
+
+* `log_level` - an integer (0-4) where 0 is none, 2 is normal and 4 is verbose.  Default is 2.
+* `account` - the ID or Name of a Cloud Account.  Certain Task commands require a Cloud Account.
+* `parameters` - A JSON or XML document defining parameters for the Task.
+* `options` - a JSON object defining certain options for this Task.  Typically used to provide scope for extensions to the Task Engine, such as Maestro.
+* `run_later` - if provided, the Task will be scheduled to run at the specified date/time.  ex. "7/4/1776 15:30"
+    
+Returns: A JSON object, the Task Instance.
+
+* If 'output_format' is set to 'text', returns only a Task Instance ID.
+* If 'run_later' was specified, will return a success or error message.
+"""
         # this is a developer function
         if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
@@ -283,14 +286,14 @@ class taskMethods:
         return R(err_code=R.Codes.GetError, err_detail="Unable to run Task [%s%s].  Check the log for details." % (args["task"], " %s" % (ver) if ver else ""))
         
     def stop_task(self, args):
-        """
-        Stops a running Task Instance.
-        
-        Required Arguments: 
-            instance - The Task Instance identifier.
+        """Stops a running Task Instance.
 
-        Returns: Nothing if successful, error messages on failure.
-        """
+Required Arguments: 
+
+* `instance` - The Task Instance identifier.
+
+Returns: Nothing if successful, error messages on failure.
+"""
         # this is a developer function
         if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
@@ -309,17 +312,18 @@ class taskMethods:
         return R(response="Instance [%s] successfully stopped." % args["instance"])
             
     def delete_task(self, args):
-        """
-        Deletes all versions of a Task.
-        
-        Required Arguments: 
-            task - Either the Task ID or Name.
+        """Deletes all versions of a Task.
 
-        Optional Arguments:
-            force_delete - Delete the Task, even if there are historical rows and references.  (Valid values: 1, yes, true)
+Required Arguments: 
 
-        Returns: Nothing if successful, error messages on failure.
-        """
+* `task` - Either the Task ID or Name.
+
+Optional Arguments:
+
+* `force_delete` - Delete the Task, even if there are historical rows and references.  (Valid values: 1, yes, true)
+
+Returns: Nothing if successful, error messages on failure.
+"""
         # this is a admin function
         if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
@@ -343,16 +347,17 @@ class taskMethods:
         return R(response="[%s] successfully deleted." % obj.Name)
             
     def list_tasks(self, args):        
-        """
-        Lists all Tasks.
-            Only 'Default' versions are shown.
-        
-        Optional Arguments: 
-            filter - will filter a value match in Task Name, Code or Description.  (Multiple filter arguments can be provided, delimited by spaces.)
-            show_all_versions - if provided, will display all versions. ('False' if omitted.)
-        
-        Returns: An array of all Tasks with basic attributes.
-        """
+        """Lists all Tasks.
+
+> Only 'Default' versions are shown.
+
+Optional Arguments:
+ 
+* `filter` - will filter a value match in Task Name, Code or Description.  (Multiple filter arguments can be provided, delimited by spaces.)
+* `show_all_versions` - if provided, will display all versions. ('False' if omitted.)
+
+Returns: An array of all Tasks with basic attributes.
+"""
         fltr = args["filter"] if args.has_key("filter") else ""
         showall = True if args.has_key("show_all_versions") else False
 
@@ -367,18 +372,18 @@ class taskMethods:
 
 
     def get_task_instances(self, args):
-        """
-        Gets a list of Task Instances.
-        
-        Optional Arguments:
-            filter - A filter to limit the results.
-            status - A comma separated list of statuses to filter the results.
-            from - a date string to set as the "from" marker. (mm/dd/yyyy format)
-            to - a date string to set as the "to" marker. (mm/dd/yyyy format)
-            records - a maximum number of results to get.
-            
-        Returns: A list of Task Instances.
-        """
+        """Gets a list of Task Instances.
+
+Optional Arguments:
+
+* `filter` - A filter to limit the results.
+* `status` - A comma separated list of statuses to filter the results.
+* `from` - a date string to set as the "from" marker. (mm/dd/yyyy format)
+* `to` - a date string to set as the "to" marker. (mm/dd/yyyy format)
+* `records` - a maximum number of results to get.
+    
+Returns: A list of Task Instances.
+"""
         fltr = args["filter"] if args.has_key("filter") else ""
         frm = args["from"] if args.has_key("from") else ""
         to = args["to"] if args.has_key("to") else ""
@@ -400,18 +405,19 @@ class taskMethods:
             return R(response=obj.AsXML())
             
     def get_task(self, args):        
-        """
-        Gets a Task object.
-        
-        Required Arguments: 
-            task - Value can be either a Task ID or Name.
-        
-        Optional Arguments:
-            version - A specific version.  ('Default' if omitted.)
-            include_code - Whether to include Codeblocks and Steps.  ('False' if omitted.)
-            
-        Returns: A Task object.
-        """
+        """Gets a Task object.
+
+Required Arguments: 
+
+* `task` - Value can be either a Task ID or Name.
+
+Optional Arguments:
+
+* `version` - A specific version.  ('Default' if omitted.)
+* `include_code` - Whether to include Codeblocks and Steps.  ('False' if omitted.)
+    
+Returns: A Task object.
+"""
         # define the required parameters for this call
         required_params = ["task"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -435,17 +441,18 @@ class taskMethods:
             return R(response=obj.AsXML(include_code=ic))
             
     def describe_task_parameters(self, args):        
-        """
-        Describes the Parameters for a Task.
-        
-        Required Arguments: 
-            task - Value can be either a Task ID, Code or Name.
-        
-        Optional Arguments:
-            version - A specific version.  ('Default' if omitted.)
-            
-        Returns: A help document describing the Task Parameters.
-        """
+        """Describes the Parameters for a Task.
+
+Required Arguments: 
+
+* `task` - Value can be either a Task ID, Code or Name.
+
+Optional Arguments:
+
+* `version` - A specific version.  ('Default' if omitted.)
+    
+Returns: A help document describing the Task Parameters.
+"""
         # define the required parameters for this call
         required_params = ["task"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -509,17 +516,18 @@ class taskMethods:
             return R(response="Task has no parameters defined.")
             
     def get_task_plans(self, args):        
-        """
-        Gets a list of the queued execution plans for a Task.
-        
-        Required Arguments: 
-            task - Value can be either a Task ID or Name.
-        
-        Optional Arguments:
-            version - A specific version.  ('Default' if omitted.)
-            
-        Returns: A list of execution Plans.
-        """
+        """Gets a list of the queued execution plans for a Task.
+
+Required Arguments: 
+
+* `task` - Value can be either a Task ID or Name.
+
+Optional Arguments:
+
+* `version` - A specific version.  ('Default' if omitted.)
+    
+Returns: A list of execution Plans.
+"""
         # define the required parameters for this call
         required_params = ["task"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -542,20 +550,21 @@ class taskMethods:
             return R(response=obj.PlansAsXML())
             
     def get_task_schedules(self, args):        
-        """
-        Gets a list of Schedule definitions for a Task.
-        
-        Required Arguments: 
-            task - Value can be either a Task ID or Name.
-        
-        Optional Arguments:
-            version - A specific version.  ('Default' if omitted.)
-            
-        Returns: A list of Schedule definitions.
-        
-            Text results do not include timing details.
-            JSON results include Schedule definitions suitable for use in the 'schedule_task' function.
-        """
+        """Gets a list of Schedule definitions for a Task.
+
+Required Arguments: 
+
+* `task` - Value can be either a Task ID or Name.
+
+Optional Arguments:
+
+* `version` - A specific version.  ('Default' if omitted.)
+    
+Returns: A list of Schedule definitions.
+
+* Text results do not include timing details.
+* JSON results include Schedule definitions suitable for use in the 'schedule_task' function.
+"""
         # define the required parameters for this call
         required_params = ["task"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -578,22 +587,22 @@ class taskMethods:
             return R(response=obj.SchedulesAsXML())
             
     def get_task_parameters(self, args):        
-        """
-        Gets a Parameters template for a Task.
-        
-        Required Arguments: 
-            task - Value can be either a Task ID, Code or Name.
-        
-        Optional Arguments:
-            version - A specific version.  ('Default' if omitted.)
-            basic - in JSON mode, if provided, will omit descriptive details.
-            
-        Returns: An XML template defining the Parameters for a Task.
+        """Gets a Parameters template for a Task.
 
-        NOTE: This function is not affected by the output_format option.
-            The Response is always an XML document.
-        
-        """
+Required Arguments: 
+
+* `task` - Value can be either a Task ID, Code or Name.
+
+Optional Arguments:
+
+* `version` - A specific version.  ('Default' if omitted.)
+* `basic` - in JSON mode, if provided, will omit descriptive details.
+    
+Returns: An XML template defining the Parameters for a Task.
+
+> This function is not affected by the output_format option.  The Response is always an XML document.
+
+"""
         # define the required parameters for this call
         required_params = ["task"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -648,23 +657,24 @@ class taskMethods:
             return R(err_code=R.Codes.GetError, err_detail="Task has no parameters defined.")
 
     def export_task(self, args):
-        """
-        Create a backup file for a single Task.
-        
-        NOTE: the behavior of this command is different depending on the output_format.
-        
-            * If 'json', it will return a JSON LIST of individual Task XML documents.
-            * If 'xml' (default) OR 'text', it will return a single XML document of Tasks.
-        
-        Required Arguments: 
-            task - Value can be either a Task ID, Code or Name.
-        
-        Optional Arguments:
-            version - A specific version.  ('Default' if omitted.)
-            include_refs - If true, will analyze each task and include any referenced Tasks.
-            
-        Returns: A collection of Task backup objects.
-        """
+        """Create a backup file for a single Task.
+
+> The behavior of this command is different depending on the output_format.
+
+* If 'json', it will return a JSON LIST of individual Task XML documents.
+* If 'xml' (default) OR 'text', it will return a single XML document of Tasks.
+
+Required Arguments: 
+
+* `task` - Value can be either a Task ID, Code or Name.
+
+Optional Arguments:
+
+* `version`` - A specific version.  ('Default' if omitted.)
+* `include_refs`` - If true, will analyze each task and include any referenced Tasks.
+    
+Returns: A collection of Task backup objects.
+"""
         
         # define the required parameters for this call
         required_params = ["task"]
@@ -688,32 +698,33 @@ class taskMethods:
             return R(response="<tasks>%s</tasks>" % "".join(docs))
             
     def schedule_tasks(self, args):
-        """
-        Schedules one or more Tasks.
-        
-        Required Arguments: 
-            tasks - a JSON document containing a list of Tasks and schedule details.
-            
-        Schedule definition format:
-        * all lists are zero based integers *
-        
-        [
-            { 
-                "Task" : *task name*,
-                "Version" : *optional*,
-                "Months": "*" or [list of months],
-                "DaysOrWeekdays": "Days" = days of the month, "Weekdays" = days of the week (default),
-                "Days": "*" or [list of days],
-                "Hours": "*" or [list of hours],
-                "Minutes": "*" or [list of minutes]
-            },
-            {
-                ...
-            }
-        ]
+        """Schedules one or more Tasks.
 
-        Returns: Nothing if successful, error messages on failure.
-        """
+Required Arguments: 
+
+* `tasks` - a JSON document containing a list of Tasks and schedule details.
+    
+Schedule definition format:
+
+> All lists are _zero based_ integers.
+
+    [
+        { 
+            "Task" : *task name*,
+            "Version" : *optional*,
+            "Months": "*" or [list of months],
+            "DaysOrWeekdays": "Days" = days of the month, "Weekdays" = days of the week (default),
+            "Days": "*" or [list of days],
+            "Hours": "*" or [list of hours],
+            "Minutes": "*" or [list of minutes]
+        },
+        {
+            ...
+        }
+    ]
+
+Returns: Nothing if successful, error messages on failure.
+"""
         # this is a developer function
         if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
@@ -764,14 +775,14 @@ class taskMethods:
         return R(response="\n".join(out))
 
     def delete_schedule(self, args):
-        """
-        Deletes a Task Schedule and all queued execution Plans.
-        
-        Required Arguments: 
-            schedule_id - The UUID of the Schedule to delete.
+        """Deletes a Task Schedule and all queued execution Plans.
 
-        Returns: Nothing if successful, error messages on failure.
-        """
+Required Arguments: 
+
+* `schedule_id` - The UUID of the Schedule to delete.
+
+Returns: Nothing if successful, error messages on failure.
+"""
         # this is a admin function
         if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")
@@ -788,14 +799,14 @@ class taskMethods:
         return R(response="Schedule [%s] successfully deleted." % args["schedule_id"])
             
     def delete_plan(self, args):
-        """
-        Deletes a specific queued execution Plan.
-        
-        Required Arguments: 
-            plan_id - The integer ID of the Plan to delete.
+        """Deletes a specific queued execution Plan.
 
-        Returns: Nothing if successful, error messages on failure.
-        """
+Required Arguments: 
+
+* `plan_id` - The integer ID of the Plan to delete.
+
+Returns: Nothing if successful, error messages on failure.
+"""
         # this is a admin function
         if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")

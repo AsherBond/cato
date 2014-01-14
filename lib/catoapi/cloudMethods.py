@@ -30,14 +30,14 @@ class cloudMethods:
     """These are methods for Cloud, Cloud Accounts and other related items."""
 
     def list_clouds(self, args):        
-        """
-        Lists all Clouds.
-        
-        Optional Arguments: 
-            filter - will filter a value match in Cloud Name, Provider, Default Account Name or API URL.  (Multiple filter arguments can be provided, delimited by spaces.)
-        
-        Returns: An list of all Clouds.
-        """
+        """Lists all Clouds.
+
+Optional Arguments: 
+
+* `filter` - will filter a value match in Cloud Name, Provider, Default Account Name or API URL.  (Multiple filter arguments can be provided, delimited by spaces.)
+
+Returns: An list of all Clouds.
+"""
         fltr = args["filter"] if args.has_key("filter") else ""
 
         obj = cloud.Clouds(sFilter=fltr)
@@ -49,14 +49,14 @@ class cloudMethods:
             return R(response=obj.AsXML())
 
     def list_cloud_accounts(self, args):        
-        """
-        Lists all Cloud Accounts.
-        
-        Optional Arguments: 
-            filter - will filter a value match in Account Name, Account Number, Provider, Login ID and Default Cloud Name.  (Multiple filter arguments can be provided, delimited by spaces.)
-        
-        Returns: An list of all Cloud Accounts.
-        """
+        """Lists all Cloud Accounts.
+
+Optional Arguments: 
+
+* `filter` - will filter a value match in Account Name, Account Number, Provider, Login ID and Default Cloud Name.  (Multiple filter arguments can be provided, delimited by spaces.)
+
+Returns: An list of all Cloud Accounts.
+"""
         fltr = args["filter"] if args.has_key("filter") else ""
 
         obj = cloud.CloudAccounts(sFilter=fltr)
@@ -69,19 +69,20 @@ class cloudMethods:
         
     def create_account(self, args):
         """
-        Creates a Cloud Account.
-        
-        Required Arguments: 
-            name - a name for the new Account.
-            provider - one of the valid cloud providers.
-            login - the login id (access key) for this Account.
-            password - a password (secret key) for this Account.
-            default_cloud - the name of a default Cloud for this Account.
+Creates a Cloud Account.
 
-        Optional Arguments: 
-            account_number - an Account number.
-        
-        """
+Required Arguments:
+ 
+* `name` - a name for the new Account.
+* `provider` - one of the valid cloud providers.
+* `login` - the login id (access key) for this Account.
+* `password` - a password (secret key) for this Account.
+* `default_cloud` - the name of a default Cloud for this Account.
+
+Optional Arguments: 
+
+* `account_number` - an Account number.
+"""
         # this is a developer function
         if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
@@ -111,14 +112,14 @@ class cloudMethods:
             return R(response=obj.AsXML())
 
     def get_account(self, args):
-        """
-        Gets a Cloud Account.
-        
-        Required Arguments: 
-            name - a Cloud Account name or ID.
+        """Gets a Cloud Account.
 
-        Returns: A Cloud Account object.
-        """
+Required Arguments:
+
+* `name` - a Cloud Account name or ID.
+
+Returns: A Cloud Account object.
+"""
         # this is a developer function
         if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
@@ -141,14 +142,14 @@ class cloudMethods:
             return R(response=obj.AsXML())
 
     def get_cloud(self, args):
-        """
-        Gets a Cloud object.
-        
-        Required Arguments: 
-            name - a Cloud name or ID.
+        """Gets a Cloud object.
 
-        Returns: A Cloud object.
-        """
+Required Arguments: 
+
+* `name` - a Cloud name or ID.
+
+Returns: A Cloud object.
+"""
         required_params = ["name"]
         has_required, resp = api.check_required_params(required_params, args)
         if not has_required:
@@ -167,20 +168,21 @@ class cloudMethods:
             return R(response=obj.AsXML())
 
     def create_cloud(self, args):
-        """
-        Creates a Cloud.
-        
-        Required Arguments: 
-            name - a name for the new Cloud.
-            provider - one of the valid cloud providers.
-            apiurl - URL of the Cloud API endpoint.
-            apiprotocol - Cloud API endpoint protocol.
+        """Creates a Cloud.
 
-        Optional Arguments: 
-            default_account - the name of a default Account for this Cloud.
-        
-        Returns: A Cloud object.
-        """
+Required Arguments: 
+
+* `name` - a name for the new Cloud.
+* `provider` - one of the valid cloud providers.
+* `apiurl` - URL of the Cloud API endpoint.
+* `apiprotocol` - Cloud API endpoint protocol.
+
+Optional Arguments:
+ 
+* `default_account` - the name of a default Account for this Cloud.
+
+Returns: A Cloud object.
+"""
         # this is a developer function
         if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
@@ -208,19 +210,20 @@ class cloudMethods:
             return R(response=obj.AsXML())
 
     def update_cloud(self, args):
-        """
-        Updates a Cloud.
-        
-        Required Arguments: 
-            name - Name or ID of the Cloud to update.
+        """Updates a Cloud.
 
-        Optional Arguments: 
-            apiurl - URL of the Cloud API endpoint.
-            apiprotocol - Cloud API endpoint protocol.
-            default_account - the name of a default Account for this Cloud.
-        
-        Returns: A Cloud object.
-        """
+Required Arguments:
+ 
+* `name` - Name or ID of the Cloud to update.
+
+Optional Arguments:
+ 
+* `apiurl` - URL of the Cloud API endpoint.
+* `apiprotocol` - Cloud API endpoint protocol.
+* `default_account` - the name of a default Account for this Cloud.
+
+Returns: A Cloud object.
+"""
         # this is a developer function
         if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
@@ -273,14 +276,14 @@ class cloudMethods:
             return R(response=obj.AsXML())
 
     def list_cloud_keypairs(self, args):
-        """
-        Lists all the Key Pairs defined on a Cloud.
+        """Lists all the Key Pairs defined on a Cloud.
 
-        Required Arguments: 
-            cloud - Name or ID of the Cloud to update.
+Required Arguments:
 
-        Returns: A list of Key Pairs on this Cloud.
-        """
+* `cloud` - Name or ID of the Cloud to update.
+
+Returns: A list of Key Pairs on this Cloud.
+"""
 
         required_params = ["cloud"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -297,19 +300,20 @@ class cloudMethods:
             return R(response=obj.KeyPairsAsXML())
             
     def add_cloud_keypair(self, args):
-        """
-        Adds a Key Pair to a Cloud.
-        
-        Required Arguments: 
-            cloud - Name or ID of the Cloud to update.
-            name - a name for the Key Pair.
-            private_key - the private key.
+        """Adds a Key Pair to a Cloud.
 
-        Optional Arguments: 
-            passphrase - a passphrase for this Key Pair.
-            
-        Returns: A list of Key Pairs on this Cloud.
-        """
+Required Arguments: 
+
+* `cloud` - Name or ID of the Cloud to update.
+* `name` - a name for the Key Pair.
+* `private_key` - the private key.
+
+Optional Arguments: 
+
+* `passphrase` - a passphrase for this Key Pair.
+    
+Returns: A list of Key Pairs on this Cloud.
+"""
         # this is a developer function
         if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")
@@ -335,15 +339,15 @@ class cloudMethods:
 
 
     def delete_cloud_keypair(self, args):
-        """
-        Removes a Key Pair from a Cloud.
-        
-        Required Arguments: 
-            cloud - Name or ID of the Cloud.
-            name - Name of the Key Pair to delete.
-            
-        Returns: A list of Key Pairs on this Cloud.
-        """
+        """Removes a Key Pair from a Cloud.
+
+Required Arguments: 
+
+* `cloud` - Name or ID of the Cloud.
+* `name` - Name of the Key Pair to delete.
+    
+Returns: A list of Key Pairs on this Cloud.
+"""
         # this is a developer function
         if not api._DEVELOPER:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Developers or Administrators can perform this function.")

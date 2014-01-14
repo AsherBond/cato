@@ -43,15 +43,15 @@ class dsMethods:
     """Cato Datastore"""
 
     def list_documents(self, args):        
-        """
-        Lists all Datastore Documents.
-        
-        Optional Arguments: 
-            collection - a document collection.  'Default' if omitted.
-            filter - will filter a value match in the Document ID or data.  (Filter is a JSON object formatted as a Mongo query.)
-        
-        Returns: A list of Documents.
-        """
+        """Lists all Datastore Documents.
+
+Optional Arguments: 
+
+* `collection` - a document collection.  'Default' if omitted.
+* `filter` - will filter a value match in the Document ID or data.  (Filter is a JSON object formatted as a Mongo query.)
+
+Returns: A list of Documents.
+"""
         collection = args["collection"] if args.has_key("collection") else ""
         fltr = args["filter"] if args.has_key("filter") else ""
 
@@ -64,14 +64,14 @@ class dsMethods:
             return R(response=obj.AsXML())
             
     def list_document_collections(self, args):        
-        """
-        Lists all Datastore Document Collections.
-        
-        Optional Arguments: 
-            filter - will filter results on the Collection name.  (A string to match in the Collection name.)
-        
-        Returns: A list of Document Collections.
-        """
+        """Lists all Datastore Document Collections.
+
+Optional Arguments: 
+
+* `filter` - will filter results on the Collection name.  (A string to match in the Collection name.)
+
+Returns: A list of Document Collections.
+"""
         fltr = args["filter"] if args.has_key("filter") else ""
 
         obj = datastore.Collections(fltr)
@@ -83,15 +83,15 @@ class dsMethods:
             return R(response=obj.AsXML())
 
     def create_document(self, args):        
-        """
-        Creates a Datastore document.
-        
-        Optional Arguments
-            collection - a document collection.  'Default' if omitted.
-            template - A JSON document template.  A blank document will be created if omitted.
-            
-        Returns: A Datastore document.
-        """
+        """Creates a Datastore document.
+
+Optional Arguments:
+
+* `collection` - a document collection.  'Default' if omitted.
+* `template` - A JSON document template.  A blank document will be created if omitted.
+    
+Returns: A Datastore document.
+"""
         collection = args["collection"] if args.has_key("collection") else ""
         template = args["template"] if args.has_key("template") else ""
 
@@ -107,17 +107,18 @@ class dsMethods:
             return R(err_code=R.Codes.GetError, err_detail=msg)
             
     def get_document(self, args):        
-        """
-        Gets a Datastore document.
-        
-        Required Arguments: 
-            query - A query in JSON format to select the correct Document.
-        
-        Optional Arguments
-            collection - a document collection.  'Default' if omitted.
+        """Gets a Datastore document.
 
-        Returns: A Datastore document.
-        """
+Required Arguments: 
+
+* `query` - A query in JSON format to select the correct Document.
+
+Optional Arguments:
+
+* `collection` - a document collection.  'Default' if omitted.
+
+Returns: A Datastore document.
+"""
         # define the required parameters for this call
         required_params = ["query"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -139,18 +140,19 @@ class dsMethods:
             return R(err_code=R.Codes.GetError, err_detail="Unable to find Data Document using query %s." % args["query"])
             
     def get_document_value(self, args):        
-        """
-        Gets the value of a key in a Datastore document.
-        
-        Required Arguments: 
-            query - A query in JSON format to select the correct Document.
-            key - The section of the Document to retrieve.  Returns the entire document if omitted.
-        
-        Optional Arguments
-            collection - a document collection.  'Default' if omitted.
+        """Gets the value of a key in a Datastore document.
 
-        Returns: A text value.
-        """
+Required Arguments: 
+
+* `query` - A query in JSON format to select the correct Document.
+* `key` - The section of the Document to retrieve.  Returns the entire document if omitted.
+
+Optional Arguments:
+
+* `collection` - a document collection.  'Default' if omitted.
+
+Returns: A text value.
+"""
         # define the required parameters for this call
         required_params = ["query", "lookupkey"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -180,19 +182,20 @@ class dsMethods:
             return R(err_code=R.Codes.GetError, err_detail="Unable to find Document for Cato Object ID [%s]." % args["doc_id"])
             
     def set_document_value(self, args):        
-        """
-        Sets the value of a key in a Datastore document.
-        
-        Required Arguments: 
-            query - A query in JSON format to select the correct Document.
-            key - The section of the document to retrieve.
+        """Sets the value of a key in a Datastore document.
 
-        Optional Arguments
-            collection - a document collection.  'Default' if omitted.
-            value - The value to set this item.  Item will be cleared if omitted.
-            
-        Returns: A success message, or error messages on failure.
-        """
+Required Arguments: 
+
+* `query` - A query in JSON format to select the correct Document.
+* `key` - The section of the document to retrieve.
+
+Optional Arguments:
+
+* `collection` - a document collection.  'Default' if omitted.
+* `value` - The value to set this item.  Item will be cleared if omitted.
+    
+Returns: A success message, or error messages on failure.
+"""
         # define the required parameters for this call
         required_params = ["query", "lookupkey"]
         has_required, resp = api.check_required_params(required_params, args)
