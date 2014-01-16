@@ -39,7 +39,7 @@ Optional Arguments:
 * `code` - a Task code.
 * `desc` - a Task description.
 
-Returns: A Task object.
+Returns: A [Task Object](restapi/api-response-objects.html#Task){:target="_blank"}.
 """
         # define the required parameters for this call
         required_params = ["name"]
@@ -67,7 +67,7 @@ Required Arguments:
 
 * `json` - A properly formatted JSON representation of a Task.
     
-Returns: A Task object.
+Returns: A [Task Object](restapi/api-response-objects.html#Task){:target="_blank"}.
 """
         # define the required parameters for this call
         required_params = ["json"]
@@ -97,7 +97,7 @@ Required Arguments:
 
 * `instance` - The Task Instance identifier.
 
-Returns: The Instance Status.
+Returns: The 'Status' from a [Task Instance Object](restapi/api-response-objects.html#TaskInstance){:target="_blank"}.
 """
         required_params = ["instance"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -122,7 +122,7 @@ Required Arguments:
 
 * `instance` - The Task Instance identifier.
 
-Returns: A Task Instance object.
+Returns: A [Task Instance Object](restapi/api-response-objects.html#TaskInstance){:target="_blank"}.
 """
         required_params = ["instance"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -185,7 +185,7 @@ Required Arguments:
 
 * `instance` - The Task Instance identifier.
 
-Returns: A JSON array of log entries.
+Returns: A [Task Log Object](restapi/api-response-objects.html#TaskLog){:target="_blank"}.
 """
         required_params = ["instance"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -220,7 +220,7 @@ Optional Arguments:
 * `options` - a JSON object defining certain options for this Task.  Typically used to provide scope for extensions to the Task Engine, such as Maestro.
 * `run_later` - if provided, the Task will be scheduled to run at the specified date/time.  ex. "7/4/1776 15:30"
     
-Returns: A JSON object, the Task Instance.
+Returns: A [Task Instance Object](restapi/api-response-objects.html#TaskInstance){:target="_blank"}.
 
 * If 'output_format' is set to 'text', returns only a Task Instance ID.
 * If 'run_later' was specified, will return a success or error message.
@@ -356,7 +356,9 @@ Optional Arguments:
 * `filter` - will filter a value match in Task Name, Code or Description.  (Multiple filter arguments can be provided, delimited by spaces.)
 * `show_all_versions` - if provided, will display all versions. ('False' if omitted.)
 
-Returns: An array of all Tasks with basic attributes.
+Returns: A list of [Task Objects](restapi/api-response-objects.html#Task){:target="_blank"}.
+
+> The Task Objects returned to this function are streamlined - they do not contain all the properties available in the `get_task` endpoint.
 """
         fltr = args["filter"] if "filter" in args else ""
         showall = True if "show_all_versions" in args else False
@@ -382,7 +384,7 @@ Optional Arguments:
 * `to` - a date string to set as the "to" marker. (mm/dd/yyyy format)
 * `records` - a maximum number of results to get.
     
-Returns: A list of Task Instances.
+Returns: A list of [Task Instance Objects](restapi/api-response-objects.html#TaskInstance){:target="_blank"}.
 """
         fltr = args["filter"] if "filter" in args else ""
         frm = args["from"] if "from" in args else ""
@@ -416,7 +418,7 @@ Optional Arguments:
 * `version` - A specific version.  ('Default' if omitted.)
 * `include_code` - Whether to include Codeblocks and Steps.  ('False' if omitted.)
     
-Returns: A Task object.
+Returns: A [Task Object](restapi/api-response-objects.html#Task){:target="_blank"}.
 """
         # define the required parameters for this call
         required_params = ["task"]
@@ -526,7 +528,7 @@ Optional Arguments:
 
 * `version` - A specific version.  ('Default' if omitted.)
     
-Returns: A list of execution Plans.
+Returns: A list of [Execution Plan Objects](restapi/api-response-objects.html#ExecutionPlan){:target="_blank"}.
 """
         # define the required parameters for this call
         required_params = ["task"]
@@ -560,7 +562,7 @@ Optional Arguments:
 
 * `version` - A specific version.  ('Default' if omitted.)
     
-Returns: A list of Schedule definitions.
+Returns: A list of [Task Schedule Objects](restapi/api-response-objects.html#TaskSchedule){:target="_blank"}.
 
 * Text results do not include timing details.
 * JSON results include Schedule definitions suitable for use in the 'schedule_task' function.
@@ -707,6 +709,9 @@ Required Arguments:
 Schedule definition format:
 
 > All lists are _zero based_ integers.
+
+> The [Task Schedule Object](restapi/api-response-objects.html#TaskSchedule){:target="_blank"} response from the `get_task_schedules` command in JSON format
+ can provide schedule definition examples for this command.
 
     [
         { 
