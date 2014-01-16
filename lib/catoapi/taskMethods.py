@@ -274,7 +274,7 @@ Returns: A JSON object, the Task Instance.
             
             if ti:
                 if args["output_format"] == "text":
-                    return ti
+                    return R(response=ti)
                 else:
                     instance = task.TaskInstance(ti)
                     if args["output_format"] == "json":
