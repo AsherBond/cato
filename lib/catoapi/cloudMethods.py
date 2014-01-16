@@ -34,9 +34,14 @@ class cloudMethods:
 
 Optional Arguments: 
 
-* `filter` - will filter a value match in Cloud Name, Provider, Default Account Name or API URL.  (Multiple filter arguments can be provided, delimited by spaces.)
+* `filter` - will filter a value match on:  (Multiple filter arguments can be provided, delimited by spaces.)
 
-Returns: An list of all Clouds.
+    * Cloud Name
+    * Provider
+    * Default Account Name
+    * API URL
+
+Returns: A list of [Cloud Objects](restapi/api-response-objects.html#Cloud){:target="_blank"}.
 """
         fltr = args["filter"] if "filter" in args else ""
 
@@ -53,9 +58,15 @@ Returns: An list of all Clouds.
 
 Optional Arguments: 
 
-* `filter` - will filter a value match in Account Name, Account Number, Provider, Login ID and Default Cloud Name.  (Multiple filter arguments can be provided, delimited by spaces.)
+* `filter` - will filter a value match on:  (Multiple filter arguments can be provided, delimited by spaces.)
 
-Returns: An list of all Cloud Accounts.
+    * Account Name
+    * Account Number
+    * Provider
+    * Login ID
+    * Default Cloud Name
+
+Returns: A list of [Cloud Account Objects](restapi/api-response-objects.html#CloudAccount){:target="_blank"}.
 """
         fltr = args["filter"] if "filter" in args else ""
 
@@ -82,6 +93,8 @@ Required Arguments:
 Optional Arguments: 
 
 * `account_number` - an Account number.
+
+Returns: The new [Cloud Account Object](restapi/api-response-objects.html#CloudAccount){:target="_blank"}.
 """
         # this is a developer function
         if not api._DEVELOPER:
@@ -118,7 +131,7 @@ Required Arguments:
 
 * `name` - a Cloud Account name or ID.
 
-Returns: A Cloud Account object.
+Returns: A [Cloud Account Object](restapi/api-response-objects.html#CloudAccount){:target="_blank"}.
 """
         # this is a developer function
         if not api._DEVELOPER:
@@ -148,7 +161,7 @@ Required Arguments:
 
 * `name` - a Cloud name or ID.
 
-Returns: A Cloud object.
+Returns: A [Cloud Object](restapi/api-response-objects.html#Cloud){:target="_blank"}.
 """
         required_params = ["name"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -181,7 +194,7 @@ Optional Arguments:
  
 * `default_account` - the name of a default Account for this Cloud.
 
-Returns: A Cloud object.
+Returns: The new [Cloud Object](restapi/api-response-objects.html#Cloud){:target="_blank"}.
 """
         # this is a developer function
         if not api._DEVELOPER:
@@ -222,7 +235,7 @@ Optional Arguments:
 * `apiprotocol` - Cloud API endpoint protocol.
 * `default_account` - the name of a default Account for this Cloud.
 
-Returns: A Cloud object.
+Returns: The updated [Cloud Object](restapi/api-response-objects.html#Cloud){:target="_blank"}.
 """
         # this is a developer function
         if not api._DEVELOPER:
@@ -280,9 +293,9 @@ Returns: A Cloud object.
 
 Required Arguments:
 
-* `cloud` - Name or ID of the Cloud to update.
+* `cloud` - Name or ID of a Cloud.
 
-Returns: A list of Key Pairs on this Cloud.
+Returns: A list of [Cloud KeyPair Objects](restapi/api-response-objects.html#CloudKeyPair){:target="_blank"}.
 """
 
         required_params = ["cloud"]
@@ -312,7 +325,7 @@ Optional Arguments:
 
 * `passphrase` - a passphrase for this Key Pair.
     
-Returns: A list of Key Pairs on this Cloud.
+Returns: A list of [Cloud KeyPair Objects](restapi/api-response-objects.html#CloudKeyPair){:target="_blank"}.
 """
         # this is a developer function
         if not api._DEVELOPER:
@@ -346,7 +359,7 @@ Required Arguments:
 * `cloud` - Name or ID of the Cloud.
 * `name` - Name of the Key Pair to delete.
     
-Returns: A list of Key Pairs on this Cloud.
+Returns: A list of [Cloud KeyPair Objects](restapi/api-response-objects.html#CloudKeyPair){:target="_blank"}.
 """
         # this is a developer function
         if not api._DEVELOPER:

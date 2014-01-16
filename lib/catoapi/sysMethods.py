@@ -124,6 +124,8 @@ Returns: A list of items in the backup file, with the success/failure of each im
     
     def list_processes(self, args):        
         """Lists all Cato Processes.
+        
+Returns: A list of [Process Objects](restapi/api-response-objects.html#Process){:target="_blank"}.
 """
         db = catocommon.new_conn()
         sSQL = """select app_instance as Instance,
@@ -233,7 +235,11 @@ Required Arguments:
 
 * `user` - A login name for the user.
 * `name` - The full name of the user.
-* `role` - The users role.  (Valid values: Administrator, Developer, User)
+* `role` - The users role.  Valid values: 
+    
+    * Administrator
+    * Developer
+    * User
 
 Optional Arguments:
 
@@ -246,7 +252,7 @@ Optional Arguments:
 * `groups` - A list of groups the user belongs to. Group names cannot contain spaces. Comma delimited list.
 * `get_token` - If true, will return an automatic login token.  (Valid values: 1, yes, true)
 
-Returns: A User object.
+Returns: A [User Object](restapi/api-response-objects.html#User){:target="_blank"}.
 """
 
         # this is a admin function, kick out 
@@ -333,7 +339,7 @@ Optional Arguments:
 * `expires` - Expiration date for this account.  Must be in mm/dd/yyyy format. Can be cleared with "None".
 * `groups` - Add to the list of groups the user belongs to. Group names cannot contain spaces. Comma delimited list.
 
-Returns: A User object.
+Returns: A [User Object](restapi/api-response-objects.html#User){:target="_blank"}.
 """
 
         # this is a admin function, kick out 
@@ -409,9 +415,13 @@ Returns: A User object.
         
 Optional Arguments: 
 
-* `filter` - will filter a value match in User's Full Name, Role or Email address.  (Multiple filter arguments can be provided, delimited by spaces.)
+* `filter` - will filter a value match on: (Multiple filter arguments can be provided, delimited by spaces.)
 
-Returns: A list of all Users.
+    * Full Name
+    * Role
+    * Email address
+
+Returns: A list of [User Objects](restapi/api-response-objects.html#User){:target="_blank"}.
 """
         # this is a admin function, kick out 
         if not api._ADMIN:
@@ -498,7 +508,7 @@ Optional Arguments:
 
 * `module` - name of the module. If omitted, all module settings are returned.
 
-Returns: A collection of settings.
+Returns: A [Settings Object](restapi/api-response-objects.html#Settings){:target="_blank"}.
 """
         # this is a admin function, kick out 
         if not api._ADMIN:
@@ -539,7 +549,7 @@ Optional Arguments:
 * `privileged` = Additional password required to put certain devices into 'privileged' mode.
 * `domain` - A domain for the Credential.
 
-Returns: A Credential object.
+Returns: A [Credential Object](restapi/api-response-objects.html#Credential){:target="_blank"}.
 """
 
         # this is a admin function, kick out 
@@ -601,7 +611,7 @@ Optional Arguments:
  
 * `filter` - will filter a value match in Credential Name, Username, Domain or Description.  (Multiple filter arguments can be provided, delimited by spaces.)
 
-Returns: A list of Shared Credentials.
+Returns: A list of [Credential Objects](restapi/api-response-objects.html#Credential){:target="_blank"}.
 """
         fltr = args.get("filter", "")
 
@@ -628,7 +638,7 @@ Optional Arguments:
 * `to` - a date string to set as the "to" marker. (mm/dd/yyyy format)
 * `records` - a maximum number of results to get.
 
-Returns: An array of log entries.
+Returns: A list of [Log Entry Objects](restapi/api-response-objects.html#LogEntry){:target="_blank"}.
 """
         # this is a admin function, kick out 
         if not api._ADMIN:
@@ -672,7 +682,7 @@ Optional Arguments:
 
 * `filter` - will filter a value match in Tag Name.  (Multiple filter arguments can be provided, delimited by spaces.)
 
-Returns: A list of all Tags.
+Returns: A list of [Tag Objects](restapi/api-response-objects.html#Tag){:target="_blank"}.
 """
         fltr = args.get("filter", "")
 
@@ -696,7 +706,7 @@ Optional Arguments:
 
 * `description` - Describe the Tag.
     
-Returns: The new Tag if successful, error message on failure.
+Returns: The new [Tag Object](restapi/api-response-objects.html#Tag){:target="_blank"} if successful, error message on failure.
     """
         # this is a admin function, kick out 
         if not api._ADMIN:
@@ -726,7 +736,7 @@ Required Arguments:
 
 * `name` - The name of the Tag.
     
-Returns: Success message successful, error message on failure.
+Returns: Success message if successful, error message on failure.
 """
         # this is a admin function, kick out 
         if not api._ADMIN:
@@ -792,7 +802,7 @@ Required Arguments:
 * `object_id` - The ID of the object.
 * `object_type` - The numeric type of the object.
     
-Returns: Success message successful, error message on failure.
+Returns: Success message if successful, error message on failure.
 """
         # this is a admin function
         if not api._ADMIN:
@@ -831,7 +841,7 @@ Optional Arguments:
 * `cc - a carbon copy list of comma-separated email addresses or Cloud Sidekick Users.
 * `bcc - a blind carbon copy list of comma-separated email addresses or Cloud Sidekick Users.
 
-Returns: a success or error message.
+Returns: Success message if successful, error message on failure.
 """
         
         required_params = ["to", "subject", "message"]
@@ -892,9 +902,16 @@ Returns: a success or error message.
 
 Optional Arguments: 
 
-* `filter` - will filter a value match in Asset Name, Port, Address, DB Name, Status or Credential Username.  (Multiple filter arguments can be provided, delimited by spaces.)
+* `filter` - will filter a value match on: (Multiple filter arguments can be provided, delimited by spaces.)
 
-Returns: A list of all Assets.
+    * Asset Name
+    * Port
+    * Address
+    * DB Name
+    * Status
+    * Credential Username
+
+Returns: A list of [Asset Objects](restapi/api-response-objects.html#Asset){:target="_blank"}.
 """
         fltr = args.get("filter", "")
 
@@ -913,7 +930,7 @@ Required Arguments:
 
 * `asset` - an Asset Name or ID.
 
-Returns: An Asset object.
+Returns: An [Asset Object](restapi/api-response-objects.html#Asset){:target="_blank"}.
 """
         required_params = ["asset"]
         has_required, resp = api.check_required_params(required_params, args)
@@ -934,7 +951,8 @@ Returns: An Asset object.
         """Creates an Asset.
 
 Required Arguments: 
-    name - a name for the new Asset.
+
+* name - a name for the new Asset.
     
 Optional Arguments: 
 
@@ -958,6 +976,8 @@ The minimum required to create a LOCAL set of credentials on this Asset are:
 * `password` - a Password for the Credential
     
 To specify a Shared Credential, provide the `shared_credential` argument, which is the name of an existing Credential.
+
+Returns: An [Asset Object](restapi/api-response-objects.html#Asset){:target="_blank"}.
 """
         # this is a developer function
         if not api._DEVELOPER:
@@ -998,14 +1018,14 @@ To specify a Shared Credential, provide the `shared_credential` argument, which 
             return R(response=obj.AsXML())
 
     def delete_asset(self, args):
-        """
-        Deletes an Asset.
-        
-        Required Arguments: 
-            asset - Either the Asset ID or Name.
+        """Deletes an Asset.
 
-        Returns: Nothing if successful, error messages on failure.
-        """
+Required Arguments:
+
+* asset - Either the Asset ID or Name.
+
+Returns: Nothing if successful, error messages on failure.
+"""
         # this is a admin function
         if not api._ADMIN:
             return R(err_code=R.Codes.Forbidden, err_msg="Only Administrators can perform this function.")

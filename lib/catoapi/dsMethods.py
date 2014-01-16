@@ -50,7 +50,7 @@ Optional Arguments:
 * `collection` - a document collection.  'Default' if omitted.
 * `filter` - will filter a value match in the Document ID or data.  (Filter is a JSON object formatted as a Mongo query.)
 
-Returns: A list of Documents.
+Returns: A list of [Datastore Document Objects](restapi/api-response-objects.html#DatastoreDocument){:target="_blank"}.
 """
         collection = args["collection"] if "collection" in args else ""
         fltr = args["filter"] if "filter" in args else ""
@@ -90,7 +90,7 @@ Optional Arguments:
 * `collection` - a document collection.  'Default' if omitted.
 * `template` - A JSON document template.  A blank document will be created if omitted.
     
-Returns: A Datastore document.
+Returns: A [Datastore Document Object](restapi/api-response-objects.html#DatastoreDocument){:target="_blank"}.
 """
         collection = args["collection"] if "collection" in args else ""
         template = args["template"] if "template" in args else ""
@@ -117,7 +117,7 @@ Optional Arguments:
 
 * `collection` - a document collection.  'Default' if omitted.
 
-Returns: A Datastore document.
+Returns: A [Datastore Document Object](restapi/api-response-objects.html#DatastoreDocument){:target="_blank"}.
 """
         # define the required parameters for this call
         required_params = ["query"]
