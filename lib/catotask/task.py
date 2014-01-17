@@ -1778,14 +1778,11 @@ class TaskInstances(object):
         sDateSearchString = ""
 
         if sFrom:
-            sDateSearchString += " and (submitted_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')" \
-            " or started_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')" \
-            " or completed_dt >= str_to_date('" + sFrom + "', '%%m/%%d/%%Y')) "
+            _f = catocommon.normalize_datetime_string(sFrom)
+            sDateSearchString += " and (submitted_dt >= '%s' or started_dt >= '%s' or completed_dt >= '%s') " % (_f)
         if sTo:
-            sDateSearchString += " and (submitted_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')" \
-            " or started_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')" \
-            " or completed_dt <= str_to_date('" + sTo + "', '%%m/%%d/%%Y')) "
-
+            _t = catocommon.normalize_datetime_string(sTo)
+            sDateSearchString += " and (submitted_dt <= '%s' or started_dt <= '%s' or completed_dt <= '%s') " % (_t)
 
 
         # there may be a list of statuses passed in, if so, build out the where clause for them too

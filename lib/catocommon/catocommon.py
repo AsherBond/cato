@@ -132,6 +132,15 @@ def create_api_token(user_id):
     
     return token
     
+def normalize_datetime_string(in_date, date_format="%Y-%m-%d %H:%M:%S"):
+    """
+    Will turn any provided date string into the provided output format, 
+        "%Y-%m-%d %H:%m:%S" '2013-10-01 23:10:14' by default.
+    """
+    import dateutil.parser as parser
+    tmp = parser.parse(in_date)
+    return tmp.strftime(date_format)
+
 def send_email_via_messenger(to, subject, body, cc=None, bcc=None):
     msg = "Inserting into message queue:\nTO:[%s]\nSUBJECT:[%s]\nBODY:[%s]" % (to, subject, body)
     logger.info(msg)
@@ -516,9 +525,9 @@ def get_security_log(oid=None, otype=0, user=None, logtype="Security", action=No
             or usl.log_msg like '%%{0}%%') """.format(search.replace("'", "''"))
     
     if _from:
-        dateclause += " and usl.log_dt >= str_to_date('{0}', '%%m/%%d/%%Y')".format(_from)
+        dateclause += " and usl.log_dt >= '{0}'".format(normalize_datetime_string(_from))
     if _to:
-        dateclause += " and usl.log_dt <= str_to_date('{0}', '%%m/%%d/%%Y')".format(_to)
+        dateclause += " and usl.log_dt <= '{0}'".format(normalize_datetime_string(_to))
         
     sql = "select usl.log_msg, usl.action, usl.log_type, usl.object_type, usl.object_id," \
         " convert(usl.log_dt, CHAR(20)) as log_dt, u.full_name" \
