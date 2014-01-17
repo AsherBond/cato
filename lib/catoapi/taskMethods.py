@@ -144,7 +144,7 @@ Returns: A [Task Instance Object](restapi/api-response-objects.html#TaskInstance
             return R(response=obj.AsXML())
             
     def resubmit_task_instance(self, args):
-        """Resubmits a completed,errored or cancelled Task Instance.
+        """Resubmits an Errored or Cancelled Task Instance.  Resubmit is *only* valid on Errored or Cancelled Task Instances.
 
 Required Arguments:
  
