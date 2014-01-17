@@ -38,6 +38,7 @@ logger = catolog.get_logger(__name__)
 from catoapi import api
 from catoapi.api import response as R
 from catodatastore import datastore
+from catocommon import catocommon
 
 class dsMethods:
     """Cato Datastore"""
@@ -141,6 +142,8 @@ Returns: A [Datastore Document Object](restapi/api-response-objects.html#Datasto
             
     def get_document_value(self, args):        
         """Gets the value of a key in a Datastore document.
+        
+> Datastore queries always return a list of document matches, even if the result set happens to only return data from one document.
 
 Required Arguments: 
 
@@ -166,7 +169,7 @@ Returns: A text value.
             # we have a document!  let's dig in to it.
             result = doc.Lookup(args["lookupkey"])
             if result:
-                return R(response=result)
+                return R(response=catocommon.ObjectOutput.IterableAsJSON(result))
 #                    # now, the section we obtained might be a document itself...
 #                    # so let's serialize it.
 #                    if args["output_format"] == "json":
