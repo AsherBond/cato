@@ -416,7 +416,7 @@ Required Arguments:
 Optional Arguments:
 
 * `version` - A specific version.  ('Default' if omitted.)
-* `include_code` - Whether to include Codeblocks and Steps.  ('False' if omitted.)
+* `include_code` - Whether to include Codeblocks and Steps.  (Only included if 'output_format' is 'json' or 'xml'.  'False' if omitted.)
     
 Returns: A [Task Object](restapi/api-response-objects.html#Task){:target="_blank"}.
 """
