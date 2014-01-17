@@ -418,6 +418,7 @@ Optional Arguments:
 * `filter` - will filter a value match on: (Multiple filter arguments can be provided, delimited by spaces.)
 
     * Full Name
+    * Login ID
     * Role
     * Email address
 

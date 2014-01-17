@@ -58,6 +58,7 @@ class Users(object):
         if self.rows:
             for user in self.rows:
                 u = {}
+                u["LoginID"] = user["username"]
                 u["FullName"] = user["full_name"]
                 u["Role"] = user["role"]
                 u["Status"] = user["status"]
@@ -80,7 +81,7 @@ class Users(object):
         return catocommon.ET.tostring(dom)
 
     def AsText(self, delimiter=None, headers=None):
-        return catocommon.ObjectOutput.IterableAsText(self.SafeList(), ['FullName', 'Role', 'Status', 'AuthenticationType', 'Email'], delimiter, headers)
+        return catocommon.ObjectOutput.IterableAsText(self.SafeList(), ['LoginID', 'FullName', 'Role', 'Status', 'AuthenticationType', 'Email'], delimiter, headers)
 
 class User(object):
     def __init__(self):
