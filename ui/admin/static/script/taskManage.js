@@ -286,10 +286,6 @@ function SaveNewTask() {
 		sValidationErr += "- Task Name is required and must be at least three characters in length.<br />";
 		bSave = false;
 	}
-	if (sTaskCode.length < 1) {
-		sValidationErr += "- Task Code is required.";
-		bSave = false;
-	}
 
 	if (bSave != true) {
 		showAlert(sValidationErr);
