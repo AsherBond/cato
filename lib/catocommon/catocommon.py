@@ -866,15 +866,15 @@ class ObjectOutput(object):
         if hasattr(obj, "__dict__"):
             # might be an object, which has the __dict__ builtin
             for key in keys:
-                vals.append(str(obj.__dict__[key]))
+                vals.append(str(obj.__dict__.get(key, "")))
         elif isinstance(obj, dict):
             # but if it actually IS a dict...
             for key in keys:
-                vals.append(str(obj[key]))
+                vals.append(str(obj.get(key, "")))
         else:
             # assume it's an object and get the attribute by name
             for key in keys:
-                vals.append(str(getattr(obj, key)))
+                vals.append(str(getattr(obj, key, "")))
 
         if header is False:
             return "%s" % (delimiter.join(vals))
@@ -921,15 +921,13 @@ class ObjectOutput(object):
                 if hasattr(row, "__dict__"):
                     # might be an object, which has the __dict__ builtin
                     for key in keys:
-                        if row.__dict__[key]:
-                            val = "%s" % row.__dict__[key]
-                            cols.append(val.encode('ascii', 'replace'))
+                        val = "%s" % row.__dict__.get(key, "")
+                        cols.append(val.encode('ascii', 'replace'))
                 elif isinstance(row, dict):
                     # but if it actually IS a dict...
                     for key in keys:
-                        if row[key]:
-                            val = "%s" % row[key]
-                            cols.append(val.encode('ascii', 'replace'))
+                        val = "%s" % row.get(key, "")
+                        cols.append(val.encode('ascii', 'replace'))
                 else:
                     # but if they're not, just return the whole row
                     cols.append(str(row))
