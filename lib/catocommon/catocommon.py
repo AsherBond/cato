@@ -419,7 +419,7 @@ def tick_slash(s):
 
 def lookup_shared_cred(alias):
     """ Get a Credential (including passwords!) by ID or Name. """
-    sql = "select username, password, private_key from asset_credential where credential_id = %s or credential_name = %s"
+    sql = "select username, password, private_key, domain from asset_credential where credential_id = %s or credential_name = %s"
     db = new_conn()
     row = db.select_row(sql, (alias, alias))
     db.close()    
@@ -427,7 +427,8 @@ def lookup_shared_cred(alias):
         user = row[0]
         password = cato_decrypt(row[1])
         pk = cato_decrypt(row[2])
-        ret = (user, password, pk)
+        domain = row[3]
+        ret = (user, password, pk, domain)
     else:
         ret = None
     return ret

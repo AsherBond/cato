@@ -1160,12 +1160,16 @@ def get_shared_cred_cmd(self, task, step):
         userid = c[0]
         password = c[1]
         pk = c[2]
+        domain = c[3]
         self.add_to_sensitive(password)
     else:
         raise Exception("Unable to find Shared Credential using name [%s]." % (alias))
 
     if len(u):
         self.rt.set(u, userid)
+
+    if len(d):
+        self.rt.set(d, domain)
 
     if len(p):
         if pk and len(pk):
