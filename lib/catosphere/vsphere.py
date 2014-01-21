@@ -639,7 +639,7 @@ class VM:
             snapshot points are always read-only. Thus for a clone this option 
             is only valid when cloning from a snapshot
         """
-        logger.debug('clone: name, sync_run, folder, resourcepool, datastore, host, power_on : %s, %s, %s, %s, %s, %s, %s' % \
+        logger.debug('clone: name, sync_run, folder, resourcepool, datastore, host, power_on : %s, %s, %s, %s, %s, %s, %s' %
                      (name, sync_run, folder, resourcepool, datastore, host, power_on))
         self._ensureVMFetch()
         

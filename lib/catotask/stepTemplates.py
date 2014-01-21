@@ -1594,8 +1594,8 @@ def GetVariablesForStepForEdit(oStep, sXPathPrefix=None):
                         <label for="{0}_r_mode_pos">position</label> / 
                         <input type="radio" id="{0}_r_mode_pre" name="{0}_r_mode" value="string" {4} class="prop" refid="{0}" /> 
                         <label for="{0}_r_mode_pre">suffix</label> 
-                        <input type="text" class="w100px code prop" id="{0}_r_prop" value="{6}" refid="{0}" />'''.format(
-                            sVarGUID, sLIdxChecked, sLPosChecked, sRIdxChecked, sRPosChecked, sLProp, sRProp)
+                        <input type="text" class="w100px code prop" id="{0}_r_prop" value="{6}" refid="{0}" />'''.format(sVarGUID, 
+                                                        sLIdxChecked, sLPosChecked, sRIdxChecked, sRPosChecked, sLProp, sRProp)
                 
             elif sType == "delimited":
                 sLProp = xVar.findtext("position", "")

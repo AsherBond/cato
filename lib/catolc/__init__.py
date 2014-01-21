@@ -29,7 +29,7 @@ from tarfile import SUPPORTED_TYPES
 
 SUPPORTED_LIBCLOUD_VERSION = '0.11.1'
 if libcloud.__version__ != SUPPORTED_LIBCLOUD_VERSION:
-    raise UnsupportedVersionError('catolc only supports libcloud v%s, but this is v%s' % \
+    raise UnsupportedVersionError('catolc only supports libcloud v%s, but this is v%s' %
                  (SUPPORTED_LIBCLOUD_VERSION, libcloud.__version__))
     
 # default logging location. 

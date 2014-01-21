@@ -971,11 +971,8 @@ class taskMethods:
 
         if dr is not None:
             uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, dr["task_id"], sFunction,
-                "Codeblock:" + dr["codeblock_name"] + \
-                " Step Order:" + str(dr["step_order"]) + \
-                " Command Type:" + sFunction + \
-                " Property:" + sXPath + \
-                " New Value: " + sValue)
+                "Codeblock:" + dr["codeblock_name"] + " Step Order:" + str(dr["step_order"]) + 
+                " Command Type:" + sFunction + " Property:" + sXPath + " New Value: " + sValue)
 
         return json.dumps({"result" : "success"})
 
