@@ -2,7 +2,9 @@ web.py==0.37
 croniter==0.3.3
 PyMySQL==0.6.1
 pymongo==2.6.3
---allow-unverified jsonpath jsonpath==0.54
+--allow-external jsonpath
+--allow-unverified jsonpath
+jsonpath==0.54
 pexpect==2.4
 python-tds==1.6.2
 argparse
@@ -12,7 +14,9 @@ https://github.com/pdunnigan/pywinrm/archive/master.zip
 # optional packages ...
 
 # optional pysphere package for vmware vsphere support
-# --allow-unverified pysphere pysphere==0.1.8
+# --allow-external pysphere
+# --allow-unverified pysphere
+# pysphere==0.1.8
 
 # optional jenkins package for jenkins integration support
 # jenkinsapi==0.2.16
