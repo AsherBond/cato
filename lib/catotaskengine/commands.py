@@ -23,7 +23,6 @@ import hashlib
 import base64
 import hmac
 import re
-import sys
 from bson import json_util
 from datetime import datetime, timedelta
 import dateutil.parser as parser
@@ -957,8 +956,9 @@ def replace_cmd(self, task, step):
         old, new, reg = p[:]
         old = self.replace_variables(old)
         new = self.replace_variables(new)
-        if reg == "1" and sys.version_info >= (2, 7, 0):
-            source = re.sub(old, new, source,flags=re.MULTILINE)
+        if reg == "1":
+            prog = re.compile(old, flags=re.MULTILINE)
+            source = prog.sub(new, source)
         else:
             source = source.replace(old, new)
 
