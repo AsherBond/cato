@@ -25,13 +25,20 @@ from urlparse import urlparse
 # import sys
 # sys.path.insert(0, '/Users/peter/sw/pysphere-1.7.0.1')
 
-import pysphere
-from pysphere import VIServer
-from pysphere import MORTypes
-from pysphere.version import version as pysphere_version_info
-from pysphere.vi_virtual_machine import VMPowerState
-from pysphere.resources.vi_exception import VIException
-
+try:
+    import pysphere
+    from pysphere import VIServer
+    from pysphere import MORTypes
+    from pysphere.version import version as pysphere_version_info
+    from pysphere.vi_virtual_machine import VMPowerState
+    from pysphere.resources.vi_exception import VIException
+except ImportError as e:
+    msg = "VMware vSphere commands missing Python library pysphere. \
+            See http://docs.cloudsidekick.com/docs/cato/?cloud/vmware.html for instructions on \
+            installing the pysphere package on the Cato Task Engine server.\n%s" % (e)
+    raise Exception(msg)
+except Exception as e:
+    raise Exception(e)
 
 #(0,1,6) -> '0.1.6'
 #pysphere_version = '.'.join(pysphere_version_info)
@@ -77,10 +84,10 @@ prototrace_file = None
 #Advanced filters parameter in VIServer.get_registered_vms
 #see: http://groups.google.com/group/pysphere/browse_thread/thread/15a06606ce774b37/f14f671252b2b82a#f14f671252b2b82a
 
-SUPPORTED_PYSPHERE_VERSION = (0,1,7)
-if pysphere_version_info != SUPPORTED_PYSPHERE_VERSION:
-    raise UnsupportedVersionError('catosphere only supports pysphere v%s, but this is v%s' % \
-                 (SUPPORTED_PYSPHERE_VERSION, pysphere_version_info))
+#SUPPORTED_PYSPHERE_VERSION = (0,1,7)
+#if pysphere_version_info != SUPPORTED_PYSPHERE_VERSION:
+#    raise UnsupportedVersionError('catosphere only supports pysphere v%s, but this is v%s' % \
+#                 (SUPPORTED_PYSPHERE_VERSION, pysphere_version_info))
 
 
 def set_prototrace(dotrace, filename = PROTO_LOGFILE_DEFAULT):
