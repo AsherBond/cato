@@ -3,11 +3,11 @@ croniter==0.3.3
 PyMySQL==0.6.1
 pymongo==2.6.3
 jsonpath==0.54
-pysphere==0.1.8
+* pysphere==0.1.8
 pexpect==2.4
 python-tds==1.6.2
 argparse
-jenkinsapi==0.2.16
+# jenkinsapi==0.2.16
 https://github.com/cloudsidekick/awspy/archive/master.zip
 https://github.com/cloudsidekick/vcloudpy/archive/master.zip
 https://github.com/pdunnigan/pywinrm/archive/master.zip
