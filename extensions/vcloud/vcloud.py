@@ -15,7 +15,15 @@
 #########################################################################
 
 from catotaskengine import classes
-from vcloudpy import vcloudpy
+try:
+    from vcloudpy import vcloudpy
+except ImportError as e:
+    msg = "vCloud commands missing Python library vcloudpy. \
+            See http://docs.cloudsidekick.com/docs/cato/?cloud/vcloud.html for instructions on \
+            installing the vcloudpy package on the Cato Task Engine server.\n%s" % (e)
+    raise Exception(msg)
+except Exception as e:
+    raise Exception(e)
 
 def vcloud_connect(TE, step, timeout):
 
