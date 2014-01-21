@@ -185,7 +185,7 @@ else
 fi
 
 ### install third party python packages
-pip install -q -r $CATO_HOME/requirements.txt --allow-external jsonpath --allow-unverified jsonpath
+pip install -q -r $CATO_HOME/requirements.txt
 
 ### compile c++ encryption library
 cd $CATO_HOME/src/catocrypt
