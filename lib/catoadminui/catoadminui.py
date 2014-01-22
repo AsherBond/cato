@@ -1,11 +1,11 @@
 # Copyright 2012 Cloud Sidekick
-#  
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-#  
+#
 #     http:# www.apache.org/licenses/LICENSE-2.0
-#  
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,12 +44,14 @@ os.chdir(web_root)
 """
  wmHandler is the default handler for any urls not defined in the urls mapping below.
  (web.py required explicit url mapping)
- 
+
  web.py will instantiate this class, and invoke either the GET or POST method.
- 
- We take it from there (in catocommon), parse the URI, and try to load the right module 
+
+ We take it from there (in catocommon), parse the URI, and try to load the right module
  and find the proper function to handle the request.
 """
+
+
 class wmHandler:
     # the GET and POST methods here are hooked by web.py.
     # whatever method is requested, that function is called.
@@ -61,33 +63,39 @@ class wmHandler:
         web.header('X-CSK-Method', method)
         return catocommon.FindAndCall("catoadminui." + method)
 
+
 class getlog():
     """
     delivers an html page with a refresh timer.  content is the last n rows of the logfile
     """
     def GET(self):
         return uiCommon.GetLog()
-        
+
+
 class setdebug():
     """
     sets the debug level of the service.
     """
     def GET(self):
         return uiCommon.SetDebug()
-        
+
+
 def notfound():
     return web.notfound("Sorry, the page you were looking for was not found.")
 
-class bypass:        
+
+class bypass:
     def GET(self):
         return "This page isn't subject to the auth processor"
 
-class version:        
+
+class version:
     def GET(self):
         return catoconfig.VERSION
-            
+
+
 # the login announcement hits the Cloud Sidekick web site for a news snip
-class announcement:        
+class announcement:
     def GET(self):
         s = catocommon.http_get_nofail("http://announcement.cloudsidekick.com/cato/announcement.html?utm_source=cato_app&utm_medium=loginpage&utm_campaign=app")
         if s:
@@ -95,7 +103,8 @@ class announcement:
         else:
             return ""
 
-class getlicense:        
+
+class getlicense:
     def GET(self):
         try:
             result, msg, lic = catolicense.check_license()
@@ -104,23 +113,24 @@ class getlicense:
             return json.dumps({"result": result, "message": msg, "license": lic})
         except Exception as ex:
             logger.error(ex.__str__())
-            
+
 
 # the default page if no URI is given, just an information message
-class index:        
+class index:
     def GET(self):
         return render.home()
+
 
 class home:
     """
     We have a POST handler here, because the login screen does a post after auth...
         (this is so browsers will offer to remember passwords, even tho our auth is ajax.)
-    
+
     But, when we get a POST, we do a redirect!  Why?  So refreshed of the /home page
         won't nag about "are you sure you wanna resubmit this form.)
-        
+
     Why not do a GET login form?  Doh! The credentials would be on the querystring = bad.
-    """  
+    """
     def GET(self):
         return render.home()
 
@@ -128,40 +138,48 @@ class home:
         raise web.seeother('/home')
 
 
-class notAllowed:        
+class notAllowed:
     def GET(self):
         i = web.input(msg="")
         return render.notAllowed(i.msg)
 
-class settings:        
+
+class settings:
     def GET(self):
         return render.settings()
 
-class assetEdit:        
+
+class assetEdit:
     def GET(self):
         return render.assetEdit()
 
-class credentialEdit:        
+
+class credentialEdit:
     def GET(self):
         return render.credentialEdit()
 
-class tagEdit:        
+
+class tagEdit:
     def GET(self):
         return render.tagEdit()
 
-class imageEdit:        
+
+class imageEdit:
     def GET(self):
         return render.imageEdit()
 
-class userEdit:        
+
+class userEdit:
     def GET(self):
         return render.userEdit()
 
-class taskManage:        
+
+class taskManage:
     def GET(self):
         return render.taskManage()
 
-class taskEdit:        
+
+class taskEdit:
     def GET(self):
         # NOTE: Getting the task edit page has a safety check.
         # An "Approved" task cannot be opened in the editor... so...
@@ -179,12 +197,14 @@ class taskEdit:
                     return render.taskEdit()
             else:
                 return render.notAllowed("Not allowed to manage this Task.")
-                
-class taskRunLog:        
+
+
+class taskRunLog:
     def GET(self):
         return render_popup.taskRunLog()
 
-class taskView:        
+
+class taskView:
     def GET(self):
         # NOTE: Getting the task edit page has a safety check.
         # An "Approved" task cannot be opened in the editor... so...
@@ -198,57 +218,71 @@ class taskView:
             else:
                 return render.notAllowed("Not allowed to manage this Task.")
 
-class taskPrint:        
+
+class taskPrint:
     def GET(self):
         return render_popup.taskPrint()
 
-class taskActivityLog:        
+
+class taskActivityLog:
     def GET(self):
         return render.taskActivityLog()
 
-class cloudAccountEdit:        
+
+class cloudAccountEdit:
     def GET(self):
         return render.cloudAccountEdit()
 
-class cloudEdit:        
+
+class cloudEdit:
     def GET(self):
         return render.cloudEdit()
 
-class cloudDiscovery:        
+
+class cloudDiscovery:
     def GET(self):
         return render.cloudDiscovery()
 
-class systemStatus:        
+
+class systemStatus:
     def GET(self):
         return render.systemStatus()
 
-class taskStatus:        
+
+class taskStatus:
     def GET(self):
         return render.taskStatus()
 
-class deploymentManage:        
+
+class deploymentManage:
     def GET(self):
         return render.deploymentManage()
 
-class deploymentEdit:        
+
+class deploymentEdit:
     def GET(self):
         return render.deploymentEdit()
 
-class depTemplateManage:        
+
+class depTemplateManage:
     def GET(self):
         return render.depTemplateManage()
 
-class depTemplateEdit:        
+
+class depTemplateEdit:
     def GET(self):
         return render.depTemplateEdit()
 
-class importObject:        
+
+class importObject:
     def GET(self):
         return render.importObject()
+
 
 class upload:
     def GET(self):
         return """This endpoint only accepts POSTS from file_upload.html"""
+
     def POST(self):
         x = web.input(fupFile={}, ref_id="")
         if x:
@@ -257,7 +291,7 @@ class upload:
             # web.debug(x['fupFile'].value) # This is the file contents
             # web.debug(x['fupFile'].file.read()) # Or use a file(-like) object
             # raise web.seeother('/upload')
-            
+
             ref_id = (x.ref_id if x.ref_id else "")
             filename = "%s-%s.tmp" % (uiCommon.GetSessionUserID(), ref_id)
             fullpath = os.path.join(catoconfig.CONFIG["tmpdir"], filename)
@@ -265,10 +299,11 @@ class upload:
                 if not f_out:
                     logger.critical("Unable to open %s for writing." % fullpath)
                 f_out.write(x["fupFile"].file.read())  # writes the uploaded file to the newly created file.
-            
+
             # all done, we loop back to the file_upload.html page, but this time include
             # a qq arg - the file name
             raise web.seeother("static/pages/file_upload.html?ref_id=%s&filename=%s" % (ref_id, filename))
+
 
 class temp:
     """all we do for temp is deliver the file."""
@@ -280,31 +315,35 @@ class temp:
         except Exception as ex:
             return ex.__str__()
 
+
 class login:
     def GET(self):
         # visiting the login page kills the session and redirects to login.html
         uiGlobals.session.kill()
         raise web.seeother('/static/login.html')
 
-class logout:        
+
+class logout:
     def GET(self):
         uiCommon.ForceLogout("")
-        
-class appicon:        
+
+
+class appicon:
     def GET(self, name):
         img = uiCommon.GetAppIcon(name)
         web.header('Content-type', 'image/png')
         return img
-        
+
+
 # Authentication preprocessor
 def auth_app_processor(handle):
     """
     This function handles every single request to the server.
-    
+
     Certain paths are allowed no matter what, the rest require a session.
-    
+
     Errors are processed according to the type of exception thrown.
-    
+
     For the UI's, client side code handles the different HTTP responses accordingly.
     """
     path = web.ctx.path
@@ -334,16 +373,16 @@ def auth_app_processor(handle):
             logger.info("Token Authentication failed... [%s]" % response.get("info"))
             uiGlobals.session.kill()
             raise web.seeother('/static/login.html?msg=Token%20Authentication%20failed')
-    
+
     # any other request requires an active session ... kick it out if there's not one.
     # best (most consistent) way to check? Get the user...
     uiCommon.GetSessionUserID()
 
     # check the role/method mappings to see if the requested page is allowed
     # HERE's the rub! ... some of our requests are for "pages" and others (most) are ajax calls.
-    # for the pages, we can redirect to the "notAllowed" page, 
+    # for the pages, we can redirect to the "notAllowed" page,
     # but for the ajax calls we can't - we need to return an acceptable ajax response.
-    
+
     if uiCommon.check_roles(path):
         return handle()
     else:
@@ -353,10 +392,11 @@ def auth_app_processor(handle):
         else:
             return "Some content on this page isn't available to your user."
 
+
 def CacheTaskCommands():
     """
     Creates the html cache file for Task Command categories, functions and help.
-    
+
     The loops build global html objects, which are ultimately written out to files.
     Even though the FunctionCategories class has a hierarchy, we are writing flat files.
     The browser will take care of showing things according to their hierarchy.
@@ -375,7 +415,7 @@ def CacheTaskCommands():
                 <div class="hidden">{4}</div>
             </div>
         </div>""".format(parent.Name, subcat.Name, subcat.Label, subcat.Icon, subcat.Description)
-    
+
     # this internal def builds the html for a single function
     def _build_func_html(parent, domparentid):
         helpout = ""
@@ -398,9 +438,9 @@ def CacheTaskCommands():
             <hr />""".format(fn.Icon, fn.Category.Label, fn.Label, fn.Help)
 
         funcout += "</div>"
-        
+
         return funcout, helpout
-    
+
     # so, we will use the FunctionCategories class in the session that was loaded at login, and build the list items for the commands tab.
     cats = uiGlobals.FunctionCategories
     if not cats:
@@ -413,24 +453,24 @@ def CacheTaskCommands():
                     <span>{1}</span>
                     <div class="cathelp hidden">{3}</div>
                 </div>""".format(cat.Name, cat.Label, cat.Icon, cat.Description)
-            
+
             # So... the category MIGHT have subcategories, which have functions.
             if cat.Subcategories:
                 cathtml += """<div class="subcategories hidden">"""
                 for subcat in cat.Subcategories:
                     cathtml += _build_subcategory(cat, subcat)
-                    
+
                     f, h = _build_func_html(subcat, "cat_%s_sub_%s" % (cat.Name, subcat.Name))
                     funhtml += f
                     helphtml += h
                 cathtml += "</div>"
             cathtml += "</div>"
-            
+
             # it can also have direct functions.
             f, h = _build_func_html(cat, "cat_%s" % (cat.Name))
             funhtml += f
             helphtml += h
-            
+
     path = catoconfig.CONFIG["uicache"]
 
     with open("%s/_categories.html" % (path), 'w') as f_out:
@@ -452,7 +492,7 @@ def CacheTaskCommands():
 def CacheMenu():
     with open(os.path.join(lib_path, "catoadminui/menu.json"), 'r') as f:
         menus = json.load(f)
-    
+
     # so, we have the cato menu.  Are there any extensions with menu additions?
     # extensions and their paths are defined in config.
     for n, p in catoconfig.CONFIG["extensions"].iteritems():
@@ -470,7 +510,7 @@ def CacheMenu():
                         pos = extmenu.get("insert_at")
                         if pos is not None:
                             menus.insert(pos, extmenu)
-    
+
     sAdminMenu = ""
     sDevMenu = ""
     sUserMenu = ""
@@ -483,11 +523,11 @@ def CacheMenu():
         sTarget = " target=\"" + menu.get("target", "") + "\"" if menu.get("target") else ""
         sClass = menu.get("class", "")
         sRoles = menu.get("roles", "")
-        
+
         sAdminItems = ""
         sDevItems = ""
         sUserItems = ""
-        
+
         for item in menu.get("items", []):
             sItemLabel = item.get("label", "No Label Defined")
             sItemHref = " href=\"" + item.get("href", "") + "\"" if item.get("href") else ""
@@ -498,17 +538,17 @@ def CacheMenu():
             sItemRoles = item.get("roles", "")
 
             sItem = "<li class=\"ui-widget-header %s\" style=\"cursor: pointer;\"><a %s %s %s> %s %s</a></li>" % (sItemClass, sItemOnClick, sItemHref, sItemTarget, sItemIcon, sItemLabel)
-            
+
             sAdminItems += sItem
-            
+
             if "all" in sItemRoles:
-                sUserItems += sItem 
-                sDevItems += sItem 
-            else: 
+                sUserItems += sItem
+                sDevItems += sItem
+            else:
                 if "user" in sItemRoles:
-                    sUserItems += sItem 
+                    sUserItems += sItem
                 if "developer" in sItemRoles:
-                    sDevItems += sItem 
+                    sDevItems += sItem
 
         sUserItems = "<ul>%s</ul>" % sUserItems
         sDevItems = "<ul>%s</ul>" % sDevItems
@@ -529,7 +569,7 @@ def CacheMenu():
                 sUserMenu += sMenu.format(sUserItems)
 
     path = catoconfig.CONFIG["uicache"]
-    
+
     with open("%s/_amenu.html" % path, 'w') as f_out:
         if not f_out:
             logger.error("Unable to create %s/_amenu.html." % path)
@@ -550,13 +590,13 @@ class ExceptionHandlingApplication(web.application):
     """
     CRITICALLY IMPORTANT!
     This is an overload of the standard web.application class.
-    
+
     Main reason? In application.py, the 'handle_with_processors' function
         converts *any* exception into the generic web.py _InternalError.
-        
+
     This interferes, because we wanna trap the original error an make determinations
         on how to reply to the client.
-        
+
     So, we overloaded the function and fixed the error handing.
     """
     def handle_with_processors(self):
@@ -578,10 +618,10 @@ class ExceptionHandlingApplication(web.application):
                 logger.info(ex.message)
                 # now, all our ajax calls are from jQuery, which sets a header - X-Requested-With
                 # so if we have that header, it's ajax, otherwise we can redirect to the login page.
-                
+
                 # a session error means we kill the session
                 uiGlobals.session.kill()
-                
+
                 if web.ctx.env.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest":
                     web.ctx.status = "480 Session Error"
                     return ex.__str__()
@@ -594,7 +634,7 @@ class ExceptionHandlingApplication(web.application):
                 logger.exception(ex.__str__())
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 return "%s:%s" % (ex.__str__(), str(exc_tb.tb_lineno))
-        
+
         return process(self.processors)
 
 """
@@ -607,6 +647,7 @@ urls = (
     '/login', 'login',
     '/logout', 'logout',
     '/home', 'home',
+    '/common', 'common',
     '/importObject', 'importObject',
     '/notAllowed', 'notAllowed',
     '/cloudEdit', 'cloudEdit',
@@ -659,7 +700,7 @@ if "uicache" in catoconfig.CONFIG:
 else:
     logger.info("'uicache' not defined in cato.conf... using default /var/cato/ui")
     uicachepath = "/var/cato/ui"
-    
+
 if not os.path.exists(uicachepath):
     raise Exception("UI file cache directory defined in cato.conf does not exist. [%s]" % uicachepath)
     exit()
@@ -679,7 +720,7 @@ uiGlobals.app_name = app_name
 
 def main():
     # CATOPROCESS STARTUP
-    
+
     dbglvl = 20
     if "admin_ui_debug" in catoconfig.CONFIG:
         try:
@@ -687,7 +728,7 @@ def main():
         except:
             raise Exception("admin_ui_debug setting in cato.conf must be an integer between 0-50.")
     catolog.DEBUG = dbglvl
-            
+
     c_dbglvl = 20
     if "admin_ui_client_debug" in catoconfig.CONFIG:
         try:
@@ -695,7 +736,7 @@ def main():
         except:
             raise Exception("admin_ui_client_debug setting in cato.conf must be an integer between 0-50.")
     catolog.CLIENTDEBUG = c_dbglvl
-            
+
     # this is a service, which has a db connection.
     # but we're not gonna use that for gui calls - we'll make our own when needed.
     server = catoprocess.CatoService(app_name)
@@ -712,9 +753,9 @@ def main():
 
     # we need to build some static html here...
     # caching in the session is a bad idea, and this stuff very very rarely changes.
-    # so, when the service is started it will update the files, and the ui 
+    # so, when the service is started it will update the files, and the ui
     # will simply pull in the files when requested.
-    
+
     # put the task commands in a global for our lookups
     # and cache the html in a flat file
     logger.info("Reading configuration files and generating static html...")
@@ -724,12 +765,11 @@ def main():
     CacheTaskCommands()
     CacheMenu()
 
-    
     # WEB.PY STARTUP
     if "admin_ui_port" in catoconfig.CONFIG:
         port = catoconfig.CONFIG["admin_ui_port"]
         sys.argv.append(port)
-    
+
     # enable ssl?
     if catocommon.is_true(catoconfig.CONFIG.get("admin_ui_use_ssl")):
         logger.info("Using SSL/TLS...")
@@ -751,7 +791,6 @@ def main():
             raise Exception("SSL Key not found at [%s]" % sslcert)
     else:
         logger.info("Using standard HTTP. (Set admin_ui_use_ssl to 'true' in cato.conf to enable SSL/TLS.)")
-        
 
     app.add_processor(auth_app_processor)
     app.notfound = notfound
@@ -768,4 +807,3 @@ def main():
 #        logger.debug("\"/taskMethods/%s\" : [\"Developer\"]," % s)
 #    for s in dir(cloudMethods):
 #        logger.debug("\"/cloudMethods/%s\" : [\"Developer\"]," % s)
-
