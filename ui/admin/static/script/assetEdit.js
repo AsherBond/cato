@@ -156,11 +156,11 @@ function ShowItemAdd() {
 		var type = this.type;
 		var tag = this.tagName.toLowerCase();
 		// normalize case
-		if (type == 'text' || type == 'password' || tag == 'textarea')
+		if (type === 'text' || type === 'password' || tag === 'textarea')
 			this.value = "";
-		else if (type == 'checkbox' || type == 'radio')
+		else if (type === 'checkbox' || type === 'radio')
 			this.checked = false;
-		else if (tag == 'select')
+		else if (tag === 'select')
 			this.selectedIndex = -1;
 	});
 
@@ -233,7 +233,7 @@ function SaveAsset() {
 	//some client side validation before we attempt to save
 	var sAssetID = $("#hidCurrentEditID").val();
 	var sAssetName = $("#txtAssetName").val();
-	if (sAssetName == '') {
+	if (sAssetName === '') {
 		bSave = false;
 		strValidationError += 'Asset Name required.';
 	};
@@ -242,7 +242,7 @@ function SaveAsset() {
 	if ($("#ddlAssetStatus").val() !== null) {
 		ddlAssetStatus = $("#ddlAssetStatus").val();
 	}
-	if (ddlAssetStatus == "") {
+	if (ddlAssetStatus === "") {
 		bSave = false;
 		strValidationError += 'Select a status for the Asset.';
 	}
@@ -263,17 +263,17 @@ function SaveAsset() {
 	var sCredentialType = $("#hidCredentialType").val();
 	var sCredentialID = $("#hidCredentialID").val();
 
-	if (sCredentialType == 'selected') {
-		if (sCredentialID == '') {
+	if (sCredentialType === 'selected') {
+		if (sCredentialID === '') {
 			bSave = false;
 			strValidationError += 'Select a credential, or create a new credential.';
 		}
 	} else {
 		// if the type is new, and the user didnt add a username, just ignore it
-		//if (sCredentialType == 'existing') {
-		if (rbShared == '0') {
+		//if (sCredentialType === 'existing') {
+		if (rbShared === '0') {
 			// this is a shared credential, name and description are required
-			if (sCredentialDescr == '' || sCredentialName == '') {
+			if (sCredentialDescr === '' || sCredentialName === '') {
 				bSave = false;
 				strValidationError += 'Name and Description are required on Shared Credentials.<br />';
 			}
@@ -324,7 +324,7 @@ function SaveAsset() {
 	asset.CredentialMode = $("#hidCredentialType").val();
 	asset.Credential = cred;
 
-	if ($("#hidMode").val() == "edit") {
+	if ($("#hidMode").val() === "edit") {
 		var response = ajaxPost("uiMethods/wmUpdateAsset", asset);
 		if (response) {
 			// remove this item from the array
@@ -344,7 +344,7 @@ function SaveAsset() {
 			$("#lblItemsSelected").html(myArray.length);
 			$("#hidSelectedArray").val(myArray.toString());
 
-			if (wereInArray == 1) {
+			if (wereInArray === 1) {
 				// this was the last or only user edited so close
 				$("#hidCurrentEditID").val("");
 				$("#hidEditCount").val("");
@@ -417,7 +417,7 @@ function LoadEditDialog(editCount, editAssetID) {
 
 		$('#btnCredAdd').hide();
 
-		if (sCredentialID == '') {
+		if (sCredentialID === '') {
 			// no existing credential, just show the add dialog
 			$("#hidCredentialType").val("new");
 			$("#CredentialDetails").html("");
@@ -429,7 +429,7 @@ function LoadEditDialog(editCount, editAssetID) {
 			// display the credentials if they exist, if not display only the add button
 			if (asset.UserName !== '') {
 				var CredentialShared = asset.SharedOrLocal;
-				if (CredentialShared == 'Local') {
+				if (CredentialShared === 'Local') {
 					$("#CredentialDetails").html("");
 					$("#hidCredentialType").val("existing");
 					$("input[name=rbShared]:checked").val("1");
@@ -476,7 +476,7 @@ function LoadEditDialog(editCount, editAssetID) {
 function ShowItemModify() {
 
 	var ArrayString = $("#hidSelectedArray").val();
-	if (ArrayString.length == 0) {
+	if (ArrayString.length === 0) {
 		showInfo('Select one or more Assets to modify.');
 		return false;
 	}

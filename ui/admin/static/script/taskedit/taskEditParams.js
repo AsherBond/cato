@@ -84,7 +84,7 @@ $(document).ready(function() {
 	});
 
 	$("#param_edit_dialog").on("change", "#param_edit_present_as", function() {
-		if ($(this).val() == "value") {
+		if ($(this).val() === "value") {
 			$(".param_edit_value_remove_btn").addClass("hidden");
 			$("#param_edit_value_add_btn").addClass("hidden");
 		} else {
@@ -126,7 +126,7 @@ function ShowParameterEdit(param_id) {
 	$("#param_edit_param_id").val(param_id);
 	var id = "";
 	var type = $("#hidParamType").val();
-	if (type == "task")
+	if (type === "task")
 		id = g_task_id;
 
 	//go get the details for the parameter via ajax and populate the dialog
@@ -145,14 +145,14 @@ function doSaveParam() {
 
 	var id = "";
 	var type = $("#hidParamType").val();
-	if (type == "task")
+	if (type === "task")
 		id = g_task_id;
 
 	var param_id = $("#param_edit_param_id").val();
 	var name = $("#param_edit_name").val();
 	var desc = packJSON($("#param_edit_desc").val());
 
-	if (name == "") {
+	if (name === "") {
 		alert("Parameter name cannot be blank.");
 		return false;
 	}
@@ -186,17 +186,17 @@ function doSaveParam() {
 
 		if (encrypt) {
 			///the oev is already "packed"
-			if ($(this).attr("dirty") == null && $(this).attr("oev") !== null)
+			if ($(this).attr("dirty") === null && $(this).attr("oev") !== null)
 				val = "oev:" + $(this).attr("oev");
 
 			//if it's dirty, and the value is empty, clear the oev
-			if ($(this).attr("dirty") == true && val == "") {
+			if ($(this).attr("dirty") === true && val === "") {
 				val = "oev:";
 				$(this).attr("oev", "");
 			}
 		}
 
-		if (vals == "")
+		if (vals === "")
 			vals += val;
 		else
 			vals += "|" + val;
@@ -234,7 +234,7 @@ function doDeleteParam() {
 	var param_id = $("#hidParamDelete").val();
 	var id = "";
 	var type = $("#hidParamType").val();
-	if (type == "task")
+	if (type === "task")
 		id = g_task_id;
 
 	$("#update_success_msg").text("Updating...").show();

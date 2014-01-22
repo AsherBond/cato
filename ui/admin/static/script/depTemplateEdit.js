@@ -190,9 +190,9 @@ function getDetails() {"use strict";
 		$("#txtDescription").val(template.Description);
 		$("#txtTemplate").val(template.Text);
 
-		$("#chkTemplateAvailable").prop("checked", (template.Available == 1) ? true : false);
+		$("#chkTemplateAvailable").prop("checked", (template.Available === 1) ? true : false);
 
-		// if (account.IsDefault == "True")
+		// if (account.IsDefault === "True")
 			// $("#chkDefault").prop('checked', true);
 
 		// draw the icon on the canvas
@@ -243,7 +243,7 @@ function tabWasClicked(tab) {"use strict";
 		getDeployments();
 	} else if (tab === "details") {
 		getDetails();
-	} else if (tab == "tags") {
+	} else if (tab === "tags") {
 		if ( typeof (GetObjectsTags) !== 'undefined') {
 			GetObjectsTags(g_id);
 		}

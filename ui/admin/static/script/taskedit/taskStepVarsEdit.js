@@ -75,12 +75,12 @@ $(document).ready(function() {
 		}
 	});
 	$("#new_delimited_var_name").keypress(function(e) {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			addDelimitedVar();
 		}
 	});
 	$("#new_delimited_position").keypress(function(e) {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			addDelimitedVar();
 		}
 	});
@@ -108,17 +108,17 @@ $(document).ready(function() {
 		}
 	});
 	$("#new_parsed_var_name").keypress(function(e) {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			addParsedVar();
 		}
 	});
 	$("#new_parsed_l_val").keypress(function(e) {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			addParsedVar();
 		}
 	});
 	$("#new_parsed_r_val").keypress(function(e) {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			addParsedVar();
 		}
 	});
@@ -213,10 +213,10 @@ function wireEmUp() {
 	//bind the delimiter clear to the select buttons
 	$("[name=delimiter_clear_btn]").click(function() {
 		var target = $(this).attr("target");
-		if (target == 'row') {
+		if (target === 'row') {
 			$("#step_var_edit_dialog #hidRowDelimiter").val("");
 			$("#output_row_delimiter_label").html("N/A");
-		} else if (target == 'col') {
+		} else if (target === 'col') {
 			$("#step_var_edit_dialog #hidColDelimiter").val("");
 			$("#output_col_delimiter_label").html("N/A");
 		}
@@ -224,10 +224,10 @@ function wireEmUp() {
 
 	//bind the delimiter picker to the select buttons
 	$("#delimiter_picker_dialog .delimiter").click(function() {
-		if ($("#delimiter_picker_target").val() == 'row') {
+		if ($("#delimiter_picker_target").val() === 'row') {
 			$("#step_var_edit_dialog #hidRowDelimiter").val($(this).attr("val"));
 			$("#step_var_edit_dialog #output_row_delimiter_label").html($(this).html());
-		} else if ($("#delimiter_picker_target").val() == 'col') {
+		} else if ($("#delimiter_picker_target").val() === 'col') {
 			$("#step_var_edit_dialog #hidColDelimiter").val($(this).attr("val"));
 			$("#step_var_edit_dialog #output_col_delimiter_label").html($(this).html());
 		}
@@ -276,10 +276,10 @@ function checkForNameConflicts() {
 			var $other = $(this);
 
 			//all others but me
-			if ($me.attr("id") == $other.attr("id"))
+			if ($me.attr("id") === $other.attr("id"))
 				return;
 
-			if ($me.val() == $other.val()) {
+			if ($me.val() === $other.val()) {
 				$other.addClass("conflicted_value");
 				$me.addClass("conflicted_value");
 			}
@@ -306,7 +306,7 @@ function validateParsedVar(ctl) {
 	$r.removeClass("conflicted_value");
 
 	//some validation rules based on the 'mode'
-	if (l_mode == "index") {
+	if (l_mode === "index") {
 		var l_int = parseInt(l_val);
 		if (isNaN(l_int)) {
 			$msg.append("Begin position must be a positive number. ");
@@ -321,7 +321,7 @@ function validateParsedVar(ctl) {
 		}
 
 		//test the right index inside the left, because this rule is dependent.
-		if (r_mode == "index") {
+		if (r_mode === "index") {
 			var r_int = parseInt(r_val);
 
 			if (r_int < l_int) {
@@ -332,7 +332,7 @@ function validateParsedVar(ctl) {
 		}
 	}
 
-	if (r_mode == "index") {
+	if (r_mode === "index") {
 		var r_int = parseInt(r_val);
 
 		if (isNaN(r_int)) {
@@ -344,7 +344,7 @@ function validateParsedVar(ctl) {
 
 			if (r_val !== "end") {
 				var tmp = r_val.replace("end-", "");
-				if (r_val.indexOf("end-") == -1 || isNaN(tmp)) {
+				if (r_val.indexOf("end-") === -1 || isNaN(tmp)) {
 					$msg.html("End position must be a number, the keyword 'end', or 'end-n'.");
 					$r.addClass("conflicted_value");
 				}
@@ -379,7 +379,7 @@ function addDelimitedVar() {
 
 	$("#edit_variables .var_unique").each(function(intIndex) {
 		var other = $(this).val();
-		if (varname == other) {
+		if (varname === other) {
 			$("#delimited_msg").html("Another variable by that name already exists on this step.<br />Please choose another.");
 			//can't return from the parent function here, so we set a flag
 			exists = true;
@@ -441,7 +441,7 @@ function addParsedVar() {
 	//===== Warn if the "field break" identifier is not set.
 	var cold = $("#step_var_edit_dialog #hidColDelimiter").val();
 	if (cold < 9) {//9 is the lowest value in the picker list
-		if (typ == "delimited") {
+		if (typ === "delimited") {
 			$("#parsed_msg").html("You have defined a delimited type variable, but no Field Break Indicator is set.\n\nPlease set a Field Break Indicator.");
 			$("#output_col_delimiter_label").css("border-color", "red");
 		}
@@ -452,7 +452,7 @@ function addParsedVar() {
 
 	$("#edit_variables .var_unique").each(function(intIndex) {
 		var other = $(this).val();
-		if (varname == other) {
+		if (varname === other) {
 			$("#parsed_msg").html("Another variable by that name already exists on this step.<br />Please choose another.");
 			//can't return from the parent function here, so we set a flag
 			exists = true;
@@ -484,7 +484,7 @@ function addParsedVar() {
 			var r_mode = $("[name=parsed_rmode_rb]:checked").val();
 
 			//some validation rules based on the 'mode'
-			if (l_mode == "index") {
+			if (l_mode === "index") {
 				var l_int = parseInt(l_val);
 
 				if (isNaN(l_int)) {
@@ -497,7 +497,7 @@ function addParsedVar() {
 					}
 
 					//test the right index inside the left, because at least one rule is dependent.
-					if (r_mode == "index") {
+					if (r_mode === "index") {
 						var r_int = parseInt(r_val);
 
 						if (isNaN(r_int)) {
@@ -505,7 +505,7 @@ function addParsedVar() {
 							r_val = r_val.replace(/ /g, "").toLowerCase();
 							if (r_val !== "end") {
 								var tmp = r_val.replace("end-", "");
-								if (r_val.indexOf("end-") == -1 || isNaN(tmp)) {
+								if (r_val.indexOf("end-") === -1 || isNaN(tmp)) {
 									$("#parsed_msg").html("End position must be a number, the keyword 'end', or 'end-n'.");
 									return false;
 								}
@@ -528,13 +528,13 @@ function addParsedVar() {
 			//end validation rules
 
 			//we can't leave both unchecked.  If 'idx' is checked that's fine, if not, check the other one
-			var l_idx_checked = (l_mode == "index" ? " checked=\"checked\"" : "");
-			var l_pos_checked = (l_idx_checked == "" ? " checked=\"checked\"" : "");
+			var l_idx_checked = (l_mode === "index" ? " checked=\"checked\"" : "");
+			var l_pos_checked = (l_idx_checked === "" ? " checked=\"checked\"" : "");
 
 			var l_msg = "<input type=\"radio\" id=\"v" + vid + "_l_mode_pos\" name=\"v" + vid + "_l_mode\" value=\"index\" " + l_idx_checked + " class=\"prop\" refid=\"v" + vid + "\" />" + " <label for=\"v" + vid + "_l_mode_pos\">position</label> / " + " <input type=\"radio\" id=\"v" + vid + "_l_mode_pre\" name=\"v" + vid + "_l_mode\" value=\"string\" " + l_pos_checked + " class=\"prop\" refid=\"v" + vid + "\" />" + " <label for=\"v" + vid + "_l_mode_pre\">prefix</label>";
 
-			var r_idx_checked = (r_mode == "index" ? " checked=\"checked\"" : "");
-			var r_pos_checked = (r_idx_checked == "" ? " checked=\"checked\"" : "");
+			var r_idx_checked = (r_mode === "index" ? " checked=\"checked\"" : "");
+			var r_pos_checked = (r_idx_checked === "" ? " checked=\"checked\"" : "");
 			var r_msg = "<input type=\"radio\" id=\"v" + vid + "_r_mode_pos\" name=\"v" + vid + "_r_mode\" value=\"index\" " + r_idx_checked + " class=\"prop\" refid=\"v" + vid + "\" />" + " <label for=\"v" + vid + "_r_mode_pos\">position</label> / " + " <input type=\"radio\" id=\"v" + vid + "_r_mode_suf\" name=\"v" + vid + "_r_mode\" value=\"string\" " + r_pos_checked + " class=\"prop\" refid=\"v" + vid + "\" />" + " <label for=\"v" + vid + "_r_mode_suf\">suffix</label>";
 
 			foo += "<span class=\"variable_detail\"> will contain the output found between<br />" + l_msg + "  <input type=\"text\" class=\"w100px code prop\" id=\"v" + vid + "_l_prop\" value=\"" + l_val.replace('"', '&quot;') + "\" refid=\"v" + vid + "\" /> and " + r_msg + " <input type=\"text\" class=\"w100px code prop\" id=\"v" + vid + "_r_prop\" value=\"" + r_val.replace('"', '&quot;') + "\" refid=\"v" + vid + "\" /></span>";

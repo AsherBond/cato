@@ -92,7 +92,7 @@ function DrawParameterEditForm(parameter_xml) {
 			
             var encryptattr = "";
             if ($(p).attr("encrypt")) {
-            	if ($(p).attr("encrypt") == "true") {
+            	if ($(p).attr("encrypt") === "true") {
             		encryptattr = "encrypt=\"true\"";
 					encrypt = true;
 				}
@@ -117,19 +117,19 @@ function DrawParameterEditForm(parameter_xml) {
 			
             //values
             //if "present_as" is missing or invalid, default to a single "value"
-            if (present_as == "dropdown") {
+            if (present_as === "dropdown") {
                 output += "<br />Select One: <select class=\"task_launch_parameter_value_input\">";
 
                 $($values).each(function (vidx, v) {
                     var is_selected = $(v).attr("selected");
-                    var selected = (is_selected == "true" ? "selected=\"selected\"" : "");
+                    var selected = (is_selected === "true" ? "selected=\"selected\"" : "");
 
                     output += "<option " + selected + ">" + $(v).text() + "</option>";
                 });
 
                 output += "</select>";
             }
-            else if (present_as == "list") {
+            else if (present_as === "list") {
                 $($values).each(function (vidx, v) {
 					var attr = "";
 	
@@ -236,7 +236,7 @@ function buildXMLToSubmit() {
             var encryptattr = "";
             var encrypt = false;
             if ($(p).attr("encrypt"))
-            	if ($(p).attr("encrypt") == "true") {
+            	if ($(p).attr("encrypt") === "true") {
             		encryptattr = "encrypt=\"true\"";
 					encrypt = true;
 				}

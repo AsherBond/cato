@@ -178,7 +178,7 @@ function showAlert(msg, info) {
 		//nothing to catch, just will display the original message since we couldn't parse it.
 	}
 
-	if (msg == "" || msg == "None") {// "None" is often returned by web methods that don't return on all code paths.
+	if (msg === "" || msg === "None") {// "None" is often returned by web methods that don't return on all code paths.
 		info = info + msg;
 		msg = "An unspecified error has occurred.  Check the server log file for details.";
 	}

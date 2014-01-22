@@ -94,7 +94,7 @@ function printKeypressEvents(ctl) {"use strict";
 
 //this function shows the "please wait" blockui effect.
 function showPleaseWait(msg) {
-	var msg = ((msg == "" || msg === undefined) ? "Please Wait ..." : msg);
+	var msg = ((msg === "" || msg === undefined) ? "Please Wait ..." : msg);
 	$.blockUI({
 		message : msg,
 		css : {
@@ -120,8 +120,8 @@ String.prototype.replaceAll = function(s1, s2) {
 };
 //SET UP ANY INSTANCES OF our "jTable" ... striped and themed
 function initJtable(stripe, hover) {
-	stripe = ((stripe == "" || stripe === undefined) ? false : true);
-	hover = ((hover == "" || hover === undefined) ? false : true);
+	stripe = ((stripe === "" || stripe === undefined) ? false : true);
+	hover = ((hover === "" || hover === undefined) ? false : true);
 
 	//Theme the tables with jQueryUI
 	$(".jtable th").each(function() {
@@ -203,7 +203,7 @@ function getQuerystringVariable(variable) {
 	var vars = querystring.split("&");
 	for (var i = 0; i < vars.length; i++) {
 		var pair = vars[i].split("=");
-		if (pair[0] == variable) {
+		if (pair[0] === variable) {
 			return pair[1];
 		}
 	}
@@ -226,7 +226,7 @@ function restrictEntryToSafeHTML(e, field) {
 		return true;
 	}
 
-	if (c == '<' || c == '>')
+	if (c === '<' || c === '>')
 		return false;
 
 	return true;
@@ -308,11 +308,11 @@ function restrictEntryToNumber(e, field) {
 
 	if (/[0-9.\-]/.test(c)) {
 		//if user pressed '.', and a '. exists in the string, cancel
-		if (c == '.' && field.value.indexOf('.') !== -1)
+		if (c === '.' && field.value.indexOf('.') !== -1)
 			return false;
 
 		//if there is anything in the field and user pressed '-', cancel.
-		if (c == '-' && field.value.length > 0)
+		if (c === '-' && field.value.length > 0)
 			return false;
 
 		return true;
@@ -328,7 +328,7 @@ function restrictEntryToInteger(e, field) {
 
 	if (/[0-9\-]/.test(c)) {
 		//if there is anything in the field and user pressed '-', cancel.
-		if (c == '-' && field.value.length > 0)
+		if (c === '-' && field.value.length > 0)
 			return false;
 
 		return true;
@@ -344,7 +344,7 @@ function restrictEntryToPositiveNumber(e, field) {
 
 	if (/[0-9.]/.test(c)) {
 		//if user pressed '.', and a '. exists in the string, cancel
-		if (c == '.' && field.value.indexOf('.') !== -1)
+		if (c === '.' && field.value.indexOf('.') !== -1)
 			return false;
 
 		return true;
@@ -401,7 +401,7 @@ function whatKey(e) {
 	//charCode is not recognized by IE...
 	//but it is a way in FF to tell character keys from action keys
 
-	if (e.which == null) {
+	if (e.which === null) {
 		return String.fromCharCode(e.keyCode);
 		// IE
 	} else if (e.which !== 0 && e.charCode !== 0) {

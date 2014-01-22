@@ -44,7 +44,7 @@ $(document).ready(function () {
         $(this).addClass("ui-tabs-selected ui-state-active");
 
         //does the page have a tabClick handler function?
-        if (typeof tabWasClicked == 'function') {
+        if (typeof tabWasClicked === 'function') {
             tabWasClicked($(this).attr("id").replace(/tab_/, ""));
         }
     });

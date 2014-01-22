@@ -174,7 +174,7 @@ function checkSyntax(syntax, strtocheck) {
 // }
 // });
 //
-// if (asset_id.length == 36)  //guids are 36 chars long
+// if (asset_id.length === 36)  //guids are 36 chars long
 // return "";
 //
 // return "Entry must be a valid Asset Name, or a [[variable]].";

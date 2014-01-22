@@ -144,8 +144,8 @@ function GetItems(page) {
 }
 
 function SetPasswordControls() {
-	if ($("#ddlUserAuthType").val() == "local") {
-		if ($("#hidMode").val() == 'add') {
+	if ($("#ddlUserAuthType").val() === "local") {
+		if ($("#hidMode").val() === 'add') {
 			$(".password_checkbox").show();
 			$(".password_edit").hide();
 		} else {
@@ -212,7 +212,7 @@ function DeleteItems() {
 
 function SaveUser() {
 	// save or create a new user
-	if ($("#hidMode").val() == 'edit') {
+	if ($("#hidMode").val() === 'edit') {
 		//alert('save edit');
 		SaveUserEdits();
 	} else {
@@ -235,12 +235,12 @@ function SaveUserEdits() {
 	var strValidationError = '';
 	//some client side validation before we attempt to save the user
 	var sLoginID = $("#txtUserLoginID").val();
-	if (sLoginID == '') {
+	if (sLoginID === '') {
 		bSave = false;
 		strValidationError += 'Login ID required.<br />';
 	};
 	var sFullName = $("#txtUserFullName").val();
-	if (sFullName == '') {
+	if (sFullName === '') {
 		bSave = false;
 		strValidationError += 'Full Name required.<br />';
 	};
@@ -251,7 +251,7 @@ function SaveUserEdits() {
 		var sAuthType = $("#ddlUserAuthType").val();
 	}
 	var sUserPassword = $("#txtUserPassword").val();
-	if (sAuthType == 'local') {
+	if (sAuthType === 'local') {
 		if ($("#txtUserPassword").val() !== $("#txtUserPasswordConfirm").val()) {
 			bSave = false;
 			strValidationError += 'Passwords do not match!<br />';
@@ -267,7 +267,7 @@ function SaveUserEdits() {
 		var sUserRole = $("#ddlUserRole").val();
 	}
 	var sEmail = $('#txtUserEmail').val();
-	if (sEmail == '') {
+	if (sEmail === '') {
 		bSave = false;
 		strValidationError += 'Email Address required.<br />';
 	};
@@ -307,7 +307,7 @@ function SaveUserEdits() {
 
 	var response = ajaxPost("uiMethods/wmUpdateUser", user);
 	if (response) {
-		if ($("#hidMode").val() == 'edit') {
+		if ($("#hidMode").val() === 'edit') {
 			// remove this item from the array
 			var sEditID = $("#hidCurrentEditID").val();
 			var myArray = new Array();
@@ -325,7 +325,7 @@ function SaveUserEdits() {
 			$("#lblItemsSelected").html(myArray.length);
 			$("#hidSelectedArray").val(myArray.toString());
 
-			if (wereInArray == 1) {
+			if (wereInArray === 1) {
 				// this was the last or only user edited so close
 				$("#hidCurrentEditID").val("");
 				$("#hidEditCount").val("");
@@ -357,12 +357,12 @@ function SaveNewUser() {
 
 	//some client side validation before we attempt to save the user
 	var sLoginID = $("#txtUserLoginID").val();
-	if (sLoginID == '') {
+	if (sLoginID === '') {
 		bSave = false;
 		strValidationError += 'Login ID required.<br />';
 	};
 	var sFullName = $("#txtUserFullName").val();
-	if (sFullName == '') {
+	if (sFullName === '') {
 		bSave = false;
 		strValidationError += 'Full Name required.<br />';
 	};
@@ -380,7 +380,7 @@ function SaveNewUser() {
 		var sUserRole = $("#ddlUserRole").val();
 	}
 	var sEmail = $("#txtUserEmail").val();
-	if (sEmail == '') {
+	if (sEmail === '') {
 		bSave = false;
 		strValidationError += 'Email Address required.<br />';
 	};
@@ -395,8 +395,8 @@ function SaveNewUser() {
 	//passwords must match, unless the check box is checked
 	var sUserPassword = $("#txtUserPassword").val();
 	var sGeneratePW = ($("#chkGeneratePW").prop("checked") ? 1 : 0);
-	if (sGeneratePW == 0) {
-		if ($("#txtUserPassword").val() == '') {
+	if (sGeneratePW === 0) {
+		if ($("#txtUserPassword").val() === '') {
 			bSave = false;
 			strValidationError += 'Password required.<br />';
 		};
@@ -416,7 +416,7 @@ function SaveNewUser() {
 	//put the users groups in a string for submission
 	var sGroups = "";
 	$("#objects_tags .tag").each(function(intIndex) {
-		if (sGroups == "")
+		if (sGroups === "")
 			sGroups += $(this).attr("id").replace(/ot_/, "");
 		else
 			sGroups += "," + $(this).attr("id").replace(/ot_/, "");
@@ -488,7 +488,7 @@ function ShowItemModify() {
 	var curArray = $("#hidSelectedArray").val();
 	myArray = curArray.split(',');
 	var userCount = myArray.length;
-	if (userCount == 0) {
+	if (userCount === 0) {
 		showAlert("Select a user, or multiple users to modify.");
 		return false;
 	}
@@ -521,7 +521,7 @@ function ShowItemCopy() {
 
 	// clear all of the previous values
 	var ArrayString = $("#hidSelectedArray").val();
-	if (ArrayString.length == 0) {
+	if (ArrayString.length === 0) {
 		showInfo('Select a User to Copy.');
 		return false;
 	}

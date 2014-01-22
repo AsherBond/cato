@@ -120,16 +120,16 @@ function tabWasClicked(tab) {
 
 	//the generic toolbox.js file handles the click event that will call this function if it exists
 	//several tabs here all use the same detail panel
-	if (tab == "datastore") {
+	if (tab === "datastore") {
 		detail_div = "#div_datastore_detail";
-	} else if (tab == "status") {
+	} else if (tab === "status") {
 		detail_div = "#div_status_detail";
-	} else if (tab == "sequences") {
+	} else if (tab === "sequences") {
 		detail_div = "#div_sequences_detail";
-	} else if (tab == "details") {
+	} else if (tab === "details") {
 		detail_div = "#div_details_detail";
 		GetDetails();
-	} else if (tab == "tags") {
+	} else if (tab === "tags") {
 		if ( typeof (GetObjectsTags) !== 'undefined') {
 			GetObjectsTags(g_id);
 		}
@@ -149,11 +149,11 @@ function doDetailFieldUpdate(ctl) {
 	//and textareas will not have a type property!
 	if ($(ctl).attr("type")) {
 		var typ = $(ctl).attr("type").toLowerCase();
-		if (typ == "checkbox") {
-			value = (ctl.checked == true ? 1 : 0);
+		if (typ === "checkbox") {
+			value = (ctl.checked === true ? 1 : 0);
 		}
-		if (typ == "radio") {
-			value = (ctl.checked == true ? 1 : 0);
+		if (typ === "radio") {
+			value = (ctl.checked === true ? 1 : 0);
 		}
 	}
 
@@ -173,7 +173,7 @@ function doDetailFieldUpdate(ctl) {
 			$("#update_success_msg").text("Update Successful").fadeOut(2000);
 
 			// Change the name in the header
-			if (column == "Name") {
+			if (column === "Name") {
 				$("#lblDeploymentHeader").html(unpackJSON(value));
 			};
 		}

@@ -229,7 +229,7 @@ function doGetDetails() {
 		var pagename = window.location.pathname;
 		pagename = pagename.substring(pagename.lastIndexOf('/') + 1);
 		if (pagename !== "taskView") {
-			if (task.Status == "Approved") {
+			if (task.Status === "Approved") {
 				location.href = "taskView?task_id=" + g_task_id;
 			}
 		}
@@ -255,7 +255,7 @@ function doGetDetails() {
 			$("#set_default_btn").hide();
 		} else {
 			$("#make_default_chk").hide();
-			if (task.IsDefaultVersion == "True") {
+			if (task.IsDefaultVersion === "True") {
 				$("#set_default_btn").hide();
 			} else {
 				$("#set_default_btn").show();
@@ -264,7 +264,7 @@ function doGetDetails() {
 
 		//the header
 		$("#lblTaskNameHeader").text(task.Name);
-		$("#lblVersionHeader").text(task.Version + (task.IsDefaultVersion == "True" ? " (default)" : ""));
+		$("#lblVersionHeader").text(task.Version + (task.IsDefaultVersion === "True" ? " (default)" : ""));
 
 	});
 }
@@ -366,11 +366,11 @@ function doDetailFieldUpdate(ctl) {
 	//and textareas will not have a type property!
 	if ($(ctl).attr("type")) {
 		var typ = $(ctl).attr("type").toLowerCase();
-		if (typ == "checkbox") {
-			value = (ctl.checked == true ? 1 : 0);
+		if (typ === "checkbox") {
+			value = (ctl.checked === true ? 1 : 0);
 		}
-		if (typ == "radio") {
-			value = (ctl.checked == true ? 1 : 0);
+		if (typ === "radio") {
+			value = (ctl.checked === true ? 1 : 0);
 		}
 	}
 
@@ -387,7 +387,7 @@ function doDetailFieldUpdate(ctl) {
 		}, function(response) {
 			$("#update_success_msg").text("Update Successful").fadeOut(2000);
 			// bugzilla 1037 Change the name in the header
-			if (column == "task_name") {
+			if (column === "task_name") {
 				$("#lblTaskNameHeader").html(unpackJSON(value));
 			};
 		});
@@ -414,7 +414,7 @@ function doEmbeddedStepAdd(func, droptarget) {
 		$("#" + droptarget).replaceWith(response);
 
 		//you have to add the embedded command NOW, or click cancel.
-		// if (item == "fn_if" || item == "fn_loop" || item == "fn_exists" || item == "fn_while") {
+		// if (item === "fn_if" || item === "fn_loop" || item === "fn_exists" || item === "fn_while") {
 		// doDropZoneEnable($("#" + droptarget + " .step_nested_drop_target"));
 		// }
 		$("#task_steps").unblock();
@@ -464,7 +464,7 @@ function doDropZoneEnable($ctl) {
 			var new_step = $(ui.draggable[0]);
 			var func = new_step.attr("id");
 
-			if (func.indexOf("fn_") == 0 || func.indexOf("clip_") == 0) {
+			if (func.indexOf("fn_") === 0 || func.indexOf("clip_") === 0) {
 				doEmbeddedStepAdd(new_step, $ctl.attr("id"));
 			}
 
@@ -496,7 +496,7 @@ function doClearClipboard(id) {
 		sStepID : id
 	}, undefined, "text");
 	// we can just whack it from the dom
-	if (id == "ALL")
+	if (id === "ALL")
 		$("#clipboard").empty();
 	else
 		$("#clipboard #clip_" + id).remove();

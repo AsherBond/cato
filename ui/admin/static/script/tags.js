@@ -38,7 +38,7 @@ $(function() {"use strict";
 		var id = $(this).attr("id").replace(/tpt_/, "ot_");
 		var tag_name = $(this).attr("id").replace(/tpt_/, "");
 
-		if ($("#" + id).length == 0) {
+		if ($("#" + id).length === 0) {
 			var ahtml = '<li id="' + id.replace(/ /g, "") + '" val="' + tag_name + '" class="tag ui-widget-content ui-corner-all">';
 			ahtml += '<table class="object_tags_table"><tr>';
 			ahtml += '<td style="vertical-align: middle;">' + tag_name + '</td>';
@@ -49,7 +49,7 @@ $(function() {"use strict";
 			$("#objects_tags").append(ahtml);
 
 			//commit the tag add (ONLY IF ON A DYNAMIC PAGE!)...
-			if ($("#hidPageSaveType").val() == "dynamic") {
+			if ($("#hidPageSaveType").val() === "dynamic") {
 				var oid = GetCurrentObjectID();
 				var ot = GetCurrentObjectType();
 
@@ -87,7 +87,7 @@ $(function() {"use strict";
 		$("#" + $(this).attr("remove_id").replace(/ /g, "")).remove();
 
 		//commit the tag removal
-		if ($("#hidPageSaveType").val() == "dynamic") {
+		if ($("#hidPageSaveType").val() === "dynamic") {
 			$("#update_success_msg").text("Updating...").show();
 
 			var oid = GetCurrentObjectID();
@@ -136,17 +136,17 @@ function GetCurrentObjectID() {
 	}
 
 	// if not, look in the html for the older hidden fields
-	if (oid == "" || ( typeof oid == "undefined")) {
+	if (oid === "" || ( typeof oid === "undefined")) {
 		oid = $("input[id$='hidObjectID']").val();
 	}
-	if (oid == "" || ( typeof oid == "undefined")) {
+	if (oid === "" || ( typeof oid === "undefined")) {
 		oid = $("input[id$='hidCurrentEditID']").val();
 	}
-	if (oid == "" || ( typeof oid == "undefined")) {
+	if (oid === "" || ( typeof oid === "undefined")) {
 		oid = $("input[id$='hidOriginalTaskID']").val();
 	}
 
-	if ( typeof oid == "undefined")
+	if ( typeof oid === "undefined")
 		oid = "";
 
 	return oid;
@@ -154,13 +154,13 @@ function GetCurrentObjectID() {
 
 function GetCurrentObjectType() {
 	var ot = $("#hidObjectType").val();
-	if ( typeof ot == "undefined")
+	if ( typeof ot === "undefined")
 		ot = -1;
 	return ot;
 }
 
 function GetTagList(object_id) {
-	if ( typeof object_id == "undefined")
+	if ( typeof object_id === "undefined")
 		object_id = "";
 
 	var response = catoAjax.tags.getTagList(object_id);

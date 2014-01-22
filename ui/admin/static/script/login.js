@@ -37,7 +37,7 @@ $(document).ready(function() {
 	}
 
 	$("#username").keypress(function(e) {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			Login();
 		}
 	});
@@ -82,25 +82,25 @@ $(document).ready(function() {
 		Login();
 	});
 	$(".loginfield").keypress(function(e) {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			Login();
 		}
 	});
 
 	$(".changefield").keypress(function(e) {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			Change();
 		}
 	});
 
 	$("#security_answer").keypress(function(e) {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			Forgot();
 		}
 	});
 
 	$("#forgot_password_btn").click(function() {
-		if ($("#username").val() == "") {
+		if ($("#username").val() === "") {
 			alert("Please enter a username.");
 			return false;
 		}
@@ -187,9 +187,9 @@ function Agree() {
 }
 
 function Login() {
-	if ($("#username").val() == "")
+	if ($("#username").val() === "")
 		return false;
-	if ($("#password").val() == "" && $("#security_answer").val() == "") {
+	if ($("#password").val() === "" && $("#security_answer").val() === "") {
 		$("#error_msg").html("A password is required.").parent().show();
 		return false;
 	}
@@ -220,11 +220,11 @@ function Login() {
 				reset();
 			}
 			if (response.result) {
-				if (response.result == "change") {
+				if (response.result === "change") {
 					$("#security_answer").val("");
 					$("#password_change_dialog").dialog("open");
 				}
-				if (response.result == "success") {
+				if (response.result === "success") {
 					// TODO check for expiration warnings and let the user know.
 					// posting the form does not auth... we are already authenticated.
 					// it DOES trigger different browser mechanisms for saving passwords.
@@ -254,7 +254,7 @@ function Change() {
 }
 
 function Forgot() {
-	if ($("#security_answer").val() == "") {
+	if ($("#security_answer").val() === "") {
 		return false;
 	}
 	$("#forgot_password_dialog").dialog("close");

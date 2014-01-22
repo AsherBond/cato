@@ -66,9 +66,9 @@ function GetSettings() {
 					var type = $ctl.get(0).tagName.toLowerCase();
 					var typeattr = $ctl.attr("type");
 
-					if (type == "input") {
-						if (typeattr == "checkbox") {
-							if (value === true || value == "true" || value > 0)
+					if (type === "input") {
+						if (typeattr === "checkbox") {
+							if (value === true || value === "true" || value > 0)
 								$ctl.prop("checked", true);
 							else
 								$ctl.prop("checked", false);

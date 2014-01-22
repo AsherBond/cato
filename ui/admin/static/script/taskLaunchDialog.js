@@ -104,7 +104,7 @@ $(document).ready(function() {
 		}
 	});
 	$("#task_launch_dialog").on("click", "#run_now_btn", function() {
-		if (checkRequiredParams() == true && checkParamConstraints() == true)
+		if (checkRequiredParams() === true && checkParamConstraints() === true)
 			RunNow();
 	});
 	$("#run_later_btn").button({
@@ -113,7 +113,7 @@ $(document).ready(function() {
 		}
 	});
 	$("#task_launch_dialog").on("click", "#run_later_btn", function() {
-		if (checkRequiredParams() == true && checkParamConstraints() == true)
+		if (checkRequiredParams() === true && checkParamConstraints() === true)
 			RunLater();
 	});
 	$("#run_repeatedly_btn").button({
@@ -122,7 +122,7 @@ $(document).ready(function() {
 		}
 	});
 	$("#task_launch_dialog").on("click", "#run_repeatedly_btn", function() {
-		if (checkRequiredParams() == true && checkParamConstraints() == true)
+		if (checkRequiredParams() === true && checkParamConstraints() === true)
 			RunRepeatedly();
 	});
 
@@ -153,11 +153,11 @@ $(document).ready(function() {
 			"Save" : function() {
 				var mode = $("#plan_edit_mode").html();
 
-				if (mode == "Plan")
+				if (mode === "Plan")
 					x = SavePlan();
 				//only saves params (may eventually prompt to update the timetable?)
 
-				if (mode == "Schedule")
+				if (mode === "Schedule")
 					x = SaveRecurringPlan();
 				//does timetable and params
 
@@ -181,7 +181,7 @@ $(document).ready(function() {
 	$("#task_launch_dialog").on("click", "#rbPrevious", function() {
 		//see if there is an instance first, if not use the task_id
 		var id = $("#task_launch_dialog_task_instance").val();
-		if (id == "")
+		if (id === "")
 			id = $("#task_launch_dialog_task_id").val();
 		$("#task_launch_dialog_params").fadeOut(500, function() {
 			getParamXML(id, "instance");
@@ -342,7 +342,7 @@ function checkRequiredParams() {
 			});
 
 			//mark or unmark it
-			if (has_val == true) {
+			if (has_val === true) {
 				$(this).removeClass("ui-state-highlight");
 			} else {
 				$(this).addClass("ui-state-highlight");
@@ -350,7 +350,7 @@ function checkRequiredParams() {
 			}
 		});
 
-		if (warn == true) {
+		if (warn === true) {
 			ask = confirm("Some Parameters have empty values.\n\nWhile Parameters are allowed to be blank, " + " the highlighted ones are required.\n\nClick 'OK' to proceed, or 'Cancel' to update the Parameters.");
 			if (ask) {
 				//if they selected OK, clear the highlights and proceed
@@ -404,7 +404,7 @@ function ShowTaskLaunchDialog(args) {
 	//1) from task edit it uses the global setting
 	//2) from the "Run Log" it will use the same as the previous instance being viewed in the log
 	//NOTE: if no args are passed to this function we will use the global setting
-	if (!args.account_id || args.account_id == "") {
+	if (!args.account_id || args.account_id === "") {
 		args.account_id = $("#header_cloud_accounts").val();
 		$("#task_launch_dialog_account_id").val($("#header_cloud_accounts").val());
 		$("#task_launch_dialog_account_name").html($("#header_cloud_accounts :selected").text());
@@ -456,7 +456,7 @@ function ShowPlanEditDialog(ctl) {
 			presentPlanParams(plan_id, plan_name);
 
 			//and get the schedule definition if needed
-			if (source == 'schedule')
+			if (source === 'schedule')
 				loadRecurringPlan(schedule_id);
 
 		} else {//it's a schedule
@@ -487,11 +487,11 @@ function CloseTaskLaunchDialog() {
 		var type = this.type;
 		var tag = this.tagName.toLowerCase();
 		// normalize case
-		if (type == 'text' || type == 'password' || tag == 'textarea')
+		if (type === 'text' || type === 'password' || tag === 'textarea')
 			this.value = "";
-		else if (type == 'checkbox' || type == 'radio')
+		else if (type === 'checkbox' || type === 'radio')
 			this.checked = false;
-		else if (tag == 'select')
+		else if (tag === 'select')
 			this.selectedIndex = 0;
 	});
 
@@ -537,7 +537,7 @@ function RunNow() {
 		//hate sticking it here, but this is only for the task edit/view pages...
 		$("#debug_instance").val(response);
 		//does the page have this function?
-		if ( typeof doGetDebug == 'function') {
+		if ( typeof doGetDebug === 'function') {
 			doGetDebug();
 		}
 	} else {
@@ -631,7 +631,7 @@ function ReadTimetable() {
 		}
 	});
 
-	if (!months.length || !days.length || !hrs.length || !mins.length || dorw == "") {
+	if (!months.length || !days.length || !hrs.length || !mins.length || dorw === "") {
 		showInfo("Please select a complete schedule - at least one item from each section.");
 		return null;
 	}
@@ -742,7 +742,7 @@ function SaveRecurringPlan() {
 			$('#task_launch_dialog_schedule').tabs("option", "active", 3);
 
 			//will refresh the parent page, if it has an appropriate function
-			if ( typeof doGetPlans == 'function') {
+			if ( typeof doGetPlans === 'function') {
 				doGetPlans();
 			}
 		}
@@ -773,7 +773,7 @@ function SavePlan() {
 		$('#task_launch_dialog_schedule').tabs("option", "active", 3);
 
 		//will refresh the parent page, if it has an appropriate function
-		if ( typeof doGetPlans == 'function') {
+		if ( typeof doGetPlans === 'function') {
 			doGetPlans();
 		}
 	}
@@ -831,7 +831,7 @@ function deleteActionPlan(ctl) {
 	var src = $(ctl).parents(".action_plan").attr("source");
 	var msg = "Are you sure you want to remove this Action Plan?";
 
-	if (src == 'scheduler')
+	if (src === 'scheduler')
 		msg += "\n\nA plan added by the Scheduler and removed here cannot be rescheduled.";
 
 	if (confirm(msg)) {
@@ -914,9 +914,9 @@ function populateTimetable(timetable) {
 	//the timetable may have previous selections... clear EVERYTHING
 	$(".plan_datepoint_active").removeClass("plan_datepoint_active");
 
-	// Months, 0 == Jan, 11 == Dec
+	// Months, 0 === Jan, 11 === Dec
 	var Months = timetable.sMonths;
-	if (Months == "0,1,2,3,4,5,6,7,8,9,10,11") {
+	if (Months === "0,1,2,3,4,5,6,7,8,9,10,11") {
 		$("#liMonthsAll").addClass("plan_datepoint_active");
 	} else {
 		var valueArray = Months.split(",");
@@ -938,7 +938,7 @@ function populateTimetable(timetable) {
 			$("#olWeek li").removeClass("plan_datepoint_active");
 			$("#olDates").show();
 
-			if (days == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30") {
+			if (days === "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30") {
 				$("#liDaysAll").addClass("plan_datepoint_active");
 			} else {
 				for (var i = 0; i < valueArray.length; i++) {
@@ -967,7 +967,7 @@ function populateTimetable(timetable) {
 	// Hours
 	var Hours = timetable.sHours;
 	valueArray = Hours.split(",");
-	if (Hours == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23") {
+	if (Hours === "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23") {
 		$("#liHoursAll").addClass("plan_datepoint_active");
 	} else {
 		for (var i = 0; i < valueArray.length; i++) {
@@ -978,7 +978,7 @@ function populateTimetable(timetable) {
 	// Minutes
 	var Minutes = timetable.sMinutes;
 	valueArray = Minutes.split(",");
-	if (Minutes == "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59") {
+	if (Minutes === "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59") {
 		$("#liMinutesAll").addClass("plan_datepoint_active");
 	} else {
 		for (var i = 0; i < valueArray.length; i++) {
@@ -997,7 +997,7 @@ function drawRecurringItem(howmany, idprefix, add) {
 		else
 			label = i;
 
-		if (("" + label).length == 1)
+		if (("" + label).length === 1)
 			label = "0" + label;
 
 		var id = idprefix + "_" + i;

@@ -38,7 +38,7 @@ $(document).ready(function() {
 	// also if the user hits the enter key in the new codeblock textbox
 	//    $("#new_codeblock_name").keypress(function(e) {
 	//        //alert('keypress');
-	//        if (e.which == 13) {
+	//        if (e.which === 13) {
 	//            doCodeblockAdd();
 	//            return false;
 	//        }
@@ -160,7 +160,7 @@ function ShowCodeblockEdit(codeblock_name) {
 	//if codeblock_name is empty, we are adding otherwise we are editing
 	if (codeblock_name.length > 0) {
 		//Enter a name for the Codeblock :
-		if (codeblock_name == 'MAIN') {
+		if (codeblock_name === 'MAIN') {
 			// main codeblocks can not be renamed.
 			showInfo('The MAIN codeblock can not be renamed.');
 			return false;
@@ -195,7 +195,7 @@ function doCodeblockUpdate(old_name) {
 	var sNewCodeblockName = $("#new_codeblock_name").val();
 
 	// before doing the postback, make sure the user entered something in the new name, and that its different than the old name.
-	if (sNewCodeblockName == '') {
+	if (sNewCodeblockName === '') {
 		return false;
 	};
 
@@ -208,7 +208,7 @@ function doCodeblockUpdate(old_name) {
 		$("#codeblock_edit_dialog").dialog("close");
 
 		//if we are looking at the codeblock we are changing... gotta reset the hidden field
-		if ($("#hidCodeblockName").val() == old_name) {
+		if ($("#hidCodeblockName").val() === old_name) {
 			$("#codeblock_steps_title").text(sNewCodeblockName);
 			$("#hidCodeblockName").val(sNewCodeblockName);
 		}

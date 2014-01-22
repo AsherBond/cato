@@ -109,12 +109,12 @@ vkbeautify.prototype.xml = function(text,step) {
 			} else 
 			// <elm></elm> //
 			if( /^<\w/.exec(ar[ix-1]) && /^<\/\w/.exec(ar[ix]) &&
-				/^<[\w:\-\.\,]+/.exec(ar[ix-1]) == /^<\/[\w:\-\.\,]+/.exec(ar[ix])[0].replace('/','')) { 
+				/^<[\w:\-\.\,]+/.exec(ar[ix-1]) === /^<\/[\w:\-\.\,]+/.exec(ar[ix])[0].replace('/','')) { 
 				str += ar[ix];
 				if(!inComment) deep--;
 			} else
 			 // <elm> //
-			if(ar[ix].search(/<\w/) > -1 && ar[ix].search(/<\//) == -1 && ar[ix].search(/\/>/) == -1 ) {
+			if(ar[ix].search(/<\w/) > -1 && ar[ix].search(/<\//) === -1 && ar[ix].search(/\/>/) === -1 ) {
 				str = !inComment ? str += shift[deep++]+ar[ix] : str += ar[ix];
 			} else 
 			 // <elm>...</elm> //
@@ -137,7 +137,7 @@ vkbeautify.prototype.xml = function(text,step) {
 			}
 		}
 		
-	return  (str[0] == '\n') ? str.slice(1) : str;
+	return  (str[0] === '\n') ? str.slice(1) : str;
 }
 
 vkbeautify.prototype.json = function(text,step) {

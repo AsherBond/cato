@@ -99,7 +99,7 @@ function LoadEditDialog(editID) {
 		$("#txtCredDomain").val(cred.Domain);
 		$("#txtCredDescription").val(cred.Description);
 
-		if (cred.Type == "Private Key") {
+		if (cred.Type === "Private Key") {
 			$("#txtPrivateKey").val("********");
 			$("#edit_dialog_tabs").tabs("option", "active", 1);
 		} else {
@@ -122,11 +122,11 @@ function SaveCredential() {
 	var sCredentialName = $("#txtCredName").val();
 	var sCredUsername = $("#txtCredUsername").val();
 	var sPrivateKey = $("#txtPrivateKey").val();
-	if (sCredentialName == "") {
+	if (sCredentialName === "") {
 		bSave = false;
 		strValidationError += "Credential Name required.<br />";
 	};
-	if (sCredUsername == "" && sPrivateKey == "") {
+	if (sCredUsername === "" && sPrivateKey === "") {
 		bSave = false;
 		strValidationError += "User Name or Private Key required.<br />";
 	};
@@ -156,7 +156,7 @@ function SaveCredential() {
 	cred.PrivilegedPassword = $("#txtPrivilegedPassword").val();
 	cred.PrivateKey = sPrivateKey;
 
-	if ($("#hidMode").val() == "edit") {
+	if ($("#hidMode").val() === "edit") {
 		var response = ajaxPost("uiMethods/wmUpdateCredential", cred);
 		if (response) {
 			GetItems();
