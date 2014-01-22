@@ -101,7 +101,7 @@ function GetLog() {
 	args.sSearch = $("#log_view_dialog_search").val();
 	// will come from the pickers.
 	args.sFrom = $("#log_view_dialog_from").val();
-	;
+
 	args.sTo = $("#log_view_dialog_to").val();
 	args.sRecords = $("#log_view_dialog_records").val();
 

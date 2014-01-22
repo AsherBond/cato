@@ -125,5 +125,5 @@ function fileWasSaved(filename) {
 		$("#xml_to_import").val(data);
 	}, "text");
 
-	$("#import_from_url").val("")
+	$("#import_from_url").val("");
 }

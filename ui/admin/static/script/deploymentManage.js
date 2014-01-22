@@ -131,7 +131,7 @@ function Save() {
 	if ($("#txtDeploymentName").val() === "") {
 		bSave = false;
 		strValidationError += 'Name is required.';
-	};
+	}
 
 	if (bSave !== true) {
 		showAlert(strValidationError);

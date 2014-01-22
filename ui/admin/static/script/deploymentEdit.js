@@ -175,7 +175,7 @@ function doDetailFieldUpdate(ctl) {
 			// Change the name in the header
 			if (column === "Name") {
 				$("#lblDeploymentHeader").html(unpackJSON(value));
-			};
+			}
 		}
 	}
 }

@@ -42,7 +42,7 @@ $(document).ready(function() {
 
 function GetItems(page) {
 	if (!page)
-		page = "1"
+		page = "1";
 
 	var response = catoAjax.tags.getTagsTable($("#txtSearch").val(), page);
 	if (response) {
@@ -88,7 +88,7 @@ function SaveTag() {
 	if (new_tag === '') {
 		bSave = false;
 		strValidationError += 'Tag required.<br />';
-	};
+	}
 
 	if (bSave !== true) {
 		showInfo(strValidationError);

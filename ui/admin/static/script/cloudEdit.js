@@ -344,13 +344,13 @@ function SaveItem(close_after_save) {
 	if (sCloudName === "") {
 		bSave = false;
 		strValidationError += "Cloud Name required.<br />";
-	};
+	}
 
 	var sAPIUrl = $("#txtAPIUrl").val();
 	if (sAPIUrl === "") {
 		bSave = false;
 		strValidationError += "API URL required.";
-	};
+	}
 
 	if (bSave !== true) {
 		showInfo(strValidationError);
@@ -448,11 +448,11 @@ function SaveKeyPair() {
 	if (name === "") {
 		showInfo("KeyPair Name is required.");
 		return false;
-	};
+	}
 	if ($("#keypair_private_key").val() === "") {
 		showInfo("Private Key is required.");
 		return false;
-	};
+	}
 
 	$("#update_success_msg").text("Saving...").show().fadeOut(2000);
 

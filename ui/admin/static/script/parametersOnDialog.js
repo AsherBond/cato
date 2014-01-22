@@ -227,7 +227,7 @@ function buildXMLToSubmit() {
     
     $(".task_launch_parameter").each(function (pidx, p) {
         if ($(p)) {
-            var parameter_id = $(p).attr("id").replace(/tlp/, ""); ;
+            var parameter_id = $(p).attr("id").replace(/tlp/, "");
             var required = $(p).hasClass("task_launch_parameter_required");
             var parameter_name = $(p).attr("param_name");
             var $values = $(p).find(".task_launch_parameter_value_input");
@@ -250,7 +250,7 @@ function buildXMLToSubmit() {
             //values
             xml += "<values present_as=\"" + present_as + "\">\n";
             $($values).each(function (vidx, v) {
-                var val = $(v).val();;
+                var val = $(v).val();
                 var attr = "";
                 //TODO: PARAMS: hidden field/masking crap (remove after testing)
                   

@@ -236,7 +236,7 @@ function SaveAsset() {
 	if (sAssetName === '') {
 		bSave = false;
 		strValidationError += 'Asset Name required.';
-	};
+	}
 
 	var ddlAssetStatus = "";
 	if ($("#ddlAssetStatus").val() !== null) {
@@ -319,7 +319,7 @@ function SaveAsset() {
 	asset.Address = $("#txtAddress").val();
 	asset.Status = ddlAssetStatus;
 	asset.ConnString = $("#txtConnString").val();
-	;
+
 	asset.Tags = sTags;
 	asset.CredentialMode = $("#hidCredentialType").val();
 	asset.Credential = cred;

@@ -171,11 +171,11 @@ function Save() {
 	if ($("#txtTemplateName").val() === "") {
 		bSave = false;
 		strValidationError += 'Name is required.';
-	};
+	}
 	if ($("#txtTemplateVersion").val() === "") {
 		bSave = false;
 		strValidationError += 'Version is required.';
-	};
+	}
 
 	if (bSave !== true) {
 		showAlert(strValidationError);

@@ -238,12 +238,12 @@ function SaveUserEdits() {
 	if (sLoginID === '') {
 		bSave = false;
 		strValidationError += 'Login ID required.<br />';
-	};
+	}
 	var sFullName = $("#txtUserFullName").val();
 	if (sFullName === '') {
 		bSave = false;
 		strValidationError += 'Full Name required.<br />';
-	};
+	}
 	if (!$("#ddlUserAuthType").val()) {
 		bSave = false;
 		strValidationError += 'Authentication Type required.<br />';
@@ -255,7 +255,7 @@ function SaveUserEdits() {
 		if ($("#txtUserPassword").val() !== $("#txtUserPasswordConfirm").val()) {
 			bSave = false;
 			strValidationError += 'Passwords do not match!<br />';
-		};
+		}
 	}
 
 	var sForcePasswordChange = ($("#cbNewUserForcePasswordChange").prop("checked") ? '1' : '0');
@@ -270,7 +270,7 @@ function SaveUserEdits() {
 	if (sEmail === '') {
 		bSave = false;
 		strValidationError += 'Email Address required.<br />';
-	};
+	}
 
 	if (!$("#ddlUserStatus").val()) {
 		bSave = false;
@@ -360,12 +360,12 @@ function SaveNewUser() {
 	if (sLoginID === '') {
 		bSave = false;
 		strValidationError += 'Login ID required.<br />';
-	};
+	}
 	var sFullName = $("#txtUserFullName").val();
 	if (sFullName === '') {
 		bSave = false;
 		strValidationError += 'Full Name required.<br />';
-	};
+	}
 	if (!$("#ddlUserAuthType").val()) {
 		bSave = false;
 		strValidationError += 'Authentication Type required.<br />';
@@ -383,7 +383,7 @@ function SaveNewUser() {
 	if (sEmail === '') {
 		bSave = false;
 		strValidationError += 'Email Address required.<br />';
-	};
+	}
 
 	if (!$("#ddlUserStatus").val()) {
 		bSave = false;
@@ -399,11 +399,11 @@ function SaveNewUser() {
 		if ($("#txtUserPassword").val() === '') {
 			bSave = false;
 			strValidationError += 'Password required.<br />';
-		};
+		}
 		if ($("#txtUserPassword").val() !== $("#txtUserPasswordConfirm").val()) {
 			bSave = false;
 			strValidationError += 'Passwords do not match!<br />';
-		};
+		}
 	}
 
 	if (bSave !== true) {

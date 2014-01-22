@@ -302,18 +302,18 @@ function SaveItem(close_after_save) {
 	if (!sAccountName) {
 		bSave = false;
 		strValidationError += "Account Name required.<br />";
-	};
+	}
 
 	var sDefaultCloudID = $("#ddlDefaultCloud").val();
 	if (!sDefaultCloudID) {
 		bSave = false;
 		strValidationError += "Default Cloud required.<br />";
-	};
+	}
 
 	if ($("#txtLoginPassword").val() !== $("#txtLoginPasswordConfirm").val()) {
 		bSave = false;
 		strValidationError += "Passwords do not match.";
-	};
+	}
 
 	if (bSave !== true) {
 		var prv = $("#ddlProvider option:selected").text();

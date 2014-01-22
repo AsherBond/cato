@@ -962,7 +962,7 @@ function populateTimetable(timetable) {
         default:
             $("#olWeek").hide();
             break;
-    };
+    }
 
     // Hours
     var Hours = timetable.sHours;

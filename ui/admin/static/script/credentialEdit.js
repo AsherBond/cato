@@ -125,20 +125,20 @@ function SaveCredential() {
 	if (sCredentialName === "") {
 		bSave = false;
 		strValidationError += "Credential Name required.<br />";
-	};
+	}
 	if (sCredUsername === "" && sPrivateKey === "") {
 		bSave = false;
 		strValidationError += "User Name or Private Key required.<br />";
-	};
+	}
 
 	if ($("#txtCredPassword").val() !== $("#txtCredPasswordConfirm").val()) {
 		bSave = false;
 		strValidationError += "Passwords do not match.<br />";
-	};
+	}
 	if ($("#txtPrivilegedPassword").val() !== $("#txtPrivilegedConfirm").val()) {
 		bSave = false;
 		strValidationError += "Priviledged passwords do not match.<br />";
-	};
+	}
 
 	if (bSave !== true) {
 		showInfo(strValidationError);

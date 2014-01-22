@@ -68,7 +68,7 @@ $(document).ready(function() {
 	$("#lblSubmittedByInstance").click(function() {
 		showPleaseWait();
 		self.location.href = "taskRunLog?task_instance=" + $("#hidSubmittedByInstance").val();
-		;
+
 		hidePleaseWait();
 	});
 
@@ -299,7 +299,6 @@ function doGetDetails() {
 				//jump links
 				$("#other_instances tr").click(function() {
 					self.location.href = "taskRunLog?task_instance=" + $(this).attr("task_instance");
-					;
 				});
 
 				$("#pnlOtherInstances").show();
