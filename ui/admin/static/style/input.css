@@ -3,11 +3,9 @@
 /* -----------------------------------*/
 
 /* Forms
-----------------------------------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------------------------------*/
 
-
-input
-{
+input {
 	padding: 2px 4px 2px 4px;
 	margin: 6px 0px 6px 0px;
 	border: solid 1px #C5DBEC;
@@ -17,8 +15,7 @@ input
 	font-stretch: normal;
 }
 
-textarea
-{
+textarea {
 	overflow: auto;
 	padding: 2px 2px 2px 2px;
 	margin: 2px 2px 2px 0px;
@@ -33,40 +30,32 @@ textarea
 	font-stretch: normal;
 }
 
-
-
-.btn_image
-{
+.btn_image {
 	border: none;
 	margin-top: 4px;
 	padding: 1px;
 	vertical-align: bottom;
 }
 
-.search_text
-{
+.search_text {
 	margin: 0px 0px 4px 0px;
 }
 
-input[type="checkbox"]
-{
+input[type="checkbox"] {
 	border: none;
 	width: 15px;
 	line-height: 36px;
 	border-radius: 5px;
 }
 
-select
-{
+select {
 	line-height: 36px;
 	margin: 6px 8px 6px 0px;
 }
-.chkbox
-{
+.chkbox {
 	border: none;
 }
-.chkboxcolumn
-{
+.chkboxcolumn {
 	text-align: center;
 	width: 1px;
 }

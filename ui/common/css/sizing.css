@@ -2,136 +2,131 @@
 /*            Sixing Styles             */
 /* -------------------------------------*/
 /*Some handy width classes (in use heavily on the taskEdit page)*/
-.min900px
-{
+.min900px {
 	min-width: 900px;
 }
-.w100pct
-{
+.w100pct {
 	width: 100%;
 }
-.w99pct
-{
+.w99pct {
 	width: 99%;
 }
-.w98pct
-{
+.w98pct {
 	width: 98%;
 }
-.w95pct
-{
+.w95pct {
 	width: 95%;
 }
-.w90pct
-{
+.w90pct {
 	width: 90%;
 }
-.w80pct
-{
+.w80pct {
 	width: 80%;
 }
-.w75pct
-{
+.w75pct {
 	width: 75%;
 }
-.w70pct
-{
+.w70pct {
 	width: 70%;
 }
-.w60pct
-{
+.w60pct {
 	width: 60%;
 }
-.w50pct
-{
+.w50pct {
 	width: 50%;
 }
-.w45pct
-{
+.w45pct {
 	width: 45%;
 }
-.w40pct
-{
+.w40pct {
 	width: 40%;
 }
-.w33pct
-{
+.w33pct {
 	width: 33%;
 }
-.w30pct
-{
+.w30pct {
 	width: 30%;
 }
-.w25pct
-{
+.w25pct {
 	width: 25%;
 }
-.w20pct
-{
+.w20pct {
 	width: 20%;
 }
-.w10pct
-{
+.w10pct {
 	width: 10%;
 }
-.w1pct
-{
+.w1pct {
 	width: 1%;
 }
-.w25px
-{
+.w10px {
+	width: 10px;
+}
+.w25px {
 	width: 25px;
 }
-.w50px
-{
+.w50px {
 	width: 50px;
 }
-.w100px
-{
+.w100px {
 	width: 100px;
 }
-.w200px
-{
+.w150px {
+	width: 150px;
+}
+.w200px {
 	width: 200px;
 }
-.w300px
-{
+.w300px {
 	width: 300px;
 }
-.w400px
-{
+.w400px {
 	width: 400px;
 }
-.w500px
-{
+.w500px {
 	width: 500px;
 }
-.w600px
-{
+.w600px {
 	width: 600px;
 }
 
-.h10px
-{
+.h10px {
 	height: 10px;
 }
-.h16px
-{
+.h16px {
 	height: 16px;
 }
-.h18px
-{
+.h18px {
 	height: 18px;
 }
-.h20px
-{
+.h20px {
 	height: 20px;
 }
-.h30px
-{
+.h30px {
 	height: 30px;
 }
-.h40px
-{
+.h40px {
 	height: 40px;
+}
+
+/* These are handy for resizing icon images */
+.img16 {
+	vertical-align: middle;
+	height: 16px;
+	width: 16px;
+}
+.img20 {
+	vertical-align: middle;
+	height: 20px;
+	width: 20px;
+}
+.img24 {
+	vertical-align: middle;
+	height: 24px;
+	width: 24px;
+}
+.img32 {
+	vertical-align: middle;
+	height: 32px;
+	width: 32px;
 }

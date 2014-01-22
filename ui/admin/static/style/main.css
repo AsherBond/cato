@@ -1,7 +1,7 @@
-@import url('reset.css');
-@import url('text.css');
+@import url('/common/css/reset.css');
+@import url('/common/css/text.css');
+@import url('/common/css/sizing.css');
 @import url('input.css');
-@import url('sizing.css');
 @import url('jquery-ui-1.8.21.custom.css');
 /*@import url('menu/menu.css');
  @import url('ac_pro/css/ac_pro/jquery-ui-1.7.1.custom.css');*/
