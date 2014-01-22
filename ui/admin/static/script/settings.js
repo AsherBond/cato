@@ -55,9 +55,9 @@ function GetSettings() {
 		try {
 			//so, we're gonna try to spin through the settings json and put any values in the appropriate fields.
 			//this expects the receiving input element to have the same 'id' as the json property
-			for (modulename in settings) {
+			for (var modulename in settings) {
 				mod_settings = settings[modulename];
-				for (key in mod_settings) {
+				for (var key in mod_settings) {
 					var value = mod_settings[key].toString();
 					//cast to a string for booleans
 					var selector = "#div_" + modulename.toLowerCase() + "_detail #" + key;

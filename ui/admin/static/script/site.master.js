@@ -33,7 +33,7 @@ $(document).ready(function() {
 		$("ul.sf-menu").supersubs({
 			minWidth : 18, // minimum width of sub-menus in em units
 			maxWidth : 27, // maximum width of sub-menus in em units
-			extraWidth : .5 // extra width can ensure lines don't sometimes turn over
+			extraWidth : 0.5 // extra width can ensure lines don't sometimes turn over
 			// due to slight rounding differences and font-family
 		}).superfish();
 		// call supersubs first, then superfish, so that subs are
@@ -90,14 +90,14 @@ function lockDown(msg) {
 	// very useful for when dynamic content like user-defined reports are setting timeouts
 	var x = setTimeout(function() {
 	}, 0);
-	for (var i = 0; i < x; i++) {
-		clearTimeout(i);
+	for (var t = 0; t < x; t++) {
+		clearTimeout(t);
 	}
 
 	//same magic to clear intervals
-	var x = setInterval(function() {
+	var y = setInterval(function() {
 	}, 0);
-	for (var i = 0; i < x; i++) {
+	for (var i = 0; i < y; i++) {
 		clearInterval(i);
 	}
 }

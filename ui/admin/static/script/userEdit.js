@@ -244,11 +244,12 @@ function SaveUserEdits() {
 		bSave = false;
 		strValidationError += 'Full Name required.<br />';
 	}
+	var sAuthType;
 	if (!$("#ddlUserAuthType").val()) {
 		bSave = false;
 		strValidationError += 'Authentication Type required.<br />';
 	} else {
-		var sAuthType = $("#ddlUserAuthType").val();
+		sAuthType = $("#ddlUserAuthType").val();
 	}
 	var sUserPassword = $("#txtUserPassword").val();
 	if (sAuthType === 'local') {
@@ -259,12 +260,12 @@ function SaveUserEdits() {
 	}
 
 	var sForcePasswordChange = ($("#cbNewUserForcePasswordChange").prop("checked") ? '1' : '0');
-
+    var sUserRole;
 	if (!$("#ddlUserRole").val()) {
 		bSave = false;
 		strValidationError += 'Role required.<br />';
 	} else {
-		var sUserRole = $("#ddlUserRole").val();
+		sUserRole = $("#ddlUserRole").val();
 	}
 	var sEmail = $('#txtUserEmail').val();
 	if (sEmail === '') {
@@ -272,11 +273,12 @@ function SaveUserEdits() {
 		strValidationError += 'Email Address required.<br />';
 	}
 
+	var sStatus;
 	if (!$("#ddlUserStatus").val()) {
 		bSave = false;
 		strValidationError += 'Status required.<br />';
 	} else {
-		var sStatus = $("#ddlUserStatus").val();
+		sStatus = $("#ddlUserStatus").val();
 	}
 
 	if (bSave !== true) {
@@ -287,7 +289,7 @@ function SaveUserEdits() {
 	var sExpires = $('#txtExpirationDT').val();
 
 	//put the users groups in a string for submission
-	var sGroups = new Array();
+	var sGroups = [];
 	$("#objects_tags .tag").each(function(idx) {
 		sGroups[idx] = $(this).attr("val");
 	});
@@ -310,7 +312,7 @@ function SaveUserEdits() {
 		if ($("#hidMode").val() === 'edit') {
 			// remove this item from the array
 			var sEditID = $("#hidCurrentEditID").val();
-			var myArray = new Array();
+			var myArray = [];
 			var sArrHolder = $("#hidSelectedArray").val();
 			myArray = sArrHolder.split(',');
 
@@ -366,18 +368,20 @@ function SaveNewUser() {
 		bSave = false;
 		strValidationError += 'Full Name required.<br />';
 	}
+	var sAuthType;
 	if (!$("#ddlUserAuthType").val()) {
 		bSave = false;
 		strValidationError += 'Authentication Type required.<br />';
 	} else {
-		var sAuthType = $("#ddlUserAuthType").val();
+		sAuthType = $("#ddlUserAuthType").val();
 	}
 
+	var sUserRole;
 	if (!$("#ddlUserRole").val()) {
 		bSave = false;
 		strValidationError += 'Role required.<br />';
 	} else {
-		var sUserRole = $("#ddlUserRole").val();
+		sUserRole = $("#ddlUserRole").val();
 	}
 	var sEmail = $("#txtUserEmail").val();
 	if (sEmail === '') {
@@ -385,11 +389,12 @@ function SaveNewUser() {
 		strValidationError += 'Email Address required.<br />';
 	}
 
+	var sStatus;
 	if (!$("#ddlUserStatus").val()) {
 		bSave = false;
 		strValidationError += 'Status required.<br />';
 	} else {
-		var sStatus = $("#ddlUserStatus").val();
+		sStatus = $("#ddlUserStatus").val();
 	}
 
 	//passwords must match, unless the check box is checked
@@ -484,7 +489,7 @@ function LoadEditDialog(editCount, editUserID) {
 
 function ShowItemModify() {
 
-	var myArray = new Array();
+	var myArray = [];
 	var curArray = $("#hidSelectedArray").val();
 	myArray = curArray.split(',');
 	var userCount = myArray.length;

@@ -296,7 +296,7 @@ function SaveAsset() {
 	}
 
 	//put the tags in an array for submission
-	var sTags = new Array();
+	var sTags = [];
 	$("#objects_tags .tag").each(function(idx) {
 		sTags[idx] = $(this).attr("val");
 	});
@@ -329,7 +329,7 @@ function SaveAsset() {
 		if (response) {
 			// remove this item from the array
 			var sEditID = $("#hidCurrentEditID").val();
-			var myArray = new Array();
+			var myArray = [];
 			var sArrHolder = $("#hidSelectedArray").val();
 			myArray = sArrHolder.split(',');
 

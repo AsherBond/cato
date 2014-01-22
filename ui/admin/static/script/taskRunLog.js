@@ -73,7 +73,7 @@ $(document).ready(function() {
 	});
 
 	//show the abort button if applicable
-	status = $("#lblStatus").text();
+	var status = $("#lblStatus").text();
 	if ("Submitted,Processing,Queued".indexOf(status) > -1) {
 		$("#abort_btn").removeClass("hidden");
 	}
@@ -212,7 +212,7 @@ $(document).ready(function() {
 	doGetDetails();
 
 	// if it's running, enable the timer
-	var status = $("#lblStatus").text();
+    // NOTE : status is defined up above
 	if ("Completed,Error,Cancelled".indexOf(status) === -1) {
 		window.setInterval(refreshDynamic, 5000);
 	}

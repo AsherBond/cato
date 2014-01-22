@@ -38,7 +38,7 @@ function getScript(script_name) {
 
 //used in many places where we send strings as json data, replaces the two critical json chars " and \
 //THESE CALL a jQuery plugin
-function packJSON(instr) {"use strict";
+function packJSON(instr) {
 	//if it's empty or undefined, return ""
 	if (instr === "" || instr === undefined || instr === null)
 		return "";
@@ -51,7 +51,7 @@ function packJSON(instr) {"use strict";
 	return outstr.replace(/\//g, "%2F").replace(/\+/g, "%2B");
 }
 
-function unpackJSON(instr) {"use strict";
+function unpackJSON(instr) {
 	//if it's nothing, return a cleaner nothing
 	if (instr === "" || instr === undefined || instr === null) {
 		return "";
@@ -76,17 +76,17 @@ function urlencode(str) {
 }
 
 //this is a debugging function.
-function printClickEvents(ctl) {"use strict";
+function printClickEvents(ctl) {
 	var e = ctl.data("events").click;
-	jQuery.each(e, function(key, handlerObj) {
+	$.each(e, function(key, handlerObj) {
 		console.log(handlerObj.handler);
 		// prints "function() { console.log('clicked!') }"
 	});
 }
 
-function printKeypressEvents(ctl) {"use strict";
+function printKeypressEvents(ctl) {
 	var e = ctl.data("events").keypress;
-	jQuery.each(e, function(key, handlerObj) {
+	$.each(e, function(key, handlerObj) {
 		console.log(handlerObj.handler);
 		// prints "function() { console.log('clicked!') }"
 	});
@@ -94,7 +94,7 @@ function printKeypressEvents(ctl) {"use strict";
 
 //this function shows the "please wait" blockui effect.
 function showPleaseWait(msg) {
-	var msg = ((msg === "" || msg === undefined) ? "Please Wait ..." : msg);
+	msg = ((msg === "" || msg === undefined) ? "Please Wait ..." : msg);
 	$.blockUI({
 		message : msg,
 		css : {
@@ -151,7 +151,8 @@ function initJtable(stripe, hover) {
 
 //THESE FUNCTION SWITCH from web formatting (<br>, &nbsp;, etc) into text formatting (\n, \t, etc)
 function formatHTMLToText(s) {
-	var replaceWith = '';
+    var replaceWith = '';
+    var replaceFrom = '';
 	//firefox (moz) uses carriage returns in text areas, IE uses newlines AND carriage returns.
 	if ( typeof (screenTop) !== "undefined") {
 		replaceFrom = '\r';
@@ -211,7 +212,7 @@ function getQuerystringVariable(variable) {
 }
 
 function AreYouSure() {
-	if (confirm('Are you sure you want to delete this item?')) {
+	if (window.confirm('Are you sure you want to delete this item?')) {
 		return true;
 	}
 	return false;

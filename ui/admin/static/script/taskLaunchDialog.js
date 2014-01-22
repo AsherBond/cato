@@ -366,8 +366,6 @@ function checkRequiredParams() {
 }
 
 function getParamXML(id, type, filter_id) {
-    var task_parameter_xml = "";
-
     if (filter_id === undefined || filter_id === null)
         filter_id = "";
 
@@ -915,11 +913,12 @@ function populateTimetable(timetable) {
     $(".plan_datepoint_active").removeClass("plan_datepoint_active");
 
     // Months, 0 === Jan, 11 === Dec
+    var valueArray = [];
     var Months = timetable.sMonths;
     if (Months === "0,1,2,3,4,5,6,7,8,9,10,11") {
         $("#liMonthsAll").addClass("plan_datepoint_active");
     } else {
-        var valueArray = Months.split(",");
+        valueArray = Months.split(",");
         for (var i = 0; i < valueArray.length; i++) {
             $("#mo_" + valueArray[i]).addClass("plan_datepoint_active");
         }
