@@ -177,7 +177,7 @@ function Save() {
 		strValidationError += 'Version is required.';
 	};
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showAlert(strValidationError);
 		return false;
 	}

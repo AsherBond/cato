@@ -130,7 +130,7 @@ function tabWasClicked(tab) {
 		detail_div = "#div_details_detail";
 		GetDetails();
 	} else if (tab == "tags") {
-		if ( typeof (GetObjectsTags) != 'undefined') {
+		if ( typeof (GetObjectsTags) !== 'undefined') {
 			GetObjectsTags(g_id);
 		}
 	}

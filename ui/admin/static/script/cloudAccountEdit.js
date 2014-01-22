@@ -57,7 +57,7 @@ $(document).ready(function() {
 		var cld_id = $("#ddlDefaultCloud").val();
 		var prv = $("#ddlProvider option:selected").text();
 
-		//if (prv != "Amazon AWS") {
+		//if (prv !== "Amazon AWS") {
 		var saved = SaveItem(0);
 		if (saved) {
 			if (cld_id) {
@@ -76,7 +76,7 @@ $(document).ready(function() {
 	});
 	$("#add_cloud_btn").click(function() {
 		var prv = $("#ddlProvider option:selected").text();
-		//if (prv != "Amazon AWS") {
+		//if (prv !== "Amazon AWS") {
 		var saved = SaveItem(0);
 		if (saved) {
 			location.href = "/cloudEdit?add=true&provider=" + prv;
@@ -164,7 +164,7 @@ function TestConnection() {
 		});
 		if (response) {
 			try {
-				if (response != null) {
+				if (response !== null) {
 					if (response.result == "success") {
 						$("#conn_test_result").css("color", "green");
 						$("#conn_test_result").text("Connection Successful.");
@@ -310,12 +310,12 @@ function SaveItem(close_after_save) {
 		strValidationError += "Default Cloud required.<br />";
 	};
 
-	if ($("#txtLoginPassword").val() != $("#txtLoginPasswordConfirm").val()) {
+	if ($("#txtLoginPassword").val() !== $("#txtLoginPasswordConfirm").val()) {
 		bSave = false;
 		strValidationError += "Passwords do not match.";
 	};
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		var prv = $("#ddlProvider option:selected").text();
 		url = "/cloudEdit?add=true&provider=" + prv;
 
@@ -353,7 +353,7 @@ function SaveItem(close_after_save) {
 				$("#header_cloud_accounts").change();
 		} else {
 			//we've only changed it.  update the name in the drop down if it changed.
-			if (old_label != dropdown_label)
+			if (old_label !== dropdown_label)
 				$('#header_cloud_accounts option[value="' + account.ID + '"]').text(dropdown_label);
 		}
 

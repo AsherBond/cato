@@ -228,7 +228,7 @@ function doGetDetails() {
 		// version into the edit page.
 		var pagename = window.location.pathname;
 		pagename = pagename.substring(pagename.lastIndexOf('/') + 1);
-		if (pagename != "taskView") {
+		if (pagename !== "taskView") {
 			if (task.Status == "Approved") {
 				location.href = "taskView?task_id=" + g_task_id;
 			}
@@ -474,7 +474,7 @@ function doDropZoneEnable($ctl) {
 			}
 			//DO NOT init the sortable if the command you just dropped has an embedded command
 			//at this time it's IF and LOOP, EXISTS and WHILE
-			if (func != "fn_if" && func != "fn_loop" && func != "fn_exists" && func != "fn_while")
+			if (func !== "fn_if" && func !== "fn_loop" && func !== "fn_exists" && func !== "fn_while")
 				initSortable();
 		}
 	});

@@ -209,7 +209,7 @@ function clearEditDialog() {
 //and for IE compatibility evidently.  Thanks Stan but I'm not sure what you did here.
 Array.prototype.remove = function (s) {
     var i = IsInArray(this, s);
-    if (i != -1) this.splice(i, 1);
+    if (i !== -1) this.splice(i, 1);
 };
 
 // this should handle the odd problem on ie where "indexOf" doesn't exist

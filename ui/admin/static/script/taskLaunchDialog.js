@@ -337,7 +337,7 @@ function checkRequiredParams() {
 
 			//lists and single values are the same, a single is just a one item list.
 			$(this).find(".task_launch_parameter_value_input").each(function(i, fld) {
-				if ($(fld).val() && $(fld).val() != '')
+				if ($(fld).val() && $(fld).val() !== '')
 					has_val = true;
 			});
 
@@ -420,13 +420,13 @@ function ShowTaskLaunchDialog(args) {
 		$("#task_launch_dialog_task_instance").val(args.task_instance);
 
 	//if a debug level was passed, set it
-	if (args.debug_level && args.debug_level != "")
+	if (args.debug_level && args.debug_level !== "")
 		$('#task_launch_dialog_debug_level option[value=' + args.debug_level + ']').prop('selected', true);
 
 	//ALL DONE WITH Arguments... now let's build out the dialog...
 
 	//what XML do we actually go get?
-	if (args.task_instance && args.task_instance != "") {//if there's an instance let's get it!
+	if (args.task_instance && args.task_instance !== "") {//if there's an instance let's get it!
 		$("#rbPrevious").prop("checked", true);
 		getParamXML(args.task_instance, "instance");
 	} else {//task defaults by default!

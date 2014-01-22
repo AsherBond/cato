@@ -230,7 +230,7 @@ function doCodeblockUpdate(old_name) {
 function doCodeblockAdd() {
 	codeblock_name = $("#new_codeblock_name").val();
 
-	if (codeblock_name != "") {
+	if (codeblock_name !== "") {
 		$.blockUI({
 			message : null
 		});

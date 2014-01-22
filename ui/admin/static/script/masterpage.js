@@ -95,7 +95,7 @@ $(document).ready(function() {
 				var pw1 = $("#my_account_dialog #my_password").val();
 				var pw2 = $("#my_account_dialog #my_password_confirm").val();
 
-				if (pw1 != pw2) {
+				if (pw1 !== pw2) {
 					showInfo("Passwords must match.");
 					return false;
 				}
@@ -186,7 +186,7 @@ function showAlert(msg, info) {
 	hidePleaseWait();
 	$("#error_dialog_message").html(msg);
 	$("#error_dialog_info").html(info);
-	if (trace != null && trace != '') {
+	if (trace !== null && trace !== '') {
 		$("#error_dialog_trace").html(trace);
 		$("#stack_trace").show();
 	}
@@ -207,14 +207,14 @@ function showAlert(msg, info) {
 function showInfo(msg, info, no_timeout) {
 	$("#info_dialog_message").html(msg);
 
-	if ( typeof (info) != "undefined" && info.length > 0)
+	if ( typeof (info) !== "undefined" && info.length > 0)
 		$("#info_dialog_info").html(info);
 	else
 		$("#info_dialog_info").html("");
 
 	//set it to auto close after 2 seconds
 	//if the no_timeout flag was not passed
-	if ( typeof (no_timeout) != "undefined" && no_timeout) {
+	if ( typeof (no_timeout) !== "undefined" && no_timeout) {
 		$("#info_dialog").dialog("option", "buttons", {
 			"OK" : function() {
 				$(this).dialog("close");

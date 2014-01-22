@@ -213,7 +213,7 @@ function doAddIfSection(step_id, add_to, idx) {
 function ShowRunTaskParameterEdit() {
 	var task_parameter_xml = "";
 
-	if (rt_task_id != "") {
+	if (rt_task_id !== "") {
 		args = {};
 		args.sXPath = rt_base_xpath;
 		args.sType = "runtask";

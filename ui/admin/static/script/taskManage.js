@@ -287,7 +287,7 @@ function SaveNewTask() {
 		bSave = false;
 	}
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showAlert(sValidationErr);
 		return false;
 	}

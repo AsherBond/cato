@@ -260,7 +260,7 @@ function doGetDetails() {
 		$("#lblCloud").text(instance.cloud_name);
 		$("#lblAccountName").text(instance.account_name);
 
-		if (instance.submitted_by_instance != "") {
+		if (instance.submitted_by_instance !== "") {
 			$("#lblSubmittedByInstance").addClass("link");
 		}
 		//if we got a "resubmit_message"...

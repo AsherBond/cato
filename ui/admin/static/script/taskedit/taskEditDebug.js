@@ -93,7 +93,7 @@ $(document).ready(function() {
 	//bind the debug show active log button
 	$("#debug_view_active_log").click(function() {
 		var aid = $("#debug_instance").html();
-		if (aid != "") {
+		if (aid !== "") {
 			openDialogWindow('taskRunLog?task_instance=' + aid, 'TaskRunLog' + aid, 950, 750, 'true');
 		}
 	});
@@ -178,7 +178,7 @@ function doDebugStop() {
 	//don't stop it unless it's running
 	//current_status = $("[id$='lblCurrentStatus']").text();
 
-	//if (current_status != "Inactive" && current_status != "Aborting") {
+	//if (current_status !== "Inactive" && current_status !== "Aborting") {
 	$("#update_success_msg").text("Stopping...").fadeIn(200);
 
 	if ($("#debug_instance").html() == '')

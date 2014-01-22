@@ -112,11 +112,11 @@ function doGetVersions() {
 			// status is the same, we'll just update some content.
 			var pagename = window.location.pathname;
 			pagename = pagename.substring(pagename.lastIndexOf('/') + 1);
-			if ($(this).attr("status") == "Approved" && pagename != "taskView") {
+			if ($(this).attr("status") == "Approved" && pagename !== "taskView") {
 				location.href = "taskView?task_id=" + $(this).attr("task_id");
 				return;
 			}
-			if ($(this).attr("status") == "Development" && pagename != "taskEdit") {
+			if ($(this).attr("status") == "Development" && pagename !== "taskEdit") {
 				location.href = "taskEdit?tab=versions&task_id=" + $(this).attr("task_id");
 				return;
 			}

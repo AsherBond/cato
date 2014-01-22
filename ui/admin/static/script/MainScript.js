@@ -153,7 +153,7 @@ function initJtable(stripe, hover) {
 function formatHTMLToText(s) {
 	var replaceWith = '';
 	//firefox (moz) uses carriage returns in text areas, IE uses newlines AND carriage returns.
-	if ( typeof (screenTop) != "undefined") {
+	if ( typeof (screenTop) !== "undefined") {
 		replaceFrom = '\r';
 	} else {
 		replaceFrom = '\n';
@@ -308,7 +308,7 @@ function restrictEntryToNumber(e, field) {
 
 	if (/[0-9.\-]/.test(c)) {
 		//if user pressed '.', and a '. exists in the string, cancel
-		if (c == '.' && field.value.indexOf('.') != -1)
+		if (c == '.' && field.value.indexOf('.') !== -1)
 			return false;
 
 		//if there is anything in the field and user pressed '-', cancel.
@@ -344,7 +344,7 @@ function restrictEntryToPositiveNumber(e, field) {
 
 	if (/[0-9.]/.test(c)) {
 		//if user pressed '.', and a '. exists in the string, cancel
-		if (c == '.' && field.value.indexOf('.') != -1)
+		if (c == '.' && field.value.indexOf('.') !== -1)
 			return false;
 
 		return true;
@@ -404,7 +404,7 @@ function whatKey(e) {
 	if (e.which == null) {
 		return String.fromCharCode(e.keyCode);
 		// IE
-	} else if (e.which != 0 && e.charCode != 0) {
+	} else if (e.which !== 0 && e.charCode !== 0) {
 		return String.fromCharCode(e.which);
 		// the rest
 	} else {

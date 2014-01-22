@@ -342,7 +342,7 @@ function validateParsedVar(ctl) {
 			// update the field directly...
 			$r.val(r_val);
 
-			if (r_val != "end") {
+			if (r_val !== "end") {
 				var tmp = r_val.replace("end-", "");
 				if (r_val.indexOf("end-") == -1 || isNaN(tmp)) {
 					$msg.html("End position must be a number, the keyword 'end', or 'end-n'.");
@@ -503,7 +503,7 @@ function addParsedVar() {
 						if (isNaN(r_int)) {
 							// if it's not an integer, it could either be 'end' or 'end-1'
 							r_val = r_val.replace(/ /g, "").toLowerCase();
-							if (r_val != "end") {
+							if (r_val !== "end") {
 								var tmp = r_val.replace("end-", "");
 								if (r_val.indexOf("end-") == -1 || isNaN(tmp)) {
 									$("#parsed_msg").html("End position must be a number, the keyword 'end', or 'end-n'.");

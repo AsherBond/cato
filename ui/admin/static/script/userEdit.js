@@ -252,7 +252,7 @@ function SaveUserEdits() {
 	}
 	var sUserPassword = $("#txtUserPassword").val();
 	if (sAuthType == 'local') {
-		if ($("#txtUserPassword").val() != $("#txtUserPasswordConfirm").val()) {
+		if ($("#txtUserPassword").val() !== $("#txtUserPasswordConfirm").val()) {
 			bSave = false;
 			strValidationError += 'Passwords do not match!<br />';
 		};
@@ -279,7 +279,7 @@ function SaveUserEdits() {
 		var sStatus = $("#ddlUserStatus").val();
 	}
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showAlert(strValidationError);
 		return false;
 	}
@@ -400,13 +400,13 @@ function SaveNewUser() {
 			bSave = false;
 			strValidationError += 'Password required.<br />';
 		};
-		if ($("#txtUserPassword").val() != $("#txtUserPasswordConfirm").val()) {
+		if ($("#txtUserPassword").val() !== $("#txtUserPasswordConfirm").val()) {
 			bSave = false;
 			strValidationError += 'Passwords do not match!<br />';
 		};
 	}
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showAlert(strValidationError);
 		return false;
 	}
@@ -474,7 +474,7 @@ function LoadEditDialog(editCount, editUserID) {
 		$("#lblFailedLoginAttempts").html(user.FailedLoginAttempts);
 
 		SetPasswordControls();
-		if ( typeof (GetObjectsTags) != 'undefined') {
+		if ( typeof (GetObjectsTags) !== 'undefined') {
 			GetObjectsTags(user.ID);
 		}
 

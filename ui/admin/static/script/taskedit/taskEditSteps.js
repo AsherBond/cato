@@ -581,7 +581,7 @@ function initSortable() {
 			var id = $(cbo).attr("id");
 			$(cbo.attributes).each(function(i, attrib) {
 				var name = attrib.name;
-				if (name != "type" && name != "id" && name != "class" && name != "name") {
+				if (name !== "type" && name !== "id" && name !== "class" && name !== "name") {
 					var value = attrib.value;
 					$("#ufd-" + id).attr(name, value);
 				}
@@ -651,7 +651,7 @@ function showVarPicker(e) {
 				case "set_variable":
 					// bugzilla 1234 in substring only the variable_name field gets the value without the [[ ]]
 					var xpath = fjqo.attr("xpath");
-					if (xpath.indexOf("/name", 0) != -1) {
+					if (xpath.indexOf("/name", 0) !== -1) {
 						varname = $(this).text();
 					} else {
 						varname = "[[" + $(this).text() + "]]";
@@ -767,7 +767,7 @@ function doStepAdd(new_step) {
 
 			// 4-26-12 NSC: since embedded commands work differently, we no longer need to remove a
 			// clipboard step when it's used
-			// if (item.indexOf('clip_') != -1)
+			// if (item.indexOf('clip_') !== -1)
 			//    doClearClipboard(item.replace(/clip_/, ""))
 
 			//but we will change the sortable if this command has embedded commands.
@@ -887,14 +887,14 @@ function validateStep(in_element_id) {
 		}
 
 		//check syntax (just a few fields have this
-		if ($(this).val() != "") {
+		if ($(this).val() !== "") {
 			if ($(this).attr("syntax")) {
 				var syntax = $(this).attr("syntax");
-				if (syntax != "") {
+				if (syntax !== "") {
 					var field_value = $(this).val();
 					var syntax_error = checkSyntax(syntax, field_value);
 
-					if (syntax_error != "") {
+					if (syntax_error !== "") {
 						$(this).addClass("is_required");
 						msg += syntax_error;
 					}

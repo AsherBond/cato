@@ -150,7 +150,7 @@ function tabWasClicked(tab) {
 	} else if (tab == "schedules") {
 		doGetPlans();
 	} else if (tab == "tags") {
-		if ( typeof (GetObjectsTags) != 'undefined') {
+		if ( typeof (GetObjectsTags) !== 'undefined') {
 			GetObjectsTags($("#hidOriginalTaskID").val());
 		}
 	} else if (tab == "clipboard") {

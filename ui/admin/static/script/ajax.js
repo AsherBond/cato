@@ -224,7 +224,7 @@ function ajaxPostAsync(apiurl, args, on_success, datatype) {"use strict";
 		contentType : "application/json; charset=utf-8",
 		dataType : datatype,
 		success : function(response) {
-			if ( typeof (on_success) != 'undefined') {
+			if ( typeof (on_success) !== 'undefined') {
 				on_success(response);
 			}
 		},
@@ -251,7 +251,7 @@ function ajaxGet(apiurl, on_success, datatype) {"use strict";
 		contentType : "application/json; charset=utf-8",
 		dataType : datatype,
 		success : function(response) {
-			if ( typeof (on_success) != 'undefined') {
+			if ( typeof (on_success) !== 'undefined') {
 				on_success(response);
 			}
 		},

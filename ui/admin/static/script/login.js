@@ -147,14 +147,14 @@ $(document).ready(function() {
 	// if not, we must present the license file.
 	$.get("../getlicense", function(data) {
 		if (data) {
-			if (data.result != "pass") {
-				if (data.license != "") {
+			if (data.result !== "pass") {
+				if (data.license !== "") {
 					$("#licensetext").html(unpackJSON(data.license));
 					$("#loginerror").hide();
 					$("#loginpanel").hide();
 					$("#licensepanel").show();
 				}
-				if (data.message != "") {
+				if (data.message !== "") {
 					$("#error_msg").html(data.message).parent().show();
 				}
 			}
@@ -196,11 +196,11 @@ function Login() {
 
 	var args = {};
 	args.username = $("#username").val();
-	if ($("#password").val() != "")
+	if ($("#password").val() !== "")
 		args.password = packJSON($("#password").val());
-	if ($("#new_password").val() != "")
+	if ($("#new_password").val() !== "")
 		args.change_password = packJSON($("#new_password").val());
-	if ($("#security_answer").val() != "")
+	if ($("#security_answer").val() !== "")
 		args.answer = packJSON($("#security_answer").val());
 
 	$.ajax({
@@ -243,7 +243,7 @@ function Change() {
 	pw1 = $("#new_password").val();
 	pw2 = $("#new_password_confirm").val();
 
-	if (pw1 != pw2) {
+	if (pw1 !== pw2) {
 		alert("Passwords must match.");
 		$("#new_password").val("");
 		$("#new_password_confirm").val("");

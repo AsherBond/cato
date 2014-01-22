@@ -239,7 +239,7 @@ function SaveAsset() {
 	};
 
 	var ddlAssetStatus = "";
-	if ($("#ddlAssetStatus").val() != null) {
+	if ($("#ddlAssetStatus").val() !== null) {
 		ddlAssetStatus = $("#ddlAssetStatus").val();
 	}
 	if (ddlAssetStatus == "") {
@@ -278,19 +278,19 @@ function SaveAsset() {
 				strValidationError += 'Name and Description are required on Shared Credentials.<br />';
 			}
 		}
-		if (sCredPassword != sCredPasswordConfirm) {
+		if (sCredPassword !== sCredPasswordConfirm) {
 			bSave = false;
 			strValidationError += 'Credential Passwords do not match.<br />';
 		}
 		// check the privileged password if one is filled in they should match
-		if (sPrivilegedPassword != sPrivilegedPasswordConfirm) {
+		if (sPrivilegedPassword !== sPrivilegedPasswordConfirm) {
 			bSave = false;
 			strValidationError += 'Credential Passwords do not match.<br />';
 		}
 		//}
 
 	}
-	if (bSave != true) {
+	if (bSave !== true) {
 		showInfo(strValidationError);
 		return false;
 	}
@@ -427,7 +427,7 @@ function LoadEditDialog(editCount, editAssetID) {
 
 		} else {
 			// display the credentials if they exist, if not display only the add button
-			if (asset.UserName != '') {
+			if (asset.UserName !== '') {
 				var CredentialShared = asset.SharedOrLocal;
 				if (CredentialShared == 'Local') {
 					$("#CredentialDetails").html("");
@@ -463,7 +463,7 @@ function LoadEditDialog(editCount, editAssetID) {
 		// at load default to the first tab
 		$("#AddAssetTabs").tabs("option", "active", 0);
 
-		if ( typeof (GetObjectsTags) != 'undefined') {
+		if ( typeof (GetObjectsTags) !== 'undefined') {
 			GetObjectsTags(asset.ID);
 		}
 

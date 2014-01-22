@@ -133,7 +133,7 @@ function Save() {
 		strValidationError += 'Name is required.';
 	};
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showAlert(strValidationError);
 		return false;
 	}

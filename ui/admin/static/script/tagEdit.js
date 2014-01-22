@@ -90,7 +90,7 @@ function SaveTag() {
 		strValidationError += 'Tag required.<br />';
 	};
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showInfo(strValidationError);
 		return false;
 	}

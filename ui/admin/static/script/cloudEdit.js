@@ -352,7 +352,7 @@ function SaveItem(close_after_save) {
 		strValidationError += "API URL required.";
 	};
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showInfo(strValidationError);
 		return false;
 	}
@@ -439,7 +439,7 @@ function SaveKeyPair() {
 	var pk = "";
 	var pp = $("#keypair_passphrase").val();
 
-	if ($("#keypair_private_key").val() != "**********") {
+	if ($("#keypair_private_key").val() !== "**********") {
 		//pack up the PK field, JSON doesn't like it
 		pk = packJSON($("#keypair_private_key").val());
 	}
