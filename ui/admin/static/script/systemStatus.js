@@ -47,7 +47,7 @@ function GetData() {
 		$(".view_component_log").click(function() {
 			component = $(this).attr("component");
 
-			if (component == '')
+			if (component === '')
 				return;
 
 			var response = catoAjax.getProcessLogfile(component);

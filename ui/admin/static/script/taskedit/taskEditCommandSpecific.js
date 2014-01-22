@@ -202,7 +202,7 @@ function doAddIfSection(step_id, add_to, idx) {
 		$("#update_success_msg").text("Update Successful").fadeOut(2000);
 
 		//hardcoded index for the last "else" section
-		if (idx == -1)
+		if (idx === -1)
 			doDropZoneEnable($("#if_" + step_id + "_else .step_nested_drop_target"));
 		else
 			doDropZoneEnable($("#if_" + step_id + "_else_" + idx + " .step_nested_drop_target"));
@@ -213,7 +213,7 @@ function doAddIfSection(step_id, add_to, idx) {
 function ShowRunTaskParameterEdit() {
 	var task_parameter_xml = "";
 
-	if (rt_task_id != "") {
+	if (rt_task_id !== "") {
 		args = {};
 		args.sXPath = rt_base_xpath;
 		args.sType = "runtask";

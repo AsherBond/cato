@@ -62,12 +62,12 @@ function CreateNewVersion() {
 		var pagename = window.location.pathname;
 		pagename = pagename.substring(pagename.lastIndexOf('/') + 1);
 		// things are page specific
-		if (pagename == "taskView") {
+		if (pagename === "taskView") {
 			location.href = "taskEdit?task_id=" + response;
 		} else {
 			// already on taskEdit, just reload some content.
 			//NOTE: this changes the g_task_id, and pushes a new URL into the address bar
-			g_task_id = response
+			g_task_id = response;
 			history.replaceState({}, "", "taskEdit?task_id=" + g_task_id);
 			//refresh the versions toolbox, which will add the new one...
 			doGetVersions();
@@ -112,11 +112,11 @@ function doGetVersions() {
 			// status is the same, we'll just update some content.
 			var pagename = window.location.pathname;
 			pagename = pagename.substring(pagename.lastIndexOf('/') + 1);
-			if ($(this).attr("status") == "Approved" && pagename != "taskView") {
+			if ($(this).attr("status") === "Approved" && pagename !== "taskView") {
 				location.href = "taskView?task_id=" + $(this).attr("task_id");
 				return;
 			}
-			if ($(this).attr("status") == "Development" && pagename != "taskEdit") {
+			if ($(this).attr("status") === "Development" && pagename !== "taskEdit") {
 				location.href = "taskEdit?tab=versions&task_id=" + $(this).attr("task_id");
 				return;
 			}
@@ -124,18 +124,18 @@ function doGetVersions() {
 			// If there was a mismatch we'll never get here.  So, if we're here... it must be
 			// the same page, so we can just update some content.
 			//NOTE: this changes the g_task_id, and pushes a new URL into the address bar
-			g_task_id = $(this).attr("task_id")
+			g_task_id = $(this).attr("task_id");
 			history.replaceState({}, "", pagename + "?task_id=" + g_task_id);
-			$("#versions .version").removeClass("version_selected")
+			$("#versions .version").removeClass("version_selected");
 			$(this).addClass("version_selected");
 
 			// things are page specific
-			if (pagename == "taskView") {
+			if (pagename === "taskView") {
 				doGetViewDetails();
 				doGetViewSteps();
 			}
 
-			if (pagename == "taskEdit") {
+			if (pagename === "taskEdit") {
 				doGetDetails();
 				doGetCodeblocks();
 				doGetSteps();

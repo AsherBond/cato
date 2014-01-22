@@ -68,12 +68,12 @@ $(document).ready(function() {
 	$("#lblSubmittedByInstance").click(function() {
 		showPleaseWait();
 		self.location.href = "taskRunLog?task_instance=" + $("#hidSubmittedByInstance").val();
-		;
+
 		hidePleaseWait();
 	});
 
 	//show the abort button if applicable
-	status = $("#lblStatus").text();
+	var status = $("#lblStatus").text();
 	if ("Submitted,Processing,Queued".indexOf(status) > -1) {
 		$("#abort_btn").removeClass("hidden");
 	}
@@ -206,14 +206,14 @@ $(document).ready(function() {
 	hidePleaseWait();
 
 	//if there's no value in the CELogfile ... hide the button.
-	if ($("#hidCELogFile").val() == "") {
+	if ($("#hidCELogFile").val() === "") {
 		$("#show_logfile").hide();
 	}
 	doGetDetails();
 
 	// if it's running, enable the timer
-	var status = $("#lblStatus").text();
-	if ("Completed,Error,Cancelled".indexOf(status) == -1) {
+    // NOTE : status is defined up above
+	if ("Completed,Error,Cancelled".indexOf(status) === -1) {
 		window.setInterval(refreshDynamic, 5000);
 	}
 
@@ -221,7 +221,7 @@ $(document).ready(function() {
 
 function refreshDynamic() {"use strict";
 	var status = $("#lblStatus").text();
-	if ("Completed,Error,Cancelled".indexOf(status) == -1) {
+	if ("Completed,Error,Cancelled".indexOf(status) === -1) {
 		doGetDetails();
 		location.hash = "_bottom_anchor";
 	}
@@ -260,7 +260,7 @@ function doGetDetails() {
 		$("#lblCloud").text(instance.cloud_name);
 		$("#lblAccountName").text(instance.account_name);
 
-		if (instance.submitted_by_instance != "") {
+		if (instance.submitted_by_instance !== "") {
 			$("#lblSubmittedByInstance").addClass("link");
 		}
 		//if we got a "resubmit_message"...
@@ -271,7 +271,7 @@ function doGetDetails() {
 		}
 
 		//don't show the cancel button if it's not running
-		if (instance.allow_cancel == "false") {
+		if (instance.allow_cancel === "false") {
 			$("#abort_btn").hide();
 		} else {
 			$("#abort_btn").show();
@@ -299,7 +299,6 @@ function doGetDetails() {
 				//jump links
 				$("#other_instances tr").click(function() {
 					self.location.href = "taskRunLog?task_instance=" + $(this).attr("task_instance");
-					;
 				});
 
 				$("#pnlOtherInstances").show();
@@ -319,7 +318,7 @@ function doGetDetails() {
 function doGetLog(rows) {
 	var instance = $("#hidInstanceID").val();
 
-	if (instance == '') {
+	if (instance === '') {
 		return;
 	}
 
@@ -339,7 +338,7 @@ function doGetLog(rows) {
 			$("#result_summary").show();
 		}
 		if (response.totalrows) {
-			if (rows == "all") {
+			if (rows === "all") {
 				$("#row_count_lbl").text(" - all " + response.totalrows + " rows.");
 				$("#get_all_bottom").hide();
 			} else if (rows >= response.totalrows) {
@@ -355,7 +354,7 @@ function doGetLog(rows) {
 function doGetLogfile() {
 	instance = $("#hidInstanceID").val();
 
-	if (instance == '') {
+	if (instance === '') {
 		return;
         }
 	var response = ajaxPost("taskMethods/wmGetTaskLogfile", {
@@ -368,7 +367,7 @@ function doGetLogfile() {
 function doDebugStop() {
 	instance = $("#hidInstanceID").val();
 
-	if (instance == '') {
+	if (instance === '') {
 		return;
 	}
 	var response = ajaxPost("taskMethods/wmStopTask", {

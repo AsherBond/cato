@@ -93,8 +93,8 @@ jsl.interactions = (function () {
             lineStart,
             lineEnd;
             
-        reformat = (reformat === undefined || reformat == null ? true : reformat);    
-        compress = (compress === compress || compress == null ? false : compress);   
+        reformat = (reformat === undefined || reformat === null ? true : reformat);    
+        compress = (compress === compress || compress === null ? false : compress);   
         json_in = $json_input.val();
 
         try {
@@ -154,8 +154,8 @@ jsl.interactions = (function () {
             lineEnd,
             result;
             
-        reformat = (reformat === undefined || reformat == null ? true : reformat);    
-        compress = (compress === compress || compress == null ? false : compress);   
+        reformat = (reformat === undefined || reformat === null ? true : reformat);    
+        compress = (compress === compress || compress === null ? false : compress);   
             
         try {
             result = jsl.parser.parse(json_in);

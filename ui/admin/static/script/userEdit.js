@@ -144,8 +144,8 @@ function GetItems(page) {
 }
 
 function SetPasswordControls() {
-	if ($("#ddlUserAuthType").val() == "local") {
-		if ($("#hidMode").val() == 'add') {
+	if ($("#ddlUserAuthType").val() === "local") {
+		if ($("#hidMode").val() === 'add') {
 			$(".password_checkbox").show();
 			$(".password_edit").hide();
 		} else {
@@ -212,7 +212,7 @@ function DeleteItems() {
 
 function SaveUser() {
 	// save or create a new user
-	if ($("#hidMode").val() == 'edit') {
+	if ($("#hidMode").val() === 'edit') {
 		//alert('save edit');
 		SaveUserEdits();
 	} else {
@@ -235,51 +235,53 @@ function SaveUserEdits() {
 	var strValidationError = '';
 	//some client side validation before we attempt to save the user
 	var sLoginID = $("#txtUserLoginID").val();
-	if (sLoginID == '') {
+	if (sLoginID === '') {
 		bSave = false;
 		strValidationError += 'Login ID required.<br />';
-	};
+	}
 	var sFullName = $("#txtUserFullName").val();
-	if (sFullName == '') {
+	if (sFullName === '') {
 		bSave = false;
 		strValidationError += 'Full Name required.<br />';
-	};
+	}
+	var sAuthType;
 	if (!$("#ddlUserAuthType").val()) {
 		bSave = false;
 		strValidationError += 'Authentication Type required.<br />';
 	} else {
-		var sAuthType = $("#ddlUserAuthType").val();
+		sAuthType = $("#ddlUserAuthType").val();
 	}
 	var sUserPassword = $("#txtUserPassword").val();
-	if (sAuthType == 'local') {
-		if ($("#txtUserPassword").val() != $("#txtUserPasswordConfirm").val()) {
+	if (sAuthType === 'local') {
+		if ($("#txtUserPassword").val() !== $("#txtUserPasswordConfirm").val()) {
 			bSave = false;
 			strValidationError += 'Passwords do not match!<br />';
-		};
+		}
 	}
 
 	var sForcePasswordChange = ($("#cbNewUserForcePasswordChange").prop("checked") ? '1' : '0');
-
+    var sUserRole;
 	if (!$("#ddlUserRole").val()) {
 		bSave = false;
 		strValidationError += 'Role required.<br />';
 	} else {
-		var sUserRole = $("#ddlUserRole").val();
+		sUserRole = $("#ddlUserRole").val();
 	}
 	var sEmail = $('#txtUserEmail').val();
-	if (sEmail == '') {
+	if (sEmail === '') {
 		bSave = false;
 		strValidationError += 'Email Address required.<br />';
-	};
+	}
 
+	var sStatus;
 	if (!$("#ddlUserStatus").val()) {
 		bSave = false;
 		strValidationError += 'Status required.<br />';
 	} else {
-		var sStatus = $("#ddlUserStatus").val();
+		sStatus = $("#ddlUserStatus").val();
 	}
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showAlert(strValidationError);
 		return false;
 	}
@@ -287,7 +289,7 @@ function SaveUserEdits() {
 	var sExpires = $('#txtExpirationDT').val();
 
 	//put the users groups in a string for submission
-	var sGroups = new Array();
+	var sGroups = [];
 	$("#objects_tags .tag").each(function(idx) {
 		sGroups[idx] = $(this).attr("val");
 	});
@@ -307,10 +309,10 @@ function SaveUserEdits() {
 
 	var response = ajaxPost("uiMethods/wmUpdateUser", user);
 	if (response) {
-		if ($("#hidMode").val() == 'edit') {
+		if ($("#hidMode").val() === 'edit') {
 			// remove this item from the array
 			var sEditID = $("#hidCurrentEditID").val();
-			var myArray = new Array();
+			var myArray = [];
 			var sArrHolder = $("#hidSelectedArray").val();
 			myArray = sArrHolder.split(',');
 
@@ -325,7 +327,7 @@ function SaveUserEdits() {
 			$("#lblItemsSelected").html(myArray.length);
 			$("#hidSelectedArray").val(myArray.toString());
 
-			if (wereInArray == 1) {
+			if (wereInArray === 1) {
 				// this was the last or only user edited so close
 				$("#hidCurrentEditID").val("");
 				$("#hidEditCount").val("");
@@ -357,56 +359,59 @@ function SaveNewUser() {
 
 	//some client side validation before we attempt to save the user
 	var sLoginID = $("#txtUserLoginID").val();
-	if (sLoginID == '') {
+	if (sLoginID === '') {
 		bSave = false;
 		strValidationError += 'Login ID required.<br />';
-	};
+	}
 	var sFullName = $("#txtUserFullName").val();
-	if (sFullName == '') {
+	if (sFullName === '') {
 		bSave = false;
 		strValidationError += 'Full Name required.<br />';
-	};
+	}
+	var sAuthType;
 	if (!$("#ddlUserAuthType").val()) {
 		bSave = false;
 		strValidationError += 'Authentication Type required.<br />';
 	} else {
-		var sAuthType = $("#ddlUserAuthType").val();
+		sAuthType = $("#ddlUserAuthType").val();
 	}
 
+	var sUserRole;
 	if (!$("#ddlUserRole").val()) {
 		bSave = false;
 		strValidationError += 'Role required.<br />';
 	} else {
-		var sUserRole = $("#ddlUserRole").val();
+		sUserRole = $("#ddlUserRole").val();
 	}
 	var sEmail = $("#txtUserEmail").val();
-	if (sEmail == '') {
+	if (sEmail === '') {
 		bSave = false;
 		strValidationError += 'Email Address required.<br />';
-	};
+	}
 
+	var sStatus;
 	if (!$("#ddlUserStatus").val()) {
 		bSave = false;
 		strValidationError += 'Status required.<br />';
 	} else {
-		var sStatus = $("#ddlUserStatus").val();
+		sStatus = $("#ddlUserStatus").val();
 	}
 
 	//passwords must match, unless the check box is checked
 	var sUserPassword = $("#txtUserPassword").val();
 	var sGeneratePW = ($("#chkGeneratePW").prop("checked") ? 1 : 0);
-	if (sGeneratePW == 0) {
-		if ($("#txtUserPassword").val() == '') {
+	if (sGeneratePW === 0) {
+		if ($("#txtUserPassword").val() === '') {
 			bSave = false;
 			strValidationError += 'Password required.<br />';
-		};
-		if ($("#txtUserPassword").val() != $("#txtUserPasswordConfirm").val()) {
+		}
+		if ($("#txtUserPassword").val() !== $("#txtUserPasswordConfirm").val()) {
 			bSave = false;
 			strValidationError += 'Passwords do not match!<br />';
-		};
+		}
 	}
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showAlert(strValidationError);
 		return false;
 	}
@@ -416,7 +421,7 @@ function SaveNewUser() {
 	//put the users groups in a string for submission
 	var sGroups = "";
 	$("#objects_tags .tag").each(function(intIndex) {
-		if (sGroups == "")
+		if (sGroups === "")
 			sGroups += $(this).attr("id").replace(/ot_/, "");
 		else
 			sGroups += "," + $(this).attr("id").replace(/ot_/, "");
@@ -474,7 +479,7 @@ function LoadEditDialog(editCount, editUserID) {
 		$("#lblFailedLoginAttempts").html(user.FailedLoginAttempts);
 
 		SetPasswordControls();
-		if ( typeof (GetObjectsTags) != 'undefined') {
+		if ( typeof (GetObjectsTags) !== 'undefined') {
 			GetObjectsTags(user.ID);
 		}
 
@@ -484,11 +489,11 @@ function LoadEditDialog(editCount, editUserID) {
 
 function ShowItemModify() {
 
-	var myArray = new Array();
+	var myArray = [];
 	var curArray = $("#hidSelectedArray").val();
 	myArray = curArray.split(',');
 	var userCount = myArray.length;
-	if (userCount == 0) {
+	if (userCount === 0) {
 		showAlert("Select a user, or multiple users to modify.");
 		return false;
 	}
@@ -521,7 +526,7 @@ function ShowItemCopy() {
 
 	// clear all of the previous values
 	var ArrayString = $("#hidSelectedArray").val();
-	if (ArrayString.length == 0) {
+	if (ArrayString.length === 0) {
 		showInfo('Select a User to Copy.');
 		return false;
 	}

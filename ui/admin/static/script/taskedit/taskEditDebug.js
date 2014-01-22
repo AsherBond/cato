@@ -51,10 +51,10 @@ $(document).ready(function() {
 	});
 
 	//    //the visual effect for the 'debug' buttons, set on page load
-	//    if ($("[id$='lblCurrentStatus']").text() == "Aborting") {
+	//    if ($("[id$='lblCurrentStatus']").text() === "Aborting") {
 	//        $("#debug_stop_btn").addClass("debug_btn_dim")
 	//        $("#debug_run_btn").addClass("debug_btn_dim")
-	//    } else if ($("[id$='lblCurrentStatus']").text() == "Inactive") {
+	//    } else if ($("[id$='lblCurrentStatus']").text() === "Inactive") {
 	//        $("#debug_stop_btn").addClass("debug_btn_dim")
 	//        $("#debug_run_btn").removeClass("debug_btn_dim")
 	//    } else {
@@ -69,7 +69,7 @@ $(document).ready(function() {
 	//the click events for the 'debug' buttons
 	$("#debug_run_btn").click(function() {
 		//don't start it unless it's 'inactive'
-		//if ($("[id$='lblCurrentStatus']").text() == "Inactive") {
+		//if ($("[id$='lblCurrentStatus']").text() === "Inactive") {
 
 		var task_name = $("#lblTaskNameHeader").html() + " - " + $("#lblVersionHeader").html();
 		var asset_id = $("#txtTestAsset").attr("asset_id");
@@ -93,7 +93,7 @@ $(document).ready(function() {
 	//bind the debug show active log button
 	$("#debug_view_active_log").click(function() {
 		var aid = $("#debug_instance").html();
-		if (aid != "") {
+		if (aid !== "") {
 			openDialogWindow('taskRunLog?task_instance=' + aid, 'TaskRunLog' + aid, 950, 750, 'true');
 		}
 	});
@@ -116,7 +116,7 @@ $(document).ready(function() {
 	// when you hit enter inside an asset search
 	$(document).on("keypress", "#asset_search_text", function(e) {
 		//alert('keypress');
-		if (e.which == 13) {
+		if (e.which === 13) {
 			$("#asset_search_btn").click();
 			return false;
 		}
@@ -141,7 +141,7 @@ $(document).ready(function() {
 			$("#asset_picker_dialog").unblock();
 			$("#asset_picker_results li[tag='asset_picker_row']").click(function() {
 
-				if ($("#asset_picker_target_field").val() == "txtTestAsset") {
+				if ($("#asset_picker_target_field").val() === "txtTestAsset") {
 					field.val($(this).attr("asset_name"));
 					//this is the picker for the Debug tab
 					field.attr("asset_id", $(this).attr("asset_id"));
@@ -178,10 +178,10 @@ function doDebugStop() {
 	//don't stop it unless it's running
 	//current_status = $("[id$='lblCurrentStatus']").text();
 
-	//if (current_status != "Inactive" && current_status != "Aborting") {
+	//if (current_status !== "Inactive" && current_status !== "Aborting") {
 	$("#update_success_msg").text("Stopping...").fadeIn(200);
 
-	if ($("#debug_instance").html() == '')
+	if ($("#debug_instance").html() === '')
 		return;
 
 	var response = ajaxPost("taskMethods/wmStopTask", {

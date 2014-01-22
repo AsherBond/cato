@@ -103,7 +103,7 @@ function GetItems(page) {
 		//what happens when you click a row?
 		$(".selectable").click(function() {
 			showPleaseWait();
-			if ($(this).parent().attr("status") == "Approved") {
+			if ($(this).parent().attr("status") === "Approved") {
 				location.href = '/taskView?task_id=' + $(this).parent().attr("task_id");
 			} else {
 				location.href = '/taskEdit?task_id=' + $(this).parent().attr("task_id");
@@ -141,7 +141,7 @@ function ShowItemAdd() {
 function ShowItemExport() {
 	// clear all of the previous values
 	var ArrayString = $("#hidSelectedArray").val();
-	if (ArrayString.length == 0) {
+	if (ArrayString.length === 0) {
 		showInfo('No Items selected.');
 		return false;
 	}
@@ -152,7 +152,7 @@ function ShowItemExport() {
 function ShowItemCopy() {
 	// clear all of the previous values
 	var ArrayString = $("#hidSelectedArray").val();
-	if (ArrayString.length == 0) {
+	if (ArrayString.length === 0) {
 		showInfo('Select a Task to Copy.');
 		return false;
 	}
@@ -178,7 +178,7 @@ function ShowItemCopy() {
 	}, "html");
 	if (msg) {
 		// load the copy from versions drop down
-		if (msg.length == 0) {
+		if (msg.length === 0) {
 			showAlert('No versions found for this task?');
 		} else {
 			$("#ddlTaskVersions").html(msg);
@@ -194,12 +194,12 @@ function CopyTask() {
 	var sCopyTaskID = $("#ddlTaskVersions").val();
 
 	// make sure we have all of the valid fields
-	if (sNewTaskName == '' || sNewTaskCode == '') {
+	if (sNewTaskName === '' || sNewTaskCode === '') {
 		showInfo('Task Name and Task Code are required.');
 		return false;
 	}
 	// this shouldnt happen, but just in case.
-	if (sCopyTaskID == '') {
+	if (sCopyTaskID === '') {
 		showInfo('Can not copy, no version selected.');
 		return false;
 	}
@@ -287,7 +287,7 @@ function SaveNewTask() {
 		bSave = false;
 	}
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showAlert(sValidationErr);
 		return false;
 	}

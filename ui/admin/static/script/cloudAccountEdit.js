@@ -57,7 +57,7 @@ $(document).ready(function() {
 		var cld_id = $("#ddlDefaultCloud").val();
 		var prv = $("#ddlProvider option:selected").text();
 
-		//if (prv != "Amazon AWS") {
+		//if (prv !== "Amazon AWS") {
 		var saved = SaveItem(0);
 		if (saved) {
 			if (cld_id) {
@@ -76,7 +76,7 @@ $(document).ready(function() {
 	});
 	$("#add_cloud_btn").click(function() {
 		var prv = $("#ddlProvider option:selected").text();
-		//if (prv != "Amazon AWS") {
+		//if (prv !== "Amazon AWS") {
 		var saved = SaveItem(0);
 		if (saved) {
 			location.href = "/cloudEdit?add=true&provider=" + prv;
@@ -104,7 +104,7 @@ $(document).ready(function() {
 	}
 	//if there was an add querystring, we'll pop the add dialog.
 	var add = getQuerystringVariable("add");
-	if (add == "true") {
+	if (add === "true") {
 		var prv = getQuerystringVariable("provider");
 		ShowItemAdd();
 		if (prv) {
@@ -141,7 +141,7 @@ function GetProviderClouds() {
 		});
 
 		//we can't allow testing the connection if there are no clouds
-		if ($("#ddlDefaultCloud option").length == 0)
+		if ($("#ddlDefaultCloud option").length === 0)
 			$("#test_connection_btn").hide();
 		else
 			$("#test_connection_btn").show();
@@ -154,7 +154,7 @@ function TestConnection() {
 	var account_id = $("#hidCurrentEditID").val();
 	var cloud_id = $("#ddlDefaultCloud").val();
 
-	if (cloud_id.length == 36 && account_id.length == 36) {
+	if (cloud_id.length === 36 && account_id.length === 36) {
 		ClearTestResult();
 		$("#conn_test_result").text("Testing...");
 
@@ -164,12 +164,12 @@ function TestConnection() {
 		});
 		if (response) {
 			try {
-				if (response != null) {
-					if (response.result == "success") {
+				if (response !== null) {
+					if (response.result === "success") {
 						$("#conn_test_result").css("color", "green");
 						$("#conn_test_result").text("Connection Successful.");
 					}
-					if (response.result == "fail") {
+					if (response.result === "fail") {
 						$("#conn_test_result").css("color", "red");
 						$("#conn_test_result").text("Connection Failed.");
 						$("#conn_test_error").text(unpackJSON(response.error));
@@ -224,7 +224,7 @@ function GetItems(page) {
 }
 
 function setLabels() {
-	if ($("#ddlProvider").val() == "Amazon AWS" || $("#ddlProvider").val() == "Eucalyptus") {
+	if ($("#ddlProvider").val() === "Amazon AWS" || $("#ddlProvider").val() === "Eucalyptus") {
 		$("#login_label").text("Access Key");
 		$(".password_label").text("Secret Key");
 	} else {
@@ -251,20 +251,20 @@ function LoadEditDialog(sEditID) {
 
 		if (account.IsDefault)
 			$("#chkDefault").prop("checked", true);
-		//if (account.AutoManage == "1") $("#chkAutoManageSecurity").prop("checked", true);
+		//if (account.AutoManage === "1") $("#chkAutoManageSecurity").prop("checked", true);
 
 		//the account result will have a list of all the clouds on this account.
 		$("#ddlDefaultCloud").empty();
 		$.each(account.ProviderClouds, function(index, cloud) {
 			// the 'default' one is selected here
-			if (cloud.ID == account.DefaultCloud.ID)
+			if (cloud.ID === account.DefaultCloud.ID)
 				$("#ddlDefaultCloud").append("<option value=\"" + cloud.ID + "\" selected=\"selected\">" + cloud.Name + "</option>");
 			else
 				$("#ddlDefaultCloud").append("<option value=\"" + cloud.ID + "\">" + cloud.Name + "</option>");
 		});
 
 		//we can't allow testing the connection if there are no clouds
-		if ($("#ddlDefaultCloud option").length == 0)
+		if ($("#ddlDefaultCloud option").length === 0)
 			$("#test_connection_btn").hide();
 		else
 			$("#test_connection_btn").show();
@@ -302,20 +302,20 @@ function SaveItem(close_after_save) {
 	if (!sAccountName) {
 		bSave = false;
 		strValidationError += "Account Name required.<br />";
-	};
+	}
 
 	var sDefaultCloudID = $("#ddlDefaultCloud").val();
 	if (!sDefaultCloudID) {
 		bSave = false;
 		strValidationError += "Default Cloud required.<br />";
-	};
+	}
 
-	if ($("#txtLoginPassword").val() != $("#txtLoginPasswordConfirm").val()) {
+	if ($("#txtLoginPassword").val() !== $("#txtLoginPasswordConfirm").val()) {
 		bSave = false;
 		strValidationError += "Passwords do not match.";
-	};
+	}
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		var prv = $("#ddlProvider option:selected").text();
 		url = "/cloudEdit?add=true&provider=" + prv;
 
@@ -344,16 +344,16 @@ function SaveItem(close_after_save) {
 
 		var dropdown_label = account.Name + " (" + account.Provider + ")";
 		//if we are adding a new one, add it to the dropdown too
-		if ($("#hidMode").val() == "add") {
+		if ($("#hidMode").val() === "add") {
 			$("#header_cloud_accounts").append($("<option>", {
 				value : account.ID
 			}).text(dropdown_label));
 			//if this was the first one, get it in the session by nudging the change event.
-			if ($("#header_cloud_accounts option").length == 1)
+			if ($("#header_cloud_accounts option").length === 1)
 				$("#header_cloud_accounts").change();
 		} else {
 			//we've only changed it.  update the name in the drop down if it changed.
-			if (old_label != dropdown_label)
+			if (old_label !== dropdown_label)
 				$('#header_cloud_accounts option[value="' + account.ID + '"]').text(dropdown_label);
 		}
 
@@ -406,7 +406,7 @@ function DeleteItems() {
 			//whack it
 			$('#header_cloud_accounts option[value="' + value + '"]').remove();
 			//if we whacked what was selected, flag for change push
-			if (value == current)
+			if (value === current)
 				do_refresh = true;
 		});
 

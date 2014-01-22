@@ -37,7 +37,7 @@ $(document).ready(function() {
 	}
 
 	$("#username").keypress(function(e) {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			Login();
 		}
 	});
@@ -82,25 +82,25 @@ $(document).ready(function() {
 		Login();
 	});
 	$(".loginfield").keypress(function(e) {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			Login();
 		}
 	});
 
 	$(".changefield").keypress(function(e) {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			Change();
 		}
 	});
 
 	$("#security_answer").keypress(function(e) {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			Forgot();
 		}
 	});
 
 	$("#forgot_password_btn").click(function() {
-		if ($("#username").val() == "") {
+		if ($("#username").val() === "") {
 			alert("Please enter a username.");
 			return false;
 		}
@@ -147,14 +147,14 @@ $(document).ready(function() {
 	// if not, we must present the license file.
 	$.get("../getlicense", function(data) {
 		if (data) {
-			if (data.result != "pass") {
-				if (data.license != "") {
+			if (data.result !== "pass") {
+				if (data.license !== "") {
 					$("#licensetext").html(unpackJSON(data.license));
 					$("#loginerror").hide();
 					$("#loginpanel").hide();
 					$("#licensepanel").show();
 				}
-				if (data.message != "") {
+				if (data.message !== "") {
 					$("#error_msg").html(data.message).parent().show();
 				}
 			}
@@ -187,20 +187,20 @@ function Agree() {
 }
 
 function Login() {
-	if ($("#username").val() == "")
+	if ($("#username").val() === "")
 		return false;
-	if ($("#password").val() == "" && $("#security_answer").val() == "") {
+	if ($("#password").val() === "" && $("#security_answer").val() === "") {
 		$("#error_msg").html("A password is required.").parent().show();
 		return false;
 	}
 
 	var args = {};
 	args.username = $("#username").val();
-	if ($("#password").val() != "")
+	if ($("#password").val() !== "")
 		args.password = packJSON($("#password").val());
-	if ($("#new_password").val() != "")
+	if ($("#new_password").val() !== "")
 		args.change_password = packJSON($("#new_password").val());
-	if ($("#security_answer").val() != "")
+	if ($("#security_answer").val() !== "")
 		args.answer = packJSON($("#security_answer").val());
 
 	$.ajax({
@@ -220,11 +220,11 @@ function Login() {
 				reset();
 			}
 			if (response.result) {
-				if (response.result == "change") {
+				if (response.result === "change") {
 					$("#security_answer").val("");
 					$("#password_change_dialog").dialog("open");
 				}
-				if (response.result == "success") {
+				if (response.result === "success") {
 					// TODO check for expiration warnings and let the user know.
 					// posting the form does not auth... we are already authenticated.
 					// it DOES trigger different browser mechanisms for saving passwords.
@@ -243,7 +243,7 @@ function Change() {
 	pw1 = $("#new_password").val();
 	pw2 = $("#new_password_confirm").val();
 
-	if (pw1 != pw2) {
+	if (pw1 !== pw2) {
 		alert("Passwords must match.");
 		$("#new_password").val("");
 		$("#new_password_confirm").val("");
@@ -254,7 +254,7 @@ function Change() {
 }
 
 function Forgot() {
-	if ($("#security_answer").val() == "") {
+	if ($("#security_answer").val() === "") {
 		return false;
 	}
 	$("#forgot_password_dialog").dialog("close");

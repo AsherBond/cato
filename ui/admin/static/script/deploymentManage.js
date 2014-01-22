@@ -128,12 +128,12 @@ function Save() {
 	var strValidationError = '';
 
 	//some client side validation before we attempt to save the user
-	if ($("#txtDeploymentName").val() == "") {
+	if ($("#txtDeploymentName").val() === "") {
 		bSave = false;
 		strValidationError += 'Name is required.';
-	};
+	}
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showAlert(strValidationError);
 		return false;
 	}
@@ -154,7 +154,7 @@ function Save() {
 function ShowItemCopy() {
 	// clear all of the previous values
 	var ArrayString = $("#hidSelectedArray").val();
-	if (ArrayString.length == 0) {
+	if (ArrayString.length === 0) {
 		showInfo('Select a Deployment to Copy.');
 		return false;
 	}

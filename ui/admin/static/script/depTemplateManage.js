@@ -75,12 +75,12 @@ $(document).ready(function() {
 	//changing the Source dropdown refires the validation
 	$("#ddlTemplateSource").change(function() {
 		//if it's File, show that section otherwise hide it.
-		if ($(this).val() == "File")
+		if ($(this).val() === "File")
 			$(".templatefileimport").show();
 		else
 			$(".templatefileimport").hide();
 
-		if ($(this).val() == "URL") {
+		if ($(this).val() === "URL") {
 			$("#url_to_text_btn").show();
 		} else {
 			$("#url_to_text_btn").hide();
@@ -168,16 +168,16 @@ function Save() {
 	var strValidationError = '';
 
 	//some client side validation before we attempt to save the user
-	if ($("#txtTemplateName").val() == "") {
+	if ($("#txtTemplateName").val() === "") {
 		bSave = false;
 		strValidationError += 'Name is required.';
-	};
-	if ($("#txtTemplateVersion").val() == "") {
+	}
+	if ($("#txtTemplateVersion").val() === "") {
 		bSave = false;
 		strValidationError += 'Version is required.';
-	};
+	}
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showAlert(strValidationError);
 		return false;
 	}
@@ -199,7 +199,7 @@ function Save() {
 function GetTemplateFromURL() {
 	var url = $("#txtTemplateFile").val();
 
-	if (url.length == 0)
+	if (url.length === 0)
 		return;
 
 	var response = catoAjax.deployment.getTemplateFromURL(url);
@@ -238,11 +238,11 @@ function validateTemplateJSON() {
 	$("#edit_dialog_create_btn").hide();
 
 	//each source type has a slightly different behavior
-	if ($("#ddlTemplateSource").val() == "URL") {
+	if ($("#ddlTemplateSource").val() === "URL") {
 		$(".validation").hide();
 		$("#edit_dialog_create_btn").show();
 		return;
-	} else if ($("#ddlTemplateSource").val() == "File") {
+	} else if ($("#ddlTemplateSource").val() === "File") {
 		$(".validation").hide();
 		return;
 	} else {
@@ -262,7 +262,7 @@ function validateTemplateJSON() {
 function ShowItemCopy() {
 	// clear all of the previous values
 	var ArrayString = $("#hidSelectedArray").val();
-	if (ArrayString.length == 0) {
+	if (ArrayString.length === 0) {
 		showInfo('Select a Template to Copy.');
 		return false;
 	}
@@ -293,12 +293,12 @@ function CopyTemplate() {
 	var sSourceID = $("#hidCopyTemplateID").val();
 
 	// make sure we have all of the valid fields
-	if (sNewName == '' || sNewVersion == '') {
+	if (sNewName === '' || sNewVersion === '') {
 		showInfo('Name and Version are required.');
 		return false;
 	}
 	// this shouldnt happen, but just in case.
-	if (sSourceID == '') {
+	if (sSourceID === '') {
 		showInfo('Can not copy, no ID found.');
 		return false;
 	}

@@ -22,7 +22,7 @@ $(document).ready(function () {
 
     //search button
     $(".search_text").keypress(function (e) {
-        if (e.which == 13) {
+        if (e.which === 13) {
             GetItems();
             return false;
         }
@@ -171,13 +171,13 @@ function ShowItemDelete() {
     // if there are 0 items select then show a message
     // clear all of the previous values
     var ArrayString = $("#hidSelectedArray").val();
-    if (ArrayString.length == 0) {
+    if (ArrayString.length === 0) {
         showInfo('No Items selected.');
         return false;
     }
 
     //target page may have extra stuff to do... call it's function just in case
-    if (typeof PreDeleteChecklist == 'function') {
+    if (typeof PreDeleteChecklist === 'function') {
         PreDeleteChecklist();
     }
 
@@ -195,11 +195,11 @@ function clearEditDialog() {
     $('#edit_dialog :input').each(function () {
         var type = this.type;
         var tag = this.tagName.toLowerCase(); // normalize case
-        if (type == 'text' || type == 'password' || tag == 'textarea')
+        if (type === 'text' || type === 'password' || tag === 'textarea')
             this.value = "";
-        else if (type == 'checkbox' || type == 'radio')
+        else if (type === 'checkbox' || type === 'radio')
             this.checked = false;
-        else if (tag == 'select')
+        else if (tag === 'select')
             this.selectedIndex = 0;
     });
 }
@@ -209,7 +209,7 @@ function clearEditDialog() {
 //and for IE compatibility evidently.  Thanks Stan but I'm not sure what you did here.
 Array.prototype.remove = function (s) {
     var i = IsInArray(this, s);
-    if (i != -1) this.splice(i, 1);
+    if (i !== -1) this.splice(i, 1);
 };
 
 // this should handle the odd problem on ie where "indexOf" doesn't exist
@@ -217,7 +217,7 @@ function IsInArray(myArray, searchString) {
     if (!myArray.indexOf) {
         Array.prototype.indexOf = function (obj) {
             for (var i = 0; i < searchString.length; i++) {
-                if (searchString[i] == obj) {
+                if (searchString[i] === obj) {
                     return i;
                 }
             }

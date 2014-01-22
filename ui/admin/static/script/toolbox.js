@@ -44,15 +44,15 @@ $(document).ready(function () {
         $(this).addClass("ui-tabs-selected ui-state-active");
 
         //does the page have a tabClick handler function?
-        if (typeof tabWasClicked == 'function') {
+        if (typeof tabWasClicked === 'function') {
             tabWasClicked($(this).attr("id").replace(/tab_/, ""));
         }
     });
 
     //was there a directive to show a specific tab?  click it!
     var tab = getQuerystringVariable("tab");
-    if (tab != "") {
-        if ($("#tab_" + tab).length != 0) {
+    if (tab !== "") {
+        if ($("#tab_" + tab).length !== 0) {
             $("#tab_" + tab).click();
         }
     }

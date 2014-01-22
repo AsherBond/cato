@@ -16,12 +16,12 @@
 //Shared functionality for any page or dialog that captures parameter values.
 
 $(document).ready(function () {
-	$(document).on("click", ".parameter_dialog_remove_btn", function() {
-		$(this).parent().remove();
-	});
+    $(document).on("click", ".parameter_dialog_remove_btn", function() {
+        $(this).parent().remove();
+    });
 
-	//adding a value on the launch dialog
-	$(document).on("click", ".parameter_dialog_add_btn", function() {
+    //adding a value on the launch dialog
+    $(document).on("click", ".parameter_dialog_add_btn", function() {
         //construct a new input section
         var output = "";
         output += "<div class=\"task_launch_parameter_value\">";
@@ -35,37 +35,37 @@ $(document).ready(function () {
     
    
     //any change to a value at all sets the dirty flag
-	$(document).on("change", ".task_launch_parameter_value_input", function() {
+    $(document).on("change", ".task_launch_parameter_value_input", function() {
         $(this).attr("dirty","true");
     });
     
     /*
-	//encrypted fields are a pair of fields... 
-	$(document).on("keydown", ".encunderlay", function(event) {
-		var $ovr = $(this).next(".encoverlay");
-		var stars = "";
-		
-		//length of the text?
-		var ln = $(this).val().length;
-		for (i=0;i<=ln;i++)
-		{
-			stars += "*";
-		}
+    //encrypted fields are a pair of fields... 
+    $(document).on("keydown", ".encunderlay", function(event) {
+        var $ovr = $(this).next(".encoverlay");
+        var stars = "";
+        
+        //length of the text?
+        var ln = $(this).val().length;
+        for (i=0;i<=ln;i++)
+        {
+            stars += "*";
+        }
 
-		//setTimeout(function() {
-			$ovr.text(stars);
-		//}, 50);
+        //setTimeout(function() {
+            $ovr.text(stars);
+        //}, 50);
 
-	});
-	*/
+    });
+    */
 
 });
 
 function DrawParameterEditForm(parameter_xml) {
     var output = "";
 
-	//this is used for a unique ID of every value field on the dialog
-	var uniq = 0;
+    //this is used for a unique ID of every value field on the dialog
+    var uniq = 0;
 
     //not really xpath but it works!   an array of the <parameter> nodes 
     var $param = $(parameter_xml).find("parameter");
@@ -82,27 +82,27 @@ function DrawParameterEditForm(parameter_xml) {
             var $values = $(p).find("value");
             //how do we display the values? (not part of the array but an attribute of the "values" node)
             var present_as = $(p).find("values").attr("present_as");
-			var encrypt = null;
+            var encrypt = null;
             var constraint = $(p).attr("constraint");
             var constraint_msg = $(p).attr("constraint_msg");
             var minvalue = $(p).attr("minvalue");
             var maxvalue = $(p).attr("maxvalue");
             var minlength = $(p).attr("minlength");
             var maxlength = $(p).attr("maxlength");
-			
+            
             var encryptattr = "";
             if ($(p).attr("encrypt")) {
-            	if ($(p).attr("encrypt") == "true") {
-            		encryptattr = "encrypt=\"true\"";
-					encrypt = true;
-				}
-			}
-			
-			//if prompt is false we will be adding the 'hidden' class to the parameter
-			var hidden_prompt = (prompt === "false") ? " hidden" : "";
+                if ($(p).attr("encrypt") === "true") {
+                    encryptattr = "encrypt=\"true\"";
+                    encrypt = true;
+                }
+            }
+            
+            //if prompt is false we will be adding the 'hidden' class to the parameter
+            var hidden_prompt = (prompt === "false") ? " hidden" : "";
 
-			//show the required one slightly different
-			var required_class = (required === "true" ? " task_launch_parameter_required" : "");
+            //show the required one slightly different
+            var required_class = (required === "true" ? " task_launch_parameter_required" : "");
 
             output += "<div id=\"tlp" + parameter_id + "\" class=\"task_launch_parameter" + required_class + hidden_prompt + "\" param_name=\"" + parameter_name + "\" present_as=\"" + present_as + "\"" + encryptattr + ">";
             var label = (parameter_desc) ? parameter_desc : parameter_name;
@@ -113,37 +113,37 @@ function DrawParameterEditForm(parameter_xml) {
                 output += "<div class=\"task_launch_parameter_icons\">" +
                 "<span class=\"floatright ui-icon ui-icon-info parameter_help_btn\" title=\"" + parameter_desc + "\"></span>" +
                 "</div>";
-			}
-			
+            }
+            
             //values
             //if "present_as" is missing or invalid, default to a single "value"
-            if (present_as == "dropdown") {
+            if (present_as === "dropdown") {
                 output += "<br />Select One: <select class=\"task_launch_parameter_value_input\">";
 
                 $($values).each(function (vidx, v) {
                     var is_selected = $(v).attr("selected");
-                    var selected = (is_selected == "true" ? "selected=\"selected\"" : "");
+                    var selected = (is_selected === "true" ? "selected=\"selected\"" : "");
 
                     output += "<option " + selected + ">" + $(v).text() + "</option>";
                 });
 
                 output += "</select>";
             }
-            else if (present_as == "list") {
+            else if (present_as === "list") {
                 $($values).each(function (vidx, v) {
-					var attr = "";
-	
+                    var attr = "";
+    
                     output += "<div class=\"task_launch_parameter_value\">";
 
                     if (encrypt) {
-                    	//what's the oev?
-			            if ($(v).attr("oev") != null)
-		            		attr = "oev=\"" + $(v).attr("oev") + "\"";
+                        //what's the oev?
+                        if ($(v).attr("oev") !== null)
+                            attr = "oev=\"" + $(v).attr("oev") + "\"";
                     }
 
-                	//the actual textarea
-                	//don't break it to multiple lines or it adds spaces!
-					output += "<textarea id=\"v_" + uniq++ + "\" class=\"task_launch_parameter_value_input\" rows=\"1\" " + attr + ">" + $(v).text() + "</textarea>";
+                    //the actual textarea
+                    //don't break it to multiple lines or it adds spaces!
+                    output += "<textarea id=\"v_" + uniq++ + "\" class=\"task_launch_parameter_value_input\" rows=\"1\" " + attr + ">" + $(v).text() + "</textarea>";
 
                                                                                                                                             
                     //don't draw the 'x' on the first value... make at least one value required.
@@ -175,40 +175,40 @@ function DrawParameterEditForm(parameter_xml) {
                     //see the document.ready for the binding of the change event that sets a dirty flag in this case.
                     
                     if (encrypt) {
-                    	//what's the oev?
-			            if ($(v).attr("oev") != null)
-		            		attribs = "oev=\"" + $(v).attr("oev") + "\"";
+                        //what's the oev?
+                        if ($(v).attr("oev") !== null)
+                            attribs = "oev=\"" + $(v).attr("oev") + "\"";
 
-                    	
-        				//TODO: PARAMS: hidden field/masking crap
-                    	//ALL THIS IS A GOOD IDEA... just will take hours of tinkering to get it right.
-                    	
-                    	//give the main textarea the "encunderlay" class
-                    	/*
-                    	var stars = "";
-						var ln = $(v).text().length;
-						for (i=0;i<=ln;i++) 
-						{
-							stars += "*";
-						}
+                        
+                        //TODO: PARAMS: hidden field/masking crap
+                        //ALL THIS IS A GOOD IDEA... just will take hours of tinkering to get it right.
+                        
+                        //give the main textarea the "encunderlay" class
+                        /*
+                        var stars = "";
+                        var ln = $(v).text().length;
+                        for (i=0;i<=ln;i++) 
+                        {
+                            stars += "*";
+                        }
 
-                    	//and this covering div lies over it
-                    	output += "<textarea class=\"encoverlay\">" + stars + "</textarea>";
-                    	*/
-                	}
+                        //and this covering div lies over it
+                        output += "<textarea class=\"encoverlay\">" + stars + "</textarea>";
+                        */
+                    }
                     
                     //the parameter has some extra field level validations such as lengths, type and a regex constraint
                     //they are enforced in the client, but we have to pass the attributes along here.
-                	attribs += (minlength ?  ' minlength="' + minlength + '"' : '');
-                	attribs += (maxlength ? ' maxlength="' + maxlength + '"' : '');
-                	attribs += (minvalue ? ' minvalue="' + minvalue + '"' : '');
-                	attribs += (maxvalue ? ' maxvalue="' + maxvalue + '"' : '');
-                	attribs += (constraint ? ' constraint="' + constraint + '"' : '');
-                	attribs += (constraint_msg ? ' constraint_msg="' + constraint_msg + '"' : '');
+                    attribs += (minlength ?  ' minlength="' + minlength + '"' : '');
+                    attribs += (maxlength ? ' maxlength="' + maxlength + '"' : '');
+                    attribs += (minvalue ? ' minvalue="' + minvalue + '"' : '');
+                    attribs += (maxvalue ? ' maxvalue="' + maxvalue + '"' : '');
+                    attribs += (constraint ? ' constraint="' + constraint + '"' : '');
+                    attribs += (constraint_msg ? ' constraint_msg="' + constraint_msg + '"' : '');
 
                     
-                	//the actual textarea
-					output += "<textarea id=\"v_" + uniq++ + "\" class=\"task_launch_parameter_value_input\" rows=\"1\" " + attribs + ">" + $(v).text() + "</textarea>";
+                    //the actual textarea
+                    output += "<textarea id=\"v_" + uniq++ + "\" class=\"task_launch_parameter_value_input\" rows=\"1\" " + attribs + ">" + $(v).text() + "</textarea>";
 
                     output += "</div>";
                 });
@@ -224,10 +224,10 @@ function DrawParameterEditForm(parameter_xml) {
 
 function buildXMLToSubmit() {
     var xml = "<parameters>\n";
-	
+    
     $(".task_launch_parameter").each(function (pidx, p) {
         if ($(p)) {
-            var parameter_id = $(p).attr("id").replace(/tlp/, ""); ;
+            var parameter_id = $(p).attr("id").replace(/tlp/, "");
             var required = $(p).hasClass("task_launch_parameter_required");
             var parameter_name = $(p).attr("param_name");
             var $values = $(p).find(".task_launch_parameter_value_input");
@@ -236,10 +236,10 @@ function buildXMLToSubmit() {
             var encryptattr = "";
             var encrypt = false;
             if ($(p).attr("encrypt"))
-            	if ($(p).attr("encrypt") == "true") {
-            		encryptattr = "encrypt=\"true\"";
-					encrypt = true;
-				}
+                if ($(p).attr("encrypt") === "true") {
+                    encryptattr = "encrypt=\"true\"";
+                    encrypt = true;
+                }
 
             //note: no need to save "prompt" ... it wouldn't be here if it wasn't and 
             //looking at previous parameters the dialog will always show parameters without a prompt attribute.
@@ -250,28 +250,28 @@ function buildXMLToSubmit() {
             //values
             xml += "<values present_as=\"" + present_as + "\">\n";
             $($values).each(function (vidx, v) {
-            	var val = $(v).val();;
-            	var attr = "";
-            	//TODO: PARAMS: hidden field/masking crap (remove after testing)
-  	            
-  	            if (encrypt) {
-	  	            var is_dirty = false;
-		            if ($(v).attr("dirty") != null)
-	            		is_dirty = true;
-	
-	            	//if the value textarea has the "encrypt" flag, it will also have an associated json packed attribute...
-	            	//use that hidden attribute instead, unless the value is dirty.
-					if (is_dirty) {
-						//this is a new value, needs to be encrypted on the server.
-		                attr = " do_encrypt=\"true\"";
-					} else {
-			            if ($(v).attr("oev") != null)
-			            {
-							attr = " oev=\"true\"";
-							val = $(v).attr("oev");
-	            		}
-					}
-				}
+                var val = $(v).val();
+                var attr = "";
+                //TODO: PARAMS: hidden field/masking crap (remove after testing)
+                  
+                  if (encrypt) {
+                      var is_dirty = false;
+                    if ($(v).attr("dirty") !== null)
+                        is_dirty = true;
+    
+                    //if the value textarea has the "encrypt" flag, it will also have an associated json packed attribute...
+                    //use that hidden attribute instead, unless the value is dirty.
+                    if (is_dirty) {
+                        //this is a new value, needs to be encrypted on the server.
+                        attr = " do_encrypt=\"true\"";
+                    } else {
+                        if ($(v).attr("oev") !== null)
+                        {
+                            attr = " oev=\"true\"";
+                            val = $(v).attr("oev");
+                        }
+                    }
+                }
 
                 xml += "<value" + attr + ">";
                 xml += val;

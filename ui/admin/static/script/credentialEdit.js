@@ -28,7 +28,7 @@ $(document).ready(function() {
 
 	// burn through the grid and disable any checkboxes that have assets associated
 	$("[tag='chk']").each(function(intIndex) {
-		if ($(this).attr("assets") != "0") {
+		if ($(this).attr("assets") !== "0") {
 			this.disabled = true;
 		}
 	});
@@ -99,7 +99,7 @@ function LoadEditDialog(editID) {
 		$("#txtCredDomain").val(cred.Domain);
 		$("#txtCredDescription").val(cred.Description);
 
-		if (cred.Type == "Private Key") {
+		if (cred.Type === "Private Key") {
 			$("#txtPrivateKey").val("********");
 			$("#edit_dialog_tabs").tabs("option", "active", 1);
 		} else {
@@ -122,25 +122,25 @@ function SaveCredential() {
 	var sCredentialName = $("#txtCredName").val();
 	var sCredUsername = $("#txtCredUsername").val();
 	var sPrivateKey = $("#txtPrivateKey").val();
-	if (sCredentialName == "") {
+	if (sCredentialName === "") {
 		bSave = false;
 		strValidationError += "Credential Name required.<br />";
-	};
-	if (sCredUsername == "" && sPrivateKey == "") {
+	}
+	if (sCredUsername === "" && sPrivateKey === "") {
 		bSave = false;
 		strValidationError += "User Name or Private Key required.<br />";
-	};
+	}
 
-	if ($("#txtCredPassword").val() != $("#txtCredPasswordConfirm").val()) {
+	if ($("#txtCredPassword").val() !== $("#txtCredPasswordConfirm").val()) {
 		bSave = false;
 		strValidationError += "Passwords do not match.<br />";
-	};
-	if ($("#txtPrivilegedPassword").val() != $("#txtPrivilegedConfirm").val()) {
+	}
+	if ($("#txtPrivilegedPassword").val() !== $("#txtPrivilegedConfirm").val()) {
 		bSave = false;
 		strValidationError += "Priviledged passwords do not match.<br />";
-	};
+	}
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showInfo(strValidationError);
 		return false;
 	}
@@ -156,7 +156,7 @@ function SaveCredential() {
 	cred.PrivilegedPassword = $("#txtPrivilegedPassword").val();
 	cred.PrivateKey = sPrivateKey;
 
-	if ($("#hidMode").val() == "edit") {
+	if ($("#hidMode").val() === "edit") {
 		var response = ajaxPost("uiMethods/wmUpdateCredential", cred);
 		if (response) {
 			GetItems();

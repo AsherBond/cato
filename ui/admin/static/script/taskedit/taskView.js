@@ -81,7 +81,7 @@ $(document).ready(function() {
 	// this code is shared by many pages, but a few things should happen only on the taskView page.
 	var pagename = window.location.pathname;
 	pagename = pagename.substring(pagename.lastIndexOf('/') + 1);
-	if (pagename == "taskView") {
+	if (pagename === "taskView") {
 		doGetViewDetails();
 		doGetViewSteps();
 	}
@@ -121,9 +121,9 @@ function doGetViewDetails() {
 
 		//the header
 		$("#lblTaskNameHeader").text(task.Name);
-		$("#lblVersionHeader").text(task.Version + (task.IsDefaultVersion == "True" ? " (default)" : ""));
+		$("#lblVersionHeader").text(task.Version + (task.IsDefaultVersion === "True" ? " (default)" : ""));
 
-		if (task.IsDefaultVersion == "True") {
+		if (task.IsDefaultVersion === "True") {
 			$("#set_default_btn").hide();
 		} else {
 			$("#set_default_btn").show();
@@ -143,33 +143,33 @@ function tabWasClicked(tab) {
 	//NOTE: shared on several pages, so there might be some cases here that don't apply to all pages.
 	//not a problem, they just won't be hit.
 
-	if (tab == "parameters") {
+	if (tab === "parameters") {
 		doGetParams("task", g_task_id);
-	} else if (tab == "versions") {
+	} else if (tab === "versions") {
 		doGetVersions();
-	} else if (tab == "schedules") {
+	} else if (tab === "schedules") {
 		doGetPlans();
-	} else if (tab == "tags") {
-		if ( typeof (GetObjectsTags) != 'undefined') {
+	} else if (tab === "tags") {
+		if ( typeof (GetObjectsTags) !== 'undefined') {
 			GetObjectsTags($("#hidOriginalTaskID").val());
 		}
-	} else if (tab == "clipboard") {
+	} else if (tab === "clipboard") {
 		doGetClips();
-	} else if (tab == "debug") {
+	} else if (tab === "debug") {
 		doGetDebug();
-	} else if (tab == "details") {
+	} else if (tab === "details") {
 		doGetDetails();
 	}
 }
 
 function doGetPlans() {
-	var response = ajaxPost("uiMethods/wmGetActionPlans", {
+	var plans = ajaxPost("uiMethods/wmGetActionPlans", {
 		sTaskID : g_task_id
 	}, "html");
-	if (response == "") {
+	if (plans === "") {
 		$("#div_schedules #toolbox_plans").html("No Active Plans");
 	} else {
-		$("#div_schedules #toolbox_plans").html(response);
+		$("#div_schedules #toolbox_plans").html(plans);
 
 		//click on an action plan in the toolbox pops the dialog AND the inner dialog
 		$("#div_schedules #toolbox_plans .action_plan_name").click(function() {
@@ -184,13 +184,13 @@ function doGetPlans() {
 		});
 	}
 
-	var response = ajaxPost("uiMethods/wmGetActionSchedules", {
+	var scheds = ajaxPost("uiMethods/wmGetActionSchedules", {
 		sTaskID : g_task_id
 	}, "html");
-	if (response == "") {
+	if (scheds === "") {
 		$("#div_schedules #toolbox_schedules").html("No Active Schedules");
 	} else {
-		$("#div_schedules #toolbox_schedules").html(response);
+		$("#div_schedules #toolbox_schedules").html(scheds);
 
 		//schedule icon tooltips
 		$("#div_schedules #toolbox_schedules .schedule_tip").tipTip({

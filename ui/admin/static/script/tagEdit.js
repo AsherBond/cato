@@ -42,7 +42,7 @@ $(document).ready(function() {
 
 function GetItems(page) {
 	if (!page)
-		page = "1"
+		page = "1";
 
 	var response = catoAjax.tags.getTagsTable($("#txtSearch").val(), page);
 	if (response) {
@@ -85,18 +85,18 @@ function SaveTag() {
 	var old_tag = $("#hidCurrentEditID").val();
 
 	var new_tag = $("#txtTag").val();
-	if (new_tag == '') {
+	if (new_tag === '') {
 		bSave = false;
 		strValidationError += 'Tag required.<br />';
-	};
+	}
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showInfo(strValidationError);
 		return false;
 	}
 
 	var desc = $("#txtDescription").val();
-	if ($("#hidMode").val() == 'edit') {
+	if ($("#hidMode").val() === 'edit') {
 		//edit an existing tag
 		var response = catoAjax.tags.updateTag(old_tag, new_tag, desc);
 		if (response) {
@@ -105,7 +105,7 @@ function SaveTag() {
 			GetItems();
 			$("#edit_dialog").dialog("close");
 		}
-	} else if ($("#hidMode").val() == 'add') {
+	} else if ($("#hidMode").val() === 'add') {
 		//add a new tag
 		var tag = catoAjax.tags.createTag(new_tag, desc);
 		if (tag.Name) {

@@ -30,7 +30,7 @@ $(document).ready(function() {
 			visible = 1;
 
 		// swap the child image, this will work as long as the up down image stays the first child if the span
-		if (visible == 1) {
+		if (visible === 1) {
 			$(this).children(":first-child").removeClass("ui-icon-triangle-1-e");
 			$(this).children(":first-child").addClass("ui-icon-triangle-1-s");
 		} else {
@@ -52,7 +52,7 @@ $(document).ready(function() {
 	$("#step_toggle_all_btn").click(function() {
 		//if all are closed, open them all, else close them all
 		// also change the expand images
-		if ($("#steps .step_collapsed").length == $(".step_detail").length) {
+		if ($("#steps .step_collapsed").length === $(".step_detail").length) {
 			$("#steps .step_detail").removeClass("step_collapsed");
 
 			$(this).removeClass("ui-icon-triangle-1-s");
@@ -127,7 +127,7 @@ $(document).ready(function() {
 		//click the hidden field and fire the change event
 		var step_id = $(this).attr("step_id");
 		var skip = $(this).attr("skip");
-		if (skip == "1") {
+		if (skip === "1") {
 			skip = 0;
 			$(this).attr("skip", "0");
 
@@ -281,7 +281,7 @@ $(document).ready(function() {
 	// when you hit enter inside 'task picker' for a subtask
 	$("#task_search_text").keypress(function(e) {
 		//alert('keypress');
-		if (e.which == 13) {
+		if (e.which === 13) {
 			$("#task_search_btn").click();
 			return false;
 		}
@@ -480,11 +480,11 @@ function onStepFieldChange(ctl, step_id, xpath) {
 
 	//for checkboxes and radio buttons, we gotta do a little bit more, as the pure 'val()' isn't exactly right.
 	var typ = ctl.type;
-	if (typ == "checkbox") {
-		field_value = (ctl.checked == true ? 1 : 0);
+	if (typ === "checkbox") {
+		field_value = (ctl.checked === true ? 1 : 0);
 	}
-	if (typ == "radio") {
-		field_value = (ctl.checked == true ? 1 : 0);
+	if (typ === "radio") {
+		field_value = (ctl.checked === true ? 1 : 0);
 	}
 
 	//simple whack-and-add
@@ -503,7 +503,7 @@ function onStepFieldChange(ctl, step_id, xpath) {
 	doStepDetailUpdate(stepupdatefield, step_id, func, xpath);
 
 	//if reget is true, go to the db and refresh the whole step
-	if (reget == "true") {
+	if (reget === "true") {
 		$("#task_steps").block({
 			message : null
 		});
@@ -555,7 +555,7 @@ function initSortable() {
 			//(add will reorder internally)
 			var new_step = $(ui.item[0]);
 			var new_step_id = new_step.attr("name");
-			if (new_step_id.indexOf("fn_") == 0 || new_step_id.indexOf("clip_") == 0 || new_step_id.indexOf("cb_") == 0) {
+			if (new_step_id.indexOf("fn_") === 0 || new_step_id.indexOf("clip_") === 0 || new_step_id.indexOf("cb_") === 0) {
 				doStepAdd(new_step);
 			} else {
 				//else just reorder what's here.
@@ -581,7 +581,7 @@ function initSortable() {
 			var id = $(cbo).attr("id");
 			$(cbo.attributes).each(function(i, attrib) {
 				var name = attrib.name;
-				if (name != "type" && name != "id" && name != "class" && name != "name") {
+				if (name !== "type" && name !== "id" && name !== "class" && name !== "name") {
 					var value = attrib.value;
 					$("#ufd-" + id).attr(name, value);
 				}
@@ -625,15 +625,14 @@ function showVarPicker(e) {
 			//others should get the actual name of the variable
 			//switch on the function_name to determine this
 			var func = fjqo.attr("function");
-
+            var xpath = fjqo.attr("xpath");
 			switch (func) {
 				case "clear_variable":
 					varname = $(this).text();
 					break;
 				case "substring":
 					// bugzilla 1234 in substring only the variable_name field gets the value without the [[ ]]
-					var xpath = fjqo.attr("xpath");
-					if (xpath == "variable_name") {
+					if (xpath === "variable_name") {
 						varname = $(this).text();
 					} else {
 						varname = "[[" + $(this).text() + "]]";
@@ -641,8 +640,7 @@ function showVarPicker(e) {
 					break;
 				case "loop":
 					// bugzilla 1234 in substring only the variable_name field gets the value without the [[ ]]
-					var xpath = fjqo.attr("xpath");
-					if (xpath == "counter") {
+					if (xpath === "counter") {
 						varname = $(this).text();
 					} else {
 						varname = "[[" + $(this).text() + "]]";
@@ -650,8 +648,7 @@ function showVarPicker(e) {
 					break;
 				case "set_variable":
 					// bugzilla 1234 in substring only the variable_name field gets the value without the [[ ]]
-					var xpath = fjqo.attr("xpath");
-					if (xpath.indexOf("/name", 0) != -1) {
+					if (xpath.indexOf("/name", 0) !== -1) {
 						varname = $(this).text();
 					} else {
 						varname = "[[" + $(this).text() + "]]";
@@ -670,7 +667,7 @@ function showVarPicker(e) {
 				f.focus();
 			}
 			//MOZILLA / NETSCAPE support
-			else if (f.selectionStart || f.selectionStart == '0') {
+			else if (f.selectionStart || f.selectionStart === '0') {
 				var startPos = f.selectionStart;
 				var endPos = f.selectionEnd;
 				var scrollTop = f.scrollTop;
@@ -713,7 +710,7 @@ function doStepDelete() {
 		//pull the step off the page
 		$("#" + step_id).remove();
 
-		if ($("#steps .step").length == 0) {
+		if ($("#steps .step").length === 0) {
 			$("#no_step").removeClass("hidden");
 		} else {
 			//reorder the remaining steps
@@ -767,12 +764,12 @@ function doStepAdd(new_step) {
 
 			// 4-26-12 NSC: since embedded commands work differently, we no longer need to remove a
 			// clipboard step when it's used
-			// if (item.indexOf('clip_') != -1)
+			// if (item.indexOf('clip_') !== -1)
 			//    doClearClipboard(item.replace(/clip_/, ""))
 
 			//but we will change the sortable if this command has embedded commands.
 			//you have to add the embedded command NOW, or click cancel.
-			if (item == "fn_if" || item == "fn_loop" || item == "fn_exists" || item == "fn_while") {
+			if (item === "fn_if" || item === "fn_loop" || item === "fn_exists" || item === "fn_while") {
 				doDropZoneEnable($("#" + new_step_id + " .step_nested_drop_target"));
 			} else {
 				initSortable();
@@ -876,9 +873,9 @@ function validateStep(in_element_id) {
 			msg += msgs.join("\n");
 		}
 
-		if ($(this).val() == "") {
+		if ($(this).val() === "") {
 			if ($(this).attr("is_required")) {
-				if ($(this).attr("is_required") == "true") {
+				if ($(this).attr("is_required") === "true") {
 					$(this).addClass("is_required");
 					// don't think we need a mesage just for a required field... it's obvious
 					//msg += "Value is required.\n";
@@ -887,14 +884,14 @@ function validateStep(in_element_id) {
 		}
 
 		//check syntax (just a few fields have this
-		if ($(this).val() != "") {
+		if ($(this).val() !== "") {
 			if ($(this).attr("syntax")) {
 				var syntax = $(this).attr("syntax");
-				if (syntax != "") {
+				if (syntax !== "") {
 					var field_value = $(this).val();
 					var syntax_error = checkSyntax(syntax, field_value);
 
-					if (syntax_error != "") {
+					if (syntax_error !== "") {
 						$(this).addClass("is_required");
 						msg += syntax_error;
 					}

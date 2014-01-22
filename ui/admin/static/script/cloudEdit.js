@@ -101,10 +101,10 @@ $(document).ready(function() {
 
 		//show stars for the private key and passphrase if they were populated
 		//the server sent back a flag denoting that
-		if ($(this).parents(".keypair").attr("has_pk") == "true")
+		if ($(this).parents(".keypair").attr("has_pk") === "true")
 			$("#keypair_private_key").val("**********");
 
-		if ($(this).parents(".keypair").attr("has_pp") == "true")
+		if ($(this).parents(".keypair").attr("has_pp") === "true")
 			$("#keypair_passphrase").val("!2E4S6789O");
 
 		$("#keypair_dialog").dialog("open");
@@ -166,7 +166,7 @@ $(document).ready(function() {
 	}
 	//if there was an add querystring, we'll pop the add dialog.
 	var add = getQuerystringVariable("add");
-	if (add == "true") {
+	if (add === "true") {
 		var prv = getQuerystringVariable("provider");
 		ShowItemAdd();
 		if (prv) {
@@ -227,7 +227,7 @@ function GetProviderAccounts() {
 		}
 
 		//we can't allow testing the connection if there are no clouds
-		if ($("#ddlDefaultAccount option").length == 0)
+		if ($("#ddlDefaultAccount option").length === 0)
 			$("#test_connection_btn").hide();
 		else
 			$("#test_connection_btn").show();
@@ -240,7 +240,7 @@ function TestConnection() {
 	var cloud_id = $("#hidCurrentEditID").val();
 	var account_id = $("#ddlDefaultAccount").val();
 
-	if (cloud_id.length == 36 && account_id.length == 36) {
+	if (cloud_id.length === 36 && account_id.length === 36) {
 		ClearTestResult();
 		$("#conn_test_result").text("Testing...");
 
@@ -249,11 +249,11 @@ function TestConnection() {
 			sCloudID : cloud_id
 		});
 		if (response) {
-			if (response.result == "success") {
+			if (response.result === "success") {
 				$("#conn_test_result").css("color", "green");
 				$("#conn_test_result").text("Connection Successful.");
 			}
-			if (response.result == "fail") {
+			if (response.result === "fail") {
 				$("#conn_test_result").css("color", "red");
 				$("#conn_test_result").text("Connection Failed.");
 				$("#conn_test_error").text(unpackJSON(response.error));
@@ -341,18 +341,18 @@ function SaveItem(close_after_save) {
 	var sCloudID = $("#hidCurrentEditID").val();
 
 	var sCloudName = $("#txtCloudName").val();
-	if (sCloudName == "") {
+	if (sCloudName === "") {
 		bSave = false;
 		strValidationError += "Cloud Name required.<br />";
-	};
+	}
 
 	var sAPIUrl = $("#txtAPIUrl").val();
-	if (sAPIUrl == "") {
+	if (sAPIUrl === "") {
 		bSave = false;
 		strValidationError += "API URL required.";
-	};
+	}
 
-	if (bSave != true) {
+	if (bSave !== true) {
 		showInfo(strValidationError);
 		return false;
 	}
@@ -439,20 +439,20 @@ function SaveKeyPair() {
 	var pk = "";
 	var pp = $("#keypair_passphrase").val();
 
-	if ($("#keypair_private_key").val() != "**********") {
+	if ($("#keypair_private_key").val() !== "**********") {
 		//pack up the PK field, JSON doesn't like it
 		pk = packJSON($("#keypair_private_key").val());
 	}
 
 	//some client side validation before we attempt to save
-	if (name == "") {
+	if (name === "") {
 		showInfo("KeyPair Name is required.");
 		return false;
-	};
-	if ($("#keypair_private_key").val() == "") {
+	}
+	if ($("#keypair_private_key").val() === "") {
 		showInfo("Private Key is required.");
 		return false;
-	};
+	}
 
 	$("#update_success_msg").text("Saving...").show().fadeOut(2000);
 

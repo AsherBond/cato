@@ -26,7 +26,7 @@ $(document).ready(function() {
 	});
 
 	$("#import_from_url").keypress(function(e) {
-		if (e.which == 13) {
+		if (e.which === 13) {
 			GetURL();
 		}
 	});
@@ -59,7 +59,7 @@ $(document).ready(function() {
 						infomsg += item.type + " : " + item.name + " : <span class='ui-state-highlight' style='font-size: 0.8em;'>" + item.info + "</span><br />";
 					} else {
 						var url = "";
-						if (item.type == "task")
+						if (item.type === "task")
 							url = "taskEdit?task_id=" + item.id;
 
 						infomsg += "Click <a href='" + url + "'>here</a> to edit " + item.name + "<br />";
@@ -125,5 +125,5 @@ function fileWasSaved(filename) {
 		$("#xml_to_import").val(data);
 	}, "text");
 
-	$("#import_from_url").val("")
+	$("#import_from_url").val("");
 }

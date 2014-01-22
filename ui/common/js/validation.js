@@ -111,27 +111,27 @@ function checkFieldConstraints($ctl, append_to_parent) {
 function checkSyntax(syntax, strtocheck) {
 	var msg = "";
 
-	if (syntax != "") {
+	if (syntax !== "") {
 		switch (syntax) {
 			case "asset_name_or_var":
-				if (strtocheck != "") {
+				if (strtocheck !== "") {
 					// 2011-10-11 - PMD - removing asset name check for new connection command, issue #40
 					//msg = validateAssetNameOrVar(strtocheck);
-					//if (msg && msg != "")
+					//if (msg && msg !== "")
 					//    return msg;
 				}
 				break;
 			case "variable":
-				if (strtocheck != "") {
+				if (strtocheck !== "") {
 					msg = validateVariable(strtocheck);
-					if (msg && msg != "")
+					if (msg && msg !== "")
 						return msg;
 				}
 				break;
 			case "cmd_line":
-				if (strtocheck != "") {
+				if (strtocheck !== "") {
 					msg = validateCommandLine(strtocheck);
-					if (msg && msg != "")
+					if (msg && msg !== "")
 						return msg;
 				}
 				break;
@@ -165,7 +165,7 @@ function checkSyntax(syntax, strtocheck) {
 // dataType: "json",
 // success: function(retval) {
 // //the web method returned the ID if it exists.
-// if (retval.d != null)
+// if (retval.d !== null)
 // asset_id = retval.d;
 // },
 // error: function(response) {
@@ -174,7 +174,7 @@ function checkSyntax(syntax, strtocheck) {
 // }
 // });
 //
-// if (asset_id.length == 36)  //guids are 36 chars long
+// if (asset_id.length === 36)  //guids are 36 chars long
 // return "";
 //
 // return "Entry must be a valid Asset Name, or a [[variable]].";

@@ -224,7 +224,7 @@ function ajaxPostAsync(apiurl, args, on_success, datatype) {"use strict";
 		contentType : "application/json; charset=utf-8",
 		dataType : datatype,
 		success : function(response) {
-			if ( typeof (on_success) != 'undefined') {
+			if ( typeof (on_success) !== 'undefined') {
 				on_success(response);
 			}
 		},
@@ -251,7 +251,7 @@ function ajaxGet(apiurl, on_success, datatype) {"use strict";
 		contentType : "application/json; charset=utf-8",
 		dataType : datatype,
 		success : function(response) {
-			if ( typeof (on_success) != 'undefined') {
+			if ( typeof (on_success) !== 'undefined') {
 				on_success(response);
 			}
 		},
@@ -261,18 +261,18 @@ function ajaxGet(apiurl, on_success, datatype) {"use strict";
 
 ajaxErrorCallback = function(response) {
 	var method = response.getResponseHeader("X-CSK-Method");
-	if (response.status == 500) {
+	if (response.status === 500) {
 		//only show info, as the real message will already be in the server log
 		showInfo("An exception occurred - please check the server logfiles for details. (500)", method);
-	} else if (response.status == 280) {
+	} else if (response.status === 280) {
 		// 280 is our custom response code to indicate we want an 'info' message
 		showInfo(response.responseText);
-	} else if (response.status == 480) {
+	} else if (response.status === 480) {
 		// 480 is our custom 'session error' response code ... lock it down
 		msg = (response.responseText) ? response.responseText : "Your session has ended or been terminated.";
 		lockDown(msg);
 	} else {
-		msg = (response.responseText == "None") ? "Expected a response and got 'None'." : response.responseText;
+		msg = (response.responseText === "None") ? "Expected a response and got 'None'." : response.responseText;
 		showAlert(msg, method);
 	}
 
