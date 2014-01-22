@@ -33,6 +33,42 @@ from catoerrors import SessionError
 
 logger = catolog.get_logger(__name__)
 
+
+def set_content_type(path):
+    if ".js" in path:
+        web.header('Content-Type', 'application/javascript')
+    elif ".css" in path:
+        web.header('Content-Type', 'text/css')
+    elif ".html" in path:
+        web.header('Content-Type', 'text/html')
+    elif ".xml" in path:
+        web.header('Content-Type', 'text/xml')
+    elif ".png" in path:
+        web.header('Content-type', 'image/png')
+    elif ".jpg" in path or ".jpeg" in path:
+        web.header('Content-type', 'image/jpeg')
+    elif ".gif" in path:
+        web.header('Content-type', 'image/gif')
+    elif ".ico" in path:
+        web.header('Content-type', 'image/x-icon')
+    elif ".svg" in path:
+        web.header('Content-type', 'image/svg+xml')
+    elif ".woff" in path:
+        web.header('Content-type', 'font/woff')
+    elif ".ttf" in path:
+        web.header('Content-type', 'application/x-font-truetype')
+    elif ".otf" in path:
+        web.header('Content-type', 'application/x-font-opentype')
+    elif ".eot" in path:
+        web.header('Content-type', 'application/vnd.ms-fontobject')
+    elif ".tif" in path or ".tiff" in path:
+        web.header('Content-type', 'image/tiff')
+    elif ".csv" in path:
+        web.header('Content-Type', 'text/csv')
+    else:
+        web.header('Content-Type', 'text/plain')
+
+
 def log(msg, debuglevel=0):
     """ 
     This function is used by the UI's, because it adds the User ID to the log message.

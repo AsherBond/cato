@@ -115,6 +115,33 @@ class getlicense:
             logger.error(ex.__str__())
 
 
+class common:
+    """ A common directory serving static content. """
+    def __init__(self):
+        self.commondir = catoconfig.CONFIG.get("ui_common_dir")
+        if not self.commondir:
+            self.commondir = os.path.join(base_path, "ui", "common")
+
+        if not os.path.exists(self.commondir):
+            raise Exception("UI file cache directory defined in cato.conf does not exist. [%s]" % uicachepath)
+
+    def GET(self, path):
+        fullpath = os.path.join(self.commondir, path)
+        if os.path.exists(fullpath):
+            with open(fullpath, 'r') as f:
+                if f:
+                    # make an attempt to set the proper content type
+                    uiCommon.set_content_type(path)
+
+                    x = f.read()
+                    return x if x else ""
+                else:
+                    return ""
+        else:
+            web.ctx.status = "404 Not Found"
+            return ""
+
+
 # the default page if no URI is given, just an information message
 class index:
     def GET(self):
@@ -360,6 +387,10 @@ def auth_app_processor(handle):
                 "/announcement",
                 "/getlicense",
                 "/uiMethods/wmLicenseAgree"]:
+        return handle()
+
+    # additional allowed requests
+    if "/common/" in path:
         return handle()
 
     # ok, now we know the requested page requires a session...
@@ -647,7 +678,6 @@ urls = (
     '/login', 'login',
     '/logout', 'logout',
     '/home', 'home',
-    '/common', 'common',
     '/importObject', 'importObject',
     '/notAllowed', 'notAllowed',
     '/cloudEdit', 'cloudEdit',
@@ -680,6 +710,7 @@ urls = (
     '/getlog', 'getlog',
     '/setdebug', 'setdebug',
     '/appicon/(.*)', 'appicon',
+    '/common/(.*)', 'common',
     '/(.*)', 'wmHandler'
 )
 
