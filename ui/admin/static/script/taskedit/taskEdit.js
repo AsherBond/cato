@@ -389,7 +389,7 @@ function doDetailFieldUpdate(ctl) {
 			// bugzilla 1037 Change the name in the header
 			if (column === "task_name") {
 				$("#lblTaskNameHeader").html(unpackJSON(value));
-			};
+			}
 		});
 	}
 }

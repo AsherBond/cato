@@ -625,14 +625,13 @@ function showVarPicker(e) {
 			//others should get the actual name of the variable
 			//switch on the function_name to determine this
 			var func = fjqo.attr("function");
-
+            var xpath = fjqo.attr("xpath");
 			switch (func) {
 				case "clear_variable":
 					varname = $(this).text();
 					break;
 				case "substring":
 					// bugzilla 1234 in substring only the variable_name field gets the value without the [[ ]]
-					var xpath = fjqo.attr("xpath");
 					if (xpath === "variable_name") {
 						varname = $(this).text();
 					} else {
@@ -641,7 +640,6 @@ function showVarPicker(e) {
 					break;
 				case "loop":
 					// bugzilla 1234 in substring only the variable_name field gets the value without the [[ ]]
-					var xpath = fjqo.attr("xpath");
 					if (xpath === "counter") {
 						varname = $(this).text();
 					} else {
@@ -650,7 +648,6 @@ function showVarPicker(e) {
 					break;
 				case "set_variable":
 					// bugzilla 1234 in substring only the variable_name field gets the value without the [[ ]]
-					var xpath = fjqo.attr("xpath");
 					if (xpath.indexOf("/name", 0) !== -1) {
 						varname = $(this).text();
 					} else {

@@ -27,11 +27,11 @@ $(document).ready(function() {
 	$("#param_edit_dialog").html(d);
 
 	//here's the delete confirmation dialog
-	var d = '<p> \
+	var d2 = '<p> \
 		<span class="ui-icon ui-icon-info" style="float: left; margin: 0 7px 50px 0;"></span> \
 		<span>Are you sure?</span> \
 		</p>';
-	$("#param_delete_confirm_dialog").html(d);
+	$("#param_delete_confirm_dialog").html(d2);
 
 	$("#param_delete_confirm_dialog").dialog({
 		autoOpen : false,
@@ -106,7 +106,7 @@ function ShowParameterEdit(param_id) {
 	if (param_id.length > 0) {
 		$("#param_edit_dialog").dialog("option", "buttons", {
 			"Save" : function() {
-				doSaveParam()
+				doSaveParam();
 			},
 			"Cancel" : function() {
 				$(this).dialog("close");
@@ -115,7 +115,7 @@ function ShowParameterEdit(param_id) {
 	} else {
 		$("#param_edit_dialog").dialog("option", "buttons", {
 			"Add" : function() {
-				doSaveParam()
+				doSaveParam();
 			},
 			"Cancel" : function() {
 				$(this).dialog("close");
@@ -182,7 +182,6 @@ function doSaveParam() {
 		//otherwise use the oev.
 
 		var val = packJSON($(this).val());
-		;
 
 		if (encrypt) {
 			///the oev is already "packed"

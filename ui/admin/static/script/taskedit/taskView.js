@@ -163,13 +163,13 @@ function tabWasClicked(tab) {
 }
 
 function doGetPlans() {
-	var response = ajaxPost("uiMethods/wmGetActionPlans", {
+	var plans = ajaxPost("uiMethods/wmGetActionPlans", {
 		sTaskID : g_task_id
 	}, "html");
-	if (response === "") {
+	if (plans === "") {
 		$("#div_schedules #toolbox_plans").html("No Active Plans");
 	} else {
-		$("#div_schedules #toolbox_plans").html(response);
+		$("#div_schedules #toolbox_plans").html(plans);
 
 		//click on an action plan in the toolbox pops the dialog AND the inner dialog
 		$("#div_schedules #toolbox_plans .action_plan_name").click(function() {
@@ -184,13 +184,13 @@ function doGetPlans() {
 		});
 	}
 
-	var response = ajaxPost("uiMethods/wmGetActionSchedules", {
+	var scheds = ajaxPost("uiMethods/wmGetActionSchedules", {
 		sTaskID : g_task_id
 	}, "html");
-	if (response === "") {
+	if (scheds === "") {
 		$("#div_schedules #toolbox_schedules").html("No Active Schedules");
 	} else {
-		$("#div_schedules #toolbox_schedules").html(response);
+		$("#div_schedules #toolbox_schedules").html(scheds);
 
 		//schedule icon tooltips
 		$("#div_schedules #toolbox_schedules .schedule_tip").tipTip({

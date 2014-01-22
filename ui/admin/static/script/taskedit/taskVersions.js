@@ -67,7 +67,7 @@ function CreateNewVersion() {
 		} else {
 			// already on taskEdit, just reload some content.
 			//NOTE: this changes the g_task_id, and pushes a new URL into the address bar
-			g_task_id = response
+			g_task_id = response;
 			history.replaceState({}, "", "taskEdit?task_id=" + g_task_id);
 			//refresh the versions toolbox, which will add the new one...
 			doGetVersions();
@@ -124,9 +124,9 @@ function doGetVersions() {
 			// If there was a mismatch we'll never get here.  So, if we're here... it must be
 			// the same page, so we can just update some content.
 			//NOTE: this changes the g_task_id, and pushes a new URL into the address bar
-			g_task_id = $(this).attr("task_id")
+			g_task_id = $(this).attr("task_id");
 			history.replaceState({}, "", pagename + "?task_id=" + g_task_id);
-			$("#versions .version").removeClass("version_selected")
+			$("#versions .version").removeClass("version_selected");
 			$(this).addClass("version_selected");
 
 			// things are page specific

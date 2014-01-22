@@ -164,7 +164,7 @@ function ShowCodeblockEdit(codeblock_name) {
 			// main codeblocks can not be renamed.
 			showInfo('The MAIN codeblock can not be renamed.');
 			return false;
-		};
+		}
 		$("#new_codeblock_name").val(codeblock_name);
 		$("#codeblock_edit_dialog").dialog("option", "buttons", {
 			"Save" : function() {
@@ -197,7 +197,7 @@ function doCodeblockUpdate(old_name) {
 	// before doing the postback, make sure the user entered something in the new name, and that its different than the old name.
 	if (sNewCodeblockName === '') {
 		return false;
-	};
+	}
 
 	var response = ajaxPost("taskMethods/wmRenameCodeblock", {
 		sTaskID : g_task_id,
