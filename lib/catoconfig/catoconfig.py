@@ -1,12 +1,12 @@
 
 # Copyright 2012 Cloud Sidekick
-#  
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-#  
+#
 #     http:# www.apache.org/licenses/LICENSE-2.0
-#  
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,9 +16,9 @@
 """
     THIS is the class responsible for reading cato.conf
     and holding the config information in a global.
-    
+
     ALL Cato modules import this file.
-    
+
     In addition to the complete CONFIG dictionary, some commonly used
     properties are defined as separate globals to make referencing easier.
 """
@@ -32,17 +32,19 @@ from catocryptpy import catocryptpy
 # it's populated below the function definition
 CONFIG = {}
 
+
 def _get_base_path():
     # this library file will always be in basepath/lib/catocommon
     # so we will take off two directories and that will be the base_path
     # this function should only be called from catocommon
     return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    
+
+
 def read_config():
     """
     Will read the cato.conf file and populate the CONFIG dictionary with settings.
-    
-    In case of errors reading the file, and to simplify downstream code, 
+
+    In case of errors reading the file, and to simplify downstream code,
     default values are defined here.
     """
     cfg = {}
@@ -58,55 +60,58 @@ def read_config():
     cfg["logfiles"] = "/var/log/cato"
     cfg["uicache"] = "/var/cato/ui"
     cfg["tmpdir"] = "/tmp"
-    
+
     cfg["redirect_stdout"] = "false"
     cfg["write_http_logs"] = "false"
-    
+
     cfg["ui_permissions"] = "true"
     cfg["ui_enable_tokenauth"] = "true"
     cfg["ui_token_lifespan"] = "30"
-    
+
     cfg["admin_ui_port"] = "8082"
     cfg["admin_ui_debug"] = "20"
     cfg["admin_ui_use_ssl"] = "false"
-    
+
     cfg["user_ui_port"] = "8080"
     cfg["user_ui_debug"] = "20"
     cfg["user_ui_client_debug"] = "20"
     cfg["user_ui_enable_refresh"] = "true"
     cfg["user_ui_use_ssl"] = "false"
-    
+
     cfg["rest_api_port"] = "4001"
     cfg["rest_api_debug"] = "20"
     cfg["rest_api_use_ssl"] = "false"
     cfg["rest_api_enable_tokenauth"] = "true"
     cfg["rest_api_token_lifespan"] = "30"
-    
+
     cfg["dash_api_port"] = "4002"
     cfg["dash_api_debug"] = "20"
     cfg["dash_api_use_ssl"] = "false"
     cfg["dash_api_tmpdir"] = "/tmp"
     cfg["dash_api_post_index"] = "canvas/home/home-post.layout"
     cfg["dash_api_get_index"] = "canvas/home/home.layout"
-    
+
     cfg["newsfeed_api_port"] = "4004"
     cfg["newsfeed_api_debug"] = "20"
     cfg["newsfeed_api_use_ssl"] = "false"
-    
+
+    cfg["cd_ui_port"] = "8084"
+    cfg["cd_ui_debug"] = "20"
+    cfg["cd_ui_use_ssl"] = "false"
+
     # extensions are name/value pairs, so the 'extensions' setting is actually a dictionary.
     cfg["extensions"] = {}
 
-    
     if not os.path.isfile(CONFFILE):
         if not os.path.isfile(CONFFILE):
             msg = "CATO_CONFIG file [%s] not found." % (CONFFILE)
             raise Exception(msg)
     try:
         fp = open(CONFFILE, 'r')
-    except IOError as (errno, strerror):
+    except IOError as(errno, strerror):
         msg = "Error opening file [%s] %s" % (CONFFILE, format(errno, strerror))
         raise IOError(msg)
-    
+
     contents = fp.read().splitlines()
     fp.close
     enc_key = ""
@@ -148,7 +153,6 @@ def read_config():
     cfg["password"] = un_pass
     un_mongo_pass = catocryptpy.decrypt_string(enc_mongo_pass, un_key) if enc_mongo_pass else ""
     cfg["mongodb.password"] = un_mongo_pass
-    
 
     # these aren't direct settings, rather derived from other settings
     cfg["admin_ui_protocol"] = "https" if cfg["admin_ui_use_ssl"] == "true" else "http"
@@ -156,8 +160,8 @@ def read_config():
     cfg["rest_api_protocol"] = "https" if cfg["rest_api_use_ssl"] == "true" else "http"
     cfg["dash_api_protocol"] = "https" if cfg["dash_api_use_ssl"] == "true" else "http"
     cfg["newsfeed_api_protocol"] = "https" if cfg["newsfeed_api_use_ssl"] == "true" else "http"
-    
-    # something else here... 
+
+    # something else here...
     # the root cato directory should have a VERSION file.
     # read it's value into a config setting
     verfilename = os.path.join(BASEPATH, "VERSION")
@@ -167,8 +171,9 @@ def read_config():
             cfg["version"] = ver.strip()
     else:
         raise Exception("Info: VERSION file does not exist.", 0)
- 
+
     return cfg
+
 
 def safe_config():
     """
@@ -179,7 +184,7 @@ def safe_config():
     cfg["version"] = CONFIG.get("version", "NOT SET")
     cfg["database"] = CONFIG.get("server", "Unknown")
     cfg["user_ui_enable_refresh"] = CONFIG["user_ui_enable_refresh"]
-    
+
     cfg["admin_ui_port"] = CONFIG["admin_ui_port"]
     cfg["user_ui_port"] = CONFIG["user_ui_port"]
     cfg["rest_api_port"] = CONFIG["rest_api_port"]
@@ -195,8 +200,8 @@ def safe_config():
     # "safe" config lists extensions, but not the path
     cfg["extensions"] = [x for x in CONFIG["extensions"].iterkeys()]
 
-
     return cfg
+
 
 def get_url(service, default_host):
     """
@@ -226,9 +231,9 @@ def get_url(service, default_host):
         host = CONFIG.get("newsfeed_api_hostname")
         host = host if host else default_host
         out = "%s://%s:%s" % (CONFIG["newsfeed_api_protocol"], host, CONFIG["newsfeed_api_port"])
-    
+
     return out
-        
+
 
 # if not os.environ.get("CATO_CONFIG"):
 #    print "CATO_CONFIG environment variable not set - trying default..."
@@ -239,4 +244,3 @@ BASEPATH = _get_base_path()
 CONFIG = read_config()
 SAFECONFIG = safe_config()
 VERSION = CONFIG.get("version", "NOT SET")
-
