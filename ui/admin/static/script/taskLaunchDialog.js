@@ -909,6 +909,8 @@ function loadRecurringPlan(schedule_id) {
 }
 
 function populateTimetable(timetable) {
+    var i;
+
     //the timetable may have previous selections... clear EVERYTHING
     $(".plan_datepoint_active").removeClass("plan_datepoint_active");
 
@@ -919,7 +921,7 @@ function populateTimetable(timetable) {
         $("#liMonthsAll").addClass("plan_datepoint_active");
     } else {
         valueArray = Months.split(",");
-        for (var i = 0; i < valueArray.length; i++) {
+        for (i = 0; i < valueArray.length; i++) {
             $("#mo_" + valueArray[i]).addClass("plan_datepoint_active");
         }
     }
@@ -940,7 +942,7 @@ function populateTimetable(timetable) {
             if (days === "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30") {
                 $("#liDaysAll").addClass("plan_datepoint_active");
             } else {
-                for (var i = 0; i < valueArray.length; i++) {
+                for (i = 0; i < valueArray.length; i++) {
                     $("#d_" + valueArray[i]).addClass("plan_datepoint_active");
                 }
                 $("#liDates").addClass("plan_datepoint_active");
@@ -953,7 +955,7 @@ function populateTimetable(timetable) {
             $("#olDates li").removeClass("plan_datepoint_active");
             $("#olWeek").show();
 
-            for (var i = 0; i < valueArray.length; i++) {
+            for (i = 0; i < valueArray.length; i++) {
                 $("#w_" + valueArray[i]).addClass("plan_datepoint_active");
             }
             $("#liDaysWeek").addClass("plan_datepoint_active");
@@ -969,7 +971,7 @@ function populateTimetable(timetable) {
     if (Hours === "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23") {
         $("#liHoursAll").addClass("plan_datepoint_active");
     } else {
-        for (var i = 0; i < valueArray.length; i++) {
+        for (i = 0; i < valueArray.length; i++) {
             $("#h_" + valueArray[i]).addClass("plan_datepoint_active");
         }
     }
@@ -980,7 +982,7 @@ function populateTimetable(timetable) {
     if (Minutes === "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59") {
         $("#liMinutesAll").addClass("plan_datepoint_active");
     } else {
-        for (var i = 0; i < valueArray.length; i++) {
+        for (i = 0; i < valueArray.length; i++) {
             $("#m_" + valueArray[i]).addClass("plan_datepoint_active");
         }
     }

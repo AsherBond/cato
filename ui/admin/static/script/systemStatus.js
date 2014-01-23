@@ -34,7 +34,10 @@ $(document).ready(function() {
 	});
 
 	//this page updates every 30 seconds
-	setInterval("GetData()", 30000);
+    setInterval(function() {
+        GetData();
+    }, 30000);
+	
 });
 
 function GetData() {

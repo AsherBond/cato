@@ -479,8 +479,8 @@ function LoadEditDialog(editCount, editUserID) {
 		$("#lblFailedLoginAttempts").html(user.FailedLoginAttempts);
 
 		SetPasswordControls();
-		if ( typeof (GetObjectsTags) !== 'undefined') {
-			GetObjectsTags(user.ID);
+		if ( typeof (getObjectsTags) !== 'undefined') {
+			getObjectsTags(user.ID);
 		}
 
 		$("#edit_dialog").dialog("open");

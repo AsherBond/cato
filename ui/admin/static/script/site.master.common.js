@@ -52,4 +52,4 @@ var d = '<!-- This is the popup error message dialog template.  -->' +
     '' +
     '';
 
-document.write(d);
+$("body").append(d);

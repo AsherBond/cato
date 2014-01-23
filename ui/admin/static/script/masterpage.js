@@ -170,7 +170,7 @@ function showAlert(msg, info) {
 	// in many cases, the "msg" will be a json object with a stack trace
 	//see if it is...
 	try {
-		var o = eval('(' + msg + ')');
+		var o = JSON.parse(msg);
 		if (o.Message) {
 			msg = o.Message;
 			trace = o.StackTrace;
@@ -223,7 +223,9 @@ function showInfo(msg, info, no_timeout) {
 		});
 	} else {
 		$("#info_dialog").dialog("option", "buttons", null);
-		setTimeout("hideInfo()", 2000);
+        setTimeout(function() {
+            hideInfo();
+        }, 2000);
 	}
 
 	$("#info_dialog").dialog("open");

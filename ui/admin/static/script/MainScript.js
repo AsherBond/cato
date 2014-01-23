@@ -16,9 +16,6 @@
 //This file contains common functions use throughout the main web application.  Changes made in this
 //file will have global impact, so please be careful.
 
-//GLOBALS
-"use strict";
-
 //Certain pages eval additional scripts for add-on features.
 function getScript(script_name) {
 	if (script_name) {

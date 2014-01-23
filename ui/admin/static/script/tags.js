@@ -50,8 +50,8 @@ $(function() {"use strict";
 
 			//commit the tag add (ONLY IF ON A DYNAMIC PAGE!)...
 			if ($("#hidPageSaveType").val() === "dynamic") {
-				var oid = GetCurrentObjectID();
-				var ot = GetCurrentObjectType();
+				var oid = getCurrentObjectID();
+				var ot = getCurrentObjectType();
 
 				var response = catoAjax.tags.addObjectTag(oid, ot, tag_name);
 				if (response.error) {
@@ -90,8 +90,8 @@ $(function() {"use strict";
 		if ($("#hidPageSaveType").val() === "dynamic") {
 			$("#update_success_msg").text("Updating...").show();
 
-			var oid = GetCurrentObjectID();
-			var ot = GetCurrentObjectType();
+			var oid = getCurrentObjectID();
+			var ot = getCurrentObjectType();
 			var tag_name = $(this).attr("remove_id").replace(/ot_/, "");
 
 			var response = catoAjax.tags.removeObjectTag(oid, ot, tag_name);
@@ -117,8 +117,8 @@ $(function() {"use strict";
 
 		//hokey, but our "ids" are in different hidden fields on different pages!
 		//that should be normalized eventually
-		var oid = GetCurrentObjectID();
-		GetTagList(oid);
+		var oid = getCurrentObjectID();
+		getTagList(oid);
 
 		//hide the title bar on this page, it's a double stacked dialog
 		$("#tag_picker_dialog").dialog().parents(".ui-dialog").find(".ui-dialog-titlebar").remove();
@@ -127,7 +127,7 @@ $(function() {"use strict";
 	});
 });
 
-function GetCurrentObjectID() {
+function getCurrentObjectID() {
 	var oid = "";
 
 	// on modernized pages, it'll probably be g_id
@@ -152,14 +152,14 @@ function GetCurrentObjectID() {
 	return oid;
 }
 
-function GetCurrentObjectType() {
+function getCurrentObjectType() {
 	var ot = $("#hidObjectType").val();
 	if ( typeof ot === "undefined")
 		ot = -1;
 	return ot;
 }
 
-function GetTagList(object_id) {
+function getTagList(object_id) {
 	if ( typeof object_id === "undefined")
 		object_id = "";
 
@@ -167,7 +167,7 @@ function GetTagList(object_id) {
 	$("#tag_picker_list").html(response);
 }
 
-function GetObjectsTags(object_id) {
+function getObjectsTags(object_id) {
 	var response = catoAjax.tags.getObjectsTags(object_id);
 	$("#objects_tags").html(response);
 }

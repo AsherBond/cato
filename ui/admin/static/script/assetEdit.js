@@ -357,8 +357,8 @@ function SaveAsset() {
 			}
 		}
 	} else {
-		var response = ajaxPost("uiMethods/wmCreateAsset", asset);
-		if (response) {
+		var success = ajaxPost("uiMethods/wmCreateAsset", asset);
+		if (success) {
 			CloseDialog();
 			GetItems();
 		}
@@ -463,8 +463,8 @@ function LoadEditDialog(editCount, editAssetID) {
 		// at load default to the first tab
 		$("#AddAssetTabs").tabs("option", "active", 0);
 
-		if ( typeof (GetObjectsTags) !== 'undefined') {
-			GetObjectsTags(asset.ID);
+		if ( typeof (getObjectsTags) !== 'undefined') {
+			getObjectsTags(asset.ID);
 		}
 
 		$("#edit_dialog").data("title.dialog", "Modify Asset");

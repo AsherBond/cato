@@ -296,18 +296,20 @@ function validateParsedVar(ctl) {
 	var $l = $("#" + id_part + "_l_prop");
 	var l_val = $l.val();
 	var l_mode = $("[name=" + id_part + "_l_mode]:checked").val();
+    var l_int;
 
 	$l.removeClass("conflicted_value");
 
 	var $r = $("#" + id_part + "_r_prop");
 	var r_val = $r.val();
 	var r_mode = $("[name=" + id_part + "_r_mode]:checked").val();
+    var r_int;
 
 	$r.removeClass("conflicted_value");
 
 	//some validation rules based on the 'mode'
 	if (l_mode === "index") {
-		var l_int = parseInt(l_val);
+		l_int = parseInt(l_val);
 		if (isNaN(l_int)) {
 			$msg.append("Begin position must be a positive number. ");
 			$l.addClass("conflicted_value");
@@ -322,7 +324,7 @@ function validateParsedVar(ctl) {
 
 		//test the right index inside the left, because this rule is dependent.
 		if (r_mode === "index") {
-			var r_int = parseInt(r_val);
+			r_int = parseInt(r_val);
 
 			if (r_int < l_int) {
 				$msg.append("End position must be greater than or equal to the Begin position. ");
@@ -333,7 +335,7 @@ function validateParsedVar(ctl) {
 	}
 
 	if (r_mode === "index") {
-		var r_int = parseInt(r_val);
+		r_int = parseInt(r_val);
 
 		if (isNaN(r_int)) {
 			// if it's not an integer, it could either be 'end' or 'end-1'

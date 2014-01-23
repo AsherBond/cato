@@ -163,8 +163,8 @@ function SaveCredential() {
 			$("#edit_dialog").dialog("close");
 		}
 	} else {
-		var response = ajaxPost("uiMethods/wmCreateCredential", cred);
-		if (response) {
+		var success = ajaxPost("uiMethods/wmCreateCredential", cred);
+		if (success) {
 			GetItems();
 			$("#edit_dialog").dialog("close");
 		}

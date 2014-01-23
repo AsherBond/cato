@@ -244,8 +244,8 @@ function tabWasClicked(tab) {"use strict";
 	} else if (tab === "details") {
 		getDetails();
 	} else if (tab === "tags") {
-		if ( typeof (GetObjectsTags) !== 'undefined') {
-			GetObjectsTags(g_id);
+		if ( typeof (getObjectsTags) !== 'undefined') {
+			getObjectsTags(g_id);
 		}
 	}
 
