@@ -66,16 +66,17 @@ curl --create-dirs -o $INSTALL_TO/js/jquery/superfish/supersubs.js https://raw2.
 curl --create-dirs -o $INSTALL_TO/js/vkbeautify.js https://raw2.github.com/vkiryukhin/vkBeautify/master/vkbeautify.js
 
 echo "jsonlint"
-curl --create-dirs -o $INSTALL_TO/js/jsonlint/ https://raw2.github.com/arc90/jsonlintdotcom/master/c/js/json2.js
-curl --create-dirs -o $INSTALL_TO/js/jsonlint/ https://raw2.github.com/arc90/jsonlintdotcom/master/c/js/jsl.format.js
-curl --create-dirs -o $INSTALL_TO/js/jsonlint/ https://raw2.github.com/arc90/jsonlintdotcom/master/c/js/jsl.interactions.js
-curl --create-dirs -o $INSTALL_TO/js/jsonlint/ https://raw2.github.com/arc90/jsonlintdotcom/master/c/js/jsl.parser.js
+curl --create-dirs -o $INSTALL_TO/js/jsonlint/json2.js https://raw2.github.com/arc90/jsonlintdotcom/master/c/js/json2.js
+curl --create-dirs -o $INSTALL_TO/js/jsonlint/jsl.format.js https://raw2.github.com/arc90/jsonlintdotcom/master/c/js/jsl.format.js
+curl --create-dirs -o $INSTALL_TO/js/jsonlint/jsl.interactions.js https://raw2.github.com/arc90/jsonlintdotcom/master/c/js/jsl.interactions.js
+curl --create-dirs -o $INSTALL_TO/js/jsonlint/jsl.parser.js https://raw2.github.com/arc90/jsonlintdotcom/master/c/js/jsl.parser.js
 curl --create-dirs -o $INSTALL_TO/js/jsonlint/LICENSE https://raw2.github.com/arc90/jsonlintdotcom/master/LICENSE
 
 # FOR MAESTRO/LEGATO
 
-echo "BA postmessage"
-curl --create-dirs -o $INSTALL_TO/js/jquery/jquery.ba-postmessage.min.js https://raw2.github.com/cowboy/jquery-postmessage/master/jquery.ba-postmessage.min.js
+##echo "BA postmessage"
+### This is the original, but it had an error (opera) that I had to fix.
+# curl --create-dirs -o $INSTALL_TO/js/jquery/jquery.ba-postmessage.min.js https://raw2.github.com/cowboy/jquery-postmessage/master/jquery.ba-postmessage.min.js
 
 echo "meow"
 curl --create-dirs -o $INSTALL_TO/js/jquery/jquery.meow.js https://raw2.github.com/zacstewart/Meow/master/jquery.meow.js

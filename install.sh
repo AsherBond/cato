@@ -238,6 +238,9 @@ sed -i"" -e"s|#CATOFILES#|${CATOFILESDIR}|" $CONFFILE
 ### create the database tables, indexes, etc. etc.
 mysql -u root -p$ROOTDBPASS $CATODBNAME < $CATO_HOME/conf/data/cato_ddl.sql
 
+### install the 3rd party UI libs
+$CATO_HOME/get_ui_libs.sh
+
 set +x
 echo ""
 echo ""
