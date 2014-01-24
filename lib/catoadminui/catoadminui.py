@@ -123,10 +123,34 @@ class common:
             self.commondir = os.path.join(base_path, "ui", "common")
 
         if not os.path.exists(self.commondir):
-            raise Exception("UI file cache directory defined in cato.conf does not exist. [%s]" % uicachepath)
+            raise Exception("UI 'common' directory defined in cato.conf (ui_common_dir) does not exist. [%s]" % self.commondir)
 
     def GET(self, path):
         fullpath = os.path.join(self.commondir, path)
+        if os.path.exists(fullpath):
+            with open(fullpath, 'r') as f:
+                if f:
+                    # make an attempt to set the proper content type
+                    uiCommon.set_content_type(path)
+
+                    x = f.read()
+                    return x if x else ""
+                else:
+                    return ""
+        else:
+            web.ctx.status = "404 Not Found"
+            return ""
+
+
+class cache:
+    """ Access to the 'uicache' directory, where 3rd party static content was installed. """
+    def __init__(self):
+        uicachepath = catoconfig.CONFIG["uicache"]
+        if not os.path.exists(uicachepath):
+            raise Exception("UI 'cache' directory defined in cato.conf (uicache) does not exist. [%s]" % uicachepath)
+
+    def GET(self, path):
+        fullpath = os.path.join(uicachepath, path)
         if os.path.exists(fullpath):
             with open(fullpath, 'r') as f:
                 if f:
@@ -390,7 +414,7 @@ def auth_app_processor(handle):
         return handle()
 
     # additional allowed requests
-    if "/common/" in path:
+    if "/common/" in path or "/cache/" in path:
         return handle()
 
     # ok, now we know the requested page requires a session...
@@ -711,6 +735,7 @@ urls = (
     '/setdebug', 'setdebug',
     '/appicon/(.*)', 'appicon',
     '/common/(.*)', 'common',
+    '/cache/(.*)', 'cache',
     '/(.*)', 'wmHandler'
 )
 
