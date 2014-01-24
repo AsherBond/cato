@@ -66,9 +66,10 @@ curl --create-dirs -o $INSTALL_TO/js/jquery/superfish/supersubs.js https://raw2.
 curl --create-dirs -o $INSTALL_TO/js/vkbeautify.js https://raw2.github.com/vkiryukhin/vkBeautify/master/vkbeautify.js
 
 echo "jsonlint"
+# There's an additional jsonlint file called jsl.interactions.js.  We heavily modified it to interact with our ui, therefore
+# it's included in the Cato source.  Don't get it from here.
 curl --create-dirs -o $INSTALL_TO/js/jsonlint/json2.js https://raw2.github.com/arc90/jsonlintdotcom/master/c/js/json2.js
 curl --create-dirs -o $INSTALL_TO/js/jsonlint/jsl.format.js https://raw2.github.com/arc90/jsonlintdotcom/master/c/js/jsl.format.js
-curl --create-dirs -o $INSTALL_TO/js/jsonlint/jsl.interactions.js https://raw2.github.com/arc90/jsonlintdotcom/master/c/js/jsl.interactions.js
 curl --create-dirs -o $INSTALL_TO/js/jsonlint/jsl.parser.js https://raw2.github.com/arc90/jsonlintdotcom/master/c/js/jsl.parser.js
 curl --create-dirs -o $INSTALL_TO/js/jsonlint/LICENSE https://raw2.github.com/arc90/jsonlintdotcom/master/LICENSE
 
