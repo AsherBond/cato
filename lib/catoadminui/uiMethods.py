@@ -179,21 +179,6 @@ class uiMethods:
         if f:
             return f.read()
     
-    def wmGetCategories(self):
-        f = open(os.path.join(catoconfig.CONFIG["uicache"], "_categories.html"))
-        if f:
-            return f.read()
-    
-    def wmGetFunctions(self):
-        f = open(os.path.join(catoconfig.CONFIG["uicache"], "_functions.html"))
-        if f:
-            return f.read()
-    
-    def wmGetCommandHelp(self):
-        f = open(os.path.join(catoconfig.CONFIG["uicache"], "_command_help.html"))
-        if f:
-            return f.read()
-    
     def wmGetSystemStatus(self):
         sProcessHTML = ""
         sSQL = """select app_instance as Instance,

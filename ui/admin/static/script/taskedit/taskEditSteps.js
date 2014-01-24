@@ -116,7 +116,7 @@ $(document).ready(function() {
 	});
 	$("#command_help_btn").click(function() {
 		showPleaseWait();
-		$("#command_help_dialog_detail").load("uiMethods/wmGetCommandHelp", function() {
+		$("#command_help_dialog_detail").load("/cache/_command_help.html", function() {
 			$("#command_help_dialog").dialog("open");
 			hidePleaseWait();
 		});
