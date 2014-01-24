@@ -62,6 +62,14 @@ curl --create-dirs -o $INSTALL_TO/js/jquery/superfish/supersubs.js https://raw2.
 # We've modified the superfish.css file, so don't get it unless you intend to update it.
 # curl --create-dirs -o $INSTALL_TO/css/superfish/superfish.css https://raw2.github.com/joeldbirch/superfish/1.7.4/dist/css/superfish.css
 
+# UFD (Unobtrusive Fastfilter Dropdown) is hosted on google code in SVN.
+echo "UFD"
+curl --create-dirs -o $INSTALL_TO/js/jquery/ufd/jquery.ui.ufd.js https://ufd.googlecode.com/svn/tags/0.6/src/jquery.ui.ufd.js
+curl --create-dirs -o $INSTALL_TO/js/jquery/ufd/css/ufd-base.css https://ufd.googlecode.com/svn/tags/0.6/css/ufd-base.css
+curl --create-dirs -o $INSTALL_TO/js/jquery/ufd/css/plain/plain.css https://ufd.googlecode.com/svn/tags/0.6/css/plain/plain.css
+curl --create-dirs -o $INSTALL_TO/js/jquery/ufd/css/plain/icon.gif https://ufd.googlecode.com/svn/tags/0.6/css/plain/icon.gif
+curl --create-dirs -o $INSTALL_TO/js/jquery/ufd/MIT-LICENSE.txt https://ufd.googlecode.com/svn/tags/0.6/MIT-LICENSE.txt
+
 # echo "vkbeautify"
 curl --create-dirs -o $INSTALL_TO/js/vkbeautify.js https://raw2.github.com/vkiryukhin/vkBeautify/master/vkbeautify.js
 
