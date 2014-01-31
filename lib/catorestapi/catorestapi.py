@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 #########################################################################
-# 
+#
 # Copyright 2012 Cloud Sidekick
 # __________________
-# 
+#
 #  All Rights Reserved.
-# 
+#
 # NOTICE:  All information contained herein is, and remains
 # the property of Cloud Sidekick and its suppliers,
 # if any.  The intellectual and technical concepts contained
@@ -25,11 +25,16 @@ import os
 import json
 from web.wsgiserver import CherryPyWSGIServer
 
-# Some API endpoints require Maestro
-# we look at the MAESTRO_HOME environment variable and load the libs from that path
+# Some API endpoints require Maestro or Legato
+# we look at the HOME environment variables and load the libs from those paths
 MAESTRO_HOME = os.environ.get("MAESTRO_HOME")
 if MAESTRO_HOME:
     sys.path.insert(0, os.path.join(MAESTRO_HOME, "lib"))
+
+LEGATO_HOME = os.environ.get("LEGATO_HOME")
+
+if LEGATO_HOME:
+    sys.path.insert(0, os.path.join(LEGATO_HOME, "lib"))
 
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 lib_path = os.path.join(base_path, "lib")
@@ -37,7 +42,7 @@ sys.path.insert(0, lib_path)
 
 from catoconfig import catoconfig
 from catocommon import catocommon, catoprocess
-from catoui import uiGlobals, uiCommon
+from catoui import uiCommon
 from catoapi import api
 from catolog import catolog
 from catouser import catouser
@@ -49,21 +54,23 @@ logger = catolog.get_logger(app_name)
 """
  wmHandler is the default handler for any urls not defined in the urls mapping below.
  (web.py required explicit url mapping)
- 
+
  web.py will instantiate this class, and invoke either the GET or POST method.
- 
- We take it from there (in catocommon), parse the URI, and try to load the right module 
+
+ We take it from there (in catocommon), parse the URI, and try to load the right module
  and find the proper function to handle the request.
 """
+
+
 class wmHandler:
     # the GET and POST methods here are hooked by web.py.
     # whatever method is requested, that function is called.
     def GET(self, method):
         return self.go(method)
-    
+
     def POST(self, method):
         return self.go(method)
-    
+
     def go(self, method):
         args = web.input()
         web.header('X-CSK-Method', method)
@@ -78,7 +85,6 @@ class wmHandler:
                 logger.info("Post Data: %s" % postargs)
                 for k, v in postargs.iteritems():
                     args[k] = v
-    
 
         logger.info("Request: %s" % method)
         logger.info("Args: %s" % args)
@@ -86,7 +92,7 @@ class wmHandler:
         output_format = ""
         if "output_format" in args:
             output_format = args["output_format"]
-        
+
         is_authenticated, user_id = api.authenticate(method, args)
         if not is_authenticated:
             # authentication failures won't return details to the client
@@ -99,16 +105,16 @@ class wmHandler:
 
             response = api.response(err_code="AuthenticationFailure", err_msg="Authentication Failure")
             return response.Write(output_format)
-        
+
         # the args collection is passed to the target function, BUT
         # we wanna stick a few things in there we might need.
         args["output_format"] = output_format
-        
+
         # THESE FLAGS GRANT SPECIAL ABILITIES!!!!
         # ensure they are cleared before authenticating each request
         api._ADMIN = False
         api._DEVELOPER = False
-        
+
         # the API commands do some logging that use these detail properties
         u = catouser.User()
         u.FromID(user_id)
@@ -119,12 +125,12 @@ class wmHandler:
                 Role: %s
                 Tags: %s
                 Token: %s""" % (u.LoginID, u.FullName, u.Role, u.Tags, u.LoginToken))
-            
+
             api._USER_ID = u.ID
 
             api._USER_ROLE = u.Role
             api._USER_FULLNAME = u.FullName
-            
+
             # flags are set so certain methods can have restricted access.
             if u.Role == "Administrator":
                 logger.info("[%s] is operating with ADMIN privileges." % (u.FullName))
@@ -133,7 +139,7 @@ class wmHandler:
             if u.Role == "Developer":
                 logger.info("[%s] is operating with DEVELOPER privileges." % (u.FullName))
                 api._DEVELOPER = True
-                
+
             # Tags are placed in a global for any access checks
             api._USER_TAGS = u.Tags
         else:
@@ -142,12 +148,17 @@ class wmHandler:
             return response.Write(output_format)
 
         endpoints = api.endpoints
-        
+
         # If Maestro is enabled, load those endpoints
         if MAESTRO_HOME:
             from maestroapi import api as mapi
             endpoints = dict(endpoints.items() + mapi.endpoints.items())
-            
+
+        # If Legato is enabled, load those endpoints
+        if LEGATO_HOME:
+            from cskcdapi import api as cdapi
+            endpoints = dict(endpoints.items() + cdapi.endpoints.items())
+
         if endpoints.get(method):
             response = catocommon.FindAndCall(endpoints[method], args)
         else:
@@ -160,11 +171,11 @@ class wmHandler:
         if hasattr(response, "Method"):
             response.Method = method
 
-            # is this a JSONP request?        
+            # is this a JSONP request?
             if "callback" in args:
                 """
                     IF there is an arg called "callback", that means we want the results formatted as a javascript function call.
-                    
+
                     (of course, if we wanna eventually support both XML and JSON result types that's fine...
                     it just means the payload *inside* the jsonp callback will be xml or json as requested.)
                 """
@@ -182,6 +193,7 @@ class wmHandler:
 #    def POST(self, method):
 #        return catocommon.FindAndCall("catoapi." + method)
 
+
 class favicon():
     """
     This isn't a typical web server, but requests from a browser will ask for a favicon.
@@ -189,25 +201,29 @@ class favicon():
     """
     def GET(self):
         return ""
-        
+
+
 class getlog():
     """
     delivers an html page with a refresh timer.  content is the last n rows of the logfile
     """
     def GET(self):
         return uiCommon.GetLog()
-        
+
+
 class setdebug():
     """
     sets the debug level of the service.
     """
     def GET(self):
         return uiCommon.SetDebug()
-        
+
+
 def notfound():
     return web.notfound("Sorry, the page you were looking for was not found.")
-        
-class version:        
+
+
+class version:
     def GET(self):
         args = web.input()
         output_format = args["output_format"] if "output_format" in args else ""
@@ -219,21 +235,22 @@ class version:
             response = api.response(response=version)
         else:
             response = api.response(response="<Version>%s</Version>" % version)
-            
+
         return response.Write(output_format)
-            
-class configure:       
+
+
+class configure:
     """
     Meant to be called once, on the initial installation of Cato.
-    
+
     Will create the Administrator account, and default values for settings tables.
-    
+
     Will not create any data rows if they already exist.
-    """ 
+    """
     def GET(self):
         args = web.input()
         db = catocommon.new_conn()
-        
+
         out = []
         out.append("Configuring Cato...\n\n")
 
@@ -248,16 +265,16 @@ class configure:
             out.append(msg)
             logger.info(msg)
             pw = catocommon.cato_encrypt("password")
-            sql = """INSERT INTO users 
-                (user_id, username, full_name, status, authentication_type, failed_login_attempts, force_change, email, user_role, user_password) 
+            sql = """INSERT INTO users
+                (user_id, username, full_name, status, authentication_type, failed_login_attempts, force_change, email, user_role, user_password)
                 VALUES (
                 '0002bdaf-bfd5-4b9d-82d1-fd39c2947d19','administrator','Administrator',1,'local',0,1,'','Administrator',%s
                 )"""
-            db.exec_db_noexcep(sql, (pw))            
-            
-            sql = """INSERT INTO user_password_history (user_id, change_time, password) 
+            db.exec_db_noexcep(sql, (pw))
+
+            sql = """INSERT INTO user_password_history (user_id, change_time, password)
                 VALUES ('0002bdaf-bfd5-4b9d-82d1-fd39c2947d19',now(),%s)"""
-            db.exec_db_noexcep(sql, (pw))            
+            db.exec_db_noexcep(sql, (pw))
 
             msg = "    ... done."
             out.append(msg)
@@ -267,8 +284,6 @@ class configure:
             msg = "    ... exists ... not changing."
             out.append(msg)
             logger.info(msg)
-
-
 
         # should we create AWS clouds?
         if catocommon.is_true(args.get("createclouds")):
@@ -285,42 +300,43 @@ class configure:
                 msg = "    Errors occurred while creating Clouds.  Please check the REST API logfile for details."
                 out.append(msg)
                 logger.info(msg)
-                
-                
-
 
         db.close()
         out.append("\n")
         return "\n".join(out)
 
-        
-            
+
 # the default page if no URI is given, just an information message
-class index:        
+class index:
     def GET(self):
         args = web.input()
         listonly = True if "listonly" in args else False
-        
+
         out = []
         out.append("---------------------------")
         out.append("- Cloud Sidekick REST API -")
         out.append("---------------------------\n")
-        
+
         endpoints = api.endpoints
-        
+
         # If Maestro is enabled, load those endpoints
         if MAESTRO_HOME:
             from maestroapi import api as mapi
             endpoints = dict(endpoints.items() + mapi.endpoints.items())
 
+        # If Legato is enabled, load those endpoints
+        if LEGATO_HOME:
+            from cskcdapi import api as cdapi
+            endpoints = dict(endpoints.items() + cdapi.endpoints.items())
+
         for endpoint, path in sorted(endpoints.iteritems()):
             modname, methodname = path.split('/')
             pkgname, classname = modname.split('.', 1)
-            
+
             mod = __import__(modname, globals(), locals(), classname)
             cls = getattr(mod, classname, None)
             att = getattr(cls(), methodname, None)
-            
+
             out.append("%s" % endpoint)
             if att.__doc__ and not listonly:
                 out.append("----------\n")
@@ -328,20 +344,21 @@ class index:
 
         return "\n".join(out)
 
+
 class ExceptionHandlingApplication(web.application):
     """
     IMPORTANT
     This is an overload of the web.py web.application class.
-    
+
     Main reason? In application.py, the 'handle()' function
         doesn't explicitly trap exceptions, therefore
         any exceptions are converted into the generic web.py _InternalError.
-        
+
     This interferes, because we wanna trap the original error an make determinations
         on how to reply to the client.
-        
+
     So, we overloaded the function and fixed the error handing.
-    
+
     NOTE: this is a little different than what we did in catoadminui - that file
         uses an application processor, where here we aren't intercepting every request (yet).
     """
@@ -365,7 +382,8 @@ class ExceptionHandlingApplication(web.application):
             logger.exception(ex.__str__())
             response = api.response(err_code=api.response.Codes.Exception, err_detail=ex.__str__())
             return response.Write(output_format)
-        
+
+
 def main():
     dbglvl = 20
     if "rest_api_debug" in catoconfig.CONFIG:
@@ -410,7 +428,7 @@ def main():
             raise Exception("SSL Key not found at [%s]" % sslcert)
     else:
         logger.info("Using standard HTTP. (Set rest_api_use_ssl to 'true' in cato.conf to enable SSL/TLS.)")
-        
+
     urls = (
         '/', 'index',
         '/version', 'version',
@@ -427,4 +445,3 @@ def main():
     web.config.debug = False
 
     app.run()
-    
