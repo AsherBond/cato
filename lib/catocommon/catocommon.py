@@ -91,6 +91,10 @@ def new_mongo_conn():
     return db
 
 
+def mongo_close(db):
+    
+    mongo_disconnect(db)
+
 def mongo_disconnect(db):
     """
     Disconnects a connection associated with the db previously created via
