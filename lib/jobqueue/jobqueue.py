@@ -13,12 +13,9 @@ class JobQueue():
         self.user = user
         self.password = password
 
-        conn_name = type + "-" + str(uuid.uuid4())
+        self.conn_name = type + "-" + str(uuid.uuid4())
+        self.queue = None
 
-        db = self.connect()
-
-        self.queue = MongoQueue(db[queue_name], timeout=300,
-                            consumer_id=conn_name, max_attempts=3)
 
     def connect(self):
         """
@@ -37,7 +34,10 @@ class JobQueue():
                 db.authenticate(self.user, self.password)
         except Exception as e:
             raise Exception("Couldn't create a Mongo connection to database [%s]" % self.db_name, e)
-        return db
+
+        self.queue = MongoQueue(db[self.queue_name], timeout=300,
+                            consumer_id=self.conn_name, max_attempts=3)
+
         
         
 

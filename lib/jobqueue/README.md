@@ -8,6 +8,7 @@ The following code
 from jobqueue.publisher import Publisher
 
 p = Publisher("test", "job_queue", host="127.0.0.1")
+p.connect()
 
 data = {"task_instance" : "43782", "yyy" : "222"}
 p.submit_job("job_1", data)
@@ -24,6 +25,7 @@ import time
 import os
 
 s = Subscriber("test", "job_queue", host="127.0.0.1")
+s.connect()
 
 @s.threaded_callback
 def job_1(job):
