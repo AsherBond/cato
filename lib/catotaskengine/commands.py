@@ -1464,11 +1464,11 @@ def cato_web_service_cmd(self, task, step):
         before = datetime.now() 
         response = urllib2.urlopen(url, None, timeout)
         after = datetime.now() 
-    except urllib2.HTTPError, e:
+    except urllib2.HTTPError as e:
         error_msg = "HTTPError = %s, %s, %s" % (str(e.code), e.msg, e.read())
-    except urllib2.URLError, e:
+    except urllib2.URLError as e:
         error_msg = "URLError = %s" % (str(e.reason))
-    except httplib.HTTPException, e:
+    except httplib.HTTPException as e:
         error_msg = "HTTPException" % str(e)
 
     if error_msg: 
