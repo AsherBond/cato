@@ -278,7 +278,7 @@ Returns: A [Task Instance Object](restapi/api-response-objects.html#TaskInstance
                 else:
                     instance = task.TaskInstance(ti)
                     if args["output_format"] == "json":
-                        return R(response=instance.AsJSON())
+                        return R(response=instance.__dict__)
                     else:
                         return R(response=instance.AsXML())
 
