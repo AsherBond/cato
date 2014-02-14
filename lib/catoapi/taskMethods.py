@@ -109,7 +109,7 @@ Returns: The 'Status' from a [Task Instance Object](restapi/api-response-objects
             return R(err_code=R.Codes.GetError, err_detail=obj.Error)
 
         if args["output_format"] == "json":
-            return R(response='{"task_status":"%s"}' % obj.task_status)
+            return R(response={"task_status": obj.task_status})
         elif args["output_format"] == "xml":
             return R(response='<task_status>%s</task_status>' % obj.task_status)
         else:
