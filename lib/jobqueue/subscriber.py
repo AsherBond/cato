@@ -6,7 +6,7 @@ from jobqueue import JobQueue
 
 class Subscriber(JobQueue):
 
-    def __init__(self, db_name, queue_name, host=None,
+    def __init__(self, db_name=None, queue_name=None, host=None,
                 port=27017, user=None, password=None, queue_delay=.1,
                 poll_delay=.2):
         """Constructs a subscriber.
@@ -25,13 +25,23 @@ class Subscriber(JobQueue):
 
         """
 
-        JobQueue.__init__(self, "subscriber", db_name, queue_name, host=host,
-                port=port, user=user, password=password)
+
+        self.db_name = db_name
+        self.queue_name = queue_name
+        self.host = host
+        self.port = port
+        self.user = user
+        self.password = password
+
+        JobQueue.__init__(self, "subscriber", self.db_name, self.queue_name, host=self.host,
+                port=self.port, user=self.user, password=self.password)
+
         self.queue_delay = queue_delay
         self.poll_delay = poll_delay
         self.fk_func_map = {}
         self.th_func_map = {}
         self.mul_func_map = {}
+
 
     def forked_callback(self, func):
         """Used to register forked callback functions for processing. Can be used

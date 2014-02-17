@@ -2,7 +2,7 @@ from jobqueue import JobQueue
 
 class Publisher(JobQueue):
 
-    def __init__(self, db_name, queue_name, host=None,
+    def __init__(self, db_name=None, queue_name=None, host=None,
                 port=27017, user=None, password=None):
         """Constructs a publisher.
 
@@ -16,8 +16,15 @@ class Publisher(JobQueue):
 
         """
 
-        JobQueue.__init__(self, "publisher", db_name, queue_name, host=host,
-                port=port, user=user, password=password)
+        self.db_name = db_name
+        self.queue_name = queue_name
+        self.host = host
+        self.port = port
+        self.user = user
+        self.password = password
+
+        JobQueue.__init__(self, "publisher", self.db_name, self.queue_name, host=self.host,
+                port=self.port, user=self.user, password=self.password)
 
     def submit_job(self, job_name, data=None):
         """Submits a job to a work queue"""
