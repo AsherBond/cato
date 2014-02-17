@@ -1,19 +1,19 @@
 <categories>
-	<category name="utility" label="Utility" description="Utilities and advanced commands." icon="static/extensions/icons/utility_32.png">
+	<category name="utility" label="Utility" description="Utilities and advanced commands." icon="static/extensions/utility/utility_32.png">
 		<commands>
-			<command name="write_file" label="Write File" description="Write the contents of the editor to a file." help="Writes the provided Contents to the specified file." icon="static/extensions/icons/file_read_32.png">
+			<command name="write_file" label="Write File" description="Write the contents of the editor to a file." help="Writes the provided Contents to the specified file." icon="static/extensions/utility/file_read_32.png">
 				<function name="write_file" extension="utility.utility">
 					<path input_type="text" label="Path" break_after="true" />
 					<contents input_type="textarea" label="Contents" />
 				</function>
 			</command>
-			<command name="read_file" label="Read File" description="Read a file into a variable." help="Read the specified file into a Variable." icon="static/extensions/icons/file_write_32.png">
+			<command name="read_file" label="Read File" description="Read a file into a variable." help="Read the specified file into a Variable." icon="static/extensions/utility/file_write_32.png">
 				<function name="read_file" extension="utility.utility">
 					<path input_type="text" label="Path" />
 					<variable input_type="text" label="Variable" />
 				</function>
 			</command>
-			<command name="exec_python" label="Python Script" description="Perform complex logic using Python." help="Perform complex logic using Python." icon="static/extensions/icons/python_32.png">
+			<command name="exec_python" label="Python Script" description="Perform complex logic using Python." help="Perform complex logic using Python." icon="static/extensions/utility/python_32.png">
 				<function name="exec_python" extension="utility.utility">
 					<code input_type="textarea" label="Code" />
 				</function>
