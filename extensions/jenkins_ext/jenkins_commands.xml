@@ -1,9 +1,9 @@
 <categories>
-	<category name="Jenkins" label="Jenkins" description="Jenkins integration task commands" icon="static/images/icons/jenkins.png">
+	<category name="Jenkins" label="Jenkins" description="Jenkins integration task commands" icon="static/images/icons/jenkins/jenkins.png">
 		<commands>
 			<command name="jenkins_new_connection" label="Jenkins New Connection" description="" 
                 help=""
-                icon="static/images/icons/jenkins.png">
+                icon="static/images/icons/jenkins/jenkins.png">
 				<function name="jenkins_new_connection" extension="jenkins_ext.jenkinscmds" variables="false">
 					<url label="Jenkins URL" input_type="text" class="w95pct" required="true" break_after="true"/>
 					<user label="User ID" input_type="text" class="w33pct"/>
@@ -13,7 +13,7 @@
 			</command>
 			<command name="jenkins_build" label="Jenkins Build Job" description="" 
                 help=""
-                icon="static/images/icons/jenkins.png">
+                icon="static/images/icons/jenkins/jenkins.png">
 				<function name="jenkins_build" extension="jenkins_ext.jenkinscmds" variables="false">
 					<conn_name label="Connection Name" input_type="text" required="true" class="w33pct" break_after="true"/>
 					<job label="Job Name" input_type="text" class="w33pct" required="true"/>
@@ -28,7 +28,7 @@
 			</command>
 			<command name="jenkins_build_status" label="Jenkins Get Build Status" description="" 
                 help=""
-                icon="static/images/icons/jenkins.png">
+                icon="static/images/icons/jenkins/jenkins.png">
 				<function name="jenkins_build_status" extension="jenkins_ext.jenkinscmds" variables="false">
 					<conn_name label="Connection Name" input_type="text" class="w33pct" required="true" break_after="true"/>
 					<job label="Job Name" input_type="text" class="w33pct" required="true"/>

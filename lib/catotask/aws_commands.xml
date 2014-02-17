@@ -1,5 +1,5 @@
 <categories>
-	<category name="aws" label="AWS" description="Amazon AWS" icon="static/images/icons/aws_32.png">
+	<category name="aws" label="AWS" description="Amazon AWS" icon="static/images/icons/aws/aws_32.png">
 		<subcategory name="aws_as" label="AWS AS" description="AWS Auto Scaling" icon="static/images/icons/aws/as.png">
 			<commands>
 				<command name="aws_as_CreateAutoScalingGroup" label="CreateAutoScalingGroup" description="" help="&lt;a href='http://docs.amazonwebservices.com/AutoScaling/latest/APIReference/API_CreateAutoScalingGroup.html' target='_blank'&gt;AWS documentation for CreateAutoScalingGroup&lt;/a&gt;" icon="static/images/icons/aws/as.png">
@@ -2956,7 +2956,7 @@
 				</command>
 			</commands>
 		</subcategory>
-		<subcategory name="aws_sdb" label="AWS SDB" description="AWS SimpleDB" icon="static/images/icons/aws_32.png">
+		<subcategory name="aws_sdb" label="AWS SDB" description="AWS SimpleDB" icon="static/images/icons/aws/aws_32.png">
 			<commands>
 				<command name="aws_sdb_BatchDeleteAttributes" label="BatchDeleteAttributes" description="" help="&lt;a href='http://docs.amazonwebservices.com/AmazonSimpleDB/latest/DeveloperGuide/SDB_API_BatchDeleteAttributes.html' target='_blank'&gt;AWS documentation for BatchDeleteAttributes&lt;/a&gt;" icon="static/images/icons/aws/as.png">
 					<function name="aws_sdb_BatchDeleteAttributes">

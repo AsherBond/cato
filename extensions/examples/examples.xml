@@ -1,7 +1,7 @@
 <categories>
 	<category name="examples" label="Examples" description="Example extension commands." icon="static/extensions/icons/examples.png">
 		<commands>
-			<command name="hello_world" label="Hello World" description="Writes 'Hello World' to the Task Engine Log." help="An extension example. Writes 'Hello World' to the Task Engine log." icon="static/images/icons/smiley_32.png">
+			<command name="hello_world" label="Hello World" description="Writes 'Hello World' to the Task Engine Log." help="An extension example. Writes 'Hello World' to the Task Engine log." icon="static/extensions/icons/smiley_32.png">
 				<function name="hello_world" extension="examples.hello_world.hello_world">
 					<!--<test input_type="dropdown" label="test" hr_after="true" style="combo" datasource="file" dataset="vals.xml" />-->
 					<message input_type="text" label="Say" />
