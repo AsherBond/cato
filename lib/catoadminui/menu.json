@@ -25,7 +25,7 @@
 			}, {
 				"roles": "developer user",
 				"label": "About Cato",
-				"icon": "static/images/icons/about_24.png",
+				"icon": "static/images/icons/info.png",
 				"onclick": "showAbout();",
 				"href": "#"
 			}

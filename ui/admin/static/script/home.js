@@ -22,8 +22,6 @@ $(document).ready(function() {
 			});
 
 			$("#getting_started_message").show();
-		} else {
-			$("#getting_started_img").show();
 		}
 	});
 });

@@ -1,13 +1,13 @@
 <categories>
-	<category name="examples" label="Examples" description="Example extension commands." icon="static/extensions/icons/examples.png">
+	<category name="examples" label="Examples" description="Example extension commands." icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAFV0lEQVR42m2Wa4wTVRTHz5mZTt/dvlt2uy5LgRUIgYWssGiIiqCSGA2LGoKJ+ECRRxDki/ET4ZsmSvxgogYMbFA2iEBUHtEsrBIikUQg4SEJRg1sS3e73UK33bYzcz33dtptbCdzZzozd85vzrnn/E8R6jaHwzFPURQf/dRC7Q9rcx59AVBWmWYYhq7TMBgNNFC2GDZZM7TCA9B0nWm6ATqdi2WNTUwaiZtnPp2o2sTqDzLs6evrG12xYoUFEZmiOsAV6kCUJCZJMgLyXQL+DFDi7zF6nV9wM4xfFIol2H3g4qlbh7esbgDQi5HZs2cnu7u7K0bo1sLHXwTVZmeT5eo8cRKGFRnJs8oNYot7dIYTv929cuHzDQsbALRFaEbCarWCpmnixpo9v0IgGIaJEoNEVq9N5paiHgnG8gzKumkE+S4chdzwNf/Q3ufHGwCyLCdpHaBYLDJuZdmuIZjeFmQBp4TXhrWqdYYVBgu6ZBzNGVMeVCyyXOq269xHq/INAIvFknS73VAoFBh3uJcAFoeXxUMy5ks89DLMi9mZxy5hocTYcKaEtxIl7gUzP16sBwHUwQ+f0v4PCFN4kl6vF3K5HEiSBL27fgHF5gaKN2xb5YeOkA2OXMzCrUQRQh4F1j7SAhz8xeAYFEpG1Qd2fOd0udkahO12+71AIADZbJbJsoJLyQPF6mJPzHXhumVeOHFpHE5fnWCVdUXmJk/2rI3AH/9Msv7z4+aC4+TRdx+yNwOEXC5XKhgMQiaTYYrFgkvfI4DqYBuW+3DJTAfcSRdh7+kxViiLcAjQjmeDEPXK7P3DqUoqA2SPbG/3NgW0tLTcC4fDkE6nQbGowAGyYoX57TZ4dbkPhm5MwO+3c5Ch5aMUBZnKYXdfCLJ5HT4+lQFRDAijA9ti4WaAoN/vH4lEIjAyMsJUqw2X7DgHkqKKL5UqqQJOFRjZxUIZ2cr5Tnx6vhM++3mc/ZsuI4fSo7vfbG2NNQWEQqEUB6RSKbDZndCzfRAkWanluLmD24oQj6qwrtcD/ecfwI3hEiUFxYwJc38f2jxtRrNKDkajUeFBMplkDqcbF2/7iQAWNmVfHJjTirhrtZ8dunAf/0pp/L5IU0ksDN7s3xSZ0wwQaG1tHeVrwAEutxcXbz1DYqew6rebic56Z9rRY0c2eL0gjGpGRVrMNL164O3wggYA5X0gFouN8iziAI/Xj4s2n+bFxbBWpJVKfnmpC09ezrMyWaYdCMJ0Vpt06auNoZ5mAH9HR8cor4NEIgFefwi63zkpqrdea/jW1+OE7y7lhUeqLDyo5C0TEy/sezPwWAOAdMjf2dmZ9vl8wgNfMIIL3vqeS7TwoCqbPJmsCmKJ5AHNsCgSeWBglX/2y9f9TzYAeKOJx+NjVAsCEAhPw7mvHQPeD3AqviQRMpvXpuKfSY2l7utoKij1DH4Ubp4hwDMNABI636xZs9Jc7AgA4WgM4q8MmE2mMpWft6z0woyQIuT7k1NZoT9oSrgZxh/3bww+1wBQVdXX1dU15nQ6hQfRtg5sf6nflOeaA7B+mYf1xO14/U6J7RvKigeVb8eqVBw7uCmyphnAS4AMbzi8kjmgde0BIb91S8DlgU3zWjB1X6O4myY5wJxEx8Nfb2ld1wwgU5o+oFDZSE0hEGmDzvUDANUQ1FUy1IfFPNfy2NAPHt05Y0M9gA/e6G1UA2dpsRfxhtPij2DXG8drHQymDJqVXetsFS/Nbxi+/MP+K99+sEMv5SfpQbkKUGnYaXacRjtjpGekETZfzMZLpG6Y/yb4YDpd8F5GzRrLwhhKxfz43ZtGuThG1wUapf8A4G8COeNZ9fkAAAAASUVORK5CYII=">
 		<commands>
-			<command name="hello_world" label="Hello World" description="Writes 'Hello World' to the Task Engine Log." help="An extension example. Writes 'Hello World' to the Task Engine log." icon="static/images/icons/smiley_32.png">
+			<command name="hello_world" label="Hello World" description="Writes 'Hello World' to the Task Engine Log." help="An extension example. Writes 'Hello World' to the Task Engine log." icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAIrUlEQVR42sVXeZAcVR3++pqZnnt2rt2dvcjuKpXDrAYIGE0wbFJIRVIYEoyBHBIIlmXQEgtK/jD+gQUllpLSknAkIQRikgqQUig1hyRKFEJ0o0mE2t1kr5nNzrGzM9Nz9+Gve3pjsrCiiMWrevOqpt/r7/td3/s1g495MP/NZvUIBFpEmm466aLVZj4qQUOO1izNInsTqh8ZAQJl6OUi/UYqBcsSueLu1vjAbFgDYQgeu7GpmimgnBxj5OQZ3pI9bLFXDmkaogxjkNE+NAHlMAR6SXMxZ98gK23rLU3XNgmRG8C6ZgHWRoBzmxvJ8HIMau4sqtE/oTJycoTnBnaKrsIOIjLMdU/vkWkJKEdgV2X289J402O2tsVzLZ23gXF2geE9dMpCk6Nd7KSfAE2hWYEmZ6BJPaj0vozSwNHTzrqRB1le/QN3Ewr/MQHlKBzVEr+imJv5E8enV9fxjbcAFj9tJkCGNcF5c0UNHLJJQiWfE6FKCnLsNeT/umdcdJ37tmCVDxCJ/AcSILdb5Qq3PJ+d/bTrug1uLrSQDOVoo2KCUx4yVvqPJsObBAhcLdOqz6pJgsipCpT4ceTe2pF1uM/cwwvKQW4JytMSIHCWzs6buDjjJfc1a5u4yI1gmAq9sEArgbFUAKyjtjJTCOjgapFm3lg1/T/GTqsFSvR1ZN/eNeKtP/9lyqlTREJ9XwLqIQQm4t5nbJFlyy1zVpGxLjDKKL1cIuMJmKPKYynxGdHMg8sJ6ER1AhRqJUdOoJVxQOMayCkSKn/fi1L01wc9oYmNRCD5HgLKIXDVKvslKTVnv+ezd/FscD6FmEAr/6CHYzXLOadBgGFsJgEzCTW1loBaySQg1TzBhSl3rqbUKEBNvInMid2y0/+3lYKg/opIKFcSOAJvetS9UwwuWm6dvRSM+xp6PwEU36KHKQNcIxLP7j6NsYSM797fDavVapwtl8v40ROHEQ7yuPvOuWB0cJ0E5yfZuo74UU5k30b5zO9QTBw76KvPrqfSnLiCgHwIMxMDLW/4Zl3v5Ro7wTo/SQ9J3Crv0i7axrqQLfBY9ZUXUOfx4L7Ni7Hoc1cbZ4/98R08ufUoxjMZ7PvlGrjtelLSWRIBwwNwQpXehRLrRfrsnyeCbUML+CU4d4kAJR9XzHOri6mO592z2sG6bZRjFH9WT75qTXBYJ7JFG7qufQIMldu2pzeh+wsdBoHDv+/Dpnu2QaOy7Dl5P9yiHgqplgsaTx6gZCznoGZLyJ7th+jvu0u0K3v0MEwSsKST1h9wlRkPiZ1eCrNMCUhVb5Q6xZrzmCFw4pGtMfT2DuDJn66AaK0JXLEs4L5vHUBnZxse3txIIZBqIVBIlJQKVD1Hq6QO5MFi7wQUy/lHvf7y98kLlUkC9njU/guRbVprbePB2Su1cucZmjyRcBkeMCrAOhMQGuj66blSCW1ddCdQxZTP1RKRSGi6B2SZpmbIg1KwoDwgo6iO7Ao2Fr5OBAqMmYCOi0OOHXY2vNLWQsY6iACvmlP3gu1fBAwBmizBy6XYLEVdkC4RKNX+llljKnkLSkNAQR3bH27Ob+C7kWfMBLSPDtu3ObTgnWITud5HIeAU9A5WcCEm44uLyQsGsM0kIExzF1RNRSRgWg/+popPfcKClgaBHnNQ0xSCEY1QE7vrmwqbhKWmB6qHYBmNWn8oVkLfcTRQCIIKGSijSlK65ecS1q2wYGYHY1ouwHTLZUWkmQRkU4orONen4fmXKtjyDSc42qvJPJQEh/wohcAS/3F9Y/l7lqVmDlR/Cy4+zq1j0vXPukMi+DARoATTvZCWNKx+II8NK4DVywS6FnRgzhShyz2gq6tC8q9g76syth8A9jxuh9fBGNZrlKjyGIdsnGTad/Fuv095znazWQX6SL6Crsxg6Hgw4HcJIZVKsUQYOgkV0XQd1j2UBiOnsPZWAYsXCGiOsFSiteOa3n2Mqnj9RBU7X6lCIQF67lEvIr40gVP8VYFK0IZqnEUimcp5WuILA7eh5wohkl6F70Kfc1+DK9JtDzrAenPkBZ0EeYNVUWJm4Jm9Huzf8QYqWQkuSoeQv+aBeEpFjkrf4nbi9nXzce9qCVbtAgHr4Lr1NqgTLhQSeYzmoodb26VV7mVITyXAjYyxa+yFyHZffQvHe8h6J1nNEQlGJ0Fx5p0o8Tfg5JsiensySMcmjPB7Gjzo7PJh/vUF2JQTlNV5AibXawSu2Ogu80HOCEhfHFIK9ujXGgLqC55bp9wFhiUHEB4879zXGmxf6Ag3061LBKxJIlE0SJAE0qoZ/YGujozRkhGQSi2ZTJMUR9PoldokuEjWB+h29iE/NozBRP/xlqukVeHbMfa+13HqZbCxFBazmfDehuZZdWIgQkmfIMsvkgdI20mWDSK62VNbGa32Oh0YGpWdSuIl11NRBFFMRjE6fHZcdY/dEa7D0dCKafoBfcT2w9Y3xN3bwDc+Fmj9jM0WaKOqy9CTKIHTrcjoXVW1lvmXGl7GrAgqUY16AI1uQUSo9DwoJQeQHPxLaVSOPTijSXmq6Q5q4afriCZH/4tw9Q5wm9vExoeDLV2i2DgXnI1qXxsnXOolNP0mpeaDkU3rdVXUmxQv8QjQWgelRPUeO43EUE9xoBh7pKNV2dqxxvh2wAcS0Mc7u+DoH2a+6mf8W1oj7Y32yDzqSzvAWugTgdWB5Ske0G89HmqlSP1oHwrRUxiM9sdSWmrLVRHtxZnr39uQ/lsC+ji7HcJYGl3jSesD7XX+W8LBZqfV3w7B2wreRUnqCNVkKB+HnBtGdWIQ5VQ/NSzDUv946jVfoPx4yIOeORs/xHfBJRI7wEgFOEbHMU/K8is9grgo5HK0eJ1Ou83qMPryUjmvTEhSIZ7LD2WqxWNOt7y/3odTog35uRv/hy+jqePEzyBIRXizeURKVUQUFR79f45Fxiog6rYj6hQxseCbH+G34f97fOwE/gnWhONO/VfpaAAAAABJRU5ErkJggg==">
 				<function name="hello_world" extension="examples.hello_world.hello_world">
 					<!--<test input_type="dropdown" label="test" hr_after="true" style="combo" datasource="file" dataset="vals.xml" />-->
 					<message input_type="text" label="Say" />
 				</function>
 			</command>
-<command name="bash_example" label="Bash Example" description="A shell script extension." help="An example of an extension that executes a Shell script." icon="static/extensions/icons/shellscript_32.png">
+			<command name="bash_example" label="Bash Example" description="A shell script extension." help="An example of an extension that executes a Shell script." icon="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAFVklEQVR42sVXS0wbVxR9Y7ANRERVnAQEEkolpHTBqBDA2OajbtqqTajULKpumkUFGCsLFoTsWbd0zb9CaaVuqi5QCZXopmlUFSOl4lMJxM+O5DSIIvEz2Ixnes/ze5PBjD+pKvVJozeeee/ec889976xwv7noWQ+eOvmzTeKnU63oij/xl7OoWlaqry8fG9+fl63BVBVVeX6enLyd6/XW88IgIMug54bhsHvFfG7uKiI4b3cbFiNGMarZxn3RbSv4datitXV1R1bADU1Ne7RkZFwU2OjqgiHcAQARQ4HN4RnMJSNIcMwLtzzGTaKi5k/EKheWlqKZQcwOhpu8XrVZDLJtFSKlbjdLEWzg5zqNOtkyO1y8fUOAqULcFgjIy0mR3iuiDUSCID7/P7cAMYIQCAQUE9OTrghqyN+L9KgCGodgqWUpjGTNcHUK6Wl0wkALT5fHgBjY+GWlhaVR+J0mg4UYUjOWfg3WbCbEQjZzg1gfHycp4C/BH26znMHI4pFlIqIikdP9EuNYL1kQqZB6gAMeAsB0NTUxEWokzE3aQAbuROaqZT4bApRRimc6AKAnRA5AK+3enFxMTuAiYmJcEN9vYrFZ+QMBnEvK6GktJT/lvq4oHYb9cs0gNGCAPh8PlU+Q96kM0mtVWg5nWfMsNXc3JwfQKPoA9aN0pnsAwDlJJFmrXubGXsLAkA0qXCaaRgDTq2MnC8C48J667OCAUCEUjRWQxCiy9KEAMSsCBvAmUAKBtDa2qomEglT/dhsiA6niYYjfyuiDEtKSkxH0plMn1VPBQFob29Xj46OON2SBTgx61vXz0UlS0+2XTnLUpUgcE/s5u4Dk6gCv181N8s8izlJzPz69CkrpXIEwMwLjs/OzswLTJKo06cpAckLAAygFePgkR0QEWiCgXg8zh4+HGDlly+nGWGKpTzBlM7TBMbADPZ+NTSUZpIWoA8UBkBsRkQaRSJBJE5PWeh+iF295qEINXonLnKajjjJTmmNZmliP83O8ujBQt7TkGugrU2Ffk9xIhKtOJp5HgkMKO3q6WJ3737MVlb+ZNFolLMSP6YrfsLfw7m1bH+em0vvJwBtbW3Vy8vLhQE4OjxkTio7J6UiRdEACI7p3lCQXb9+jXV0vMNc5GB4ZJizwfOePOORyxJE2c4+fpw+2Gh0dHRU0xfRi5wACCVPAQyCQkQhBwB8ePsD1tnZyerrG9jMzAz749kzvjaZTAvP2gewd3p6mmtibW0tEgqF1M3NzcOcAKhW+Vkga9s6AOC9999ldXV17PnzqBl5sCdIkaNZaWx8fILt7++bvWJqagpsHj4YGPgkHA7PWu1lFSHyaG25klYI7E7nbebxeM6VG4+eLkTa19fHamtr+XOk6KrHE+8OBu/t7Oz8sLW1pecFwBkQxyevfco9qJTOOj+6w654rnCHqAC8lyAAdHh4GF8+vGJisdhpV1dXz18vX367sbGhZzJ6EQB9kHANQPFkACzAgWQBKfhi6Et2qewSV7Y8KfEOFYD33d3d7M0bN9iLWOykJxjsjkQi30Wi0RSzGVkBQEbHoh0DhBTk8fExW1hY4OpGo5IgkDI4Pzg4YAG/HyV8FOzt/Zwi/57Ep7MswxYAvorlJ5j1A0QO0pN5SCFy3ANAgpiC+MpKS/fJ+We7u7s/rq+vZ3VuC8D6USqPXrshP0ABQHZBMLAdiez19/d/Ss7ntre3DZZnnANQWVnp+ubRo3lKwdtC/izbP0R57JrRJxLGL0+erAwODgYpTb+R2vM6vwCgoqJCoSgqyXDZ6/w5FanQ6Qv67729vYOCNzLG/vu/wK85/gGOjupOPri5MgAAAABJRU5ErkJggg==">
 				<function name="bash_example" extension="examples.bash_example.bash_example">
 					<arg input_type="text" label="Argument" />
 				</function>
@@ -15,53 +15,53 @@
 		</commands>
 	</category>
 	<!--<category name="os_compute" label="OS Compute" description="" icon="icons/openstack_32.png">
-		<commands>
-			<command name="os_compute_ListServers" label="List Servers" description="" help="" icon="icons/openstack_32.png">
-				<function name="os_compute_ListServers">
-					<result_name label="Result Variable" input_type="text" />
-				</function>
-			</command>
-			<command name="os_compute_GetServer" label="Get Server" description="" help="" icon="icons/openstack_32.png">
-				<function name="os_compute_GetServer">
-					<id label="Server ID" input_type="text" />
-					<result_name label="Result Variable" input_type="text" />
-				</function>
-			</command>
-			<command name="os_compute_CreateServer" label="Create Server" description="" help="" icon="icons/openstack_32.png">
-				<function name="os_compute_CreateServer">
-					<request input_type="textarea" rows="3" label="Request" class="w95pct" style="display: block;">
-{
-    "server" : {
-        "name" : "",
-        "imageRef" : "",
-        "flavorRef" : "",
-        "metadata" : {
-            "" : "" 
-        },
-        "personality" : [
-            {
-                "path" : "",
-                "contents" : "" 
-            } 
-        ] 
-    }
-}
-					</request>
-					<result_name label="Result Variable" input_type="text" />
-				</function>
-			</command>
-			<command name="os_compute_UpdateServer" label="Update Server" description="" help="" icon="icons/openstack_32.png">
-				<function name="os_compute_UpdateServer">
-					<request input_type="textarea" rows="3" label="Request" class="w95pct" style="display: block;" />
-					<result_name label="Result Variable" input_type="text" />
-				</function>
-			</command>
-			<command name="os_compute_DeleteServer" label="Delete Server" description="" help="" icon="icons/openstack_32.png">
-				<function name="os_compute_DeleteServer">
-					<id input_type="text" label="Server ID" />
-					<result_name label="Result Variable" input_type="text" />
-				</function>
-			</command>
-		</commands>
+	<commands>
+	<command name="os_compute_ListServers" label="List Servers" description="" help="" icon="icons/openstack_32.png">
+	<function name="os_compute_ListServers">
+	<result_name label="Result Variable" input_type="text" />
+	</function>
+	</command>
+	<command name="os_compute_GetServer" label="Get Server" description="" help="" icon="icons/openstack_32.png">
+	<function name="os_compute_GetServer">
+	<id label="Server ID" input_type="text" />
+	<result_name label="Result Variable" input_type="text" />
+	</function>
+	</command>
+	<command name="os_compute_CreateServer" label="Create Server" description="" help="" icon="icons/openstack_32.png">
+	<function name="os_compute_CreateServer">
+	<request input_type="textarea" rows="3" label="Request" class="w95pct" style="display: block;">
+	{
+	"server" : {
+	"name" : "",
+	"imageRef" : "",
+	"flavorRef" : "",
+	"metadata" : {
+	"" : ""
+	},
+	"personality" : [
+	{
+	"path" : "",
+	"contents" : ""
+	}
+	]
+	}
+	}
+	</request>
+	<result_name label="Result Variable" input_type="text" />
+	</function>
+	</command>
+	<command name="os_compute_UpdateServer" label="Update Server" description="" help="" icon="icons/openstack_32.png">
+	<function name="os_compute_UpdateServer">
+	<request input_type="textarea" rows="3" label="Request" class="w95pct" style="display: block;" />
+	<result_name label="Result Variable" input_type="text" />
+	</function>
+	</command>
+	<command name="os_compute_DeleteServer" label="Delete Server" description="" help="" icon="icons/openstack_32.png">
+	<function name="os_compute_DeleteServer">
+	<id input_type="text" label="Server ID" />
+	<result_name label="Result Variable" input_type="text" />
+	</function>
+	</command>
+	</commands>
 	</category>-->
 </categories>

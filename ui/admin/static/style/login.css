@@ -5,12 +5,14 @@ body
 	color: #58595B;
 	font-family: 'MuseoSans-Light', Lato, Arial, lucida, sans-serif;
 	font-size: 10pt;
+	background-color: #BCBEC0;
 }
 #wrapper
 {
 	margin-left: auto;
 	margin-right: auto;
 	width: 600px;
+	margin-top: 150px;
 }
 #csklogo {
 	font-size: 24pt;
@@ -19,21 +21,34 @@ body
     right: 10px;
     top: 10px;
 }
+#loginlogo {
+	font-size: 24pt;
+	color: #58595B;
+	float: left;
+	margin-left: -40px;
+	margin-top: -50px;
+	background-color: #FFF;
+	box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+	border-radius: 6px 6px 6px 6px;
+	padding: 10px 20px 5px 20px;
+}
+#loginlogo img{
+	width: 200px;
+}
 #loginpanel
 {
-	color: #FFFFFF;
 	padding-top: 20px;
 	height: 232px;
-	background-image: url(../images/login-banner.gif);
+	background-image: url(/common/img/login-banner.png);
 	background-repeat: no-repeat;
-	background-position: -186px 54%; /* shorten it a bit */
+	background-position: -50px 65%; /* shorten it a bit */
+	background-size: 83em;
 	box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
 	border-radius: 6px 6px 6px 6px;
 }
 #loginbox
 {
 	padding: 20px;
-	color: #FFFFFF;
 	font-weight: bold;
 	margin-left: auto;
 	margin-right: auto;
@@ -65,6 +80,7 @@ body
 	font-weight: normal;
 	box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
 	border-radius: 6px 6px 6px 6px;
+	background-color: #fff;
 }
 .loginannouncement img
 {

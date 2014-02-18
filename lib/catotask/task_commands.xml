@@ -1,9 +1,9 @@
 <categories>
-	<category name="connect" label="Connect" description="Commands for connecting to and disconnecting from Assets." icon="static/images/icons/connect_no_32.png">
+	<category name="connect" label="Connect" description="Commands for connecting to and disconnecting from Assets." icon="static/images/icons/cato/connect_no_32.png">
 		<commands>
 			<command name="new_connection" label="New Connection" description="Creates a new connection to an Asset." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#newconnection' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/connect_creating_32.png">
+                icon="static/images/icons/cato/connect_creating_32.png">
 				<function name="new_connection" snip="conn_name">
 					<conn_type input_type="select">ssh</conn_type>
 					<cloud_name input_type="dropdown" style="combo" />
@@ -14,14 +14,14 @@
 			</command>
 			<command name="drop_connection" label="Drop Connection" description="Drops the connection to an Asset." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#dropconnection' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/connect_no_32.png">
+                icon="static/images/icons/cato/connect_no_32.png">
 				<function name="drop_connection" snip="conn_name">
 					<conn_name input_type="text" label="Connection" connection_picker="true" />
 				</function>
 			</command>
 			<command name="get_asset" label="Get Asset Properties" description="Retrieves an Asset's properties for use in connections"
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#get_asset' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/register_host.png">
+                icon="static/images/icons/cato/register_host.png">
 				<function name="get_asset">
 					<asset input_type="text" label="Asset Name" />
 					<address_out input_type="text" label="Address Variable (out)" />
@@ -34,11 +34,11 @@
 			</command>
 		</commands>
 	</category>
-	<category name="control" label="Control" description="Commands for controlling the a Task." icon="static/images/icons/configure_32.png">
+	<category name="control" label="Control" description="Commands for controlling the a Task." icon="static/images/icons/cato/configure_32.png">
 		<commands>
 			<command name="end" label="End" description="End Task execution." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#end' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/player_stop_32.png">
+                icon="static/images/icons/cato/player_stop_32.png">
 				<function name="end" snip="status">
 					<status input_type="dropdown" label="Status" datasource="local" dataset="Completed|Error|Cancelled">Completed</status>
 					<message input_type="textarea" rows="3" label="Message" class="w95pct" label_style="display: block;" />
@@ -46,7 +46,7 @@
 			</command>
 			<command name="run_task" label="Run Task" description="Run Task executes launches another task." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#runtask' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/player_play_32.png">
+                icon="static/images/icons/cato/player_play_32.png">
 				<function name="run_task">
 					<task_name input_type="text" />
 					<version input_type="text" />
@@ -60,21 +60,21 @@
 			</command>
 			<command name="sleep" label="Sleep" description="Sleeps for a selected number of seconds." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#sleep' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/player_pause_32.png">
+                icon="static/images/icons/cato/player_pause_32.png">
 				<function name="sleep" snip="seconds">
 					<seconds input_type="text" label="Sleep"/>
 				</function>
 			</command>
 			<command name="cancel_task" label="Cancel Task" description="Cancels one or more running Tasks." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#canceltask' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/stop_32.png">
+                icon="static/images/icons/cato/stop_32.png">
 				<function name="cancel_task" snip="task_instance">
 					<task_instance input_type="text" label="Task Instance ID(s)" class="w95pct" />
 				</function>
 			</command>
 			<command name="wait_for_tasks" label="Wait For Tasks" description="Waits for one or more Tasks to complete." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#waitfortasks' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/wait_32.png">
+                icon="static/images/icons/cato/wait_32.png">
 				<function name="wait_for_tasks">
 					<handles label="Handles">
 						<handle label="Handle">
@@ -85,7 +85,7 @@
 			</command>
 			<command name="get_instance_handle" label="Get Task Instance" description="Gets a handle on a running Task Instance." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#gettaskinstance' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/get_instance_32.png">
+                icon="static/images/icons/cato/get_instance_32.png">
 				<function name="get_instance_handle" snip="handle">
 					<instance input_type="text" label="Task Instance" />
 					<handle input_type="text" label="Handle" />
@@ -93,18 +93,18 @@
 			</command>
 			<command name="set_debug_level" label="Set Logging Level" description="Changes the logging threshold of the running Task." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#loglevel' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/debug_level_32.png">
+                icon="static/images/icons/cato/debug_level_32.png">
 				<function name="set_debug_level">
 					<debug_level input_type="dropdown" label="Logging Level" datasource="function" dataset="ddDataSource_GetDebugLevels">20</debug_level>
 				</function>
 			</command>
 		</commands>
 	</category>
-	<category name="flow" label="Flow" description="Commands for defining logic flow within a Task." icon="static/images/icons/agt_reload_32.png">
+	<category name="flow" label="Flow" description="Commands for defining logic flow within a Task." icon="static/images/icons/cato/agt_reload_32.png">
 		<commands>
 			<command name="if" label="If" description="If, Then, Else conditional logic." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#if' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/kmenuedit_32.png">
+                icon="static/images/icons/cato/kmenuedit_32.png">
 				<function name="if">
 					<tests>
 						<test>
@@ -116,7 +116,7 @@
 			</command>
 			<command name="loop" label="Loop" description="Loop for a specified number of interations." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#loop' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/quick_restart_32.png">
+                icon="static/images/icons/cato/quick_restart_32.png">
 				<function name="loop">
 					<start input_type="text">1</start>
 					<counter input_type="text" />
@@ -129,14 +129,14 @@
 			</command>
 			<command name="codeblock" label="Codeblock" description="Branches to the specified Codeblock." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#codeblock' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/news_subscribe_32.png">
+                icon="static/images/icons/cato/news_subscribe_32.png">
 				<function name="codeblock" snip="codeblock">
 					<codeblock input_type="text" />
 				</function>
 			</command>
 			<command name="subtask" label="Subtask" description="Loads and executes the specified Task." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#subtasks' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/tab_duplicate_32.png">
+                icon="static/images/icons/cato/tab_duplicate_32.png">
 				<function name="subtask">
 					<task_name input_type="text" />
 					<version input_type="text" />
@@ -144,12 +144,12 @@
 			</command>
 			<command name="break_loop" label="Break Loop" description="Stops looping"
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#break' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/break_loop.png">
+                icon="static/images/icons/cato/break_loop.png">
 				<function name="break_loop" />
 			</command>
 			<command name="while" label="While" description="Performs a while loop until condition is not true." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#break' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/quick_restart_32.png">
+                icon="static/images/icons/cato/quick_restart_32.png">
 				<function name="while" snip="test">
 					<test input_type="text" />
 					<action />
@@ -157,18 +157,18 @@
 			</command>
 			<command name="comment" label="Comment" description="A comment block." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#comment' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/comment_32.png">
+                icon="static/images/icons/cato/comment_32.png">
 				<function name="comment">
 					<comment input_type="textarea" rows="3" label="Comment" class="w95pct" style="display: block;" />
 				</function>
 			</command>
 		</commands>
 	</category>
-	<category name="interact" label="Interact" description="Commands for interacting with any connected Asset." icon="static/images/icons/exec_32.png">
+	<category name="interact" label="Interact" description="Commands for interacting with any connected Asset." icon="static/images/icons/cato/exec_32.png">
 		<commands>
 			<command name="sql_exec" label="Execute SQL" description="Executes SQL on a remote database." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#execsql' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/database_32.png">
+                icon="static/images/icons/cato/database_32.png">
 				<function name="sql_exec" variables="true" parse_method="1" snip="sql">
 					<conn_name input_type="text" connection_picker="true" />
 					<mode input_type="select">SQL</mode>
@@ -184,7 +184,7 @@
 			</command>
 			<command name="cmd_line" label="Command Line" description="A command issued to the Asset via a Command Line." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#commandline' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/konsole_32.png">
+                icon="static/images/icons/cato/konsole_32.png">
 				<function name="cmd_line" variables="true" parse_method="2" snip="command">
 					<conn_name input_type="text" connection_picker="true" label="Connection" break_after="true" required="true" />
 					<command input_type="textarea" rows="3" label="Command" class="w95pct" required="true" label_style="display: block;" />
@@ -195,7 +195,7 @@
 			</command>
 			<command name="winrm_cmd" label="Windows Remote Management" description="A command issued via the WinRM tool for interaction with Windows hosts." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#winrm' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/winrm_32.png">
+                icon="static/images/icons/cato/winrm_32.png">
 				<function name="winrm_cmd" variables="true" parse_method="2" snip="command">
 					<conn_name input_type="text" label="Connection" connection_picker="true" />
 					<command input_type="textarea" rows="3" label="Command" class="w95pct" style="display: block;" />
@@ -205,7 +205,7 @@
 			</command>
 			<command name="send_email" label="Send Email" description="Sends an email to the specified list of recipients." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#email' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/mail_send_32.png">
+                icon="static/images/icons/cato/mail_send_32.png">
 				<function name="send_email" snip="subject">
 					<to input_type="text" label="To" class="w95pct" label_style="display: block;" />
 					<cc input_type="text" label="Cc" class="w95pct" label_style="display: block;" />
@@ -216,7 +216,7 @@
 			</command>
 			<command name="add_summary_item" label="Add Summary Item" description="Adds an item to the Task 'Results Summary' dialog that appears when a Task is completed." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#summary' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/add_summary_item_32.png">
+                icon="static/images/icons/cato/add_summary_item_32.png">
 				<function name="add_summary_item" snip="name">
 					<name label="Item Name" input_type="text" break_after="true" style="display: block;" />
 					<detail input_type="textarea" rows="3" label="Detail" class="w95pct" style="display: block;" />
@@ -224,14 +224,14 @@
 			</command>
 			<command name="log_msg" label="Log Message" description="Places a message in the logging table." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#log' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/signature_32.png">
+                icon="static/images/icons/cato/signature_32.png">
 				<function name="log_msg" snip="message">
 					<message input_type="textarea" rows="2" label="Log" class="w95pct" required="true" label_style="display: block;" />
 				</function>
 			</command>
 			<command name="http" label="HTTP" description="Http get to retrieve html data." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#http' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/internet_32.png">
+                icon="static/images/icons/cato/internet_32.png">
 				<function name="http" variables="true" parse_method="2" snip="url">
 					<type input_type="dropdown" label="Request Type" datasource="local" dataset="GET|POST|DELETE|PUT|HEADER">GET</type>
 					<url input_type="textarea" rows="1" label="URL" class="w95pct" required="true" label_style="display: block;" />
@@ -253,7 +253,7 @@
 			</command>
 			<command name="cato_web_service" label="Cato API Call" description="Makes a call to the Cato REST API to manage the Cato environment." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#api' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/network_service_32.png">
+                icon="static/images/icons/cato/network_service_32.png">
 				<function name="cato_web_service"  >
 					<host input_type="text" label="Host" class="w90pct" break_after="true" />
 					<userid input_type="text" label="UserId" />
@@ -280,11 +280,11 @@
 			</command>
 		</commands>
 	</category>
-	<category name="variable" label="Variable" description="Commands for setting and manipulating runtime variables." icon="static/images/icons/bookmark_add_32.png">
+	<category name="variable" label="Variable" description="Commands for setting and manipulating runtime variables." icon="static/images/icons/cato/bookmark_add_32.png">
 		<commands>
 			<command name="set_variable" label="Set Variables" description="Sets a variable to a value." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#setvariable' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/bookmark_add_32.png">
+                icon="static/images/icons/cato/bookmark_add_32.png">
 				<function name="set_variable">
 					<variables label="Variables">
 						<variable label="Variable">
@@ -297,7 +297,7 @@
 			</command>
 			<command name="replace" label="Replace" description="Replaces string patterns within a source string." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#replace' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/bookmark_toolbar_32.png">
+                icon="static/images/icons/cato/bookmark_toolbar_32.png">
 				<function name="replace">
 					<source input_type="textarea" rows="3" label="Text" class="w95pct" required="true" label_style="display: block;" />
 					<variable_name input_type="text" label="Variable (out)" required="true" />
@@ -312,7 +312,7 @@
 			</command>
 			<command name="clear_variable" label="Clear Variables" description="Removes variables from memory." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#clear' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/bookmark_delete_32.png">
+                icon="static/images/icons/cato/bookmark_delete_32.png">
 				<function name="clear_variable">
 					<variables label="Variables">
 						<variable label="Variable">
@@ -323,14 +323,14 @@
 			</command>
 			<command name="parse_text" label="Parse Text" description="Variables to be extracted from text data." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#parse' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/bookmark_toolbar_32.png">
+                icon="static/images/icons/cato/bookmark_toolbar_32.png">
 				<function name="parse_text" variables="true" parse_method="2" snip="text">
 					<text input_type="textarea" rows="3" label="Text" class="w95pct" required="true" label_style="display: block;" />
 				</function>
 			</command>
 			<command name="substring" label="Substring" description="Sets a variable to a portion of the specified text." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#substring' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/editcut_32.png">
+                icon="static/images/icons/cato/editcut_32.png">
 				<function name="substring" snip="variable_name">
 					<variable_name input_type="text" label="Variable" required="true" />
 					<start input_type="text" label="Start" />
@@ -340,7 +340,7 @@
 			</command>
 			<command name="exists" label="Exists" description="The Exists command will check one or more variables to ensure they have values" 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#exists' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/exists.png">
+                icon="static/images/icons/cato/exists.png">
 				<function name="exists">
 					<variables>
 						<variable>
@@ -357,11 +357,11 @@
 			</command>
 		</commands>
 	</category>
-	<category name="security" label="Security" description="Commands for password and key management" icon="static/images/icons/encrypted_32.png">
+	<category name="security" label="Security" description="Commands for password and key management" icon="static/images/icons/cato/encrypted_32.png">
 		<commands>
 			<command name="get_shared_cred" label="Get Shared Credentials" description="Retrieves stored shared credentials for use in a task" 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#creds' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/encrypted_32.png">
+                icon="static/images/icons/cato/encrypted_32.png">
 				<function name="get_shared_cred" >
 					<alias input_type="text" label="Alias" required="true" />
 					<userid input_type="text" label="User ID Variable" />
@@ -371,7 +371,7 @@
 			</command>
 			<command name="store_private_key" label="Store Private Key" description="Stores the private portion of a keypair for later use.." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#storekey' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/key_save_32.png">
+                icon="static/images/icons/cato/key_save_32.png">
 				<function name="store_private_key" snip="name">
 					<name label="Keypair Name" input_type="text" />
 					<cloud_name label="Cloud Name" input_type="text" />
@@ -380,7 +380,7 @@
 			</command>
 			<command name="generate_password" label="Generate Password" description="Generates a random password" 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#dspass' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/password.png">
+                icon="static/images/icons/cato/password.png">
 				<function name="generate_password">
 					<length input_type="text" label="Length" />
 					<variable input_type="text" label="Variable Name" />
@@ -388,11 +388,11 @@
 			</command>
 		</commands>
 	</category>
-	<category name="datastore" label="Datastore" description="Commands for datastore management" icon="static/images/icons/datastore_query.png">
+	<category name="datastore" label="Datastore" description="Commands for datastore management" icon="static/images/icons/cato/datastore_query.png">
 		<commands>
 			<command name="datastore_insert" label="Datastore Insert" description="Insert a document into the Datastore." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#dsinsert' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/datastore_insert.png">
+                icon="static/images/icons/cato/datastore_insert.png">
 				<function name="datastore_insert">
 					<collection input_type="text" label="Collection" />
 					<object_id input_type="text" label="ObjectId Variable" />
@@ -407,7 +407,7 @@
 			</command>
 			<command name="datastore_query" label="Datastore Query" description="Retrieve a document from the Datastore and populate variables with it's properties." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#dsquery' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/datastore_query.png">
+                icon="static/images/icons/cato/datastore_query.png">
 				<function name="datastore_query">
 					<collection input_type="text" label="Collection" />
 					<query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
@@ -423,7 +423,7 @@
 			</command>
 			<command name="datastore_update" label="Datastore Update" description="Update one or more properties in a Datastore document." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#dsupdate' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/datastore_update.png">
+                icon="static/images/icons/cato/datastore_update.png">
 				<function name="datastore_update">
 					<collection input_type="text" required="true" label="Collection" />
 					<upsert input_type="checkbox" label="Upsert?" />
@@ -440,7 +440,7 @@
 			</command>
 			<command name="datastore_find_and_modify" label="Datastore Find and Modify" description="Used to find a value and modify it in a Datastore document. The values found will be returned to the command and can be used to populate variables." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#dsfandm' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/datastore_update.png">
+                icon="static/images/icons/cato/datastore_update.png">
 				<function name="datastore_find_and_modify">
 					<collection input_type="text" required="true" label="Collection" />
 					<upsert input_type="checkbox" label="Upsert?" />
@@ -465,7 +465,7 @@
 			</command>
 			<command name="datastore_delete" label="Datastore Delete" description="Delete a Datastore document." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#dsdelete' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/datastore_delete.png">
+                icon="static/images/icons/cato/datastore_delete.png">
 				<function name="datastore_delete">
 					<collection input_type="text" label="Collection" />
 					<query input_type="textarea" rows="1" class="w90pct" label_style="display: block;" label="Query" />
@@ -473,21 +473,21 @@
 			</command>
 			<command name="datastore_create_collection" label="Datastore Create Collection" description="Create a new collection in the Datastore." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#dscreate' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/datastore_create_collection.png">
+                icon="static/images/icons/cato/datastore_create_collection.png">
 				<function name="datastore_create_collection">
 					<collection input_type="text" label="Collection" />
 				</function>
 			</command>
 			<command name="datastore_drop_collection" label="Datastore Drop Collection" description="Drop a collection from the Datastore." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#dsdrop' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/datastore_delete_collection.png">
+                icon="static/images/icons/cato/datastore_delete_collection.png">
 				<function name="datastore_drop_collection">
 					<collection input_type="text" label="Collection" />
 				</function>
 			</command>
 			<command name="datastore_create_index" label="Datastore Create Index" description="Index a Datastore collection by document properties." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#dsindex' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/datastore_index.png">
+                icon="static/images/icons/cato/datastore_index.png">
 				<function name="datastore_create_index">
 					<collection input_type="text" label="Collection" />
 					<unique input_type="dropdown" label="Unique?" datasource="local" dataset="no|yes">no</unique>
