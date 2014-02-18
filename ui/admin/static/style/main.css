@@ -2,7 +2,7 @@
 @import url('/common/css/text.css');
 @import url('/common/css/sizing.css');
 @import url('input.css');
-@import url('jquery-ui-1.9.2.custom.css');
+@import url('/common/css/jquery-ui-1.10.4.custom.css');
 /*@import url('menu/menu.css');
  @import url('ac_pro/css/ac_pro/jquery-ui-1.7.1.custom.css');*/
 
@@ -77,7 +77,7 @@ body {
 }
 
 #head {
-	background: #949b50 url(images/ui-bg_highlight-soft_75_949b50_1x100.png) 50% 50% repeat-x;
+	background: #949b50 url(/common/css/images/ui-bg_highlight-soft_75_949b50_1x100.png) 50% 50% repeat-x;
 	position: absolute;
 	min-width: 1024px;
 	margin: 0px;
@@ -100,7 +100,7 @@ body {
 /* and make the superfish submenus green like #head */
 .sf-menu li li
  {
-	background: #949b50 url(images/ui-bg_highlight-soft_75_949b50_1x100.png) 50% 50% repeat-x;
+	background: #949b50 url(/common/css/images/ui-bg_highlight-soft_75_949b50_1x100.png) 50% 50% repeat-x;
 }
 /* and the hover effect */
 .sf-menu li:hover, .sf-menu li.sfHover, .sf-menu a:focus, .sf-menu a:hover, .sf-menu a:active
