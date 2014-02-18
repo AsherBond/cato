@@ -2,7 +2,7 @@
 @import url('/common/css/text.css');
 @import url('/common/css/sizing.css');
 @import url('input.css');
-@import url('jquery-ui-1.8.21.custom.css');
+@import url('jquery-ui-1.9.2.custom.css');
 /*@import url('menu/menu.css');
  @import url('ac_pro/css/ac_pro/jquery-ui-1.7.1.custom.css');*/
 
@@ -77,6 +77,7 @@ body {
 }
 
 #head {
+	background: #949b50 url(images/ui-bg_highlight-soft_75_949b50_1x100.png) 50% 50% repeat-x;
 	position: absolute;
 	min-width: 1024px;
 	margin: 0px;
@@ -89,6 +90,22 @@ body {
 	border: none; /*overrides the border from the ui-widget_header class*/ /*background-image: url( 'images/header-bg.png' ); 	background-repeat: repeat-x; 	background-attachment: fixed;*/
 	font-family: 'Lato', sans-serif;
 	font-size: 12px;
+}
+
+/* this overwrites the duperfish menu default color */
+.sf-menu a, .sf-menu a:visited
+{
+	color: #222222 !important;
+}
+/* and make the superfish submenus green like #head */
+.sf-menu li li
+ {
+	background: #949b50 url(images/ui-bg_highlight-soft_75_949b50_1x100.png) 50% 50% repeat-x;
+}
+/* and the hover effect */
+.sf-menu li:hover, .sf-menu li.sfHover, .sf-menu a:focus, .sf-menu a:hover, .sf-menu a:active
+{
+	color: #dddddd !important;
 }
 
 #app_header_icons {
@@ -261,13 +278,13 @@ body {
  They are tabular data classes for the most part.
  */
 th.col_header {
-	border: 1px solid #c5dbec;
-	background: #dfeffc;
+	border: 1px solid #dddddd;
+	background: #949b50;
 	font-weight: bold;
-	color: #2e6e9e;
+	color: #dddddd;
 }
 td.row {
-	border: 1px solid #c5dbec;
+	border: 1px solid #dddddd;
 	background: #fcfdfd;
 	color: #222222;
 	line-height: 22px;
