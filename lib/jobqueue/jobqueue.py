@@ -6,7 +6,7 @@ import uuid
 class JobQueue():
 
     def __init__(self, type, db_name, queue_name, host=None,
-                port=27017, user=None, password=None):
+                 port=27017, user=None, password=None):
 
         self.db_name = db_name
         self.host = host
@@ -37,4 +37,3 @@ class JobQueue():
 
         self.queue = MongoQueue(db[self.queue_name], timeout=300,
                             consumer_id=self.conn_name, max_attempts=3)
-

@@ -22,7 +22,7 @@
 # this module SHOULD be loaded first by all other Cato modules
 # therefore a basic initial setup of the logger here is necessary.
 import logging
-from logging import handlers, config
+from logging import handlers
 import sys
 import os.path
 from catoconfig import catoconfig
@@ -168,5 +168,3 @@ logging.basicConfig(level=logging.DEBUG, format="%(msg)s")
 #     'disable_existing_loggers': False
 # })
 LOGPATH = _get_logfiles_path()
-
-

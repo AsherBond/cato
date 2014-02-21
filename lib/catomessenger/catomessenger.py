@@ -27,8 +27,7 @@ lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 
 from catosettings import settings
-from catocryptpy import catocryptpy
-from catocommon import catocommon, catoprocess
+from catocommon import catoprocess
 
 class Messenger(catoprocess.CatoService):
     
@@ -166,5 +165,3 @@ class Messenger(catoprocess.CatoService):
     def main_process(self):
         """main process loop, parent class will call this"""
         self.check_for_emails()
-
-

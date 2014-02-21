@@ -24,7 +24,7 @@ import traceback
 import time
 import re
 import pwd
-#import importlib                   
+# import importlib
 import pexpect
 import json
 from jsonpath import jsonpath
@@ -58,10 +58,10 @@ class TaskEngine():
         self.home = catoconfig.BASEPATH
         self.tmpdir = catoconfig.CONFIG["tmpdir"]
         self.math = matheval.MathEval()
-        
+
         # see augment() for details about self.extension_modules
         self.extension_modules = []
-        
+
         # see augment() and sub_globals() for details about global_variables
         # TODO: Add _PUBLIC_IP, _PRIVATE_IP, _DATE
         self.global_variables = [
@@ -86,7 +86,7 @@ class TaskEngine():
         self.connection_errors = ["Broken pipe", "Connection reset by peer", "global name 'EINTR' is not defined"]
 
         self.task_instance = task_instance
-        
+
         # tell catoconfig what the LOGFILE name is, then get a logger
         # if logging has already been set up this won't do anything
         # but if it's not yet, this will set the basic config
@@ -97,7 +97,7 @@ class TaskEngine():
 
         self.logger = catolog.get_logger(process_name)
 
-        
+
         self.mysql_conns = {}
         self.cloud_conns = {}
         self.task_handles = {}
@@ -134,28 +134,28 @@ class TaskEngine():
             return ""
 
     def disconnect_oracle(self, handle):
-    
+
         try:
             handle.close()
         except:
             pass
 
     def disconnect_mssql(self, handle):
-    
+
         try:
             handle.close()
         except:
             pass
 
     def disconnect_sqlany(self, handle):
-    
+
         try:
             handle.close()
         except:
             pass
 
     def disconnect_mysql(self, handle):
-    
+
         try:
             handle.close()
         except:
@@ -215,7 +215,7 @@ class TaskEngine():
         at_prompt = False
         timeout = 20
         buffer = ""
-            
+
         if not default_prompt:
             default_prompt = "~ #|# $|% $|\$ $|> $"
 
@@ -223,7 +223,7 @@ class TaskEngine():
             raise Exception("Connection address is required to establish a connection")
         if not user:
             raise Exception("User id is required to establish a connection")
-        
+
         expect_list = [
             "No route to host|Network is unreachable|onnection reset by peer|onnection refused|onnection closed by|Read from socket failed|Name or service not known|Connection timed out",
             "Please login as the user .* rather than the user|expired|Old password:|Host key verification failed|Authentication failed|Permission denied|denied|incorrect|Login Failed|This Account is NOT Valid",
@@ -261,7 +261,7 @@ class TaskEngine():
 
             msg = None
             cpl = c.compile_pattern_list(expect_list)
-                
+
             sent_password = False
             while not at_prompt:
 
@@ -297,7 +297,7 @@ class TaskEngine():
                         more_msg = "password authentication. Check that the password for the user is correct or that the user has permission to login to this server using ssh."
                     msg = "%s\nAuthentication failed for address %s, user %s using ssh %s" % (buffer, host, user, more_msg)
                 elif index == 2:
-                    c.sendline ("yes")
+                    c.sendline("yes")
                 elif index == 3:
                     c.sendline(passphrase)
                 elif index == 4:
@@ -308,17 +308,17 @@ class TaskEngine():
                     c.logfile = None
                     c.sendline(password)
                     sent_password = True
-                    # c.logfile=sys.stdout 
+                    # c.logfile=sys.stdout
                 elif index == 6:
                     c.logfile = None
                     c.sendline(password)
                     sent_password = True
-                    # c.logfile=sys.stdout 
+                    # c.logfile=sys.stdout
                     c.delaybeforesend = 0
                 if msg:
-                    #try: 
+                    # try:
                     #    msg = msg + "\n" + c.before + c.after
-                    #except:
+                    # except:
                     #    pass
                     if key:
                         self.remove_pk(kf_name)
@@ -346,8 +346,8 @@ class TaskEngine():
             except:
                 pass
             raise Exception(msg)
-        c.sendline ("stty -onlcr;export PS2='';stty -echo;unalias ls")
-        index = c.expect (["PROMPT>$", pexpect.EOF, pexpect.TIMEOUT])
+        c.sendline("stty -onlcr;export PS2='';stty -echo;unalias ls")
+        index = c.expect(["PROMPT>$", pexpect.EOF, pexpect.TIMEOUT])
         buffer += str(c.before) + str(c.after)
         if index == 0:
             pass
@@ -403,15 +403,15 @@ class TaskEngine():
         from pytds import dbapi, login
         conn = None
         # server=c.system.address, port=port, uid=c.system.userid, pwd=c.system.password, database=c.system.db_name
-        
+
         # If the username has a \ in it... it's NTLM authentication...
         if system.domain:
             self.logger.debug("SQL Server - Domain provided... attempting NTLM authentication...")
             try:
-                conn = dbapi.connect(server=system.address, 
+                conn = dbapi.connect(server=system.address,
                                      port=system.port,
-                                     auth=login.NtlmAuth(user_name="%s\\%s" % (system.domain, system.userid), password=system.password), 
-                                     database=system.db_name, 
+                                     auth=login.NtlmAuth(user_name="%s\\%s" % (system.domain, system.userid), password=system.password),
+                                     database=system.db_name,
                                      autocommit=True)
             except Exception as e:
                 msg = "Could not connect to the database. Error message -> %s" % (e)
@@ -421,16 +421,16 @@ class TaskEngine():
             self.logger.debug("SQL Server - authenticating using a local database account...")
             # regular auth using a sql server native account
             try:
-                conn = dbapi.connect(server=system.address, 
+                conn = dbapi.connect(server=system.address,
                                      port=system.port,
-                                     user=system.userid, 
-                                     password=system.password, 
-                                     database=system.db_name, 
+                                     user=system.userid,
+                                     password=system.password,
+                                     database=system.db_name,
                                      autocommit=True)
             except Exception as e:
                 msg = "Could not connect to the database. Error message -> %s" % (e)
                 raise Exception(msg)
-    
+
         return conn
 
 
@@ -503,7 +503,7 @@ class TaskEngine():
             count = 0
         del(root)
         return count
-        
+
 
     def get_node_list(self, xml, node_name, *args):
 
@@ -622,7 +622,7 @@ class TaskEngine():
 
 
     def parse_xml(self, xml, path, values):
-       
+
         variables = {}
         attrib_list = []
         elem_list = []
@@ -633,7 +633,7 @@ class TaskEngine():
                 else:
                     elem_list.append(v[0])
                 variables[v[0]] = v[1]
-        
+
         result = self.get_node_values(xml, path, attribs=attrib_list, elems=elem_list)
         msg = "parse xml\n%s" % (result)
         self.insert_audit("parse xml", msg, "")
@@ -641,17 +641,17 @@ class TaskEngine():
         ii = 0
         for row in result:
             ii += 1
-            for k,v in variables.iteritems():
+            for k, v in variables.iteritems():
                 if ii == 1:
                     self.rt.clear(v)
-                #print "key %s, variable %s" % (k, v)
+                # print "key %s, variable %s" % (k, v)
                 if k in row:
-                    #print "setting %s to %s" % (v,  row[k])
+                    # print "setting %s to %s" % (v,  row[k])
                     self.rt.set(v, row[k], ii)
 
 
     def task_conn_log(self, address, userid, conn_type):
-        
+
         self.logger.info("Registering connection in task conn log")
         sql = """insert into task_conn_log (task_instance, address, userid, conn_type, conn_dt) values (%s,%s,%s,%s,now())"""
         self.exec_db(sql, (self.task_instance, address, userid, conn_type))
@@ -676,7 +676,7 @@ class TaskEngine():
     def process_list_buffer(self, buff, variables):
         for v in variables:
             self.rt.clear(v[0])
-  
+
         for ii, row in enumerate(buff):
             for v in variables:
                 name = v[0]
@@ -684,7 +684,7 @@ class TaskEngine():
                 t_index = ii + 1
                 self.logger.debug("%s, %s, %s, %s" % (name, index, t_index, row))
                 self.rt.set(name, row[index], t_index)
-            
+
     def get_step_object(self, step_id, step_xml):
 
         root = catocommon.ET.fromstring(step_xml)
@@ -708,7 +708,7 @@ class TaskEngine():
             found_var = self.find_var(s)
             # print "before ->" + s
             if found_var:
-                # we found a variable to replace 
+                # we found a variable to replace
                 if found_var.startswith("_"):
                     # it's a global variable, look it up
                     value = self.sub_global(found_var)
@@ -746,16 +746,16 @@ class TaskEngine():
                         parts = new_found_var[1:].split(":", 1)
                         varname = parts[0]
                         keypath = "" if len(parts) == 1 else parts[1]
-                        
+
                         var = self.rt.get(varname, int_index)
                         self.logger.debug("Object variable - variable is [%s]." % (varname))
-                        
+
                         if not keypath:
                             value = var
                         else:
                             self.logger.debug("Object variable - keypath is [%s]." % (keypath))
                             self.logger.debug(type(var))
-                             
+
                             # [[objvar:*]] will return the number of keys INSIDE this object
                             # if the 'keypath' starts with a $, that's a JSONPATH so we'll apply that
                             # otherwise we'll try a simple root level name.
@@ -769,7 +769,7 @@ class TaskEngine():
 #                                     matches = jsonpath(var, keypath)
 #                                 except IndexError as ex:
 #                                     self.logger.error("Dictionary Variable lookup:\n%s" % (ex.__str__))
-#                                 
+#
 #                                 if matches:
 #                                     if len(matches) == 1:
 #                                         value = matches[0]
@@ -777,7 +777,7 @@ class TaskEngine():
 #                                         value = matches
 #                                 else:
 #                                     self.logger.info("Object variable [%s] - key [%s] not found." % (varname, keypath))
-                    
+
                 elif "." in found_var:
                     # this is an xpath query
                     period = found_var.find(".")
@@ -863,12 +863,12 @@ class TaskEngine():
                     return catocommon.ObjectOutput.AsJSON(v)
                 else:
                     return v
-                
+
             # not found :-(
             self.logger.info("Object variable [%s] - key [%s] not found." % (vname, keypath))
         else:
             return catocommon.ObjectOutput.AsJSON(obj)
-        
+
     def sub_global(self, varname):
         """
         This will spin self.global_variables list, and attempt to reconcile _VARNAMES to self.properties.
@@ -887,12 +887,12 @@ class TaskEngine():
         docount = False
         if len(x) > 1:
             docount = True if x[1] == "*" else False
-        
+
         if ":" in full_var_name:
             x = full_var_name.split(":", 1)
             varname = x[0]
             keypath = "" if len(x) == 1 else x[1]
-            
+
         # is it one of our helper functions?
         if varname == "_UUID":
             return self.new_uuid()
@@ -903,20 +903,20 @@ class TaskEngine():
             for k, v in self.__dict__.iteritems():
                 out.append("%s -> %s" % (k, v))
             return "\n".join(out)
-        
+
 
         # guess not, so spin the global_variables list
         for g_varname, prop in self.global_variables:
             if varname.upper() == g_varname:
                 p = getattr(self, prop, "")
-                
+
                 # very simple... jsonpath can look into complex combinations of lists and dicts.
                 # so, if the root object is a list or a dict, use jsonpath
                 # otherwise return the whole object
                 if isinstance(p, list) or isinstance(p, dict):
                     if docount:
                         return len(p)
-                    
+
                     return self._use_jsonpath(varname, p, keypath)
                 else:
                     # we presume it's a string value
@@ -924,13 +924,13 @@ class TaskEngine():
 
         # no rules at all matched, but logs indicate why.  Return an empty string.
         return ""
-          
+
 
     def replace_variables(self, s):
 
         while re.search(".*\[\[.*\]\]", s):
             s = self.replace_vars(s)
-        
+
         return s
 
     def replace_html_chars(self, s):
@@ -955,7 +955,7 @@ class TaskEngine():
 
             if step.row_delimiter:
                 line = buff[ii]
-            else: 
+            else:
                 line = buff
 
             for v in variables:
@@ -971,8 +971,8 @@ class TaskEngine():
                     c_pos = int(v[2]) - 1
                     self.logger.debug("col delim = " + step.col_delimiter)
                     c_del = self.tochar(step.col_delimiter)
-                    #self.logger.debug(">>>" + c_del + "<<<<")
-                    #self.logger.debug(line.split(c_del))
+                    # self.logger.debug(">>>" + c_del + "<<<<")
+                    # self.logger.debug(line.split(c_del))
                     try:
                         value = line.split(c_del)[c_pos]
                     except IndexError:
@@ -984,11 +984,11 @@ class TaskEngine():
                     suffix = v[6]
 
                     # range (aka position) can either accept a prefix / suffix string or range
-                    # begin / end or a combination of the two. 
+                    # begin / end or a combination of the two.
                     # with range numbers, the 1 is the start index, not 0
-                    # the word "end" can be used to get all the way to the end 
+                    # the word "end" can be used to get all the way to the end
                     # of the string.
-                    
+
                     if not len(range_begin):  # we are using a prefix to find the start
                         begin = line.find(prefix)
                         if begin == -1:
@@ -1021,7 +1021,7 @@ class TaskEngine():
                                 end = int(range_end[3:])
 
                     value = line[begin:end]
-                             
+
                 elif typ == "regex":
                     pattern = v[7]
                     match = re.search(pattern, line, flags=re.MULTILINE)
@@ -1061,7 +1061,7 @@ class TaskEngine():
             self.logger.info("Unable to find Handle by name [%s]." % (handle))
 
         return value
-        
+
 
     def connect_winrm(self, server, port, user, password, protocol, winrm_transport):
 
@@ -1074,7 +1074,7 @@ class TaskEngine():
         if protocol not in ["http", "https"]:
             msg = "Connection to winrm endpoint required either https or http protocol. %s is invalid protocol" % (protocol)
             raise Exception(msg)
-        
+
         if protocol == "http":
             transport = "plaintext"
         else:
@@ -1096,7 +1096,7 @@ class TaskEngine():
         from winrm import winrm_service
         # TODO - allow the user to specify a transport of kerberos, and also test this
         # depends on ubuntu: sudo apt-get install libkrb5-dev; sudo pip install kerberos
-        
+
         conn = winrm_service.WinRMWebService(endpoint=address, transport=transport, username=user, password=password)
         return conn
 
@@ -1107,7 +1107,7 @@ class TaskEngine():
         reattempt = True
         attempt = 1
         while reattempt is True:
-            try: 
+            try:
                 s = conn.open_shell()
                 reattempt = False
             except Exception as e:
@@ -1119,7 +1119,7 @@ class TaskEngine():
                 else:
                     msg = "winrm connection failed with error %s" % (e)
                     raise Exception(msg)
-                    
+
         return s
 
 
@@ -1134,7 +1134,7 @@ class TaskEngine():
             left outer join asset a on a.asset_id = ti.asset_id 
             where ti.task_instance = %s"""
         row = self.select_row(sql, (ti))
-    
+
         if row:
             h.status = row[0]
             h.started_dt = row[1]
@@ -1172,7 +1172,7 @@ class TaskEngine():
             msg = "The asset named %s does not exist in the database" % (asset_name)
             raise Exception(msg)
             return None
-        
+
 
     def gather_system_info(self, asset_id):
 
@@ -1224,7 +1224,7 @@ class TaskEngine():
             path = "." + path
             value = self.get_xml_by_path(result, path)
             # value = self.get_command_params(result, path)[0]
-        return value 
+        return value
 
 
     def get_aws_system_info(self, instance_id, user_id, region, password=None, port=None, debug=False):
@@ -1263,7 +1263,7 @@ class TaskEngine():
                     time.sleep(10)
 
         # we got here, so we either timed out or sucessfully retrieved a running instance
-        if not ok_flag: 
+        if not ok_flag:
             msg = "AWS Error - DescribeInstances for instance id %s in region %s failed" % (instance_id, region)
             if state == "pending":
                 msg = msg + ", state stuck in a pending status"
@@ -1327,7 +1327,7 @@ class TaskEngine():
         except KeyError as ex:
             cloud = classes.Cloud(cloud_name)
             self.cloud_conns[cloud_name] = cloud
-        
+
         # this is a hack for the ncsu load balancer service
         if product == "elb" and cloud.provider == "Eucalyptus":
             path = "/"
@@ -1373,7 +1373,7 @@ class TaskEngine():
                 else:
                     msg = "%s command %s failed: %s" % (product, action, ex)
                     raise Exception(msg)
-                    
+
 
         if result:
             msg = "%s %s\n%s" % (step.function_name, params, result)
@@ -1382,7 +1382,7 @@ class TaskEngine():
         else:
             msg = "%s command %s failed." % (product, action)
             raise Exception(msg)
-        
+
 
     def process_step(self, task, step):
 
@@ -1410,7 +1410,7 @@ class TaskEngine():
             self.aws_cmd(step)
         else:
             self.process_extension(f, step)
-        
+
 
     def process_extension(self, name, step):
         """
@@ -1433,10 +1433,10 @@ class TaskEngine():
             msg = "Unable to get 'extension' property from extension command xml for extension %s" % (name)
             self.logger.error(msg)
             raise Exception(msg)
-        
+
         self.logger.info("loading extension [%s] ..." % (extension))
         try:
-            #mod = importlib.import_module(extension)
+            # mod = importlib.import_module(extension)
             mod = __import__(extension, fromlist=[''])
         except ImportError as ex:
             self.logger.error(ex.__str__())
@@ -1456,13 +1456,13 @@ class TaskEngine():
         else:
             msg = "Extension found, but method [%s] not found." % (name)
             raise Exception(msg)
-        
+
     def process_codeblock(self, task, codeblock_name):
 
         if not codeblock_name:
             msg = "Codeblock command cannot be empty."
             raise Exception(msg)
-            
+
         self.logger.info("##### Processing Codeblock %s" % (codeblock_name))
         if task.codeblocks.get(codeblock_name):
             for step in task.codeblocks[codeblock_name].step_list:
@@ -1470,7 +1470,7 @@ class TaskEngine():
         else:
             msg = "Codeblock Step references a non-existant Codeblock [%s]." % (codeblock_name)
             raise Exception(msg)
-            
+
     def process_task(self, task_id):
 
         try:
@@ -1480,7 +1480,7 @@ class TaskEngine():
             self.tasks[task_id] = task
 
         self.process_codeblock(task, "MAIN")
-            
+
     def get_task_instance(self):
 
         sql = """select B.task_name, A.asset_id, 
@@ -1498,7 +1498,7 @@ class TaskEngine():
             self.task_name, self.system_id, self.system_name, self.submitted_by, self.task_id, \
                 self.task_version, self.debug_level, self.plan_id, self.schedule_id, \
                 self.cloud_account, self.cloud_id, opts = row[:]
-        
+
         # options need to be json loaded
         self.options = json.loads(opts) if opts else {}
 
@@ -1507,7 +1507,7 @@ class TaskEngine():
             row = self.select_row(sql, (self.submitted_by))
             if row:
                 self.submitted_by_user, self.submitted_by_email = row[:]
-            
+
             return 1
         else:
             return -1
@@ -1527,7 +1527,7 @@ class TaskEngine():
         self.logger.info("Releasing all connections")
         for c in self.connections.keys():
             self.drop_connection(c)
-            
+
     def drop_connection(self, conn_name):
 
         try:
@@ -1560,7 +1560,7 @@ class TaskEngine():
             elif c.conn_type == "oracle":
                 self.disconnect_oracle(c.handle)
             del(c)
-            del(self.connections[conn_name])    
+            del(self.connections[conn_name])
 
     def connect_system(self, c):
 
@@ -1577,28 +1577,28 @@ class TaskEngine():
 
             # c.handle = self.connect_ssh_telnet("telnet", c.system.address, c.system.userid, password=c.system.password)
             c.handle = self.connect_expect("telnet", c.system.address, c.system.userid, password=c.system.password, default_prompt=c.initial_prompt)
-            
+
         elif c.conn_type == "ssh - ec2":
 
-            # c.handle = self.connect_ssh_telnet("ssh", c.system.address, c.system.userid, 
+            # c.handle = self.connect_ssh_telnet("ssh", c.system.address, c.system.userid,
             #    pk_password=c.system.p_password, key=c.system.private_key)
             c.handle = self.connect_expect("ssh", c.system.address, c.system.userid, password=c.system.password,
                 passphrase=c.system.p_password, key=c.system.private_key, debug=c.debug)
-            
+
         elif c.conn_type == "winrm":
 
             c.handle = self.connect_winrm(server=c.system.address, port=c.system.port, user=c.system.userid,
                 password=c.system.password, protocol=c.system.protocol, winrm_transport=c.winrm_transport)
 
             c.shell_id = self.get_winrm_shell(c.handle)
-            
+
         elif c.conn_type == "mysql":
 
             if c.system.port:
                 port = int(c.system.port)
             else:
                 port = 3306
-               
+
             c.handle = self.connect_mysql(server=c.system.address, port=port, user=c.system.userid,
                 password=c.system.password, database=c.system.db_name)
 
@@ -1612,7 +1612,7 @@ class TaskEngine():
                 port = c.system.port
             else:
                 port = "2638"
-               
+
             c.handle = self.connect_sqlany(server=c.system.address, port=port, user=c.system.userid,
                 password=c.system.password, database=c.system.db_name)
 
@@ -1622,10 +1622,10 @@ class TaskEngine():
                 port = int(c.system.port)
             else:
                 port = 1433
-               
+
             c.handle = self.connect_mssql(system=c.system)
         elif c.conn_type == "oracle":
-        
+
             if not c.system.port or c.system.port == "":
                 port = "1521"
             else:
@@ -1635,7 +1635,7 @@ class TaskEngine():
                 password=c.system.password, database=c.system.db_name)
 
         self.task_conn_log(c.system.address, c.system.userid, c.conn_type)
-        
+
     def is_uuid(self, s):
 
         t = "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
@@ -1656,7 +1656,7 @@ class TaskEngine():
             cloud = classes.Cloud(endpoint_name)
             self.cloud_conns[endpoint_name] = cloud
             cloud.connect(self.cloud_login_id, self.cloud_login_password)
-   
+
         return cloud
 
 
@@ -1683,7 +1683,7 @@ class TaskEngine():
                 else:
                     # not a severed connection or we already tried once
                     raise Exception(e)
-    
+
         # all's well
         return result
 
@@ -1711,7 +1711,7 @@ class TaskEngine():
                 else:
                     # not a severed connection or we already tried once
                     raise Exception(e)
-    
+
         # all's well
         return result
 
@@ -1739,7 +1739,7 @@ class TaskEngine():
                 else:
                     # not a severed connection or we already tried once
                     raise Exception(e)
-    
+
         # all's well
         return result
 
@@ -1747,11 +1747,11 @@ class TaskEngine():
     def update_status(self, task_status):
 
         self.logger.info("Updating Task Instance [%s] to [%s]" % (self.task_instance, task_status))
-        
+
         # we don't update the completed_dt unless it's actually done.
         if task_status in ("Completed", "Error", "Cancelled"):
             sql = "update task_instance set task_status = %s, completed_dt = now() where task_instance = %s"
-        else:  
+        else:
             sql = "update task_instance set task_status = %s where task_instance = %s"
 
         ii = 0
@@ -1766,7 +1766,7 @@ class TaskEngine():
                     raise e
             else:
                 break
-            
+
         # EXTENSIONS - spin the extensions and call any update_status defined there.
         # won't fail if the extension doesn't have the function defined.
         for extmod in self.extension_modules:
@@ -1777,7 +1777,7 @@ class TaskEngine():
 
     def update_ti_pid(self):
 
-        sql = """update task_instance set pid = %s, started_dt = now() where task_instance = %s""" 
+        sql = """update task_instance set pid = %s, started_dt = now() where task_instance = %s"""
         ii = 0
         while True:
             try:
@@ -1809,19 +1809,19 @@ class TaskEngine():
         return z
 
     def merge_parameters(self, default_xml, override_xml):
-        
-        # this will merge the two parameter documents, with 
+
+        # this will merge the two parameter documents, with
         # values from the second overriding values from the first
-        
+
         # if there's no parameters, do nothing...
         if not default_xml:
             return None
         if not override_xml:
             return None
-    
+
         xdefaults = catocommon.ET.fromstring(default_xml)
         xoverrides = catocommon.ET.fromstring(override_xml)
-        
+
         # spin the nodes in the DEFAULTS xml, then dig in to the task XML and UPDATE the value if found.
         # (if the node no longer exists, delete the node from the defaults xml IF IT WAS AN ACTION)
         # and default "values" take precedence over task values.
@@ -1829,33 +1829,33 @@ class TaskEngine():
             # nothing to do if it's empty
             if xoverride is None:
                 break
-    
+
             # look it up in the task param xml
             xovername = xoverride.findtext("name", "")
             xovervals = xoverride.find("values")
-            
+
             # nothing to do if there is no values node... or if it contains no values... or if there is no parameter name
             if xovervals is None or not len(xovervals) or not xovername:
                 break
-        
-        
+
+
             # so, we have some valid data in the override xml... let's merge!
 
             # NOTE! elementtree doesn't track parents of nodes.  We need to build a parent map...
             parent_map = dict((c, p) for p in xdefaults.getiterator() for c in p)
-            
+
             # we have the name of the parameter... go spin and find the matching node in the TASK param XML
             xdefaultparam = None
             for node in xdefaults.findall("parameter/name"):
                 if node.text == xovername:
                     # now we have the "name" node, what's the parent?
                     xdefaultparam = parent_map[node]
-                    
-                    
+
+
             if xdefaultparam is not None:
                 # the "values" collection will be the 'next' node
                 xdefaultparamvalues = xdefaultparam.find("values")
-        
+
                 sPresentAs = xdefaultparamvalues.get("present_as", "")
                 if sPresentAs == "list":
                     # replace the whole list with the defaults if they exist
@@ -1868,12 +1868,12 @@ class TaskEngine():
                         if xovervals.find("value") is not None:
                             xval.text = xovervals.findtext("value", "")
 
-        if xdefaults is not None:    
+        if xdefaults is not None:
             resp = catocommon.ET.tostring(xdefaults)
             if resp:
                 return resp
-        
-        
+
+
     def parse_input_params(self, params):
         if params:
             try:
@@ -1881,13 +1881,13 @@ class TaskEngine():
                 nodes = root.findall("./parameter")
                 for node in nodes:
                     name = node.findtext("name", "").strip()
-    
+
                     encrypt = node.attrib.get("encrypt")
                     if encrypt and encrypt == "true":
                         encrypt_flag = True
                     else:
                         encrypt_flag = False
-    
+
                     v_nodes = node.findall("./values/value")
                     ii = 0
                     for v_node in v_nodes:
@@ -1905,7 +1905,7 @@ class TaskEngine():
         msg = "Inserting into message queue : TO:{%s} SUBJECT:{%s} BODY:{%s}" % (to, sub, body)
         self.insert_audit("", msg, "")
 
-        # this used to pass self.host_domain as the 'from' property, but messenger doesn't use that anyway 
+        # this used to pass self.host_domain as the 'from' property, but messenger doesn't use that anyway
         catocommon.send_email_via_messenger(to, sub, body, cc, bcc)
 
     def notify_error(self, msg):
@@ -1929,15 +1929,15 @@ class TaskEngine():
         dl = int(dl)
         # this actually changes the debug level of the logger
         catolog.set_debug(dl)
-        
+
         # this resets the variable, which is used for run_task, etc
         self.debug_level = dl
         if dl == 50:
             self.audit_trail_on = 0
-        else: 
+        else:
             self.audit_trail_on = 2
 
-        
+
 
     def startup(self):
         """
@@ -1955,7 +1955,7 @@ class TaskEngine():
                 user=catoconfig.CONFIG["user"],
                 password=catoconfig.CONFIG["password"], database=catoconfig.CONFIG["database"])
             self.config = catoconfig.CONFIG
-    
+
             self.update_ti_pid()
             self.get_task_instance()
             self.set_debug(self.debug_level)
@@ -1964,13 +1964,13 @@ class TaskEngine():
     #######################################
         Starting up %s
     #######################################""" % self.process_name)
-    
+
             self.logger.info("Task Instance: %s - PID: %s" % (self.task_instance, os.getpid()))
-            self.logger.info("Task Name: %s - Version: %s, DEBUG LEVEL: %s" % 
+            self.logger.info("Task Name: %s - Version: %s, DEBUG LEVEL: %s" %
                 (self.task_name, self.task_version, self.debug_level))
-    
+
             self.get_task_params()
-    
+
             self.cloud_name = None
             if self.cloud_account:
                 self.gather_account_info(self.cloud_account)
@@ -1979,11 +1979,11 @@ class TaskEngine():
             elif self.cloud_account:
                 self.cloud_id = self.get_default_cloud_for_account(self.cloud_account)
                 self.cloud_name = self.get_cloud_name(self.cloud_id)
-                
-    
+
+
             self.logger.info("Cloud Account: %s, Cloud Name: %s " % (self.cloud_account, self.cloud_name))
-    
-            
+
+
             # loading extensions has two parts:
             # 1) append into the sys.path, all extensions found in the config
             # 2) if self.options has Augments: [], AND it references one of the defined extension...
@@ -1993,7 +1993,7 @@ class TaskEngine():
             for exname, expath in catoconfig.CONFIG["extensions"].iteritems():
                 self.logger.info("Appending extension [%s] path [%s]" % (exname, expath))
                 sys.path.append(expath)
-                
+
             # 2) check if any extensions are meant to augment the TE
             augs = self.options.get("Augments", [])
             for exname in augs:
@@ -2003,11 +2003,11 @@ class TaskEngine():
                         for f in files:
                             if f == "augment_te.py":
                                 self.augment("%s.augment_te" % os.path.basename(root))
-                                
+
             # NOTE: we do NOT update the status to Processing until any extensions are loaded.
             # why?  Because update_status also calls into extensions own status updater functions
             self.update_status("Processing")
-            
+
             # print all the attributes of the Task Engine if the debug level is high enough
             # just to keep things safe here, we are ...
             # a) removing internals from the results
@@ -2017,17 +2017,17 @@ class TaskEngine():
             try:
                 for k, v in x.iteritems():
                     out.append("%s -> %s" % (k, v))
-                
+
                 self.logger.debug("TASK ENGINE CONFIGURATION:\n%s" % ("\n".join(out)))
             except Exception as ex:
                 self.logger.error("An exception occured resolving the _DEBUG global variable.\n%s" % (ex.__str__()))
 
-            
+
         except Exception as e:
             self.logger.info(e)
             self.update_status('Error')
             raise Exception(e)
-        
+
 
     def augment(self, modname):
         """
@@ -2040,17 +2040,17 @@ class TaskEngine():
         If defined in the extension __augment__ function, may also append to the 'extension_globals' property.
         'extension_globals' are additional global [[_VARIABLES]] included with the extension. 
         """
-        
+
         self.logger.info("... augmenting from [%s] ..." % modname)
         try:
-            #mod = importlib.import_module(modname)
+            # mod = importlib.import_module(modname)
             mod = __import__(modname, fromlist=[''])
         except ImportError as ex:
             raise ex
 
         # put a pointer in self.extension_modules
         self.extension_modules.append(mod)
-        
+
         # evidently the module exists... try to call the function
         method_to_call = getattr(mod, "__augment__", None)
 
@@ -2062,7 +2062,7 @@ class TaskEngine():
                 self.logger.error("augment_te module found, but __augment__ is not callable.")
         else:
             self.logger.error("augment_te module found, but doesn't contain __augment__()")
-        
+
 
     def create_one_like_me(self):
 
@@ -2074,16 +2074,16 @@ class TaskEngine():
 
     def end(self):
         self.db.close()
-        
+
 
     def result_summary(self):
         if len(self.summary) > 0:
             msg = "<result_summary><items>%s</items></result_summary>" % (self.summary)
             self.insert_audit("result_summary", msg, "")
-        
-    
+
+
     def run(self):
-        try: 
+        try:
             self.process_task(self.task_id)
             self.update_status('Completed')
             self.result_summary()
@@ -2102,5 +2102,5 @@ class TaskEngine():
             if self.on_error:
                 self.logger.critical("on error directive set, creating a new task based on this one")
                 self.create_one_like_me()
-    
+
             raise Exception(msg)

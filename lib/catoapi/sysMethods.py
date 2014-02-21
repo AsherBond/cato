@@ -77,12 +77,12 @@ Returns: A list of items in the backup file, with the success/failure of each im
             if result:
                 catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Created by import.")
 
-                items.append({"type" : "task", "id" : t.ID, "Name" : t.Name, "Info" : "Success"}) 
+                items.append({"type": "task", "id": t.ID, "Name": t.Name, "Info": "Success"}) 
             else:
                 if err:
-                    items.append({"type" : "task", "id" : t.ID, "Name" : t.Name, "Info" : err}) 
+                    items.append({"type": "task", "id": t.ID, "Name": t.Name, "Info": err}) 
                 else:
-                    items.append({"type" : "task", "id" : t.ID, "Name" : t.Name, "Info" : "Unable to create Task. No error available."}) 
+                    items.append({"type": "task", "id": t.ID, "Name": t.Name, "Info": "Unable to create Task. No error available."}) 
             
         # parse it as a validation, and to find out what's in it.
         xd = None
@@ -93,7 +93,7 @@ Returns: A list of items in the backup file, with the success/failure of each im
             try:
                 js = json.loads(args["xml"])
             except:
-                return json.dumps({"error" : "Data is not properly formatted XML or JSON."})
+                return json.dumps({"error": "Data is not properly formatted XML or JSON."})
         
         if xd is not None:
             for xtask in xd.findall("task"):
@@ -113,7 +113,7 @@ Returns: A list of items in the backup file, with the success/failure of each im
                 t.FromJSON(json.dumps(jstask))
                 _save(t)
         else:
-            items.append({"info" : "Unable to create Task from backup JSON/XML."})
+            items.append({"info": "Unable to create Task from backup JSON/XML."})
         
         if args["output_format"] == "json":
             return R(response=catocommon.ObjectOutput.IterableAsJSON(items))
@@ -1046,6 +1046,3 @@ Returns: Nothing if successful, error messages on failure.
         
         catocommon.write_delete_log(api._USER_ID, catocommon.CatoObjectTypes.Asset, obj.ID, obj.Name, "Deleted via API.")
         return R(response="[%s] successfully deleted." % obj.Name)
-            
-
-        

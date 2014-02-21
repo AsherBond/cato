@@ -173,4 +173,3 @@ def jenkins_build(TE, step):
 
     msg = "Jenkins Job %s started with build number %s" % (job, n)
     TE.insert_audit("jenkins_build", msg, "")
-

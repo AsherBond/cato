@@ -40,21 +40,21 @@ except ImportError as e:
 except Exception as e:
     raise Exception(e)
 
-#(0,1,6) -> '0.1.6'
-#pysphere_version = '.'.join(pysphere_version_info)
+# (0,1,6) -> '0.1.6'
+# pysphere_version = '.'.join(pysphere_version_info)
 
 from catoerrors import MissingArgumentError, UnknownPropertyError, \
     UnsupportedVersionError, BadParameterError, InstanceNotFoundError, \
     InternalError
-    
+
 # __all__ = [ 'Server', 'VM', 'VMPowerState']
 
 # all property names currently supported
 VM_ALL_PROPERTY_NAMES = ['config.instanceUuid',
-                          'name',      
-                          'overallStatus', 
+                          'name',
+                          'overallStatus',
                           'config.guestFullName',
-                          'config.template', 
+                          'config.template',
                           'config.hardware.numCPU',
                           'config.hardware.numCoresPerSocket',
                           'config.hardware.memoryMB',
@@ -68,8 +68,8 @@ _CUSTOM_PROPERTY_NAMES = {"datacenter": MORTypes.Datacenter}
 
 # default logging location. None for stdout
 LOGFILE_DEFAULT = '/dev/tty'
-#LOGFILE_DEFAULT = '/opt/log/catosphere.log'
-#PROTO_LOGFILE_DEFAULT = '/opt/log/catosphereproto.log'
+# LOGFILE_DEFAULT = '/opt/log/catosphere.log'
+# PROTO_LOGFILE_DEFAULT = '/opt/log/catosphereproto.log'
 PROTO_LOGFILE_DEFAULT = '/tmp/catosphereproto.log'
 FORMAT = '%(asctime)-15s %(message)s'
 logger = None
@@ -77,20 +77,20 @@ logger = None
 # determines of protocol details (SOAP request and responses should be logged
 prototrace = 0
 prototrace_file = None
-        
-# we are using filtering feature of pysphyere not available prior to trunk r63 
-# which is not part of default install via easy_install or pip as of October 2012 
-#r63 | argos83@gmail.com | 2012-03-09 04:46:13 -0800 (Fri, 09 Mar 2012) | 3 lines
-#Advanced filters parameter in VIServer.get_registered_vms
-#see: http://groups.google.com/group/pysphere/browse_thread/thread/15a06606ce774b37/f14f671252b2b82a#f14f671252b2b82a
 
-#SUPPORTED_PYSPHERE_VERSION = (0,1,7)
-#if pysphere_version_info != SUPPORTED_PYSPHERE_VERSION:
+# we are using filtering feature of pysphyere not available prior to trunk r63
+# which is not part of default install via easy_install or pip as of October 2012
+# r63 | argos83@gmail.com | 2012-03-09 04:46:13 -0800 (Fri, 09 Mar 2012) | 3 lines
+# Advanced filters parameter in VIServer.get_registered_vms
+# see: http://groups.google.com/group/pysphere/browse_thread/thread/15a06606ce774b37/f14f671252b2b82a#f14f671252b2b82a
+
+# SUPPORTED_PYSPHERE_VERSION = (0,1,7)
+# if pysphere_version_info != SUPPORTED_PYSPHERE_VERSION:
 #    raise UnsupportedVersionError('catosphere only supports pysphere v%s, but this is v%s' % \
 #                 (SUPPORTED_PYSPHERE_VERSION, pysphere_version_info))
 
 
-def set_prototrace(dotrace, filename = PROTO_LOGFILE_DEFAULT):
+def set_prototrace(dotrace, filename=PROTO_LOGFILE_DEFAULT):
     """Set protocol tracing for SOAP requests and responses.
      
     Example:
@@ -109,7 +109,7 @@ def set_prototrace(dotrace, filename = PROTO_LOGFILE_DEFAULT):
     if prototrace:
         prototrace_file = filename
 
-def set_debug(level, filename = LOGFILE_DEFAULT):
+def set_debug(level, filename=LOGFILE_DEFAULT):
     """ Initialize logging.
     
      This is useful to override the default if more than one catosphere processes
@@ -132,16 +132,16 @@ def set_debug(level, filename = LOGFILE_DEFAULT):
     logging.basicConfig(format=FORMAT, filename=filename)
     logger = logging.getLogger('catosphere')
     logger.setLevel(level)
-    
+
 # recommended debug/trace settings for production
-#set_debug(logging.INFO, '/dev/tty')
+# set_debug(logging.INFO, '/dev/tty')
 set_debug(logging.INFO, '/dev/stdout')
 set_prototrace(False)
 
 # for development:
-#set_debug(logging.DEBUG)
-#set_prototrace(True)
-#set_debug(logging.DEBUG, '/dev/tty')
+# set_debug(logging.DEBUG)
+# set_prototrace(True)
+# set_debug(logging.DEBUG, '/dev/tty')
 
 def get_all_property_names():
     """Returns all supported explicit property names for catosphere.
@@ -155,19 +155,19 @@ def get_all_property_names():
 
 class Server():
     """Vsphere server that a client can connect to"""
-    
+
     SUPPORTED_FILTER_KEYWORDS = ['uuidSpec', 'pathSpec', 'nameSpec']
-    
+
     url = os.getenv('VSPHERE_URL')
     """URL of vSphere endpoint"""
-    
-    #: vSphere account username
+
+    # : vSphere account username
     username = os.getenv('VSPHERE_USER')
-    
-    #: vSphere account password
+
+    # : vSphere account password
     password = os.getenv('VSPHERE_PASSWORD')
-    
-    def __init__(self, url = None, username = None, password = None):
+
+    def __init__(self, url=None, username=None, password=None):
         """Constructs an Server instance with given endpoint and credentials
         
         :param url: end point hostname/URL to connect to.
@@ -180,7 +180,7 @@ class Server():
         """
         self._server = VIServer()
         self._vm_datacenters = {}
-        
+
         # don't set to None if already set from environment
         if url:
             self.url = url
@@ -188,8 +188,8 @@ class Server():
             self.username = username
         if password:
             self.password = password
-        
-    def connect(self, url = None, username = None, password = None):
+
+    def connect(self, url=None, username=None, password=None):
         """Connects to vSphere server using optional arguments
          that may override those in Server constructor.
         If arguments are not given, previously specified arguments will
@@ -219,31 +219,31 @@ class Server():
             self.username = username
         if password:
             self.password = password
-            
+
         # check if all needed properties available for connect
         argErrors = []
         if not self.url:
-            argErrors.append('url unknown') 
+            argErrors.append('url unknown')
         if not self.username:
-            argErrors.append('username unknown') 
+            argErrors.append('username unknown')
         if not self.password:
-            argErrors.append('password unknown') 
-            
+            argErrors.append('password unknown')
+
         if argErrors:
             raise MissingArgumentError(' '.join(argErrors))
         # parse host from url
         host = urlparse(self.url).hostname
         # perform connect
         logger.debug('connect: %s; %s' % (url, username))
-        self._server.connect(host, self.username, self.password, 
-                             trace_file = prototrace_file)
-    
+        self._server.connect(host, self.username, self.password,
+                             trace_file=prototrace_file)
+
     def disconnect(self):
         """Disconnects from vSphere server"""
         self._server.disconnect()
         self._server = []
-    
-    
+
+
     def power_on_vm(self, instanceUuid, sync_run=True, host=None):
         """Powers on a virtual machine for a given instanceUuid"""
         return self._get_instance(instanceUuid).power_on(sync_run, host)
@@ -252,7 +252,7 @@ class Server():
         """Powers off a virtual machine for a given instanceUuid"""
         return self._get_instance(instanceUuid).power_off(sync_run)
 
-    def clone_vm(self, instanceUuid, name = None, sync_run=True, host=None):
+    def clone_vm(self, instanceUuid, name=None, sync_run=True, host=None):
         """Clones a virtual machine for a given instanceUuid.
         
         :param instanceUuid: instanceUuid of VM to clone
@@ -276,7 +276,7 @@ class Server():
         """Suspends a virtual machine for a given instanceUuid"""
         return self._get_instance(instanceUuid).suspend(sync_run)
 
-    def list_instances(self, instanceUuid = None, filter = None, datacenter = None):
+    def list_instances(self, instanceUuid=None, filter=None, datacenter=None):
         """Lists all vmware instances that match the given filter.
 
         :type instanceUuid: string
@@ -306,7 +306,7 @@ class Server():
         :return: A list of :class:`vmware.vsphere.VM`
         
         """
-                
+
         # get the vm paths
         if instanceUuid and len(instanceUuid):
             if not isinstance(instanceUuid, str):
@@ -314,19 +314,19 @@ class Server():
             if not filter:
                 filter = {}
             filter['config.instanceUuid'] = [instanceUuid]
-            
-        self._vmspaths = self._server.get_registered_vms(datacenter, advanced_filters = filter)
+
+        self._vmspaths = self._server.get_registered_vms(datacenter, advanced_filters=filter)
         logger.debug('list_instances: retrieved %d vm paths' % len(self._vmspaths))
         # instantiate instances for vm paths
         self.vms = []
         for p in self._vmspaths:
             self.vms.append(VM(p, self))
-        
+
         # first time this function runs, fetch information about vm to datacenter mapping
         self._fetch_datacenter_vms()
         return self.vms
-    
-    def get_hosts(self, datacenter = None):
+
+    def get_hosts(self, datacenter=None):
         """Returns a dictionary of the existing hosts keys are their names
         and values their ManagedObjectReference object.
         
@@ -372,12 +372,12 @@ class Server():
 
         """
         return self._server.get_datacenters()
-    
+
     #******************************************************
     # ***************** Private Methods *******************
     #******************************************************
 
-    
+
     def _fetch_datacenter_vms(self):
         """ Fetch/cache datacenter vm mapping information.
         
@@ -388,9 +388,9 @@ class Server():
             dcs = self.get_datacenters()
             for name in dcs.keys():
                 self._vm_datacenters[name] = self._server._get_managed_objects(MORTypes.VirtualMachine, from_mor=name)
-                
-            #logger.debug(': _vm_datacenters: %s' % self._vm_datacenters)
-    
+
+            # logger.debug(': _vm_datacenters: %s' % self._vm_datacenters)
+
     def _get_instance(self, instanceUuid):
         """ Retrieves instance by its instanceUuid.
         
@@ -410,7 +410,7 @@ class VM:
     invoked.
     
     """
-    
+
     def __init__(self, path, server):
         # wrapped underlying vm
         self._path = path
@@ -419,7 +419,7 @@ class VM:
         self._server = server._server
         self.server = server
         self._custom_properties = {}
-    
+
     @property
     def path(self):
         """Retrieves path for this VM"""
@@ -431,7 +431,7 @@ class VM:
         # retrieve vm instance from server, if not already catched
         if not self._vm:
             self._vm = self._server.get_vm_by_path(self._path)
-                
+
     def get_property(self, name):
         """ Retrieves Property from VM.
         
@@ -456,7 +456,7 @@ class VM:
         
         """
         self._ensureVMFetch()
-            
+
         if name == 'config.instanceUuid':
             val = self._vm.properties.config.instanceUuid
         elif name == 'config.uuid':
@@ -487,8 +487,8 @@ class VM:
             else:
                 val = None
         elif name == 'guest.net':
-            #val = self._vm.properties.guest.net
-            # We use an alternative way of retriving property here which unfolds 
+            # val = self._vm.properties.guest.net
+            # We use an alternative way of retriving property here which unfolds
             # it into a dict
             val = self._vm._properties.get('net')
             if val and isinstance(val, list) and len(val) == 1:
@@ -498,8 +498,8 @@ class VM:
                     # TODO: remove this once it's verified with testing that
                     #  this is expected format.
                     raise InternalError('Unexpected inernal format for net property')
-                    #logger.error('Unexpected inernal format for net property')
-                
+                    # logger.error('Unexpected inernal format for net property')
+
         else:
             if self._is_custom_property(name):
                 # check if in cache
@@ -512,12 +512,12 @@ class VM:
                 if val is None:
                     raise UnknownPropertyError(name)
                 else:
-                    logger.warning('get_property: unregistered property %s=%s' % (name,val))
-                    
+                    logger.warning('get_property: unregistered property %s=%s' % (name, val))
+
         return val
-        
-        #logger.debug("runTestPySphere: after get_vm_by_path: ;%f" % resident())
-        #msg = '%s %s %s %s' %( vm.properties.config.guestFullName, vm.properties.name, \
+
+        # logger.debug("runTestPySphere: after get_vm_by_path: ;%f" % resident())
+        # msg = '%s %s %s %s' %( vm.properties.config.guestFullName, vm.properties.name, \
         #  vm.properties.overallStatus, vm.properties.config.template)
     def get_property_names(self):
         """Returns all supported property names for this VM.
@@ -528,7 +528,7 @@ class VM:
         """
         logger.debug('get_property_names')
         return VM_ALL_PROPERTY_NAMES
-    
+
     def get_properties(self):
         """ Retrieves all properties from VM.
         
@@ -542,8 +542,8 @@ class VM:
         ret = []
         self._ensureVMFetch()
         for n in VM_ALL_PROPERTY_NAMES:
-            #ret.append((n, self.get_property(n)))
-            ret.append(self.get_property(n))            
+            # ret.append((n, self.get_property(n)))
+            ret.append(self.get_property(n))
         return ret
 
     #******************************************************
@@ -558,7 +558,7 @@ class VM:
         self._ensureVMFetch()
         return self._vm.power_off(sync_run)
 
-    def power_on(self, sync_run=True,host=None):
+    def power_on(self, sync_run=True, host=None):
         """ Power on the VM. 
         
         :param sync_run: if False, run in async mode, otherwise run in sync mode
@@ -586,11 +586,11 @@ class VM:
         return self._vm.suspend(sync_run)
 
     # in latest v. of pysphere, this is the case:
-    #def clone(self, name, sync_run=True, folder=None, resourcepool=None, 
-    #          datastore=None, host=None, power_on=True, template=False, 
+    # def clone(self, name, sync_run=True, folder=None, resourcepool=None,
+    #          datastore=None, host=None, power_on=True, template=False,
     #          snapshot=None, linked=False):
-        
-    def clone(self, name, sync_run=True, folder=None, resourcepool=None, 
+
+    def clone(self, name, sync_run=True, folder=None, resourcepool=None,
               datastore=None, host=None, power_on=True):
         """Clones this Virtual Machine
         
@@ -642,14 +642,14 @@ class VM:
         logger.debug('clone: name, sync_run, folder, resourcepool, datastore, host, power_on : %s, %s, %s, %s, %s, %s, %s' %
                      (name, sync_run, folder, resourcepool, datastore, host, power_on))
         self._ensureVMFetch()
-        
+
         return self._vm.clone(name, sync_run, folder, resourcepool, datastore,
               host, power_on)
 
     #******************************************************
     #*************** Status query methods *****************
     #******************************************************
-        
+
     def get_status(self):
         """ Fetches the status/power stage of the VM from the server.
         
@@ -661,7 +661,7 @@ class VM:
         status = self._vm.get_status()
         logger.debug('get_status: %s' % status)
         return status
-    
+
     def is_powering_off(self):
         """Returns True if the VM is being powered off"""
         self._ensureVMFetch()
@@ -706,11 +706,11 @@ class VM:
         """Returns True if the VM is being reverted to a snapshot"""
         self._ensureVMFetch()
         return self._vm.is_reverting()
-        
+
     #******************************************************
     #************ Snapshot Management methods *************
     #******************************************************
-    
+
     def revert_to_snapshot(self, sync_run=True, host=None):
         """ Revert to snaphost. 
         
@@ -721,7 +721,7 @@ class VM:
         logger.debug('revert_to_snapshot: %s' % sync_run)
         self._ensureVMFetch()
         return self._vm.revert_to_snapshot(sync_run, host=host)
-        
+
     def revert_to_named_snapshot(self, name, sync_run=True, host=None):
         """ Revert to named snaphost. 
         
@@ -733,7 +733,7 @@ class VM:
         logger.debug('revert_to_named_snapshot: %s' % sync_run)
         self._ensureVMFetch()
         return self._vm.revert_to_named_snapshot(name, sync_run, host=host)
-    
+
     def revert_to_path(self, path, index=0, sync_run=True, host=None):
         """ Attemps to revert the VM to the snapshot of the given path and index
         (to disambiguate among snapshots with the same path, default 0).
@@ -776,7 +776,7 @@ class VM:
         self._ensureVMFetch()
         return self._vm.create_snapshot(name, sync_run, description,
                         memory, quiesce)
-        
+
     def delete_current_snapshot(self, remove_children=False, sync_run=True):
         """Removes the current snapshot. 
         
@@ -806,7 +806,7 @@ class VM:
         self._ensureVMFetch()
         return self._vm.delete_named_snapshot(name, remove_children, sync_run)
 
-    def delete_snapshot_by_path(self, path, index = 0, remove_children=False, sync_run=True):
+    def delete_snapshot_by_path(self, path, index=0, remove_children=False, sync_run=True):
         """ Removes the VM snapshot of the given path and index (to disambiguate
         among snapshots with the same path, default 0).  
         
@@ -821,14 +821,14 @@ class VM:
          """
         logger.debug('delete_snapshot_by_path: %s' % sync_run)
         self._ensureVMFetch()
-        return self._vm.delete_snapshot_by_path(path, index, remove_children, 
+        return self._vm.delete_snapshot_by_path(path, index, remove_children,
                                                 sync_run)
-    
+
     def refresh_snapshot_list(self):
         """Refreshes the internal list of snapshots of this VM"""
         logger.debug('refresh_snapshot_list')
         self._ensureVMFetch()
-        self._vm.refresh_snapshot_list()    
+        self._vm.refresh_snapshot_list()
 
     def get_snapshots(self):
         """Returns a list of VISnapshot instances of this VM"""
@@ -839,7 +839,7 @@ class VM:
         """Returns the name of the current snapshot (if any)."""
         self._ensureVMFetch()
         return self._vm.get_current_snapshot_name()
-                
+
     def __repr__(self):
         return '%s' % self._path
 
@@ -849,7 +849,7 @@ class VM:
 
 
     # ***************** Private Methods *******************
-        
+
     def _is_custom_property(self, name):
         """Returns true if given name is a custom property name"""
         return name in _CUSTOM_PROPERTY_NAMES
@@ -860,10 +860,9 @@ class VM:
         logger.debug("Fetching property %s" % name)
         mortype = _CUSTOM_PROPERTY_NAMES.get(name)
         logger.debug('_fetch_custom_property: retrieving %s for %s' % (mortype, self._vm._mor))
-        #value = self._server._get_managed_objects(mortype, from_mor=self._vm._mor)
-        
+        # value = self._server._get_managed_objects(mortype, from_mor=self._vm._mor)
+
         value = "datacenter-12"
         logger.debug("Fetched %s=%s" % (name, value))
         self._custom_properties[name] = value
         return value
-

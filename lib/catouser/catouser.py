@@ -457,7 +457,7 @@ class User(object):
             except:
                 logger.warning("Config setting [ui_token_lifespan] not found or is not a number.  Using the default (30 minutes).")
             
-            if (now_ts - row["created_dt"]) > timedelta (minutes=mins):
+            if (now_ts - row["created_dt"]) > timedelta(minutes=mins):
                 logger.warning("The provided login token has expired. Tokens are good for %s minutes." % (mins))
                 return False, "expired"
             
@@ -674,4 +674,3 @@ class User(object):
         sql = "insert user_password_history (user_id, change_time, password) values (%s, now(), %s)"
         db.exec_db(sql, (self.ID, pw))
         db.close()        
-

@@ -176,4 +176,3 @@ class Poller(catoprocess.CatoService):
             get_processes = self.max_processes - process_count
     
             self.start_submitted_tasks(get_processes)
-

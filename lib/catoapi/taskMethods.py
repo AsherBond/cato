@@ -760,11 +760,11 @@ Returns: Nothing if successful, error messages on failure.
                 return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
                 
             sched_def = { 
-                         "Months" : t.get("Months"),
-                         "Days" : t.get("Days"),
-                         "Hours" : t.get("Hours"),
-                         "Minutes" : t.get("Minutes"),
-                         "DaysOrWeekdays" : t.get("DaysOrWeekdays")
+                         "Months": t.get("Months"),
+                         "Days": t.get("Days"),
+                         "Hours": t.get("Hours"),
+                         "Minutes": t.get("Minutes"),
+                         "DaysOrWeekdays": t.get("DaysOrWeekdays")
                          }
     
             # parameters coming from the command line are defined as json OR xml, we need xml
@@ -826,5 +826,3 @@ Returns: Nothing if successful, error messages on failure.
         catocommon.write_delete_log(api._USER_ID, catocommon.CatoObjectTypes.Task, "", "", "Plan [%s] deleted via API." % (args["plan_id"]))
         
         return R(response="Plan [%s] successfully deleted." % args["plan_id"])
-            
-    
