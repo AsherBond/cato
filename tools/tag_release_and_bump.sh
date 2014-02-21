@@ -10,6 +10,8 @@ if [ "$version" = "" ] ; then
     exit 1
 fi
 
+REPO_HOME=`git rev-parse --show-toplevel`
+
 # 'latest' version
 git tag -d latest
 git push origin :refs/tags/latest
@@ -18,9 +20,9 @@ git push origin :refs/tags/latest
 git tag -d $version
 git push origin :refs/tags/$version
 git pull
-echo $version > VERSION
+echo $version > $REPO_HOME/VERSION
 
-git add VERSION
+git add $REPO_HOME/VERSION
 git commit -m "Bumped Version to [$version]."
 git push
 git tag -a latest -m "Version $version"
