@@ -144,13 +144,7 @@ def getAjaxArg(sArg, sDefault=""):
             dic = dict(web.input())
 
         if dic:
-            if sArg in dic:
-                if dic[sArg]:
-                    return dic[sArg]
-                else:
-                    return sDefault
-            else:
-                return sDefault
+            return dic.get(sArg, sDefault)
         else:
             return sDefault
     except ValueError:
