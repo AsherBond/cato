@@ -1,5 +1,6 @@
 from jobqueue import JobQueue
 
+
 class Publisher(JobQueue):
 
     def __init__(self, db_name=None, queue_name=None, host=None,
@@ -29,6 +30,5 @@ class Publisher(JobQueue):
     def submit_job(self, job_name, data=None):
         """Submits a job to a work queue"""
 
-        job_data = {"job_name" : job_name, "data" : data} 
+        job_data = {"job_name": job_name, "data": data}
         self.queue.put(job_data)
-    

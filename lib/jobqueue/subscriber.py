@@ -4,6 +4,7 @@ import time
 import os
 from jobqueue import JobQueue
 
+
 class Subscriber(JobQueue):
 
     def __init__(self, db_name=None, queue_name=None, host=None,
@@ -18,13 +19,12 @@ class Subscriber(JobQueue):
         port -- MongoDB port (default 27017)
         user -- user with r/w permission on MongoDB collection
         password -- password for user
-        queue_delay -- a sleep throttle so that multiple subscribers can pull 
+        queue_delay -- a sleep throttle so that multiple subscribers can pull
                         from queued jobs (default .1 seconds)
         poll_delay -- if nothing is in the queue, number of seconds to sleep
                         before checking again (default .2 seconds)
 
         """
-
 
         self.db_name = db_name
         self.queue_name = queue_name
@@ -42,13 +42,12 @@ class Subscriber(JobQueue):
         self.th_func_map = {}
         self.mul_func_map = {}
 
-
     def forked_callback(self, func):
         """Used to register forked callback functions for processing. Can be used
         as a decorator or called by passing the function.
 
         """
-    
+
         self.fk_func_map[func.__name__] = func
 
     def threaded_callback(self, func):
@@ -56,7 +55,7 @@ class Subscriber(JobQueue):
         as a decorator or called by passing the function.
 
         """
-    
+
         self.th_func_map[func.__name__] = func
 
     def multiprocess_callback(self, func):
@@ -64,7 +63,7 @@ class Subscriber(JobQueue):
         as a decorator or called by passing the function.
 
         """
-    
+
         self.mul_func_map[func.__name__] = func
 
     def monitor_queue(self):
@@ -73,14 +72,14 @@ class Subscriber(JobQueue):
         while True:
             job = self.queue.next()
             if job:
-                #print("found %s" % (job.job_id))
+                # print("found %s" % (job.job_id))
 
                 job_name = job.payload["job_name"]
 
                 if job_name in self.mul_func_map:
 
                     t = self.mul_func_map[job_name]
-                    p = multiprocessing.Process(target=t,args=(job,))
+                    p = multiprocessing.Process(target=t, args=(job,))
                     p.daemon = True
                     p.start()
 
@@ -88,7 +87,7 @@ class Subscriber(JobQueue):
 
                     t = self.th_func_map[job_name]
                     # create a thread to process the job
-                    p = threading.Thread(target=t,args=(job,))
+                    p = threading.Thread(target=t, args=(job,))
                     p.daemon = True
                     # start the thread, going into the worker function
                     p.start()
@@ -105,12 +104,10 @@ class Subscriber(JobQueue):
                     # for closer examination
                     print("unknown job name %s, skipping" % (job_name))
 
-
-                # throttle so that other worker subscribers get a chance 
+                # throttle so that other worker subscribers get a chance
                 time.sleep(self.queue_delay)
             else:
                 time.sleep(self.poll_delay)
 
                 # prints the number of threads
                 # print len(threading.enumerate())
-

@@ -8,7 +8,7 @@
 input {
 	padding: 2px 4px 2px 4px;
 	margin: 6px 0px 6px 0px;
-	border: solid 1px #C5DBEC;
+	border: solid 1px #dddddd;
 	border-radius: 5px;
 	line-height: normal;
 	font-size-adjust: none;
@@ -19,7 +19,7 @@ textarea {
 	overflow: auto;
 	padding: 2px 2px 2px 2px;
 	margin: 2px 2px 2px 0px;
-	border: solid 1px #C5DBEC;
+	border: solid 1px #dddddd;
 	border-radius: 5px;
 	font-style: normal;
 	font-variant: normal;
