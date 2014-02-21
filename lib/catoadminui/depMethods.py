@@ -1,12 +1,12 @@
 
 # Copyright 2012 Cloud Sidekick
-#  
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-#  
+#
 #     http:# www.apache.org/licenses/LICENSE-2.0
-#  
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -59,22 +59,22 @@ class depMethods:
 
             for row in deps.rows[start:end]:
                 available = 'Yes' if row["Available"] else 'No'
-                
+
                 sHTML += """
                 <tr template_id="{0}">
                 <td class="chkboxcolumn">    
                     <input type="checkbox" class="chkbox" id="chk_{0}" object_id="{0}" tag="chk" />
                 </td>""".format(row["ID"])
-                
+
                 sHTML += '<td class="selectable">' + row["Name"] + '</td>'
                 sHTML += '<td class="selectable">' + row["Version"] + '</td>'
                 sHTML += '<td class="selectable">' + (row["Description"] if row["Description"] else "") + '</td>'
                 sHTML += '<td class="selectable">' + available + '</td>'
-                
+
                 sHTML += "</tr>"
 
-        return json.dumps({"pager" : uiCommon.packJSON(pager_html), "rows" : uiCommon.packJSON(sHTML)})
-            
+        return json.dumps({"pager": uiCommon.packJSON(pager_html), "rows": uiCommon.packJSON(sHTML)})
+
     def wmCreateTemplate(self):
         name = uiCommon.getAjaxArg("name")
         version = uiCommon.getAjaxArg("version")
@@ -84,9 +84,9 @@ class depMethods:
         t = deployment.DeploymentTemplate.DBCreateNew(name, version, uiCommon.unpackJSON(template), uiCommon.unpackJSON(desc))
         if t is not None:
             # create matching tags... this template gets all the tags this user has.
-            
+
             uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Deployment, t.ID, t.Name, "Deployment Template created.")
-            return json.dumps({"template_id" : t.ID})
+            return json.dumps({"template_id": t.ID})
 
     def wmCopyTemplate(self):
         name = uiCommon.getAjaxArg("name")
@@ -96,12 +96,12 @@ class depMethods:
         t = deployment.DeploymentTemplate()
         t.FromID(template)
         obj = t.DBCopy(name, version)
-        
+
         if obj is not None:
             # TODO: create matching tags... this template gets all the tags this user has.
-            
+
             uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Deployment, obj.ID, obj.Name, "Deployment Template created.")
-            return json.dumps({"template_id" : t.ID})
+            return json.dumps({"template_id": t.ID})
 
     def wmDeleteTemplates(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
@@ -109,7 +109,7 @@ class depMethods:
             raise InfoException("Unable to delete - no selection.")
 
         sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
-        
+
         # can't delete it if it's referenced.
         sSQL = """select count(*) from deployment d
             join deployment_template dt on d.template_id = dt.template_id
@@ -121,13 +121,13 @@ class depMethods:
             sSQL = "delete from deployment_template where template_id in (" + sDeleteArray + ")"
             if not self.db.tran_exec_noexcep(sSQL):
                 uiCommon.log_nouser(self.db.error, 0)
-            
+
             # if we made it here, save the logs
             uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.DeploymentTemplate, "", "", "Templates(s) Deleted [" + sDeleteArray + "]")
         else:
             raise InfoException("Unable to delete - %d Deployments are referencing these templates." % iResults)
-            
-        return json.dumps({"result" : "success"})
+
+        return json.dumps({"result": "success"})
 
     def wmGetDeploymentsTable(self):
         """ Get a list of all Deployments"""
@@ -155,8 +155,8 @@ class depMethods:
                 </tr>
                 """.format(row["ID"], row["Name"], row["RunState"], row.get("Description", ""))
 
-        return json.dumps({"pager" : uiCommon.packJSON(pager_html), "rows" : uiCommon.packJSON(sHTML)})
-            
+        return json.dumps({"pager": uiCommon.packJSON(pager_html), "rows": uiCommon.packJSON(sHTML)})
+
     def wmGetDeployment(self):
         sID = uiCommon.getAjaxArg("id")
         d = deployment.Deployment()
@@ -173,13 +173,13 @@ class depMethods:
         template_json = uiCommon.getAjaxArg("template")
         dt, validation_err = deployment.DeploymentTemplate.ValidateJSON(template_json)
         if dt:
-            return json.dumps({"result" : "success"})
-            
+            return json.dumps({"result": "success"})
+
         raise InfoException(validation_err.replace("\n", "<br />"))
 
     def wmGetTemplateDeployments(self):
         template_id = uiCommon.getAjaxArg("template_id")
-    
+
         sHTML = ""
 
         t = deployment.DeploymentTemplate()
@@ -235,11 +235,11 @@ class depMethods:
             # python is so cool.. I don't even need to check if the attribute I wanna set exists.
             # just set it
             setattr(d, sColumn, sValue)
-            
+
             d.DBUpdate()
             uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Deployment, sDeploymentID, sColumn, sValue)
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmAddDeploymentGroup(self):
         sDeploymentID = uiCommon.getAjaxArg("id")
@@ -247,30 +247,30 @@ class depMethods:
 
         if sGroupName:
             sUserID = uiCommon.GetSessionUserID()
-    
+
             if catocommon.is_guid(sDeploymentID) and catocommon.is_guid(sUserID):
                 d = deployment.Deployment()
                 d.FromID(sDeploymentID)
-    
+
                 d.AddGroup(sGroupName)
                 uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Deployment, sDeploymentID, d.Name, "Added Group [%s]" % (sGroupName))
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmDeleteDeploymentGroup(self):
         sDeploymentID = uiCommon.getAjaxArg("id")
         sGroupName = uiCommon.getAjaxArg("group_name")
 
         sUserID = uiCommon.GetSessionUserID()
-    
+
         if catocommon.is_guid(sDeploymentID) and catocommon.is_guid(sUserID):
             d = deployment.Deployment()
             d.FromID(sDeploymentID)
-    
+
             d.DeleteGroup(sGroupName)
             uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Deployment, sDeploymentID, d.Name, "Removed Group [%s]" % (sGroupName))
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmUpdateTemplateDetail(self):
         sTemplateID = uiCommon.getAjaxArg("id")
@@ -289,18 +289,18 @@ class depMethods:
         # python is so cool.. I don't even need to check if the attribute I wanna set exists.
         # just set it
         setattr(dt, sColumn, sValue)
-        
+
         dt.DBUpdate()
         uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.DeploymentTemplate, sTemplateID, sColumn, sValue)
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
-    def wmDeleteDeployments(self):        
+    def wmDeleteDeployments(self):
         # this is an admin function
         if uiCommon.GetSessionUserRole() != "Administrator":
             raise InfoException("Only an Administrator can delete a Deployed Application.")
-            
-                    
+
+
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
 
         ids_to_delete = sDeleteArray.split(",")
@@ -311,4 +311,4 @@ class depMethods:
                 # no success check, just carry on
                 obj.DBDelete()
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})

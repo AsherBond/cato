@@ -482,19 +482,19 @@ class Task(object):
 
     def AsJSON(self, include_code=False):
         t = {
-            "Name" : self.Name,
-            "Code" : self.Code,
-            "Version" : self.Version,
-            "Status" : self.Status,
-            "IsDefaultVersion" : self.IsDefaultVersion,
-            "Description" : self.Description,
-            "ConcurrentInstances" : self.ConcurrentInstances,
-            "QueueDepth" : self.QueueDepth,
-            "NumberOfApprovedVersions" : self.NumberOfApprovedVersions,
-            "MaxVersion" : self.MaxVersion,
-            "NextMinorVersion" : self.NextMinorVersion,
-            "NextMajorVersion" : self.NextMajorVersion,
-            "UseConnectorSystem" : self.UseConnectorSystem
+            "Name": self.Name,
+            "Code": self.Code,
+            "Version": self.Version,
+            "Status": self.Status,
+            "IsDefaultVersion": self.IsDefaultVersion,
+            "Description": self.Description,
+            "ConcurrentInstances": self.ConcurrentInstances,
+            "QueueDepth": self.QueueDepth,
+            "NumberOfApprovedVersions": self.NumberOfApprovedVersions,
+            "MaxVersion": self.MaxVersion,
+            "NextMinorVersion": self.NextMinorVersion,
+            "NextMajorVersion": self.NextMajorVersion,
+            "UseConnectorSystem": self.UseConnectorSystem
         }
         if hasattr(self, "ID"):
             t["ID"] = self.ID
@@ -511,7 +511,7 @@ class Task(object):
                 steps = []
                 for st in cb.Steps.itervalues():
                     steps.append(json.loads(st.AsJSON()))
-                codeblocks.append({"Name" : name, "Steps" : steps})
+                codeblocks.append({"Name": name, "Steps": steps})
 
             t["Codeblocks"] = codeblocks
 
@@ -787,7 +787,7 @@ class Task(object):
                 db.tran_rollback()
                 raise Exception(db.error)
 
-        # string sTaskName = (iExists > 0 ? sNewTaskName + " (" + DateTime.Now + ")" : sNewTaskName);
+        # string sTaskName = (iExists > 0 ? sNewTaskName + " (" + DateTime.Now + ")": sNewTaskName);
         # drop the temp tables.
         sSQL = "drop temporary table if exists _copy_task"
         db.tran_exec(sSQL)
@@ -1842,4 +1842,3 @@ class TaskInstances(object):
 
     def AsText(self, delimiter=None, headers=None):
         return catocommon.ObjectOutput.IterableAsText(self.rows, ['Instance', 'TaskName', 'Version', 'Status', 'StartedBy', 'SubmittedDate', 'CompletedDate'], delimiter, headers)
-

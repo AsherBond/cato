@@ -118,12 +118,12 @@ class taskMethods:
                 return t.AsJSON()
         
         # should not get here if all is well
-        return json.dumps({"result":"fail", "error":"Failed to get Task details for Task ID [%s]." % sID})
+        return json.dumps({"result": "fail", "error": "Failed to get Task details for Task ID [%s]." % sID})
 
     def wmTaskSetDefault(self):
         sID = uiCommon.getAjaxArg("sTaskID")
         task.Task.SetAsDefault(sID)
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmGetTaskCodeFromID(self):
         sOriginalTaskID = uiCommon.getAjaxArg("sOriginalTaskID")
@@ -133,7 +133,7 @@ class taskMethods:
 
             sSQL = "select task_code from task where original_task_id = %s and default_version = 1"
             sTaskCode = self.db.select_col(sSQL, sOriginalTaskID)
-            return json.dumps({"code" : sTaskCode})
+            return json.dumps({"code": sTaskCode})
         return "{}"
 
     @staticmethod
@@ -208,7 +208,7 @@ class taskMethods:
         t = task.Task.DBCreateNew(sTaskName, sTaskCode, sTaskDesc)
         uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "")
 
-        return json.dumps({"id" : t.ID})
+        return json.dumps({"id": t.ID})
 
     def wmCopyTask(self):
         sCopyTaskID = uiCommon.getAjaxArg("sCopyTaskID")
@@ -221,7 +221,7 @@ class taskMethods:
         sNewTaskID = t.Copy(0, sTaskName, sTaskCode)
         
         uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Copied from " + sCopyTaskID)
-        return json.dumps({"id" : sNewTaskID})
+        return json.dumps({"id": sNewTaskID})
 
     def wmDeleteTasks(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
@@ -234,7 +234,7 @@ class taskMethods:
         task.Tasks.Delete(sDeleteArray.split(","), force)
         
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Task, "Multiple", "Original Task IDs", sDeleteArray)
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
         
     def wmUpdateTaskDetail(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
@@ -304,7 +304,7 @@ class taskMethods:
         else:
             raise Exception("Unable to update task. Missing or invalid task [%s] id." % sTaskID)
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
             
     def wmCreateNewTaskVersion(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
@@ -362,7 +362,7 @@ class taskMethods:
             self.db.exec_db(sSQL, (sTaskID, sNewCodeblockName))
             uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sNewCodeblockName, "Added Codeblock.")
             
-            return json.dumps({"result" : "success"})
+            return json.dumps({"result": "success"})
         else:
             raise Exception("Unable to add Codeblock. Invalid or missing Codeblock Name.")
         
@@ -390,7 +390,7 @@ class taskMethods:
         
         uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sCodeblockID, "Deleted Codeblock.")
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmRenameCodeblock(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
@@ -450,7 +450,7 @@ class taskMethods:
             self.db.close()
             uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sOldCodeblockName, "Renamed Codeblock [%s -> %s]" % (sOldCodeblockName, sNewCodeblockName))
 
-            return json.dumps({"result" : "success"})
+            return json.dumps({"result": "success"})
         else:
             raise Exception("Unable to get codeblocks for task. Missing or invalid task_id.")
 
@@ -471,7 +471,7 @@ class taskMethods:
                 for dr in dt:
                     self.CopyStepToClipboard(dr["step_id"])
 
-            return json.dumps({"result" : "success"})
+            return json.dumps({"result": "success"})
         else:
             raise Exception("Unable to copy Codeblock. Missing or invalid codeblock_name.")
 
@@ -674,7 +674,7 @@ class taskMethods:
                 sStepHTML += "<span class=\"red_text\">Error: Unable to draw Step.</span>"
 
             # return the html
-            return json.dumps({"step_id":sNewStepID , "step_html": uiCommon.packJSON(sStepHTML)})
+            return json.dumps({"step_id": sNewStepID, "step_html": uiCommon.packJSON(sStepHTML)})
         else:
             raise Exception("Unable to add step.  No new step_id.")
 
@@ -806,7 +806,7 @@ class taskMethods:
                 
             i += 1
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmDeleteStep(self):
         sStepID = uiCommon.getAjaxArg("sStepID")
@@ -858,7 +858,7 @@ class taskMethods:
         self.db.tran_commit()
         self.db.close()
         
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
         
     def wmUpdateStep(self):
         sStepID = uiCommon.getAjaxArg("sStepID")
@@ -974,7 +974,7 @@ class taskMethods:
                 "Codeblock:" + dr["codeblock_name"] + " Step Order:" + str(dr["step_order"]) + 
                 " Command Type:" + sFunction + " Property:" + sXPath + " New Value: " + sValue)
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmToggleStepCommonSection(self):
         # no exceptions, just a log message if there are problems.
@@ -1059,7 +1059,7 @@ class taskMethods:
             # and of course a missing or 0 index is an error
             raise Exception("Unable to modify step. Invalid index.")
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmTaskSearch(self):
         sHTML = ""
@@ -1124,7 +1124,7 @@ class taskMethods:
         if not html:
             html = "<span class=\"red_text\">Unable to get command variables.</span>"
 
-        return json.dumps({"parse_type":pt, "row_delimiter":rd, "col_delimiter":cd, "html":uiCommon.packJSON(html)})
+        return json.dumps({"parse_type": pt, "row_delimiter": rd, "col_delimiter": cd, "html": uiCommon.packJSON(html)})
 
     def wmUpdateVars(self):
         sStepID = uiCommon.getAjaxArg("sStepID")
@@ -1230,7 +1230,7 @@ class taskMethods:
 
         ST.AddToCommandXML(sStepID, xpath, catocommon.tick_slash(catocommon.ET.tostring(xVars)))
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmGetClips(self):
         sUserID = uiCommon.GetSessionUserID()
@@ -2037,7 +2037,7 @@ class taskMethods:
             # Here's the real work ... do the whack
             uiCommon.RemoveNodeFromXMLColumn(sTable, "parameter_xml", sType + "_id = '" + sID + "'", "parameter[@id='" + sParamID + "']")
 
-            return json.dumps({"result" : "success"})
+            return json.dumps({"result": "success"})
         else:
             raise Exception("Invalid or missing Task or Parameter ID.")
 
@@ -2180,7 +2180,7 @@ class taskMethods:
         uiCommon.RemoveNodeFromXMLColumn(sTable, "parameter_xml", sType + "_id = '" + sID + "'", sParameterXPath + "/values")
         uiCommon.AddNodeToXMLColumn(sTable, "parameter_xml", sType + "_id = '" + sID + "'", sParameterXPath, sValueXML)
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmGetTaskRunLogDetails(self):
         sTaskInstance = str(uiCommon.getAjaxArg("sTaskInstance"))
@@ -2227,7 +2227,7 @@ class taskMethods:
         
         ti = task.TaskInstance(sTaskInstance, sTaskID, sAssetID)
         if ti.Error:
-            return json.dumps({"error" : ti.Error})
+            return json.dumps({"error": ti.Error})
         
         # one last thing... does the logfile for this run exist on this server?
         if os.path.exists(r"%s/te/%s.log" % (catolog.LOGPATH, sTaskInstance)):
@@ -2349,7 +2349,7 @@ class taskMethods:
             sLog += "</ul>\n"
 
         sNumRows = str(runlog.numrows) if runlog.numrows else "0"
-        return json.dumps({"log" : uiCommon.packJSON(sLog), "summary" : uiCommon.packJSON(sSummary), "totalrows" : sNumRows})
+        return json.dumps({"log": uiCommon.packJSON(sLog), "summary": uiCommon.packJSON(sSummary), "totalrows": sNumRows})
 
     def wmGetTaskLogfile(self):
         instance = uiCommon.getAjaxArg("sTaskInstance")
@@ -2408,7 +2408,7 @@ class taskMethods:
                 uiCommon.log("ERROR: unable to write task export file.")
             f_out.write(xml)
             
-        return json.dumps({"export_file" : filename})
+        return json.dumps({"export_file": filename})
             
     def wmGetTaskStatusCounts(self):
         # we're building a json object to be returned, so we'll start with a dictionary
@@ -2603,7 +2603,7 @@ class taskMethods:
         sInstance = uiCommon.getAjaxArg("sInstance")
         ti = task.TaskInstance(sInstance)
         ti.Stop()
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmApproveTask(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
@@ -2702,7 +2702,7 @@ class taskMethods:
             ST.AddToCommandXML(sStepID, sAddTo, sNewXML.strip())
             # uiCommon.AddNodeToXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sTemplateXPath, sNewXML)
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmRemoveNodeFromStep(self):
         # NOTE: this function is capable of removing data from any command.
@@ -2711,6 +2711,6 @@ class taskMethods:
         sRemovePath = uiCommon.getAjaxArg("sRemovePath")
         if sRemovePath:
             ST.RemoveFromCommandXML(sStepID, sRemovePath)
-            return json.dumps({"result" : "success"})
+            return json.dumps({"result": "success"})
         else:
             raise Exception("Unable to modify step. Invalid remove path.")

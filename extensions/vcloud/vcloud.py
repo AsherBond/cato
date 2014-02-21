@@ -38,7 +38,7 @@ def vcloud_connect(TE, step, timeout):
         cloud = classes.Cloud(cloud_name)
         TE.cloud_conns[cloud_name] = cloud
 
-    #print "cloudname = %s" % (cloud_name)
+    # print "cloudname = %s" % (cloud_name)
 
     if cloud.provider != "vCloud":
         msg = "The endpoint named cloud_name is not a vCloud configured endpoint" % (cloud_name)
@@ -65,14 +65,14 @@ def _convert_timeout(timeout):
 
 def vcloud_call_parse(te, step):
 
-    path, meth_or_href, action, data, type, xpath, out_var, timeout = te.get_command_params(step.command, "path", "method_or_href", 
+    path, meth_or_href, action, data, type, xpath, out_var, timeout = te.get_command_params(step.command, "path", "method_or_href",
         "action", "data", "content_type", "xpath", "output_var", "timeout")[:]
-    path = te.replace_variables(path) 
-    xpath = te.replace_variables(xpath) 
-    data = te.replace_variables(data) 
-    type = te.replace_variables(type) 
-    timeout = te.replace_variables(timeout) 
-    timeout = _convert_timeout(timeout) 
+    path = te.replace_variables(path)
+    xpath = te.replace_variables(xpath)
+    data = te.replace_variables(data)
+    type = te.replace_variables(type)
+    timeout = te.replace_variables(timeout)
+    timeout = _convert_timeout(timeout)
     values = te.get_node_list(step.command, "values/value", "name", "variable", "type")
     cloud = vcloud_connect(te, step, timeout)
 
@@ -88,13 +88,13 @@ def vcloud_call_parse(te, step):
 
 def vcloud_call(te, step):
 
-    path, meth_or_href, action, data, type, out_var, timeout = te.get_command_params(step.command, "path", "method_or_href", 
+    path, meth_or_href, action, data, type, out_var, timeout = te.get_command_params(step.command, "path", "method_or_href",
         "action", "data", "content_type", "output_var", "timeout")[:]
-    path = te.replace_variables(path) 
-    data = te.replace_variables(data) 
-    type = te.replace_variables(type) 
-    timeout = te.replace_variables(timeout) 
-    timeout = _convert_timeout(timeout) 
+    path = te.replace_variables(path)
+    data = te.replace_variables(data)
+    type = te.replace_variables(type)
+    timeout = te.replace_variables(timeout)
+    timeout = _convert_timeout(timeout)
     cloud = vcloud_connect(te, step, timeout)
 
     result = _vcloud_make_call(cloud, path, action, data, type, meth_or_href, timeout=timeout)
@@ -111,7 +111,7 @@ def _vcloud_make_call(cloud, path, action, data, type, meth_or_href, timeout):
     if not len(data):
         data = None
 
-    #print meth_or_href
+    # print meth_or_href
 
     if meth_or_href == "href":
         result = cloud.conn.make_href_request_path(path, action, data=data, type=type, timeout=timeout)
@@ -124,14 +124,14 @@ def _vcloud_make_call(cloud, path, action, data, type, meth_or_href, timeout):
 def vcloud_parse(te, step):
 
     path, xml = te.get_command_params(step.command, "path", "xml")[:]
-    path = te.replace_variables(path) 
-    xml = te.replace_variables(xml) 
+    path = te.replace_variables(path)
+    xml = te.replace_variables(xml)
     values = te.get_node_list(step.command, "values/value", "name", "variable", "type")
 
     _vcloud_parse_data(te, xml, path, values)
 
 def _vcloud_parse_data(te, xml, path, values):
-    
+
     variables = {}
     attrib_list = []
     elem_list = []
@@ -142,7 +142,7 @@ def _vcloud_parse_data(te, xml, path, values):
             else:
                 elem_list.append(v[0])
             variables[v[0]] = v[1]
-            
+
     result = vcloudpy.get_node_values(xml, path, attribs=attrib_list, elems=elem_list)
     msg = "vcloud parse\n%s" % (result)
     te.insert_audit("vcloud parse", msg, "")
@@ -150,10 +150,10 @@ def _vcloud_parse_data(te, xml, path, values):
     ii = 0
     for row in result:
         ii += 1
-        for k,v in variables.iteritems():
+        for k, v in variables.iteritems():
             if ii == 1:
                 te.rt.clear(v)
-            #print "key %s, variable %s" % (k, v)
+            # print "key %s, variable %s" % (k, v)
             if k in row:
-                #print "setting %s to %s" % (v,  row[k])
+                # print "setting %s to %s" % (v,  row[k])
                 te.rt.set(v, row[k], ii)

@@ -251,10 +251,10 @@ class Db(object):
     def select_col_noexcep(self, sql, params=()):
         try:
             result = self.select_col(sql, params)
-            if result is not None: # select_col returns a value, or False
-                return result # result is already a single column
+            if result is not None:  # select_col returns a value, or False
+                return result  # result is already a single column
             else:
-                return "" # returns an empty string, not a boolean!
+                return ""  # returns an empty string, not a boolean!
         except Exception as e:
             self.error = e.__str__()
             
@@ -284,4 +284,3 @@ class Db(object):
             return False
 
         return True
-

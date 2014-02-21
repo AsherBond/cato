@@ -46,11 +46,11 @@ def _eval(expr):
     if len(expr):
         try:
             # we expose only specific objects in our environment and pass it as 'globals' to eval.
-            environment = { 
+            environment = {
                            'parsedate': parser.parse,
                            'datetime': datetime,
                            'timedelta': timedelta,
-                           'ObjectId' : ObjectId
+                           'ObjectId': ObjectId
                            }
             s = eval(expr, environment, {})
         except Exception as ex:
@@ -61,7 +61,7 @@ def _eval(expr):
 
 def get_asset_cmd(self, task, step):
 
-    asset, address_out, db_out, port_out, conn_string_out, user_out, pass_out = self.get_command_params(step.command, 
+    asset, address_out, db_out, port_out, conn_string_out, user_out, pass_out = self.get_command_params(step.command,
         "asset", "address_out", "db_out", "port_out", "conn_string_out", "user_out", "pass_out")[:]
     asset = self.replace_variables(asset)
     address_out = self.replace_variables(address_out)
@@ -89,7 +89,7 @@ def get_asset_cmd(self, task, step):
     if len(address_out):
         self.rt.clear(address_out)
         self.rt.set(address_out, s.address)
-        
+
     if len(db_out):
         self.rt.clear(db_out)
         self.rt.set(db_out, s.db_name)
@@ -208,7 +208,7 @@ def datastore_delete_cmd(self, task, step):
 
     # validate and prepare the query
     query_dict = _eval(query_string)
-    if not len(query_dict): 
+    if not len(query_dict):
         query_dict = {}
 
     if len(collection) == 0:
@@ -283,7 +283,7 @@ def datastore_find_and_modify_cmd(self, task, step):
 
     # validate and prepare the query
     query_dict = _eval(query_string)
-    if not len(query_dict): 
+    if not len(query_dict):
         query_dict = {}
 
     if len(collection) == 0:
@@ -339,7 +339,7 @@ def datastore_find_and_modify_cmd(self, task, step):
         cols["_id"] = False
 
     if len(_vars):
-        update_json = {"$set" : _vars}
+        update_json = {"$set": _vars}
     else:
         update_json = None
     if not len(cols):
@@ -374,9 +374,9 @@ def datastore_update_cmd(self, task, step):
 
     # validate and prepare the query
     query_dict = _eval(query_string)
-    if not len(query_dict): 
+    if not len(query_dict):
         query_dict = {}
-    
+
     if len(collection) == 0:
         raise Exception("Datastore Update requires a collection name")
 
@@ -412,7 +412,7 @@ def datastore_update_cmd(self, task, step):
             _vars[name] = v
 
     msg = "Collection %s, Update %s, Set %s, Upsert %s" % (collection, query_dict, json.dumps(_vars), upsert)
-    coll.update(query_dict, {modifier : _vars}, multi=True, upsert=upsert)
+    coll.update(query_dict, {modifier: _vars}, multi=True, upsert=upsert)
     catocommon.mongo_disconnect(db)
     self.insert_audit(step.function_name, msg, "")
 
@@ -428,7 +428,7 @@ def datastore_query_cmd(self, task, step):
 
     # validate and prepare the query
     query_dict = _eval(query_string)
-    if not len(query_dict): 
+    if not len(query_dict):
         query_dict = {}
 
     if len(collection) == 0:
@@ -515,7 +515,7 @@ def if_cmd(self, task, step):
         test = test_node.findtext("eval", "")
         test = self.replace_html_chars(test)
         test = self.replace_variables(test)
-        
+
         if _eval_test_expression(self, test):
             self.logger.debug("... True!")
             action = test_node.findall("./action/function")
@@ -524,7 +524,7 @@ def if_cmd(self, task, step):
             break
         else:
             self.logger.debug("... False.")
-            
+
     if not action_xml:
         action = root.findall("./else/function")
         if action:
@@ -561,7 +561,7 @@ def while_cmd(self, task, step):
                 break
             self.process_step(task, sub_step)
             test = self.replace_variables(orig_test)
-            self.logger.debug(test) 
+            self.logger.debug(test)
 
         del(sub_step)
 
@@ -631,7 +631,7 @@ def loop_cmd(self, task, step):
 
 
 def exists_cmd(self, task, step):
-    
+
     all_true = True
     root = catocommon.ET.fromstring(step.command)
     variables = root.findall("./variables/variable")
@@ -640,7 +640,7 @@ def exists_cmd(self, task, step):
         is_true_flag = v.findtext("is_true", None)
         has_data_flag = v.findtext("has_data", None)
         self.logger.debug("Checking if [%s] exists ..." % (variable_name))
-        
+
         # if result == "1":
         if self.rt.exists(variable_name):
             value = self.rt.get(variable_name)
@@ -666,10 +666,10 @@ def exists_cmd(self, task, step):
     else:
         action_xml = False
     del(root)
-    
+
     if action_xml:
         sub_step = self.get_step_object(step.step_id, action_xml)
-        self.process_step(task, sub_step) 
+        self.process_step(task, sub_step)
         del(sub_step)
 
 
@@ -688,7 +688,7 @@ def generate_password_cmd(self, task, step):
     length = self.replace_variables(length)
     v_name = self.replace_variables(v_name)
     if not len(v_name):
-        raise Exception("Generate Password command requires Variable Name") 
+        raise Exception("Generate Password command requires Variable Name")
     if not len(length):
         i_len = 12
     else:
@@ -699,7 +699,7 @@ def generate_password_cmd(self, task, step):
         except Exception as e:
             raise Exception(e)
 
-    p = catocommon.generate_password(i_len) 
+    p = catocommon.generate_password(i_len)
     self.rt.set(v_name, p)
     msg = "Generated random password of length %s and stored in variable %s" % (i_len, v_name)
     self.insert_audit(step.function_name, msg, "")
@@ -729,7 +729,7 @@ def run_task_cmd(self, task, step):
     handle = args[2].lower()
     asset_id = self.replace_variables(args[3])
     wait_time = self.replace_variables(args[4])
-    
+
     parameters = self.extract_xml_string(step.command, "parameters")
     parameters = self.replace_variables(parameters)
 
@@ -749,7 +749,7 @@ def run_task_cmd(self, task, step):
         pass
     except Exception as ex:
         raise Exception(ex)
-        
+
     sql = """select task_id, version, default_version, parameter_xml, now() from task where task_name = %s"""
     if len(version):
         sql = sql + " and version = %s"
@@ -769,21 +769,21 @@ def run_task_cmd(self, task, step):
         raise Exception(msg)
 
     # one final thing before submitting...
-    # the parameters on the run_task command ARE NOT the full set of parameters, 
+    # the parameters on the run_task command ARE NOT the full set of parameters,
     # rather likely a subset of what's defined on the task to be ran.
     #     (this allows a user to set a few explicit values on this command,
-    #     while leaving other values on the task that can be changed without the need to 
+    #     while leaving other values on the task that can be changed without the need to
     #     change every reference to the task.)
-    
+
     merged_params = self.merge_parameters(task_params, parameters)
-    
+
     # NOTE, since this command is called from inside a running task, we will send the 'options' of the current
     # task instance along to any child tasks.  This will ensure all extension options are available down the line.
-    
+
     ti = catocommon.add_task_instance(task_id=task_id, user_id=self.submitted_by, debug_level=self.debug_level,
         parameter_xml=merged_params, account_id=self.cloud_account,
         plan_id=self.plan_id, schedule_id=self.schedule_id, submitted_by_instance=self.task_instance,
-        cloud_id=self.cloud_id, options=self.options) 
+        cloud_id=self.cloud_id, options=self.options)
 
     h = classes.TaskHandle()
     self.task_handles[handle] = h
@@ -800,11 +800,11 @@ def run_task_cmd(self, task, step):
     log = "Running Task Instance [%s] :: ID [%s], Name [%s], Version [%s] using handle [%s]." % (ti, task_id, task_name, task_version, handle)
     cmd = "%s %s" % (step.function_name, ti)
     self.insert_audit(cmd, log)
-    
+
     try:
         sec_wait = int(wait_time)
     except:
-        sec_wait = 0 
+        sec_wait = 0
 
     # if wait time is 0, don't wait
     # if wait time is -1, wait until task completion
@@ -825,7 +825,7 @@ def run_task_cmd(self, task, step):
 
 def sql_exec_cmd(self, task, step):
     # TODO: add the 'mode' stuff back in for oracle prepared statements, transactions, etc...
-    
+
     conn_name, sql, mode, handle = self.get_command_params(step.command, "conn_name", "sql", "mode", "handle")[:]
     conn_name = self.replace_variables(conn_name)
     sql = self.replace_variables(sql)
@@ -862,7 +862,7 @@ def _sql_exec_dbi(self, sql, variables, conn):
     else:
         rows = None
     cursor.close()
-    
+
     if rows:
         msg = "%s\n%s\n%s" % (sql, cols, rows)
     else:
@@ -874,15 +874,15 @@ def _sql_exec_dbi(self, sql, variables, conn):
 def _sql_exec_mysql(self, sql, variables, conn, mode):
 
     if mode == "COMMIT":
-        #conn.tran_commit()
+        # conn.tran_commit()
         sql = "commit"
-        #rows = ""
+        # rows = ""
     elif mode == "BEGIN":
         sql = "start transaction"
     elif mode == "ROLLBACK":
-        #conn.tran_rollback()
+        # conn.tran_rollback()
         sql = "rollback"
-        #rows = ""
+        # rows = ""
     elif mode in ["EXEC", "PL/SQL", "PREPARE", "RUN"]:
         msg = "Mode %s not supported for MySQL connections. Skipping" % (mode)
         self.insert_audit("sql_exec", msg, "")
@@ -984,7 +984,7 @@ def set_variable_cmd(self, task, step):
 
         if modifier != "NO_SUBST":
             value = self.replace_variables(value)
-            
+
         if modifier in ("Math", "MATH"):
             value = self.math.eval_expr(value)
         elif modifier == "TO_UPPER":
@@ -999,11 +999,11 @@ def set_variable_cmd(self, task, step):
             value = base64.b64decode(value)
         elif modifier == "EVAL":
             value = _eval(value)
-                
+
         elif modifier == "TO_JSON":
             # assumes the value is a variable name, containing a dictionary, most likely created by the Read JSON option.
             # DOES NOT use the value returned from self.replace_variables, as this is always cast to a string!
-            
+
             dictvar = self.rt.get(value)
             if type(dictvar) == dict or type(dictvar) == list:
                 try:
@@ -1037,7 +1037,7 @@ def set_variable_cmd(self, task, step):
         else:
             self.rt.set(name, value, index)
 
-    
+
 def cancel_task_cmd(self, task, step):
 
     tis = self.get_command_params(step.command, "task_instance")[0]
@@ -1132,7 +1132,7 @@ def substring_cmd(self, task, step):
 
     self.logger.debug("End is [%s]" % (end))
     s = source[start:end]
-    
+
     msg = "Substring set variable [%s] to [%s]." % (v_name, s)
     self.insert_audit(step.function_name, msg, "")
     self.rt.set(v_name, s)
@@ -1146,11 +1146,11 @@ def drop_connection_cmd(self, task, step):
         msg = "Dropping connection named [%s]..." % (conn_name)
         self.insert_audit(step.function_name, msg, "")
         self.drop_connection(conn_name)
-        
+
 
 def get_shared_cred_cmd(self, task, step):
 
-    alias, u, p, d = self.get_command_params(step.command, "alias", "userid", "password", "domain")[:] 
+    alias, u, p, d = self.get_command_params(step.command, "alias", "userid", "password", "domain")[:]
     alias = self.replace_variables(alias)
     u = self.replace_variables(u)
     p = self.replace_variables(p)
@@ -1240,7 +1240,7 @@ def new_connection_cmd(self, task, step):
             # new way, supports user id and password auth for ec2
 
             userid = password = port = shared_cred = None
-            #debug = False
+            # debug = False
 
             for pair in asset.split(" "):
                 k, v = pair.split("=")
@@ -1314,7 +1314,7 @@ def new_connection_cmd(self, task, step):
             asset_name = address = userid = password = port = db_name = protocol = shared_cred = pk = None
 
             # the following was added to support quoting values, e.g. asset="asset 1"
-            pairs = re.findall(r'\w+=".+?"', asset) + re.findall(r'\w+=[^" ]+',asset)
+            pairs = re.findall(r'\w+=".+?"', asset) + re.findall(r'\w+=[^" ]+', asset)
             for pair in pairs:
                 k, v = pair.split("=")
                 # strip quotes if they used them
@@ -1370,7 +1370,7 @@ def new_connection_cmd(self, task, step):
     # we've made it this far, let's create the new connection object
     conn = classes.Connection(conn_name, conn_type=conn_type, system=s, debug=debug, initial_prompt=initial_prompt, winrm_transport=s.winrm_transport)
     self.connections[conn_name] = conn
-        
+
     # and make the connection. We'll store any connection handle we get back for later use
     self.connect_system(conn)
 
@@ -1424,7 +1424,7 @@ def cato_web_service_cmd(self, task, step):
         timeout = 5 if not timeout else int(timeout)
     except:
         timeout = 5
-    
+
 
     if not len(host):
         host = catoconfig.CONFIG["rest_api_url"]
@@ -1457,13 +1457,13 @@ def cato_web_service_cmd(self, task, step):
 
     if len(argstr):
         url = "%s%s" % (url, argstr)
-        
+
     self.insert_audit(step.function_name, url)
     error_msg = ""
     try:
-        before = datetime.now() 
+        before = datetime.now()
         response = urllib2.urlopen(url, None, timeout)
-        after = datetime.now() 
+        after = datetime.now()
     except urllib2.HTTPError as e:
         error_msg = "HTTPError = %s, %s, %s" % (str(e.code), e.msg, e.read())
     except urllib2.URLError as e:
@@ -1471,7 +1471,7 @@ def cato_web_service_cmd(self, task, step):
     except httplib.HTTPException as e:
         error_msg = "HTTPException" % str(e)
 
-    if error_msg: 
+    if error_msg:
         if error_var:
             self.logger.error(error_msg)
             self.insert_audit(step.function_name, error_msg)
@@ -1482,7 +1482,7 @@ def cato_web_service_cmd(self, task, step):
 
     buff = response.read()
     del(response)
-    #response_ms = int(round((after - before).total_seconds() * 1000))
+    # response_ms = int(round((after - before).total_seconds() * 1000))
     response_ms = self.time_diff_ms(after - before)
 
     log = "%s\012Response time = %s ms" % (buff, response_ms)
@@ -1499,7 +1499,7 @@ def route53_cmd(self, task, step):
     path = self.replace_variables(path)
     data = self.replace_variables(data)
     response_v = self.replace_variables(response_v)
-    conn = awspy.AWSConn(self.cloud_login_id, self.cloud_login_password, product="r53") 
+    conn = awspy.AWSConn(self.cloud_login_id, self.cloud_login_password, product="r53")
     result = conn.aws_query(path, request_type=rtype, data=data)
     del(conn)
     if result:
@@ -1542,14 +1542,14 @@ def http_cmd(self, task, step):
         retries = int(retries)
     else:
         retries = 0
-    attempt = 0 
+    attempt = 0
 
     req = urllib2.Request(url)
     req.get_method = lambda: typ
     if not len(u_data):
         u_data = None
-    
-    req.add_data(u_data)    
+
+    req.add_data(u_data)
     for (k, v) in headers:
         k = self.replace_variables(k)
         v = self.replace_variables(v)
@@ -1559,18 +1559,18 @@ def http_cmd(self, task, step):
     ok = True
     while attempt <= retries:
         try:
-            before = datetime.now() 
+            before = datetime.now()
             response = urllib2.urlopen(req, None, timeout)
-            after = datetime.now() 
+            after = datetime.now()
             break
         except urllib2.HTTPError, e:
-            after = datetime.now() 
+            after = datetime.now()
             head = e.headers
             msg = e.msg
             buff = e.read()
             code = e.code
             ok = False
-            
+
             # raise Exception("HTTPError = %s, %s, %s\n%s" % (str(e.code), e.msg, e.read(), url))
             break
         except urllib2.URLError, e:
@@ -1578,7 +1578,7 @@ def http_cmd(self, task, step):
             if str(e.reason) == "timed out" and attempt <= retries:
                 self.insert_audit(step.function_name, "timeout on attempt number %s, retrying" % attempt)
             else:
-                after = datetime.now() 
+                after = datetime.now()
                 head = ""
                 msg = e.reason
                 buff = ""
@@ -1597,7 +1597,7 @@ def http_cmd(self, task, step):
         msg = "ok"
         del(response)
 
-    #response_ms = int(round((after - before).total_seconds() * 1000))
+    # response_ms = int(round((after - before).total_seconds() * 1000))
     response_ms = self.time_diff_ms(after - before)
     self.http_response = response_ms
 
@@ -1643,9 +1643,9 @@ def get_instance_handle_cmd(self, task, step):
         h = classes.TaskHandle()
         self.task_handles[handle] = h
         h.instance = ti
-        
+
     self.refresh_handle(h)
-    
+
 
 def parse_text_cmd(self, task, step):
 
@@ -1664,7 +1664,7 @@ def add_summary_item_cmd(self, task, step):
     name, detail = self.get_command_params(step.command, "name", "detail")[:]
     name = self.replace_variables(name)
     detail = self.replace_variables(detail)
-    
+
     if len(name) == 0:
         raise Exception("Add Summary Item error, Item Name required.")
     msg = "<item><name>%s</name><detail>%s</detail></item>" % (name, detail)
@@ -1696,13 +1696,13 @@ def sleep_cmd(self, task, step):
 
 
 def break_loop_cmd(self, task, step):
-    
+
     self.insert_audit(step.function_name, "Breaking out of loop.", "")
     self.loop_break = True
 
 
 def winrm_cmd_cmd(self, task, step):
-    
+
     conn_name, cmd, timeout, return_code = self.get_command_params(step.command, "conn_name", "command", "timeout", "return_code")[:]
     conn_name = self.replace_variables(conn_name)
     cmd = self.replace_variables(cmd)
@@ -1717,7 +1717,7 @@ def winrm_cmd_cmd(self, task, step):
         raise Exception(msg)
 
     if timeout:
-        to = int(timeout) 
+        to = int(timeout)
         c.handle.timeout = c.handle.set_timeout(to)
 
     self.logger.info("WinRM - executing:\n%s" % cmd)
@@ -1735,9 +1735,9 @@ def winrm_cmd_cmd(self, task, step):
 
     if c.debug:
         self.logger.info(':'.join(x.encode('hex') for x in buff))
-    
+
     c.handle.cleanup_command(c.shell_id, command_id)
-    
+
     if len(return_code):
         self.rt.set(return_code, r_code)
     msg = "%s\n%s" % (cmd, buff)
@@ -1747,8 +1747,8 @@ def winrm_cmd_cmd(self, task, step):
     if len(variables):
         self.process_buffer(buff, step)
 
-    
-def cmd_line_cmd(self, task, step):    
+
+def cmd_line_cmd(self, task, step):
 
     conn_name, timeout, cmd, pos, neg = self.get_command_params(step.command,
         "conn_name", "timeout", "command", "positive_response", "negative_response")
@@ -1784,4 +1784,3 @@ def cmd_line_cmd(self, task, step):
     if len(variables):
         # print variables
         self.process_buffer(buff, step)
-

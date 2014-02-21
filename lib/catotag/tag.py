@@ -194,5 +194,3 @@ class ObjectTags(list):
         db.exec_db(sql, (object_id, tag))
         db.close()
         return True
-
-

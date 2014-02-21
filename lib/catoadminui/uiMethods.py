@@ -1,18 +1,18 @@
 
 # Copyright 2012 Cloud Sidekick
-#  
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-#  
+#
 #     http:# www.apache.org/licenses/LICENSE-2.0
-#  
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
- 
+
 import os
 import traceback
 import json
@@ -33,45 +33,45 @@ from catoui import uiCommon
 
 class uiMethods:
     db = None
-    
+
     def wmAttemptLogin(self):
-        return uiCommon.AttemptLogin("Cato Admin UI")   
-                
+        return uiCommon.AttemptLogin("Cato Admin UI")
+
     def wmGetQuestion(self):
         return uiCommon.GetQuestion()
-            
+
     def wmGetConfig(self):
         return json.dumps(catoconfig.SAFECONFIG)
-            
+
     def wmUpdateHeartbeat(self):
         uiCommon.UpdateHeartbeat()
         return ""
-    
+
     def wmSetApplicationSetting(self):
         category = uiCommon.getAjaxArg("sCategory")
         setting = uiCommon.getAjaxArg("sSetting")
         value = uiCommon.getAjaxArg("sValue")
         settings.settings.set_application_detail(category, setting, value)
         return ""
-            
+
     def wmLicenseAgree(self):
         settings.settings.set_application_detail("general", "license_status", "agreed")
         settings.settings.set_application_detail("general", "license_datetime", datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'))
         return ""
-            
+
     def wmGetDBInfo(self):
         if "server" in catoconfig.CONFIG:
             return catoconfig.CONFIG["server"]
         else:
             return "Unknown"
-            
+
     def wmGetVersion(self):
         return catoconfig.VERSION
-    
+
     def wmGetGettingStarted(self):
         sset = settings.settings()
         sHTML = ""
-        
+
         user_name = uiCommon.GetSessionObject("user", "user_name")
         user_role = uiCommon.GetSessionUserRole()
         if user_role == "Administrator":
@@ -88,7 +88,7 @@ class uiMethods:
                 items.append("Define an SMTP server.")
                 sHTML += self.DrawGettingStartedItem("messengersettings", "Messenger Settings", items, "<a href=\"/settings?module=messenger\">Click here</a> to update Messenger settings.")
 
-            
+
             items = []
             sSQL = "select security_question, security_answer, email from users where username = 'administrator'"
             dr = self.db.select_row_dict(sSQL)
@@ -98,13 +98,13 @@ class uiMethods:
 
                 if not dr["security_question"] or not dr["security_answer"]:
                     items.append("Select a security challenge question and response.")
-            
+
             if items:
                 if user_name.lower() == "administrator":
                     sHTML += self.DrawGettingStartedItem("adminaccount", "Administrator Account", items, "<a href=\"#\" onclick=\"showMyAccount();\">Click here</a> to update Administrator account settings.")
                 else:
-                    sHTML += self.DrawGettingStartedItem("adminaccount", "Administrator Account", items, "You must be logged in as 'Administrator' to change these settings.")                    
-            
+                    sHTML += self.DrawGettingStartedItem("adminaccount", "Administrator Account", items, "You must be logged in as 'Administrator' to change these settings.")
+
 
             items = []
             sSQL = "select login_id, login_password from cloud_account"
@@ -113,12 +113,12 @@ class uiMethods:
                 for dr in dt:
                     if not dr["login_id"] or not dr["login_password"]:
                         items.append("Provide an Account Login ID and Password for all Cloud Accounts.")
-            else: 
+            else:
                 items.append("There are no Cloud Accounts defined.")
-            
+
             if items:
                 sHTML += self.DrawGettingStartedItem("cloudaccounts", "Cloud Accounts", items, "<a href=\"/cloudAccountEdit\">Click here</a> to manage Cloud Accounts.")
-        
+
         return sHTML
 
 
@@ -129,18 +129,18 @@ class uiMethods:
         sHTML += "<div style=\"padding: 10px;\" class=\"ui-state-highlight ui-corner-all\">"
         sHTML += "<span style=\"float: left; margin-right: .3em;\" class=\"ui-icon ui-icon-info\"></span>"
         sHTML += "<strong>" + sTitle + "</strong>"
-        
+
         # each item
         for sItem in aItems:
-            sHTML += "<p style=\"margin-left: 10px;\">" + sItem + "</p>"          
-        
+            sHTML += "<p style=\"margin-left: 10px;\">" + sItem + "</p>"
+
         sHTML += "<br />"
         sHTML += "<p>" + sActionLine + "</p>"
         sHTML += "</div>"
         sHTML += "</div>"
-        
+
         return sHTML
-            
+
     def wmGetCloudAccountsForHeader(self):
         sSelected = uiCommon.GetCookie("selected_cloud_account")
 
@@ -155,7 +155,7 @@ class uiMethods:
                         uiCommon.SetCookie("selected_cloud_account", row["ID"])
                 else:
                     sSelectClause = ("selected=\"selected\"" if sSelected == row["ID"] else "")
-                    
+
                 sHTML += "<option value=\"%s\" provider=\"%s\" %s>%s (%s)</option>" % (row["ID"], row["Provider"], sSelectClause, row["Name"], row["Provider"])
 
         return sHTML
@@ -163,7 +163,7 @@ class uiMethods:
     def wmGetMenu(self):
         # NOTE: this needs all the kick and warn stuff
         role = uiCommon.GetSessionUserRole()
-        
+
         if not role:
             raise Exception("Unable to get Role for user.")
 
@@ -178,7 +178,7 @@ class uiMethods:
         f = open(os.path.join(catoconfig.CONFIG["uicache"], filename))
         if f:
             return f.read()
-    
+
     def wmGetSystemStatus(self):
         sProcessHTML = ""
         sSQL = """select app_instance as Instance,
@@ -225,7 +225,7 @@ class uiMethods:
                     <td>%s</td>
                     <td>%s</td>
                     </tr>""" % (dr.get("full_name", ""), dr.get("login_dt", ""), dr.get("last_update", ""), dr.get("address", ""), dr.get("kick", ""))
-                
+
         sMessageHTML = ""
         sSQL = """select msg_to, msg_subject,
             case status when 0 then 'Queued' when 1 then 'Error' when 2 then 'Success' end as status,
@@ -243,9 +243,9 @@ class uiMethods:
                     <td>%s</td>
                     <td>%s<br />%s</td>
                     </tr>""" % (dr.get("msg_to", ""), dr.get("msg_subject", ""), dr.get("status", ""), uiCommon.SafeHTML(dr.get("error_message", "")), dr.get("entered_dt", ""), dr.get("completed_dt", ""))
-                
-        
-        return json.dumps({"processes" : sProcessHTML, "users" : sUserHTML, "messages" : sMessageHTML})
+
+
+        return json.dumps({"processes": sProcessHTML, "users": sUserHTML, "messages": sMessageHTML})
 
     def wmGetProcessLogfile(self):
         component = uiCommon.getAjaxArg("component")
@@ -254,15 +254,15 @@ class uiMethods:
             logfile = "%s/%s.log" % (catolog.LOGPATH, component)
             if os.path.exists(logfile):
                 with open(logfile, 'r') as f:
-                    f.seek (0, 2)  # Seek @ EOF
+                    f.seek(0, 2)  # Seek @ EOF
                     fsize = f.tell()  # Get Size
-                    f.seek (max (fsize - 102400, 0), 0)  # Set pos @ last n chars
+                    f.seek(max(fsize - 102400, 0), 0)  # Set pos @ last n chars
                     tail = f.readlines()  # Read to end
 
                     return uiCommon.packJSON("".join(tail))
-        
+
         return uiCommon.packJSON("Unable to read logfile. [%s]" % logfile)
-            
+
     def wmGetLog(self):
         sObjectID = uiCommon.getAjaxArg("sObjectID")
         sObjectType = uiCommon.getAjaxArg("sObjectType")
@@ -270,7 +270,7 @@ class uiMethods:
         sRecords = uiCommon.getAjaxArg("sRecords", "100")
         sFrom = uiCommon.getAjaxArg("sFrom", "")
         sTo = uiCommon.getAjaxArg("sTo", "")
-        
+
         logtype = "Security" if not sObjectID and not sObjectType else "Object"
         rows = catocommon.get_security_log(oid=sObjectID, otype=sObjectType, logtype=logtype,
                                            search=sSearch, num_records=sRecords, _from=sFrom, _to=sTo)
@@ -282,8 +282,8 @@ class uiMethods:
                 r.append(uiCommon.packJSON(row["full_name"]))
                 r.append(uiCommon.packJSON(uiCommon.SafeHTML(row["log_msg"])))
                 out.append(r)
-                
-        return json.dumps({"log" : out})
+
+        return json.dumps({"log": out})
 
     def wmGetDatabaseTime(self):
         sNow = self.db.select_col("select now()")
@@ -291,7 +291,7 @@ class uiMethods:
             return str(sNow)
         else:
             return "Unable to get system time."
-        
+
     def wmGetActionPlans(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
         try:
@@ -366,7 +366,7 @@ class uiMethods:
         # tracing this backwards, if the action_plan table has a row marked "schedule" but no schedule_id, problem.
         if not sScheduleID:
             uiCommon.log("Unable to retrieve Reccuring Plan - schedule id argument not provided.")
-        
+
         sched = {}
 
         # now we know the details, go get the timetable for that specific schedule
@@ -387,7 +387,7 @@ class uiMethods:
             uiCommon.log("Unable to find details for Recurring Action Plan. " + self.db.error + " ScheduleID [" + sScheduleID + "]")
 
         return json.dumps(sched)
-    
+
     def wmDeleteSchedule(self):
         sScheduleID = uiCommon.getAjaxArg("sScheduleID")
 
@@ -399,7 +399,7 @@ class uiMethods:
         #  if we made it here, so save the logs
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Schedule, "", "", "Schedule [" + sScheduleID + "] deleted.")
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmDeleteActionPlan(self):
         iPlanID = uiCommon.getAjaxArg("iPlanID")
@@ -412,20 +412,20 @@ class uiMethods:
         #  if we made it here, so save the logs
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Schedule, "", "", "Action Plan [" + iPlanID + "] deleted.")
 
-        return json.dumps({"result" : "success"})
-    
+        return json.dumps({"result": "success"})
+
     def wmRunLater(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
         sRunOn = uiCommon.getAjaxArg("sRunOn")
         sParameterXML = uiCommon.getAjaxArg("sParameterXML")
         iDebugLevel = uiCommon.getAjaxArg("iDebugLevel")
         sAccountID = uiCommon.getAjaxArg("sAccountID")
-        
+
         # we encoded this in javascript before the ajax call.
         # the safest way to unencode it is to use the same javascript lib.
         # (sometimes the javascript and .net libs don't translate exactly, google it.)
         sParameterXML = uiCommon.unpackJSON(sParameterXML)
-        
+
         t = task.Task()
         t.FromID(sTaskID)
         t.RunLater(sRunOn, sParameterXML, iDebugLevel, sAccountID)
@@ -440,18 +440,18 @@ class uiMethods:
         sParameterXML = uiCommon.getAjaxArg("sParameterXML")
         iDebugLevel = uiCommon.getAjaxArg("iDebugLevel")
         sAccountID = uiCommon.getAjaxArg("sAccountID")
-        
+
         # we encoded this in javascript before the ajax call.
         # the safest way to unencode it is to use the same javascript lib.
         # (sometimes the javascript and .net libs don't translate exactly, google it.)
         sParameterXML = uiCommon.unpackJSON(sParameterXML)
-        
-        sched_def = { 
-                     "Months" : aMonths,
-                     "Days" : aDays,
-                     "Hours" : aHours,
-                     "Minutes" : aMinutes,
-                     "DaysOrWeekdays" : sDaysOrWeeks
+
+        sched_def = {
+                     "Months": aMonths,
+                     "Days": aDays,
+                     "Hours": aHours,
+                     "Minutes": aMinutes,
+                     "DaysOrWeekdays": sDaysOrWeeks
                      }
 
         t = task.Task()
@@ -476,9 +476,9 @@ class uiMethods:
         # the safest way to unencode it is to use the same javascript lib.
         # (sometimes the javascript and .net libs don't translate exactly, google it.)
         sParameterXML = uiCommon.unpackJSON(sParameterXML)
-        
+
         # we gotta peek into the XML and encrypt any newly keyed values
-        sParameterXML = task.Task.PrepareAndEncryptParameterXML(sParameterXML)                
+        sParameterXML = task.Task.PrepareAndEncryptParameterXML(sParameterXML)
 
         sSQL = """update action_plan
             set parameter_xml = %s,
@@ -486,8 +486,8 @@ class uiMethods:
             where plan_id = %s"""
 
         self.db.exec_db(sSQL, (sParameterXML, iDebugLevel if iDebugLevel > -1 else None, iPlanID))
-        
-        return json.dumps({"result" : "success"})
+
+        return json.dumps({"result": "success"})
 
     def wmSaveSchedule(self):
         sScheduleID = uiCommon.getAjaxArg("sScheduleID")
@@ -512,9 +512,9 @@ class uiMethods:
         # the safest way to unencode it is to use the same javascript lib.
         # (sometimes the javascript and .net libs don't translate exactly, google it.)
         sParameterXML = uiCommon.unpackJSON(sParameterXML)
-        
+
         # we gotta peek into the XML and encrypt any newly keyed values
-        sParameterXML = task.Task.PrepareAndEncryptParameterXML(sParameterXML)                
+        sParameterXML = task.Task.PrepareAndEncryptParameterXML(sParameterXML)
 
         # whack all plans for this schedule, it's been changed
         sSQL = "delete from action_plan where schedule_id = '" + sScheduleID + "'"
@@ -523,7 +523,7 @@ class uiMethods:
 
         # figure out a label
         sLabel, sDesc = catocommon.GenerateScheduleLabel(aMonths, aDays, aHours, aMinutes, sDaysOrWeeks)
-        
+
         sSQL = "update action_schedule set" \
             " months = '" + ",".join([str(x) for x in aMonths]) + "'," \
             " days = '" + ",".join([str(x) for x in aDays]) + "'," \
@@ -548,7 +548,7 @@ class uiMethods:
         """
         sModule = uiCommon.getAjaxArg("module")
         sSettings = uiCommon.getAjaxArg("settings")
-    
+
         # sweet, use getattr to actually get the class we want!
         objname = getattr(settings.settings, sModule.lower())
         obj = objname()
@@ -563,7 +563,7 @@ class uiMethods:
             catocommon.add_security_log(uiCommon.GetSessionUserID(), catocommon.SecurityLogTypes.Security,
                 catocommon.SecurityLogActions.ConfigChange, catocommon.CatoObjectTypes.NA, "",
                 "%s settings changed." % sModule.capitalize())
-        
+
         return "{}"
 
     def wmGetMyAccount(self):
@@ -579,7 +579,7 @@ class uiMethods:
         if dr["authentication_type"] == "local":
             return json.dumps(dr)
         else:
-            d = {"full_name":dr["full_name"], "username": dr["username"], "email":dr["email"], "type":dr["authentication_type"]}
+            d = {"full_name": dr["full_name"], "username": dr["username"], "email": dr["email"], "type": dr["authentication_type"]}
             return json.dumps(d)
 
     def wmSaveMyAccount(self):
@@ -599,7 +599,7 @@ class uiMethods:
             if new_pw:
                 u.ChangePassword(new_password=new_pw)
                 uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "Password changed.")
-                
+
             # now the other values...
             u.Email = args.get("my_email")
             u.SecurityQuestion = args.get("my_question")
@@ -608,7 +608,7 @@ class uiMethods:
             if u.DBUpdate():
                 uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.ID, "User updated.")
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmGetUsersTable(self):
         sHTML = ""
@@ -628,17 +628,17 @@ class uiMethods:
                 " id=\"chk_" + row["user_id"] + "\"" \
                 " tag=\"chk\" />"
                 sHTML += "</td>"
-                
+
                 sHTML += "<td class=\"selectable\">" + row["status"] + "</td>"
                 sHTML += "<td class=\"selectable\">" + row["full_name"] + "</td>"
                 sHTML += "<td class=\"selectable\">" + row["username"] + "</td>"
                 sHTML += "<td class=\"selectable\">" + row["role"] + "</td>"
                 sHTML += "<td class=\"selectable\">" + str(row["last_login_dt"]) + "</td>"
-                
+
                 sHTML += "</tr>"
 
-        return json.dumps({"pager" : uiCommon.packJSON(pager_html), "rows" : uiCommon.packJSON(sHTML)})    
-        
+        return json.dumps({"pager": uiCommon.packJSON(pager_html), "rows": uiCommon.packJSON(sHTML)})
+
     def wmGetUser(self):
         sID = uiCommon.getAjaxArg("sUserID")
         u = catouser.User()
@@ -650,7 +650,7 @@ class uiMethods:
         a = asset.Asset()
         a.FromID(sID)
         return a.AsJSON()
-            
+
     def wmUpdateUser(self):
         """
             Updates a user.  Will only update the values passed to it.
@@ -658,9 +658,9 @@ class uiMethods:
         user_role = uiCommon.GetSessionUserRole()
         if user_role != "Administrator":
             raise Exception("Only Administrators can edit user accounts.")
-         
+
         args = uiCommon.getAjaxArgs()
-        
+
         u = catouser.User()
         u.FromID(args["ID"])
 
@@ -669,7 +669,7 @@ class uiMethods:
 
             new_pw = uiCommon.unpackJSON(args.get("Password"))
             random_pw = args.get("NewRandomPassword")
-    
+
             # if a password was provided, or the random flag was set...exclusively
             if new_pw:
                 # if the user requesting the change *IS* the user being changed...
@@ -677,13 +677,13 @@ class uiMethods:
                 force = True
                 if u.ID == uiCommon.GetSessionUserID():
                     force = False
-                    
+
                 u.ChangePassword(new_password=new_pw, force_change=force)
                 uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "Password changed.")
             elif random_pw:
                 u.ChangePassword(generate=random_pw)
                 uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "Password reset.")
-                
+
             # now we can change the properties
             u.LoginID = args.get("LoginID")
             u.FullName = args.get("FullName")
@@ -700,7 +700,7 @@ class uiMethods:
         if u.DBUpdate():
             uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.User, u.ID, u.ID, "User updated.")
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmCreateUser(self):
         args = uiCommon.getAjaxArgs()
@@ -719,12 +719,12 @@ class uiMethods:
 
         uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.User, u.ID, u.FullName, "User Created")
         return u.AsJSON()
-        
+
     def wmDeleteUsers(self):
         WhoAmI = uiCommon.GetSessionUserID()
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
         if len(sDeleteArray) < 36:
-            return json.dumps({"info" : "Unable to delete - no selection."})
+            return json.dumps({"info": "Unable to delete - no selection."})
 
         now = []
         later = []
@@ -760,7 +760,7 @@ class uiMethods:
 
         self.db.tran_commit()
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmGetAssetsTable(self):
         sHTML = ""
@@ -784,21 +784,21 @@ class uiMethods:
                 " id=\"chk_" + row["ID"] + "\"" \
                 " tag=\"chk\" />"
                 sHTML += "</td>"
-                
+
                 sHTML += "<td class=\"selectable\">%s</td>" % row["Name"]
                 sHTML += "<td class=\"selectable\">%s</td>" % row["Status"]
                 sHTML += "<td class=\"selectable\">%s</td>" % (row["Address"] if row["Address"] else "")
                 sHTML += "<td class=\"selectable\">%s</td>" % (row["Credentials"] if row["Credentials"] else "")
-                
+
                 sHTML += "</tr>"
 
-        return json.dumps({"pager" : uiCommon.packJSON(pager_html), "rows" : uiCommon.packJSON(sHTML)})
-        
+        return json.dumps({"pager": uiCommon.packJSON(pager_html), "rows": uiCommon.packJSON(sHTML)})
+
     def wmAssetSearch(self):
         sFilter = uiCommon.getAjaxArg("sSearch")
         sAllowMultiSelect = uiCommon.getAjaxArg("bAllowMultiSelect")
         bAllowMultiSelect = catocommon.is_true(sAllowMultiSelect)
-        
+
         a = asset.Assets(sFilter)
         if a.rows:
             sHTML = "<hr />"
@@ -818,7 +818,7 @@ class uiMethods:
                 for row in a.rows:
                     if i > iRowsToGet:
                         break
-                    
+
                     sHTML += "<li class=\"ui-widget-content ui-corner-all search_dialog_value\" tag=\"asset_picker_row\"" \
                         " asset_id=\"" + row["ID"] + "\"" \
                         " asset_name=\"" + row["Name"] + "\"" \
@@ -832,13 +832,13 @@ class uiMethods:
                     sHTML += "<span class=\"search_dialog_value_inline_item\">Address: " + row["Address"] + "</span>"
 
                     sHTML += "</li>"
-                    
+
                     i += 1
-                    
+
             sHTML += "</ul>"
 
         return sHTML
-            
+
     def wmGetCredentialsTable(self):
         sHTML = ""
         pager_html = ""
@@ -861,8 +861,8 @@ class uiMethods:
                 </tr>
                 """.format(row["ID"], row["Name"], row["Type"], row["Description"])
 
-        return json.dumps({"pager" : uiCommon.packJSON(pager_html), "rows" : uiCommon.packJSON(sHTML)})
-        
+        return json.dumps({"pager": uiCommon.packJSON(pager_html), "rows": uiCommon.packJSON(sHTML)})
+
     def wmGetCredentialsJSON(self):
         sFilter = uiCommon.getAjaxArg("sFilter")
 
@@ -870,7 +870,7 @@ class uiMethods:
         if ac:
             return ac.AsJSON()
         # should not get here if all is well
-        return json.dumps({"result":"fail", "error":"Failed to get Credentials using filter [%s]." % (sFilter)})
+        return json.dumps({"result": "fail", "error": "Failed to get Credentials using filter [%s]." % (sFilter)})
 
     def wmGetCredential(self):
         sID = uiCommon.getAjaxArg("sCredentialID")
@@ -883,9 +883,9 @@ class uiMethods:
 
         a, sErr = asset.Asset.DBCreateNew(args)
         if sErr:
-            return json.dumps({"error" : sErr})
+            return json.dumps({"error": sErr})
         if a is None:
-            return json.dumps({"error" : "Unable to create Asset."})
+            return json.dumps({"error": "Unable to create Asset."})
 
         uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Asset, a.ID, a.Name, "Asset Created")
 
@@ -896,7 +896,7 @@ class uiMethods:
 
         a = asset.Asset()
         a.FromID(args["ID"])
-        
+
         if a:
             # assuming the attribute names will match ... spin the post data and update the object
             # only where asset attributes are pre-defined.
@@ -906,23 +906,23 @@ class uiMethods:
 
             result, msg = a.DBUpdate(tags=args["Tags"], credential_update_mode=args["CredentialMode"], credential=args["Credential"])
             if not result:
-                return json.dumps({"error" : msg})
+                return json.dumps({"error": msg})
 
-        return json.dumps({"result" : "success"})
-        
+        return json.dumps({"result": "success"})
+
     def wmDeleteAssets(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
         sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
 
         if not sDeleteArray:
             raise Exception("Unable to delete - no selection.")
-            
-        asset.Assets.Delete(sDeleteArray.split(","))
-        
-        uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Asset, "Multiple", "Original Asset IDs", sDeleteArray)
-        return json.dumps({"result" : "success"})
 
-                
+        asset.Assets.Delete(sDeleteArray.split(","))
+
+        uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Asset, "Multiple", "Original Asset IDs", sDeleteArray)
+        return json.dumps({"result": "success"})
+
+
     def wmCreateCredential(self):
         args = uiCommon.getAjaxArgs()
 
@@ -932,26 +932,26 @@ class uiMethods:
                  args["SharedOrLocal"], args["Domain"], args["PrivilegedPassword"], args["PrivateKey"])
         result = c.DBCreateNew()
         if not result:
-            json.dumps({"error" : "Unable to create Credential."})
+            json.dumps({"error": "Unable to create Credential."})
 
         uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Credential, c.ID, c.Name, "Credential Created")
 
         return c.AsJSON()
-        
+
     def wmDeleteCredentials(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
         if len(sDeleteArray) < 36:
             raise Exception("Unable to delete - no selection.")
 
         sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
-        
+
         sSQL = """delete from asset_credential where credential_id in (%s)
             and credential_id not in (select distinct credential_id from asset where credential_id is not null)
             """ % sDeleteArray
         self.db.exec_db(sSQL)
 
-        return json.dumps({"result" : "success"})
-                
+        return json.dumps({"result": "success"})
+
     def wmUpdateCredential(self):
         args = uiCommon.getAjaxArgs()
 
@@ -965,8 +965,8 @@ class uiMethods:
 
         c.DBUpdate()
 
-        return json.dumps({"result" : "success"})
-        
+        return json.dumps({"result": "success"})
+
     def wmCreateObjectFromXML(self):
         """Takes a properly formatted XML backup file, and imports each object."""
         inputtext = uiCommon.getAjaxArg("import_text")
@@ -975,7 +975,7 @@ class uiMethods:
 
         # the trick here is to return enough information back to the client
         # to best interact with the user.
-        
+
         # what types of things were in this backup?  what are their new ids?
         items = []
 
@@ -988,11 +988,11 @@ class uiMethods:
             try:
                 js = json.loads(inputtext)
             except:
-                return json.dumps({"error" : "Data is not properly formatted XML or JSON."})
-        
+                return json.dumps({"error": "Data is not properly formatted XML or JSON."})
+
         if xd is not None:
             # so, what's in here?  Tasks?
-            
+
             # TASKS
             for xtask in xd.findall("task"):
                 uiCommon.log("Importing Task [%s]" % xtask.get("name", "Unknown"))
@@ -1000,27 +1000,27 @@ class uiMethods:
                 t.FromXML(catocommon.ET.tostring(xtask), on_conflict)
 
                 # NOTE: possible TODO
-                # passing a db connection to task.DBSave will allow rollback of a whole 
+                # passing a db connection to task.DBSave will allow rollback of a whole
                 # batch of task additions.
-                # if it's determined that's necessary here, just create a db connection here 
+                # if it's determined that's necessary here, just create a db connection here
                 # and pass it in
                 result, err = t.DBSave()
                 if result:
                     # add security log
                     uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Created by import.")
 
-                    items.append({"type" : "task", "id" : t.ID, "name" : t.Name}) 
+                    items.append({"type": "task", "id": t.ID, "name": t.Name})
                 else:
                     if err:
-                        items.append({"type" : "task", "id" : t.ID, "name" : t.Name, "info" : err}) 
+                        items.append({"type": "task", "id": t.ID, "name": t.Name, "info": err})
                     else:
-                        items.append({"type" : "task", "id" : t.ID, "name" : t.Name, "error" : "Unable to create Task. No error available."}) 
+                        items.append({"type": "task", "id": t.ID, "name": t.Name, "error": "Unable to create Task. No error available."})
         # otherwise it might have been JSON
         elif js is not None:
             # if js isn't a list, bail...
             if not isinstance(js, list):
                 js = [js]
-                
+
             for jstask in js:
                 uiCommon.log("Importing Task [%s]" % jstask.get("name", "Unknown"))
                 t = task.Task()
@@ -1031,20 +1031,20 @@ class uiMethods:
                     # add security log
                     uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Created by import.")
 
-                    items.append({"type" : "task", "id" : t.ID, "name" : t.Name}) 
+                    items.append({"type": "task", "id": t.ID, "name": t.Name})
                 else:
                     if err:
-                        items.append({"type" : "task", "id" : t.ID, "name" : t.Name, "info" : err}) 
+                        items.append({"type": "task", "id": t.ID, "name": t.Name, "info": err})
                     else:
-                        items.append({"type" : "task", "id" : t.ID, "name" : t.Name, "error" : "Unable to create Task. No error available."}) 
+                        items.append({"type": "task", "id": t.ID, "name": t.Name, "error": "Unable to create Task. No error available."})
         else:
-            items.append({"info" : "Unable to create Task from backup JSON/XML."})
-            
+            items.append({"info": "Unable to create Task from backup JSON/XML."})
+
             # TODO: for loop for Assets will go here, same logic as above
             # ASSETS
-            
-        return json.dumps({"items" : items})
-            
+
+        return json.dumps({"items": items})
+
     def wmAnalyzeImportXML(self):
         """Takes a properly formatted XML backup file, and replies with the existence/condition of each Task."""
         inputtext = uiCommon.getAjaxArg("import_text")
@@ -1052,7 +1052,7 @@ class uiMethods:
 
         # the trick here is to return enough information back to the client
         # to best interact with the user.
-        
+
         # what types of things were in this backup?  what are their new ids?
         items = []
 
@@ -1067,12 +1067,12 @@ class uiMethods:
                 js = json.loads(inputtext)
             except Exception as ex:
                 uiCommon.log(ex)
-                return json.dumps({"error" : "Data is not properly formatted XML or JSON."})
-        
+                return json.dumps({"error": "Data is not properly formatted XML or JSON."})
+
         # if the submitted data was XML
         if xd is not None:
             # so, what's in here?  Tasks?
-            
+
             # TASKS
             for xtask in xd.findall("task"):
                 t = task.Task()
@@ -1086,15 +1086,15 @@ class uiMethods:
                     msg = "Will be versioned up."
                 else:
                     msg = "Will be created."
-                
-                items.append({"type" : "task", "id" : t.ID, "name" : t.Name, "info" : msg})  
-            
+
+                items.append({"type": "task", "id": t.ID, "name": t.Name, "info": msg})
+
         # otherwise it might have been JSON
         elif js is not None:
             # if js isn't a list, bail...
             if not isinstance(js, list):
-                return json.dumps({"error" : "JSON data must be a list of Tasks."})
-                
+                return json.dumps({"error": "JSON data must be a list of Tasks."})
+
             for jstask in js:
                 t = task.Task()
                 t.FromJSON(json.dumps(jstask))
@@ -1107,14 +1107,14 @@ class uiMethods:
                     msg = "Will be versioned up."
                 else:
                     msg = "Will be created."
-                
-                items.append({"type" : "task", "id" : t.ID, "name" : t.Name, "info" : msg})  
+
+                items.append({"type": "task", "id": t.ID, "name": t.Name, "info": msg})
         else:
-            items.append({"info" : "Unable to create Task from backup JSON/XML."})
-                
-            
-        return json.dumps({"items" : items})
-        
+            items.append({"info": "Unable to create Task from backup JSON/XML."})
+
+
+        return json.dumps({"items": items})
+
     def wmHTTPGet(self):
         """Simply proxies an HTTP GET to another domain, and returns the results."""
         url = uiCommon.getAjaxArg("url")
@@ -1126,7 +1126,7 @@ class uiMethods:
         except:
             uiCommon.log("Error during HTTP GET." + traceback.format_exc())
             return traceback.format_exc()
-        
+
         return result
 
     """
@@ -1141,6 +1141,5 @@ class uiMethods:
                 with open(sScriptName, 'r') as f:
                     if f:
                         return f.read()
-        
+
         return ""
-          

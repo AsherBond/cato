@@ -15,20 +15,20 @@
 #########################################################################
 
 """
-	See hello_world.py for some basic documentation.	
+    See hello_world.py for some basic documentation.	
 """
 
 import subprocess
 
 def bash_example(TE, step):
-	args = TE.get_command_params(step.command, "args")[:]
-	
-	p = subprocess.Popen(['ls' % args], stdout=subprocess.PIPE)
+    args = TE.get_command_params(step.command, "args")[:]
 
-	out = "".join(iter(p.stdout.readline, b''))
+    p = subprocess.Popen(['ls' % args], stdout=subprocess.PIPE)
 
-	# logger writes to the task log FILE
-	TE.logger.info(out)
-	
-	# insert_audit writes to the task run log in the DATABASE
-	TE.insert_audit("bash_example", out, "")
+    out = "".join(iter(p.stdout.readline, b''))
+
+    # logger writes to the task log FILE
+    TE.logger.info(out)
+
+    # insert_audit writes to the task run log in the DATABASE
+    TE.insert_audit("bash_example", out, "")

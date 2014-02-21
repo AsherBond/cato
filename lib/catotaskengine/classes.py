@@ -168,4 +168,3 @@ class Cloud:
         from catosphere import Server
         self.server = Server()
         self.server.connect(url=self.url, username=uid, password=pwd)
-

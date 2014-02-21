@@ -18,8 +18,6 @@
 Datastore endpoint methods.
 """
 
-import os
-import sys
 import json
 
 

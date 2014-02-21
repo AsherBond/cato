@@ -18,34 +18,32 @@
 The simplest extension... writes a string to the log file and the database task log.
 
 Extension entry functions MUST have the following argument signature:
-	TE = a pointer to the Task Engine object instance, filled with useful functions.
-	step = The full details of this command, including the function XML.
-		This is where you'll pull out any values captured by the task editor.
-	logger = a pointer to the Task Engine logger class, capable of writing to the log file.
-	
-	
-	No return values are required.  Set values in the TE variable array using TE.rt.set(name, value, index)
-	
-	Raising an Exception will halt the Task Engine process.
-	
+    TE = a pointer to the Task Engine object instance, filled with useful functions.
+    step = The full details of this command, including the function XML.
+        This is where you'll pull out any values captured by the task editor.
+    logger = a pointer to the Task Engine logger class, capable of writing to the log file.
+    
+    
+    No return values are required.  Set values in the TE variable array using TE.rt.set(name, value, index)
+    
+    Raising an Exception will halt the Task Engine process.
+
 """
 
 def hello_world(TE, step):
-	# TE.get_command_params returns the VALUES of each provided property
-	# step.command is the raw XML of the command
-	message = TE.get_command_params(step.command, "message")[0]
-	
-	# TE.replace_variables will look on the runtime variable stack, and replace any [[vars]] 
-	# defined in your property
-	message = TE.replace_variables(message)
-	
-	
-	logentry = "Someone said [%s]." % message
-
-	# logger writes to the task log FILE
-	TE.logger.critical(logentry)
-	
-	# insert_audit writes to the task run log in the DATABASE
-	TE.insert_audit("hello_world", logentry, "")
-	
-	
+    # TE.get_command_params returns the VALUES of each provided property
+    # step.command is the raw XML of the command
+    message = TE.get_command_params(step.command, "message")[0]
+    
+    # TE.replace_variables will look on the runtime variable stack, and replace any [[vars]] 
+    # defined in your property
+    message = TE.replace_variables(message)
+    
+    
+    logentry = "Someone said [%s]." % message
+    
+    # logger writes to the task log FILE
+    TE.logger.critical(logentry)
+    
+    # insert_audit writes to the task run log in the DATABASE
+    TE.insert_audit("hello_world", logentry, "")

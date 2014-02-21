@@ -1,12 +1,12 @@
 
 # Copyright 2012 Cloud Sidekick
-#  
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-#  
+#
 #     http:# www.apache.org/licenses/LICENSE-2.0
-#  
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,7 @@ from catocloud import cloud
 
 class cloudMethods:
     db = None
-    
+
     """ Clouds edit page """
     def wmGetCloudsTable(self):
         sHTML = ""
@@ -31,7 +31,7 @@ class cloudMethods:
         sFilter = uiCommon.getAjaxArg("sSearch")
         sPage = uiCommon.getAjaxArg("sPage")
         maxrows = 25
-        
+
         c = cloud.Clouds(sFilter)
         if c.rows:
             start, end, pager_html = uiCommon.GetPager(len(c.rows), maxrows, sPage)
@@ -43,16 +43,16 @@ class cloudMethods:
                 " id=\"chk_" + row["ID"] + "\"" \
                 " tag=\"chk\" />"
                 sHTML += "</td>"
-                
+
                 sHTML += "<td class=\"selectable\">%s</td>" % row["Name"]
                 sHTML += "<td class=\"selectable\">%s</td>" % row["Provider"]
                 sHTML += "<td class=\"selectable\">%s</td>" % row["APIUrl"]
                 sHTML += "<td class=\"selectable\">%s</td>" % row["APIProtocol"]
                 sHTML += "<td class=\"selectable\">%s</td>" % (row["DefaultAccount"] if row["DefaultAccount"] else "&nbsp;")
-                
+
                 sHTML += "</tr>"
 
-        return json.dumps({"pager" : uiCommon.packJSON(pager_html), "rows" : uiCommon.packJSON(sHTML)})    
+        return json.dumps({"pager": uiCommon.packJSON(pager_html), "rows": uiCommon.packJSON(sHTML)})
 
     def wmGetProvidersList(self):
         sUserDefinedOnly = uiCommon.getAjaxArg("sUserDefinedOnly")
@@ -65,9 +65,9 @@ class cloudMethods:
                         sHTML += "<option value=\"" + name + "\">" + name + "</option>"
                 else:
                     sHTML += "<option value=\"" + name + "\">" + name + "</option>"
-                
+
         return sHTML
-    
+
     def wmGetCloud(self):
         sID = uiCommon.getAjaxArg("sID")
         c = cloud.Cloud()
@@ -100,7 +100,7 @@ class cloudMethods:
             c.Name = sCloudName
             c.APIProtocol = sAPIProtocol
             c.APIUrl = sAPIUrl
-            
+
             # no need to build a complete object, as the update is just updating the ID
             c.DefaultAccount = cloud.CloudAccount()
             c.DefaultAccount.ID = sDefaultAccountID
@@ -108,21 +108,21 @@ class cloudMethods:
             # get a new provider by name
             c.Provider = cloud.Provider.FromName(sProvider)
             c.DBUpdate()
-            
+
             uiCommon.WriteObjectPropertyChangeLog(catocommon.CatoObjectTypes.Cloud, c.ID, c.Name, sCloudName, c.Name)
 
         if c:
             return c.AsJSON()
         else:
-            return json.dumps({"error" : "Unable to save Cloud using mode [" + sMode + "]."})
+            return json.dumps({"error": "Unable to save Cloud using mode [" + sMode + "]."})
 
     def wmDeleteClouds(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
         if len(sDeleteArray) < 36:
-            return json.dumps({"info" : "Unable to delete - no selection."})
+            return json.dumps({"info": "Unable to delete - no selection."})
 
         sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
-        
+
         # get important data that will be deleted for the log
         sSQL = "select cloud_id, cloud_name, provider from clouds where cloud_id in (" + sDeleteArray + ")"
         rows = self.db.select_all_dict(sSQL)
@@ -132,16 +132,16 @@ class cloudMethods:
 
         sSQL = "delete from clouds where cloud_id in (" + sDeleteArray + ")"
         self.db.tran_exec(sSQL)
-        
+
         self.db.tran_commit()
 
         # if we made it here, save the logs
         for dr in rows:
             uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Cloud, dr["cloud_id"], dr["cloud_name"], dr["provider"] + " Cloud Deleted.")
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
-        
+
     """ Cloud Accounts Edit page"""
     def wmGetCloudAccountsTable(self):
         sFilter = uiCommon.getAjaxArg("sSearch")
@@ -149,30 +149,30 @@ class cloudMethods:
         maxrows = 25
         sHTML = ""
         pager_html = ""
-        
+
         ca = cloud.CloudAccounts(sFilter)
         if ca.rows:
             start, end, pager_html = uiCommon.GetPager(len(ca.rows), maxrows, sPage)
 
             for row in ca.rows[start:end]:
                 sHTML += "<tr account_id=\"" + row["ID"] + "\">"
-                
+
                 sHTML += "<td class=\"chkboxcolumn\">"
                 sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
                 " id=\"chk_" + row["ID"] + "\"" \
                 " tag=\"chk\" />"
                 sHTML += "</td>"
-                
+
                 sHTML += "<td class=\"selectable\">%s</td>" % row["Name"]
                 sHTML += "<td class=\"selectable\">%s</td>" % row["AccountNumber"]
                 sHTML += "<td class=\"selectable\">%s</td>" % row["Provider"]
                 sHTML += "<td class=\"selectable\">%s</td>" % row["LoginID"]
                 sHTML += "<td class=\"selectable\">%s</td>" % (row["DefaultCloud"] if row["DefaultCloud"] else "&nbsp;")
                 sHTML += "<td class=\"selectable\">%s</td>" % row["IsDefault"]
-                
+
                 sHTML += "</tr>"
 
-        return json.dumps({"pager" : uiCommon.packJSON(pager_html), "rows" : uiCommon.packJSON(sHTML)})
+        return json.dumps({"pager": uiCommon.packJSON(pager_html), "rows": uiCommon.packJSON(sHTML)})
 
     def wmGetCloudAccount(self):
         sID = uiCommon.getAjaxArg("sID")
@@ -210,7 +210,7 @@ class cloudMethods:
             p = cloud.Provider.FromName(sProvider)
             return p.AsJSON()
         else:
-            return json.dumps({"info":"No Cloud Accounts are defined."})
+            return json.dumps({"info": "No Cloud Accounts are defined."})
 
     def wmSaveAccount(self):
         sMode = uiCommon.getAjaxArg("sMode")
@@ -224,14 +224,14 @@ class cloudMethods:
         sLoginPasswordConfirm = uiCommon.getAjaxArg("sLoginPasswordConfirm")
         sIsDefault = uiCommon.getAjaxArg("sIsDefault")
         # sAutoManageSecurity = uiCommon.getAjaxArg("sAutoManageSecurity")
-        
+
         if sLoginPassword != sLoginPasswordConfirm:
-            return json.dumps({"info" : "Passwords must match."})
-        
+            return json.dumps({"info": "Passwords must match."})
+
         if sMode == "add":
             ca = cloud.CloudAccount.DBCreateNew(sProvider, sAccountName, sLoginID, sLoginPassword, sAccountNumber, sDefaultCloudID, sIsDefault)
             uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.CloudAccount, ca.ID, ca.Name, "Account Created")
-        
+
         elif sMode == "edit":
             ca = cloud.CloudAccount()
             ca.FromID(sAccountID)
@@ -241,30 +241,30 @@ class cloudMethods:
             ca.LoginID = sLoginID
             ca.LoginPassword = sLoginPassword
             ca.IsDefault = (True if sIsDefault == "1" else False)
-            
+
             # get the cloud
             c = cloud.Cloud()
             c.FromID(sDefaultCloudID)
             if not c:
-                return json.dumps({"error" : "Unable to reconcile default Cloud from ID [%s]." % sDefaultCloudID})
+                return json.dumps({"error": "Unable to reconcile default Cloud from ID [%s]." % sDefaultCloudID})
             ca.DefaultCloud = c
-            
+
             # note: we must reassign the whole provider
             # changing the name screws up the CloudProviders object in the session, which is writable! (oops)
             ca.Provider = cloud.Provider.FromName(sProvider)
             ca.DBUpdate()
-    
+
             uiCommon.WriteObjectPropertyChangeLog(catocommon.CatoObjectTypes.CloudAccount, ca.ID, ca.Name, "", ca.Name)
-        
+
         if ca:
             return ca.AsJSON()
         else:
-            return json.dumps({"error" : "Unable to save Cloud Account using mode [%s]." % sMode})
+            return json.dumps({"error": "Unable to save Cloud Account using mode [%s]." % sMode})
 
     def wmDeleteAccounts(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
         if len(sDeleteArray) < 36:
-            return json.dumps({"info" : "Unable to delete - no selection."})
+            return json.dumps({"info": "Unable to delete - no selection."})
 
         sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
 
@@ -281,7 +281,7 @@ class cloudMethods:
         for dr in rows:
             uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.CloudAccount, dr["account_id"], dr["account_name"], dr["provider"] + " Account for LoginID [" + dr["login_id"] + "] Deleted")
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
 #    def wmGetProviderObjectTypes(self):
 #        try:
@@ -292,12 +292,12 @@ class cloudMethods:
 #                p = cp[sProvider]
 #                for i in p.GetAllObjectTypes.items():
 #                    print i
-#                    
+#
 #            return sHTML
 #        except Exception:
 #            uiCommon.log(traceback.format_exc())
 #            return traceback.format_exc()
-    
+
     def wmGetCloudObjectList(self):
         sAccountID = uiCommon.getAjaxArg("sAccountID")
         sCloudID = uiCommon.getAjaxArg("sCloudID")
@@ -347,14 +347,14 @@ class cloudMethods:
 
             sHTML += "<tr>"
             sHTML += "<td class=\"chkboxcolumn\">"
-            
+
             # not drawing the checkbox if there's no ID defined
             if sObjectID:
                 sHTML += "<input type=\"checkbox\" class=\"chkbox\"" \
                     " id=\"chk_" + sJSID + "\"" \
                     " object_id=\"" + sObjectID + "\"" \
                     " tag=\"chk\" />"
-            
+
                 sHTML += "</td>"
 
             # loop data columns
@@ -366,7 +366,7 @@ class cloudMethods:
                 # should we try to show an icon?
                 if prop.HasIcon and sValue:
                     sHTML += "<img class=\"custom_icon\" src=\"static/images/custom/" + prop.Name.replace(" ", "").lower() + "_" + sValue.replace(" ", "").lower() + ".png\" alt=\"\" />"
-            
+
                 # if this is the "Tags" column, it might contain some xml... break 'em down
                 if prop.Name == "Tags" and sValue:
                     try:
@@ -380,7 +380,7 @@ class cloudMethods:
                         uiCommon.log_nouser(traceback.format_exc())
                         # I guess just stick the value in there, but make it safe
                         sHTML += uiCommon.SafeHTML(sValue)
-                else:                         
+                else:
                     sHTML += (sValue if sValue else "&nbsp;")  # we're building a table, empty cells should still have &nbsp;
 
                 sHTML += "</td>"
@@ -394,20 +394,20 @@ class cloudMethods:
     def wmTestCloudConnection(self):
         sAccountID = uiCommon.getAjaxArg("sAccountID")
         sCloudID = uiCommon.getAjaxArg("sCloudID")
-        
+
         c = cloud.Cloud()
         c.FromID(sCloudID)
-        
+
         ca = cloud.CloudAccount()
         ca.FromID(sAccountID)
 
         # NOTE: the Cloud object has a *THIN* copy of the Provider (it doesn't include
         #    products or provider clouds.)
         # But, we actually need a full provider here, so go get it!
-        
+
         full_provider = cloud.Provider.FromName(c.Provider.Name)
         cot = full_provider.GetObjectTypeByName(c.Provider.TestObject)
-        
+
         # different providers libs have different methods for building a url
         url = ""
         if c.Provider.Name.lower() == "openstack":
@@ -419,16 +419,16 @@ class cloudMethods:
             awsi = aws.awsInterface()
             url, err = awsi.BuildURL(ca, c, cot)
             if err:
-                return json.dumps({"result":"fail", "error": uiCommon.packJSON(err)})
+                return json.dumps({"result": "fail", "error": uiCommon.packJSON(err)})
 
         if not url:
-            return json.dumps({"result":"fail", "error":"Unable to build API URL."})
+            return json.dumps({"result": "fail", "error": "Unable to build API URL."})
         result, err = catocommon.http_get(url, 30)
         if err:
-            return json.dumps({"result":"fail", "error": uiCommon.packJSON(err)})
-        
-        return json.dumps({"result":"success", "response": uiCommon.packJSON(result)})
-        
+            return json.dumps({"result": "fail", "error": uiCommon.packJSON(err)})
+
+        return json.dumps({"result": "success", "response": uiCommon.packJSON(result)})
+
     def wmSaveKeyPair(self):
         sKeypairID = uiCommon.getAjaxArg("sKeypairID")
         sCloudID = uiCommon.getAjaxArg("sCloudID")
@@ -456,7 +456,7 @@ class cloudMethods:
         c.FromID(sCloudID)
         c.DeleteKeyPair(sKeypairID)
         return json.dumps({"result": "success"})
-    
+
     def wmCreateStaticClouds(self):
         success = cloud.create_static_clouds()
         if success:

@@ -237,4 +237,3 @@ class Scheduler(catoprocess.CatoService):
         
         # housekeeping - some items in the db need occasional attention
         self.housekeeping()
-

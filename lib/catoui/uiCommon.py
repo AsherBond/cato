@@ -1,12 +1,12 @@
 
 # Copyright 2012 Cloud Sidekick
-#  
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-#  
+#
 #     http:# www.apache.org/licenses/LICENSE-2.0
-#  
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -79,7 +79,7 @@ def log(msg, debuglevel=0):
             msg = "%s :: %s" % (user, msg)
         except:
             """ do nothing if there's no user - it may be pre-login """
-            
+
         log_nouser(msg, debuglevel)
 
 def log_nouser(msg, debuglevel=2):
@@ -93,7 +93,7 @@ def log_nouser(msg, debuglevel=2):
             logger.warning(msg)
         else:
             logger.error(msg)
-        
+
 def check_roles(method):
     # if you wanna enable verbose page view logging, this is the place to do it.
     s_set = settings.settings.security()
@@ -103,12 +103,12 @@ def check_roles(method):
     user_role = GetSessionUserRole()
     if user_role == "Administrator":
         return True
-    
+
     if method in uiGlobals.RoleMethods:
         mapping = uiGlobals.RoleMethods[method]
         if mapping is True:
             return True
-        
+
         if user_role in mapping:
             return True
         else:
@@ -130,7 +130,7 @@ def getAjaxArgs():
             return json.loads(data)
         else:
             return {}
-    
+
 
 def getAjaxArg(sArg, sDefault=""):
     """Picks out and returns a single value."""
@@ -144,18 +144,12 @@ def getAjaxArg(sArg, sDefault=""):
             dic = dict(web.input())
 
         if dic:
-            if sArg in dic:
-                if dic[sArg]:
-                    return dic[sArg]
-                else:
-                    return sDefault
-            else:
-                return sDefault
+            return dic.get(sArg, sDefault)
         else:
             return sDefault
     except ValueError:
         raise Exception("getAjaxArg - no JSON arguments to decode. This method required a POST with JSON arguments.")
-    
+
 def GetCookie(sCookie):
     cookie = web.cookies().get(sCookie)
     if cookie:
@@ -179,11 +173,11 @@ def unpackJSON(sIn):
 
 def QuoteUp(sString):
     retval = ""
-    
+
     for s in sString.split(","):
         retval += "'" + s + "',"
-    
-    return retval[:-1]  # whack the last comma 
+
+    return retval[:-1]  # whack the last comma
 
 def LastIndexOf(s, pat):
     if not s:
@@ -193,13 +187,13 @@ def LastIndexOf(s, pat):
 
 def GetSnip(sString, iMaxLength):
     # helpful for short notes or long notes with a short title line.
-    
+
     # odd behavior, but web forms seems to put just a \n as the newline entered in a textarea.
     # so I'll test for both just to be safe.
     sReturn = ""
     if sString:
         bShowElipse = False
-        
+
         iLength = sString.find("\\n")
         if iLength < 0:
             iLength = sString.find("\\r\\n")
@@ -207,7 +201,7 @@ def GetSnip(sString, iMaxLength):
             iLength = sString.find("\\r")
         if iLength < 0:
             iLength = iMaxLength
-            
+
         # now, if what we are showing is shorter than the entire field, show an elipse
         # if it is the entire field, set the length
         if iLength < len(sString):
@@ -248,9 +242,9 @@ def WriteObjectPropertyChangeLog(oType, sObjectID, sLabel, sFrom, sTo):
 def ForceLogout(sMsg=""):
     if not sMsg:
         sMsg = "Session Ended"
-    
+
     log_nouser("Forcing logout with message: " + sMsg, 4)
-    
+
     # logging out kills the session
     uiGlobals.session.kill()
     raise web.seeother('/static/login.html')
@@ -305,7 +299,7 @@ def GetSessionObject(category, key):
             return val
         else:
             return ""
-    
+
     return ""
 
 def SetSessionObject(key, obj, category=""):
@@ -313,7 +307,7 @@ def SetSessionObject(key, obj, category=""):
         uiGlobals.session[category][key] = obj
     else:
         uiGlobals.session[key] = obj
-    
+
 def GetPermissions():
     """
     Returns a list of ALL permissions for a User.
@@ -324,11 +318,11 @@ def GetPermissions():
         tstr = ",".join(x)
 
         sql = """select permission from tag_permissions
-            where tag_name in (%s)""" % (tstr)  
+            where tag_name in (%s)""" % (tstr)
         db = catocommon.new_conn()
         result = db.select_all(sql)
         db.close()
-        
+
         return [x[0] for x in result] if result else []
     return []
 
@@ -352,7 +346,7 @@ def UserTagsMatch(tags2check):
 
     if catoconfig.CONFIG["ui_permissions"] == "false":
         return True
-    
+
     if GetSessionUserRole() == "Administrator":
         return True
     else:
@@ -369,9 +363,9 @@ def UserTagsMatch(tags2check):
                     return True
             except Exception as ex:
                     raise Exception("Unable to reconcile User Tags - input isn't a valid list of Tags.\n%s" % ex.__str__())
-            
+
         return False
-    
+
 def FilterSetByTag(set_to_filter):
     """
     Accepts input of a comma delimited string OR a list.
@@ -383,7 +377,7 @@ def FilterSetByTag(set_to_filter):
 
     if catoconfig.CONFIG["ui_permissions"] == "false":
         return set_to_filter
-    
+
     if GetSessionUserRole() == "Administrator":
         return set_to_filter
     else:
@@ -405,19 +399,19 @@ def FilterSetByTag(set_to_filter):
                             filtered.append(item)
             except Exception as ex:
                     raise Exception("Unable to reconcile User/Object Tags - input isn't a valid list of Tags.\n%s" % ex.__str__())
-            
+
         return filtered
-        
+
 def IsObjectAllowed(object_id, object_type):
     # if permissions checking is turned off, everything is allowed
     if catoconfig.CONFIG["ui_permissions"] == "false":
         return True
-    
+
     # given a task id, we need to find the original task id,
     # then check if the user can see it based on tags
     if GetSessionUserRole() == "Administrator":
         return True
-    
+
     if not object_id or not object_type:
         log("Invalid or missing Object ID or Object Type.")
         return False
@@ -427,13 +421,13 @@ def IsObjectAllowed(object_id, object_type):
         where (otu.object_type = 1)
         and otu.object_id = %s
         and oto.object_type = %s
-        and oto.object_id = %s""" 
+        and oto.object_id = %s"""
 
     uid = GetSessionUserID()
     db = catocommon.new_conn()
     result = db.select_col_noexcep(sql, (uid, object_type, object_id))
     db.close()
-    
+
     return catocommon.is_true(result)
 
 #        public bool UserHasTag(string sGroup)
@@ -447,7 +441,7 @@ def IsObjectAllowed(object_id, object_type):
 #                return false;
 #        }
 
-    
+
 # this one returns just one specific function
 def GetTaskFunction(sFunctionName):
     funcs = uiGlobals.FunctionCategories.Functions
@@ -458,19 +452,19 @@ def GetTaskFunction(sFunctionName):
 
 def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
     log("Querying the cloud for %s" % sObjectType, 4)
-    
+
     from catocloud import cloud
-    
+
     # first, get the cloud
     c = cloud.Cloud()
     c.FromID(sCloudID)
     if c is None:
         return None, "Unable to get Cloud for ID [" + sCloudID + "]"
-    
+
     # NOTE: the Cloud object has a *THIN* copy of the Provider (it doesn't include
     #    products or provider clouds.)
     # But, we actually need a full provider here, so go get it!
-    
+
     full_provider = cloud.Provider.FromName(c.Provider.Name)
     cot = full_provider.GetObjectTypeByName(sObjectType)
     if cot is not None:
@@ -482,12 +476,12 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
     # ok, kick out if there are no properties for this type
     if not cot.Properties:
         return None, "No properties defined for type [" + sObjectType + "]"
-    
+
     # All good, let's hit the API
     sXML = ""
-    
+
     from catocloud import aws
-    
+
     if c.Provider.Name.lower() == "openstack":
         """not yet implemented"""
         # ACWebMethods.openstackMethods acOS = new ACWebMethods.openstackMethods()
@@ -498,32 +492,32 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
 
     if err:
         return None, err
-    
+
     if not sXML:
         return None, "GetCloudObjectsAsXML returned an empty document."
-    
+
 
     # Got results, objectify them.
 
     # OK look, all this namespace nonsense is annoying.  Every AWS result I've witnessed HAS a namespace
     #  (which messes up all our xpaths)
-    #  but I've yet to see a result that actually has two namespaces 
+    #  but I've yet to see a result that actually has two namespaces
     #  which is the only scenario I know of where you'd need them at all.
 
     # So... to eliminate all namespace madness
     # brute force... parse this text and remove anything that looks like [ xmlns="<crud>"] and it's contents.
-    
+
     sXML = RemoveDefaultNamespacesFromXML(sXML)
 
     xDoc = catocommon.ET.fromstring(sXML)
     if xDoc is None:
         return None, "API Response XML document is invalid."
-    
+
     log(sXML, 4)
 
     # FIRST ,we have to find which properties are the 'id' value.  That'll be the key for our dictionary.
     # an id can be a composite of several property values
-    # this is just so we can kick back an error if no IsID exists.  
+    # this is just so we can kick back an error if no IsID exists.
     # we build the actual id from values near the end
     sIDColumnName = ""
     for prop in cot.Properties:
@@ -546,10 +540,10 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
                 # the CloudObjectTypeProperty class has a 'Value' attribute.
                 # but, we obviously can't set that property of THIS instance (prop)
                 # because it's gonna get changed each time.
-                
+
                 # so, we create a clone of that property here, and give that copy the actual value,
                 # then append the copy to 'row', not the one we're looping here.
-                
+
                 # cosmic?  yes... it is.
                 newprop = copy.copy(prop)
                 log("looking for property [%s]" % newprop.Name, 4)
@@ -572,7 +566,7 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
                     if xeProp is not None:
                         # does this column have the extended property "ValueIsXML"?
                         bAsXML = (True if newprop.ValueIsXML else False)
-                        
+
                         if bAsXML:
                             newprop.Value = catocommon.ET.tostring(xeProp)
                             log(" -- found (as xml) - [%s]" % newprop.Value, 4)
@@ -581,7 +575,7 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
                             log(" -- found - [%s]" % newprop.Value, 4)
 
                     # just because it's missing from the data doesn't mean we can omit the property
-                    # it just has an empty value.    
+                    # it just has an empty value.
                     row.append(newprop)
 
                 if newprop.IsID:
@@ -590,12 +584,12 @@ def GetCloudObjectsAsList(sAccountID, sCloudID, sObjectType):
                     else:
                         log("[%s] is part of the ID... so [%s] becomes part of the ID" % (newprop.Name, newprop.Value), 4)
                         record_id += (newprop.Value if newprop.Value else "")
-                
+
                 # an id is required
                 if not record_id:
                     return None, "Unable to construct an 'id' from property values."
 
-            cot.Instances[record_id] = row 
+            cot.Instances[record_id] = row
 
         return cot.Instances, None
     else:
@@ -607,7 +601,7 @@ def RemoveDefaultNamespacesFromXML(xml):
     for match in allmatches:
         xml = xml.replace(match.group(), "")
     return xml
-    
+
 def AddNodeToXMLColumn(sTable, sXMLColumn, sWhereClause, sXPath, sXMLToAdd):
     # BE WARNED! this function is shared by many things, and should not be enhanced
     # with sorting or other niceties.  If you need that stuff, build your own function.
@@ -635,7 +629,7 @@ def AddNodeToXMLColumn(sTable, sXMLColumn, sWhereClause, sXPath, sXMLToAdd):
             xNodeToEdit = xd
         else:
             xNodeToEdit = xd.find(sXPath)
-        
+
         if xNodeToEdit is None:
             log("Error: XML does not contain path [" + sXPath + "].")
             return
@@ -698,46 +692,46 @@ def SetNodeAttributeinXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToSet, sA
     # THIS ONE WILL do adds if the attribute doesn't exist, or update it if it does.
     db = catocommon.new_conn()
     log("Setting [%s] attribute [%s] to [%s] in [%s.%s where %s]" % (sNodeToSet, sAttribute, sValue, sTable, sXMLColumn, sWhereClause), 4)
-    
+
     sXML = ""
-    
+
     sSQL = "select " + sXMLColumn + " from " + sTable + " where " + sWhereClause
     sXML = db.select_col_noexcep(sSQL)
     if db.error:
         log("Unable to get xml." + db.error)
         return ""
-    
+
     if sXML:
         # parse the doc from the table
         xd = catocommon.ET.fromstring(sXML)
         if xd is None:
             log("Unable to parse xml." + db.error)
             return ""
-    
+
         # get the specified node from the doc
         # here's the rub - the request might be or the "root" node,
         # which "find" will not, er ... find.
         # so let's first check if the root node is the name we want.
         xNodeToSet = None
-        
+
         if xd.tag == sNodeToSet:
             xNodeToSet = xd
         else:
             xNodeToSet = xd.find(sNodeToSet)
-        
+
         if xNodeToSet is None:
         # do nothing if we didn't find the node
             return ""
         else:
             # set it
             xNodeToSet.attrib[sAttribute] = sValue
-    
-    
+
+
         # then send the whole doc back to the database
         sSQL = "update " + sTable + " set " + sXMLColumn + " = %s where " + sWhereClause
         if not db.exec_db_noexcep(sSQL, (catocommon.ET.tostring(xd))):
             log("Unable to update XML Column [" + sXMLColumn + "] on [" + sTable + "]." + db.error)
-    
+
     return ""
 
 def RemoveNodeFromXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToRemove):
@@ -767,7 +761,7 @@ def RemoveNodeFromXMLColumn(sTable, sXMLColumn, sWhereClause, sNodeToRemove):
         # and on the parent we can call ".remove"
         parent_map = dict((c, p) for p in xd.getiterator() for c in p)
         xParentOfNodeToWhack = parent_map[xNodeToWhack]
-        
+
         # whack it
         if xParentOfNodeToWhack is not None:
             xParentOfNodeToWhack.remove(xNodeToWhack)
@@ -785,7 +779,7 @@ def AttemptLogin(app_name, token=None, sid=None):
         raise Exception("Unable to determine client address.")
 
     address = "%s (%s)" % (web.ctx.ip, app_name)
-    
+
     in_name = getAjaxArg("username")
     in_pwd = getAjaxArg("password")
     in_pwd = unpackJSON(in_pwd)
@@ -795,17 +789,17 @@ def AttemptLogin(app_name, token=None, sid=None):
     answer = unpackJSON(answer)
 
     u = catouser.User()
-    
+
     if token:
         log("Trying Token Authentication using [%s]." % token, 3)
         result, code = u.AuthenticateToken(token, address)
         if not result:
-            return json.dumps({"info" : code})
+            return json.dumps({"info": code})
     elif sid:
         log("Attempting to trust another CSK application using [%s]." % sid, 3)
         result, code = u.AuthenticateSession(sid, address)
         if not result:
-            return json.dumps({"info" : code})
+            return json.dumps({"info": code})
 
     else:
         log("Attempting Authentication using POST args.", 3)
@@ -815,31 +809,31 @@ def AttemptLogin(app_name, token=None, sid=None):
         result, code = u.Authenticate(in_name, in_pwd, address, new_pwd, answer)
         if not result:
             if code == "disabled":
-                return json.dumps({"info" : "Your account has been suspended.  Please contact an Adminstrator."})
+                return json.dumps({"info": "Your account has been suspended.  Please contact an Adminstrator."})
             if code == "failures":
-                return json.dumps({"info" : "Your account has been temporarily locked due to excessive password failures."})
+                return json.dumps({"info": "Your account has been temporarily locked due to excessive password failures."})
             if code == "change":
-                return json.dumps({"result" : "change"})
-            
+                return json.dumps({"result": "change"})
+
             # no codes matched, but there is a message in there...
             if code:
-                return json.dumps({"info" : code})
-    
+                return json.dumps({"info": code})
+
             # failed with no code returned
-            return json.dumps({"info" : "Invalid Username or Password."})
+            return json.dumps({"info": "Invalid Username or Password."})
 
     # So... they authenticated, but based on the users 'role' (Administrator, Developer, User) ...
     # they may not be allowed to log in to certain "app_name"s.
     # specifically, the User role cannot log in to the "Cato Admin UI" app.
-    
+
     # TODO: enable this when the Cato EE Portal is released.
 #        if u.Role == "User" and "Admin" in app_name:
-#            return json.dumps({"info" : "Your account isn't authorized for this application."})
+#            return json.dumps({"info": "Your account isn't authorized for this application."})
 
-    
+
     # all good, put a few key things in the session, not the whole object
     # yes, I said SESSION not a cookie, otherwise it could be hacked client side
-    
+
     current_user = {}
     current_user["session_id"] = u.SessionID
     current_user["user_id"] = u.ID
@@ -850,11 +844,11 @@ def AttemptLogin(app_name, token=None, sid=None):
     current_user["email"] = u.Email
     current_user["ip_address"] = address
     SetSessionObject("user", current_user)
-    
+
     # bit of a hack here... this function was given a pretty "app_name", but we want the non-pretty one.
     cookiename = "%s-applink" % (app_name.replace(" ", "_").lower())
     SetCookie(cookiename, base64.b64encode(u.SessionID))
-    
+
     log("Login granted for: %s" % (u.FullName), 3)
     log(uiGlobals.session.user, 4)
 
@@ -863,8 +857,8 @@ def AttemptLogin(app_name, token=None, sid=None):
         catocommon.SecurityLogActions.UserLogin, catocommon.CatoObjectTypes.User, "",
         "Login to [%s] from [%s] granted." % (app_name, address))
 
-    return json.dumps({"result" : "success"})
-            
+    return json.dumps({"result": "success"})
+
 def GetQuestion():
     in_name = getAjaxArg("username")
 
@@ -873,18 +867,18 @@ def GetQuestion():
 
     # again with the generic messages.
     if not u.ID:
-        return json.dumps({"info" : "Unable to reset password for user."})
+        return json.dumps({"info": "Unable to reset password for user."})
     if not u.SecurityQuestion:
-        return json.dumps({"info" : "Unable to reset password.  Contact an Administrator."})
+        return json.dumps({"info": "Unable to reset password.  Contact an Administrator."})
 
 
-    return json.dumps({"result" : packJSON(u.SecurityQuestion)})
+    return json.dumps({"result": packJSON(u.SecurityQuestion)})
 
 def UpdateHeartbeat():
     # NOTE: this needs all the kick and warn stuff
     uid = GetSessionUserID()
     ip = GetSessionObject("user", "ip_address")
-    
+
     if uid and ip:
         sSQL = "update user_session set heartbeat = now() where user_id = '%s' and address = '%s'" % (uid, ip)
         db = catocommon.new_conn()
@@ -904,18 +898,18 @@ def GetPager(rowcount, maxrows, page):
     # no pager if there's not enough rows
     if rowcount <= maxrows:
         return 0, None, ""
-    
+
     maxrows = maxrows if maxrows else 25
     try:
         page = int(page)
     except:
         page = 1
-    
+
     mod = rowcount % maxrows
     numpages = (rowcount / maxrows) + 1 if mod else (rowcount / maxrows)
     start = (maxrows * page) - maxrows
     end = start + maxrows
-    
+
     pager_html = ""
     if numpages:
         pager = []
@@ -923,12 +917,12 @@ def GetPager(rowcount, maxrows, page):
             i += 1
             selected = "pager_button_selected" if i == page else ""
             pager.append("<span class=\"pager_button %s\">%d</span>" % (selected, i))
-        
+
         pager_html = "".join(pager)
-    
+
     # log("showing page %d items %d to %d" % (page, start, end), 3)
-      
-    return start, end, pager_html      
+
+    return start, end, pager_html
 
 def LoadTaskCommands():
     from catotask import taskCommands
@@ -943,7 +937,7 @@ def LoadTaskCommands():
     # try to append any extension files
     # this will read all the xml files in /extensions
     # and append to sErr if it failed, but not crash or die.
-    
+
     # extension paths are defined in config.
     for n, p in catoconfig.CONFIG["extensions"].iteritems():
         for root, subdirs, files in os.walk(p):
@@ -953,10 +947,10 @@ def LoadTaskCommands():
                     fullpath = os.path.join(root, f)
                     cats.Load(fullpath)
 
-    # Command categories and functions are an object, loaded from XML when the 
+    # Command categories and functions are an object, loaded from XML when the
     # service starts, and stored on the uiGlobals module.
     uiGlobals.FunctionCategories = cats
-    
+
     return True
 
 
@@ -966,7 +960,7 @@ def GetLog():
     """
     lines = getAjaxArg("lines")
     lines = lines if lines else "1000"
-    
+
     refresh = 10000
     r = getAjaxArg("refresh")
     if r:
@@ -981,7 +975,7 @@ def GetLog():
         process = os.path.join(catolog.LOGPATH, "%s.log" % process)
     else:
         process = catolog.LOGFILE
-    
+
     l = os.popen("tail -n %s %s" % (lines, process)).readlines()
     html = """<!DOCTYPE html>
     <html>
@@ -998,7 +992,7 @@ def GetLog():
         </body>
     </html>
     """ % ("".join(l), refresh)
-    
+
     return html
 
 def SetDebug():
@@ -1006,9 +1000,9 @@ def SetDebug():
     if debug:
         logger.critical("Changing debug level to %s." % debug)
         catolog.set_debug(debug)
-            
+
     return "Debug successfully changed."
-    
+
 # For saving/reading a deployment template icon from the database.
 def SaveAppIcon(template_id, img):
     db = catocommon.new_conn()
@@ -1027,4 +1021,3 @@ def GetAppIcon(template_id):
     else:
         # this is a default image if there's no icon on the template.
         return base64.b64decode("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")
-

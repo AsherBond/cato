@@ -17,12 +17,12 @@
 import sys
 
 if sys.version_info < (2, 7):
-	import catoxml.etree.ElementTree as ET
+    import catoxml.etree.ElementTree as ET
 else:
-	try:
-	    import xml.etree.cElementTree as ET
-	except (AttributeError, ImportError):
-	    import xml.etree.ElementTree as ET
+    try:
+        import xml.etree.cElementTree as ET
+    except (AttributeError, ImportError):
+        import xml.etree.ElementTree as ET
 
 def vmw_list_images(TE, step):
 
@@ -119,4 +119,3 @@ def vmw_power_image(TE, command, on_off):
         TE.insert_audit("vmw_power_off_image", msg, "")
 
     TE.logger.info(result)
-    

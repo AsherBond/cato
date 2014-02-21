@@ -41,7 +41,7 @@ from bson.objectid import ObjectId
 from jsonpath import jsonpath
 from catoerrors import BadParameterError
 
-def jsonpath_replace(doc, fragment, jpath, append = False):
+def jsonpath_replace(doc, fragment, jpath, append=False):
     """ 
     Performs a JSONPath update transaction.
     Implement the update part of JSONPath, using its facility to
@@ -80,11 +80,11 @@ def jsonpath_replace(doc, fragment, jpath, append = False):
     """
     import jsonpath
     ipath = jsonpath.jsonpath(doc, jpath, result_type='IPATH')
-    #print ipath
+    # print ipath
     # for example:
     # 1) web[2].address -> [[web', '2', 'address']]
     # or, given a certain doc:
-    # 2) $..book[?(@.price<10)]', '$;..;book;?(@.price<10) 
+    # 2) $..book[?(@.price<10)]', '$;..;book;?(@.price<10)
     #  -> [['store', 'book', '0'], ['store', 'book', '2']]
     docname = 'doc'
     rhs = 'fragment'
@@ -110,17 +110,17 @@ def jsonpath_replace(doc, fragment, jpath, append = False):
             else:
                 expr += " = %s" % rhs
             statements.append(expr)
-            
+
     # example result statements:
     # for case 1):
     #   ["doc['web'][2]['address'] = fragment"]
     # for case 2):
-    #  
-    #print statements
+    #
+    # print statements
     for s in statements:
         exec(s)
     return len(statements)
-    
+
 def _put(d, k, item):
     """
     This is a simple yet powerful function!
@@ -139,7 +139,7 @@ def _put(d, k, item):
             # key DOES exist!
             if rest and not type(d[key]) == dict:
                 # there are more keys coming... gotta make this into a dict
-                d[key] = {} # destroys any existing text value... no other way
+                d[key] = {}  # destroys any existing text value... no other way
 
         _put(d[key], rest, item)
     else:
@@ -147,7 +147,7 @@ def _put(d, k, item):
 
 
 
-def modify_doc(doc, doc_fragment, jpath, append = False):
+def modify_doc(doc, doc_fragment, jpath, append=False):
     """ Modifies doc by replacing doc fragment at given JSONPath
       by the given doc fragment.
       
@@ -174,7 +174,7 @@ def modify_doc(doc, doc_fragment, jpath, append = False):
     subdocs = jsonpath(doc, jpath)
     if append and subdocs and len(subdocs) > 1:
         raise BadParameterError('append can be performed only on JSONPath that matches a single node')
-    
+
     if append and (not subdocs or (subdocs and not isinstance(subdocs[0], list))):
         # create a new list
         _put(doc, jpath, [])
@@ -186,10 +186,10 @@ def modify_doc(doc, doc_fragment, jpath, append = False):
         _put(doc, jpath, doc_fragment)
         ret = 1
     else:
-        
+
         ret = jsonpath_replace(doc, doc_fragment, jpath, append)
         # restore original id
-        #if id:
+        # if id:
         #    doc['_id'] = id
     return ret
 
@@ -220,11 +220,11 @@ def _do_save(coll, doc):
     if '_id' in doc:
         if isinstance(doc['_id'], unicode) or isinstance(doc['_id'], str):
             doc['_id'] = ObjectId(doc['_id'])
-    #filt = {'_id': ObjectId(doc['_id'])}
-    #logger.debug('_do_save: %s, filter: %s' % (doc, filt))
-    #print('_do_save: %s' % doc)
+    # filt = {'_id': ObjectId(doc['_id'])}
+    # logger.debug('_do_save: %s, filter: %s' % (doc, filt))
+    # print('_do_save: %s' % doc)
     coll.save(doc)
-    
+
 def append_doc(coll, doc, doc_fragment, jpath):
     """ Appends to the document fragment at the given JSONPath key.
     
@@ -248,9 +248,9 @@ def append_doc(coll, doc, doc_fragment, jpath):
     # modify the doc
     modify_doc(doc, doc_fragment, jpath, append=True)
     _do_save(coll, doc)
-    #logger.debug('update_doc: %s, filter: %s' % (doc, filt))
+    # logger.debug('update_doc: %s, filter: %s' % (doc, filt))
     subdocs = jsonpath(doc, jpath)
-    #print('append_doc: %s' % subdocs)
+    # print('append_doc: %s' % subdocs)
     if subdocs:
         # append happened at index {len - 1)
         ret = len(subdocs[0]) - 1
@@ -274,12 +274,12 @@ def unset_doc(coll, doc, jpath):
         count = jsonpath_replace(doc, None, jpath)
         _do_save(coll, doc)
     else:
-        #logger.debug('unset_doc: %s applied to %s yielded no results, therefore nothing removed from doc' % \
+        # logger.debug('unset_doc: %s applied to %s yielded no results, therefore nothing removed from doc' % \
         #               (jpath, doc))
         count = 0
     return count
-    
-    
+
+
 
 def extract_fragment_from_doc(doc, jpath):
     """ Extract a fragment from document at the given JSONPath.
@@ -323,7 +323,7 @@ def query_doc(coll, jpath):
     :return: a list of map (a list of JSON documents)
     
     """
-    # initially, using brute force approach: 
+    # initially, using brute force approach:
     # 1. first get all docs,
     docs = coll.find()
     # 2. then filter those that have a match of jpath
@@ -332,7 +332,7 @@ def query_doc(coll, jpath):
 
 def save_doc(coll, doc):
     _do_save(coll, doc)
-    
+
 def delete_doc(doc):
     """ Deletes a document from a collection.
     
@@ -347,6 +347,3 @@ class Connection(pymongo.Connection):
 
     def __init__(self, host, port):
         pymongo.Connection.__init__(self, host, port)
-        
-    
-

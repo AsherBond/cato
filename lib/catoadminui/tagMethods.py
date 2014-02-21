@@ -71,7 +71,7 @@ class tagMethods:
     def wmDeleteTags(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
         if not sDeleteArray:
-            return json.dumps({"info" : "Unable to delete - no selection."})
+            return json.dumps({"info": "Unable to delete - no selection."})
 
         sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
         
@@ -85,7 +85,7 @@ class tagMethods:
         
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Tag, "", sDeleteArray, "Tag(s) Deleted")
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
  
     def wmUpdateTag(self):
         sTagName = uiCommon.getAjaxArg("sTagName")
@@ -102,7 +102,7 @@ class tagMethods:
         if sNewTagName:
             t.DBRename(sNewTagName)
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmGetObjectsTags(self):
         sHTML = ""
@@ -173,7 +173,7 @@ class tagMethods:
         tag.ObjectTags.Add(sTagName, sObjectID, iObjectType)
         uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [%s] added." % sTagName)
 
-        return json.dumps({"result" : "success"})
+        return json.dumps({"result": "success"})
 
     def wmRemoveObjectTag(self):
         sObjectID = uiCommon.getAjaxArg("sObjectID")
@@ -190,6 +190,4 @@ class tagMethods:
         tag.ObjectTags.Remove(sTagName, sObjectID)
         uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [%s] removed." % sTagName)
 
-        return json.dumps({"result" : "success"})
-
-           
+        return json.dumps({"result": "success"})

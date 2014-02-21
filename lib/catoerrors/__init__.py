@@ -80,6 +80,3 @@ class InfoException(StandardError):
 
     def __str__(self):
         return self.reason
-    
-
-

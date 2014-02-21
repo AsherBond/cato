@@ -520,4 +520,3 @@ class Credential(object):
 
     def AsText(self, delimiter, headers):
         return catocommon.ObjectOutput.AsText(self.__dict__, ["Name", "Username", "SharedOrLocal", "Description"], delimiter, headers)
-
