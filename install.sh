@@ -185,7 +185,7 @@ else
 fi
 
 ### install third party python packages
-pip install --upgrade pip
+pip install pip==1.5.4
 pip install -q -r $CATO_HOME/requirements.txt
 
 ### compile c++ encryption library
