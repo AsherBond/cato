@@ -1459,10 +1459,10 @@ class StepUserSettings(object):
 
 
 class TaskRunLog(object):
-    log_rows = {}
-    summary_rows = {}
-    numrows = 0
     def __init__(self, sTaskInstance, sRows=""):
+        self.log_rows = []
+        self.summary_rows = []
+        self.numrows = 0
         self.instance = sTaskInstance
         
         db = catocommon.new_conn()
@@ -1493,7 +1493,9 @@ class TaskRunLog(object):
             and command_text = 'result_summary'
             order by id"""
 
-        self.summary_rows = db.select_all_dict(sSQL, (sTaskInstance))
+        srows = db.select_all_dict(sSQL, (sTaskInstance))
+        if srows:
+            self.summary_rows = list(srows)
 
         # NOW carry on with the regular rows
         sSQL = """select til.task_instance, til.entered_dt, til.connection_name, til.log,
@@ -1506,7 +1508,10 @@ class TaskRunLog(object):
             where til.task_instance = %s
             order by til.id %s""" % (str(sTaskInstance), sLimitClause)
             
-        self.log_rows = db.select_all_dict(sSQL)
+        rows = db.select_all_dict(sSQL)
+        if rows:
+            self.log_rows = list(rows)
+            
         db.close()
 
     def AsJSON(self):
