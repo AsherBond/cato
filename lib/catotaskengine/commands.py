@@ -1494,7 +1494,14 @@ def cato_web_service_cmd(self, task, step):
 
 def route53_cmd(self, task, step):
 
-    from awspy import awspy
+    try:
+        from awspy import awspy
+    except ImportError as e:
+       msg = """Error importing awspy module, module is not installed\n
+                See https://github.com/cloudsidekick/awspy for installation details"""
+       raise Exception(msg)
+    except Exception as e:
+        raise Exception(e)
 
     path, rtype, data, response_v = self.get_command_params(step.command, "path", "type", "data", "result_name")[:]
     path = self.replace_variables(path)
