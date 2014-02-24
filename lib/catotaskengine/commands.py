@@ -28,7 +28,6 @@ from datetime import datetime, timedelta
 import dateutil.parser as parser
 from bson.objectid import ObjectId
 from pymongo.errors import InvalidName
-from awspy import awspy
 from catoconfig import catoconfig
 
 from catocommon import catocommon
@@ -1494,6 +1493,8 @@ def cato_web_service_cmd(self, task, step):
         self.parse_xml(buff, xpath, values)
 
 def route53_cmd(self, task, step):
+
+    from awspy import awspy
 
     path, rtype, data, response_v = self.get_command_params(step.command, "path", "type", "data", "result_name")[:]
     path = self.replace_variables(path)

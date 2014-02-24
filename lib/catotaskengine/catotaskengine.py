@@ -39,7 +39,6 @@ from catocommon import catocommon
 from catodb import catodb
 from catoruntimes import runtimes
 import uuid
-from awspy import awspy
 import base64
 from matheval import matheval
 from . import commands
@@ -1318,6 +1317,8 @@ class TaskEngine():
 
 
     def call_aws(self, cloud_name, product, action, params):
+
+	from awspy import awspy
 
         # if cloud name is not specified as a parameter, get the cloud account default
         if not len(cloud_name):
