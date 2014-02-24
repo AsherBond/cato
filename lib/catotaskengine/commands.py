@@ -1497,9 +1497,9 @@ def route53_cmd(self, task, step):
     try:
         from awspy import awspy
     except ImportError as e:
-       msg = """Error importing awspy module, module is not installed\n
+        msg = """Error importing awspy module, module is not installed\n
                 See https://github.com/cloudsidekick/awspy for installation details"""
-       raise Exception(msg)
+        raise Exception(msg)
     except Exception as e:
         raise Exception(e)
 
