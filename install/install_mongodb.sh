@@ -75,6 +75,12 @@ set -ex
 
 trap "echo !!!!!!!!!!!!!!!!!!!!!!!!!;echo 'Cato install script did not complete successfully!';echo !!!!!!!!!!!!!!!!!!!!!!!!!" ERR
 
+# this script resides in the CATO_HOME/install directory
+INSTALL_DIR=`dirname $0`
+
+# set the CATO_HOME directory based on the INSTALL_DIR
+CATO_HOME=`dirname $INSTALL_DIR`
+
 FLAVOR=`$CATO_HOME/install/determine_flavor.sh`
 
 # Ubuntu specific
@@ -109,6 +115,10 @@ else
 fi
 
 # the following sets up the mongodb server with authentication and creates a database for cato
+
+MONGOADMIN=admin
+MONGOADMINPASS=secret
+
 $CATO_HOME/install/mongo_secure.py 127.0.0.1 ${MONGOADMIN} ${MONGOADMINPASS} ${CATODBNAME} ${CATODBUSER} ${CATODBPASS}
 
 # turn authentication on in the mongo conf file

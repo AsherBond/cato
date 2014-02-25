@@ -147,13 +147,13 @@ sed -i"" -e"s|#CATOFILES#|${CATOFILESDIR}|" $CONFFILE
 $CATO_HOME/install/get_ui_libs.sh
 
 ### install and configure security for mongodb
-$CATO_HOME/install/install_mongodb.sh -d ${CATODBNAME} -u ${CATODBUSER} -p ${CATODBREADPASS}
+$CATO_HOME/install/install_mongodb.sh -d ${CATODBNAME} -u ${CATODBUSER} -p ${CATODBPASS}
 
 ### install mysql server and client and set the root db password
 $CATO_HOME/install/install_mysql_server.sh -r ${ROOTDBPASS}
 
 ### setup the mysql cato database, security and tables
-$CATO_HOME/install/create_cato_db.sh -r ${ROOTDBPASS} -d ${CATODBNAME} -u ${CATODBUSER} -p ${CATODBREADPASS} -k ${CATODBREADUSER} -l ${CATODBREADPASS}
+$CATO_HOME/install/create_cato_db.sh -r ${ROOTDBPASS} -d ${CATODBNAME} -u ${CATODBUSER} -p ${CATODBPASS} -k ${CATODBREADUSER} -l ${CATODBREADPASS}
 
 set +x
 echo ""
