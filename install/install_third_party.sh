@@ -62,7 +62,7 @@ else
 fi
 
 # need a specific version of pip
-pip install pip==1.5.4
+pip install –install-option="–install-scripts=/usr/bin" pip==1.5.4
 
 ### install third party python packages
 pip install -q -r $CATO_HOME/install/python_requirements.txt
