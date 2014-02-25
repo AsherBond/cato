@@ -9,7 +9,8 @@ LOG=/usr/local/var/log/mongodb/mongo.log
 
 # perform startup
 #$MONGOD --config /opt/apps/mongodb/mongodb.conf --fork --logpath /var/log/mongodb.log --logappend
-$MONGOD --fork --logpath $LOG --logappend
+#$MONGOD --fork --logpath $LOG --logappend
+$MONGOD --fork --logpath $LOG --logappend --dbpath /usr/local/lib/mongod
 # Show tail of log file that shows that mongod started OK or that it failed to 
 #   start
 # if you see something like this:
