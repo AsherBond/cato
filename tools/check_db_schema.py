@@ -4,8 +4,12 @@ import os
 import sys
 import json
 
-base_path = os.path.dirname(os.path.abspath(sys.argv[0]))
-print base_path
+if not "CATO_HOME" in os.environ:
+    raise Exception("CATO_HOME environment variable not set.  Cato is required.")
+
+CATO_HOME = os.environ["CATO_HOME"]
+
+base_path = CATO_HOME
 lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 
