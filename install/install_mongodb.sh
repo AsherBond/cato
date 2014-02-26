@@ -100,7 +100,7 @@ baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64
 gpgcheck=0
 enabled=1
 EOF
-o    yum -y --quiet install mongo-10gen mongo-10gen-server
+    yum -y --quiet install mongo-10gen mongo-10gen-server
     # the following is to work around a bug on redhat / centos
     #sed -i"" -e"s|^pidfilepath.*$|pidfilepath=/var/lib/mongo/mongod.lock|"  /etc/mongod.conf
 
@@ -114,19 +114,22 @@ else
     exit 1
 fi
 
-# the following sets up the mongodb server with authentication and creates a database for cato
+service ${MONGOSERVICE} restart
 
-MONGOADMIN=admin
-MONGOADMINPASS=secret
+# the following section sets up the mongodb server with 
+# authentication and creates a database for cato
 
-$CATO_HOME/install/mongo_secure.py 127.0.0.1 ${MONGOADMIN} ${MONGOADMINPASS} ${CATODBNAME} ${CATODBUSER} ${CATODBPASS}
+# MONGOADMIN=admin
+# MONGOADMINPASS=secret
+
+#$CATO_HOME/install/mongo_secure.py 127.0.0.1 ${MONGOADMIN} ${MONGOADMINPASS} ${CATODBNAME} ${CATODBUSER} ${CATODBPASS}
 
 # turn authentication on in the mongo conf file
-sed -i"" -e"s|#auth|auth|" /etc/${MONGOSERVICE}.conf
+#sed -i"" -e"s|#auth|auth|" /etc/${MONGOSERVICE}.conf
 
 # and restart the service
-service ${MONGOSERVICE} stop
-service ${MONGOSERVICE} start
+#service ${MONGOSERVICE} stop
+#service ${MONGOSERVICE} start
 
 echo "MongoDB install complete"
 
