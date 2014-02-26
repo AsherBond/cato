@@ -118,16 +118,17 @@ service ${MONGOSERVICE} restart
 
 # the following section sets up the mongodb server with 
 # authentication and creates a database for cato
+# by default cato is installed with unauthenticated mongodb
 
-# MONGOADMIN=admin
-# MONGOADMINPASS=secret
-
+#MONGOADMIN=admin
+#MONGOADMINPASS=secret
+#
 #$CATO_HOME/install/mongo_secure.py 127.0.0.1 ${MONGOADMIN} ${MONGOADMINPASS} ${CATODBNAME} ${CATODBUSER} ${CATODBPASS}
-
-# turn authentication on in the mongo conf file
+#
+## turn authentication on in the mongo conf file
 #sed -i"" -e"s|#auth|auth|" /etc/${MONGOSERVICE}.conf
-
-# and restart the service
+#
+## and restart the service
 #service ${MONGOSERVICE} stop
 #service ${MONGOSERVICE} start
 
