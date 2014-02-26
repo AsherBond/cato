@@ -88,14 +88,6 @@ then
     usage_and_exit 
 fi
 
-exit
-
-if [[ -n "$CATO_HOST" ]];
-then
-	echo "Using Host Address $CATO_HOST"
-fi
-
-
 set -ex
 
 # get this script's path
