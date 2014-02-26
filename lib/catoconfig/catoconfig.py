@@ -116,6 +116,7 @@ def read_config():
     fp.close
     enc_key = ""
     enc_pass = ""
+    enc_mongo_pass = None
     for line in contents:
         line = line.strip()
         if len(line) > 0 and not line.startswith("#"):
