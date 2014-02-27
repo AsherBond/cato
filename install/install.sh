@@ -92,7 +92,9 @@ CATO_HOME=`dirname $INSTALL_DIR`
 LOGFILESDIR="$CATOFILESDIR/log"
 TMPDIR="$CATOFILESDIR/tmp"
 
+echo off
 trap "echo !!!!!!!!!!!!!!!!!!!!!!!!!;echo 'Cato install script did not complete successfully!';echo !!!!!!!!!!!!!!!!!!!!!!!!!" ERR
+echo on
 
 # install third party packages and python modules
 $CATO_HOME/install/install_third_party.sh

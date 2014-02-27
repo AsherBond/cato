@@ -33,7 +33,9 @@ INSTALL_DIR=`dirname $0`
 # set the CATO_HOME directory based on the INSTALL_DIR
 CATO_HOME=`dirname $INSTALL_DIR`
 
+echo off
 trap "echo !!!!!!!!!!!!!!!!!!!!!!!!!;echo 'Cato install script did not complete successfully!';echo !!!!!!!!!!!!!!!!!!!!!!!!!" ERR
+echo on
 
 FLAVOR=`$CATO_HOME/install/determine_flavor.sh`
 echo $FLAVOR

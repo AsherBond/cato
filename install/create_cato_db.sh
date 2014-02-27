@@ -37,7 +37,7 @@ function usage_and_exit()
     exit 1
 }
 
-while getopts r:d:u:p:k:l:? flag
+while getopts r:d:u:p:k:l:a:? flag
 do
     case $flag in
         r)
@@ -102,7 +102,9 @@ set -ex
 
 SCRIPT_HOME=`dirname $0`
 
+echo off
 trap "echo !!!!!!!!!!!!!!!!!!!!!!!!!;echo 'Cato install script did not complete successfully!';echo !!!!!!!!!!!!!!!!!!!!!!!!!" ERR
+echo on
 
 ### Create the database, logins and permissions in MySQL
 

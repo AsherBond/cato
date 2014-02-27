@@ -73,7 +73,9 @@ set -ex
 # customize the following values to suit your needs
 
 
+echo off
 trap "echo !!!!!!!!!!!!!!!!!!!!!!!!!;echo 'Cato install script did not complete successfully!';echo !!!!!!!!!!!!!!!!!!!!!!!!!" ERR
+echo on
 
 # this script resides in the CATO_HOME/install directory
 INSTALL_DIR=`dirname $0`
