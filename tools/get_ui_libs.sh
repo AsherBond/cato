@@ -2,7 +2,7 @@
 
 # This will get all the 3rd party UI libs (js and css) we use.
 
-export INSTALL_TO=/var/cato/ui
+export INSTALL_TO=/var/cato/ui2
 echo "installing to $INSTALL_TO..."
 
 echo "jQuery"
