@@ -146,9 +146,6 @@ sed -i"" -e"s|#TMPDIR#|${TMPDIR}|" $CONFFILE
 sed -i"" -e"s|#CATOFILES#|${CATOFILESDIR}|" $CONFFILE
 
 
-### install the 3rd party UI libs
-$CATO_HOME/install/get_ui_libs.sh
-
 ### install and configure security for mongodb
 $CATO_HOME/install/install_mongodb.sh -d ${CATODBNAME} -u ${CATODBUSER} -p ${CATODBPASS}
 
