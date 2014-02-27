@@ -70,7 +70,7 @@ pip install -q -r $CATO_HOME/install/python_requirements.txt
 if [ ! -f $INSTALL_DIR/csk_third_party_js.tar.gz ];
 then
     # if the file is not where it should be, this may be a source install. Download it
-    curl -Lk --output $INSTALL_DIR/csk_third_party_js.tar.gz https://downloads.cloudsidekick.com/csk_third_party_js_2014_02_27.tar.gz
+    curl -Lk --output $INSTALL_DIR/csk_third_party_js.tar.gz http://downloads.cloudsidekick.com/cato/csk_third_party_js_2014_02_27.tar.gz
 fi
 
 tar -xzf $INSTALL_DIR/csk_third_party_js.tar.gz /var/cato
