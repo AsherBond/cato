@@ -127,6 +127,7 @@ cp $CATO_HOME/conf/default.cato.conf $CONFFILE
 NEWKEY=`$CATO_HOME/install/catoencrypt $ENCRYPTIONKEY ""`
 ENCDBPASS=`$CATO_HOME/install/catoencrypt $CATODBPASS $ENCRYPTIONKEY`
 ENCDBREADPASS=`$CATO_HOME/install/catoencrypt $CATODBREADPASS $ENCRYPTIONKEY`
+ADMINPASS=`$CATO_HOME/install/catoencrypt password $ENCRYPTIONKEY`
 
 # replace placeholders with localized config settings
 # see the user configurable settings above
@@ -153,7 +154,7 @@ $CATO_HOME/install/install_mongodb.sh -d ${CATODBNAME} -u ${CATODBUSER} -p ${CAT
 $CATO_HOME/install/install_mysql_server.sh -r ${ROOTDBPASS}
 
 ### setup the mysql cato database, security and tables
-$CATO_HOME/install/create_cato_db.sh -r ${ROOTDBPASS} -d ${CATODBNAME} -u ${CATODBUSER} -p ${CATODBPASS} -k ${CATODBREADUSER} -l ${CATODBREADPASS}
+$CATO_HOME/install/create_cato_db.sh -r ${ROOTDBPASS} -d ${CATODBNAME} -u ${CATODBUSER} -p ${CATODBPASS} -k ${CATODBREADUSER} -l ${CATODBREADPASS} -a ${ADMINPASS}
 
 set +x
 echo ""

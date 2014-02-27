@@ -32,6 +32,7 @@ function usage_and_exit()
     echo -e "\t-p PASSWORD        Cato db user password"
     echo -e "\t-k USER            a read only user name"
     echo -e "\t-l PASSWORD        read only user password"
+    echo -e "\t-a PASSWORD        administrator user password"
     echo -e "\t-? show this help"
     exit 1
 }
@@ -51,6 +52,8 @@ do
             CATODBREADUSER=$OPTARG;;
         l)
             CATODBREADPASS=$OPTARG;;
+        a)
+            ADMINPASS=$OPTARG;;
         ?)
             usage_and_exit;;
     esac
@@ -87,6 +90,11 @@ then
     echo "Cato DB read only user password not set"
     usage_and_exit 
 fi
+if [[ -z "$ADMINPASS" ]];
+then
+    echo "Administrator user password not set"
+    usage_and_exit
+fi
 
 set -ex
 
@@ -105,5 +113,10 @@ mysql -u root -p$ROOTDBPASS -e "FLUSH PRIVILEGES;"
 
 ### create the database tables, indexes, etc. etc.
 mysql -u root -p$ROOTDBPASS $CATODBNAME < $SCRIPT_HOME/cato_ddl.sql
+
+### setup the admin user
+mysql -u root -p$ROOTDBPASS $CATODBNAME -e "INSERT INTO users (user_id, username, full_name, status, authentication_type, failed_login_attempts, force_change, email, user_role, user_password) VALUES ( '0002bdaf-bfd5-4b9d-82d1-fd39c2947d19','administrator','Administrator',1,'local',0,1,'','Administrator', '$ADMINPASS')"
+
+mysql -u root -p$ROOTDBPASS $CATODBNAME -e "INSERT INTO user_password_history (user_id, change_time, password) VALUES ('0002bdaf-bfd5-4b9d-82d1-fd39c2947d19',now(),'$ADMINPASS')"
 
 exit 0
