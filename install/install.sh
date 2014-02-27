@@ -96,6 +96,12 @@ echo off
 trap "echo !!!!!!!!!!!!!!!!!!!!!!!!!;echo 'Cato install script did not complete successfully!';echo !!!!!!!!!!!!!!!!!!!!!!!!!" ERR
 echo on
 
+# create the supporting application directories
+mkdir -p $LOGFILESDIR/te
+mkdir -p $LOGFILESDIR/se
+mkdir -p $CATOFILESDIR/ui
+mkdir -p $TMPDIR
+
 # install third party packages and python modules
 $CATO_HOME/install/install_third_party.sh
 
@@ -111,12 +117,6 @@ if [ -d $CATO_HOME/src/catocrypt ]; then
     python setup.py install --install-platlib=$CATO_HOME/lib/catocryptpy
     cd $WHEREAMI
 fi
-
-# create the supporting application directories
-mkdir -p $LOGFILESDIR/te
-mkdir -p $LOGFILESDIR/se
-mkdir -p $CATOFILESDIR/ui
-mkdir -p $TMPDIR
 
 # create a new conf file from the default
 mkdir -p /etc/cato

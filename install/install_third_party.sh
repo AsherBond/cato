@@ -73,7 +73,7 @@ then
     curl -Lk --output $INSTALL_DIR/csk_third_party_js.tar.gz http://downloads.cloudsidekick.com/cato/csk_third_party_js_2014_02_27.tar.gz
 fi
 
-tar -xzf $INSTALL_DIR/csk_third_party_js.tar.gz /var/cato
+tar -xzf $INSTALL_DIR/csk_third_party_js.tar.gz -C /var/cato
 
 
 exit 0
