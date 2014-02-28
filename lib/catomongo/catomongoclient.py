@@ -78,7 +78,6 @@ def jsonpath_replace(doc, fragment, jpath, append=False):
     :return: number of assignments performed
     
     """
-    import jsonpath
     ipath = jsonpath.jsonpath(doc, jpath, result_type='IPATH')
     # print ipath
     # for example:
@@ -171,14 +170,14 @@ def modify_doc(doc, doc_fragment, jpath, append=False):
     if id and not isinstance(id, str):
         doc['_id'] = str(id)
     # identify map subnode to modify/update
-    subdocs = jsonpath(doc, jpath)
+    subdocs = jsonpath.jsonpath(doc, jpath)
     if append and subdocs and len(subdocs) > 1:
         raise BadParameterError('append can be performed only on JSONPath that matches a single node')
 
     if append and (not subdocs or (subdocs and not isinstance(subdocs[0], list))):
         # create a new list
         _put(doc, jpath, [])
-        subdocs = jsonpath(doc, jpath)
+        subdocs = jsonpath.jsonpath(doc, jpath)
         assert(subdocs)
     if not subdocs:
         logger.debug('modify_doc: %s applied to %s yielded no results' % (jpath, doc))
@@ -249,7 +248,7 @@ def append_doc(coll, doc, doc_fragment, jpath):
     modify_doc(doc, doc_fragment, jpath, append=True)
     _do_save(coll, doc)
     # logger.debug('update_doc: %s, filter: %s' % (doc, filt))
-    subdocs = jsonpath(doc, jpath)
+    subdocs = jsonpath.jsonpath(doc, jpath)
     # print('append_doc: %s' % subdocs)
     if subdocs:
         # append happened at index {len - 1)
@@ -269,7 +268,7 @@ def unset_doc(coll, doc, jpath):
     if id and not isinstance(id, str):
         doc['_id'] = str(id)
     # identify map subnode to modify/update
-    subdocs = jsonpath(doc, jpath)
+    subdocs = jsonpath.jsonpath(doc, jpath)
     if subdocs:
         count = jsonpath_replace(doc, None, jpath)
         _do_save(coll, doc)
@@ -300,7 +299,7 @@ def extract_fragment_from_doc(doc, jpath):
     :return: a JSON document
     
     """
-    return jsonpath(doc, jpath)
+    return jsonpath.jsonpath(doc, jpath)
 
 
 def query_doc(coll, jpath):
@@ -327,7 +326,7 @@ def query_doc(coll, jpath):
     # 1. first get all docs,
     docs = coll.find()
     # 2. then filter those that have a match of jpath
-    results = filter(lambda x: jsonpath(x, jpath), docs)
+    results = filter(lambda x: jsonpath.jsonpath(x, jpath), docs)
     return results
 
 def save_doc(coll, doc):
