@@ -14,26 +14,23 @@
 # limitations under the License.
 #########################################################################
 
-import logging
-from catolog import catolog
-from catoconfig import catoconfig
-
 import sys
 import os
-import traceback
-import time
-import re
-import pwd
-# import importlib
-import pexpect
-import json
-from jsonpath import jsonpath
 
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 lib_path = os.path.join(base_path, "lib")
 sys.path.insert(0, lib_path)
 
+import logging
+import traceback
+import time
+import re
+import pwd
+import pexpect
+import json
 
+from catolog import catolog
+from catoconfig import catoconfig
 from catosettings import settings
 from catocommon import catocommon
 from catodb import catodb
@@ -43,6 +40,7 @@ import base64
 from matheval import matheval
 from . import commands
 from . import classes
+from jsonpath import jsonpath
 
 
 class TaskEngine():
