@@ -847,7 +847,7 @@ class TaskEngine():
         otherwise nested lists might appear as [[1,2,3]], which replace_vars will assume is a variable and try to replace it! :-(
         """
         if keypath:
-            v = jsonpath(obj, keypath)
+            v = jsonpath.jsonpath(obj, keypath)
             if v:
                 # finally, jsonpath *always* returns a list, because xpath might have matched multiples
                 # but, if there's only one item in the list, just return the item directly.  (90% of cases)
