@@ -153,7 +153,7 @@ curl http://localhost:4001/configure
 ```
 or using curl on localhost _with_ AWS region endpoints
 ```
-curl http//locahost:4001/configure?createclouds=true
+curl http://localhost:4001/configure?createclouds=true
 ```
 
 
