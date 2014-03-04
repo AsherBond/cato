@@ -177,8 +177,8 @@ class home:
     We have a POST handler here, because the login screen does a post after auth...
         (this is so browsers will offer to remember passwords, even tho our auth is ajax.)
 
-    But, when we get a POST, we do a redirect!  Why?  So refreshed of the /home page
-        won't nag about "are you sure you wanna resubmit this form.)
+    But, when we get a POST, we do a redirect!  Why?  So refreshing the /home page
+        won't nag about "are you sure you wanna resubmit this form.
 
     Why not do a GET login form?  Doh! The credentials would be on the querystring = bad.
     """
@@ -186,7 +186,10 @@ class home:
         return render.home()
 
     def POST(self):
-        raise web.seeother('/home')
+        # finally, if the original, pre-login request was a specific path, 
+        # go ahead and redirect to there, otherwise /home.
+        path = uiGlobals.session.get("requested_path", "/home")
+        raise web.seeother(path)
 
 
 class notAllowed:
@@ -430,8 +433,9 @@ def auth_app_processor(handle):
             raise web.seeother('/static/login.html?msg=Token%20Authentication%20failed')
 
     # any other request requires an active session ... kick it out if there's not one.
-    # best (most consistent) way to check? Get the user...
-    uiCommon.GetSessionUserID()
+    # (we pass the requested path to this function, so it can go there after login if
+    # we're not currently authenticated
+    uiCommon.CheckSession(web.ctx.fullpath)
 
     # check the role/method mappings to see if the requested page is allowed
     # HERE's the rub! ... some of our requests are for "pages" and others (most) are ajax calls.

@@ -249,6 +249,16 @@ def ForceLogout(sMsg=""):
     uiGlobals.session.kill()
     raise web.seeother('/static/login.html')
 
+def CheckSession(path):
+    uid = GetSessionObject("user", "user_id")
+    if uid:
+        return True
+    else:
+        # putting the path in the session will enable us to 
+        # go to the requested page after login
+        uiGlobals.session["requested_path"] = path
+        raise web.seeother('/static/login.html')
+
 def GetSessionUserID():
     uid = GetSessionObject("user", "user_id")
     if uid:
