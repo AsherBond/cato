@@ -20,7 +20,7 @@ curl -Lk --output cato.tar.gz https://github.com/cloudsidekick/cato/archive/late
 or clone in git (potentially unstable):
 
 ```
-git clone git://github.com/cloudsidekick/cato.git
+git clone https://github.com/cloudsidekick/cato.git
 ```
 
 ## Sample Tasks
