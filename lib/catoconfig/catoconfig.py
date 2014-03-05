@@ -91,6 +91,9 @@ def read_config():
     cfg["dash_api_post_index"] = "canvas/home/home-post.layout"
     cfg["dash_api_get_index"] = "canvas/home/home.layout"
 
+    cfg["msghub_port"] = "8888"
+    cfg["msghub_debug"] = "00"
+
     cfg["newsfeed_api_port"] = "4004"
     cfg["newsfeed_api_debug"] = "20"
     cfg["newsfeed_api_use_ssl"] = "false"
@@ -98,6 +101,9 @@ def read_config():
     cfg["cd_ui_port"] = "8084"
     cfg["cd_ui_debug"] = "20"
     cfg["cd_ui_use_ssl"] = "false"
+
+    cfg["msghub_port"] = "4003"
+    cfg["msghub_debug"] = "00"
 
     # extensions are name/value pairs, so the 'extensions' setting is actually a dictionary.
     cfg["extensions"] = {}
@@ -158,6 +164,7 @@ def read_config():
     # these aren't direct settings, rather derived from other settings
     cfg["admin_ui_protocol"] = "https" if cfg["admin_ui_use_ssl"] == "true" else "http"
     cfg["user_ui_protocol"] = "https" if cfg["user_ui_use_ssl"] == "true" else "http"
+    cfg["cd_ui_protocol"] = "https" if cfg["cd_ui_use_ssl"] == "true" else "http"
     cfg["rest_api_protocol"] = "https" if cfg["rest_api_use_ssl"] == "true" else "http"
     cfg["dash_api_protocol"] = "https" if cfg["dash_api_use_ssl"] == "true" else "http"
     cfg["newsfeed_api_protocol"] = "https" if cfg["newsfeed_api_use_ssl"] == "true" else "http"
@@ -188,12 +195,15 @@ def safe_config():
 
     cfg["admin_ui_port"] = CONFIG["admin_ui_port"]
     cfg["user_ui_port"] = CONFIG["user_ui_port"]
+    cfg["cd_ui_port"] = CONFIG["cd_ui_port"]
     cfg["rest_api_port"] = CONFIG["rest_api_port"]
     cfg["dash_api_port"] = CONFIG["dash_api_port"]
     cfg["newsfeed_api_port"] = CONFIG["newsfeed_api_port"]
+    cfg["msghub_port"] = CONFIG["msghub_port"]
 
     cfg["admin_ui_protocol"] = "https" if CONFIG["admin_ui_use_ssl"] == "true" else "http"
     cfg["user_ui_protocol"] = "https" if CONFIG["user_ui_use_ssl"] == "true" else "http"
+    cfg["cd_ui_protocol"] = "https" if CONFIG["cd_ui_use_ssl"] == "true" else "http"
     cfg["rest_api_protocol"] = "https" if CONFIG["rest_api_use_ssl"] == "true" else "http"
     cfg["dash_api_protocol"] = "https" if CONFIG["dash_api_use_ssl"] == "true" else "http"
     cfg["newsfeed_api_protocol"] = "https" if CONFIG["newsfeed_api_use_ssl"] == "true" else "http"
@@ -232,6 +242,11 @@ def get_url(service, default_host):
         host = CONFIG.get("newsfeed_api_hostname")
         host = host if host else default_host
         out = "%s://%s:%s" % (CONFIG["newsfeed_api_protocol"], host, CONFIG["newsfeed_api_port"])
+    if service == "msghub":
+        host = CONFIG.get("msghub_hostname")
+        host = host if host else default_host
+        # NOTE: msghub doesn't use http(s), it uses the 'ws' protocol
+        out = "ws://%s:%s" % (host, CONFIG["msghub_port"])
 
     return out
 
