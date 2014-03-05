@@ -109,9 +109,12 @@ def mongo_disconnect(db):
 
 def msghub_broadcast(channel, msg):
     """
+    Shared function for broadcasting a message via the msghub service.
     """
     from websocket import create_connection
-    ws = create_connection("ws://localhost:8888/pub/%s" % (channel))
+    url = catoconfig.get_url("msghub", "localhost")
+    uri = "%s/pub/%s" % (url, channel)
+    ws = create_connection(uri)
     ws.send(msg)
     ws.close()
 
