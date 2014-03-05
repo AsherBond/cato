@@ -249,11 +249,42 @@ def ForceLogout(sMsg=""):
     uiGlobals.session.kill()
     raise web.seeother('/static/login.html')
 
-def CheckSession(path):
+def CheckSession(appname, path):
     uid = GetSessionObject("user", "user_id")
     if uid:
         return True
     else:
+        # OH NO, we don't have a session!
+
+        # Now, before we throw the user to the login page, 
+        # there are two 'passthru' auth options to check
+        # (if anything goes wrong, just redirect to the login page)
+        i = web.input(page=None, token=None, applink=None)
+        
+        # is there a 'token' argument?
+        if i.token:
+            response = AttemptLogin(appname, token=i.token)
+            response = json.loads(response)
+            if response.get("result") == "success":
+                path = path.replace("token=%s" % (i.token), "")
+                raise web.seeother(path)
+            else:
+                logger.info("Token Authentication failed... [%s]" % response.get("info"))
+                uiGlobals.session.kill()
+                raise web.seeother('/static/login.html?msg=Token%20Authentication%20failed')
+    
+        # is there an 'applink' argument?
+        if i.applink:
+            response = AttemptLogin(appname, sid=i.applink)
+            response = json.loads(response)
+            if response.get("result") == "success":
+                path = path.replace("applink=%s" % (i.applink), "")
+                raise web.seeother(path)
+            else:
+                logger.info("Trust Authentication failed... [%s]" % response.get("info"))
+                uiGlobals.session.kill()
+                raise web.seeother('/static/login.html?msg=Trust%20Authentication%20failed')
+
         # putting the path in the session will enable us to 
         # go to the requested page after login
         uiGlobals.session["requested_path"] = path
@@ -806,6 +837,7 @@ def AttemptLogin(app_name, token=None, sid=None):
         if not result:
             return json.dumps({"info": code})
     elif sid:
+        sid = base64.b64decode(sid)
         log("Attempting to trust another CSK application using [%s]." % sid, 3)
         result, code = u.AuthenticateSession(sid, address)
         if not result:

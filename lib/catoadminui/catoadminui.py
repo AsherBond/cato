@@ -420,22 +420,11 @@ def auth_app_processor(handle):
     if "/common/" in path or "/cache/" in path:
         return handle()
 
-    # ok, now we know the requested page requires a session...
-    # is there a 'token' argument?  If so, attempt to authenticate:
-    i = web.input(page=None, token=None)
-    if i.token:
-        # if anything goes wrong, just redirect to the login page
-        response = uiCommon.AttemptLogin("Cato Admin UI", token=i.token)
-        response = json.loads(response)
-        if response.get("result") != "success":
-            logger.info("Token Authentication failed... [%s]" % response.get("info"))
-            uiGlobals.session.kill()
-            raise web.seeother('/static/login.html?msg=Token%20Authentication%20failed')
-
     # any other request requires an active session ... kick it out if there's not one.
     # (we pass the requested path to this function, so it can go there after login if
     # we're not currently authenticated
-    uiCommon.CheckSession(web.ctx.fullpath)
+    # NOTE: this will REDIRECT to the requested path if it has to do token or applink auth
+    uiCommon.CheckSession("Cato Admin UI", web.ctx.fullpath)
 
     # check the role/method mappings to see if the requested page is allowed
     # HERE's the rub! ... some of our requests are for "pages" and others (most) are ajax calls.
