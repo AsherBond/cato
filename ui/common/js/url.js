@@ -15,7 +15,7 @@
 
 // Utility functions for dealing with the url and querystring
 
-function getQuerystringVariable(variable) {"use strict"
+function getQuerystringVariable(variable) {"use strict";
     var querystring = location.search.substring(1);
     var vars = querystring.split("&");
     for (var i = 0; i < vars.length; i++) {
@@ -28,7 +28,7 @@ function getQuerystringVariable(variable) {"use strict"
 }
 
 // returns the name of the current page
-function getPageName() {"use strict"
+function getPageName() {"use strict";
     var pagename = window.location.pathname;
     pagename = pagename.substring(pagename.lastIndexOf('/') + 1);
     return pagename;

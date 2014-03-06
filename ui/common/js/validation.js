@@ -94,7 +94,7 @@ function checkFieldConstraints($ctl, append_to_parent) {
     //minvalue check - only applies to numerics
     if ($ctl.attr("minvalue")) {
         var min = $ctl.attr("minvalue");
-        if (intRegex.test(max) && intRegex.test(val)) {
+        if (intRegex.test(min) && intRegex.test(val)) {
             if (parseInt(val) < parseInt(min)) {
                 msgs.push("Value cannot be less than " + min + ".");
             }
