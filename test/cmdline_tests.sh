@@ -4,8 +4,6 @@
 
 #set -e
 
-rm test/test_output/*.txt
-
 echo "running pylint tests ..."
 find . -path ./.env -prune -o -name "*.py" | xargs pylint --rcfile=test/pylint.conf -E --disable=E1101,E1103,E0611,E0102,E0702 > test/test_output/pylint.txt
 
