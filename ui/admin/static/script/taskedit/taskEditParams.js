@@ -272,6 +272,6 @@ function doGetParams(type, id, editable, snip, readonly) {
 
 		//have to rebind the tooltips here
 		bindParameterToolTips();
-	}, "html");
+	}, undefined, "html");
 
 }

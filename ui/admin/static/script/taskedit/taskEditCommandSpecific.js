@@ -82,7 +82,7 @@ $(document).ready(function() {
 
 			//have to rebind the tooltips here
 			bindParameterToolTips();
-		}, "html");
+		}, undefined, "html");
 	});
 	//end SUBTASK command
 

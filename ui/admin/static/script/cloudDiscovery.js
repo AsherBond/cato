@@ -118,7 +118,7 @@ function GetProvider() {
 	// when ADDING, we need to get the clouds for this provider
 	selected_provider = $.cookie("selected_cloud_provider");
 	if (selected_provider) {
-		var provider = ajaxPostAsync("cloudMethods/wmGetProvider", {
+		ajaxPostAsync("cloudMethods/wmGetProvider", {
 			sProvider : selected_provider
 		}, function(provider) {
 			if (provider.info) {

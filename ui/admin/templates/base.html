@@ -26,6 +26,7 @@ $def with (content)
         <link type="text/css" href="/common/css/ui.tabs.css" rel="stylesheet" />
         <link type="text/css" href="/common/css/superfish/superfish.css" rel="stylesheet" />
         <link type="text/css" href="/common/css/tipTip.css" rel="stylesheet" />
+        <link type="text/css" href="/cache/css/jquery.meow.css" rel="stylesheet" />
 
         <!--Any .css files defined on the content page.-->
         $if content.cssfiles:
@@ -48,15 +49,17 @@ $def with (content)
         <script src="/cache/js/jquery/jquery.base64.js"></script>
         <script src="/cache/js/jquery/jquery.cookie.js"></script>
         <script src="/cache/js/jquery/jquery.sortElements.js"></script>
+        <script src="/cache/js/jquery/jquery.meow.js"></script>
         <!-- JavaScript -->
+        <script src="/common/js/url.js"></script>
+        <script src="/common/js/alert.js"></script>
+        <script src="/common/js/openwindow.js"></script>
         <script src="static/script/masterpage.js"></script>
-        <script src="static/script/MainScript.js"></script>
-        <script src="/common/js/validation.js
-"></script>
+        <script src="/common/js/validation.js"></script>
         <script src="static/script/logViewDialog.js"></script>
+        <script src="/common/js/ajaxcore.js"></script>
         <script src="static/script/ajax.js"></script>
-        <script src="static/script/site.master.js"></script>
-
+        <script src="static/script/base.js"></script>
         <!--Any .js files defined on the content page.-->
         $if content.jsfiles:
             $for f in content.jsfiles.split():
@@ -70,7 +73,7 @@ $def with (content)
             </div>
 
             <div class="floatright" style="margin-right: 10px; cursor: pointer;" title="About Cato">
-                <img id="about_btn" src="static/images/icons/info.png" />
+                <span id="about_btn" class="ui-icon ui-icon-info pointer"></span>
             </div>
             <div class="floatright" style="margin-right: 10px; margin-top: -6px;">
                 <span>Cloud Account: <select id="header_cloud_accounts"></select></span>
@@ -94,7 +97,6 @@ $:content
             </div>
             <br />
             <!-- dynamic divs below here -->
-            <script src="static/script/site.master.common.js"></script>
             <!-- This is the popup "about" dialog. -->
             <div id="about_dialog" title="About Cato" class="ui-state-highlight">
                 <p>

@@ -355,7 +355,7 @@ function doGetSteps() {
 		initSortable();
 		validateStep();
 		$("#codeblock_steps_title").text(codeblock_name);
-	}, "html");
+	}, undefined, "html");
 }
 
 function doDetailFieldUpdate(ctl) {
@@ -494,7 +494,7 @@ function doDropZoneDisable(id) {
 function doClearClipboard(id) {
 	ajaxPostAsync("taskMethods/wmRemoveFromClipboard", {
 		sStepID : id
-	}, undefined, "text");
+	}, undefined, undefined, "text");
 	// we can just whack it from the dom
 	if (id === "ALL")
 		$("#clipboard").empty();
@@ -506,7 +506,7 @@ function doGetClips() {
 	ajaxPostAsync("taskMethods/wmGetClips", {}, function(response) {
 		$("#clipboard").html(response);
 		initDraggable();
-	}, "html");
+	}, undefined, "html");
 
 }
 

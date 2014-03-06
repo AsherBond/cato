@@ -14,23 +14,21 @@
 //
 
 $(document).ready(function() {
-	//any page that includes this script will get the following dialog inner code
-	//but the page requires a placeholder div... called "log_view_dialog"
-	var d = 'Filter: <input type="text" id="log_view_dialog_search" /> \
-		<span># of Results: <input id="log_view_dialog_records" style="width: 50px;" /></span> \
-		<span style="z-index: 1200;">Begin Date: <input id="log_view_dialog_from" class="datepicker" /></span> \
-		<span style="z-index: 1200;">End Date: <input id="log_view_dialog_to" class="datepicker" /></span> \
-		<span id="log_search_btn">Search</span> \
-		<table class="jtable" cellspacing="1" cellpadding="1" width="100%" style="font-size: 0.8em;"> \
-		<thead><tr> \
-		<th width="125px">Date</th> \
-		<th width="100px">User</th> \
-		<th>Log</th> \
-		</tr></thead> \
-		<tbody id="log_view_dialog_results"> \
-		</tbody>';
+	//any page that includes this script will get the following dialog
+	var $d = $('<div id="log_view_dialog" class="hidden" title="Change Log"></div>');
 
-	$("#log_view_dialog").prepend(d);
+	$d.append('Filter: <input type="text" id="log_view_dialog_search" />');
+    $d.append('<span># of Results: <input id="log_view_dialog_records" style="width: 50px;" /></span>');
+    $d.append('<span style="z-index: 1200;">Begin Date: <input id="log_view_dialog_from" class="datepicker" /></span>');
+    $d.append('<span style="z-index: 1200;">End Date: <input id="log_view_dialog_to" class="datepicker" /></span>');
+    $d.append('<span id="log_search_btn">Search</span>');
+    
+    var $t = $('<table class="jtable" cellspacing="1" cellpadding="1" width="100%" style="font-size: 0.8em;">');
+    $t.append('<thead><tr><th width="125px">Date</th><th width="100px">User</th><th>Log</th></tr></thead>');
+    $t.append('<tbody id="log_view_dialog_results">');
+    $d.append($t);
+
+    $("body").append($d);
 
 	//init the datepickers
 	$(".datepicker").datepicker({

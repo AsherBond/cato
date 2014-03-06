@@ -1128,18 +1128,3 @@ class uiMethods:
             return traceback.format_exc()
 
         return result
-
-    """
-    Some Enterprise features require additional script files.  A CE install would show 
-    404 errors if we include them on the client files, so we'll get and eval them this way.
-    """
-    def wmGetScript(self):
-        sScriptName = uiCommon.getAjaxArg("sScriptName")
-        if sScriptName:
-            sScriptName = "static/script/%s" % sScriptName
-            if os.path.exists(sScriptName):
-                with open(sScriptName, 'r') as f:
-                    if f:
-                        return f.read()
-
-        return ""

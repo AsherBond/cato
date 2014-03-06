@@ -785,7 +785,7 @@ function getPlans() {
         sTaskID : task_id
     }, function(response) {
         $("#task_launch_dialog_plans").html(response);
-    }, "html");
+    }, undefined, "html");
 
     ajaxPostAsync("uiMethods/wmGetActionSchedules", {
         sTaskID : task_id
@@ -800,7 +800,7 @@ function getPlans() {
             fadeIn : 100
         });
 
-    }, "html");
+    }, undefined, "html");
 }
 
 function deleteSchedule(ctl) {

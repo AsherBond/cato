@@ -16,4 +16,7 @@ jshint --reporter=jslint --config test/jshint.conf ui/admin/static/script/*.js >
 echo "running jslint tests, part 2 ..."
 jshint --reporter=jslint --config test/jshint.conf ui/admin/static/script/taskedit/*.js >> test/test_output/jslint.txt
 
+echo "running jslint tests, part 3 ..."
+jshint --reporter=jslint --config test/jshint.conf ui/common/js/*.js >> test/test_output/jslint.txt
+
 echo "command line tests completed"
