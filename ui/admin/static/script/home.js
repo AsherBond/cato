@@ -17,7 +17,7 @@ $(document).ready(function() {
 	$("#getting_started_items").load("uiMethods/wmGetGettingStarted", function(responseText) {
 		if (responseText.length > 0) {
 			$("#skip_registration_btn").click(function() {
-				updateSetting("general", "register_cato", "skipped");
+				catoAjax.updateSetting("general", "register_cato", "skipped");
 				$("#registercato").remove();
 			});
 

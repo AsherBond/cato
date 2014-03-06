@@ -239,7 +239,7 @@ function LoadEditDialog(sEditID) {
 
 	$("#hidCurrentEditID").val(sEditID);
 
-	var account = ajaxPostAsync("cloudMethods/wmGetCloudAccount", {
+	ajaxPostAsync("cloudMethods/wmGetCloudAccount", {
 		sID : sEditID
 	}, function(account) {
 		$("#txtAccountName").val(account.Name);

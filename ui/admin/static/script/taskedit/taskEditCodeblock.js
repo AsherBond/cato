@@ -121,7 +121,7 @@ $(document).ready(function() {
 });
 
 function doGetCodeblocks() {
-	var response = ajaxPostAsync("taskMethods/wmGetCodeblocks", {
+	ajaxPostAsync("taskMethods/wmGetCodeblocks", {
 		sTaskID : g_task_id
 	}, function(response) {
 		$("#codeblocks").html(response);
@@ -151,7 +151,7 @@ function doGetCodeblocks() {
 				$("#dd_dragging").val("false");
 			}
 		});
-	}, "html");
+	}, undefined, "html");
 }
 
 function ShowCodeblockEdit(codeblock_name) {

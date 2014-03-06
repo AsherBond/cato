@@ -83,7 +83,7 @@ $(document).ready(function() {
 	$("#analyze_btn").click(function() {
 		var import_text = packJSON($("#xml_to_import").val());
 		if (import_text) {
-			var response = ajaxPostAsync("uiMethods/wmAnalyzeImportXML", {
+			ajaxPostAsync("uiMethods/wmAnalyzeImportXML", {
 				import_text : import_text
 			}, function(response) {
 				if (response.error) {

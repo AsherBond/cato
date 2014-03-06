@@ -47,5 +47,5 @@ function doGetCommands() {
 		sTaskID : g_task_id
 	}, function(response) {
 		$("#codeblock_steps").html(response);
-	}, "text");
+	}, undefined, "text");
 }

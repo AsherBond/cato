@@ -45,7 +45,7 @@ $(document).ready(function() {
 			sVisible : visible
 		}, function(msg) {
 			$("#update_success_msg").text("Update Successful").fadeOut(2000);
-		}, "text");
+		}, undefined, "text");
 	});
 
 	//toggle all of them
@@ -104,7 +104,7 @@ $(document).ready(function() {
 			sButton : btn
 		}, function(msg) {
 			$("#update_success_msg").text("Update Successful").fadeOut(2000);
-		}, "text");
+		}, undefined, "text");
 	});
 
 	// Command tab details
@@ -154,7 +154,7 @@ $(document).ready(function() {
 			sSkip : skip
 		}, function(msg) {
 			$("#update_success_msg").text("Update Successful").fadeOut(2000);
-		}, "text");
+		}, undefined, "text");
 	});
 
 	//the onclick event of the 'delete' link of each step
@@ -173,7 +173,7 @@ $(document).ready(function() {
 		}, function(response) {
 			doGetClips();
 			$("#update_success_msg").text("Copy Successful").fadeOut(2000);
-		}, "text");
+		}, undefined, "text");
 	});
 
 	//the onclick event of the 'remove' link of embedded steps
@@ -321,7 +321,7 @@ $(document).ready(function() {
 				maxWidth : "500px",
 				fadeIn : 100
 			});
-		}, "html");
+		}, undefined, "html");
 	});
 	//////END TASK PICKER
 
@@ -451,7 +451,7 @@ function doRemoveNode(step_id, remove_path) {
 		getStep(step_id, step_id, true);
 		$("#task_steps").unblock();
 		$("#update_success_msg").text("Update Successful").fadeOut(2000);
-	}, "text");
+	}, undefined, "text");
 
 }
 

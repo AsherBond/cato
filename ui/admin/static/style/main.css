@@ -92,6 +92,12 @@ body {
 	font-size: 12px;
 }
 
+/* fix the meow plugin z-index */
+.meows {
+	z-index: 999;
+}
+
+
 /* this overwrites the duperfish menu default color */
 .sf-menu a, .sf-menu a:visited
 {
