@@ -114,7 +114,11 @@ def msghub_broadcast(channel, msg):
     from websocket import create_connection
     url = catoconfig.get_url("msghub", "localhost")
     uri = "%s/pub/%s" % (url, channel)
-    ws = create_connection(uri)
+    try:
+        ws = create_connection(uri)
+    except Exception as a:
+        raise Exception("Error attempting to connect to message hub at address %s, %s" 
+                        % (url, e))
     ws.send(msg)
     ws.close()
 
