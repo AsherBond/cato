@@ -25,6 +25,7 @@ import web
 import base64
 import hmac
 import hashlib
+import json
 from datetime import datetime, timedelta
 from catocommon import catocommon
 from catosettings import settings
@@ -142,8 +143,10 @@ def authenticate(action, args):
                 return False, "Token expired."
             
             # still all good?  Update the created_dt.
+            dbts = now_ts.strftime('%Y-%m-%d %H:%M:%S')
+
             sql = """update api_tokens set created_dt = str_to_date('{0}', '%%Y-%%m-%%d %%H:%%i:%%s')
-                where user_id = '{1}'""".format(now_ts, row["user_id"])
+                where user_id = '{1}'""".format(dbts, row["user_id"])
             db.exec_db(sql)
                 
             return True, row["user_id"]
@@ -337,6 +340,17 @@ class response:
             if self.Response is None:
                 self.Response = ""
                 
+            # the self.Response content must also be a dictionary, so the following
+            # serialization makes a proper JSON reply all the way down.
+            
+            # HOWEVER, since ALL the object class methods return a JSON *string*, we need to 
+            # re-encode it here, so it can all be dumped consistently.
+            try:
+                self.Response = json.loads(self.Response)
+            except:
+                # parse error? Just go ahead and send back the unchanged self.Response.
+                pass
+            
             return catocommon.ObjectOutput.AsJSON(self.__dict__)
         except Exception as ex:
             return ex.__str__()

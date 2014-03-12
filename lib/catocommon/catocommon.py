@@ -144,7 +144,7 @@ def create_api_token(user_id):
     Will create a row in the api_tokens table.
     """
     token = new_guid()
-    now_ts = datetime.utcnow()
+    now_ts = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
     sql = """insert into api_tokens
         (user_id, token, created_dt)
