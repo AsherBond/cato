@@ -243,9 +243,9 @@ class Task(object):
         ID = catocommon.new_guid()
 
         sql = """insert task
-            (task_id, original_task_id, version, default_version, task_name, task_code, task_desc, created_dt)
+            (task_id, original_task_id, version, default_version, task_name, task_code, task_desc, created_dt, parameter_xml)
             values
-            (%s, %s, 1.000, 1, %s, %s, %s, now())"""
+            (%s, %s, 1.000, 1, %s, %s, %s, now(), '')"""
         if not db.exec_db_noexcep(sql, (ID, ID, sName, sCode, sDesc)):
             if db.error == "key_violation":
                 raise Exception("A Task with that name already exists.  Please select another name.")
