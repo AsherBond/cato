@@ -139,6 +139,7 @@ function ajaxGet(apiurl, on_success, datatype) {"use strict";
 
 ajaxErrorCallback = function(response) {"use strict";
     var method = response.getResponseHeader("X-CSK-Method");
+    var msg = "";
     if (response.status === 500) {
         //only show info, as the real message will already be in the server log
         showInfo("An exception occurred - please check the server logfiles for details. (500)", method);

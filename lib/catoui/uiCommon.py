@@ -288,7 +288,10 @@ def CheckSession(appname, path):
         # putting the path in the session will enable us to 
         # go to the requested page after login
         uiGlobals.session["requested_path"] = path
-        raise web.seeother('/static/login.html')
+        
+        # DO NOT do a seeother here ... the request may have been ajax.
+        # raise a SessionError, and the downstream code will handle it properly
+        raise SessionError("Server Session has expired (0). Please log in again.")
 
 def GetSessionUserID():
     uid = GetSessionObject("user", "user_id")
