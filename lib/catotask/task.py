@@ -218,8 +218,8 @@ class Task(object):
         self.OnConflict = "cancel"  # the default behavior for all conflicts is to cancel the operation
         self.UseConnectorSystem = False
         self.IsDefaultVersion = False
-        self.ConcurrentInstances = ""
-        self.QueueDepth = ""
+        self.ConcurrentInstances = None
+        self.QueueDepth = None
         self.ParameterXDoc = None
         self.NumberOfApprovedVersions = 0
         self.MaxVersion = "1.000"
@@ -352,8 +352,8 @@ class Task(object):
         self.Version = xTask.get("version", "1.000")
         self.Status = xTask.get("status", "Development")
         self.IsDefaultVersion = True
-        self.ConcurrentInstances = xTask.get("concurrent_instances", "")
-        self.QueueDepth = xTask.get("queue_depth", "")
+        self.ConcurrentInstances = (xTask.get("concurrent_instances") if xTask.get("concurrent_instances") else None)
+        self.QueueDepth = (xTask.get("queue_depth") if xTask.get("queue_depth") else None)
         
         # text nodes in the <task> node
         _desc = xTask.find("description").text
@@ -407,8 +407,8 @@ class Task(object):
         self.Version = t.get("Version", "1.000")
         self.Status = t.get("Status", "Development")
         self.IsDefaultVersion = True
-        self.ConcurrentInstances = t.get("ConcurrentInstances", "")
-        self.QueueDepth = t.get("QueueDepth", "")
+        self.ConcurrentInstances = t.get("ConcurrentInstances", None)
+        self.QueueDepth = t.get("QueueDepth", None)
         
         self.Description = t.get("Description", "")
         
@@ -668,6 +668,8 @@ class Task(object):
                         created_dt = now(),
                         parameter_xml = %s
                         where task_id = %s"""
+                    print 999
+                    print self.ConcurrentInstances
                     db.tran_exec(sSQL, (self.Name, self.Code, self.Description, self.Status,
                                         self.ConcurrentInstances, self.QueueDepth, parameter_clause, self.ID))
 
@@ -896,8 +898,8 @@ class Task(object):
         self.OriginalTaskID = dr["original_task_id"]
         self.IsDefaultVersion = (True if dr["default_version"] == 1 else False)
         self.Description = (dr["task_desc"] if dr["task_desc"] else "")
-        self.ConcurrentInstances = (dr["concurrent_instances"] if dr["concurrent_instances"] else "")
-        self.QueueDepth = (dr["queue_depth"] if dr["queue_depth"] else "")
+        self.ConcurrentInstances = (dr["concurrent_instances"] if dr["concurrent_instances"] else None)
+        self.QueueDepth = (dr["queue_depth"] if dr["queue_depth"] else None)
         self.UseConnectorSystem = (True if dr["use_connector_system"] == 1 else False)
         
         # parameters - always available (for other processes)
