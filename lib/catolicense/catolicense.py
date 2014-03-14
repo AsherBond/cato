@@ -12,7 +12,7 @@ def check_license(app=""):
         license_text = None
 
     if not license_text:
-        license_text = """Copyright 2012 Cloud Sidekick
+        license_text = """Copyright 2014 Cloud Sidekick
 
                 Use of this software indicates agreement with the included software LICENSE.
 
