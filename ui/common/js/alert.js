@@ -87,9 +87,6 @@ function showInfo(msg, info, options) {
         }
 
         $.meow(options);
-
-        // OK, let's send this message back to the server and write it to the client logfile.
-        pushClientLog(msg, 2);
     }
 }
 

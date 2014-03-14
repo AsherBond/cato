@@ -68,6 +68,12 @@ class uiMethods:
     def wmGetVersion(self):
         return catoconfig.VERSION
 
+    def wmWriteClientLog(self):
+        msg = uiCommon.getAjaxArg("msg")
+        debug = uiCommon.getAjaxArg("debug")
+        uiCommon.WriteClientLog(msg, debug)
+        return ""
+
     def wmGetGettingStarted(self):
         sset = settings.settings()
         sHTML = ""

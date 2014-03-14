@@ -68,7 +68,9 @@ $(document).ready(function() {
 
 				infomsg += "<br /><br />Click <a href='taskManage'>here</a> to manage Tasks.<br />";
 
-				showInfo("Results", infomsg, true);
+				showInfo("Results", infomsg, {
+                    sticky : true
+                });
 
 				// temporary comment $("#xml_to_import").val("");
 			}
@@ -102,7 +104,9 @@ $(document).ready(function() {
 
 				infomsg += "<br /><br />Click <a href='taskManage'>here</a> to manage Tasks.<br />";
 
-				showInfo("Results", infomsg, true);
+				showInfo("Results", infomsg, {
+                    sticky : true
+                });
 
 				// temporary comment $("#xml_to_import").val("");
 			});

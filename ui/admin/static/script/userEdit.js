@@ -99,7 +99,9 @@ $(document).ready(function() {
 	var tip = "Will send the user an email with a temporary password, which must be changed upon login.";
 	$("#pw_reset_info").attr("title", tip);
 	$("#pw_reset_info").click(function() {
-		showInfo(tip, "", true);
+		showInfo(tip, "", {
+            duration : 5000
+        });
 	});
 	$("#pw_reset_info").tipTip();
 
