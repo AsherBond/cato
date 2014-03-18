@@ -218,6 +218,11 @@ versions = [
         ["addcolumn", "deployment_service_inst",
          "document_id", "VARCHAR(24) NULL"]
     ]
+    ],
+    ["1.24", [
+        ["dropcolumn", "asset", "is_connection_system"],
+        ["dropcolumn", "task", "use_connector_system"]
+    ]
     ]
 ]
 

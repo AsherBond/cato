@@ -216,7 +216,6 @@ class Task(object):
         self.Description = ""
         self.DBExists = False
         self.OnConflict = "cancel"  # the default behavior for all conflicts is to cancel the operation
-        self.UseConnectorSystem = False
         self.IsDefaultVersion = False
         self.ConcurrentInstances = None
         self.QueueDepth = None
@@ -264,7 +263,7 @@ class Task(object):
     def FromID(self, sTaskID, bIncludeUserSettings=False, include_code=True):
         db = catocommon.new_conn()
         sSQL = """select task_id, original_task_id, task_name, task_code, task_status, version, default_version,
-                task_desc, use_connector_system, concurrent_instances, queue_depth, parameter_xml
+                task_desc, concurrent_instances, queue_depth, parameter_xml
                 from task
                 where task_id = %s"""
 
@@ -285,7 +284,7 @@ class Task(object):
             version_clause = " and default_version = 1"
             
         sSQL = """select task_id, original_task_id, task_name, task_code, task_status, version, default_version,
-                task_desc, use_connector_system, concurrent_instances, queue_depth, parameter_xml
+                task_desc, concurrent_instances, queue_depth, parameter_xml
                 from task
                 where (task_name = '%s') %s""" % (name, version_clause)
         dr = db.select_row_dict(sSQL)
@@ -305,7 +304,7 @@ class Task(object):
             version_clause = " and default_version = 1"
             
         sSQL = """select task_id, original_task_id, task_name, task_code, task_status, version, default_version,
-                task_desc, use_connector_system, concurrent_instances, queue_depth, parameter_xml
+                task_desc, concurrent_instances, queue_depth, parameter_xml
                 from task
                 where original_task_id = '%s' %s""" % (otid, version_clause)
         dr = db.select_row_dict(sSQL)
@@ -493,8 +492,7 @@ class Task(object):
             "NumberOfApprovedVersions": self.NumberOfApprovedVersions,
             "MaxVersion": self.MaxVersion,
             "NextMinorVersion": self.NextMinorVersion,
-            "NextMajorVersion": self.NextMajorVersion,
-            "UseConnectorSystem": self.UseConnectorSystem
+            "NextMajorVersion": self.NextMajorVersion
         }
         if hasattr(self, "ID"):
             t["ID"] = self.ID
@@ -900,7 +898,6 @@ class Task(object):
         self.Description = (dr["task_desc"] if dr["task_desc"] else "")
         self.ConcurrentInstances = (dr["concurrent_instances"] if dr["concurrent_instances"] else None)
         self.QueueDepth = (dr["queue_depth"] if dr["queue_depth"] else None)
-        self.UseConnectorSystem = (True if dr["use_connector_system"] == 1 else False)
         
         # parameters - always available (for other processes)
         if dr["parameter_xml"]:
