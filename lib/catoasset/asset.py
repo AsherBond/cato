@@ -439,8 +439,8 @@ class Credential(object):
 
     def DBCreateNew(self):
         db = catocommon.new_conn()
-        if not self.Username:
-            raise Exception("A Credential requires a User Name.  ")
+        if not self.Username and not self.PrivateKey:
+            raise Exception("A Credential requires a User Name OR a Private Key.")
 
         sPriviledgedPasswordUpdate = catocommon.cato_encrypt(self.PrivilegedPassword) if self.PrivilegedPassword else None
 
