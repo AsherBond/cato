@@ -73,13 +73,6 @@ $(document).ready(function() {
 		ShowLogViewDialog(2, sAssetID, true);
 	});
 
-	$("#rbShared").change(function() {
-		$(".SharedCredFields").show();
-	});
-	$("#rbLocal").change(function() {
-		$(".SharedCredFields").hide();
-	});
-
 	// end live version
 	//------------------------------------------------------------------
 
@@ -90,13 +83,11 @@ $(document).ready(function() {
 	$("#EditCredential").hide();
 
 	$("#btnCredSelect").click(function() {
-		$("input[name=rbShared]:checked").val("0");
+	    SHARED_OR_LOCAL = 0;
 		$("#hidCredentialType").val("selected");
 		$('#hidCredentialID').val('');
 		$('#CredentialSelectorTabs').show();
 		$('#AddCredential').hide();
-		$('#CredentialDetails').hide();
-		$('#SharedLocalDiv').hide();
 		$('#EditCredential').hide();
 		LoadCredentialSelector();
 		$('#btnCredAdd').show();
@@ -104,18 +95,16 @@ $(document).ready(function() {
 	});
 
 	$("#btnCredAdd").click(function() {
-		$("input[name=rbShared]:checked").val("1");
+        SHARED_OR_LOCAL = 1;
 		$("#hidCredentialType").val("new");
 		$("#hidCredentialID").val("");
 		$("#CredentialSelectorTabs").hide();
-		$("#CredentialDetails").html("");
 		$("#txtCredName").val("");
 		$("#txtCredUsername").val("");
 		$("#txtCredDomain").val("");
 		$("#txtCredPassword").val("");
 		$("#txtCredPasswordConfirm").val("");
 		$("#EditCredential").show();
-		$("#SharedLocalDiv").show();
 		$("#txtCredUsername").focus();
 		return false;
 	});
@@ -176,7 +165,6 @@ function ShowItemAdd() {
 	//if the user adds no information nothing will get saved but new local credential is default.
 	$("#btnCredAdd").click();
 
-	$('#CredentialDetails').html('');
 	$("#edit_dialog").dialog("open");
 	$("#txtAssetName").focus();
 
@@ -184,8 +172,6 @@ function ShowItemAdd() {
 
 function CloseDialog() {
 	$("#AddAssetTabs").tabs("option", "active", 0);
-
-	CancelCredentialAdd();
 
 	$("#edit_dialog").dialog("close");
 	InitializeAdd();
@@ -256,7 +242,6 @@ function SaveAsset() {
 	var sCredPasswordConfirm = $("#txtCredPasswordConfirm").val();
 	var sPrivilegedPassword = $("#txtPrivilegedPassword").val();
 	var sPrivilegedPasswordConfirm = $("#txtPrivilegedConfirm").val();
-	var rbShared = $('input[name=rbShared]:checked').val();
 	var sCredentialName = $("#txtCredName").val();
 	var sCredentialDescr = $("#txtCredDescription").val();
 	var sDomain = $("#txtCredDomain").val();
@@ -269,15 +254,6 @@ function SaveAsset() {
 			strValidationError += 'Select a credential, or create a new credential.';
 		}
 	} else {
-		// if the type is new, and the user didnt add a username, just ignore it
-		//if (sCredentialType === 'existing') {
-		if (rbShared === '0') {
-			// this is a shared credential, name and description are required
-			if (sCredentialDescr === '' || sCredentialName === '') {
-				bSave = false;
-				strValidationError += 'Name and Description are required on Shared Credentials.<br />';
-			}
-		}
 		if (sCredPassword !== sCredPasswordConfirm) {
 			bSave = false;
 			strValidationError += 'Credential Passwords do not match.<br />';
@@ -285,7 +261,7 @@ function SaveAsset() {
 		// check the privileged password if one is filled in they should match
 		if (sPrivilegedPassword !== sPrivilegedPasswordConfirm) {
 			bSave = false;
-			strValidationError += 'Credential Passwords do not match.<br />';
+			strValidationError += 'Credential Privileged Passwords do not match.<br />';
 		}
 		//}
 
@@ -307,7 +283,7 @@ function SaveAsset() {
 	cred.Description = sCredentialDescr;
 	cred.Username = sCredUsername;
 	cred.Password = sCredPassword;
-	cred.SharedOrLocal = rbShared;
+	cred.SharedOrLocal = SHARED_OR_LOCAL;
 	cred.Domain = sDomain;
 	cred.PrivilegedPassword = sPrivilegedPassword;
 
@@ -365,21 +341,6 @@ function SaveAsset() {
 	}
 }
 
-function ShowCredentialAdd() {
-	$('#Credentials').hide();
-	$('#btnCreateCredentials').hide();
-	$('#btnCancelCredentials').show();
-	$('#EditCredential').show();
-}
-
-function CancelCredentialAdd() {
-	//alert('cancel credentials');
-	$('#Credentials').show();
-	$('#btnCreateCredentials').show();
-	$('#btnCancelCredentials').hide();
-	$('#EditCredential').hide();
-}
-
 function LoadEditDialog(editCount, editAssetID) {
 	// show the log link on an existing asset
 	$('#show_log_link').show();
@@ -420,41 +381,27 @@ function LoadEditDialog(editCount, editAssetID) {
 		if (sCredentialID === '') {
 			// no existing credential, just show the add dialog
 			$("#hidCredentialType").val("new");
-			$("#CredentialDetails").html("");
-			$('#SharedLocalDiv').show();
 			$('#EditCredential').show();
-			$('.SharedCredFields').hide();
 
 		} else {
 			// display the credentials if they exist, if not display only the add button
 			if (asset.UserName !== '') {
 				var CredentialShared = asset.SharedOrLocal;
 				if (CredentialShared === 'Local') {
-					$("#CredentialDetails").html("");
 					$("#hidCredentialType").val("existing");
-					$("input[name=rbShared]:checked").val("1");
 					$('#txtCredUsername').val(asset.UserName);
 					$('#txtCredDomain').val(asset.Domain);
-					//$('#txtCredPassword').val(asset.Password);
-					//$('#txtCredPasswordConfirm').val(asset.Password);
-					//$('#txtPrivilegedPassword').val(asset.PriviledgedPassword);
-					//$('#txtPrivilegedConfirm').val(asset.PriviledgedPassword);
-					$('.SharedCredFields').hide();
-					$('#SharedLocalDiv').hide();
 					$('#EditCredential').show();
 				} else {
 					// display the existing shared credential
 					$("#CredentialDetails").html(CredentialShared + ' - ' + asset.UserName + '<br />Domain - ' + asset.Domain + '<br />Name - ' + asset.SharedCredName + '<br />Description - ' + asset.SharedCredDesc);
 					$('#CredentialRemove').show();
-					$('#CredentialDetails').show();
 					$('#imgCredClear').show();
 					$('#btnCredAdd').show();
 				}
 			} else {
 				$('#imgCredClear').hide();
-				$("#CredentialDetails").html("");
 				$('#CredentialRemove').hide();
-				$('#CredentialDetails').hide();
 			}
 		}
 
@@ -510,6 +457,7 @@ function LoadCredentialSelector() {
 				//unselect them all
 				$(this).parent().find('td').addClass("row_over");
 				//select this one
+                $("#CredentialDetails").html('Shared - ' + cred.Username + '<br />Domain - ' + cred.Domain + '<br />Name - ' + cred.Name + '<br />Description - ' + cred.Description);
 			});
 
 			$("#credentials").append($s);

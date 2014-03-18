@@ -207,26 +207,21 @@ class Asset(object):
         
         sStatus = args["Status"] if args["Status"] else "Active"
 
-        # if a credential is provided... we'll look it up.
+        # if a shared credential is provided... we'll look it up.
         # if we find it by ID or Name, we'll use it.
-        # if not, we'll create it
+        # if not, we'll create it as a local credential
         if args.get("Credential"):
             c = Credential()
             # FromName throws an Exception if it doesn't exist
             try:
-                if args["Credential"].get("ID"):
-                    c.FromID(args["Credential"]["ID"])
-                else:
-                    # no joy? try the name, and fail if that doesn't work
-                    c.FromName(args["Credential"].get("Name"))
+                # try the id, then name if no id, fail if neither work
+                c.FromID(args["Credential"].get("ID", args["Credential"].get("Name")))
             except Exception:
                 # so let's build it from the info provided, and save it!
                 c.FromDict(args["Credential"])
 
-                # if it's a local credential, the credential_name is the asset_id.
-                # if it's shared, there will be a name.
-                if str(c.SharedOrLocal) == "1":
-                    c.Name = sAssetID
+                # an asset can only create a local credential, and uses the asset id as the credential name
+                c.Name = sAssetID
     
                 result = c.DBCreateNew()
                 if not result:
@@ -266,8 +261,8 @@ class Asset(object):
 
         #  there are three CredentialType's 
         #  1) 'selected' = user selected a different credential, just save the credential_id
-        #  2) 'new' = user created a new shared or local credential
-        #  3) 'existing' = same credential, just update the username,description ad password
+        #  2) 'new' = user created a new local credential
+        #  3) 'existing' = same credential, just update the username, description and password
         if credential:
             c = Credential()
             c.FromDict(credential)
@@ -275,11 +270,8 @@ class Asset(object):
             self.CredentialID = (c.ID if c.ID else "")
             
             if credential_update_mode == "new":
-                # if it's a local credential, the credential_name is the asset_id.
-                # if it's shared, there will be a name.
-                if c.SharedOrLocal == "1":
-                    c.Name = self.ID
-
+                # an asset can only create a local credential, and uses the asset id as the credential name
+                c.Name = self.ID
                 c.DBCreateNew()
             elif credential_update_mode == "existing":
                 c.DBUpdate()

@@ -71,7 +71,7 @@ $var cssfiles:
         </thead>
         <tbody id="assets"></tbody>
     </table>
-	<div id="pager"></div>
+    <div id="pager"></div>
 </div>
 <div id="edit_dialog" class="hidden" title="Create Asset">
     <div id="AddAssetTabs" style="height: 500px;">
@@ -138,99 +138,73 @@ $var cssfiles:
             <ul id="objects_tags"></ul>
         </div>
         <div id="CredentialsTab">
-            <table id="tblCredentials" width="80%">
-                <tbody>
+            Current Credential:
+            <div id="CredentialDetails" class="col_header"></div>
+            <hr>
+            <input id="btnCredSelect" type="submit" value="Select Shared Credential" name="btnCredSelect" />
+            <input id="btnCredAdd" type="submit" value="New Local Credential" name="btnCredAdd" />
+            <div id="CredentialSelectorTabs" style="height: 380px;">
+                <div class="credential_selector">
+                    <table id="tblCredentialSelector" width="100%">
+                        <thead>
+                            <tr>
+                                <th class="col_header">Name</th>
+                                <th class="col_header">Username</th>
+                                <th class="col_header">Domain</th>
+                                <th class="col_header">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="credentials"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="EditCredential">
+                <table width="100%">
                     <tr>
+                        <td> Username </td>
                         <td>
-                        <input id="btnCredSelect" type="submit" value="Select Shared Credential" name="btnCredSelect" />
-                        <input id="btnCredAdd" type="submit" value="New Credential" name="btnCredAdd" />
-                        <p>
-                            &nbsp;
-                        </p><div id="CredentialDetails" class="col_header"></div>
-                        <div id="CredentialSelectorTabs" style="height: 380px;">
-                            <div class="credential_selector">
-                                <table id="tblCredentialSelector" width="99%">
-                                    <thead>
-                                        <tr>
-                                            <th class="col_header">Name</th>
-                                            <th class="col_header">Username</th>
-                                            <th class="col_header">Domain</th>
-                                            <th class="col_header">Description</th>
-                                    </thead><tbody id="credentials"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div id="EditCredential">
-                            <table width="100%">
-                                <tr>
-                                    <td align="center" colspan="2">
-                                    <div id="SharedLocalDiv">
-                                        <input id="rbLocal" type="radio" value="1" name="rbShared" checked="checked" />
-                                        <label for="rbLocal"> Local</label>
-                                        <input id="rbShared" type="radio" value="0" name="rbShared" />
-                                        <label for="rbShared"> Shared</label>
-                                    </div></td>
-                                </tr>
-                                <tr>
-                                    <td> Username </td>
-                                    <td>
-                                    <input validate_as="username" id="txtCredUsername" style="width: 200px;" name="txtCredUsername" />
-                                    </td>
-                                </tr>
-                                <tr class="SharedCredFields hidden">
-                                    <td> Name </td>
-                                    <td>
-                                    <input id="txtCredName" style="width: 200px;" name="txtCredName" />
-                                    </td>
-                                </tr>
-                                <tr class="SharedCredFields hidden">
-                                    <td> Description </td>
-                                    <td>
-                                    <input id="txtCredDescription" style="width: 200px;" name="txtCredDescription" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td> Domain </td>
-                                    <td>
-                                    <input id="txtCredDomain" style="width: 200px;" name="txtCredDomain" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td> Password </td>
-                                    <td>
-                                    <input id="txtCredPassword" style="width: 200px;" type="password" name="txtCredPassword" value="~!@@!~" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td> Password Confirm </td>
-                                    <td>
-                                    <input id="txtCredPasswordConfirm" style="width: 200px;" type="password" name="txtCredPasswordConfirm" value="~!@@!~" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2"> &nbsp; </td>
-                                </tr>
-                                <tr>
-                                    <td> Privileged Mode Password </td>
-                                    <td> &nbsp; </td>
-                                </tr>
-                                <tr>
-                                    <td> Password </td>
-                                    <td>
-                                    <input id="txtPrivilegedPassword" style="width: 200px;" type="password" name="txtPrivilegedPassword" value="~!@@!~" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td> Password Confirm </td>
-                                    <td>
-                                    <input id="txtPrivilegedConfirm" style="width: 200px;" type="password" name="txtPrivilegedConfirm" value="~!@@!~" />
-                                    </td>
-                                </tr>
-                            </table>
-                        </div></td>
+                        <input validate_as="username" id="txtCredUsername" style="width: 200px;" name="txtCredUsername" />
+                        </td>
                     </tr>
-                </tbody>
-            </table>
+                    <tr>
+                        <td> Domain </td>
+                        <td>
+                        <input id="txtCredDomain" style="width: 200px;" name="txtCredDomain" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td> Password </td>
+                        <td>
+                        <input id="txtCredPassword" style="width: 200px;" type="password" name="txtCredPassword" value="~!@@!~" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td> Password Confirm </td>
+                        <td>
+                        <input id="txtCredPasswordConfirm" style="width: 200px;" type="password" name="txtCredPasswordConfirm" value="~!@@!~" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td> Privileged Mode Password </td>
+                        <td> &nbsp; </td>
+                    </tr>
+                    <tr>
+                        <td> Password </td>
+                        <td>
+                        <input id="txtPrivilegedPassword" style="width: 200px;" type="password" name="txtPrivilegedPassword" value="~!@@!~" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td> Password Confirm </td>
+                        <td>
+                        <input id="txtPrivilegedConfirm" style="width: 200px;" type="password" name="txtPrivilegedConfirm" value="~!@@!~" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </div>
