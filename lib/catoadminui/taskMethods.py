@@ -47,7 +47,7 @@ class taskMethods:
             start, end, pager_html = uiCommon.GetPager(len(allowedrows), maxrows, sPage)
 
             for row in allowedrows[start:end]:
-                sHTML += '<tr task_id="%s" status="%s">' % (row["ID"], row["Status"])
+                sHTML += '<tr task_id="%s" otid="%s" status="%s">' % (row["ID"], row["OriginalTaskID"], row["Status"])
                 sHTML += '<td class="chkboxcolumn">'
                 sHTML += '''<input type="checkbox" class="chkbox"
                     id="chk_%s" object_id=%s" tag="chk" />''' % (row["OriginalTaskID"], row["ID"])

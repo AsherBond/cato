@@ -164,7 +164,7 @@ function ShowItemCopy() {
     var task_copy_original_id = myArray[0];
 
     //alert(myArray[0]);
-    var task_name = $("[task_id=" + task_copy_original_id +"] td")[2].innerHTML;
+    var task_name = $("[otid=" + task_copy_original_id +"] td")[2].innerHTML;
     $("#lblTaskCopy").html('<b>Copying Task ' + task_name + '</b><br />&nbsp;<br />');
     $("[tag='chk']").prop("checked", false);
     $("#hidSelectedArray").val('');
