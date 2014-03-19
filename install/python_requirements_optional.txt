@@ -1,0 +1,13 @@
+# optional packages ...
+
+# optional pysphere package for vmware vsphere support
+--allow-external pysphere
+--allow-unverified pysphere
+pysphere==0.1.8
+
+# optional jenkins package for jenkins integration support
+jenkinsapi==0.2.16
+
+# optional vcloudpy package for vmware vCloud support
+
+https://github.com/cloudsidekick/vcloudpy/archive/master.zip
