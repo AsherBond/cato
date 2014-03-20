@@ -379,7 +379,7 @@ Returns: A [User Object](restapi/api-response-objects.html#User){:target="_blank
 
         # force change
         if args.get("forcechange"):
-            obj.ForceChange = args.get("forcechange", obj.ForceChange)
+            obj.ForceChange = 1 if args["forcechange"] == "true" else 1 if str(args["forcechange"]) == "0" else obj.ForceChange
         
         """
         OK this group stuff is a little tricky.  User.DBUpdate requires us to send in the complete list of Groups we want.
