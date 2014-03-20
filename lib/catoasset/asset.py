@@ -215,7 +215,7 @@ class Asset(object):
             # FromName throws an Exception if it doesn't exist
             try:
                 # try the id, then name if no id, fail if neither work
-                c.FromID(args["Credential"].get("ID", args["Credential"].get("Name")))
+                c.FromName(args["Credential"].get("ID", args["Credential"].get("Name")))
             except Exception:
                 # so let's build it from the info provided, and save it!
                 c.FromDict(args["Credential"])
