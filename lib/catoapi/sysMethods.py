@@ -1039,7 +1039,7 @@ Returns: Nothing if successful, error messages on failure.
         obj = asset.Asset()
         obj.FromName(args["asset"])
 
-        if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Asset):
+        if not api._ADMIN and not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Asset):
             return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Asset.")
             
         asset.Assets.Delete(["'%s'" % obj.ID])
