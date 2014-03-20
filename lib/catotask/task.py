@@ -400,7 +400,7 @@ class Task(object):
         
         self.Name = t.get("Name")
         logger.debug("    %s" % (self.Name))
-        self.Code = t.get("Code")
+        self.Code = t.get("Code", "")
         
         # these, if not provided, have initial defaults
         self.Version = t.get("Version", "1.000")
