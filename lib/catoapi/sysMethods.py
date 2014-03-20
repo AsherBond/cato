@@ -97,7 +97,7 @@ Returns: A list of items in the backup file, with the success/failure of each im
         
         if xd is not None:
             for xtask in xd.findall("task"):
-                logger.info("Importing Task [%s]" % xtask.get("name", "Unknown"))
+                logger.debug("Importing Task [%s]" % xtask.get("name", "Unknown"))
                 t = task.Task()
                 t.FromXML(catocommon.ET.tostring(xtask))
                 _save(t)
