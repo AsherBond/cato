@@ -205,10 +205,14 @@ function DeleteItems() {
 	args.sDeleteArray = $("#hidSelectedArray").val();
 	var response = ajaxPost("uiMethods/wmDeleteUsers", args);
 	if (response) {
-		$("#hidSelectedArray").val("");
-		$("#delete_dialog").dialog("close");
-
-		GetItems();
+        $("#hidSelectedArray").val("");
+        $("#delete_dialog").dialog("close");
+        if (response.error) {
+            showInfo(response.error);
+        }
+        if (response.result === "success") {
+            GetItems();
+        }
 	}
 }
 

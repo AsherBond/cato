@@ -732,39 +732,13 @@ class uiMethods:
         if len(sDeleteArray) < 36:
             return json.dumps({"info": "Unable to delete - no selection."})
 
-        now = []
-        later = []
-
-        aUsers = sDeleteArray.split(",")
-        for sUserID in aUsers:
-            if len(sUserID) == 36:  # a guid + quotes
-                # you cannot delete yourself!!!
-                if sUserID != WhoAmI:
-                    # this will flag a user for later deletion by the system
-                    # it returns True if it's safe to delete now
-                    if catouser.User.HasHistory(sUserID):
-                        later.append(sUserID)
-                    else:
-                        now.append(sUserID)
-
-
-        #  delete some users...
-        if now:
-            sSQL = "delete from api_tokens where user_id in (%s)" % ("'%s'" % ("','".join(now)))
-            self.db.tran_exec(sSQL)
-
-            sSQL = "delete from user_password_history where user_id in (%s)" % ("'%s'" % ("','".join(now)))
-            self.db.tran_exec(sSQL)
-
-            sSQL = "delete from users where user_id in (%s)" % ("'%s'" % ("','".join(now)))
-            self.db.tran_exec(sSQL)
-
-        #  flag the others...
-        if later:
-            sSQL = "update users set status = 86 where user_id in (%s)" % ("'%s'" % ("','".join(later)))
-            self.db.tran_exec(sSQL)
-
-        self.db.tran_commit()
+        ids = sDeleteArray.split(",")
+        if WhoAmI in ids:
+            return json.dumps({"error": "You cannot delete yourself."})
+            
+        catouser.Users.Delete(ids)
+        
+        uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.User, "Multiple", "User IDs", sDeleteArray)
 
         return json.dumps({"result": "success"})
 
