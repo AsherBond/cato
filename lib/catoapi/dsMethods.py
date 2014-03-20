@@ -136,7 +136,7 @@ Returns: A [Datastore Document Object](restapi/api-response-objects.html#Datasto
 Required Arguments:
 
 * `query` - A query in JSON format to select the correct Document.
-* `key` - The section of the Document to retrieve.  Returns the entire document if omitted.
+* `lookupkey` - The section of the Document to retrieve.  Returns the entire document if omitted.
 
 Optional Arguments:
 
@@ -178,7 +178,7 @@ Returns: A text value.
 Required Arguments:
 
 * `query` - A query in JSON format to select the correct Document.
-* `key` - The section of the document to retrieve.
+* `lookupkey` - The section of the document to retrieve.
 
 Optional Arguments:
 
