@@ -102,14 +102,17 @@ mkdir -p $LOGFILESDIR/se
 mkdir -p $CATOFILESDIR/ui
 mkdir -p $TMPDIR
 
-# install third party packages and python modules
-$CATO_HOME/install/install_third_party.sh
 
 # check and see if c++ source is included
-if [ -d $CATO_HOME/src/catocrypt ]; then
+if [ -d $CATO_HOME/src ]; then
     # this means that we are installing from source
-    # not a delivered package with the catocrypt library
-    # already delivered
+    # not the 'batteries included' tar file
+    # therefore we need to install all third party 
+    # modules as well as compile the cato 
+    # encryption shared library
+
+    # install third party packages and python modules
+    $CATO_HOME/install/install_third_party.sh
 
     # compile c++ encryption library
     WHEREAMI=`pwd`
