@@ -375,10 +375,15 @@ class TaskEngine():
         conn_string = "%s/%s@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=%s)(PORT=%s)))(CONNECT_DATA=(SID=%s)))" % (user,
             password, server, port, database)
 
+        clean_cs = conn_string.replace(password, "!PASSWORD-REMOVED!")
+        self.logger.debug("Attempting connection using connection string:")
+        self.logger.debug(clean_cs)
+        
         tries = 5
         for ii in range(tries):
             try:
                 conn = cx_Oracle.connect(conn_string)
+                self.logger.debug("Connection established!")
                 break
             except Exception as e:
                 if "ORA-12505" in e and ii < tries:
@@ -401,7 +406,7 @@ class TaskEngine():
         conn = None
         # server=c.system.address, port=port, uid=c.system.userid, pwd=c.system.password, database=c.system.db_name
 
-        # If the username has a \ in it... it's NTLM authentication...
+        # If system.domain is provided ... it's NTLM authentication...
         if system.domain:
             self.logger.debug("SQL Server - Domain provided... attempting NTLM authentication...")
             try:
@@ -428,6 +433,7 @@ class TaskEngine():
                 msg = "Could not connect to the database. Error message -> %s" % (e)
                 raise Exception(msg)
 
+        self.logger.debug("Connection established!")
         return conn
 
 
@@ -448,6 +454,7 @@ class TaskEngine():
         try:
             newdb.connect_db(server=server, port=port,
                 user=user, password=password, database=database)
+            self.logger.debug("Connection established!")
         except Exception as e:
             msg = "Could not connect to the database. Error message -> %s" % (e)
             raise Exception(msg)
@@ -1089,12 +1096,17 @@ class TaskEngine():
         print "transport is %s" % transport
 
         address = "%s://%s:%s/wsman" % (protocol, server, port)
+
+        self.logger.debug("Attempting WinRM connection to:")
+        self.logger.debug(address)
+        
         import winrm
         from winrm import winrm_service
         # TODO - allow the user to specify a transport of kerberos, and also test this
         # depends on ubuntu: sudo apt-get install libkrb5-dev; sudo pip install kerberos
 
         conn = winrm_service.WinRMWebService(endpoint=address, transport=transport, username=user, password=password)
+        self.logger.debug("Connection established!")
         return conn
 
 
