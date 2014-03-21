@@ -97,7 +97,7 @@ Returns: A list of items in the backup file, with the success/failure of each im
         
         if xd is not None:
             for xtask in xd.findall("task"):
-                logger.info("Importing Task [%s]" % xtask.get("name", "Unknown"))
+                logger.debug("Importing Task [%s]" % xtask.get("name", "Unknown"))
                 t = task.Task()
                 t.FromXML(catocommon.ET.tostring(xtask))
                 _save(t)
@@ -115,9 +115,9 @@ Returns: A list of items in the backup file, with the success/failure of each im
         else:
             items.append({"info": "Unable to create Task from backup JSON/XML."})
         
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=catocommon.ObjectOutput.IterableAsJSON(items))
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=catocommon.ObjectOutput.IterableAsText(items, ["Name", "Info"], args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=catocommon.ObjectOutput.IterableAsXML(items, "Results", "Result"))
@@ -141,10 +141,10 @@ Returns: A list of [Process Objects](restapi/api-response-objects.html#Process){
         db.close()
 
         if rows:
-            if args["output_format"] == "json":
+            if args.get("output_format") == "json":
                 resp = catocommon.ObjectOutput.IterableAsJSON(rows)
                 return R(response=resp)
-            elif args["output_format"] == "text":
+            elif args.get("output_format") == "text":
                 keys = ['Instance', 'Component', 'Heartbeat', 'Enabled', 'LoadValue', 'MinutesIdle']
                 outrows = []
                 if rows:
@@ -300,9 +300,9 @@ Returns: A [User Object](restapi/api-response-objects.html#User){:target="_blank
 
         if obj:
             catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.User, obj.ID, obj.LoginID, "User created by API.")
-            if args["output_format"] == "json":
+            if args.get("output_format") == "json":
                 return R(response=obj.AsJSON())
-            elif args["output_format"] == "text":
+            elif args.get("output_format") == "text":
                 return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
             else:
                 return R(response=obj.AsXML())
@@ -379,7 +379,7 @@ Returns: A [User Object](restapi/api-response-objects.html#User){:target="_blank
 
         # force change
         if args.get("forcechange"):
-            obj.ForceChange = args.get("forcechange", obj.ForceChange)
+            obj.ForceChange = 1 if args["forcechange"] == "true" else 1 if str(args["forcechange"]) == "0" else obj.ForceChange
         
         """
         OK this group stuff is a little tricky.  User.DBUpdate requires us to send in the complete list of Groups we want.
@@ -403,9 +403,9 @@ Returns: A [User Object](restapi/api-response-objects.html#User){:target="_blank
         if obj.DBUpdate():
             catocommon.write_change_log(api._USER_ID, catocommon.CatoObjectTypes.User, obj.ID, obj.FullName, "User updated via API.")
 
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -431,9 +431,9 @@ Returns: A list of [User Objects](restapi/api-response-objects.html#User){:targe
         fltr = args.get("filter", "")
 
         obj = catouser.Users(sFilter=fltr)
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -495,9 +495,9 @@ Returns: Nothing if successful, error messages on failure.
                 catocommon.SecurityLogActions.ConfigChange, catocommon.CatoObjectTypes.NA, "",
                 "%s settings changed via API." % mod.capitalize())
         
-            if args["output_format"] == "json":
+            if args.get("output_format") == "json":
                 return R(response=obj.AsJSON())
-            elif args["output_format"] == "text":
+            elif args.get("output_format") == "text":
                 return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
             else:
                 return R(response=obj.AsXML())
@@ -526,9 +526,9 @@ Returns: A [Settings Object](restapi/api-response-objects.html#Settings){:target
             obj = settings.settings()
 
         if obj:
-            if args["output_format"] == "json":
+            if args.get("output_format") == "json":
                 return R(response=obj.AsJSON())
-            elif args["output_format"] == "text":
+            elif args.get("output_format") == "text":
                 return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
             else:
                 return R(response=obj.AsXML())
@@ -572,9 +572,9 @@ Returns: A [Credential Object](restapi/api-response-objects.html#Credential){:ta
 
         catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Credential, obj.ID, obj.Name, "Credential created by API.")
 
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -617,9 +617,9 @@ Returns: A list of [Credential Objects](restapi/api-response-objects.html#Creden
         fltr = args.get("filter", "")
 
         obj = asset.Credentials(sFilter=fltr)
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -663,9 +663,9 @@ Returns: A list of [Log Entry Objects](restapi/api-response-objects.html#LogEntr
                 out.append(logrow)
 
         if out:
-            if args["output_format"] == "json":
+            if args.get("output_format") == "json":
                 return R(response=catocommon.ObjectOutput.IterableAsJSON(out))
-            elif args["output_format"] == "text":
+            elif args.get("output_format") == "text":
                 return R(response=catocommon.ObjectOutput.IterableAsText(out, ["User", "Action", "LogDate", "Log"], args.get("output_delimiter"), args.get("header")))
             else:
                 return R(response=catocommon.ObjectOutput.IterableAsXML(out, "log", "item"))
@@ -688,9 +688,9 @@ Returns: A list of [Tag Objects](restapi/api-response-objects.html#Tag){:target=
         fltr = args.get("filter", "")
 
         obj = tag.Tags(sFilter=fltr)
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -723,9 +723,9 @@ Returns: The new [Tag Object](restapi/api-response-objects.html#Tag){:target="_b
         obj.DBCreateNew()
         catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Tag, obj.Name, obj.Name, "Tag created by API.")
     
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -917,9 +917,9 @@ Returns: A list of [Asset Objects](restapi/api-response-objects.html#Asset){:tar
         fltr = args.get("filter", "")
 
         obj = asset.Assets(sFilter=fltr)
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -941,9 +941,9 @@ Returns: An [Asset Object](restapi/api-response-objects.html#Asset){:target="_bl
         obj = asset.Asset()
         obj.FromName(args.get("asset"))
 
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -1011,9 +1011,9 @@ Returns: An [Asset Object](restapi/api-response-objects.html#Asset){:target="_bl
 
         catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Asset, obj.ID, obj.Name, "Asset created via API.")
 
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())

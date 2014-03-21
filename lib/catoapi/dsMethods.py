@@ -47,10 +47,8 @@ Returns: A list of [Datastore Document Objects](restapi/api-response-objects.htm
         fltr = args["filter"] if "filter" in args else ""
 
         obj = datastore.Documents(collection, fltr)
-        if args["output_format"] == "json" or args["output_format"] == "text":
+        if args.get("output_format") == "json" or args.get("output_format") == "text":
             return R(response=obj.AsJSON())
-#                elif args["output_format"] == "text":
-#                    return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
 
@@ -66,9 +64,9 @@ Returns: A list of Document Collections.
         fltr = args["filter"] if "filter" in args else ""
 
         obj = datastore.Collections(fltr)
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -88,9 +86,9 @@ Returns: A [Datastore Document Object](restapi/api-response-objects.html#Datasto
 
         doc, msg = datastore.create_document(template, collection)
         if doc:
-            if args["output_format"] == "json":
+            if args.get("output_format") == "json":
                 return R(response=doc.AsJSON())
-            elif args["output_format"] == "text":
+            elif args.get("output_format") == "text":
                 return R(response=doc.AsText())
             else:
                 return R(response=doc.AsXML())
@@ -121,9 +119,9 @@ Returns: A [Datastore Document Object](restapi/api-response-objects.html#Datasto
         doc = datastore.Document(query, collection)
 
         if doc.ID:
-            if args["output_format"] == "json":
+            if args.get("output_format") == "json":
                 return R(response=doc.AsJSON())
-            elif args["output_format"] == "text":
+            elif args.get("output_format") == "text":
                 return R(response=doc.AsText())
             else:
                 return R(response=doc.AsXML())
@@ -138,7 +136,7 @@ Returns: A [Datastore Document Object](restapi/api-response-objects.html#Datasto
 Required Arguments:
 
 * `query` - A query in JSON format to select the correct Document.
-* `key` - The section of the Document to retrieve.  Returns the entire document if omitted.
+* `lookupkey` - The section of the Document to retrieve.  Returns the entire document if omitted.
 
 Optional Arguments:
 
@@ -162,9 +160,9 @@ Returns: A text value.
                 return R(response=catocommon.ObjectOutput.IterableAsJSON(result))
 #                    # now, the section we obtained might be a document itself...
 #                    # so let's serialize it.
-#                    if args["output_format"] == "json":
+#                    if args.get("output_format") == "json":
 #                        return R(response=doc.AsJSON())
-#                    elif args["output_format"] == "text":
+#                    elif args.get("output_format") == "text":
 #                        return R(response=doc.AsText())
 #                    else:
 #                        return R(response=doc.AsXML())
@@ -180,7 +178,7 @@ Returns: A text value.
 Required Arguments:
 
 * `query` - A query in JSON format to select the correct Document.
-* `key` - The section of the document to retrieve.
+* `lookupkey` - The section of the document to retrieve.
 
 Optional Arguments:
 

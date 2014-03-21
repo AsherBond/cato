@@ -58,6 +58,7 @@ class Users(object):
         if self.rows:
             for user in self.rows:
                 u = {}
+                u["ID"] = user["user_id"]
                 u["LoginID"] = user["username"]
                 u["FullName"] = user["full_name"]
                 u["Role"] = user["role"]
@@ -82,6 +83,51 @@ class Users(object):
 
     def AsText(self, delimiter=None, headers=None):
         return catocommon.ObjectOutput.IterableAsText(self.SafeList(), ['LoginID', 'FullName', 'Role', 'Status', 'AuthenticationType', 'Email'], delimiter, headers)
+
+
+    @staticmethod
+    def Delete(ids, force=False):
+        """
+        Delete a list of Users IDs.
+        """
+        db = catocommon.new_conn()
+
+        now = []
+        later = []
+ 
+        if force:
+            # just make them all 'now'
+            now = ids
+        else:
+            for uid in ids:
+                # this will flag a user for later deletion by the system
+                # it returns True if it's safe to delete now
+                if User.HasHistory(uid):
+                    later.append(uid)
+                else:
+                    now.append(uid)
+ 
+ 
+        #  delete some users...
+        if now:
+            sSQL = "delete from api_tokens where user_id in (%s)" % ("'%s'" % ("','".join(now)))
+            db.tran_exec(sSQL)
+ 
+            sSQL = "delete from user_password_history where user_id in (%s)" % ("'%s'" % ("','".join(now)))
+            db.tran_exec(sSQL)
+ 
+            sSQL = "delete from users where user_id in (%s)" % ("'%s'" % ("','".join(now)))
+            db.tran_exec(sSQL)
+ 
+        #  flag the others...
+        if later:
+            sSQL = "update users set status = 86 where user_id in (%s)" % ("'%s'" % ("','".join(later)))
+            db.tran_exec(sSQL)
+ 
+        db.tran_commit()
+        db.close()
+
+        return True
 
 class User(object):
     def __init__(self):

@@ -171,10 +171,10 @@ def normalize_datetime_string(in_date, date_format="%Y-%m-%d %H:%M:%S"):
 
 def send_email_via_messenger(to, subject, body, cc=None, bcc=None):
     msg = "Inserting into message queue:\nTO:[%s]\nSUBJECT:[%s]\nBODY:[%s]" % (to, subject, body)
-    logger.info(msg)
+    logger.debug(msg)
     if cc or bcc:
         msg = "Additional:\CC:[%s]\BCC:[%s]" % (cc, bcc)
-        logger.info(msg)
+        logger.debug(msg)
 
     sql = """insert into message (date_time_entered, process_type, status, msg_to, msg_subject, msg_body, msg_cc, msg_bcc)
         values (now(), 1, 0, %s, %s, %s, %s, %s)"""

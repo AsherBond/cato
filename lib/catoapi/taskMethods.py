@@ -53,9 +53,9 @@ Returns: A [Task Object](restapi/api-response-objects.html#Task){:target="_blank
         t = task.Task().DBCreateNew(args["name"], code, desc)
         catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Task created.")
         
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=t.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=t.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=t.AsXML())
@@ -81,9 +81,9 @@ Returns: A [Task Object](restapi/api-response-objects.html#Task){:target="_blank
 
         if result:
             catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Task created.")
-            if args["output_format"] == "json":
+            if args.get("output_format") == "json":
                 return R(response=t.AsJSON())
-            elif args["output_format"] == "text":
+            elif args.get("output_format") == "text":
                 return R(response=t.AsText(args.get("output_delimiter"), args.get("header")))
             else:
                 return R(response=t.AsXML())
@@ -108,9 +108,9 @@ Returns: The 'Status' from a [Task Instance Object](restapi/api-response-objects
         if obj.Error:
             return R(err_code=R.Codes.GetError, err_detail=obj.Error)
 
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response={"task_status": obj.task_status})
-        elif args["output_format"] == "xml":
+        elif args.get("output_format") == "xml":
             return R(response='<task_status>%s</task_status>' % obj.task_status)
         else:
             return R(response=obj.task_status)
@@ -136,9 +136,9 @@ Returns: A [Task Instance Object](restapi/api-response-objects.html#TaskInstance
         if not api.is_object_allowed(obj.task_id, catocommon.CatoObjectTypes.Task):
             return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to details of this Task.")
             
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -197,9 +197,9 @@ Returns: A [Task Log Object](restapi/api-response-objects.html#TaskLog){:target=
         if not api.is_object_allowed(obj.task_id, catocommon.CatoObjectTypes.Task):
             return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
             
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -273,11 +273,11 @@ Returns: A [Task Instance Object](restapi/api-response-objects.html#TaskInstance
             ti = catocommon.add_task_instance(task_id, api._USER_ID, debug, pxml, account_id=account_id, options=options)
             
             if ti:
-                if args["output_format"] == "text":
+                if args.get("output_format") == "text":
                     return R(response=ti)
                 else:
                     instance = task.TaskInstance(ti)
-                    if args["output_format"] == "json":
+                    if args.get("output_format") == "json":
                         return R(response=instance.__dict__)
                     else:
                         return R(response=instance.AsXML())
@@ -365,9 +365,9 @@ Returns: A list of [Task Objects](restapi/api-response-objects.html#Task){:targe
 
         obj = task.Tasks(sFilter=fltr, show_all_versions=showall)
         obj.rows = obj.rows if api._ADMIN else api.filter_set_by_tag(obj.rows)
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -399,9 +399,9 @@ Returns: A list of [Task Instance Objects](restapi/api-response-objects.html#Tas
                                  sTo=to,
                                  sRecords=records)
 
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -435,9 +435,9 @@ Returns: A [Task Object](restapi/api-response-objects.html#Task){:target="_blank
         if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
             return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
             
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON(include_code=ic))
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML(include_code=ic))
@@ -544,9 +544,9 @@ Returns: A list of [Execution Plan Objects](restapi/api-response-objects.html#Ex
         if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
             return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
         
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.PlansAsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.PlansAsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.PlansAsXML())
@@ -581,9 +581,9 @@ Returns: A list of [Task Schedule Objects](restapi/api-response-objects.html#Tas
         if not api.is_object_allowed(obj.ID, catocommon.CatoObjectTypes.Task):
             return R(err_code=R.Codes.Forbidden, err_msg="You do not have access to the details of this Task.")
         
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.SchedulesAsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.SchedulesAsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.SchedulesAsXML())
@@ -628,7 +628,7 @@ Returns: An XML template defining the Parameters for a Task.
             """
             
             # provide XML params if requested... the default is json.
-            if args["output_format"] == "xml":
+            if args.get("output_format") == "xml":
                 # the xml document is *almost* suitable for this purpose.
                 # we just wanna strip out the presentation metadata
                 xdoc = obj.ParameterXDoc
@@ -694,7 +694,7 @@ Returns: A collection of Task backup objects.
         
         docs = task.Tasks.Export(tids, args.get("include_refs"))
 
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=catocommon.ObjectOutput.IterableAsJSON(docs))
         else:
             return R(response="<tasks>%s</tasks>" % "".join(docs))

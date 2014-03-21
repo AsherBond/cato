@@ -46,9 +46,9 @@ Returns: A list of [Cloud Objects](restapi/api-response-objects.html#Cloud){:tar
         fltr = args["filter"] if "filter" in args else ""
 
         obj = cloud.Clouds(sFilter=fltr)
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -71,9 +71,9 @@ Returns: A list of [Cloud Account Objects](restapi/api-response-objects.html#Clo
         fltr = args["filter"] if "filter" in args else ""
 
         obj = cloud.CloudAccounts(sFilter=fltr)
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -117,9 +117,9 @@ Returns: The new [Cloud Account Object](restapi/api-response-objects.html#CloudA
         obj = cloud.CloudAccount.DBCreateNew(provider, name, login, pw, acct_number, default_cloud)
         catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.CloudAccount, obj.ID, obj.Name, "Account created via API.")
 
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -147,9 +147,9 @@ Returns: A [Cloud Account Object](restapi/api-response-objects.html#CloudAccount
         obj = cloud.CloudAccount()
         obj.FromName(name)
 
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -173,9 +173,9 @@ Returns: A [Cloud Object](restapi/api-response-objects.html#Cloud){:target="_bla
         obj = cloud.Cloud()
         obj.FromName(name)
 
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -215,9 +215,9 @@ Returns: The new [Cloud Object](restapi/api-response-objects.html#Cloud){:target
 
         catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.Cloud, obj.ID, obj.Name, "Cloud created via API.")
 
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -281,9 +281,9 @@ Returns: The updated [Cloud Object](restapi/api-response-objects.html#Cloud){:ta
         
         catocommon.write_property_change_log(api._USER_ID, catocommon.CatoObjectTypes.Cloud, obj.ID, obj.Name, ", ".join(oldvals), ", ".join(newvals))
 
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.AsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.AsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.AsXML())
@@ -305,9 +305,9 @@ Returns: A list of [Cloud KeyPair Objects](restapi/api-response-objects.html#Clo
 
         obj = cloud.Cloud()
         obj.FromName(args["cloud"])
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.KeyPairsAsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.KeyPairsAsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.KeyPairsAsXML())
@@ -343,9 +343,9 @@ Returns: A list of [Cloud KeyPair Objects](restapi/api-response-objects.html#Clo
         catocommon.write_add_log(api._USER_ID, catocommon.CatoObjectTypes.CloudKeyPair, obj.ID, obj.Name, "KeyPair [%s] added to Cloud via API." % args.get("name"))
 
         # so what do we return when we add a keypair?  How about a list of all the keypairs.
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.KeyPairsAsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.KeyPairsAsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.KeyPairsAsXML())
@@ -377,9 +377,9 @@ Returns: A list of [Cloud KeyPair Objects](restapi/api-response-objects.html#Clo
         catocommon.write_delete_log(api._USER_ID, catocommon.CatoObjectTypes.CloudKeyPair, obj.ID, obj.Name, "KeyPair [%s] removed from Cloud via API." % args.get("name"))
 
         # so what do we return when we add a keypair?  How about a list of all the keypairs.
-        if args["output_format"] == "json":
+        if args.get("output_format") == "json":
             return R(response=obj.KeyPairsAsJSON())
-        elif args["output_format"] == "text":
+        elif args.get("output_format") == "text":
             return R(response=obj.KeyPairsAsText(args.get("output_delimiter"), args.get("header")))
         else:
             return R(response=obj.KeyPairsAsXML())
