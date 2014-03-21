@@ -312,6 +312,11 @@ function doGetDetails() {
 		} else {
 			doGetLog("all");
 		}
+		
+		// ONLY IF the 'Logfile' button is selected, we'll also get the Logfile
+		if (!$("#view_logfile_btn").hasClass("vis_btn_off")) {
+		    doGetLogfile();
+		}
 	}
 }
 
