@@ -11,3 +11,7 @@ jenkinsapi==0.2.16
 # optional vcloudpy package for vmware vCloud support
 
 https://github.com/cloudsidekick/vcloudpy/archive/master.zip
+
+# optional pytds, MS SQL Server support
+
+https://github.com/denisenkom/pytds/archive/master.zip

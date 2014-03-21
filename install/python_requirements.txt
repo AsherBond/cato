@@ -1,5 +1,6 @@
 web.py==0.37
-croniter==0.3.3
+#croniter==0.3.3
+https://github.com/pdunnigan/croniter/archive/master.zip
 PyMySQL==0.6.1
 pymongo==2.6.3
 pexpect==2.4
