@@ -13,35 +13,15 @@
 //limitations under the License.
 //
 
+// the default new credential type is LOCAL
+var SHARED_OR_LOCAL = 1;
+
 $(document).ready(function() {
 	// clear the edit array
 	$("#hidSelectedArray").val("");
 
 	$("#edit_dialog").hide();
 	$("#delete_dialog").hide();
-
-	//specific field validation and masking
-	$("#txtAssetName").keypress(function(e) {
-		return restrictEntryToSafeHTML(e, this);
-	});
-	$("#txtAddress").keypress(function(e) {
-		return restrictEntryToSafeHTML(e, this);
-	});
-	$("#txtDbName").keypress(function(e) {
-		return restrictEntryToSafeHTML(e, this);
-	});
-	$("#txtCredUsername").keypress(function(e) {
-		return restrictEntryToUsername(e, this);
-	});
-	$("#txtCredName").keypress(function(e) {
-		return restrictEntryToSafeHTML(e, this);
-	});
-	$("#txtCredDescription").keypress(function(e) {
-		return restrictEntryToSafeHTML(e, this);
-	});
-	$("#txtCredDomain").keypress(function(e) {
-		return restrictEntryToHostname(e, this);
-	});
 
 	//dialogs
 	$("#edit_dialog").dialog({
