@@ -116,7 +116,7 @@ def msghub_broadcast(channel, msg):
     uri = "%s/pub/%s" % (url, channel)
     try:
         ws = create_connection(uri)
-    except Exception as a:
+    except Exception as e:
         raise Exception("Error attempting to connect to message hub at address %s, %s" 
                         % (url, e))
     ws.send(msg)
