@@ -159,6 +159,14 @@ def create_api_token(user_id):
     return token
 
 
+def featuretoggle(feature):
+    """
+    Function will return true or false based on the existence of a specific "feature toggle"
+    key in cato.conf
+    """
+    return is_true(catoconfig.CONFIG.get(feature, False))
+
+
 def normalize_datetime_string(in_date, date_format="%Y-%m-%d %H:%M:%S"):
     """
     Will turn any provided date string into the provided output format,
