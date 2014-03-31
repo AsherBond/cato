@@ -281,8 +281,9 @@ class uiMethods:
         logtype = "Security" if not sObjectID and not sObjectType else "Object"
         rows = catocommon.get_security_log(oid=sObjectID, otype=sObjectType, logtype=logtype,
                                            search=sSearch, num_records=sRecords, _from=sFrom, _to=sTo)
+
+        out = []
         if rows:
-            out = []
             for row in rows:
                 r = []
                 r.append(row["log_dt"])
