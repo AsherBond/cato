@@ -53,7 +53,6 @@ class Users(object):
             left outer join object_tags ot on u.user_id = ot.object_id
             where u.status <> 86 %s group by u.user_id order by u.full_name""" % sWhereString
         
-        logger.critical(sSQL)
         self.rows = db.select_all_dict(sSQL)
         db.close()
 
