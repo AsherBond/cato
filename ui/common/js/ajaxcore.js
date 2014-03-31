@@ -14,14 +14,27 @@
 //
 
 /*
- * This file is used by ALL CSK UI's.  It contains the foundational ajax core for those apps.
- *
- * Each UI will augment the 'catoAjax' object with additional functions specific to that app.
- *
- * Of course it should be clear that each UI has it's own "uiMethods" class on the server to handle
- * these few common functions, which are likely only wrappers to a shared server-side function
- * in the uiCommon module.
- */
+* This file is used by ALL CSK UI's.  It contains the foundational ajax core for those apps.
+*
+* Each UI will augment the 'catoAjax' object with additional functions specific to that app.
+*
+* Of course it should be clear that each UI has it's own "uiMethods" class on the server to handle
+* these few common functions, which are likely only wrappers to a shared server-side function
+* in the uiCommon module.
+*/
+
+// relies on getSettings, and should be included in every ui
+// ASSUMES g_config is set each ui's "base.js".
+featureToggle = function(feature) {"use strict";
+    try {
+        if (g_config.features.indexOf(feature) > -1) {
+            return true;
+        }
+        return false;
+    } catch(ex) {
+        return false;
+    }
+};
 
 function catoAjax() {
     // just the catoAjax object.

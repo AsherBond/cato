@@ -163,8 +163,10 @@ def featuretoggle(feature):
     """
     Function will return true or false based on the existence of a specific "feature toggle"
     key in cato.conf
+    
+    CONFIG["features"] is a list, so if our name is in there, return true.
     """
-    return is_true(catoconfig.CONFIG.get(feature, False))
+    return feature in catoconfig.CONFIG.get("features", [])
 
 
 def normalize_datetime_string(in_date, date_format="%Y-%m-%d %H:%M:%S"):
