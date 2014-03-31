@@ -32,12 +32,13 @@ class Assets(object):
             aSearchTerms = sFilter.split()
             for term in aSearchTerms:
                 if term:
-                    sWhereString += " and (a.asset_name like '%%" + term + "%%' " \
-                        "or a.port like '%%" + term + "%%' " \
-                        "or a.address like '%%" + term + "%%' " \
-                        "or a.db_name like '%%" + term + "%%' " \
-                        "or a.asset_status like '%%" + term + "%%' " \
-                        "or ac.username like '%%" + term + "%%') "
+                    sWhereString += """ and (a.asset_name like '%%{0}%%'
+                        or a.port like '%%{0}%%'
+                        or a.address like '%%{0}%%'
+                        or a.db_name like '%%{0}%%'
+                        or a.asset_status like '%%{0}%%'
+                        or ac.username like '%%{0}%%'
+                        or ot.tag_name like '%%{0}%%')""".format(term)
 
         sSQL = """select a.asset_id as ID, 
             a.asset_name as Name,
@@ -45,7 +46,7 @@ class Assets(object):
             a.address as Address,
             case when ac.shared_or_local = 1 then 'Local' else 'Shared' end as SharedOrLocal,
             case when ac.domain <> '' then concat(ac.domain, cast(char(92) as char), ac.username) else ac.username end as Credentials,
-            group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
+            coalesce(group_concat(ot.tag_name order by ot.tag_name separator ','), '') as Tags
             from asset a
             left outer join object_tags ot on a.asset_id = ot.object_id
             left outer join asset_credential ac on ac.credential_id = a.credential_id

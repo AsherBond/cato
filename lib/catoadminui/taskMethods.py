@@ -59,6 +59,14 @@ class taskMethods:
                 sHTML += '<td class="selectable">' + row["Description"] + '</td>'
                 sHTML += '<td class="selectable">' + row["Status"] + '</td>'
                 sHTML += '<td class="selectable">' + str(row["Versions"]) + '</td>'
+
+                if row["Tags"]:
+                    tags = row["Tags"].split(",")
+                    tags = "Tags:\n%s" % ("\n".join(tags))
+                    sHTML += '<td class="selectable"><span class="ui-icon ui-icon-tag" title="' + tags + '"></span></td>'
+                else:
+                    sHTML += '<td class="selectable">&nbsp;</td>'
+                    
                 sHTML += '<td class="task_run"><span class="ui-icon ui-icon-play"></span></td>'
                 
                 sHTML += '</tr>'

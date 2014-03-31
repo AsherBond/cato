@@ -56,7 +56,7 @@ class Tasks(object):
                 t.version as Version, 
                 t.task_status as Status,
                 (select count(*) from task where original_task_id = t.original_task_id) as Versions,
-                group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
+                coalesce(group_concat(ot.tag_name order by ot.tag_name separator ','), '') as Tags
                 from task t
                 left outer join object_tags ot on t.original_task_id = ot.object_id
                 where 1=1 %s group by t.task_id, t.version order by t.task_code, t.version""" % sWhereString

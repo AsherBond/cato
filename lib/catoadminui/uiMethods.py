@@ -641,6 +641,13 @@ class uiMethods:
                 sHTML += "<td class=\"selectable\">" + row["role"] + "</td>"
                 sHTML += "<td class=\"selectable\">" + str(row["last_login_dt"]) + "</td>"
 
+                if row["Tags"]:
+                    tags = row["Tags"].split(",")
+                    tags = "Tags:\n%s" % ("\n".join(tags))
+                    sHTML += '<td class="selectable"><span class="ui-icon ui-icon-tag" title="' + tags + '"></span></td>'
+                else:
+                    sHTML += '<td class="selectable">&nbsp;</td>'
+
                 sHTML += "</tr>"
 
         return json.dumps({"pager": uiCommon.packJSON(pager_html), "rows": uiCommon.packJSON(sHTML)})
@@ -770,6 +777,13 @@ class uiMethods:
                 sHTML += "<td class=\"selectable\">%s</td>" % (row["Address"] if row["Address"] else "")
                 sHTML += "<td class=\"selectable\">%s</td>" % (row["Credentials"] if row["Credentials"] else "")
 
+                if row["Tags"]:
+                    tags = row["Tags"].split(",")
+                    tags = "Tags:\n%s" % ("\n".join(tags))
+                    sHTML += '<td class="selectable"><span class="ui-icon ui-icon-tag" title="' + tags + '"></span></td>'
+                else:
+                    sHTML += '<td class="selectable">&nbsp;</td>'
+                    
                 sHTML += "</tr>"
 
         return json.dumps({"pager": uiCommon.packJSON(pager_html), "rows": uiCommon.packJSON(sHTML)})
