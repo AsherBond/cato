@@ -239,9 +239,16 @@ class taskMethods:
         if not sDeleteArray:
             raise Exception("Unable to delete - no selection.")
             
+        # get important data that will be deleted for the log
+        sSQL = "select task_id, task_name from task where task_id in (%s)" % (sDeleteArray)
+        rows = self.db.select_all_dict(sSQL)
+
         task.Tasks.Delete(sDeleteArray.split(","), force)
         
-        uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Task, "Multiple", "Original Task IDs", sDeleteArray)
+        # if we made it here, save the logs
+        for dr in rows:
+            uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Task, dr["task_id"], dr["task_name"], "Task Deleted.")
+
         return json.dumps({"result": "success"})
         
     def wmUpdateTaskDetail(self):
