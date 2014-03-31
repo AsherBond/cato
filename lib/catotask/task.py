@@ -428,7 +428,12 @@ class Task(object):
             
         # PARAMETERS
         if t.get("Parameters"):
-            self.ParameterXDoc = catocommon.ET.fromstring(t.get("Parameters"))
+            if catocommon.featuretoggle("330"):
+                # parameters are actual JSON, not xml-in-json
+                sxml = catocommon.ObjectOutput.IterableAsXML(t["Parameters"], "parameters", "parameter")
+                self.ParameterXDoc = catocommon.ET.fromstring(sxml)
+            else:
+                self.ParameterXDoc = catocommon.ET.fromstring(t["Parameters"])
             
 
     def AsText(self, delimiter=None, headers=None):
@@ -501,7 +506,12 @@ class Task(object):
         
         if include_code:
             # parameters
-            t["Parameters"] = catocommon.ET.tostring(self.ParameterXDoc) if self.ParameterXDoc is not None else ""
+            # #330 - AsJSON should export parameters as actual JSON
+            if catocommon.featuretoggle("330"):
+                pxml = catocommon.ET.tostring(self.ParameterXDoc)
+                t["Parameters"] = catocommon.paramxml2json(pxml)
+            else:
+                t["Parameters"] = catocommon.ET.tostring(self.ParameterXDoc) if self.ParameterXDoc is not None else ""
             
             # codeblocks
             codeblocks = []
