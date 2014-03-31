@@ -275,6 +275,8 @@ class Asset(object):
                 c.Name = self.ID
                 c.DBCreateNew()
             elif credential_update_mode == "existing":
+                # an asset can only update it's local credential, and uses the asset id as the credential name
+                c.Name = self.ID
                 c.DBUpdate()
             elif credential_update_mode == "selected":
                 #  user selected a shared credential
@@ -495,6 +497,7 @@ class Credential(object):
             shared_or_local = %s,
             shared_cred_desc = %s {0} {1} {2}
             where credential_id = %s""".format(sPasswordUpdate, sPriviledgedPasswordUpdate, sPKUpdate) 
+        logger.critical(sSQL % (self.Name, self.Username, self.Domain, self.SharedOrLocal, self.Description, self.ID))
             
         db.exec_db(sSQL, (self.Name, self.Username, self.Domain, self.SharedOrLocal, self.Description, self.ID))
         db.close()        
