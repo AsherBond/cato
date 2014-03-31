@@ -288,7 +288,7 @@ function SaveUserEdits() {
 	}
 
 	if (bSave !== true) {
-		showAlert(strValidationError);
+		showInfo(strValidationError);
 		return false;
 	}
 
@@ -418,7 +418,7 @@ function SaveNewUser() {
 	}
 
 	if (bSave !== true) {
-		showAlert(strValidationError);
+		showInfo(strValidationError);
 		return false;
 	}
 
