@@ -110,6 +110,12 @@ body {
 	color: #dddddd !important;
 }
 
+/* fix the jquery tabs plugin to not have giant buttons */
+.ui-tabs .ui-tabs-nav .ui-tabs-anchor {
+	padding: 0;
+	padding-right: 5px;	
+}
+
 #app_header_icons {
 	right: 10px;
 	padding-top: 12px;
