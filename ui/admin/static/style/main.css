@@ -97,20 +97,16 @@ body {
 	z-index: 999;
 }
 
-
 /* this overwrites the duperfish menu default color */
-.sf-menu a, .sf-menu a:visited
-{
+.sf-menu a, .sf-menu a:visited {
 	color: #222222 !important;
 }
 /* and make the superfish submenus green like #head */
-.sf-menu li li
- {
+.sf-menu li li {
 	background: #B0B579;
 }
 /* and the hover effect */
-.sf-menu li:hover, .sf-menu li.sfHover, .sf-menu a:focus, .sf-menu a:hover, .sf-menu a:active
-{
+.sf-menu li:hover, .sf-menu li.sfHover, .sf-menu a:focus, .sf-menu a:hover, .sf-menu a:active {
 	color: #dddddd !important;
 }
 
@@ -288,6 +284,8 @@ th.col_header {
 	background: #B0B579;
 	font-weight: bold;
 	color: #dddddd;
+	padding-left: 4px;
+	padding-right: 4px;
 }
 td.row {
 	border: 1px solid #dddddd;

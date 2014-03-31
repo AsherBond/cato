@@ -235,7 +235,7 @@ class uiMethods:
         sMessageHTML = ""
         sSQL = """select msg_to, msg_subject,
             case status when 0 then 'Queued' when 1 then 'Error' when 2 then 'Success' end as status,
-            error_message,
+            error_message, num_retries,
             convert(date_time_entered, CHAR(20)) as entered_dt, convert(date_time_completed, CHAR(20)) as completed_dt
             from message
             order by msg_id desc limit 100"""
@@ -247,8 +247,9 @@ class uiMethods:
                     <td>%s</td>
                     <td>%s</td>
                     <td>%s</td>
+                    <td>%s</td>
                     <td>%s<br />%s</td>
-                    </tr>""" % (dr.get("msg_to", ""), dr.get("msg_subject", ""), dr.get("status", ""), uiCommon.SafeHTML(dr.get("error_message", "")), dr.get("entered_dt", ""), dr.get("completed_dt", ""))
+                    </tr>""" % (dr.get("msg_to", ""), dr.get("msg_subject", ""), dr.get("status", ""), uiCommon.SafeHTML(dr.get("error_message", "")), dr.get("num_retries", ""), dr.get("entered_dt", ""), dr.get("completed_dt", ""))
 
 
         return json.dumps({"processes": sProcessHTML, "users": sUserHTML, "messages": sMessageHTML})
