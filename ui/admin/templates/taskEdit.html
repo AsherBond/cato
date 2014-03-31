@@ -138,8 +138,8 @@ $var cssfiles: taskEdit.css taskView.css ../../cache/js/jquery/ufd/css/ufd-base.
         <h3><span id="lblTaskNameHeader"></span><span id="version_tag"> Version: <span id="lblVersionHeader"></span></span></h3>
     </center>
     <div class="te_help_box">
-        <img src="static/images/icons/info.png" height="16px" width="16px" alt="" />
-        <div id="te_help_box_detail" class="te_help_box_detail"></div>
+        <span class="ui-icon ui-icon-info forceinline"></span>
+        <span id="te_help_box_detail"></span>
     </div>
     <div id="all">
         <div class="ui-state-default te_header">
@@ -195,7 +195,7 @@ $var cssfiles: taskEdit.css taskView.css ../../cache/js/jquery/ufd/css/ufd-base.
     </p>
     <input type="hidden" id="codeblock_to_delete" value=""/>
 </div>
-<div id="asset_picker_dialog" title="Select an Asset" class="hidden ui-state-highlight">
+<div id="asset_picker_dialog" title="Select an Asset" class="hidden">
     <center>
         <span style="padding-left: 15px; padding-top: 5px; font-weight: bold;">Enter search
             criteria:</span><span style="padding-left: 15px; padding-top: 5px;">
@@ -207,7 +207,7 @@ $var cssfiles: taskEdit.css taskView.css ../../cache/js/jquery/ufd/css/ufd-base.
         <input type="hidden" id="asset_picker_target_name_field" value="" />
     </center>
 </div>
-<div id="task_picker_dialog" title="Select a Task" class="hidden ui-state-highlight">
+<div id="task_picker_dialog" title="Select a Task" class="hidden">
     <span style="padding-left: 15px; padding-top: 5px; font-weight: bold;">Enter search
         criteria:</span>
     <input id="task_search_text" />

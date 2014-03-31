@@ -291,10 +291,7 @@
 	background: #efefef;
 	font-size: 12px;
 	border-radius: 12px;
-	padding: 3px 0px 0px 23px;
-}
-.te_help_box_detail {
-	display: inline;
+	padding: 4px 0px 0px 4px;
 }
 .step {
 	padding: 3px;

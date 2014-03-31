@@ -1109,7 +1109,7 @@ class taskMethods:
 
                 # if there's a description, show a tooltip
                 if sDesc:
-                    sHTML += "<img src=\"static/images/icons/info.png\" class=\"search_dialog_tooltip trans50\" title=\"" + sDesc + "\" />"
+                    sHTML += '<span class="ui-icon ui-icon-info forceinline search_dialog_tooltip" title="%s"></span>' % (sDesc)
 
                 sHTML += "</div>"
                 sHTML += "<div class=\"clearfloat\"></div>"
