@@ -221,14 +221,15 @@ versions = [
     ],
     ["1.24", [
         ["dropcolumn", "asset", "is_connection_system"],
-        ["dropcolumn", "task", "use_connector_system"]
+        ["dropcolumn", "task", "use_connector_system"],
+        ["changecolumn", "user_security_log", "log_msg",
+         "`log_msg` VARCHAR(1024) DEFAULT ''"]
     ]
     ]
 ]
 
 import os
 import sys
-import json
 
 base_path = os.path.dirname(os.path.abspath(sys.argv[0]))
 lib_path = os.path.join(base_path, "lib")
@@ -236,7 +237,6 @@ sys.path.insert(0, lib_path)
 
 from catoconfig import catoconfig
 from catodb import catodb
-from catocommon import catocommon
 
 
 def main(argv):
