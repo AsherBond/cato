@@ -575,3 +575,25 @@ td.row_over {
 	padding: 1px 8px 1px 8px;
 	min-height: 10px;
 }
+
+/* fix the meow plugin z-index */
+.meows {
+	z-index: 999;
+}
+
+/* color changes for the jsoneditor */
+div.jsoneditor {
+	border: 1px solid #aaa !important;
+}
+.jsoneditor .menu {
+	background-color: #ccc !important;
+	border-bottom: 1px solid #aaa !important;
+}
+.jsoneditor .menu button {
+	border: none !important;
+	background-color: #fff !important;
+}
+.jsoneditor .search .frame {
+	border: 1px solid #aaa !important;
+}
+
