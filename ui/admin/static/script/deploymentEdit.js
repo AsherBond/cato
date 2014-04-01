@@ -101,6 +101,7 @@ function addGroupToList(groupname) {
 	$li.append($('<div class="floatright">').append($trashcan));
 	$li.append($('<div class="clearfloat">'));
 	$("#deployment_groups").append($li);
+	$("#new_group_name").val("");
 }
 
 function deleteGroup($li, groupname) {
