@@ -42,7 +42,7 @@ $(function() {"use strict";
 			var ahtml = '<li id="' + id.replace(/ /g, "") + '" val="' + tag_name + '" class="tag ui-widget-content ui-corner-all">';
 			ahtml += '<table class="object_tags_table"><tr>';
 			ahtml += '<td style="vertical-align: middle;">' + tag_name + '</td>';
-			ahtml += '<td width="1px"><span class="ui-icon ui-icon-close tag_remove_btn" remove_id="' + id + '"></span></td>';
+			ahtml += '<td width="1px"><span class="ui-icon ui-icon-close tag_remove_btn pointer" remove_id="' + id + '"></span></td>';
 			ahtml += '</tr></table>';
 			ahtml += '</li>';
 
