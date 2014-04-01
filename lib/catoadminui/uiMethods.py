@@ -595,7 +595,7 @@ class uiMethods:
             In this method, the values come from the browser in a jQuery serialized array of name/value pairs.
         """
         user_id = uiCommon.GetSessionUserID()
-        args = uiCommon.getAjaxArg("sValues")
+        args = uiCommon.getAjaxArg("values")
 
         u = catouser.User()
         u.FromID(user_id)
