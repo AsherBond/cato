@@ -301,7 +301,7 @@ $(document).ready(function() {
 			$("#task_picker_results .task_picker_value").disableSelection();
 
 			//gotta kill previously bound clicks or it will stack 'em! = bad.
-			$("#task_picker_results").on("click", "li[tag='task_picker_row']", function() {
+			$("#task_picker_results li[tag='task_picker_row']").click(function() {
 				$("#task_steps").block({
 					message : null
 				});
