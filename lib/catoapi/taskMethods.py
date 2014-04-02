@@ -692,10 +692,10 @@ Returns: A collection of Task backup objects.
             
         tids = [obj.ID]
         
-        docs = task.Tasks.Export(tids, args.get("include_refs"))
+        docs = task.Tasks.Export(tids, args.get("include_refs"), args.get("output_format"))
 
         if args.get("output_format") == "json":
-            return R(response=catocommon.ObjectOutput.IterableAsJSON(docs))
+            return R(response="[%s]" % "".join(docs))
         else:
             return R(response="<tasks>%s</tasks>" % "".join(docs))
             
