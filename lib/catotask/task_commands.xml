@@ -76,7 +76,7 @@
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#waitfortasks' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
                 icon="static/images/icons/cato/wait_32.png">
 				<function name="wait_for_tasks">
-					<handles label="Handles">
+					<handles label="Handles" is_array="true">
 						<handle label="Handle">
 							<name input_type="text" label="Name" />
 						</handle>
@@ -286,7 +286,7 @@
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#setvariable' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
                 icon="static/images/icons/cato/bookmark_add_32.png">
 				<function name="set_variable">
-					<variables label="Variables">
+					<variables label="Variables" is_array="true">
 						<variable label="Variable">
 							<name input_type="text" label="Name" />
 							<value input_type="text" label="Value" />

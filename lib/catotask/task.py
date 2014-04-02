@@ -502,7 +502,7 @@ class Task(object):
         
         if include_code:
             # parameters
-            t["Parameters"] = self._params_as_dict()
+            t["Parameters"] = self._params_to_dict()
             
             # codeblocks
             codeblocks = []
@@ -516,7 +516,7 @@ class Task(object):
 
         return catocommon.ObjectOutput.AsJSON(t)
     
-    def _params_as_dict(self):
+    def _params_to_dict(self):
         """ 
         For the purpose of export only, this routine will convert our parameters xml 
         schema into a JSON document.
@@ -525,33 +525,34 @@ class Task(object):
         """
         params = []
         
-        for xp in self.ParameterXDoc.findall("parameter"):
-            p = {
-                "name": xp.findtext("name", ""),
-                "desc": xp.findtext("desc", ""),
-                "required": xp.get("required", ""),
-                "prompt": xp.get("prompt", ""),
-                "encrypt": xp.get("encrypt", ""),
-                "maxlength": xp.get("maxlength", ""),
-                "maxvalue": xp.get("maxvalue", ""),
-                "minlength": xp.get("minlength", ""),
-                "minvalue": xp.get("minvalue", ""),
-                "constraint": xp.get("constraint", ""),
-                "constraint_msg": xp.get("constraint_msg", "")
-            }
-
-            vals = []
-            xValues = xp.find("values")
-            if xValues is not None:
-                # stick this rogue attribute up a level
-                p["present_as"] = xValues.get("present_as", "")
-
-                xVals = xValues.findall("value")
-                for xVal in xVals:
-                    vals.append(xVal.text if xVal.text else "")            
-            p["values"] = vals
-            
-            params.append(p)
+        if self.ParameterXDoc is not None:
+            for xp in self.ParameterXDoc.findall("parameter"):
+                p = {
+                    "name": xp.findtext("name", ""),
+                    "desc": xp.findtext("desc", ""),
+                    "required": xp.get("required", ""),
+                    "prompt": xp.get("prompt", ""),
+                    "encrypt": xp.get("encrypt", ""),
+                    "maxlength": xp.get("maxlength", ""),
+                    "maxvalue": xp.get("maxvalue", ""),
+                    "minlength": xp.get("minlength", ""),
+                    "minvalue": xp.get("minvalue", ""),
+                    "constraint": xp.get("constraint", ""),
+                    "constraint_msg": xp.get("constraint_msg", "")
+                }
+    
+                vals = []
+                xValues = xp.find("values")
+                if xValues is not None:
+                    # stick this rogue attribute up a level
+                    p["present_as"] = xValues.get("present_as", "")
+    
+                    xVals = xValues.findall("value")
+                    for xVal in xVals:
+                        vals.append(xVal.text if xVal.text else "")            
+                p["values"] = vals
+                
+                params.append(p)
             
         return params
         
@@ -1338,9 +1339,16 @@ class Step(object):
         self.IsValid = True
         
     def AsJSON(self):
+        # remove internals
         del self.TaskID
         del self.Function
         del self.UserSettings
+        del self.ValueSnip
+        del self.Locked
+        del self.IsValid
+        del self.XPathPrefix
+        del self.Order
+
         if catocommon.featuretoggle("335"):
             # "function definition" is actual JSON, not xml-in-json
             self.FunctionDefinition = self._functionxml_to_dict()
@@ -1558,23 +1566,30 @@ class Step(object):
         
         def _convert_node(node):
             logger.debug("-- considering [%s]" % (node.tag))
-            
+
             obj = {}
+
+            # node is not an array, just a dictionary then
+            # first we do the attributes... prefixed with a __ so we can tell them apart from the nodes
+            for att, val in node.attrib.iteritems():
+                print att
+                print val
+                obj["__%s" % (att)] = val
+                
+            
             # a critical flow issue... if the node has an attribute "is_array", 
             # that means it CONTAINS a LIST
             if "is_array" in node.attrib:
                 logger.debug("    [%s] is an array!" % (node.tag))
-                items = []
+                i = 0
                 for n in list(node):
                     logger.debug("    adding element [%s] to array..." % (n.tag))
-                    items.append(_convert_node(n))
-                obj[n.tag] = items
+                    # doing array's is just too troublesome... so, we're gonna pull an amazon trick..
+                    # and attach a SPECIAL PREFIX and an array number to the key name.
+                    obj["Item::%s::%d" % (n.tag, i)] = _convert_node(n)
+                    i += 1
+                    #obj.append(_convert_node(n))
             else:
-                # node is not an array, just a dictionary then
-                # first we do the attributes... prefixed with a __ so we can tell them apart from the nodex
-                for att, val in node.attrib.iteritems():
-                    obj["__%s" % (att)] = val
-                
                 # now the subnodes
                 if len(list(node)):
                     for n in list(node):
@@ -1583,6 +1598,8 @@ class Step(object):
                             obj[n.tag] = _convert_node(n)
                         else:
                             obj[n.tag] = n.text if n.text is not None else ""
+                    else:
+                        obj[n.tag] = _convert_node(n)
                 else:
                     obj[node.tag] = node.text if node.text is not None else ""
             
@@ -1599,6 +1616,8 @@ class Step(object):
         
         Basically the reverse of _functionxml_to_dict, recurse and build an XML string.
         """
+        import cgi
+        
         def _build_node(tagname, contents):
             attrs = []
             child = ""
@@ -1610,18 +1629,32 @@ class Step(object):
                         # it's an attribute!
                         print("    it's an attribute! [%s]" % (v))
                         attrs.append(' %s="%s"' % (k[2:], v))
-                    elif isinstance(v, list):
-                        # if the node is a LIST, that means it's parent had the "is_array" attribute.  ugh.
-                        print("    our child is a list, we are an array.")
-                        attrs.append(' is_array="true"')
-                        for c in v:
-                            child += _build_node(k, c)
+                    elif "Item::" in k:
+                        # we are the special Item:: node of an array set... so SKIP OURSELVES and write our children!
+                        print("    'I am an element in an array.'")
+                        keyname = k.split("::")[1]
+                        child += _build_node(keyname, v)
+                    elif k == "TextValue::":
+                        child += cgi.escape(v)
                     else:
                         print("    it's a node! %s" % (v))
-                        # it's a node, is it a dict (subnode) or a regular text value?
+                        # SPECIAL CASE for the AWS commands, and other instances like that.  
+                        # see, in order to put attributes and values on the same dictionary, we 
+                        # are forced to re-use some tag names
+                        # IF WE have a key that's exactly the same as our parent key...
+                        # THEN THAT IS OUR TEXT VALUE!
+                        # "if k in v" actually means... "if our name is also a key in our own value dictionary"
+                        if k in v:
+                            print("    'I've got a value with the same key as myself.  Woo, that's my text value!")
+                            # so, we have to replace the duplicate key name with a special token that'll get picked up 
+                            # in the lower loop
+                            v["TextValue::"] = v[k]
+                            del v[k]
+                        # drill down with the modified dictionary
                         child += _build_node(k, v)
             else:
-                child = contents
+                # make sure the text value is safe for xml
+                child = cgi.escape(contents)
             
             # now we've constructed some pieces, put them together
             out = '<%s%s>%s</%s>' % (tagname, "".join(attrs), child, tagname)
@@ -1637,7 +1670,7 @@ class Step(object):
         sxml = "".join(l)
         
         print sxml
-        
+
         xdoc = catocommon.ET.fromstring(sxml)
         return xdoc 
         
