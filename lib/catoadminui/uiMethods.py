@@ -1018,9 +1018,9 @@ class uiMethods:
                 js = [js]
 
             for jstask in js:
-                uiCommon.log("Importing Task [%s]" % jstask.get("name", "Unknown"))
+                uiCommon.log("Importing Task [%s]" % jstask.get("Name", "Unknown"))
                 t = task.Task()
-                t.FromJSON(json.dumps(jstask))
+                t.FromJSON(json.dumps(jstask), on_conflict)
 
                 result, err = t.DBSave()
                 if result:
