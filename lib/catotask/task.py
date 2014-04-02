@@ -1572,8 +1572,6 @@ class Step(object):
             # node is not an array, just a dictionary then
             # first we do the attributes... prefixed with a __ so we can tell them apart from the nodes
             for att, val in node.attrib.iteritems():
-                print att
-                print val
                 obj["__%s" % (att)] = val
                 
             
@@ -1593,12 +1591,6 @@ class Step(object):
                 # now the subnodes
                 if len(list(node)):
                     for n in list(node):
-                        if len(list(n)):
-                            logger.debug("    [%s] has [%s] subnodes, drilling down..." % (n.tag, len(list(n))))
-                            obj[n.tag] = _convert_node(n)
-                        else:
-                            obj[n.tag] = n.text if n.text is not None else ""
-                    else:
                         obj[n.tag] = _convert_node(n)
                 else:
                     obj[node.tag] = node.text if node.text is not None else ""

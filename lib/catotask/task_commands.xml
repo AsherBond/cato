@@ -314,7 +314,7 @@
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#clear' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
                 icon="static/images/icons/cato/bookmark_delete_32.png">
 				<function name="clear_variable">
-					<variables label="Variables">
+					<variables label="Variables" is_array="true">
 						<variable label="Variable">
 							<name input_type="text" label="Name" />
 						</variable>
