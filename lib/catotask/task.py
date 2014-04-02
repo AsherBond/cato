@@ -428,11 +428,8 @@ class Task(object):
             
         # PARAMETERS
         if t.get("Parameters"):
-            if catocommon.featuretoggle("330"):
-                # parameters are actual JSON, not xml-in-json
-                self.ParameterXDoc = self._params_from_dict(t["Parameters"])
-            else:
-                self.ParameterXDoc = catocommon.ET.fromstring(t["Parameters"])
+            # parameters are actual JSON, not xml-in-json
+            self.ParameterXDoc = self._params_from_dict(t["Parameters"])
             
 
     def AsText(self, delimiter=None, headers=None):
@@ -505,11 +502,7 @@ class Task(object):
         
         if include_code:
             # parameters
-            # #330 - AsJSON should export parameters as actual JSON
-            if catocommon.featuretoggle("330"):
-                t["Parameters"] = self._params_as_dict()
-            else:
-                t["Parameters"] = catocommon.ET.tostring(self.ParameterXDoc) if self.ParameterXDoc is not None else ""
+            t["Parameters"] = self._params_as_dict()
             
             # codeblocks
             codeblocks = []
@@ -1348,7 +1341,11 @@ class Step(object):
         del self.TaskID
         del self.Function
         del self.UserSettings
-        self.FunctionXML = catocommon.ET.tostring(self.FunctionXDoc)
+        if catocommon.featuretoggle("335"):
+            # "function definition" is actual JSON, not xml-in-json
+            self.FunctionDefinition = self._functionxml_to_dict()
+        else:
+            self.FunctionXML = catocommon.ET.tostring(self.FunctionXDoc)
         del self.FunctionXDoc
         return catocommon.ObjectOutput.AsJSON(self.__dict__)        
 
@@ -1397,11 +1394,18 @@ class Step(object):
         self.Description = step.get("Description", "")
 
         # FUNCTION
-        func = step.get("FunctionXML")
-        if not func:
-            raise Exception("ERROR: Step [%s] - function xml is empty or cannot be parsed.")
-        
-        self.FunctionXDoc = catocommon.ET.fromstring(func)
+        # feature 335
+        # function "xml" is converted to json when backed up, and reconverted to xml when loaded
+        if catocommon.featuretoggle("335"):
+            # "function definition" is actual JSON, not xml-in-json
+            self.FunctionXDoc = self._functionxml_from_dict(step.get("FunctionDefinition"))
+        else:
+            func = step.get("FunctionXML")
+            if not func:
+                raise Exception("ERROR: Step [%s] - function xml is empty or cannot be parsed.")
+            
+            self.FunctionXDoc = catocommon.ET.fromstring(func)
+
         # command_type is for backwards compatilibity in importing tasks from 1.0.8
         self.FunctionName = step.get("FunctionName", "")
     
@@ -1541,6 +1545,101 @@ class Step(object):
 #            if dr.has_key("version"):
 #                self.Task.Version = dr["version"]
         return self
+        
+    def _functionxml_to_dict(self):
+        """ 
+        For the purpose of export only, this routine will convert a steps "FunctionXDoc"
+        schema into a JSON document.
+        
+        Done manually because xml attributes are converted to json keys.
+        
+        This one is tricky because the key names are unknown, as is the depth, so we have to recurse.
+        """
+        
+        def _convert_node(node):
+            logger.debug("-- considering [%s]" % (node.tag))
+            
+            obj = {}
+            # a critical flow issue... if the node has an attribute "is_array", 
+            # that means it CONTAINS a LIST
+            if "is_array" in node.attrib:
+                logger.debug("    [%s] is an array!" % (node.tag))
+                items = []
+                for n in list(node):
+                    logger.debug("    adding element [%s] to array..." % (n.tag))
+                    items.append(_convert_node(n))
+                obj[n.tag] = items
+            else:
+                # node is not an array, just a dictionary then
+                # first we do the attributes... prefixed with a __ so we can tell them apart from the nodex
+                for att, val in node.attrib.iteritems():
+                    obj["__%s" % (att)] = val
+                
+                # now the subnodes
+                if len(list(node)):
+                    for n in list(node):
+                        if len(list(n)):
+                            logger.debug("    [%s] has [%s] subnodes, drilling down..." % (n.tag, len(list(n))))
+                            obj[n.tag] = _convert_node(n)
+                        else:
+                            obj[n.tag] = n.text if n.text is not None else ""
+                else:
+                    obj[node.tag] = node.text if node.text is not None else ""
+            
+            return obj
+        
+        # kick the recursion off with the root document
+        func = _convert_node(self.FunctionXDoc)
+        return func
+        
+    def _functionxml_from_dict(self, funcdef):
+        """ 
+        For the purpose of import only, this routine will build the "function xml" 
+        from a dictionary (from a JSON document). 
+        
+        Basically the reverse of _functionxml_to_dict, recurse and build an XML string.
+        """
+        def _build_node(tagname, contents):
+            attrs = []
+            child = ""
+            # first we do the attributes... prefixed with a __ so we can tell them apart from the nodex
+            if isinstance(contents, dict):
+                for k, v in contents.iteritems():
+                    print("considering [%s]..." % (k))
+                    if k.startswith("__"):
+                        # it's an attribute!
+                        print("    it's an attribute! [%s]" % (v))
+                        attrs.append(' %s="%s"' % (k[2:], v))
+                    elif isinstance(v, list):
+                        # if the node is a LIST, that means it's parent had the "is_array" attribute.  ugh.
+                        print("    our child is a list, we are an array.")
+                        attrs.append(' is_array="true"')
+                        for c in v:
+                            child += _build_node(k, c)
+                    else:
+                        print("    it's a node! %s" % (v))
+                        # it's a node, is it a dict (subnode) or a regular text value?
+                        child += _build_node(k, v)
+            else:
+                child = contents
+            
+            # now we've constructed some pieces, put them together
+            out = '<%s%s>%s</%s>' % (tagname, "".join(attrs), child, tagname)
+            return out
+        
+        # so, may seem a little brute force, but it's easier to just construct an xml STRING
+        # than it is to bother with building an xml DOCUMENT
+        # we'll use a list tho, and join it when done
+
+        l = _build_node("function", funcdef)
+        
+
+        sxml = "".join(l)
+        
+        print sxml
+        
+        xdoc = catocommon.ET.fromstring(sxml)
+        return xdoc 
         
 class StepUserSettings(object):
     def __init__(self):
