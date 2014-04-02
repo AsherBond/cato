@@ -50,11 +50,11 @@ Returns: A UUID authentication token.
         return R(response=token)
 
     def import_backup(self, args):
-        """Imports an XML backup file.
+        """Imports an XML or JSON backup file.
 
 Required Arguments: 
 
-* `xml` - An XML document in the format of a Cato backup file.
+* `import_text` - An XML or JSON document in the format of a Cato backup file.
 
 Returns: A list of items in the backup file, with the success/failure of each import.
 """
@@ -63,7 +63,7 @@ Returns: A list of items in the backup file, with the success/failure of each im
         # Any changes here should be considered there as well.
 
         # define the required parameters for this call
-        required_params = ["xml"]
+        required_params = ["import_text"]
         has_required, resp = api.check_required_params(required_params, args)
         if not has_required:
             return resp
@@ -88,10 +88,10 @@ Returns: A list of items in the backup file, with the success/failure of each im
         xd = None
         js = None
         try:
-            xd = catocommon.ET.fromstring(args["xml"])
+            xd = catocommon.ET.fromstring(args["import_text"])
         except catocommon.ET.ParseError:
             try:
-                js = json.loads(args["xml"])
+                js = json.loads(args["import_text"])
             except:
                 return json.dumps({"error": "Data is not properly formatted XML or JSON."})
         
@@ -99,7 +99,7 @@ Returns: A list of items in the backup file, with the success/failure of each im
             for xtask in xd.findall("task"):
                 logger.debug("Importing Task [%s]" % xtask.get("name", "Unknown"))
                 t = task.Task()
-                t.FromXML(catocommon.ET.tostring(xtask))
+                t.FromXML(catocommon.ET.tostring(xtask), args.get("on_conflict"))
                 _save(t)
         # otherwise it might have been JSON
         elif js is not None:
@@ -110,7 +110,7 @@ Returns: A list of items in the backup file, with the success/failure of each im
             for jstask in js:
                 logger.info("Importing Task [%s]" % jstask.get("name", "Unknown"))
                 t = task.Task()
-                t.FromJSON(json.dumps(jstask))
+                t.FromJSON(json.dumps(jstask), args.get("on_conflict"))
                 _save(t)
         else:
             items.append({"info": "Unable to create Task from backup JSON/XML."})
