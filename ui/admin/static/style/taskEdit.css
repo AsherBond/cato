@@ -212,19 +212,18 @@
 	font-size: 1.1em;
 }
 .toolbox_tabs_2row {
-	padding: 8px 6px 0px 3px;
-	height: 40px;
+	margin: 8px 0px 0px 4px;
 	font-size: 1.1em;
 }
 .toolbox_tabs_1row {
-	padding: 8px 6px 0px 3px;
+	margin: 28px 0px 0px 4px;
 	height: 20px;
 	font-size: 1.1em;
 }
 
 .toolbox_tab {
 	cursor: pointer;
-	padding: 2px 4px 2px 4px;
+	padding: 2px 8px 2px 8px;
 	line-height: 20px;
 	font-weight: normal;
 }
@@ -291,10 +290,7 @@
 	background: #efefef;
 	font-size: 12px;
 	border-radius: 12px;
-	padding: 3px 0px 0px 23px;
-}
-.te_help_box_detail {
-	display: inline;
+	padding: 4px 0px 0px 4px;
 }
 .step {
 	padding: 3px;

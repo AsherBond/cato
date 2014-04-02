@@ -56,7 +56,7 @@ class Tasks(object):
                 t.version as Version, 
                 t.task_status as Status,
                 (select count(*) from task where original_task_id = t.original_task_id) as Versions,
-                group_concat(ot.tag_name order by ot.tag_name separator ',') as Tags
+                coalesce(group_concat(ot.tag_name order by ot.tag_name separator ','), '') as Tags
                 from task t
                 left outer join object_tags ot on t.original_task_id = ot.object_id
                 where 1=1 %s group by t.task_id, t.version order by t.task_code, t.version""" % sWhereString
@@ -428,7 +428,12 @@ class Task(object):
             
         # PARAMETERS
         if t.get("Parameters"):
-            self.ParameterXDoc = catocommon.ET.fromstring(t.get("Parameters"))
+            if catocommon.featuretoggle("330"):
+                # parameters are actual JSON, not xml-in-json
+                sxml = catocommon.ObjectOutput.IterableAsXML(t["Parameters"], "parameters", "parameter")
+                self.ParameterXDoc = catocommon.ET.fromstring(sxml)
+            else:
+                self.ParameterXDoc = catocommon.ET.fromstring(t["Parameters"])
             
 
     def AsText(self, delimiter=None, headers=None):
@@ -501,7 +506,12 @@ class Task(object):
         
         if include_code:
             # parameters
-            t["Parameters"] = catocommon.ET.tostring(self.ParameterXDoc) if self.ParameterXDoc is not None else ""
+            # #330 - AsJSON should export parameters as actual JSON
+            if catocommon.featuretoggle("330"):
+                pxml = catocommon.ET.tostring(self.ParameterXDoc)
+                t["Parameters"] = catocommon.paramxml2json(pxml)
+            else:
+                t["Parameters"] = catocommon.ET.tostring(self.ParameterXDoc) if self.ParameterXDoc is not None else ""
             
             # codeblocks
             codeblocks = []

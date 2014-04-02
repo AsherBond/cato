@@ -336,6 +336,8 @@ function LoadEditDialog(editCount, editAssetID) {
 	$("#hidEditCount").val(editCount);
 	$("#hidCurrentEditID").val(editAssetID);
 
+    $("#CredentialDetails").empty();
+    
 	var asset = ajaxPost("uiMethods/wmGetAsset", {
 		sAssetID : editAssetID
 	});
@@ -364,24 +366,16 @@ function LoadEditDialog(editCount, editAssetID) {
 			$('#EditCredential').show();
 
 		} else {
-			// display the credentials if they exist, if not display only the add button
-			if (asset.UserName !== '') {
-				var CredentialShared = asset.SharedOrLocal;
-				if (CredentialShared === 'Local') {
-					$("#hidCredentialType").val("existing");
-					$('#txtCredUsername').val(asset.UserName);
-					$('#txtCredDomain').val(asset.Domain);
-					$('#EditCredential').show();
-				} else {
-					// display the existing shared credential
-					$("#CredentialDetails").html(CredentialShared + ' - ' + asset.UserName + '<br />Domain - ' + asset.Domain + '<br />Name - ' + asset.SharedCredName + '<br />Description - ' + asset.SharedCredDesc);
-					$('#CredentialRemove').show();
-					$('#imgCredClear').show();
-					$('#btnCredAdd').show();
-				}
+			var CredentialShared = asset.SharedOrLocal;
+			if (CredentialShared === 'Local') {
+				$("#hidCredentialType").val("existing");
+				$('#txtCredUsername').val(asset.UserName);
+				$('#txtCredDomain').val(asset.Domain);
+				$('#EditCredential').show();
 			} else {
-				$('#imgCredClear').hide();
-				$('#CredentialRemove').hide();
+				// display the existing shared credential
+				$("#CredentialDetails").html(CredentialShared + ' - ' + asset.UserName + '<br />Domain - ' + asset.Domain + '<br />Name - ' + asset.SharedCredName + '<br />Description - ' + asset.SharedCredDesc);
+				$('#btnCredAdd').show();
 			}
 		}
 

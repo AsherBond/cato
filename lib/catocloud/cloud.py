@@ -61,6 +61,40 @@ class Clouds(object):
         self.rows = rows if rows else {}
         db.close()
 
+    @staticmethod
+    def Delete(ids):
+        """
+        Delete a list of clouds.
+        """
+        db = catocommon.new_conn()
+
+        # we have to check each cloud and see if it's used as the default...
+        # if so, you can't delete it without first fixing the account.
+        # ACCOUNTS REQUIRE A DEFAULT CLOUD
+        existed = False
+        for delete_id in ids:
+            sql = "select count(*) from cloud_account where default_cloud_id = %s" % (delete_id)
+            exists = db.select_col_noexcep(sql)
+
+            if not exists:
+                sql = "delete from clouds_keypair where cloud_id = %s" % (delete_id)
+                db.tran_exec(sql)
+        
+                sql = "delete from clouds where cloud_id = %s" % (delete_id)
+                db.tran_exec(sql)
+    
+                db.tran_commit()
+            else:
+                existed = True
+        
+        db.close()
+
+        msg = ""
+        if existed:
+            msg = "Some of the selected Clouds were not deleted because they are referenced by a Cloud Account.  Delete the Account first, or assign it a new Default Cloud."
+        
+        return True, msg
+
     def AsJSON(self):
         return catocommon.ObjectOutput.IterableAsJSON(self.rows)
 
@@ -88,9 +122,11 @@ class Cloud(object):
 
         sSQL = """select default_account_id from clouds where cloud_id = '%s'""" % self.ID
         row = db.select_row_dict(sSQL)
-        db.close()
-        if row:
-            if row["default_account_id"]:
+
+        if row and row["default_account_id"]:
+            # note: since there's no RI in the db on this id (it would create a circular dependency)...
+            # we'll "fix" bad data here by updating the default_account if it doesn't exist.
+            try:
                 ca = CloudAccount()
                 ca.FromID(row["default_account_id"])
                 if ca.ID:
@@ -99,8 +135,13 @@ class Cloud(object):
                     # or we'll have recursion
                     del ca.DefaultCloud
                     self.DefaultAccount = ca
+                    db.close()
                     return ca
-
+            except Exception:
+                sSQL = """update clouds set default_account_id = null where cloud_id = %s"""
+                row = db.exec_db_noexcep(sSQL, (self.ID))
+            
+        db.close()
         return None
 
 
@@ -396,6 +437,26 @@ class CloudAccounts(object):
         rows = db.select_all_dict(sSQL)
         self.rows = rows if rows else {}
         db.close()
+
+    @staticmethod
+    def Delete(ids):
+        """
+        Delete a list of cloud accounts.
+        """
+        db = catocommon.new_conn()
+        delete_ids = ",".join(ids) 
+        
+        sql = "update clouds set default_account_id = null where default_account_id in (%s)" % (delete_ids)
+        db.tran_exec(sql)
+
+        sql = "delete from cloud_account where account_id in (%s)" % (delete_ids)
+        db.tran_exec(sql)
+
+        db.tran_commit()
+
+        db.close()
+
+        return True
 
     def AsJSON(self):
         return catocommon.ObjectOutput.IterableAsJSON(self.rows)

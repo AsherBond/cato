@@ -116,7 +116,7 @@ def msghub_broadcast(channel, msg):
     uri = "%s/pub/%s" % (url, channel)
     try:
         ws = create_connection(uri)
-    except Exception as a:
+    except Exception as e:
         raise Exception("Error attempting to connect to message hub at address %s, %s" 
                         % (url, e))
     ws.send(msg)
@@ -157,6 +157,16 @@ def create_api_token(user_id):
     db.close()
 
     return token
+
+
+def featuretoggle(feature):
+    """
+    Function will return true or false based on the existence of a specific "feature toggle"
+    key in cato.conf
+    
+    CONFIG["features"] is a list, so if our name is in there, return true.
+    """
+    return feature in catoconfig.CONFIG.get("features", [])
 
 
 def normalize_datetime_string(in_date, date_format="%Y-%m-%d %H:%M:%S"):

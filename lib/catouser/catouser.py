@@ -37,18 +37,21 @@ class Users(object):
             aSearchTerms = sFilter.split()
             for term in aSearchTerms:
                 if term:
-                    sWhereString += " and (u.full_name like '%%" + term + "%%' " \
-                        "or u.user_role like '%%" + term + "%%' " \
-                        "or u.username like '%%" + term + "%%' " \
-                        "or u.status like '%%" + term + "%%' " \
-                        "or u.last_login_dt like '%%" + term + "%%') "
+                    sWhereString += """ and (u.full_name like '%%{0}%%'
+                        or u.user_role like '%%{0}%%'
+                        or u.username like '%%{0}%%'
+                        or u.status like '%%{0}%%'
+                        or u.last_login_dt like '%%{0}%%'
+                        or ot.tag_name like '%%{0}%%')""".format(term)
 
         sSQL = """select u.user_id, u.username, u.full_name, u.last_login_dt, u.email,
             case when u.status = '1' then 'Enabled' when u.status = '-1' then 'Locked'
             when u.status = '0' then 'Disabled' end as status,
-            u.authentication_type, u.user_role as role
+            u.authentication_type, u.user_role as role,
+            coalesce(group_concat(ot.tag_name order by ot.tag_name separator ','), '') as Tags
             from users u
-            where u.status <> 86 %s order by u.full_name""" % sWhereString
+            left outer join object_tags ot on u.user_id = ot.object_id
+            where u.status <> 86 %s group by u.user_id order by u.full_name""" % sWhereString
         
         self.rows = db.select_all_dict(sSQL)
         db.close()

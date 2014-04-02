@@ -151,6 +151,10 @@ def read_config():
                         n, v = p.split(":")
                         if n and v:
                             cfg["extensions"][n.strip()] = v.strip()
+            elif key == "features":
+                # features are a comma delimited string in the conf file, make a list
+                features = value.split(",")
+                cfg["features"] = [f.strip() for f in features]
             else:
                 cfg[key] = value
 
@@ -211,6 +215,10 @@ def safe_config():
     # "safe" config lists extensions, but not the path
     cfg["extensions"] = [x for x in CONFIG["extensions"].iterkeys()]
 
+    # safe config needs to know all the feature toggles
+    cfg["features"] = CONFIG["features"]
+    
+    
     return cfg
 
 

@@ -59,6 +59,14 @@ class taskMethods:
                 sHTML += '<td class="selectable">' + row["Description"] + '</td>'
                 sHTML += '<td class="selectable">' + row["Status"] + '</td>'
                 sHTML += '<td class="selectable">' + str(row["Versions"]) + '</td>'
+
+                if row["Tags"]:
+                    tags = row["Tags"].split(",")
+                    tags = "Tags:\n%s" % ("\n".join(tags))
+                    sHTML += '<td class="selectable"><span class="ui-icon ui-icon-tag" title="' + tags + '"></span></td>'
+                else:
+                    sHTML += '<td class="selectable">&nbsp;</td>'
+                    
                 sHTML += '<td class="task_run"><span class="ui-icon ui-icon-play"></span></td>'
                 
                 sHTML += '</tr>'
@@ -231,9 +239,16 @@ class taskMethods:
         if not sDeleteArray:
             raise Exception("Unable to delete - no selection.")
             
+        # get important data that will be deleted for the log
+        sSQL = "select task_id, task_name from task where task_id in (%s)" % (sDeleteArray)
+        rows = self.db.select_all_dict(sSQL)
+
         task.Tasks.Delete(sDeleteArray.split(","), force)
         
-        uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Task, "Multiple", "Original Task IDs", sDeleteArray)
+        # if we made it here, save the logs
+        for dr in rows:
+            uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Task, dr["task_id"], dr["task_name"], "Task Deleted.")
+
         return json.dumps({"result": "success"})
         
     def wmUpdateTaskDetail(self):
@@ -1094,7 +1109,7 @@ class taskMethods:
 
                 # if there's a description, show a tooltip
                 if sDesc:
-                    sHTML += "<img src=\"static/images/icons/info.png\" class=\"search_dialog_tooltip trans50\" title=\"" + sDesc + "\" />"
+                    sHTML += '<span class="ui-icon ui-icon-info forceinline search_dialog_tooltip" title="%s"></span>' % (sDesc)
 
                 sHTML += "</div>"
                 sHTML += "<div class=\"clearfloat\"></div>"

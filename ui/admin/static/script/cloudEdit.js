@@ -413,6 +413,9 @@ function DeleteItems() {
 	args.sDeleteArray = $("#hidSelectedArray").val();
 	var response = ajaxPost("cloudMethods/wmDeleteClouds", args);
 	if (response) {
+	    if (response.info) {
+	        showInfo(response.info);
+	    }
 		$("#hidSelectedArray").val("");
 		$("#delete_dialog").dialog("close");
 

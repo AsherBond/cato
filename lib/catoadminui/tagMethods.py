@@ -40,17 +40,11 @@ class tagMethods:
             start, end, pager_html = uiCommon.GetPager(len(t.rows), maxrows, sPage)
 
             for row in t.rows[start:end]:
-                table_html += "<tr tag_name=\"" + row["tag_name"] + "\">"
-                table_html += "<td class=\"chkboxcolumn\">"
-                table_html += "<input type=\"checkbox\" class=\"chkbox\"" \
-                " id=\"chk_" + row["tag_name"] + "\"" \
-                " tag=\"chk\" />"
-                table_html += "</td>"
-                
-                table_html += "<td class=\"selectable\">%s</td>" % row["tag_name"]
-                table_html += "<td class=\"selectable desc\">%s</td>" % (row["tag_desc"] if row["tag_desc"] else "")
-                table_html += "<td class=\"selectable\">%s</td>" % str(row["in_use"])
-                
+                table_html += '<tr tag_name="%s">' % (row["tag_name"])
+                table_html += '<td class="chkboxcolumn"><input type="checkbox" class="chkbox" id="chk_%s" tag="chk" /></td>' % (row["tag_name"])
+                table_html += '<td class="selectable">%s</td>' % (row["tag_name"])
+                table_html += '<td class="selectable desc">%s</td>' % (row["tag_desc"] if row["tag_desc"] else "")
+                table_html += '<td class="selectable">%s</td>' % (str(row["in_use"]))
                 table_html += "</tr>"
 
         out = {}
@@ -75,10 +69,10 @@ class tagMethods:
 
         sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
         
-        sSQL = """delete from object_tags where tag_name in (%s)""" % sDeleteArray
+        sSQL = """delete from object_tags where tag_name in (%s)""" % (sDeleteArray)
         self.db.tran_exec(sSQL)
 
-        sSQL = """delete from tags where tag_name in (%s)""" % sDeleteArray
+        sSQL = """delete from tags where tag_name in (%s)""" % (sDeleteArray)
         self.db.tran_exec(sSQL)
 
         self.db.tran_commit()
@@ -111,14 +105,12 @@ class tagMethods:
         t = tag.Tags(sFilter="", sObjectID=oid)
         if t.rows:
             for row in t.rows:
-                sHTML += " <li id=\"ot_" + row["tag_name"].replace(" ", "") + "\" val=\"" + row["tag_name"] + "\" class=\"tag ui-widget-content ui-corner-all\">"
-                
-                sHTML += "<table class=\"object_tags_table\"><tr>"
-                sHTML += "<td style=\"vertical-align: middle;\">" + row["tag_name"] + "</td>"
-                sHTML += "<td width=\"1px\"><span class=\"ui-icon ui-icon-close forceinline tag_remove_btn\" remove_id=\"ot_" + row["tag_name"].replace(" ", "") + "\"></span></td>"
-                sHTML += "</tr></table>"
-                
-                sHTML += " </li>"
+                sHTML += """<li id="ot_{0}" val="{1}" class="tag ui-widget-content ui-corner-all">
+                <table class="object_tags_table"><tr>
+                <td style="vertical-align: middle;">{1}</td>
+                <td width="1px"><span class="ui-icon ui-icon-close forceinline tag_remove_btn pointer" remove_id="ot_{0}"></span></td>
+                </tr></table>
+                </li>""".format(row["tag_name"].replace(" ", ""), row["tag_name"])
         return sHTML    
         
     def wmGetTagList(self):
@@ -128,28 +120,21 @@ class tagMethods:
         # # this will be from lu_tags table
         # if the passed in objectid is empty, get them all, otherwise filter by it
         if sObjectID:
-            sSQL = "select tag_name, tag_desc" \
-                " from tags " \
-                " where tag_name not in (" \
-                " select tag_name from object_tags where object_id = '" + sObjectID + "'" \
-                ")" \
-                " order by tag_name"
+            sSQL = """select tag_name, tag_desc
+                from tags
+                where tag_name not in (
+                select tag_name from object_tags where object_id = '%s'
+                )
+                order by tag_name""" % (sObjectID)
         else:
-            sSQL = "select tag_name, tag_desc" \
-                " from tags" \
-                " order by tag_name"
+            sSQL = "select tag_name, tag_desc from tags order by tag_name"
 
         dt = self.db.select_all_dict(sSQL)
         if dt:                
             sHTML += "<ul>"
             for dr in dt:
                 desc = (dr["tag_desc"].replace("\"", "").replace("'", "") if dr["tag_desc"] else "")
-                sHTML += " <li class=\"tag_picker_tag ui-widget-content ui-corner-all\"" \
-                   " id=\"tpt_" + dr["tag_name"] + "\"" \
-                   " desc=\"" + desc + "\"" \
-                   ">"
-                sHTML += dr["tag_name"]
-                sHTML += " </li>"
+                sHTML += """<li class="tag_picker_tag ui-widget-content ui-corner-all" id="tpt_{0}" desc="{1}">{0}</li>""".format(dr["tag_name"], desc)
             sHTML += "</ul>"
         else:
             sHTML += "No Unassociated Tags exist."
@@ -171,7 +156,7 @@ class tagMethods:
             raise Exception("Missing or invalid Object ID or Tag Name.")
 
         tag.ObjectTags.Add(sTagName, sObjectID, iObjectType)
-        uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [%s] added." % sTagName)
+        uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [%s] added." % (sTagName))
 
         return json.dumps({"result": "success"})
 
@@ -188,6 +173,6 @@ class tagMethods:
             raise Exception("Missing or invalid Object ID or Tag Name.")
 
         tag.ObjectTags.Remove(sTagName, sObjectID)
-        uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [%s] removed." % sTagName)
+        uiCommon.WriteObjectChangeLog(iObjectType, sObjectID, "", "Tag [%s] removed." % (sTagName))
 
         return json.dumps({"result": "success"})

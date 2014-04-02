@@ -264,9 +264,12 @@ function doDetailFieldUpdate(ctl) {"use strict";
 	var value = $(ctl).val();
 
 	//for checkboxes and radio buttons, we gotta do a little bit more, as the pure 'val()' isn't exactly right.
-	if ($(ctl).is(':checked')) {
-		value = "1";
-	}
+    if ($(ctl).attr("type")) {
+        var typ = $(ctl).attr("type").toLowerCase();
+        if (typ === "checkbox" || typ === "radio") {
+            value = ($(ctl).is(':checked') ? "1" : "0");
+        }
+    }
 
 	if (column.length > 0) {
 		$("#update_success_msg").text("Updating...").show();

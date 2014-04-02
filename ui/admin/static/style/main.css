@@ -45,7 +45,7 @@ body {
 	padding-bottom: 20px; /* to accomodate the fixed footer */
 }
 
-#content table {
+#content > table {
 	margin-top: 6px;
 }
 
@@ -97,21 +97,23 @@ body {
 	z-index: 999;
 }
 
-
 /* this overwrites the duperfish menu default color */
-.sf-menu a, .sf-menu a:visited
-{
+.sf-menu a, .sf-menu a:visited {
 	color: #222222 !important;
 }
 /* and make the superfish submenus green like #head */
-.sf-menu li li
- {
+.sf-menu li li {
 	background: #B0B579;
 }
 /* and the hover effect */
-.sf-menu li:hover, .sf-menu li.sfHover, .sf-menu a:focus, .sf-menu a:hover, .sf-menu a:active
-{
+.sf-menu li:hover, .sf-menu li.sfHover, .sf-menu a:focus, .sf-menu a:hover, .sf-menu a:active {
 	color: #dddddd !important;
+}
+
+/* fix the jquery tabs plugin to not have giant buttons */
+.ui-tabs .ui-tabs-nav .ui-tabs-anchor {
+	padding: 0;
+	padding-right: 5px;	
 }
 
 #app_header_icons {
@@ -287,12 +289,14 @@ th.col_header {
 	border: 1px solid #dddddd;
 	background: #B0B579;
 	font-weight: bold;
-	color: #dddddd;
+	color: #231F20;
+	padding-left: 4px;
+	padding-right: 4px;
 }
 td.row {
 	border: 1px solid #dddddd;
 	background: #fcfdfd;
-	color: #222222;
+	color: #231F20;
 	line-height: 22px;
 	margin-left: 4px;
 	padding-left: 6px;
@@ -301,7 +305,7 @@ td.row_alt {
 	background: #ebecec;
 }
 td.row_over {
-	background: #bcd4ec;
+	background: #DFE1C9;
 	cursor: pointer;
 }
 
@@ -332,37 +336,38 @@ td.row_over {
 }
 .group_tab {
 	padding: 3px 3px 3px 10px;
-	border: 1px solid #D0E0EB;
-	background-color: #EBF7F8;
+	border: 1px solid #B0B579;
+	background-color: #E7E9D7;
 	font-weight: normal;
 	font-size: 10pt;
-	color: #555555;
+	color: #231F20;
 	outline: none;
 	cursor: pointer;
 	border-bottom-right-radius: 6px;
 	border-top-right-radius: 6px;
+	margin-top: -1px;
 }
 .group_tab_selected {
-	background-color: #e3e3e3;
+	background-color: #C8CBA1;
 	border: none;
 	font-weight: normal;
-	color: #212121;
+	color: #231F20;
 	outline: none;
 }
 .group_tab li:hover {
 	border: 1px solid #999999;
 	background-color: #dadada;
 	font-weight: normal;
-	color: #212121;
+	color: #231F20;
 	outline: none;
 }
 .group_header {
 	padding: 3px;
-	border: 1px solid #a3a3a3;
-	background-color: #D0E0EB;
+	border: 1px solid #949B50;
+	background-color: #949B50;
 	font-weight: bold;
 	font-size: 10pt;
-	color: #49708A;
+	color: #231F20;
 	outline: none;
 	border-bottom-right-radius: 6px;
 	border-top-right-radius: 6px;
@@ -570,3 +575,25 @@ td.row_over {
 	padding: 1px 8px 1px 8px;
 	min-height: 10px;
 }
+
+/* fix the meow plugin z-index */
+.meows {
+	z-index: 999;
+}
+
+/* color changes for the jsoneditor */
+div.jsoneditor {
+	border: 1px solid #aaa !important;
+}
+.jsoneditor .menu {
+	background-color: #ccc !important;
+	border-bottom: 1px solid #aaa !important;
+}
+.jsoneditor .menu button {
+	border: none !important;
+	background-color: #fff !important;
+}
+.jsoneditor .search .frame {
+	border: 1px solid #aaa !important;
+}
+

@@ -118,28 +118,24 @@ class cloudMethods:
 
     def wmDeleteClouds(self):
         sDeleteArray = uiCommon.getAjaxArg("sDeleteArray")
-        if len(sDeleteArray) < 36:
+        sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
+        if not sDeleteArray:
             return json.dumps({"info": "Unable to delete - no selection."})
 
-        sDeleteArray = uiCommon.QuoteUp(sDeleteArray)
-
         # get important data that will be deleted for the log
-        sSQL = "select cloud_id, cloud_name, provider from clouds where cloud_id in (" + sDeleteArray + ")"
+        sSQL = "select cloud_id, cloud_name, provider from clouds where cloud_id in (%s)" % (sDeleteArray)
         rows = self.db.select_all_dict(sSQL)
 
-        sSQL = "delete from clouds_keypair where cloud_id in (" + sDeleteArray + ")"
-        self.db.tran_exec(sSQL)
-
-        sSQL = "delete from clouds where cloud_id in (" + sDeleteArray + ")"
-        self.db.tran_exec(sSQL)
-
-        self.db.tran_commit()
-
+        _, msg = cloud.Clouds.Delete(sDeleteArray.split(","))
+        
         # if we made it here, save the logs
         for dr in rows:
             uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Cloud, dr["cloud_id"], dr["cloud_name"], dr["provider"] + " Cloud Deleted.")
 
-        return json.dumps({"result": "success"})
+        if msg:
+            return json.dumps({"info": msg})
+        else:
+            return json.dumps({"result": "success"})
 
 
     """ Cloud Accounts Edit page"""
@@ -272,10 +268,7 @@ class cloudMethods:
         sSQL = "select account_id, account_name, provider, login_id from cloud_account where account_id in (" + sDeleteArray + ")"
         rows = self.db.select_all_dict(sSQL)
 
-        sSQL = "delete from cloud_account where account_id in (" + sDeleteArray + ")"
-        self.db.tran_exec(sSQL)
-
-        self.db.tran_commit()
+        cloud.CloudAccounts.Delete(sDeleteArray.split(","))
 
         #  if we made it here, so save the logs
         for dr in rows:

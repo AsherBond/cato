@@ -629,7 +629,7 @@ CREATE TABLE `user_security_log` (
   `log_dt` datetime NOT NULL,
   `object_type` int(11) DEFAULT NULL,
   `object_id` varchar(255) DEFAULT '',
-  `log_msg` varchar(255) DEFAULT '',
+  `log_msg` varchar(1024) DEFAULT '',
   PRIMARY KEY (`log_id`),
   KEY `IX_user_security_log_log_dt` (`log_dt`),
   KEY `IX_user_security_log_log_type` (`log_type`),

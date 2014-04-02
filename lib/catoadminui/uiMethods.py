@@ -235,7 +235,7 @@ class uiMethods:
         sMessageHTML = ""
         sSQL = """select msg_to, msg_subject,
             case status when 0 then 'Queued' when 1 then 'Error' when 2 then 'Success' end as status,
-            error_message,
+            error_message, num_retries,
             convert(date_time_entered, CHAR(20)) as entered_dt, convert(date_time_completed, CHAR(20)) as completed_dt
             from message
             order by msg_id desc limit 100"""
@@ -247,8 +247,9 @@ class uiMethods:
                     <td>%s</td>
                     <td>%s</td>
                     <td>%s</td>
+                    <td>%s</td>
                     <td>%s<br />%s</td>
-                    </tr>""" % (dr.get("msg_to", ""), dr.get("msg_subject", ""), dr.get("status", ""), uiCommon.SafeHTML(dr.get("error_message", "")), dr.get("entered_dt", ""), dr.get("completed_dt", ""))
+                    </tr>""" % (dr.get("msg_to", ""), dr.get("msg_subject", ""), dr.get("status", ""), uiCommon.SafeHTML(dr.get("error_message", "")), dr.get("num_retries", ""), dr.get("entered_dt", ""), dr.get("completed_dt", ""))
 
 
         return json.dumps({"processes": sProcessHTML, "users": sUserHTML, "messages": sMessageHTML})
@@ -280,8 +281,9 @@ class uiMethods:
         logtype = "Security" if not sObjectID and not sObjectType else "Object"
         rows = catocommon.get_security_log(oid=sObjectID, otype=sObjectType, logtype=logtype,
                                            search=sSearch, num_records=sRecords, _from=sFrom, _to=sTo)
+
+        out = []
         if rows:
-            out = []
             for row in rows:
                 r = []
                 r.append(row["log_dt"])
@@ -593,7 +595,7 @@ class uiMethods:
             In this method, the values come from the browser in a jQuery serialized array of name/value pairs.
         """
         user_id = uiCommon.GetSessionUserID()
-        args = uiCommon.getAjaxArg("sValues")
+        args = uiCommon.getAjaxArg("values")
 
         u = catouser.User()
         u.FromID(user_id)
@@ -640,6 +642,13 @@ class uiMethods:
                 sHTML += "<td class=\"selectable\">" + row["username"] + "</td>"
                 sHTML += "<td class=\"selectable\">" + row["role"] + "</td>"
                 sHTML += "<td class=\"selectable\">" + str(row["last_login_dt"]) + "</td>"
+
+                if row["Tags"]:
+                    tags = row["Tags"].split(",")
+                    tags = "Tags:\n%s" % ("\n".join(tags))
+                    sHTML += '<td class="selectable"><span class="ui-icon ui-icon-tag" title="' + tags + '"></span></td>'
+                else:
+                    sHTML += '<td class="selectable">&nbsp;</td>'
 
                 sHTML += "</tr>"
 
@@ -770,6 +779,13 @@ class uiMethods:
                 sHTML += "<td class=\"selectable\">%s</td>" % (row["Address"] if row["Address"] else "")
                 sHTML += "<td class=\"selectable\">%s</td>" % (row["Credentials"] if row["Credentials"] else "")
 
+                if row["Tags"]:
+                    tags = row["Tags"].split(",")
+                    tags = "Tags:\n%s" % ("\n".join(tags))
+                    sHTML += '<td class="selectable"><span class="ui-icon ui-icon-tag" title="' + tags + '"></span></td>'
+                else:
+                    sHTML += '<td class="selectable">&nbsp;</td>'
+                    
                 sHTML += "</tr>"
 
         return json.dumps({"pager": uiCommon.packJSON(pager_html), "rows": uiCommon.packJSON(sHTML)})
