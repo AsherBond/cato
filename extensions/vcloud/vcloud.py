@@ -41,7 +41,7 @@ def vcloud_connect(TE, step, timeout):
     # print "cloudname = %s" % (cloud_name)
 
     if cloud.provider != "vCloud":
-        msg = "The endpoint named cloud_name is not a vCloud configured endpoint" % (cloud_name)
+        msg = "The endpoint named %s is not a vCloud configured endpoint" % (cloud_name)
         raise Exception(msg)
 
     if not cloud.conn:
