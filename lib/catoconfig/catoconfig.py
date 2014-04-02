@@ -216,7 +216,7 @@ def safe_config():
     cfg["extensions"] = [x for x in CONFIG["extensions"].iterkeys()]
 
     # safe config needs to know all the feature toggles
-    cfg["features"] = CONFIG["features"]
+    cfg["features"] = CONFIG.get("features", [])
     
     
     return cfg
