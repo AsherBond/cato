@@ -160,12 +160,12 @@ class Tasks(object):
     @staticmethod
     def Export(task_ids, include_refs, outformat="xml"):
         """
-        This function creates an xml export document of all tasks specified in otids.  
+        This function creates an xml or json export document of all tasks specified in otids.  
         
         If the "include_refs" flag is set, each task is scanned for additional
         references, and they are included in the export.
         
-        This returns a list of xml documents - one per task.
+        This returns a LIST of xml/json STRING documents - one per task.
         """
         
         tasks = []
@@ -430,8 +430,7 @@ class Task(object):
         if t.get("Parameters"):
             if catocommon.featuretoggle("330"):
                 # parameters are actual JSON, not xml-in-json
-                sxml = catocommon.ObjectOutput.IterableAsXML(t["Parameters"], "parameters", "parameter")
-                self.ParameterXDoc = catocommon.ET.fromstring(sxml)
+                self.ParameterXDoc = self._params_from_dict(t["Parameters"])
             else:
                 self.ParameterXDoc = catocommon.ET.fromstring(t["Parameters"])
             
@@ -508,8 +507,7 @@ class Task(object):
             # parameters
             # #330 - AsJSON should export parameters as actual JSON
             if catocommon.featuretoggle("330"):
-                pxml = catocommon.ET.tostring(self.ParameterXDoc)
-                t["Parameters"] = catocommon.paramxml2json(pxml)
+                t["Parameters"] = self._params_as_dict()
             else:
                 t["Parameters"] = catocommon.ET.tostring(self.ParameterXDoc) if self.ParameterXDoc is not None else ""
             
@@ -525,6 +523,93 @@ class Task(object):
 
         return catocommon.ObjectOutput.AsJSON(t)
     
+    def _params_as_dict(self):
+        """ 
+        For the purpose of export only, this routine will convert our parameters xml 
+        schema into a JSON document.
+        
+        Done manually because xml attributes are converted to json keys.
+        """
+        params = []
+        
+        for xp in self.ParameterXDoc.findall("parameter"):
+            p = {
+                "name": xp.findtext("name", ""),
+                "desc": xp.findtext("desc", ""),
+                "required": xp.get("required", ""),
+                "prompt": xp.get("prompt", ""),
+                "encrypt": xp.get("encrypt", ""),
+                "maxlength": xp.get("maxlength", ""),
+                "maxvalue": xp.get("maxvalue", ""),
+                "minlength": xp.get("minlength", ""),
+                "minvalue": xp.get("minvalue", ""),
+                "constraint": xp.get("constraint", ""),
+                "constraint_msg": xp.get("constraint_msg", "")
+            }
+
+            vals = []
+            xValues = xp.find("values")
+            if xValues is not None:
+                # stick this rogue attribute up a level
+                p["present_as"] = xValues.get("present_as", "")
+
+                xVals = xValues.findall("value")
+                for xVal in xVals:
+                    vals.append(xVal.text if xVal.text else "")            
+            p["values"] = vals
+            
+            params.append(p)
+            
+        return params
+        
+    def _params_from_dict(self, params):
+        """ 
+        For the purpose of import only, this routine will build parameters xml 
+        from a JSON document. 
+        
+        Done manually because xml attributes are converted to json keys.
+        """
+        
+        # so, may seem a little brute force, but it's easier to just construct an xml STRING
+        # than it is to bother with building an xml DOCUMENT
+        # we'll use a list tho, and join it when done
+        
+
+        l = []
+        l.append('<parameters>')
+        
+        for p in params:
+            # at this time, params still have an explicit id... so create one here
+            l.append('<parameter')
+            l.append(' id="%s"' % ("p_" + catocommon.new_guid()))
+            l.append(' required="%s"' % (p["required"]))
+            l.append(' prompt="%s"' % (p["prompt"]))
+            l.append(' encrypt="%s"' % (p["encrypt"]))
+            l.append(' minlength="%s"' % (p["minlength"]))
+            l.append(' maxlength="%s"' % (p["maxlength"]))
+            l.append(' minvalue="%s"' % (p["minvalue"]))
+            l.append(' maxvalue="%s"' % (p["maxvalue"]))
+            l.append(' constraint="%s"' % (p["constraint"]))
+            l.append(' constraint_msg="%s"' % (p["constraint_msg"]))
+            l.append('>')
+    
+            l.append('<name>%s</name>' % (p["name"]))
+            l.append('<desc>%s</desc>' % (p["desc"]))
+    
+            l.append('<values present_as="%s">' % (p["present_as"]))
+            for v in p["values"]:
+                l.append('<value>%s</value>' % (v))
+            l.append('</values>')
+    
+            l.append('</parameter>')
+        
+        l.append('</parameters>')
+
+        sxml = "".join(l)
+        
+        xdoc = catocommon.ET.fromstring(sxml)
+        return xdoc 
+        
     def CheckDBExists(self):
         db = catocommon.new_conn()
         sSQL = """select task_id, original_task_id from task
@@ -676,8 +761,6 @@ class Task(object):
                         created_dt = now(),
                         parameter_xml = %s
                         where task_id = %s"""
-                    print 999
-                    print self.ConcurrentInstances
                     db.tran_exec(sSQL, (self.Name, self.Code, self.Description, self.Status,
                                         self.ConcurrentInstances, self.QueueDepth, parameter_clause, self.ID))
 
