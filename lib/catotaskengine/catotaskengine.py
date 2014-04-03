@@ -1340,6 +1340,8 @@ class TaskEngine():
         # if cloud name is not specified as a parameter, get the cloud account default
         if not len(cloud_name):
             cloud_name = self.cloud_name
+        if not cloud_name or not len(cloud_name):
+            raise Exception("No default cloud name is defined. Import the AWS clouds or define a new cloud endpoint and setup a new cloud account with access key and secret key."
         try:
             cloud = self.cloud_conns[cloud_name]
         except KeyError as ex:
