@@ -1,5 +1,10 @@
 #!/bin/bash
-. $HOME/.profile
+if [ -a $HOME/.profile ]
+then
+    . $HOME/.profile
+else
+    . $HOME/.bash_profile
+fi
 
 echo ""
 echo "Starting Cato..."
