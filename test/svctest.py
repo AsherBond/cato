@@ -36,20 +36,20 @@ class httpTests(unittest.TestCase):
     """
 
     def test_cato_version(self):
-        url = "https://localhost:8080/version"
+        url = "http://localhost:8080/version"
         ver = _http(url)
         self.assertTrue(ver, "no version was returned")
 
 
     def test_api_version(self):
-        url = "https://localhost:4001/version?output_format=text"
+        url = "http://localhost:4001/version?output_format=text"
         ver = _http(url)
         self.assertTrue(ver, "no version was returned")
 
     
     # does the UI serve the login page?
     def test_login(self):
-        url = "https://localhost:8080"
+        url = "http://localhost:8080"
         page = _http(url)
         # we should see 'loginpanel' in the response, otherwise we don't have the login page
         self.assertTrue("loginpanel" in page, "Not the login page.")
@@ -58,21 +58,21 @@ class httpTests(unittest.TestCase):
     # this is slick ... now that we know the api is running,
     # we can use it's built-in feature to read all the log files!
     def test_scheduler(self):
-        url = "https://localhost:4001/getlog?process=cato_scheduler"
+        url = "http://localhost:4001/getlog?process=cato_scheduler"
         log = _http(url)
         for flag in LOGFLAGS:
             self.assertFalse(flag in log, "uh oh - the scheduler log suggests a problem. Found [%s]." % (flag))
     
 
     def test_poller(self):
-        url = "https://localhost:4001/getlog?process=cato_poller"
+        url = "http://localhost:4001/getlog?process=cato_poller"
         log = _http(url)
         for flag in LOGFLAGS:
             self.assertFalse(flag in log, "uh oh - the poller log suggests a problem. Found [%s]." % (flag))
     
 
     def test_messenger(self):
-        url = "https://localhost:4001/getlog?process=cato_messenger"
+        url = "http://localhost:4001/getlog?process=cato_messenger"
         log = _http(url)
         for flag in LOGFLAGS:
             self.assertFalse(flag in log, "uh oh - the messenger log suggests a problem. Found [%s]." % (flag))
