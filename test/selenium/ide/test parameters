@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="https://localhost:8082/static/login.html" />
+<title>test parameters</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">test parameters</td></tr>
+</thead><tbody>
+<tr>
+	<td>click</td>
+	<td>id=tab_parameters</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#parameter_add_btn &gt; span.ui-button-text</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=param_edit_name</td>
+	<td>p1</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=param_edit_required</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=param_edit_minlength</td>
+	<td>0</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=param_edit_maxlength</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=param_edit_minvalue</td>
+	<td>2</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=param_edit_maxvalue</td>
+	<td>3</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=param_edit_constraint</td>
+	<td>c1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=param_edit_constraint_msg</td>
+	<td>ch1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=param_edit_desc</td>
+	<td>pdesc</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>css=textarea.param_edit_value</td>
+	<td>v1</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>xpath=(//button[@type='button'])[14]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=div#parameters .parameter_name:contains('p1')</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=param_edit_name</td>
+	<td>p1</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=param_edit_required</td>
+	<td>on</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=param_edit_minlength</td>
+	<td>0</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=param_edit_maxlength</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=param_edit_minvalue</td>
+	<td>2</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=param_edit_maxvalue</td>
+	<td>3</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=param_edit_constraint</td>
+	<td>c1</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=param_edit_constraint_msg</td>
+	<td>ch1</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=param_edit_desc</td>
+	<td>pdesc</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>xpath=(//button[@type='button'])[15]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//div[@id='parameters']/div/div/div[2]/span[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>xpath=(//button[@type='button'])[12]</td>
+	<td></td>
+</tr>
+
+</tbody></table>
+</body>
+</html>
