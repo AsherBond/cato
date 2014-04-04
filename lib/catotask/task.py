@@ -528,18 +528,13 @@ class Task(object):
         if self.ParameterXDoc is not None:
             for xp in self.ParameterXDoc.findall("parameter"):
                 p = {
-                    "name": xp.findtext("name", ""),
-                    "desc": xp.findtext("desc", ""),
-                    "required": xp.get("required", ""),
-                    "prompt": xp.get("prompt", ""),
-                    "encrypt": xp.get("encrypt", ""),
-                    "maxlength": xp.get("maxlength", ""),
-                    "maxvalue": xp.get("maxvalue", ""),
-                    "minlength": xp.get("minlength", ""),
-                    "minvalue": xp.get("minvalue", ""),
-                    "constraint": xp.get("constraint", ""),
-                    "constraint_msg": xp.get("constraint_msg", "")
+                    "name": xp.findtext("name", "")
                 }
+                
+                # for each of the optional properties
+                for prop in ["desc", "required", "prompt", "encrypt", "maxlength", "maxvalue", "minlength", "minvalue", "constraint", "constraint_msg"]:
+                    if xp.findtext(prop, ""):
+                        p[prop] = xp.findtext(prop, "")
     
                 vals = []
                 xValues = xp.find("values")
@@ -567,7 +562,6 @@ class Task(object):
         # so, may seem a little brute force, but it's easier to just construct an xml STRING
         # than it is to bother with building an xml DOCUMENT
         # we'll use a list tho, and join it when done
-        
 
         l = []
         l.append('<parameters>')
@@ -576,19 +570,18 @@ class Task(object):
             # at this time, params still have an explicit id... so create one here
             l.append('<parameter')
             l.append(' id="%s"' % ("p_" + catocommon.new_guid()))
-            l.append(' required="%s"' % (p["required"]))
-            l.append(' prompt="%s"' % (p["prompt"]))
-            l.append(' encrypt="%s"' % (p["encrypt"]))
-            l.append(' minlength="%s"' % (p["minlength"]))
-            l.append(' maxlength="%s"' % (p["maxlength"]))
-            l.append(' minvalue="%s"' % (p["minvalue"]))
-            l.append(' maxvalue="%s"' % (p["maxvalue"]))
-            l.append(' constraint="%s"' % (p["constraint"]))
-            l.append(' constraint_msg="%s"' % (p["constraint_msg"]))
+
+            # for each of the optional properties (note 'desc' is missing bc it's a node
+            for prop in ["required", "prompt", "encrypt", "maxlength", "maxvalue", "minlength", "minvalue", "constraint", "constraint_msg"]:
+                if prop in p:
+                    l.append(' %s="%s"' % (prop, p[prop]))
+            
             l.append('>')
     
             l.append('<name>%s</name>' % (p["name"]))
-            l.append('<desc>%s</desc>' % (p["desc"]))
+            
+            if "desc" in p:
+                l.append('<desc>%s</desc>' % (p["desc"]))
     
             l.append('<values present_as="%s">' % (p["present_as"]))
             for v in p["values"]:
