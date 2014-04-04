@@ -484,7 +484,7 @@ class taskMethodsTests(unittest.TestCase):
         
         # import the backup
         # NOTE: this is in sysMethods
-        x = SM.import_backup({"xml": _backupdata})
+        x = SM.import_backup({"import_text": _backupdata})
         evaluate_response(self, x)
         
         # confirm it's there
@@ -563,7 +563,6 @@ class taskMethodsTests(unittest.TestCase):
     def test_describe_task_parameters(self):
         # create from json, describe parameters, make sure data is there
         
-        # NOTE: Currently parameters can only be xml, yes ... xml in a JSON field. :-/
         n = random_name("task-")
         task = {
                 "Name": n,
@@ -573,7 +572,15 @@ class taskMethodsTests(unittest.TestCase):
                             "Name": "MAIN"
                         }
                     ],
-                "Parameters": "<parameters><parameter constraint=\"\" constraint_msg=\"\" encrypt=\"false\" id=\"p_f11c0c63-b06e-11e3-a30c-c8bcc89c1491\" maxlength=\"\" maxvalue=\"\" minlength=\"\" minvalue=\"\" prompt=\"false\" required=\"false\"><name>foo</name><desc /><values present_as=\"value\"><value id=\"pv_f11d3999-b06e-11e3-8b29-c8bcc89c1491\">bar</value></values></parameter></parameters>"
+                "Parameters": [
+                            {
+                                "name": "foo", 
+                                "present_as": "value",
+                                "values": [
+                                    "bar"
+                                ] 
+                            }
+                    ]
                 }
         x = TM.create_task_from_json({"json": json.dumps(task)})
         evaluate_response(self, x)
