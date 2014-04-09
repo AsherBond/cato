@@ -84,9 +84,11 @@ $(document).ready(function() {
 	});
 	$("#analyze_btn").click(function() {
 		var import_text = packJSON($("#xml_to_import").val());
+        var on_conflict = $("#on_conflict").val();
 		if (import_text) {
 			ajaxPostAsync("uiMethods/wmAnalyzeImportXML", {
-				import_text : import_text
+				import_text : import_text,
+                on_conflict : on_conflict
 			}, function(response) {
 				if (response.error) {
 					showAlert(response.error);

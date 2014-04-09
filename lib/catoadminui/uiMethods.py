@@ -1045,6 +1045,7 @@ class uiMethods:
         """Takes a properly formatted XML backup file, and replies with the existence/condition of each Task."""
         inputtext = uiCommon.getAjaxArg("import_text")
         inputtext = uiCommon.unpackJSON(inputtext)
+        on_conflict = uiCommon.getAjaxArg("on_conflict")
 
         # the trick here is to return enough information back to the client
         # to best interact with the user.
@@ -1093,7 +1094,7 @@ class uiMethods:
 
             for jstask in js:
                 t = task.Task()
-                t.FromJSON(json.dumps(jstask))
+                t.FromJSON(json.dumps(jstask), on_conflict)
 
                 if t.DBExists and t.OnConflict == "cancel":
                     msg = "Task exists - set OnConflict to 'replace', 'minor' or 'major'."
