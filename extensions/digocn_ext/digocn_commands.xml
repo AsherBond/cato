@@ -1,22 +1,162 @@
 <categories>
-	<category name="digital_ocean" label="Dig Ocean" description="Commands for interacting with the Digital Ocean api" icon="static/extensions/vmware/vmware.png">
+	<category name="digital_ocean" label="Dig Ocean" description="Commands for interacting with the Digital Ocean api" icon="static/extensions/digocn/digocn.png">
 		<commands>
+			<command name="digocn_new_droplet" label="New Droplet" description="" 
+                help=""
+                icon="static/extensions/digocn/digocn.png">
+				<function name="digocn_new_droplet" extension="digocn_ext.digocncmds" >
+                    <name input_type="text" label="Name" break_after="true"/>
+                    <size_id input_type="text" label="Size Id" />
+                    <size_slug input_type="text" label="Size Slug" break_after="true"/>
+                    <image_id input_type="text" label="Image Id" />
+                    <image_slug input_type="text" label="Image Slug" break_after="true"/>
+                    <region_id input_type="text" label="Region Id" />
+                    <region_slug input_type="text" label="Region Slug" break_after="true"/>
+                    <ssh_key_ids input_type="text" label="Ssh Key Ids" break_after="true"/>
+                    <private_networking input_type="checkbox" label="Private Networking?" />
+                    <backups_enabled input_type="checkbox" label="Backups Enabled?" break_after="true"/>
+                    <wait input_type="checkbox" label="Wait Until Done?" />
+                    <timeout input_type="text" label="Timeout Waiting Until Done" break_after="true"/>
+                    <droplet_id input_type="text" label="Droplet Id (out)" />
+                    <ip_address input_type="text" label="Ip Address (out, if wait)" break_after="true"/>
+                    <status input_type="text" label="Request Status (out)" />
+                    <message input_type="text" label="Message (out)" break_after="true"/>
+                    <event_id input_type="text" label="Event Id (out)" />
+				</function>
+			</command>
+			<command name="digocn_show_droplet" label="Show Droplet" description="" 
+                help=""
+                icon="static/extensions/digocn/digocn.png">
+				<function name="digocn_show_droplet" extension="digocn_ext.digocncmds" >
+                    <id input_type="text" label="Droplet Id" break_after="true"/>
+                    <status input_type="text" label="Request Status (out)" />
+                    <message input_type="text" label="Message (out)" break_after="true"/>
+                    <droplet_id input_type="text" label="Droplet Id (out)"/>
+                    <name input_type="text" label="Name (out)"/>
+                    <image_id input_type="text" label="Image Id (out)" />
+                    <region_id input_type="text" label="Region Id (out)" break_after="true"/>
+                    <size_id input_type="text" label="Size Id (out)" />
+                    <ip_address input_type="text" label="Ip Address (out)" break_after="true"/>
+                    <private_ip_address input_type="text" label="Private Ip Address (out)" />
+                    <backups_active input_type="text" label="Backups Active (out)" break_after="true"/>
+                    <locked input_type="text" label="Locked (out)" break_after="true"/>
+                    <d_status input_type="text" label="Droplet Status (out)" />
+                    <created_at input_type="text" label="Created At (out)" />
+				</function>
+			</command>
+			<command name="digocn_reboot_droplet" label="Reboot Droplet" description="" 
+                help=""
+                icon="static/extensions/digocn/digocn.png">
+				<function name="digocn_reboot_droplet" extension="digocn_ext.digocncmds" >
+                    <id input_type="text" label="Droplet Id" break_after="true"/>
+                    <wait input_type="checkbox" label="Wait Until Done?" />
+                    <timeout input_type="text" label="Timeout Waiting Until Done" break_after="true"/>
+                    <status input_type="text" label="Request Status (out)" />
+                    <message input_type="text" label="Message (out)" break_after="true"/>
+                    <event_id input_type="text" label="Event Id (out)" />
+				</function>
+			</command>
+			<command name="digocn_cycle_droplet" label="Power Cycle Droplet" description="" 
+                help=""
+                icon="static/extensions/digocn/digocn.png">
+				<function name="digocn_cycle_droplet" extension="digocn_ext.digocncmds" >
+                    <id input_type="text" label="Droplet Id" break_after="true"/>
+                    <wait input_type="checkbox" label="Wait Until Done?" />
+                    <timeout input_type="text" label="Timeout Waiting Until Done" break_after="true"/>
+                    <status input_type="text" label="Request Status (out)" />
+                    <message input_type="text" label="Message (out)" break_after="true"/>
+                    <event_id input_type="text" label="Event Id (out)" />
+				</function>
+			</command>
+			<command name="digocn_shutdown_droplet" label="Shut Down Droplet" description="" 
+                help=""
+                icon="static/extensions/digocn/digocn.png">
+				<function name="digocn_shutdown_droplet" extension="digocn_ext.digocncmds" >
+                    <id input_type="text" label="Droplet Id" break_after="true"/>
+                    <wait input_type="checkbox" label="Wait Until Done?" />
+                    <timeout input_type="text" label="Timeout Waiting Until Done" break_after="true"/>
+                    <status input_type="text" label="Request Status (out)" />
+                    <message input_type="text" label="Message (out)" break_after="true"/>
+                    <event_id input_type="text" label="Event Id (out)" />
+				</function>
+			</command>
+			<command name="digocn_poweroff_droplet" label="Power Off Droplet" description="" 
+                help=""
+                icon="static/extensions/digocn/digocn.png">
+				<function name="digocn_poweroff_droplet" extension="digocn_ext.digocncmds" >
+                    <id input_type="text" label="Droplet Id" break_after="true"/>
+                    <wait input_type="checkbox" label="Wait Until Done?" />
+                    <timeout input_type="text" label="Timeout Waiting Until Done" break_after="true"/>
+                    <status input_type="text" label="Request Status (out)" />
+                    <message input_type="text" label="Message (out)" break_after="true"/>
+                    <event_id input_type="text" label="Event Id (out)" />
+				</function>
+			</command>
+			<command name="digocn_poweron_droplet" label="Power On Droplet" description="" 
+                help=""
+                icon="static/extensions/digocn/digocn.png">
+				<function name="digocn_poweron_droplet" extension="digocn_ext.digocncmds" >
+                    <id input_type="text" label="Droplet Id" break_after="true"/>
+                    <wait input_type="checkbox" label="Wait Until Done?" />
+                    <timeout input_type="text" label="Timeout Waiting Until Done" break_after="true"/>
+                    <status input_type="text" label="Request Status (out)" />
+                    <message input_type="text" label="Message (out)" break_after="true"/>
+                    <event_id input_type="text" label="Event Id (out)" />
+				</function>
+			</command>
+			<command name="digocn_resetroot_droplet" label="Reset Root Password" description="" 
+                help=""
+                icon="static/extensions/digocn/digocn.png">
+				<function name="digocn_resetroot_droplet" extension="digocn_ext.digocncmds" >
+                    <id input_type="text" label="Droplet Id" break_after="true"/>
+                    <wait input_type="checkbox" label="Wait Until Done?" />
+                    <timeout input_type="text" label="Timeout Waiting Until Done" break_after="true"/>
+                    <status input_type="text" label="Request Status (out)" />
+                    <message input_type="text" label="Message (out)" break_after="true"/>
+                    <event_id input_type="text" label="Event Id (out)" />
+				</function>
+			</command>
+			<command name="digocn_destroy_droplet" label="Destroy Droplet" description="" 
+                help=""
+                icon="static/extensions/digocn/digocn.png">
+				<function name="digocn_destroy_droplet" extension="digocn_ext.digocncmds" >
+                    <id input_type="text" label="Droplet Id" />
+                    <scrub input_type="checkbox" label="Scrub Data?" break_after="true"/>
+                    <wait input_type="checkbox" label="Wait Until Done?" />
+                    <timeout input_type="text" label="Timeout Waiting Until Done" break_after="true"/>
+                    <status input_type="text" label="Request Status (out)" />
+                    <message input_type="text" label="Message (out)" break_after="true"/>
+                    <event_id input_type="text" label="Event Id (out)" />
+				</function>
+			</command>
 			<command name="digocn_call" label="Digital Ocean API Call" description="" 
                 help=""
-                icon="static/extensions/vmware/vmware.png">
+                icon="static/extensions/digocn/digocn.png">
 				<function name="digocn_call" extension="digocn_ext.digocncmds" >
                     <noun input_type="dropdown" label="Noun" datasource="local" dataset="droplets|regions|images|ssh_keys|sizes|domains|events">droplets</noun>
-                    <action input_type="text" label="Action" />
-                    <subject input_type="text" label="Subject" />
+                    <action input_type="text" label="Action" break_after="true"/>
+                    <subject input_type="text" label="Subject" break_after="true"/>
                     <params label="Parameters" is_array="true">
                         <param label="Parameter">
                             <name input_type="text" label="Parameter name" />
                             <value input_type="text" label="Value" />
                         </param>
                     </params>
-                    <status input_type="text" label="Status (out)" />
+                    <status input_type="text" label="Request Status (out)" />
                     <message input_type="text" label="Message (out)" />
                     <results input_type="text" label="Results (out)" />
+				</function>
+			</command>
+			<command name="digocn_show_ssh_keys" label="Show Ssh Keys" description="" 
+                help=""
+                icon="static/extensions/digocn/digocn.png">
+				<function name="digocn_show_ssh_keys" extension="digocn_ext.digocncmds" >
+                    <key_id input_type="text" label="Ssh Key Id (filter)" />
+                    <name input_type="text" label="Key Name (filter)" break_after="true"/>
+                    <id_out input_type="text" label="Ssh Key Id (out)" />
+                    <name_out input_type="text" label="Ssh Key Name (out)" />
+                    <status input_type="text" label="Request Status (out)" />
+                    <message input_type="text" label="Message (out)" />
 				</function>
 			</command>
 		</commands>
