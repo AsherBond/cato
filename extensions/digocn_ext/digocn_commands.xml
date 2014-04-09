@@ -1,0 +1,24 @@
+<categories>
+	<category name="digital_ocean" label="Dig Ocean" description="Commands for interacting with the Digital Ocean api" icon="static/extensions/vmware/vmware.png">
+		<commands>
+			<command name="digocn_call" label="Digital Ocean API Call" description="" 
+                help=""
+                icon="static/extensions/vmware/vmware.png">
+				<function name="digocn_call" extension="digocn_ext.digocncmds" >
+                    <noun input_type="dropdown" label="Noun" datasource="local" dataset="droplets|regions|images|ssh_keys|sizes|domains|events">droplets</noun>
+                    <action input_type="text" label="Action" />
+                    <subject input_type="text" label="Subject" />
+                    <params label="Parameters" is_array="true">
+                        <param label="Parameter">
+                            <name input_type="text" label="Parameter name" />
+                            <value input_type="text" label="Value" />
+                        </param>
+                    </params>
+                    <status input_type="text" label="Status (out)" />
+                    <message input_type="text" label="Message (out)" />
+                    <results input_type="text" label="Results (out)" />
+				</function>
+			</command>
+		</commands>
+	</category>
+</categories>
