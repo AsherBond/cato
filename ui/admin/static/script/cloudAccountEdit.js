@@ -227,6 +227,9 @@ function setLabels() {
     if ($("#ddlProvider").val() === "Amazon AWS" || $("#ddlProvider").val() === "Eucalyptus") {
         $("#login_label").text("Access Key");
         $(".password_label").text("Secret Key");
+    } else if ($("#ddlProvider").val() === "Digital Ocean") {
+        $("#login_label").text("Client ID");
+        $(".password_label").text("API Key");
     } else {
         $("#login_label").text("Login ID");
         $(".password_label").text("Password");
