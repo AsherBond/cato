@@ -760,27 +760,21 @@ class TaskEngine():
                             self.logger.debug("Object variable - keypath is [%s]." % (keypath))
                             self.logger.debug(type(var))
 
+                            if isinstance(var, str):
+                                # attempt to load it into a dictionary object
+                                var = json.loads(var)
+
                             # [[objvar:*]] will return the number of keys INSIDE this object
                             # if the 'keypath' starts with a $, that's a JSONPATH so we'll apply that
                             # otherwise we'll try a simple root level name.
                             if keypath == "*":
                                 value = len(var)
                             else:
-                                value = self._use_jsonpath(varname, var, keypath)
-#                                 # jsonpath can return an array, but if it's only one, strip the outer list
-#                                 matches = []
-#                                 try:
-#                                     matches = jsonpath(var, keypath)
-#                                 except IndexError as ex:
-#                                     self.logger.error("Dictionary Variable lookup:\n%s" % (ex.__str__))
-#
-#                                 if matches:
-#                                     if len(matches) == 1:
-#                                         value = matches[0]
-#                                     else:
-#                                         value = matches
-#                                 else:
-#                                     self.logger.info("Object variable [%s] - key [%s] not found." % (varname, keypath))
+                                try:
+                                    value = self._use_jsonpath(varname, var, keypath)
+                                except Exception as ex:
+                                    self.logger.critical(ex)
+                                    value = ""
 
                 elif "." in found_var:
                     # this is an xpath query
