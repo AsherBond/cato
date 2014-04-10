@@ -91,6 +91,15 @@ def new_mongo_conn():
     return db
 
 
+def mongo_get_collection(db, collection_name):
+    """ 
+    Ensures a Mongo collection exists, creates it if it doesn't, and returns a pointer.
+    """
+    if collection_name not in db.collection_names():
+        logger.info("'%s' collection didn't exist - created it." % (collection_name))
+        db.create_collection(collection_name)
+    return db[collection_name]
+
 def mongo_close(db):
     
     mongo_disconnect(db)
