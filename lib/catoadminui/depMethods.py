@@ -25,21 +25,15 @@ import os
 import sys
 import json
 
-# CATO will check for MAESTRO_HOME environment variable.
-# if found, we will add libs from that path
-
 # AT THE MOMENT, this is only necessary to enable the deploymentTemplate pages.
-if "MAESTRO_HOME" not in os.environ or not os.environ["MAESTRO_HOME"]:
-    raise Exception("MAESTRO_HOME environment variable not set.  Maestro is required for Deployment features.")
-
-MAESTRO_HOME = os.environ["MAESTRO_HOME"]
-sys.path.insert(0, os.path.join(MAESTRO_HOME, "lib"))
-
-
+try:
+    sys.path.insert(0, os.path.join(os.environ["CSK_HOME"], "maestro", "lib"))
+    from catodeployment import deployment
+except:
+    raise Exception("'Maestro' is not installed in $CSK_HOME/maestro.")
 
 from catoui import uiCommon
 from catocommon import catocommon
-from catodeployment import deployment
 from catoerrors import InfoException
 
 class depMethods:
