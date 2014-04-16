@@ -143,14 +143,17 @@ def read_config():
                 enc_pass = value
             elif key == "mongodb.password":
                 enc_mongo_pass = value
+            elif key == "report_store":
+                # report_store requires path environment variable expansion
+                cfg["report_store"] = os.path.expandvars(value.strip())
             elif key == "extensions":
-                # extensions require a little parsing
+                # extensions require a little parsing, and path environment variable expansion
                 pairs = value.split(";")
                 for p in pairs:
                     if ":" in p:
                         n, v = p.split(":")
                         if n and v:
-                            cfg["extensions"][n.strip()] = v.strip()
+                            cfg["extensions"][n.strip()] = os.path.expandvars(v.strip())
             elif key == "features":
                 # features are a comma delimited string in the conf file, make a list
                 features = value.split(",")
