@@ -14,16 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
  
-if [ -z "$CATO_HOME" ]; then
-
-    EX_FILE=`python -c "import os; print os.path.realpath('$0')"`
-    EX_HOME=${EX_FILE%/*}
-    CATO_HOME=${EX_HOME%/*}
-    echo "CATO_HOME not set, assuming [$CATO_HOME]"
-    export CATO_HOME
+if [ -z "$CSK_HOME" ]; then
+    echo "CSK_HOME environment variable is not defined."
+    exit
 fi
 
-$CATO_HOME/services/stop_services.sh
+$CSK_HOME/cato/services/stop_services.sh
 sleep 1
-$CATO_HOME/services/start_services.sh
+$CSK_HOME/cato/services/start_services.sh
 exit

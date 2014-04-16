@@ -4,13 +4,13 @@ echo ""
 echo "Shutting down Cato..."
 date
 
-if [ -z "$CATO_HOME" ]; then
-    EX_FILE=`python -c "import os; print os.path.realpath('$0')"`
-    EX_HOME=${EX_FILE%/*}
-    CATO_HOME=${EX_HOME%/*}
-    echo "    CATO_HOME not set, assuming [$CATO_HOME]"
-    export CATO_HOME
+if [ -z "$CSK_HOME" ]; then
+    echo "CSK_HOME environment variable is not defined."
+    exit
 fi
+echo "CSK_HOME is [$CSK_HOME"]
+ 
+CATO_HOME=$CSK_HOME/cato
 echo "CATO_HOME is [$CATO_HOME]"
 
 while read line

@@ -12,7 +12,7 @@ import urllib2
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.environ["CATO_HOME"], "lib"))
+sys.path.insert(0, os.path.join(os.environ["CSK_HOME"], "cato", "lib"))
 
 
 # THIS CAN EXPAND - the log file might have various levels of warning indicators

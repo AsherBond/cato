@@ -974,10 +974,10 @@ def LoadTaskCommands():
     # we load two classes here...
     # first, the category/function hierarchy
     cats = taskCommands.FunctionCategories()
-    cats.Load(os.path.join(os.environ["CATO_HOME"], "lib/catotask/task_commands.xml"))
+    cats.Load(os.path.join(os.environ["CSK_HOME"], "cato", "lib", "catotask", "task_commands.xml"))
 
     # we've got the AWS commands in our controlled source.  They're not extensions.
-    cats.Load(os.path.join(os.environ["CATO_HOME"], "lib/catotask/aws_commands.xml"))
+    cats.Load(os.path.join(os.environ["CSK_HOME"], "cato", "lib", "catotask", "aws_commands.xml"))
 
     # try to append any extension files
     # this will read all the xml files in /extensions

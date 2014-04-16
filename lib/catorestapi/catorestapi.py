@@ -25,16 +25,8 @@ import os
 import json
 from web.wsgiserver import CherryPyWSGIServer
 
-# Some API endpoints require Maestro or Legato
-# we look at the HOME environment variables and load the libs from those paths
-MAESTRO_HOME = os.environ.get("MAESTRO_HOME")
-if MAESTRO_HOME:
-    sys.path.insert(0, os.path.join(MAESTRO_HOME, "lib"))
-
-LEGATO_HOME = os.environ.get("LEGATO_HOME")
-
-if LEGATO_HOME:
-    sys.path.insert(0, os.path.join(LEGATO_HOME, "lib"))
+# Some modules require the $CSK_HOME environment variable
+CSK_HOME = os.environ.get("CSK_HOME")
 
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 lib_path = os.path.join(base_path, "lib")
@@ -148,15 +140,21 @@ class wmHandler:
         endpoints = api.endpoints
 
         # If Maestro is enabled, load those endpoints
-        if MAESTRO_HOME:
+        try:
+            sys.path.insert(0, os.path.join(CSK_HOME, "maestro", "lib"))
             from maestroapi import api as mapi
             endpoints = dict(endpoints.items() + mapi.endpoints.items())
+        except:
+            pass
 
         # If Legato is enabled, load those endpoints
-        if LEGATO_HOME:
+        try:
+            sys.path.insert(0, os.path.join(CSK_HOME, "legato", "lib"))
             from cskcdapi import api as cdapi
             endpoints = dict(endpoints.items() + cdapi.endpoints.items())
-
+        except:
+            pass
+        
         if endpoints.get(method):
             response = catocommon.FindAndCall(endpoints[method], args)
         else:
@@ -318,14 +316,20 @@ class index:
         endpoints = api.endpoints
 
         # If Maestro is enabled, load those endpoints
-        if MAESTRO_HOME:
+        try:
+            sys.path.insert(0, os.path.join(CSK_HOME, "maestro", "lib"))
             from maestroapi import api as mapi
             endpoints = dict(endpoints.items() + mapi.endpoints.items())
+        except:
+            pass
 
         # If Legato is enabled, load those endpoints
-        if LEGATO_HOME:
+        try:
+            sys.path.insert(0, os.path.join(CSK_HOME, "legato", "lib"))
             from cskcdapi import api as cdapi
             endpoints = dict(endpoints.items() + cdapi.endpoints.items())
+        except:
+            pass
 
         for endpoint, path in sorted(endpoints.iteritems()):
             modname, methodname = path.split('/')

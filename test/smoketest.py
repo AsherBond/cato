@@ -11,7 +11,7 @@ import unittest
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.environ["CATO_HOME"], "lib"))
+sys.path.insert(0, os.path.join(os.environ["CSK_HOME"], "cato", "lib"))
 
 
 class moduleTests(unittest.TestCase):

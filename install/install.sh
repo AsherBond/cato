@@ -136,7 +136,6 @@ ADMINPASS=`$CATO_HOME/install/catoencrypt password $ENCRYPTIONKEY`
 
 # replace placeholders with localized config settings
 # see the user configurable settings above
-sed -i"" -e"s|#CATO_HOME#|${CATO_HOME}|" $CONFFILE
 sed -i"" -e"s|#CATO_HOST#|${CATO_HOST}|" $CONFFILE
 sed -i"" -e"s|#CATODBNAME#|${CATODBNAME}|" $CONFFILE
 sed -i"" -e"s|#CATODBUSER#|${CATODBUSER}|" $CONFFILE

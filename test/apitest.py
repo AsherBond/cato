@@ -17,10 +17,10 @@ import unittest
 import json
 import sys
 import os
-import time
 
-sys.path.insert(0, os.path.join(os.environ["LEGATO_HOME"], "lib"))
-sys.path.insert(0, os.path.join(os.environ["CATO_HOME"], "lib"))
+CSK_HOME = os.environ.get("CSK_HOME")
+sys.path.insert(0, os.path.join(CSK_HOME, "legato", "lib"))
+sys.path.insert(0, os.path.join(CSK_HOME, "cato", "lib"))
 
 from catoapi import sysMethods
 from catoapi import cloudMethods

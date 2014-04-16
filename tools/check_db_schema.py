@@ -4,15 +4,7 @@ import os
 import sys
 import json
 
-if not "CATO_HOME" in os.environ:
-    raise Exception("CATO_HOME environment variable not set.  Cato is required.")
-
-CATO_HOME = os.environ["CATO_HOME"]
-
-base_path = CATO_HOME
-lib_path = os.path.join(base_path, "lib")
-sys.path.insert(0, lib_path)
-
+sys.path.insert(0, os.path.join(os.environ["CSK_HOME"], "cato", "lib"))
 from catocommon import catocommon
 
 db = catocommon.new_conn()
