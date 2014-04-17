@@ -323,10 +323,7 @@ def GetSessionUserRole():
 
 def GetSessionUserTags():
     tags = GetSessionObject("user", "tags")
-    if tags:
-        return tags if tags else []
-    else:
-        raise SessionError("Server Session has expired (3). Please log in again.")
+    return tags if tags else []
 
 def GetSessionObject(category, key):
     cat = uiGlobals.session.get(category, False)
