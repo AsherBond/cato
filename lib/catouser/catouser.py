@@ -424,7 +424,7 @@ class User(object):
             sql = "update users set %s where user_id = '%s'" % (",".join(sql_bits), self.ID)
             db.exec_db(sql)
 
-        if getattr(self, "_Groups", None):
+        if getattr(self, "_Groups", None) != None:
             # WE ARE REQUIRING the caller to take care of reconciling the groups.
             # if the _Groups argument is empty, that means delete them all!
             # no matter what the case, we're doing a whack-n-add here.
