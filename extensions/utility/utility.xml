@@ -18,6 +18,12 @@
 					<code input_type="textarea" label="Code" />
 				</function>
 			</command>
+			<command name="datastore_eval" label="Datastore Evaluate" description="Process an explicit Javascript operation on the MongoDB Datastore." help="" icon="static/extensions/utility/python_32.png">
+				<function name="datastore_eval" extension="utility.utility">
+					<code input_type="textarea" label="Code" />
+					<variable input_type="text" label="Variable" />
+				</function>
+			</command>
 		</commands>
 	</category>
 </categories>

@@ -112,3 +112,30 @@ def exec_python(TE, step):
         exit()
     except Exception as ex:  # write the exception to the logfile
         TE.logger.critical("Exception in 'exec_python.\n%s" % (ex))
+
+def datastore_eval(TE, step):
+    # TE.get_command_params returns the VALUES of each provided property
+    # step.command is the raw XML of the command
+    code = TE.get_command_params(step.command, "code")[0]
+    target_var = TE.get_command_params(step.command, "variable")[0]
+    
+    # TE.replace_variables will look on the runtime variable stack, and replace any [[vars]] 
+    # defined in your property
+    code = TE.replace_variables(code)
+    
+    try:
+        """
+        PyMongo provides an 'eval' function for processing complex javascript operations directly
+        on the database.
+        """
+        from catocommon import catocommon
+        db = catocommon.new_mongo_conn()
+        result = db.eval(code)
+        TE.logger.debug(result)
+        TE.rt.set(target_var, result)
+        
+        # we should put the response in a variable
+        catocommon.mongo_disconnect(db)
+        
+    except Exception as ex:  # write the exception to the logfile
+        TE.logger.critical("Exception in 'datastore_eval.\n%s" % (ex))
