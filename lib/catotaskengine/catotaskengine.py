@@ -468,11 +468,13 @@ class TaskEngine():
             msg = "Could not parse XML %s, %s" % (xml, e)
             raise Exception(msg)
 
+        self.logger.debug("xpath: looking for %s" % (path.strip()))
         nodes = root.findall(path.strip())
         if nodes:
             try:
                 node = nodes[index]
-            except IndexError:
+            except IndexError as ex:
+                self.logger.debug("xpath: ... index error\n%s" % (ex.__str__()))
                 v = ""
             else:
                 if len(list(node)):
@@ -480,6 +482,7 @@ class TaskEngine():
                 else:
                     v = node.text
         else:
+            self.logger.debug("xpath: ... no match")
             v = ""
         del(root)
         return v
@@ -687,6 +690,7 @@ class TaskEngine():
                 index = int(v[1]) - 1
                 t_index = ii + 1
                 self.logger.debug("%s, %s, %s, %s" % (name, index, t_index, row))
+                self.logger.debug("rt.set(%s, %s, %s)" % (name, row[index], t_index))
                 self.rt.set(name, row[index], t_index)
 
     def get_step_object(self, step_id, step_xml):
@@ -716,10 +720,6 @@ class TaskEngine():
                 if found_var.startswith("_"):
                     # it's a global variable, look it up
                     value = self.sub_global(found_var)
-                elif found_var.startswith("@"):
-                    # @ signifies the "new" variable storage collection
-                    # we simply evaluate the following expression against that collection
-                    value = self.rt.eval_get(found_var[1:])
                 elif found_var.startswith("#"):
                     # this is a task handle variable
                     value = self.get_handle_var(found_var)
@@ -824,6 +824,62 @@ class TaskEngine():
             # print "after ->" + s
         return s
 
+    def replace_vars_new(self, s):
+        """ 
+        streamlined replacement, for the new storage and access method
+        pattern matching algorithm is different too, matches Canvas logic 
+        
+        Simplified "special" cases:
+        
+        Starts with:
+            _ = a global variable
+            # = a task handle
+        
+        Includes:
+            ^ = varname followed by an xpath expression
+            ex: foo^//root/node 
+        """
+        
+        while "[$" in s:
+            varname = None
+            # We're doing an rfind... coming in from the right(bottom) so nested variables will work
+            begin_pos = s.rfind("[$")
+            end_pos = s.find("$]", begin_pos)
+            varname = s[begin_pos + 2:end_pos]
+
+            if varname:
+                if varname.startswith("_"):
+                    # it's a global variable, look it up
+                    value = self.sub_global(varname)
+                elif varname.startswith("#"):
+                    # this is a task handle variable
+                    value = self.get_handle_var(varname)
+                elif "^" in varname:
+                    # this is an xpath query
+                    carat = varname.find("^")
+                    new_varname = varname[:carat]
+                    xpath = varname[carat + 1:]
+                    xml = self.rt.eval_get(new_varname)
+
+                    self.logger.debug("VARNAME: %s" % (new_varname))
+                    self.logger.debug("XPATH: %s" % (xpath))
+                    self.logger.debug("XML: %s" % (xml))
+                    
+                    if len(xml):
+                        value = self.aws_get_result_var(xml, xpath)
+                    else:
+                        value = ""
+                else:
+                    # a normal variable expression
+                    value = self.rt.eval_get(varname)
+
+                # now we substitute the variable with the value in the original string
+                sub_string = "[$" + varname + "$]"
+                # print "sub_string = " + sub_string + " value = " + str(value)
+                s = s.replace(sub_string, str(value))
+            # print "after ->" + s
+        return s
+    
     def find_var(self, s):
 
         z = None
@@ -928,7 +984,11 @@ class TaskEngine():
 
         while re.search(".*\[\[.*\]\]", s):
             s = self.replace_vars(s)
-
+            
+        # NEW METHOD
+        while re.search(".*\[\$.*\$\]", s):
+            s = self.replace_vars_new(s)
+            
         return s
 
     def replace_html_chars(self, s):

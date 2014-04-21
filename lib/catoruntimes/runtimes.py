@@ -17,6 +17,9 @@
 import os
 import sys
 import ast
+from datetime import datetime, timedelta
+import dateutil.parser as parser
+from bson.objectid import ObjectId
 
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 lib_path = os.path.join(base_path, "lib")
@@ -61,11 +64,14 @@ class Runtimes:
         # NEW FEATURE
         # notice there's no index - 1 here, for consistency with python arrays
         objval = self._objectify(value)
-        if not index:
+        if index is None:
             self.obj_data[name] = objval
         else:
-            self.obj_data[name].insert(index, objval)
-            
+            if name not in self.obj_data:
+                self.obj_data[name] = objval
+            else:
+                self.obj_data[name].insert(index, objval)
+                            
         # LEGACY METHOD
         name = name.upper()
         if not index:
@@ -204,6 +210,8 @@ class Runtimes:
             # and a very strict environment
             try:
                 environment = {
+                               'datetime': datetime,
+                               'ObjectId': ObjectId,
                                'len': len
                                }
                 return eval(expression, environment, self.obj_data)
