@@ -1696,6 +1696,7 @@ def SqlExec(oStep):
     sConnName = xd.findtext("conn_name", "")
     sMode = xd.findtext("mode", "")
     sHandle = xd.findtext("handle", "")
+    sResultVar = xd.findtext("result_variable", "")
 
     sHTML = ""
     sElementID = catocommon.new_guid()
@@ -1704,6 +1705,7 @@ def SqlExec(oStep):
     bDrawSQLBox = False
     bDrawHandle = False
     bDrawKeyValSection = False
+    bDrawVariable = False
 
     sHTML += "Connection:\n"
     sHTML += "<input type=\"text\" " + CommonAttribsWithID(oStep, True, "conn_name", sElementID, "")
@@ -1731,12 +1733,14 @@ def SqlExec(oStep):
         # these modes have no SQL or pairs or variables
         SetNodeValueinCommandXML(sStepID, "sql", "")
         SetNodeValueinCommandXML(sStepID, "handle", "")
+        SetNodeValueinCommandXML(sStepID, "result_variable", "")
         RemoveFromCommandXML(sStepID, "pair")
         RemoveStepVars(sStepID)
     elif sMode == "PREPARE":
         bDrawSQLBox = True
         bDrawHandle = True
 
+        SetNodeValueinCommandXML(sStepID, "result_variable", "")
         # this mode has no pairs or variables
         RemoveFromCommandXML(sStepID, "pair")
         RemoveStepVars(sStepID)
@@ -1744,12 +1748,14 @@ def SqlExec(oStep):
         bDrawVarButton = True
         bDrawHandle = True
         bDrawKeyValSection = True
+        bDrawVariable = True
 
         # this mode has no SQL
         SetNodeValueinCommandXML(sStepID, "sql", "")
     else:
         bDrawVarButton = True
         bDrawSQLBox = True
+        bDrawVariable = True
 
         SetNodeValueinCommandXML(sStepID, "handle", "")
         # the default mode has no pairs
@@ -1774,6 +1780,12 @@ def SqlExec(oStep):
             " link_to=\"" + sFieldID + "\" /><br />\n"
 
         sHTML += "<textarea " + sCommonAttribsForTA + " help=\"Enter a SQL query or procedure.\">" + sCommand + "</textarea>"
+
+    if bDrawVariable:
+        sHTML += "<br />Result Variable:\n"
+        sHTML += "<input type=\"text\" " + CommonAttribs(oStep, True, "result_variable", "")
+        sHTML += " help=\"An optional variable to contain the entire result set.\" value=\"" + sResultVar + "\" />"
+
     return sHTML, bDrawVarButton
 
 def SqlExec_View(oStep):
@@ -1796,11 +1808,13 @@ def SqlExec_View(oStep):
     sConnName = xd.findtext("conn_name", "")
     sMode = xd.findtext("mode", "")
     sHandle = xd.findtext("handle", "")
+    sResultVar = xd.findtext("result_variable", "")
 
     sHTML = ""
     bDrawSQLBox = False
     bDrawHandle = False
     bDrawKeyValSection = False
+    bDrawVariable = False
 
     sHTML += "Connection:\n"
     sHTML += "<span class=\"code\">" + sConnName + "</span>"
@@ -1816,9 +1830,11 @@ def SqlExec_View(oStep):
         bDrawHandle = True
     elif sMode == "RUN":
         bDrawHandle = True
+        bDrawVariable = False
         bDrawKeyValSection = True
     else:
         bDrawSQLBox = True
+        bDrawVariable = False
 
     if bDrawHandle:
         sHTML += "Handle:\n"
@@ -1830,6 +1846,11 @@ def SqlExec_View(oStep):
     if bDrawSQLBox:
         sHTML += "<br />SQL:\n"
         sHTML += "<div class=\"codebox\">" + UI.SafeHTML(sCommand) + "</div>"
+
+    if bDrawVariable:
+        sHTML += "<br />Result Variable:\n"
+        sHTML += "<span class=\"code\">" + sResultVar + "</span>"
+
     return sHTML
 
 def RunTask(oStep):
