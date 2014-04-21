@@ -717,9 +717,9 @@ class TaskEngine():
                     # it's a global variable, look it up
                     value = self.sub_global(found_var)
                 elif found_var.startswith("@"):
-                    # this is a datastore variable
-                    # TODO
-                    value = ""
+                    # @ signifies the "new" variable storage collection
+                    # we simply evaluate the following expression against that collection
+                    value = self.rt.eval_get(found_var[1:])
                 elif found_var.startswith("#"):
                     # this is a task handle variable
                     value = self.get_handle_var(found_var)

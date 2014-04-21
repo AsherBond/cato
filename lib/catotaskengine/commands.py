@@ -1031,8 +1031,13 @@ def set_variable_cmd(self, task, step):
             else:
                 self.rt.set(name, value, index)
 
+        # a special case for the _ON_ERROR variable... that's a local TE property
         if name == "_ON_ERROR" and value == "restart":
             self.on_error = "restart"
+        elif name.startswith("@"):
+            # for the NEW METHOD - the @ signifies we've provided an expression 
+            # to find the right place to put the value in the runtime OBJECT array
+            self.rt.eval_set(name[1:], value)
         else:
             self.rt.set(name, value, index)
 
