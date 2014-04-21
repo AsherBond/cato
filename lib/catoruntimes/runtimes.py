@@ -68,7 +68,7 @@ class Runtimes:
             self.obj_data[name] = objval
         else:
             if name not in self.obj_data:
-                self.obj_data[name] = objval
+                self.obj_data[name] = [objval]
             else:
                 self.obj_data[name].insert(index, objval)
                             
@@ -204,7 +204,7 @@ class Runtimes:
         if len(expression):
             expression = expression.strip()
             self.logger.debug("expression is:\n %s" % (expression))
-            self.logger.debug("obj_data is:\n %s" % (self.obj_data))
+            # self.logger.debug("obj_data is:\n %s" % (self.obj_data))
             # NOTE: eval is dangerous!
             # so, we only allow it to run against our obj_data collection
             # and a very strict environment

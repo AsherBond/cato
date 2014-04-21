@@ -982,12 +982,12 @@ class TaskEngine():
 
     def replace_variables(self, s):
 
-        while re.search(".*\[\[.*\]\]", s):
-            s = self.replace_vars(s)
-            
-        # NEW METHOD
+        # NEW METHOD FIRST
         while re.search(".*\[\$.*\$\]", s):
             s = self.replace_vars_new(s)
+            
+        while re.search(".*\[\[.*\]\]", s):
+            s = self.replace_vars(s)
             
         return s
 
