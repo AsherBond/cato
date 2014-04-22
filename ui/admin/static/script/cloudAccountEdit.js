@@ -141,10 +141,15 @@ function GetProviderClouds() {
         });
 
         //we can't allow testing the connection if there are no clouds
-        if ($("#ddlDefaultCloud option").length === 0)
+        if ($("#ddlDefaultCloud option").length === 0) {
             $("#test_connection_btn").hide();
-        else
-            $("#test_connection_btn").show();
+        } else {
+            if ($("#ddlProvider").val() === "Amazon AWS") {
+                $("#test_connection_btn").show();
+            } else {
+                $("#test_connection_btn").hide();
+            }
+        }
     }
 }
 
@@ -267,10 +272,15 @@ function LoadEditDialog(sEditID) {
         });
 
         //we can't allow testing the connection if there are no clouds
-        if ($("#ddlDefaultCloud option").length === 0)
+        if ($("#ddlDefaultCloud option").length === 0) {
             $("#test_connection_btn").hide();
-        else
-            $("#test_connection_btn").show();
+        } else {
+            if (account.Provider === "Amazon AWS") {
+                $("#test_connection_btn").show();
+            } else {
+                $("#test_connection_btn").hide();
+            }
+        }
 
         setLabels();
 
