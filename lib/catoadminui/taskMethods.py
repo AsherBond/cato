@@ -1,18 +1,18 @@
 
 # Copyright 2012 Cloud Sidekick
-#  
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-#  
+#
 #     http:# www.apache.org/licenses/LICENSE-2.0
-#  
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
- 
+
 import os
 import re
 import json
@@ -42,7 +42,7 @@ class taskMethods:
             # before we break the results into pages, we first filter it by tag
             # THIS IS DEPENDANT on the task results containing a list of tags for each task.
             allowedrows = uiCommon.FilterSetByTag(tasks.rows)
-                           
+
             # now we have a filtered set... proceed...
             start, end, pager_html = uiCommon.GetPager(len(allowedrows), maxrows, sPage)
 
@@ -52,7 +52,7 @@ class taskMethods:
                 sHTML += '''<input type="checkbox" class="chkbox"
                     id="chk_%s" object_id=%s" tag="chk" />''' % (row["OriginalTaskID"], row["ID"])
                 sHTML += "</td>"
-                
+
                 sHTML += '<td class="selectable">' + row["Code"] + '</td>'
                 sHTML += '<td class="selectable">' + row["Name"] + '</td>'
                 sHTML += '<td class="selectable">' + str(row["Version"]) + '</td>'
@@ -66,15 +66,15 @@ class taskMethods:
                     sHTML += '<td class="selectable"><span class="ui-icon ui-icon-tag" title="' + tags + '"></span></td>'
                 else:
                     sHTML += '<td class="selectable">&nbsp;</td>'
-                    
+
                 sHTML += '<td class="task_run"><span class="ui-icon ui-icon-play"></span></td>'
-                
+
                 sHTML += '</tr>'
 
         out = {}
         out["pager"] = uiCommon.packJSON(pager_html)
         out["rows"] = uiCommon.packJSON(sHTML)
-        
+
         return catocommon.ObjectOutput.AsJSON(out)
 
     def wmGetTaskInstances(self):
@@ -83,7 +83,7 @@ class taskMethods:
         _from = uiCommon.getAjaxArg("sFrom", "")
         _to = uiCommon.getAjaxArg("sTo", "")
         num_records = uiCommon.getAjaxArg("sRecords", "200")
-        
+
         sHTML = ""
         tasks = task.TaskInstances(sFilter=_filter,
                                    sStatus=status,
@@ -94,7 +94,7 @@ class taskMethods:
             for row in tasks.rows:
                 task_label = "%s (%s)" % (row["TaskName"], str(row["Version"]))
                 sHTML += "<tr style=\"font-size: .8em;\" task_instance=\"%s\">" % row["Instance"]
-                
+
                 sHTML += "<td class=\"selectable\">%s</td>" % row["Instance"]
                 sHTML += "<td class=\"selectable\">%s</td>" % row["TaskCode"]
                 sHTML += "<td class=\"selectable\">%s</td>" % task_label
@@ -109,14 +109,14 @@ class taskMethods:
                     ("(c)&nbsp;%s" % row["CompletedDate"].replace(" ", "&nbsp;") if row["CompletedDate"] else "")
                     )
                 sHTML += "<td class=\"selectable\"><span task_id=\"%s\" class=\"ui-icon ui-icon-pencil pointer task_edit_btn\"></span></td>" % row["TaskID"]
-                
+
                 sHTML += "</tr>"
 
-        return sHTML    
+        return sHTML
 
     def wmGetTask(self):
         sID = uiCommon.getAjaxArg("sTaskID")
-        
+
         t = task.Task()
         sErr = t.FromID(sID, False, False)
         if sErr:
@@ -124,7 +124,7 @@ class taskMethods:
         if t:
             if t.ID:
                 return t.AsJSON()
-        
+
         # should not get here if all is well
         return json.dumps({"result": "fail", "error": "Failed to get Task details for Task ID [%s]." % sID})
 
@@ -182,7 +182,7 @@ class taskMethods:
                 sbString.append("<option value=\"" + dr["task_id"] + "\">" + sLabel + "</option>")
 
         return "".join(sbString)
-    
+
     def wmGetTaskVersions(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
         sHTML = ""
@@ -225,9 +225,9 @@ class taskMethods:
 
         t = task.Task()
         t.FromID(sCopyTaskID)
-        
+
         sNewTaskID = t.Copy(0, sTaskName, sTaskCode)
-        
+
         uiCommon.WriteObjectAddLog(catocommon.CatoObjectTypes.Task, t.ID, t.Name, "Copied from " + sCopyTaskID)
         return json.dumps({"id": sNewTaskID})
 
@@ -238,19 +238,19 @@ class taskMethods:
 
         if not sDeleteArray:
             raise Exception("Unable to delete - no selection.")
-            
+
         # get important data that will be deleted for the log
         sSQL = "select task_id, task_name from task where task_id in (%s)" % (sDeleteArray)
         rows = self.db.select_all_dict(sSQL)
 
         task.Tasks.Delete(sDeleteArray.split(","), force)
-        
+
         # if we made it here, save the logs
         for dr in rows:
             uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Task, dr["task_id"], dr["task_name"], "Task Deleted.")
 
         return json.dumps({"result": "success"})
-        
+
     def wmUpdateTaskDetail(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
         sColumn = uiCommon.getAjaxArg("sColumn")
@@ -268,10 +268,10 @@ class taskMethods:
             row = self.db.select_row_dict(sSQL, (sTaskID))
             if not row:
                 raise Exception("Unable to get original_task_id for [%s]." % sTaskID)
-                
+
             sOriginalTaskID = row["original_task_id"]
             sTaskName = row["task_name"]
-            
+
 
             # what's the "set clause"?
             sSetClause = "%s='%s'" % (sColumn, sValue)
@@ -284,11 +284,11 @@ class taskMethods:
 
                 if sValueExists:
                     raise InfoException("%s exists, please choose another value." % sValue)
-            
+
                 # changing the name or code updates ALL VERSIONS
                 sSQL = "update task set %s where original_task_id = '%s'" % (sSetClause, sOriginalTaskID)
                 self.db.exec_db(sSQL)
-                
+
                 if sColumn == "task_name":
                     # changing the TASK NAME updates any references (run_task, subtask commands) on any other Tasks.
                     # NOTE: this is done with a like clause and string replacement on the name
@@ -303,14 +303,14 @@ class taskMethods:
                 if sColumn == "concurrent_instances" or sColumn == "queue_depth":
                     if len(sValue.replace(" ", "")) == 0:
                         sSetClause = sColumn + " = null"
-                
+
                 # some columns are checkboxes, so make sure it is a db appropriate value (1 or 0)
                 if sColumn == "concurrent_by_asset":
                     if catocommon.is_true(sValue):
                         sSetClause = sColumn + " = 1"
                     else:
                         sSetClause = sColumn + " = 0"
-                
+
                 sSQL = "update task set %s where task_id = '%s'" % (sSetClause, sTaskID)
                 self.db.exec_db(sSQL)
 
@@ -320,7 +320,7 @@ class taskMethods:
             raise Exception("Unable to update task. Missing or invalid task [%s] id." % sTaskID)
 
         return json.dumps({"result": "success"})
-            
+
     def wmCreateNewTaskVersion(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
         sMinorMajor = uiCommon.getAjaxArg("sMinorMajor")
@@ -328,7 +328,7 @@ class taskMethods:
         oTask = task.Task()
         oTask.IncludeSettingsForUser = uiCommon.GetSessionUserID()
         oTask.FromID(sTaskID)
-        
+
         sNewTaskID = oTask.Copy((1 if sMinorMajor == "Major" else 2), "", "")
 
         return sNewTaskID
@@ -373,14 +373,14 @@ class taskMethods:
 
         if sNewCodeblockName:
             sSQL = "insert into task_codeblock (task_id, codeblock_name) values (%s, %s)"
-                   
+
             self.db.exec_db(sSQL, (sTaskID, sNewCodeblockName))
             uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sNewCodeblockName, "Added Codeblock.")
-            
+
             return json.dumps({"result": "success"})
         else:
             raise Exception("Unable to add Codeblock. Invalid or missing Codeblock Name.")
-        
+
     def wmDeleteCodeblock(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
         sCodeblockID = uiCommon.getAjaxArg("sCodeblockID")
@@ -402,7 +402,7 @@ class taskMethods:
 
         self.db.tran_commit()
         self.db.close()
-        
+
         uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sCodeblockID, "Deleted Codeblock.")
 
         return json.dumps({"result": "success"})
@@ -435,9 +435,9 @@ class taskMethods:
 
             # the fun part... rename it where it exists in any steps
             # but this must be in a loop of only the steps where that codeblock reference exists.
-            # In ElementTree, you can't get a node by it's inner value, 
+            # In ElementTree, you can't get a node by it's inner value,
             # so we can't use uiCommon.SetNodeValueinXMLColumn.
-            # just do it with sql 
+            # just do it with sql
             sSQL = """select step_id, function_xml from task_step
                 where task_id = %s
                 and ExtractValue(function_xml, '//codeblock[1]') = %s"""
@@ -446,8 +446,8 @@ class taskMethods:
             if dtSteps:
                 for dr in dtSteps:
                     # doing a snip of the xml, so we don't have issues with a generic codeblock name, like 'codeblock'
-                    oldsnip = ">%s</codeblock>" % (sOldCodeblockName) 
-                    newsnip = ">%s</codeblock>" % (sNewCodeblockName) 
+                    oldsnip = ">%s</codeblock>" % (sOldCodeblockName)
+                    newsnip = ">%s</codeblock>" % (sNewCodeblockName)
                     if oldsnip in dr["function_xml"]:
                         newxml = dr["function_xml"].replace(oldsnip, newsnip)
                         # don't update it if the change busted the xml
@@ -455,7 +455,7 @@ class taskMethods:
                         if xd is None:
                             self.db.tran_rollback()
                             raise Exception("Rename Codeblock: Unable to parse new command XML.")
-                        
+
                         sSQL = "update task_step set function_xml = %s where step_id = %s"
                         print sSQL % (newxml, dr["step_id"])
                         self.db.tran_exec(sSQL, (newxml, dr["step_id"]))
@@ -505,18 +505,18 @@ class taskMethods:
                 # we always need the no_step item to be there, we just hide it if we have other items
                 # it will get unhidden if someone deletes the last step.
                 sHTML = "<li id=\"no_step\" class=\"ui-widget-content ui-corner-all ui-state-active ui-droppable no_step hidden\">" + sAddHelpMsg + "</li>"
-        
+
                 for order in sorted(cb.Steps.iterkeys()):
                     sHTML += ST.DrawFullStep(cb.Steps[order])
             else:
                 sHTML = "<li id=\"no_step\" class=\"ui-widget-content ui-corner-all ui-state-active ui-droppable no_step\">" + sAddHelpMsg + "</li>"
-                    
+
             return sHTML
-    
+
     def wmGetStepsPrint(self):
         sTaskID = uiCommon.getAjaxArg("sTaskID")
         sHTML = ""
-        
+
         # instantiate a Task object
         oTask = task.Task()
         oTask.FromID(sTaskID)
@@ -532,14 +532,14 @@ class taskMethods:
             # don't redraw MAIN
             if cb.Name == "MAIN":
                 continue
-            
+
             sHTML += "<div class=\"ui-state-default te_header\" id=\"cbt_" + cb.Name + "\">" + cb.Name + "</div>"
             sHTML += "<div class=\"codeblock_box\">"
             sHTML += ST.BuildReadOnlySteps(oTask, cb.Name)
             sHTML += "</div>"
 
         return sHTML
-    
+
     def wmGetStep(self):
         sStepID = uiCommon.getAjaxArg("sStepID")
         sStepHTML = ""
@@ -567,7 +567,7 @@ class taskMethods:
         sStepHTML = ""
         sSQL = ""
         sNewStepID = ""
-        
+
         # in some cases, we'll have some special values to go ahead and set in the function_xml
         # when it's added
         # it's content will be xpath, value
@@ -601,7 +601,7 @@ class taskMethods:
         # NOTE: !! yes we are adding the step with an order of -1
         # the update event on the client does not know the index at which it was dropped.
         # so, we have to insert it first to get the HTML... but the very next step
-        # will serialize and update the entire sortable... 
+        # will serialize and update the entire sortable...
         # immediately replacing this -1 with the correct position
 
         sNewStepID = catocommon.new_guid()
@@ -629,11 +629,11 @@ class taskMethods:
             # THE NEW CLASS CENTRIC WAY
             # 1) Get a Function object for the sItem (function_name)
             # 2) use those values to construct an insert statement
-            
+
             func = uiCommon.GetTaskFunction(sItem)
             if not func:
                 uiCommon.log("Unable to add step.  Can't find a Function definition for [" + sItem + "]")
-            
+
             # NOTE: !! yes we are doing some command specific logic here.
             # Certain commands have different 'default' values for delimiters, etc.
             # sOPM: 0=none, 1=delimited, 2=parsed
@@ -653,14 +653,29 @@ class taskMethods:
 
                 if catocommon.is_true(sPopVars) and sOPM == "0":
                     sOPM = "2"
-                
-                
+
+
                 # there may be some provided values ... so alter the func.TemplateXML accordingly
                 for sXPath, sValue in dValues.iteritems():
                     xNode = xe.find(sXPath)
                     if xNode is not None:
                         xNode.text = sValue
-            
+
+                if catocommon.featuretoggle("336"):
+                    # NEW OPTIMIZATION FEATURE #336
+                    # display metadata attributes are explicitly stripped off...
+                    # to conserve a few bytes in the db,
+                    # as well as make exported tasks easier to read.
+                    # ALL attributes are removed except 'name'
+                    for x in xe.getiterator():
+                        leavekeys = ["name", "parse_method", "is_array"]
+                        keys_to_del = [k for k in x.attrib.iterkeys() if k not in leavekeys]
+                        for k in keys_to_del:
+                            try:
+                                del x.attrib[k]
+                            except:
+                                pass
+
                 sSQL = "insert into task_step (step_id, task_id, codeblock_name, step_order," \
                     " commented, locked," \
                     " function_name, function_xml)" \
@@ -679,7 +694,7 @@ class taskMethods:
                     "Added Command Type:" + sItem + " to Codeblock:" + sCodeblockName)
             else:
                 uiCommon.log("Unable to add step.  No template xml.")
-        
+
         if sNewStepID:
             # now... get the newly inserted step and draw it's HTML
             oNewStep = task.Step.FromIDWithSettings(sNewStepID, sUserID)
@@ -701,7 +716,7 @@ class taskMethods:
         sUserID = uiCommon.GetSessionUserID()
 
         sStepHTML = ""
-        
+
         if not catocommon.is_guid(sTaskID):
             uiCommon.log("Unable to add step. Invalid or missing Task ID. [" + sTaskID + "]")
             return "Unable to add step. Invalid or missing Task ID. [" + sTaskID + "]"
@@ -710,7 +725,7 @@ class taskMethods:
         # when it's added
         # it's content will be xpath, value
         dValues = {}
-        
+
         xe = None
         func = None
 
@@ -737,11 +752,11 @@ class taskMethods:
 
         if catocommon.is_guid(sItem):
             # a clipboard sItem is a guid id on the task_step_clipboard table
-            
+
             # 1) get the function_xml from the clipboard table (sItem = step_id)
             # 2) Get a Function object for the function name
             # 3) update the parent step with the function objects xml
-            
+
             # get the command from the clipboard, and then update the XML of the parent step
             sSQL = "select function_xml from task_step_clipboard where user_id = '" + sUserID + "' and step_id = '" + sItem + "'"
 
@@ -762,19 +777,19 @@ class taskMethods:
 
                 uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, sTaskID, sItem,
                     "Added Command from Clipboard to Step: " + sStepID)
-                
+
             else:
                 uiCommon.log("Unable to add clipboard item to step.  Can't find function_xml for clipboard command [" + sItem + "]")
-                
+
 
         else:
             # 1) Get a Function object for the sItem (function_name)
             # 2) update the parent step with the function objects xml
-            
+
             func = uiCommon.GetTaskFunction(sItem)
             if not func:
                 uiCommon.log("Unable to add step.  Can't find a Function definition for [" + sItem + "]")
-            
+
             # gotta do a few things to the templatexml
             xe = catocommon.ET.fromstring(func.TemplateXML)
             if xe is not None:
@@ -783,7 +798,22 @@ class taskMethods:
                     xNode = xe.find(sXPath)
                     if xNode is not None:
                         xNode.text = sValue
-            
+
+                if catocommon.featuretoggle("336"):
+                    # NEW OPTIMIZATION FEATURE #336
+                    # display metadata attributes are explicitly stripped off...
+                    # to conserve a few bytes in the db,
+                    # as well as make exported tasks easier to read.
+                    # ALL attributes are removed except 'name'
+                    for x in xe.getiterator():
+                        leavekeys = ["name", "parse_method", "is_array"]
+                        keys_to_del = [k for k in x.attrib.iterkeys() if k not in leavekeys]
+                        for k in keys_to_del:
+                            try:
+                                del x.attrib[k]
+                            except:
+                                pass
+
                 # Add it!
                 ST.AddToCommandXML(sStepID, sDropXPath, catocommon.ET.tostring(xe))
 
@@ -798,13 +828,13 @@ class taskMethods:
         # !!!!! This isn't a new step! ... It's an extension of the parent step.
         # but, since it's a different 'function', we'll treat it like a different step for now
         oEmbeddedStep = task.Step()  # a new step object
-        oEmbeddedStep.ID = sStepID 
+        oEmbeddedStep.ID = sStepID
         oEmbeddedStep.Function = func  # a function object
         oEmbeddedStep.FunctionName = func.Name
         oEmbeddedStep.FunctionXDoc = xe
-        # THIS IS CRITICAL - this embedded step ... all fields in it will need an xpath prefix 
+        # THIS IS CRITICAL - this embedded step ... all fields in it will need an xpath prefix
         oEmbeddedStep.XPathPrefix = sDropXPath + "/function"
-        
+
         sStepHTML += ST.DrawEmbeddedStep(oEmbeddedStep)
         # return the html
         return sStepHTML
@@ -818,7 +848,7 @@ class taskMethods:
             # there will be no sSQL if there were no steps, so just skip it.
             if sSQL:
                 self.db.exec_db(sSQL)
-                
+
             i += 1
 
         return json.dumps({"result": "success"})
@@ -846,9 +876,9 @@ class taskMethods:
             # for logging, we'll stick the whole command XML into the log
             # so we have a complete record of the step that was just deleted.
             uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.Task, "Multiple", "Original Task IDs",
-                "Codeblock:" + sCodeblock + 
-                " Step Order:" + sDeletedStepOrder + 
-                " Command Type:" + sFunction + 
+                "Codeblock:" + sCodeblock +
+                " Step Order:" + sDeletedStepOrder +
+                " Command Type:" + sFunction +
                 " Details:" + sFunctionXML)
 
         # "embedded" steps have a codeblock name referencing their "parent" step.
@@ -872,9 +902,9 @@ class taskMethods:
 
         self.db.tran_commit()
         self.db.close()
-        
+
         return json.dumps({"result": "success"})
-        
+
     def wmUpdateStep(self):
         sStepID = uiCommon.getAjaxArg("sStepID")
         sFunction = uiCommon.getAjaxArg("sFunction")
@@ -887,7 +917,7 @@ class taskMethods:
         sValue = uiCommon.unpackJSON(sValue)
 
         uiCommon.log("Updating step [%s (%s)] setting [%s] to [%s]." % (sFunction, sStepID, sXPath, sValue), 3)
-        
+
         # Some xpaths are hardcoded because they're on the step table and not in the xml.
         # this currently only applies to the step_desc column ("notes" field).
         if sXPath == "step_desc":
@@ -921,7 +951,7 @@ class taskMethods:
                     # here's the deal... given an XPath statement, we simply cannot add a new node if it doesn't exist.
                     # why?  because xpath is a query language.  It doesnt' describe exactly what to add due to wildcards and # foo syntax.
 
-                    # but, what we can do is make an assumption in our specific case... 
+                    # but, what we can do is make an assumption in our specific case...
                     # that we are only wanting to add because we changed an underlying command XML template, and there are existing commands.
 
                     # so... we will split the xpath into segments, and traverse upward until we find an actual node.
@@ -986,7 +1016,7 @@ class taskMethods:
 
         if dr is not None:
             uiCommon.WriteObjectChangeLog(catocommon.CatoObjectTypes.Task, dr["task_id"], sFunction,
-                "Codeblock:" + dr["codeblock_name"] + " Step Order:" + str(dr["step_order"]) + 
+                "Codeblock:" + dr["codeblock_name"] + " Step Order:" + str(dr["step_order"]) +
                 " Command Type:" + sFunction + " Property:" + sXPath + " New Value: " + sValue)
 
         return json.dumps({"result": "success"})
@@ -1001,9 +1031,9 @@ class taskMethods:
             sUserID = uiCommon.GetSessionUserID()
 
             button_json = self.db.select_col_noexcep("select button from task_step_user_settings where user_id=%s and step_id=%s", (sUserID, sStepID))
-            
+
             buttons = json.loads(button_json) if button_json else {}
-            
+
             # Some commands have embedded commands... so in those cases the button name actually contains that xpath
             # what's stored in the button field is a json dictionary of paths and button names.
             uiCommon.log("wut")
@@ -1015,7 +1045,7 @@ class taskMethods:
             else:
                 uiCommon.log("wut nox")
                 buttons[str("root")] = sButton
-                
+
             uiCommon.log(buttons)
 
             sSQL = """insert into task_step_user_settings
@@ -1027,12 +1057,12 @@ class taskMethods:
             return ""
         else:
             uiCommon.log("Unable to toggle step button. Missing or invalid step_id.")
-            
+
     def wmToggleStep(self):
         # no exceptions, just a log message if there are problems.
         sStepID = uiCommon.getAjaxArg("sStepID")
         sVisible = uiCommon.getAjaxArg("sVisible")
-        
+
         if catocommon.is_guid(sStepID):
             sUserID = uiCommon.GetSessionUserID()
 
@@ -1043,7 +1073,7 @@ class taskMethods:
                 values ('%s', '%s', '%s', 0, 0)
                 on duplicate key update visible = %s""" % (sUserID, sStepID, sVisible, sVisible)
             self.db.exec_db(sSQL)
-            
+
             return ""
         else:
             uiCommon.log("Unable to toggle step visibility. Missing or invalid step_id.")
@@ -1065,7 +1095,7 @@ class taskMethods:
             # an index > 0 means its one of many 'elif' sections
             if sAddTo:
                 # add a slash seperator if there's an add to
-                sAddTo += "/" 
+                sAddTo += "/"
             ST.AddToCommandXML(sStepID, sAddTo + "tests", "<test><eval input_type=\"text\" /><action input_type=\"text\" /></test>")
         elif sIndex == -1:
             # whereas an index of -1 means its the ONLY 'else' section
@@ -1092,7 +1122,7 @@ class taskMethods:
             for row in tasks.rows:
                 if i > iRowsToGet:
                     break
-                
+
                 sTaskName = row["Name"].replace("\"", "\\\"")
                 sLabel = row["Code"] + " : " + sTaskName
                 sDesc = (row["Description"] if row["Description"] else "")
@@ -1114,9 +1144,9 @@ class taskMethods:
                 sHTML += "</div>"
                 sHTML += "<div class=\"clearfloat\"></div>"
                 sHTML += "</li>"
-                
+
                 i += 1
-                    
+
             sHTML += "</ul>"
         else:
             sHTML = "No results found."
@@ -1132,10 +1162,10 @@ class taskMethods:
         fn = uiCommon.GetTaskFunction(oStep.FunctionName)
         if fn is None:
             uiCommon.log("Error - Unable to get the details for the Command type '" + oStep.FunctionName + "'.")
-        
+
         # we will return some key values, and the html for the dialog
         html, pt, rd, cd = ST.DrawVariableSectionForEdit(oStep, sXPathPrefix)
-        
+
         if not html:
             html = "<span class=\"red_text\">Unable to get command variables.</span>"
 
@@ -1148,10 +1178,10 @@ class taskMethods:
         sRowDelimiter = uiCommon.getAjaxArg("sRowDelimiter")
         sColDelimiter = uiCommon.getAjaxArg("sColDelimiter")
         oVarArray = uiCommon.getAjaxArg("oVarArray")
-        
+
         # if every single variable is delimited, we can sort them!
         bAllDelimited = True
-        
+
         # update the function_xml attributes.
         # row and col delimiters must be integers...
         try:
@@ -1162,7 +1192,7 @@ class taskMethods:
             int(sColDelimiter)
         except:
             sColDelimiter = 0
-            
+
         xpath = sXPathPrefix if sXPathPrefix else "function"
         ST.SetNodeAttributeinCommandXML(sStepID, xpath, "row_delimiter", sRowDelimiter)
         ST.SetNodeAttributeinCommandXML(sStepID, xpath, "col_delimiter", sColDelimiter)
@@ -1229,16 +1259,16 @@ class taskMethods:
             for elem in xVars:
                 key = elem.findtext("position")
                 data.append((key, elem))  # the double parens are required! we're appending a tuple
-            
+
             data.sort()
-            
+
             # insert the last item from each tuple
             xVars[:] = [item[-1] for item in data]
 
-        
+
         uiCommon.log("Saving variables ...", 3)
         uiCommon.log(catocommon.ET.tostring(xVars), 4)
-        
+
         # add and remove using the xml wrapper functions
         removenode = "%s/step_variables" % sXPathPrefix if sXPathPrefix else "step_variables"
         ST.RemoveFromCommandXML(sStepID, removenode)
@@ -1250,7 +1280,7 @@ class taskMethods:
     def wmGetClips(self):
         sUserID = uiCommon.GetSessionUserID()
         sHTML = ""
-        
+
         sSQL = "select s.clip_dt, s.step_id, s.step_desc, s.function_name, s.function_xml" \
             " from task_step_clipboard s" \
             " where s.user_id = '" + sUserID + "'" \
@@ -1263,47 +1293,47 @@ class taskMethods:
                 fn = uiCommon.GetTaskFunction(dr["function_name"])
                 if fn is None:
                     return "Error building Clip - Unable to get the details for the Command type '" + dr["function_name"] + "'."
-    
+
                 sStepID = dr["step_id"]
                 sLabel = fn.Label
                 sIcon = fn.Icon
                 sDesc = uiCommon.GetSnip(dr["step_desc"], 75)
                 sClipDT = str(dr["clip_dt"])
-                
+
                 sHTML += "<li" \
                     " id=\"clip_" + sStepID + "\"" \
                         " name=\"clip_" + sStepID + "\"" \
                         " class=\"command_item function clip ui-widget-content ui-corner-all\"" \
                         ">"
-                
+
                 # a table for the label so the clear icon can right align
                 sHTML += "<table width=\"99%\" border=\"0\"><tr>"
                 sHTML += "<td width=\"1px\"><img alt=\"\" src=\"" + sIcon + "\" /></td>"
                 sHTML += "<td style=\"vertical-align: middle; padding-left: 5px;\">" + sLabel + "</td>"
                 sHTML += "<td style=\"vertical-align: middle;\">"
-                
+
                 # view icon
-                # due to the complexity of telling the core routines to look in the clipboard table, it 
+                # due to the complexity of telling the core routines to look in the clipboard table, it
                 # it not possible to easily show the complex command types
                 #  without a redesign of how this works.  NSC 4-19-2011
-                # due to several reasons, most notable being that the XML node for each of those commands 
+                # due to several reasons, most notable being that the XML node for each of those commands
                 # that contains the step_id is hardcoded and the node names differ.
                 # and GetSingleStep requires a step_id which must be mined from the XML.
                 # so.... don't show a preview icon for them
                 sFunction = fn.Name
-                
+
                 if not sFunction in "loop,exists,if,while":
                     sHTML += "<span view_id=\"v_" + sStepID + "\" class=\"btn_view_clip ui-icon ui-icon-search forceinline pointer\"></span>"
                 # delete icon
                 sHTML += "<span class=\"btn_clear_clip ui-icon ui-icon-close forceinline\" remove_id=\"" + sStepID + "\"></span>"
                 sHTML += "</td></tr>"
-                
+
                 sHTML += "<tr><td>&nbsp;</td><td><span class=\"code\">" + sClipDT + "</span></td>"
                 sHTML += "<td>&nbsp;</td></tr></table>"
-                
-                
+
+
                 sHTML += "<div class=\"hidden\" id=\"help_text_clip_" + sStepID + "\">" + sDesc + "</div>"
-                
+
                 # TODO: for the moment we aren't building the view viersion of the command
                 # until we convert all the VIEW functions!
                 # we use this function because it draws a smaller version than DrawReadOnlyStep
@@ -1312,9 +1342,9 @@ class taskMethods:
                 # if not sFunction in "loop,exists,if,while":
                 # BUT WHEN WE DO! ... build a clipboard step object here from the row selected above
                 #    sStepHTML = ST.DrawClipboardStep(cs, True)
-                
+
                 # sHTML += "<div class=\"hidden\" id=\"v_" + sStepID + "\">" + sStepHTML + "</div>"
-                
+
                 sHTML += "</li>"
         return sHTML
 
@@ -1330,8 +1360,8 @@ class taskMethods:
             # commands get new ids when copied into the clpboard.
             sNewStepID = catocommon.new_guid()
 
-            # it's a bit hokey, but if a step already exists in the clipboard, 
-            # and we are copying that step again, 
+            # it's a bit hokey, but if a step already exists in the clipboard,
+            # and we are copying that step again,
             # ALWAYS remove the old one.
             # we don't want to end up with lots of confusing copies
             sSQL = "delete from task_step_clipboard" \
@@ -1376,21 +1406,21 @@ class taskMethods:
         sAssetID = uiCommon.getAjaxArg("sAssetID")
         sParameterXML = uiCommon.getAjaxArg("sParameterXML")
         sDebugLevel = uiCommon.getAjaxArg("iDebugLevel")
-        
+
         sUserID = uiCommon.GetSessionUserID()
 
         sParameterXML = catocommon.unpackData(sParameterXML)
-                        
+
         # we gotta peek into the XML and encrypt any newly keyed values
         sParameterXML = task.Task.PrepareAndEncryptParameterXML(sParameterXML)
-    
+
         if catocommon.is_guid(sTaskID) and catocommon.is_guid(sUserID):
             ti = catocommon.add_task_instance(sTaskID, sUserID, sDebugLevel, sParameterXML, account_id=sAccountID)
             uiCommon.log("Starting Task [%s] ... Instance is [%s]" % (sTaskID, ti), 3)
             return ti
         else:
             uiCommon.log("Unable to run task. Missing or invalid task [%s] or user [%s] id." % (sTaskID, sUserID))
-    
+
         # uh oh, return nothing
         return ""
 
@@ -1417,7 +1447,7 @@ class taskMethods:
     # """
     #  This method simply gets the XML directly from the db for the type.
     #  It may be different by type!
-    
+
     #  The schema should be the same, but some documents (task) are complete, while
     #  others (action, instance) are JUST VALUES, not the complete document.
     # """
@@ -1436,9 +1466,9 @@ class taskMethods:
             # sucks that MySql doesn't have decent XML functions... we gotta do manipulation grr...
             sSQL = """select function_xml from task_step where step_id = '%s'""" % sID
             func_xml = self.db.select_col(sSQL)
-                
+
             xroot = catocommon.ET.fromstring(func_xml)
-            
+
             xp = "parameters"
             if sXPath:
                 xp = "%s/%s" % (sXPath, xp)
@@ -1473,7 +1503,7 @@ class taskMethods:
                 sSQL = "select parameter_xml from action_schedule where schedule_id = '" + sID + "'"
             elif sType == "task":
                 sSQL = "select parameter_xml from task where task_id = '" + sID + "'"
-    
+
             sParameterXML = self.db.select_col(sSQL)
 
         if sParameterXML:
@@ -1526,37 +1556,37 @@ class taskMethods:
          """
         if not sID:
             uiCommon.log("ID required to look up default Parameter values.")
-    
+
         sDefaultsXML = ""
         sTaskID = ""
         sSQL = ""
-        
+
         if sType == "runtask":
             # RunTask is actually a command type
             # but it's very very similar to an Action.
             # so... it handles it's params like an action... more or less.
-            
-            # HACK ALERT!  Since we are dealing with a unique case here where we have and need both the 
+
+            # HACK ALERT!  Since we are dealing with a unique case here where we have and need both the
             # step_id AND the target task_id, we're piggybacking a value in.
             # the sID is the STEP_ID (which is kindof equivalient to the action)
             # the sFilterID is the target TASK_ID
             # yes, it's a hack I know... but better than adding another argument everywhere... sue me.
-            
+
             # NOTE: plus, don't get confused... yes, run task references tasks by original id and version, but we already worked that out.
             # the sFilterID passed in to this function is already resolved to an explicit task_id... it's the right one.
-    
+
             # get the parameters off the step itself.
             # which is also goofy, as they are embedded *inside* the function xml of the step.
             # but don't worry that's handled in here
             sDefaultsXML = self.GetObjectParameterXML(sType, sID, "", sXPath)
-            
+
             # now, we will want to get the parameters for the task *referenced by the command* down below
             # but no sql is necessary to get the ID... we already know it!
             sTaskID = sFilterID
-            
+
         elif sType == "instance":
             sDefaultsXML = self.GetObjectParameterXML(sType, sID, sFilterID)
-    
+
             # IMPORTANT!!! if the ID is not a guid, it's a specific instance ID, and we'll need to get the task_id
             # but if it is a GUID, but the type is "instance", taht means the most recent INSTANCE for this TASK_ID
             if catocommon.is_guid(sID):
@@ -1567,29 +1597,29 @@ class taskMethods:
                      " where task_instance = '" + sID + "'"
         elif sType == "plan":
             sDefaultsXML = self.GetObjectParameterXML(sType, sID, "")
-    
+
             sSQL = "select task_id" \
                 " from action_plan" \
                 " where plan_id = '" + sID + "'"
         elif sType == "schedule":
             sDefaultsXML = self.GetObjectParameterXML(sType, sID, "")
-    
+
             sSQL = "select task_id" \
                 " from action_schedule" \
                 " where schedule_id = '" + sID + "'"
-    
-    
+
+
         # if we didn't get a task id directly, use the SQL to look it up
         if not sTaskID:
             if sSQL:
                 sTaskID = self.db.select_col(sSQL)
             else:
                 raise Exception("GetMergedParams - no task id and no sql to look one up.", 0)
-    
+
         if not catocommon.is_guid(sTaskID):
             raise Exception("Unable to find Task ID for record.")
-    
-    
+
+
         # get the parameter XML from the TASK
         sTaskParamXML = self.GetParameterXML("task", sTaskID, "")
         xTPParams = None
@@ -1597,13 +1627,13 @@ class taskMethods:
             xTPParams = catocommon.ET.fromstring(sTaskParamXML)
             if xTPParams is None:
                 raise Exception("Task Parameter XML data is invalid.")
-    
+
         # we populated this up above too
         if sDefaultsXML:
             xDefParams = catocommon.ET.fromstring(sDefaultsXML)
             if xDefParams is None:
                 raise Exception("Defaults XML data is invalid.")
-    
+
             # spin the nodes in the DEFAULTS xml, then dig in to the task XML and UPDATE the value if found.
             # (if the node no longer exists, delete the node from the defaults xml IF IT WAS AN ACTION)
             # and default "values" take precedence over task values.
@@ -1611,12 +1641,12 @@ class taskMethods:
                 # nothing to do if it's empty
                 if xDefault is None:
                     break
-        
+
                 # look it up in the task param xml
                 sDefID = xDefault.get("id", "")
                 sDefName = xDefault.findtext("name", "")
                 xDefValues = xDefault.find("values")
-                
+
                 # nothing to do if there is no values node...
                 if xDefValues is None:
                     break
@@ -1626,31 +1656,31 @@ class taskMethods:
                 # or if there is no parameter name
                 if not sDefName:
                     break
-            
-            
+
+
                 # so, we have some valid data in the defaults xml... let's merge!
 
                 # NOTE! elementtree doesn't track parents of nodes.  We need to build a parent map...
                 parent_map = dict((c, p) for p in xTPParams.getiterator() for c in p)
-                
+
                 # we have the name of the parameter... go spin and find the matching node in the TASK param XML
                 xTaskParam = None
                 for node in xTPParams.findall("parameter/name"):
                     if node.text == sDefName:
                         # now we have the "name" node, what's the parent?
                         xTaskParam = parent_map[node]
-                        
-                        
+
+
                 if xTaskParam is not None:
                     # is this an encrypted parameter?
                     sEncrypt = ""
                     if xTaskParam.get("encrypt") is not None:
                         sEncrypt = xTaskParam.get("encrypt", "")
-            
-            
+
+
                     # and the "values" collection will be the 'next' node
                     xTaskParamValues = xTaskParam.find("values")
-            
+
                     sPresentAs = xTaskParamValues.get("present_as", "")
                     if sPresentAs == "dropdown":
                         # dropdowns get a "selected" indicator
@@ -1668,7 +1698,7 @@ class taskMethods:
                         # IMPORTANT NOTE:
                         # remember... both these XML documents came from wmGetObjectParameterXML...
                         # so any encrypted data IS ALREADY OBFUSCATED and base64'd in the oev attribute.
-                        
+
                         # it's a single value, so just replace it with the default.
                         xVal = xTaskParamValues.find("value[1]")
                         if xVal is not None:
@@ -1682,15 +1712,15 @@ class taskMethods:
                                 # not encrypted, just replace the value.
                                 if xDefValues.find("value") is not None:
                                     xVal.text = xDefValues.findtext("value", "")
-    
-        if xTPParams is not None:    
+
+        if xTPParams is not None:
             resp = catocommon.ET.tostring(xTPParams)
             if resp:
                 return resp
 
         # nothing found
         return ""
-    
+
     def wmSaveDefaultParameterXML(self):
         sType = uiCommon.getAjaxArg("sType")
         sID = uiCommon.getAjaxArg("sID")
@@ -1710,7 +1740,7 @@ class taskMethods:
 
             # so, like when we read it, we gotta spin and compare, and build an XML that only represents *changes*
             # to the defaults on the task.
-            
+
             if not catocommon.is_guid(sTaskID):
                 uiCommon.log("No Task ID provided.")
 
@@ -1725,7 +1755,7 @@ class taskMethods:
                 xTPDoc = catocommon.ET.fromstring(sTaskParamXML)
                 if xTPDoc is None:
                     raise Exception("Task Parameter XML data is invalid.")
-    
+
             # we had the ACTION defaults handed to us
             if sXML:
                 xADDoc = catocommon.ET.fromstring(sXML)
@@ -1735,15 +1765,15 @@ class taskMethods:
             # spin the nodes in the ACTION xml, then dig in to the task XML and UPDATE the value if found.
             # (if the node no longer exists, delete the node from the action XML)
             # and action "values" take precedence over task values.
-            
+
             for xDefault in xADDoc.findall("parameter"):
                 # look it up in the task param xml
                 sADName = xDefault.findtext("name", "")
                 xADValues = xDefault.find("values")
-                
+
                 # NOTE! elementtree doesn't track parents of nodes.  We need to build a parent map...
                 parent_map = dict((c, p) for p in xTPDoc.getiterator() for c in p)
-                
+
                 # we have the name of the parameter... go spin and find the matching node in the TASK param XML
                 xTaskParam = None
                 for node in xTPDoc.findall("parameter/name"):
@@ -1760,38 +1790,38 @@ class taskMethods:
                 # and the "values" collection will be the 'next' node
                 xTaskParamValues = xTaskParam.find("values")
 
-                
-                # so... it might be 
+
+                # so... it might be
                 # a) just an oev (original encrypted value) so de-base64 it
                 # b) a value flagged for encryption
-                
+
                 # note we don't care about dirty unencrypted values... they'll compare down below just fine.
-                
+
                 # is it encrypted?
                 bEncrypted = catocommon.is_true(xTaskParam.get("encrypt", ""))
-                        
+
                 if bEncrypted:
                     for xVal in xADValues.findall("value"):
                         # a) is it an oev?  unpackJSON it (that's just an obfuscation wrapper)
                         if catocommon.is_true(xVal.get("oev", "")):
                             xVal.text = uiCommon.unpackJSON(xVal.text)
                             del xVal.attrib["oev"]
-                        
+
                         # b) is it do_encrypt?  (remove the attribute to keep the db clutter down)
                         if xVal.get("do_encrypt") is not None:
                             xVal.text = catocommon.cato_encrypt(xVal.text)
                             del xVal.attrib["do_encrypt"]
-                            
-                
+
+
                 # now that the encryption is sorted out,
                 #  if the combined values of the parameter happens to match what's on the task
                 #   we just remove it.
-                
+
                 # we're doing combined because of lists (the whole list must match for it to be a dupe)
-                
+
                 # it's easy to look at all the values in a node with the node.text property.
                 # but we'll have to manually concatenate all the oev attributes
-                
+
                 sTaskVals = ""
                 sDefVals = ""
 
@@ -1803,18 +1833,18 @@ class taskMethods:
                     for xe in xADValues.findall("value"):
                         s = (xe.text if xe.text else "")
                         sDefVals += uiCommon.packJSON(s)
-                        
+
                     if sTaskVals == sDefVals:
                         xADDoc.remove(xDefault)
                         continue
                 else:
-                    # just spin the values and construct a string of all the text, 
+                    # just spin the values and construct a string of all the text,
                     # then check if they match
                     for s in xTaskParamValues.findtext("value"):
                         sTaskVals += s
                     for s in xADValues.findtext("value"):
                         sDefVals += s
-                        
+
                     # if the values match the defaults identically, don't include them
                     # this allows the defaults to change if needed without storing
                     # an old copy here.
@@ -1840,7 +1870,7 @@ class taskMethods:
     """
         END OF PARAMETER METHODS
     """
-    
+
     # This one is normal, just returns html for the Parameters toolbox
     # But, it's shared by several pages.
     def wmGetParameters(self):
@@ -1851,7 +1881,7 @@ class taskMethods:
 
         if not sType:
             raise Exception("ERROR: Type was not passed to wmGetParameters.")
-        
+
         sTable = ""
 
         if sType == "task":
@@ -1936,7 +1966,7 @@ class taskMethods:
 
                         sValue = (xVal.text if xVal.text else "")
                         sObscuredValue = ""
-                        
+
                         if catocommon.is_true(sEncrypt):
                             #  1) obscure the ENCRYPTED value and make it safe to be an html attribute
                             #  2) return some stars so the user will know a value is there.
@@ -2083,7 +2113,7 @@ class taskMethods:
         sDesc = uiCommon.unpackJSON(sDesc).strip()
         sConstraint = uiCommon.unpackJSON(sConstraint)
         sConstraintMsg = uiCommon.unpackJSON(sConstraintMsg).strip()
-        
+
         # normalize and clean the values
         sRequired = ("true" if catocommon.is_true(sRequired) else "false")
         sPrompt = ("true" if catocommon.is_true(sPrompt) else "false")
@@ -2170,7 +2200,7 @@ class taskMethods:
 
         for sVal in aValues:
             sReadyValue = ""
-            
+
             # if encrypt is true we MIGHT want to encrypt this value.
             # but it might simply be a resubmit of an existing value in which case we DON'T
             # if it has oev: as a prefix, it needs no additional work
@@ -2181,11 +2211,11 @@ class taskMethods:
                     sReadyValue = catocommon.cato_encrypt(uiCommon.unpackJSON(sVal))
             else:
                 sReadyValue = uiCommon.unpackJSON(sVal)
-                
+
             # the value must be htmlencoded since we're building the xml as a string
             # (this is so ugly... would love to take time to do it right)
             sReadyValue = cgi.escape(sReadyValue)
-                
+
             sValueXML += "<value id=\"pv_" + catocommon.new_guid() + "\">" + sReadyValue + "</value>"
 
         sValueXML = "<values present_as=\"" + sPresentAs + "\">" + sValueXML + "</values>"
@@ -2201,7 +2231,7 @@ class taskMethods:
         sTaskInstance = str(uiCommon.getAjaxArg("sTaskInstance"))
         sTaskID = uiCommon.getAjaxArg("sTaskID")
         sAssetID = uiCommon.getAjaxArg("sAssetID")
-        
+
         # not doing the permission check yet
         """
         # PERMISSION CHECK
@@ -2239,11 +2269,11 @@ class taskMethods:
 
         # so, it's simple.  We get the object (a dictionary) from the task class
         # do any adjustments we need, then return it as json.
-        
+
         ti = task.TaskInstance(sTaskInstance, sTaskID, sAssetID)
         if ti.Error:
             return json.dumps({"error": ti.Error})
-        
+
         # one last thing... does the logfile for this run exist on this server?
         if os.path.exists(r"%s/te/%s.log" % (catolog.LOGPATH, sTaskInstance)):
             ti.logfile_name = "%s/te/%s.log" % (catolog.LOGPATH, sTaskInstance)
@@ -2258,7 +2288,7 @@ class taskMethods:
         runlog = task.TaskRunLog(sTaskInstance, sRows)
         sLog = ""
         sSummary = ""
-    
+
         if runlog.summary_rows:
             for dr in runlog.summary_rows:
                 # almost done... if there is a Result Summary ... display that.
@@ -2299,7 +2329,7 @@ class taskMethods:
                             iStepOrder = int(dr["step_order"])
                         except:
                             iStepOrder = 0
-                            
+
                         if iStepOrder:
                             sLog += "[" + dr["codeblock_name"] + " - " + dr["function_label"] + " - Step " + str(iStepOrder) + "]\n"
                         else:
@@ -2330,7 +2360,7 @@ class taskMethods:
 
 
                 # it might be a log entry:
-                # ( we write out the div even if it's empty, so the user 
+                # ( we write out the div even if it's empty, so the user
                 # will see an indication of progress
                 sLog += "    <div class=\"log_results ui-widget-content ui-corner-all\">\n"
                 if dr["log"].strip():
@@ -2353,7 +2383,7 @@ class taskMethods:
 #                             }
 #                         }
 
-                
+
                 # end detail
                 sLog += "</div>\n"
 
@@ -2377,23 +2407,23 @@ class taskMethods:
                 with open(logfile, 'r') as f:
                     if f:
                         return uiCommon.packJSON(uiCommon.SafeHTML(f.read().decode("utf8", "ignore")))
-        
+
         return uiCommon.packJSON("Unable to read logfile. [%s]" % logfile)
-            
+
     def wmExportTasks(self):
         """
         This function creates a SINGLE xml export file of all tasks specified in sTaskArray.  
         """
-        
+
         sIncludeRefs = uiCommon.getAjaxArg("sIncludeRefs")
         sTaskArray = uiCommon.getAjaxArg("sTaskArray")
 
         otids = sTaskArray.split(",")
-        
+
         # helpername is just something to stick on the file so it's a little more recognizable.
         # it should really be an argument, but the UI doesn't ask for it at the moment.
         helpername = ""
-        
+
         """
         The UI sends us a list of OriginalTaskIDs and assumes we want the 'default' version.
         
@@ -2407,12 +2437,12 @@ class taskMethods:
                 if not helpername:
                     helpername = "%s_%s" % (t.Name, uiCommon.GetSessionUserFullName())
                 task_ids.append(t.ID)
-        
+
         docs = task.Tasks.Export(task_ids, sIncludeRefs)
         xml = ""
         for doc in docs:
             xml += doc
-        
+
         xml = "<tasks>%s</tasks>" % xml
 
         # what are we gonna call this file?
@@ -2422,9 +2452,9 @@ class taskMethods:
             if not f_out:
                 uiCommon.log("ERROR: unable to write task export file.")
             f_out.write(xml)
-            
+
         return json.dumps({"export_file": filename})
-            
+
     def wmGetTaskStatusCounts(self):
         # we're building a json object to be returned, so we'll start with a dictionary
         output = {}
@@ -2460,11 +2490,11 @@ class taskMethods:
             output["Errored"] = dr["Errored"]
             output["TotalComplete"] = dr["TotalComplete"]
             output["AllStatuses"] = dr["AllStatuses"]
-            
+
             # all done, serialize our output dictionary
             return json.dumps(output)
 
-        # if we get here, there is just no data... 
+        # if we get here, there is just no data...
         return ""
 
     def wmGetTaskVarPickerPopup(self):
@@ -2534,7 +2564,7 @@ class taskMethods:
 
                 sHTML += "</div>"
 
-            
+
             # "Global" Variables
             sHTML += "<div target=\"var_picker_group_globals\" class=\"ui-widget-content ui-corner-all value_picker_group\"><img alt=\"\" src=\"static/images/icons/expand.png\" style=\"width:12px;height:12px;\" /> Globals</div>"
             sHTML += "<div id=\"var_picker_group_globals\" class=\"hidden\">"
@@ -2547,7 +2577,7 @@ class taskMethods:
                     taskglobals = json.load(f)
                 except:
                     raise Exception("Unable to parse task_globals.json - invalid format.")
-            
+
             # so, we have the cato menu.  Are there any extensions with menu additions?
             # extension paths are defined in config.
             for n, p in catoconfig.CONFIG["extensions"].iteritems():
@@ -2556,11 +2586,11 @@ class taskMethods:
                     for f in files:
                         if f == "task_globals.json":
                             uiCommon.log("... found one! Loading...", 4)
-    
+
                             with open(os.path.join(p, f), 'r') as f:
                                 extglobs = json.load(f)
                                 taskglobals += extglobs
-            
+
             for gvar in taskglobals:
                 sHTML += "<div class=\"ui-widget-content ui-corner-all value_picker_value\">%s</div>" % gvar
 
@@ -2613,7 +2643,7 @@ class taskMethods:
             return sHTML
         else:
             uiCommon.log("Unable to get connections for task. Missing or invalid task_id.")
-            
+
     def wmStopTask(self):
         sInstance = uiCommon.getAjaxArg("sInstance")
         ti = task.TaskInstance(sInstance)
@@ -2676,21 +2706,21 @@ class taskMethods:
         func = uiCommon.GetTaskFunction(sFunctionName)
         if not func:
             raise Exception("Unable to get a Function definition for name [%s]" % sFunctionName)
-        
+
         # validate it
         # parse the doc from the table
         xd = func.TemplateXDoc
         if xd is None:
             raise Exception("Unable to get Function Template.")
-        
+
         # get the original "group" node from the xml_template
-        # here's the rub ... the "sGroupNode" from the actual command instance might have xpath indexes > 1... 
+        # here's the rub ... the "sGroupNode" from the actual command instance might have xpath indexes > 1...
         # but the template DOESN'T!
         # So, I'm regexing any [#] on the back to a [1]... that value should be in the template.
-        
+
         rx = re.compile("\[[0-9]*\]")
         sTemplateNode = re.sub(rx, "[1]", sTemplateXPath)
-        
+
         # this is a little weird... if the sTemplateNode is empty, or is "function"...
         # that means we want the root node (everything)
         if sTemplateNode == "" or sTemplateNode == "function":
@@ -2705,14 +2735,14 @@ class taskMethods:
                 xGroupNode = xd.find(sTemplateNode)
             except:
                 raise Exception("Error: Source node not found in Template XML, and cannot create it. [" + sTemplateNode + "].")
-        
+
         if xGroupNode is None:
             raise Exception("Error: Unable to add.  Template XML does not contain [" + sTemplateNode + "].")
-        
+
         # yeah, this wicked single line aggregates the value of each node
         sNewXML = "".join(catocommon.ET.tostring(x) for x in list(xGroupNode))
         uiCommon.log(sNewXML, 4)
-        
+
         if sNewXML != "":
             ST.AddToCommandXML(sStepID, sAddTo, sNewXML.strip())
             # uiCommon.AddNodeToXMLColumn("task_step", "function_xml", "step_id = '" + sStepID + "'", sTemplateXPath, sNewXML)

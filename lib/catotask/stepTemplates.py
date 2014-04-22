@@ -209,9 +209,15 @@ def GetStepTemplate(oStep):
     if bShowVarButton:
         # IF a command "populates variables" it will be noted in the command xml
         # is the variables xml attribute true?
-        xd = oStep.FunctionXDoc
-        if xd is not None:
-            sPopulatesVars = xd.get("variables", "false")
+        if catocommon.featuretoggle("336"):
+            # NEW OPTIMIZATION FEATURE #336
+            # - separate the display metadata from the step function values.
+            ST = oStep.Function.TemplateXDoc
+        else:
+            ST = oStep.FunctionXDoc
+
+        if ST is not None:
+            sPopulatesVars = ST.get("variables", "false")
             UI.log("Populates Variables? " + sPopulatesVars, 4)
             if catocommon.is_true(sPopulatesVars):
                 sVariableHTML += DrawVariableSectionForDisplay(oStep, True)
@@ -223,7 +229,9 @@ def DrawReadOnlyStep(oStep, bDisplayNotes):
     sStepID = oStep.ID
 
     fn = UI.GetTaskFunction(oStep.FunctionName)
-    if fn is None:
+    if fn:
+        oStep.Function = fn
+    else:
         # the function doesn't exist (was probably deprecated)
         # we need at least a basic strip with a delete button
         sNoFunc = "<li>"
@@ -385,6 +393,19 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
     1) a node IsEditable if it has the attribute "is_array".  (It's an array, therefore it's contents are 'editable'.)
     2) a node IsRemovable if it's PARENT IsEditable.  So, we pass IsEditable down to subsequent recursions as IsRemovable.)
     """
+    if catocommon.featuretoggle("336"):
+        # NEW OPTIMIZATION FEATURE #336
+        # - separate the display metadata from the step function values.
+        UI.log("-- XPath: " + sXPath, 4)
+        # NOTE! to look up details in the template, we have to strip any index off the xpath
+        xp = sXPath
+        if xp.endswith("]"):
+            xp = xp[:xp.rfind("[")]
+        ST = oStep.Function.TemplateXDoc.find(xp)
+        UI.log("-- Template: " + catocommon.ET.tostring(ST), 4)
+    else:
+        ST = xeNode
+        
     # the base xpath of this command (will be '' unless this is embedded)
     # NOTE: do not append the base_path on any CommonAttribs calls, it's done inside that function.
     base_xpath = (oStep.XPathPrefix + "/" if oStep.XPathPrefix else "")  
@@ -392,11 +413,11 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
     sHTML = ""
     sNodeName = xeNode.tag
     
-    sNodeLabel = xeNode.get("label", sNodeName)
-    sIsEditable = xeNode.get("is_array", "")
+    sNodeLabel = ST.get("label", sNodeName)
+    sIsEditable = ST.get("is_array", "")
     bIsEditable = catocommon.is_true(sIsEditable)
     
-    sOptionTab = xeNode.get("option_tab", "")
+    sOptionTab = ST.get("option_tab", "")
     
     UI.log("-- Label: " + sNodeLabel, 4)
     UI.log("-- Editable: " + sIsEditable + " - " + str(bIsEditable), 4)
@@ -492,7 +513,7 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
             sHTML += "</div>"
             sHTML += "</div>"
     else:  # end section
-        sHTML += DrawField(xeNode, sXPath, oStep)
+        sHTML += DrawField(xeNode, sXPath, oStep, ST)
         # it may be that these fields themselves are removable
         if bIsRemovable:
             sHTML += "<span class=\"ui-icon ui-icon-close forceinline fn_node_remove_btn pointer\" remove_path=\"" + base_xpath + sXPath + "\" step_id=\"" + oStep.ID + "\"></span>"
@@ -509,14 +530,27 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
     Some important notes:
     1) a node IsEditable if it has the attribute "is_array".  (It's an array, therefore it's contents are 'editable'.)
     """
+    if catocommon.featuretoggle("336"):
+        # NEW OPTIMIZATION FEATURE #336
+        # - separate the display metadata from the step function values.
+        UI.log("-- XPath: " + sXPath, 4)
+        # NOTE! to look up details in the template, we have to strip any index off the xpath
+        xp = sXPath
+        if xp.endswith("]"):
+            xp = xp[:xp.rfind("[")]
+        ST = oStep.Function.TemplateXDoc.find(xp)
+        UI.log("-- Template: " + catocommon.ET.tostring(ST), 4)
+    else:
+        ST = xeNode
+
     sHTML = ""
     sNodeName = xeNode.tag
     
-    sNodeLabel = xeNode.get("label", sNodeName)
-    sIsEditable = xeNode.get("is_array", "")
+    sNodeLabel = ST.get("label", sNodeName)
+    sIsEditable = ST.get("is_array", "")
     bIsEditable = catocommon.is_true(sIsEditable)
     
-    sOptionTab = xeNode.get("option_tab", "")
+    sOptionTab = ST.get("option_tab", "")
     
     UI.log("-- Label: " + sNodeLabel, 4)
     UI.log("-- Editable: " + sIsEditable + " - " + str(bIsEditable), 4)
@@ -587,7 +621,7 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
     
             sHTML += "</div>"
     else:  # end section
-        sHTML += DrawReadOnlyField(xeNode, sXPath, oStep)
+        sHTML += DrawReadOnlyField(xeNode, sXPath, oStep, ST)
     
     # ok, now that we've drawn it, it might be intended to go on the "options tab".
     # if so, stick it there
@@ -596,45 +630,44 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
     else:
         return sHTML, ""
         
-def DrawField(xe, sXPath, oStep):
+def DrawField(xe, sXPath, oStep, ST):
     sHTML = ""
     sNodeValue = (xe.text if xe.text else "")
     UI.log("---- Value :" + sNodeValue, 4)
     
-    sNodeLabel = xe.get("label", xe.tag)
-    sLabelClasses = xe.get("label_class", "")
-    sLabelStyle = xe.get("label_style", "")
+    sNodeLabel = ST.get("label", xe.tag)
+    sLabelClasses = ST.get("label_class", "")
+    sLabelStyle = ST.get("label_style", "")
     sNodeLabel = "<span class=\"" + sLabelClasses + "\" style=\"" + sLabelStyle + "\">" + sNodeLabel + ": </span>"
 
-    sBreakBefore = xe.get("break_before", "")
-    sBreakAfter = xe.get("break_after", "")
-    sHRBefore = xe.get("hr_before", "")
-    sHRAfter = xe.get("hr_after", "")
-    sHelp = xe.get("help", "")
-    sCSSClasses = xe.get("class", "")
-    sStyle = xe.get("style", "")
-    sInputType = xe.get("input_type", "")
-    sRequired = xe.get("required", "")
-    bRequired = catocommon.is_true(sRequired)
+    sBreakBefore = ST.get("break_before", "")
+    sBreakAfter = ST.get("break_after", "")
+    sHRBefore = ST.get("hr_before", "")
+    sHRAfter = ST.get("hr_after", "")
+    sHelp = ST.get("help", "")
+    sCSSClasses = ST.get("class", "")
+    sStyle = ST.get("style", "")
+    sInputType = ST.get("input_type", "")
+    bRequired = catocommon.is_true(ST.get("required", ""))
     
     # CommonAttribs takes an options dictionary
     opts = {}
-    sConstraint = xe.get("constraint", "")
+    sConstraint = ST.get("constraint", "")
     if sConstraint:
         opts["constraint"] = sConstraint
-    sConstraintMsg = xe.get("constraint_msg", "")
+    sConstraintMsg = ST.get("constraint_msg", "")
     if sConstraintMsg:
         opts["constraint_msg"] = sConstraintMsg
-    sMinLength = xe.get("minlength", "")
+    sMinLength = ST.get("minlength", "")
     if sMinLength:
         opts["minlength"] = sMinLength
-    sMaxLength = xe.get("maxlength", "")
+    sMaxLength = ST.get("maxlength", "")
     if sMaxLength:
         opts["maxlength"] = sMaxLength
-    sMinValue = xe.get("minvalue", "")
+    sMinValue = ST.get("minvalue", "")
     if sMinValue:
         opts["minvalue"] = sMinValue
-    sMaxValue = xe.get("maxvalue", "")
+    sMaxValue = ST.get("maxvalue", "")
     if sMaxValue:
         opts["maxvalue"] = sMaxValue
         
@@ -656,7 +689,7 @@ def DrawField(xe, sXPath, oStep):
         sHTML += "<hr />"
     if sInputType == "textarea":
         # textareas have additional properties
-        sRows = xe.get("rows", "2")
+        sRows = ST.get("rows", "2")
         sTextareaID = catocommon.new_guid()
         sHTML += sNodeLabel + " <textarea rows=\"" + sRows + "\"" + \
             CommonAttribsWithID(oStep, bRequired, sXPath, sTextareaID, sCSSClasses, opts) + \
@@ -668,8 +701,8 @@ def DrawField(xe, sXPath, oStep):
     elif sInputType == "dropdown":
         # the data source of a drop down can be a) an xml file, b) an internal function or web method or c) an "local" inline list
         # there is no "default" datasource... if nothing is available, it draws an empty picker
-        sDatasource = xe.get("datasource", "")
-        sDataSet = xe.get("dataset", "")
+        sDatasource = ST.get("datasource", "")
+        sDataSet = ST.get("dataset", "")
 
         sHTML += sNodeLabel + " <select " + CommonAttribs(oStep, False, sXPath, sCSSClasses) + ">\n"
         
@@ -689,14 +722,14 @@ def DrawField(xe, sXPath, oStep):
                 # sDataset is a file name.
                 # sFormat is the type of data
                 # sTable is the parent node in the XML containing the data
-                sFormat = xe.get("format", "")
+                sFormat = ST.get("format", "")
 
                 if sFormat == "":
                     UI.log("---- 'format' attribute not found, defaulting to 'flat'.", 4)
             
                 if sFormat.lower() == "xml":
-                    sTable = xe.get("table", "")
-                    sValueNode = xe.get("valuenode", "")
+                    sTable = ST.get("table", "")
+                    sValueNode = ST.get("valuenode", "")
                     
                     if sTable == "":
                         UI.log("---- 'table' attribute not found, defaulting to 'values'.", 4)
@@ -788,7 +821,7 @@ def DrawField(xe, sXPath, oStep):
             " help=\"" + sHelp + "\"" \
             " value=\"" + sNodeValue + "\" />"
         # might this be a conn_name field?  If so, we can show the picker.
-        sConnPicker = xe.get("connection_picker", "")
+        sConnPicker = ST.get("connection_picker", "")
         if catocommon.is_true(sConnPicker):
             sHTML += "<span class=\"ui-icon ui-icon-search forceinline conn_picker_btn pointer\" link_to=\"" + sElementID + "\"></span>"
 
@@ -801,21 +834,21 @@ def DrawField(xe, sXPath, oStep):
     UI.log("---- ... done", 4)
     return sHTML
 
-def DrawReadOnlyField(xe, sXPath, oStep):
+def DrawReadOnlyField(xe, sXPath, oStep, ST):
     sHTML = ""
     sNodeValue = (xe.text if xe.text else "")
     UI.log("---- Value :" + sNodeValue, 4)
     
-    sInputType = xe.get("input_type", "")
-    sNodeLabel = xe.get("label", xe.tag)
-    sLabelClasses = xe.get("label_class", "")
-    sLabelStyle = xe.get("label_style", "")
+    sInputType = ST.get("input_type", "")
+    sNodeLabel = ST.get("label", xe.tag)
+    sLabelClasses = ST.get("label_class", "")
+    sLabelStyle = ST.get("label_style", "")
     sNodeLabel = "<span class=\"" + sLabelClasses + "\" style=\"" + sLabelStyle + "\">" + sNodeLabel + ": </span>"
 
-    sBreakBefore = xe.get("break_before", "")
-    sBreakAfter = xe.get("break_after", "")
-    sHRBefore = xe.get("hr_before", "")
-    sHRAfter = xe.get("hr_after", "")
+    sBreakBefore = ST.get("break_before", "")
+    sBreakAfter = ST.get("break_after", "")
+    sHRBefore = ST.get("hr_before", "")
+    sHRAfter = ST.get("hr_after", "")
 
     UI.log("---- Break Before/After : %s/%s" % (sBreakBefore, sBreakAfter), 4)
     UI.log("---- HR Before/After : %s/%s" % (sHRBefore, sHRAfter), 4)
@@ -2503,6 +2536,16 @@ def NewConnection(oStep):
     UI.log("New Connection command:", 4)
     sStepID = oStep.ID
     xd = oStep.FunctionXDoc
+
+    if catocommon.featuretoggle("336"):
+        # NEW OPTIMIZATION FEATURE #336
+        # - separate the display metadata from the step function values.
+        # NOTE: this one command is a hybrid - it calls DrawField for a few fields.
+        # therefore we need to find and pass the StepTemplate (ST)
+        ft = oStep.Function.TemplateXDoc
+    else:
+        ft = xd
+    
     xAsset = xd.find("asset")
     xConnName = xd.find("conn_name")
     xConnType = xd.find("conn_type")
@@ -2522,7 +2565,7 @@ def NewConnection(oStep):
     sHTML += "</select>\n"
 
     # nothing special here, just draw the field.
-    sHTML += DrawField(xConnName, "conn_name", oStep)
+    sHTML += DrawField(xConnName, "conn_name", oStep, ft.find("conn_name"))
 
     sHTML += "<br />\n"
 
@@ -2614,7 +2657,7 @@ def NewConnection(oStep):
         
     sOptionHTML = ""
     if xDebug is not None:
-        sOptionHTML = DrawField(xDebug, "debug", oStep)
+        sOptionHTML = DrawField(xDebug, "debug", oStep, ft.find("debug"))
 
     return sHTML, sOptionHTML
 
@@ -2622,6 +2665,16 @@ def NewConnection_View(oStep):
     UI.log("New Connection command:", 4)
     sStepID = oStep.ID
     xd = oStep.FunctionXDoc
+
+    if catocommon.featuretoggle("336"):
+        # NEW OPTIMIZATION FEATURE #336
+        # - separate the display metadata from the step function values.
+        # NOTE: this one command is a hybrid - it calls DrawField for a few fields.
+        # therefore we need to find and pass the StepTemplate (ST)
+        ft = oStep.Function.TemplateXDoc
+    else:
+        ft = xd
+
     xAsset = xd.find("asset")
     xConnName = xd.find("conn_name")
     xConnType = xd.find("conn_type")
@@ -2665,7 +2718,7 @@ def NewConnection_View(oStep):
         sHTML += "<span class=\"code\">" + sAssetName + "</span>"
        
     # nothing special here, just draw the field.
-    sHTML += DrawReadOnlyField(xConnName, "conn_name", oStep)
+    sHTML += DrawReadOnlyField(xConnName, "conn_name", oStep, ft.find("conn_name"))
 
     return sHTML
 
