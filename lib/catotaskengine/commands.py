@@ -825,7 +825,7 @@ def run_task_cmd(self, task, step):
 def sql_exec_cmd(self, task, step):
     # TODO: add the 'mode' stuff back in for oracle prepared statements, transactions, etc...
 
-    conn_name, sql, mode, handle = self.get_command_params(step.command, "conn_name", "sql", "mode", "handle")[:]
+    conn_name, sql, mode, handle, result_var = self.get_command_params(step.command, "conn_name", "sql", "mode", "handle", "result_variable")[:]
     conn_name = self.replace_variables(conn_name)
     sql = self.replace_variables(sql)
 
@@ -842,11 +842,11 @@ def sql_exec_cmd(self, task, step):
     self.logger.debug("conn type is %s" % (c.conn_type))
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "position")
     if c.conn_type == "mysql":
-        _sql_exec_mysql(self, sql, variables, c.handle, mode)
+        _sql_exec_mysql(self, sql, variables, c.handle, mode, result_var)
     elif c.conn_type in ["sqlanywhere", "sqlserver", "oracle"]:
-        _sql_exec_dbi(self, sql, variables, c.handle)
+        _sql_exec_dbi(self, sql, variables, c.handle, result_var)
 
-def _sql_exec_dbi(self, sql, variables, conn):
+def _sql_exec_dbi(self, sql, variables, conn, result_var=None):
 
     cursor = conn.cursor()
     try:
@@ -868,9 +868,14 @@ def _sql_exec_dbi(self, sql, variables, conn):
         msg = "%s" % (sql)
     self.insert_audit("sql_exec", msg, "")
     if rows:
+        # add the entire rows collection to a single variable for advanced processing
+        # NOTE: switch the tuple to a list 
+        if result_var:
+            self.rt.set(result_var, list(rows))
+            
         self.process_list_buffer(rows, variables)
 
-def _sql_exec_mysql(self, sql, variables, conn, mode):
+def _sql_exec_mysql(self, sql, variables, conn, mode, result_var=None):
 
     if mode == "COMMIT":
         # conn.tran_commit()
@@ -883,12 +888,20 @@ def _sql_exec_mysql(self, sql, variables, conn, mode):
         sql = "rollback"
         # rows = ""
     elif mode in ["EXEC", "PL/SQL", "PREPARE", "RUN"]:
-        msg = "Mode %s not supported for MySQL connections. Skipping" % (mode)
+        msg = "Mode %s not supported for MySQL connections. Skipping..." % (mode)
         self.insert_audit("sql_exec", msg, "")
         return
+    
     rows = self.select_all(sql, params=None, conn=conn)
     if rows:
+        # add the entire rows collection to a single variable for advanced processing
+        # NOTE: switch the tuple to a list 
+        if result_var:
+            self.logger.debug("SQL Exec: 'Result Variable' provided, setting [%s]" % (result_var))
+            self.rt.set(result_var, list(rows))
+            
         self.process_list_buffer(rows, variables)
+
     msg = "%s\n%s" % (sql, rows)
     self.insert_audit("sql_exec", msg, "")
 
@@ -1035,7 +1048,7 @@ def set_variable_cmd(self, task, step):
         if name == "_ON_ERROR" and value == "restart":
             self.on_error = "restart"
         elif name.startswith("@"):
-            # for the NEW METHOD - the @ signifies we've provided an expression 
+            # for the NEW METHOD - the @ signifies we've provided an expression
             # to find the right place to put the value in the runtime OBJECT array
             self.rt.eval_set(name[1:], value)
         else:
@@ -1716,7 +1729,7 @@ def break_loop_cmd(self, task, step):
 
 def winrm_cmd_cmd(self, task, step):
 
-    conn_name, cmd, timeout, return_code = self.get_command_params(step.command, "conn_name", "command", "timeout", "return_code")[:]
+    conn_name, cmd, timeout, return_code, result_var = self.get_command_params(step.command, "conn_name", "command", "timeout", "return_code", "result_variable")[:]
     conn_name = self.replace_variables(conn_name)
     cmd = self.replace_variables(cmd)
     return_code = self.replace_variables(return_code)
@@ -1755,6 +1768,11 @@ def winrm_cmd_cmd(self, task, step):
         self.rt.set(return_code, r_code)
     msg = "%s\n%s" % (cmd, buff)
     self.insert_audit(step.function_name, msg)
+
+    # if 'result variable' is specified, shove the whole buffer into that variable
+    if result_var:
+        self.rt.set(result_var, buff)
+
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
         "range_begin", "prefix", "range_end", "suffix", "regex", "xpath")
     if len(variables):
@@ -1763,8 +1781,8 @@ def winrm_cmd_cmd(self, task, step):
 
 def cmd_line_cmd(self, task, step):
 
-    conn_name, timeout, cmd, pos, neg = self.get_command_params(step.command,
-        "conn_name", "timeout", "command", "positive_response", "negative_response")
+    conn_name, timeout, cmd, pos, neg, result_var = self.get_command_params(step.command,
+        "conn_name", "timeout", "command", "positive_response", "negative_response", "result_variable")
     conn_name = self.replace_variables(conn_name)
     timeout = self.replace_variables(timeout)
     cmd = self.replace_variables(cmd)
@@ -1791,6 +1809,10 @@ def cmd_line_cmd(self, task, step):
     buff = self.execute_expect(c.handle, cmd, pos, neg, timeout)
     self.insert_audit(step.function_name, "%s\n%s" % (cmd, buff), conn_name)
     # print(':'.join(x.encode('hex') for x in buff))
+
+    # if 'result variable' is specified, shove the whole buffer into that variable
+    if result_var:
+        self.rt.set(result_var, buff)
 
     variables = self.get_node_list(step.command, "step_variables/variable", "name", "type", "position",
         "range_begin", "prefix", "range_end", "suffix", "regex", "xpath")

@@ -174,6 +174,7 @@
 					<mode input_type="select">SQL</mode>
 					<sql input_type="text" />
 					<handle input_type="text" />
+					<result_variable input_type="text" />
 					<pairs label="Bind Variables">
 						<pair>
 							<key input_type="text" label="Bind" />
@@ -188,45 +189,10 @@
 				<function name="cmd_line" variables="true" parse_method="2" snip="command">
 					<conn_name input_type="text" connection_picker="true" label="Connection" break_after="true" required="true" />
 					<command input_type="textarea" rows="3" label="Command" class="w95pct" required="true" label_style="display: block;" />
+					<result_variable input_type="text" option_tab="Options" label="Result Variable" break_after="true" />
 					<timeout input_type="text" option_tab="Options" label="Timeout" break_after="true" />
 					<positive_response input_type="text" option_tab="Options" label="Positive Response" break_after="true" />
 					<negative_response input_type="text" option_tab="Options" label="Negative Response" break_after="true" />
-				</function>
-			</command>
-			<command name="winrm_cmd" label="Windows Remote Management" description="A command issued via the WinRM tool for interaction with Windows hosts." 
-                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#winrm' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/cato/winrm_32.png">
-				<function name="winrm_cmd" variables="true" parse_method="2" snip="command">
-					<conn_name input_type="text" label="Connection" connection_picker="true" />
-					<command input_type="textarea" rows="3" label="Command" class="w95pct" style="display: block;" />
-					<timeout input_type="text" option_tab="Options" label="Timeout" break_after="true" />
-					<return_code input_type="text" option_tab="Options" label="Return Code" break_after="true" />
-				</function>
-			</command>
-			<command name="send_email" label="Send Email" description="Sends an email to the specified list of recipients." 
-                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#email' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/cato/mail_send_32.png">
-				<function name="send_email" snip="subject">
-					<to input_type="text" label="To" class="w95pct" label_style="display: block;" />
-					<cc input_type="text" label="Cc" class="w95pct" label_style="display: block;" />
-					<bcc input_type="text" label="Bcc" class="w95pct" label_style="display: block;" />
-					<subject input_type="text" label="Subject" class="w95pct" label_style="display: block;" />
-					<body input_type="textarea" rows="3" label="Body" class="w95pct" label_style="display: block;" />
-				</function>
-			</command>
-			<command name="add_summary_item" label="Add Summary Item" description="Adds an item to the Task 'Results Summary' dialog that appears when a Task is completed." 
-                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#summary' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/cato/add_summary_item_32.png">
-				<function name="add_summary_item" snip="name">
-					<name label="Item Name" input_type="text" break_after="true" style="display: block;" />
-					<detail input_type="textarea" rows="3" label="Detail" class="w95pct" style="display: block;" />
-				</function>
-			</command>
-			<command name="log_msg" label="Log Message" description="Places a message in the logging table." 
-                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#log' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
-                icon="static/images/icons/cato/signature_32.png">
-				<function name="log_msg" snip="message">
-					<message input_type="textarea" rows="2" label="Log" class="w95pct" required="true" label_style="display: block;" />
 				</function>
 			</command>
 			<command name="http" label="HTTP" description="Http get to retrieve html data." 
@@ -249,6 +215,17 @@
 					<response_header input_type="text" option_tab="Options" label="Response Header Variable" break_after="true" />
 					<response_body input_type="text" option_tab="Options" label="Response Body Variable " break_after="true" />
 					<response_time_ms input_type="text" option_tab="Options" label="Response Time ms Variable" break_after="true" />
+				</function>
+			</command>
+			<command name="winrm_cmd" label="Windows Remote Management" description="A command issued via the WinRM tool for interaction with Windows hosts." 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#winrm' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
+                icon="static/images/icons/cato/winrm_32.png">
+				<function name="winrm_cmd" variables="true" parse_method="2" snip="command">
+					<conn_name input_type="text" label="Connection" connection_picker="true" break_after="true" />
+					<command input_type="textarea" rows="3" label="Command" class="w95pct" style="display: block;" />
+					<result_variable input_type="text" option_tab="Options" label="Result Variable" break_after="true" />
+					<timeout input_type="text" option_tab="Options" label="Timeout" break_after="true" />
+					<return_code input_type="text" option_tab="Options" label="Return Code" break_after="true" />
 				</function>
 			</command>
 			<command name="cato_web_service" label="Cato API Call" description="Makes a call to the Cato REST API to manage the Cato environment." 
@@ -276,6 +253,32 @@
 					<result_var input_type="text" label="Result Variable" />
 					<error_var input_type="text" option_tab="Options" label="Error Variable" />
 					<timeout input_type="text" option_tab="Options" label="Timeout" />
+				</function>
+			</command>
+			<command name="send_email" label="Send Email" description="Sends an email to the specified list of recipients." 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#email' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
+                icon="static/images/icons/cato/mail_send_32.png">
+				<function name="send_email" snip="subject">
+					<to input_type="text" label="To" class="w95pct" label_style="display: block;" />
+					<cc input_type="text" label="Cc" class="w95pct" label_style="display: block;" />
+					<bcc input_type="text" label="Bcc" class="w95pct" label_style="display: block;" />
+					<subject input_type="text" label="Subject" class="w95pct" label_style="display: block;" />
+					<body input_type="textarea" rows="3" label="Body" class="w95pct" label_style="display: block;" />
+				</function>
+			</command>
+			<command name="add_summary_item" label="Add Summary Item" description="Adds an item to the Task 'Results Summary' dialog that appears when a Task is completed." 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#summary' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
+                icon="static/images/icons/cato/add_summary_item_32.png">
+				<function name="add_summary_item" snip="name">
+					<name label="Item Name" input_type="text" break_after="true" style="display: block;" />
+					<detail input_type="textarea" rows="3" label="Detail" class="w95pct" style="display: block;" />
+				</function>
+			</command>
+			<command name="log_msg" label="Log Message" description="Places a message in the logging table." 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#log' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
+                icon="static/images/icons/cato/signature_32.png">
+				<function name="log_msg" snip="message">
+					<message input_type="textarea" rows="2" label="Log" class="w95pct" required="true" label_style="display: block;" />
 				</function>
 			</command>
 		</commands>
