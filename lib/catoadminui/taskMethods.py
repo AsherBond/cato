@@ -661,20 +661,19 @@ class taskMethods:
                     if xNode is not None:
                         xNode.text = sValue
 
-                if catocommon.featuretoggle("336"):
-                    # NEW OPTIMIZATION FEATURE #336
-                    # display metadata attributes are explicitly stripped off...
-                    # to conserve a few bytes in the db,
-                    # as well as make exported tasks easier to read.
-                    # ALL attributes are removed except 'name'
-                    for x in xe.getiterator():
-                        leavekeys = ["name", "parse_method", "is_array"]
-                        keys_to_del = [k for k in x.attrib.iterkeys() if k not in leavekeys]
-                        for k in keys_to_del:
-                            try:
-                                del x.attrib[k]
-                            except:
-                                pass
+#                 # NEW OPTIMIZATION FEATURE #336
+#                 # display metadata attributes are explicitly stripped off...
+#                 # to conserve a few bytes in the db,
+#                 # as well as make exported tasks easier to read.
+#                 # ALL attributes are removed except 'name'
+#                 for x in xe.getiterator():
+#                     leavekeys = ["name", "parse_method", "is_array"]
+#                     keys_to_del = [k for k in x.attrib.iterkeys() if k not in leavekeys]
+#                     for k in keys_to_del:
+#                         try:
+#                             del x.attrib[k]
+#                         except:
+#                             pass
 
                 sSQL = "insert into task_step (step_id, task_id, codeblock_name, step_order," \
                     " commented, locked," \
@@ -799,20 +798,19 @@ class taskMethods:
                     if xNode is not None:
                         xNode.text = sValue
 
-                if catocommon.featuretoggle("336"):
-                    # NEW OPTIMIZATION FEATURE #336
-                    # display metadata attributes are explicitly stripped off...
-                    # to conserve a few bytes in the db,
-                    # as well as make exported tasks easier to read.
-                    # ALL attributes are removed except 'name'
-                    for x in xe.getiterator():
-                        leavekeys = ["name", "parse_method", "is_array"]
-                        keys_to_del = [k for k in x.attrib.iterkeys() if k not in leavekeys]
-                        for k in keys_to_del:
-                            try:
-                                del x.attrib[k]
-                            except:
-                                pass
+#                 # NEW OPTIMIZATION FEATURE #336
+#                 # display metadata attributes are explicitly stripped off...
+#                 # to conserve a few bytes in the db,
+#                 # as well as make exported tasks easier to read.
+#                 # ALL attributes are removed except 'name'
+#                 for x in xe.getiterator():
+#                     leavekeys = ["name", "parse_method", "is_array"]
+#                     keys_to_del = [k for k in x.attrib.iterkeys() if k not in leavekeys]
+#                     for k in keys_to_del:
+#                         try:
+#                             del x.attrib[k]
+#                         except:
+#                             pass
 
                 # Add it!
                 ST.AddToCommandXML(sStepID, sDropXPath, catocommon.ET.tostring(xe))
