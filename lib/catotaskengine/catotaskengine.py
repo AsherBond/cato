@@ -1617,10 +1617,6 @@ class TaskEngine():
                 self.disconnect_expect(c.handle)
             elif c.conn_type == "mysql":
                 self.disconnect_mysql(c.handle)
-            elif c.conn_type == "sybase":
-                raise Exception("The sybase connection type is no longer supported. Please contact Cloud Sidekick support support@cloudsidekick.com")
-            elif c.conn_type == "informix":
-                raise Exception("The imformix connection type is no longer supported. Please contact Cloud Sidekick support support@cloudsidekick.com")
             elif c.conn_type == "winrm":
                 try:
                     c.handle.close_shell(c.shell_id)
@@ -1676,10 +1672,6 @@ class TaskEngine():
             c.handle = self.connect_mysql(server=c.system.address, port=port, user=c.system.userid,
                 password=c.system.password, database=c.system.db_name)
 
-        elif c.conn_type == "sybase":
-            pass
-        elif c.conn_type == "informix":
-            pass
         elif c.conn_type == "sqlanywhere":
 
             if c.system.port:

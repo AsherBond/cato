@@ -38,7 +38,7 @@ lib_path = None
 # "Categories" and "Functions" are loaded from xml when the service starts and stored here.
 FunctionCategories = None
 
-ConnectionTypes = ["ssh - ec2", "ssh", "telnet", "mysql", "oracle", "sqlserver", "sybase", "informix", "winrm", "sqlanywhere"]
+ConnectionTypes = ["ssh - ec2", "ssh", "telnet", "mysql", "oracle", "sqlserver", "winrm", "sqlanywhere"]
 
 RoleMethods = {
     "/assetEdit": ["Developer"],
