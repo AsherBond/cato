@@ -239,18 +239,15 @@ Returns: A success message, or error messages on failure.
             # loop each key in the updatedoc, and call doc.Set
             # collect all errors into a single response, key:error format
             
-            # maybe do a list of failed keys?
-            errors = {}
+            failed = []
             for path, value in updatedoc.iteritems():
                 result = targetdoc.Set(path, value)
-                print 999
-                print result
                 if not result:
-                    errors[path] = result
-            if not errors:
+                    failed.append(path)
+            if not failed:
                 return R(response="All values successfully set.")
             else:
-                return R(err_code=R.Codes.UpdateError, err_detail=catocommon.ObjectOutput.AsJSON(errors))
+                return R(err_code=R.Codes.UpdateError, err_detail="Failed to update the following keys: %s" % (catocommon.ObjectOutput.AsJSON(failed)))
 
         else:
             return R(err_code=R.Codes.GetError, err_detail="Unable to find Document using query [%s]." % query)
