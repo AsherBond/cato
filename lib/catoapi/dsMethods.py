@@ -206,4 +206,51 @@ Returns: A success message, or error messages on failure.
                 return R(err_code=R.Codes.CreateError, err_detail="Value was not set, see logfile for details.")
 
         else:
-            return R(err_code=R.Codes.GetError, err_detail="Unable to find Document for Cato Object ID [%s]." % args["cato_object_id"])
+            return R(err_code=R.Codes.GetError, err_detail="Unable to find Document using query [%s]." % args["query"])
+
+    def set_document_values(self, args):
+        """Sets multiple values in a Datastore document.
+
+Required Arguments:
+
+* `query` - A query in JSON format to select the correct Document.
+* `updatedoc` - A document representing path:value pairs to be updated.
+
+Optional Arguments:
+
+* `collection` - a document collection.  'Default' if omitted.
+
+Multiple keys are updated in a looping manner.  Unsuccessful updates will return an error,
+but will not stop subsequent updates from occuring.
+
+Returns: A success message, or error messages on failure.
+"""
+        # define the required parameters for this call
+        required_params = ["query", "updatedoc"]
+        has_required, resp = api.check_required_params(required_params, args)
+        if not has_required:
+            return resp
+
+        collection = args["collection"] if "collection" in args else ""
+        query = json.loads(args["query"])
+        updatedoc = json.loads(args["updatedoc"])
+        targetdoc = datastore.Document(query, collection)
+        if targetdoc.ID:
+            # loop each key in the updatedoc, and call doc.Set
+            # collect all errors into a single response, key:error format
+            
+            # maybe do a list of failed keys?
+            errors = {}
+            for path, value in updatedoc.iteritems():
+                result = targetdoc.Set(path, value)
+                print 999
+                print result
+                if not result:
+                    errors[path] = result
+            if not errors:
+                return R(response="All values successfully set.")
+            else:
+                return R(err_code=R.Codes.UpdateError, err_detail=catocommon.ObjectOutput.AsJSON(errors))
+
+        else:
+            return R(err_code=R.Codes.GetError, err_detail="Unable to find Document using query [%s]." % query)

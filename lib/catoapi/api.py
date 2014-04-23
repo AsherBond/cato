@@ -99,6 +99,7 @@ endpoints = {
              "run_task": "catoapi.taskMethods/run_task",
              "schedule_tasks": "catoapi.taskMethods/schedule_tasks",
              "set_document_value": "catoapi.dsMethods/set_document_value",
+             "set_document_values": "catoapi.dsMethods/set_document_values",
              "stop_task": "catoapi.taskMethods/stop_task",
              "add_object_tag": "catoapi.sysMethods/add_object_tag",
              "remove_object_tag": "catoapi.sysMethods/remove_object_tag",
