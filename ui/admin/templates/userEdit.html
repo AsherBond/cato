@@ -69,6 +69,9 @@ $var cssfiles:
             <li>
                 <a href="#GroupsTab"><span>Groups (Tags)</span></a>
             </li>
+            <li>
+                <a href="#TokenTab"><span>Token</span></a>
+            </li>
         </ul>
         <div id="GeneralTab" style="height: 430px;">
             <table style="width: 98%;">
@@ -171,9 +174,26 @@ $var cssfiles:
             </center>
         </div>
         <div id="GroupsTab">
+            <p>
+                This user is associated with the following Groups (Tags).
+            </p>
             <span id="tag_add_btn" class="tag_add_btn pointer">Add</span>
             <hr />
             <ul id="objects_tags"></ul>
+        </div>
+        <div id="TokenTab">
+            <p>
+                Tokens can be used to allow this user to authenticate with the REST API.
+            </p>
+            <p>
+                <em>Changes are saved automatically.</em>
+            </p>
+            <span id="token_create_btn">Generate</span>
+            <span id="token_revoke_btn">Revoke</span>
+            <hr>
+            <div style="text-align: center;">
+                <h4 id="token"></h4>
+            </div>
         </div>
     </div>
 </div>

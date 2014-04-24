@@ -658,7 +658,7 @@ class uiMethods:
         sID = uiCommon.getAjaxArg("sUserID")
         u = catouser.User()
         u.FromID(sID)
-        return u.AsJSON()
+        return u.AsJSON(include_token=True)
 
     def wmGetAsset(self):
         sID = uiCommon.getAjaxArg("sAssetID")
@@ -749,6 +749,19 @@ class uiMethods:
         
         uiCommon.WriteObjectDeleteLog(catocommon.CatoObjectTypes.User, "Multiple", "User IDs", sDeleteArray)
 
+        return json.dumps({"result": "success"})
+
+    def wmGetToken(self):
+        sID = uiCommon.getAjaxArg("user_id")
+        u = catouser.User()
+        u.FromID(sID)
+        return json.dumps({"token": u.GetToken()})
+
+    def wmRevokeToken(self):
+        sID = uiCommon.getAjaxArg("user_id")
+        u = catouser.User()
+        u.FromID(sID)
+        u.RevokeToken()
         return json.dumps({"result": "success"})
 
     def wmGetAssetsTable(self):

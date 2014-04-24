@@ -38,16 +38,23 @@ class sysMethods:
     # ## many of the functions here aren't done up in pretty classes.
     # ## ... this is sort of a catch-all module.
     def get_token(self, args):
-        """Gets an authentication token for the API.  This token will persist for a short period of time, 
-so several subsequent API calls can share the same authenticated session.
+        """Gets an authentication token for the API, which can be used as an alternative to providing an access key and secret key on each API call.
+
+NOTE: this method will generate a new token for the authenticated user.
+
+Tokens may expire after a certain duration, based on system settings.
 
 Returns: A UUID authentication token.
 """
         
         # we wouldn't be here if tradiditional authentication failed.
-        # so, the _user_id is the user we wanna create a token for
-        token = catocommon.create_api_token(api._USER_ID)
-        return R(response=token)
+        # so, the _USER_ID is the user we wanna create a token for
+        obj = catouser.User()
+        obj.FromName(api._USER_ID)
+
+        if obj.ID:
+            token = obj.GetToken()
+            return R(response=token)
 
     def import_backup(self, args):
         """Imports an XML or JSON backup file.

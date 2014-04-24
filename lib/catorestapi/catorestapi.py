@@ -113,8 +113,7 @@ class wmHandler:
                 User: %s
                 Full Name: %s
                 Role: %s
-                Tags: %s
-                Token: %s""" % (u.LoginID, u.FullName, u.Role, u.Tags, u.LoginToken))
+                Tags: %s""" % (u.LoginID, u.FullName, u.Role, u.Tags))
 
             api._USER_ID = u.ID
 

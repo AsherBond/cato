@@ -148,26 +148,6 @@ def cato_encrypt(s):
         return ""
 
 
-def create_api_token(user_id):
-    """
-    Will create a row in the api_tokens table.
-    """
-    token = new_guid()
-    now_ts = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-
-    sql = """insert into api_tokens
-        (user_id, token, created_dt)
-        values ('{0}', '{1}', str_to_date('{2}', '%%Y-%%m-%%d %%H:%%i:%%s'))
-        on duplicate key update token='{1}', created_dt=str_to_date('{2}', '%%Y-%%m-%%d %%H:%%i:%%s')
-        """.format(user_id, token, now_ts)
-
-    db = new_conn()
-    db.exec_db(sql)
-    db.close()
-
-    return token
-
-
 def featuretoggle(feature):
     """
     Function will return true or false based on the existence of a specific "feature toggle"
