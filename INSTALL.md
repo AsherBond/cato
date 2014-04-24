@@ -88,6 +88,7 @@ files and temporary files. If desired, change these parameters in the top of the
 Run the installation script.
 
 ```
+cd install
 sudo ./install.sh
 ```
 
