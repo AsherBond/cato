@@ -1,5 +1,6 @@
 # Cloud Sidekick Cato Community Edition (CE)
 
+
 ## Description
 
 The Cato automation toolkit consists of 3 major components: webserver, 
