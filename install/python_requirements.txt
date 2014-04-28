@@ -4,7 +4,7 @@ https://github.com/pdunnigan/croniter/archive/master.zip
 PyMySQL==0.6.1
 pymongo==2.6.3
 pexpect==2.4
-python-tds==1.6.2
+#python-tds==1.6.2
 argparse
 https://github.com/cloudsidekick/awspy/archive/master.zip
 https://github.com/pdunnigan/pywinrm/archive/master.zip
