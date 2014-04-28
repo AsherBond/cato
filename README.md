@@ -5,7 +5,8 @@
 The Cato automation toolkit consists of 3 major components: webserver, 
 database and the services. Cato users can create automation routines
 through the web interface which are stored in a MySQL database. The 
-automation routines are executed by the services component.  
+automation routines are executed by the services component. There is 
+also a built in Mongodb datastore.
 
 ## Repository and Download
 
