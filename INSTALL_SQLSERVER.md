@@ -26,5 +26,5 @@ If you'll be required to authenticate with SQL Server using Windows Domain (NTLM
 sudo pip install pydes
 ```
 
-That's it!  Cato can now access MS SQL Server databases.
+Thats it!  Cato can now access MS SQL Server databases.
 
