@@ -32,7 +32,7 @@ https://github.com/cloudsidekick/cato-tasks
 
 ## Bug and Feature Requests
 
-We use Github Issues for bug and feature tracking:
+We use Github Issues for bug and feature tracking. You must have a github account to post issues.
 
 https://github.com/cloudsidekick/cato/issues
 
