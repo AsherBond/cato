@@ -6,7 +6,7 @@
 pysphere==0.1.8
 
 # optional jenkins package for jenkins integration support
-jenkinsapi==0.2.16
+jenkinsapi==0.2.18
 
 # optional vcloudpy package for vmware vCloud support
 
