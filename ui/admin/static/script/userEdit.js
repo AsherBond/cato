@@ -14,197 +14,213 @@
 //
 
 $(document).ready(function() {
-	// clear the edit array
-	$("#hidSelectedArray").val("");
+    // clear the edit array
+    $("#hidSelectedArray").val("");
 
-	$("#edit_dialog").hide();
-	$("#delete_dialog").hide();
+    $("#edit_dialog").hide();
+    $("#delete_dialog").hide();
 
-	//specific field validation and masking
-	$("#txtUserLoginID").keypress(function(e) {
-		return restrictEntryToUsername(e, this);
-	});
-	$("#txtUserFullName").keypress(function(e) {
-		return restrictEntryToSafeHTML(e, this);
-	});
-	$("#txtUserEmail").keypress(function(e) {
-		return restrictEntryToEmail(e, this);
-	});
+    //specific field validation and masking
+    $("#txtUserLoginID").keypress(function(e) {
+        return restrictEntryToUsername(e, this);
+    });
+    $("#txtUserFullName").keypress(function(e) {
+        return restrictEntryToSafeHTML(e, this);
+    });
+    $("#txtUserEmail").keypress(function(e) {
+        return restrictEntryToEmail(e, this);
+    });
 
-	// change action for dropdown list, saves a callback
-	$("#ddlUserAuthType").change(function() {
-		SetPasswordControls();
-	});
+    // change action for dropdown list, saves a callback
+    $("#ddlUserAuthType").change(function() {
+        SetPasswordControls();
+    });
 
-	$("#edit_dialog").dialog({
-		autoOpen : false,
-		modal : true,
-		width : 600,
-		height: 600,
-		bgiframe : true,
-		buttons : {
-			"Save" : function() {
-				SaveUser();
-			},
-			Cancel : function() {
-				CloseDialog();
-			}
-		}
+    $("#edit_dialog").dialog({
+        autoOpen : false,
+        modal : true,
+        width : 600,
+        height : 600,
+        bgiframe : true,
+        buttons : {
+            "Save" : function() {
+                SaveUser();
+            },
+            Cancel : function() {
+                CloseDialog();
+            }
+        }
 
-	});
+    });
 
-	//the hook for the 'show log' link
-	$("#show_log_link").button({
-		icons : {
-			primary : "ui-icon-document"
-		}
-	});
-	$("#show_log_link").click(function() {
-		var sID = $("#hidCurrentEditID").val();
-		ShowLogViewDialog(1, sID, true);
-	});
+    //the hook for the 'show log' link
+    $("#show_log_link").button({
+        icons : {
+            primary : "ui-icon-document"
+        }
+    });
+    $("#show_log_link").click(function() {
+        var sID = $("#hidCurrentEditID").val();
+        ShowLogViewDialog(1, sID, true);
+    });
 
-	//buttons
-	$("#clear_failed_btn").button({
-		icons : {
-			primary : "ui-icon-refresh"
-		},
-		text : false
-	});
-	$("#clear_failed_btn").click(function() {
-		ClearFailedLoginAttempts();
-	});
+    //buttons
+    $("#clear_failed_btn").button({
+        icons : {
+            primary : "ui-icon-refresh"
+        },
+        text : false
+    });
+    $("#clear_failed_btn").click(function() {
+        ClearFailedLoginAttempts();
+    });
 
-	$("#pw_reset_btn").button({
-		icons : {
-			primary : "ui-icon-mail-closed"
-		}
-	});
-	$("#pw_reset_btn").click(function() {
-		if (confirm("Are you sure?")) {
-			ResetPassword();
-		}
-	});
+    $("#pw_reset_btn").button({
+        icons : {
+            primary : "ui-icon-mail-closed"
+        }
+    });
+    $("#pw_reset_btn").click(function() {
+        if (confirm("Are you sure?")) {
+            ResetPassword();
+        }
+    });
 
-	$("#chkGeneratePW").click(function() {
-		//in 'add' mode the controls may be hidden based on the checkbox
-		if (this.checked) {
-			$(".password_entry").hide();
-		} else {
-			$(".password_entry").show();
-		}
-	});
+    $("#chkGeneratePW").click(function() {
+        //in 'add' mode the controls may be hidden based on the checkbox
+        if (this.checked) {
+            $(".password_entry").hide();
+        } else {
+            $(".password_entry").show();
+        }
+    });
 
+    $("#token_create_btn").button({
+        icons : {
+            primary : "ui-icon-plus"
+        }
+    });
+    $("#token_create_btn").click(function() {
+        createToken();
+    });
 
-	var tip = "Will send the user an email with a temporary password, which must be changed upon login.";
-	$("#pw_reset_info").attr("title", tip);
-	$("#pw_reset_info").click(function() {
-		showInfo(tip, "", {
+    $("#token_revoke_btn").button({
+        icons : {
+            primary : "ui-icon-close"
+        }
+    });
+    $("#token_revoke_btn").click(function() {
+        revokeToken();
+    });
+
+    var tip = "Will send the user an email with a temporary password, which must be changed upon login.";
+    $("#pw_reset_info").attr("title", tip);
+    $("#pw_reset_info").click(function() {
+        showInfo(tip, "", {
             duration : 5000
         });
-	});
-	$("#pw_reset_info").tipTip();
+    });
+    $("#pw_reset_info").tipTip();
 
+    GetItems();
+    ManagePageLoad();
 
-	GetItems();
-	ManagePageLoad();
+    // set a handler for cleanup
+    // when the user selects the x close instead of the button
+    $('#edit_dialog').bind('dialogclose', function(event) {
+        InitializeUserAdd();
+    });
 
-	// set a handler for cleanup
-	// when the user selects the x close instead of the button
-	$('#edit_dialog').bind('dialogclose', function(event) {
-		InitializeUserAdd();
-	});
-
-	// setup the userAddTabs
-	$("#AddUserTabs").tabs();
+    // setup the userAddTabs
+    $("#AddUserTabs").tabs();
 
 });
 
 function GetItems(page) {
-	if (!page)
-		page = "1";
-	var response = ajaxPost("uiMethods/wmGetUsersTable", {
-		sSearch : $("#txtSearch").val(),
-		sPage : page
-	});
-	if (response) {
-		pager = unpackJSON(response.pager);
-		html = unpackJSON(response.rows);
+    if (!page)
+        page = "1";
+    var response = ajaxPost("uiMethods/wmGetUsersTable", {
+        sSearch : $("#txtSearch").val(),
+        sPage : page
+    });
+    if (response) {
+        pager = unpackJSON(response.pager);
+        html = unpackJSON(response.rows);
 
-		$("#pager").html(pager);
-		$("#pager .pager_button").click(function() {
-			GetItems($(this).text());
-		});
+        $("#pager").html(pager);
+        $("#pager .pager_button").click(function() {
+            GetItems($(this).text());
+        });
 
-		$("#users").html(html);
-		//gotta restripe the table
-		initJtable(true, true);
-		$("#users .selectable").click(function() {
-			LoadEditDialog(0, $(this).parent().attr("user_id"));
-		});
-	}
+        $("#users").html(html);
+        //gotta restripe the table
+        initJtable(true, true);
+        $("#users .selectable").click(function() {
+            LoadEditDialog(0, $(this).parent().attr("user_id"));
+        });
+    }
 }
 
 function SetPasswordControls() {
-	if ($("#ddlUserAuthType").val() === "local") {
-		if ($("#hidMode").val() === 'add') {
-			$(".password_checkbox").show();
-			$(".password_edit").hide();
-		} else {
-			$(".password_checkbox").hide();
-			$(".password_entry").show();
-			$(".password_edit").show();
-		}
-	} else {//ldap mode you can never edit it
-		$(".password_entry ").hide();
-		$(".password_checkbox").hide();
-		$(".password_edit").hide();
-	}
+    if ($("#ddlUserAuthType").val() === "local") {
+        if ($("#hidMode").val() === 'add') {
+            $(".password_checkbox").show();
+            $(".password_edit").hide();
+        } else {
+            $(".password_checkbox").hide();
+            $(".password_entry").show();
+            $(".password_edit").show();
+        }
+    } else {//ldap mode you can never edit it
+        $(".password_entry ").hide();
+        $(".password_checkbox").hide();
+        $(".password_edit").hide();
+    }
 }
 
 function ShowItemAdd() {
-	$("#hidMode").val("add");
+    $("#hidMode").val("add");
 
-	// clear all of the previous values
-	clearEditDialog();
+    // clear all of the previous values
+    clearEditDialog();
 
-	$("#show_log_link").hide();
-	$('#edit_dialog').dialog('option', 'title', 'Create a New User');
+    $("#show_log_link").hide();
+    $('#edit_dialog').dialog('option', 'title', 'Create a New User');
 
-	SetPasswordControls();
+    SetPasswordControls();
 
-	$("#cbNewUserForcePasswordChange").prop('checked', true);
+    $("#cbNewUserForcePasswordChange").prop('checked', true);
 
-	$("#edit_dialog").dialog("open");
+    $("#edit_dialog").dialog("open");
 
-	$("#txtUserLoginID").focus();
-	$("#ddlUserStatus").val("1");
-	$("#ddlUserAuthType").val("local");
-	$("#ddlUserRole").val("User");
+    $("#txtUserLoginID").focus();
+    $("#ddlUserStatus").val("1");
+    $("#ddlUserAuthType").val("local");
+    $("#ddlUserRole").val("User");
 }
 
 function CloseDialog() {
-	// this is called by the button click
-	$("#edit_dialog").dialog("close");
-	InitializeUserAdd();
+    // this is called by the button click
+    $("#edit_dialog").dialog("close");
+    InitializeUserAdd();
 }
 
 function InitializeUserAdd() {
-	// called from button click, or the small x in the dialog
-	$("#AddUserTabs").tabs("option", "active", 0);
-	$("[id*='lblNewUserMessage']").html('');
-	$("#hidCurrentEditID").val("");
-	$("#objects_tags").empty();
+    // called from button click, or the small x in the dialog
+    $("#AddUserTabs").tabs("option", "active", 0);
+    $("[id*='lblNewUserMessage']").html('');
+    $("#hidCurrentEditID").val("");
+    $("#objects_tags").empty();
 
-	ClearSelectedRows();
-	clearEditDialog();
+    ClearSelectedRows();
+    clearEditDialog();
 }
 
 function DeleteItems() {
-	var args = {};
-	args.sDeleteArray = $("#hidSelectedArray").val();
-	var response = ajaxPost("uiMethods/wmDeleteUsers", args);
-	if (response) {
+    var args = {};
+    args.sDeleteArray = $("#hidSelectedArray").val();
+    var response = ajaxPost("uiMethods/wmDeleteUsers", args);
+    if (response) {
         $("#hidSelectedArray").val("");
         $("#delete_dialog").dialog("close");
         if (response.error) {
@@ -213,360 +229,387 @@ function DeleteItems() {
         if (response.result === "success") {
             GetItems();
         }
-	}
+    }
 }
 
 function SaveUser() {
-	// save or create a new user
-	if ($("#hidMode").val() === 'edit') {
-		//alert('save edit');
-		SaveUserEdits();
-	} else {
-		SaveNewUser();
-	}
+    // save or create a new user
+    if ($("#hidMode").val() === 'edit') {
+        //alert('save edit');
+        SaveUserEdits();
+    } else {
+        SaveNewUser();
+    }
 }
 
 function SaveUserEdits() {
-	//alert('saveUserEdits');
-	// using ajax post send the
-	// loginID                  -   txtUserLoginID
-	// full name                -   txtUserFullName
-	// Authentication Type      -   ddlUserAuthType
-	// Email                    -   txtUserEmail
-	// Password                 -   txtUserPassword
-	// Force Password Change    -   cbNewUserForcePasswordChange
-	// user role                -   ddlUserRole
-	// asset assignments        -   tbd?
-	var bSave = true;
-	var strValidationError = '';
-	//some client side validation before we attempt to save the user
-	var sLoginID = $("#txtUserLoginID").val();
-	if (sLoginID === '') {
-		bSave = false;
-		strValidationError += 'Login ID required.<br />';
-	}
-	var sFullName = $("#txtUserFullName").val();
-	if (sFullName === '') {
-		bSave = false;
-		strValidationError += 'Full Name required.<br />';
-	}
-	var sAuthType;
-	if (!$("#ddlUserAuthType").val()) {
-		bSave = false;
-		strValidationError += 'Authentication Type required.<br />';
-	} else {
-		sAuthType = $("#ddlUserAuthType").val();
-	}
-	var sUserPassword = $("#txtUserPassword").val();
-	if (sAuthType === 'local') {
-		if ($("#txtUserPassword").val() !== $("#txtUserPasswordConfirm").val()) {
-			bSave = false;
-			strValidationError += 'Passwords do not match!<br />';
-		}
-	}
+    //alert('saveUserEdits');
+    // using ajax post send the
+    // loginID                  -   txtUserLoginID
+    // full name                -   txtUserFullName
+    // Authentication Type      -   ddlUserAuthType
+    // Email                    -   txtUserEmail
+    // Password                 -   txtUserPassword
+    // Force Password Change    -   cbNewUserForcePasswordChange
+    // user role                -   ddlUserRole
+    // asset assignments        -   tbd?
+    var bSave = true;
+    var strValidationError = '';
+    //some client side validation before we attempt to save the user
+    var sLoginID = $("#txtUserLoginID").val();
+    if (sLoginID === '') {
+        bSave = false;
+        strValidationError += 'Login ID required.<br />';
+    }
+    var sFullName = $("#txtUserFullName").val();
+    if (sFullName === '') {
+        bSave = false;
+        strValidationError += 'Full Name required.<br />';
+    }
+    var sAuthType;
+    if (!$("#ddlUserAuthType").val()) {
+        bSave = false;
+        strValidationError += 'Authentication Type required.<br />';
+    } else {
+        sAuthType = $("#ddlUserAuthType").val();
+    }
+    var sUserPassword = $("#txtUserPassword").val();
+    if (sAuthType === 'local') {
+        if ($("#txtUserPassword").val() !== $("#txtUserPasswordConfirm").val()) {
+            bSave = false;
+            strValidationError += 'Passwords do not match!<br />';
+        }
+    }
 
-	var sForcePasswordChange = ($("#cbNewUserForcePasswordChange").prop("checked") ? '1' : '0');
+    var sForcePasswordChange = ($("#cbNewUserForcePasswordChange").prop("checked") ? '1' : '0');
     var sUserRole;
-	if (!$("#ddlUserRole").val()) {
-		bSave = false;
-		strValidationError += 'Role required.<br />';
-	} else {
-		sUserRole = $("#ddlUserRole").val();
-	}
-	var sEmail = $('#txtUserEmail').val();
-	if (sEmail === '') {
-		bSave = false;
-		strValidationError += 'Email Address required.<br />';
-	}
+    if (!$("#ddlUserRole").val()) {
+        bSave = false;
+        strValidationError += 'Role required.<br />';
+    } else {
+        sUserRole = $("#ddlUserRole").val();
+    }
+    var sEmail = $('#txtUserEmail').val();
+    if (sEmail === '') {
+        bSave = false;
+        strValidationError += 'Email Address required.<br />';
+    }
 
-	var sStatus;
-	if (!$("#ddlUserStatus").val()) {
-		bSave = false;
-		strValidationError += 'Status required.<br />';
-	} else {
-		sStatus = $("#ddlUserStatus").val();
-	}
+    var sStatus;
+    if (!$("#ddlUserStatus").val()) {
+        bSave = false;
+        strValidationError += 'Status required.<br />';
+    } else {
+        sStatus = $("#ddlUserStatus").val();
+    }
 
-	if (bSave !== true) {
-		showInfo(strValidationError);
-		return false;
-	}
+    if (bSave !== true) {
+        showInfo(strValidationError);
+        return false;
+    }
 
-	var sExpires = $('#txtExpirationDT').val();
+    var sExpires = $('#txtExpirationDT').val();
 
-	//put the users groups in a string for submission
-	var sGroups = [];
-	$("#objects_tags .tag").each(function(idx) {
-		sGroups[idx] = $(this).attr("val");
-	});
+    //put the users groups in a string for submission
+    var sGroups = [];
+    $("#objects_tags .tag").each(function(idx) {
+        sGroups[idx] = $(this).attr("val");
+    });
 
-	var user = {};
-	user.ID = $("#hidCurrentEditID").val();
-	user.LoginID = sLoginID;
-	user.FullName = sFullName;
-	user.AuthenticationType = sAuthType;
-	user.Password = packJSON(sUserPassword);
-	user.ForceChange = sForcePasswordChange;
-	user.Role = sUserRole;
-	user.Email = sEmail;
-	user.Status = sStatus;
-	user.Expires = sExpires;
-	user.Groups = sGroups;
+    var user = {};
+    user.ID = $("#hidCurrentEditID").val();
+    user.LoginID = sLoginID;
+    user.FullName = sFullName;
+    user.AuthenticationType = sAuthType;
+    user.Password = packJSON(sUserPassword);
+    user.ForceChange = sForcePasswordChange;
+    user.Role = sUserRole;
+    user.Email = sEmail;
+    user.Status = sStatus;
+    user.Expires = sExpires;
+    user.Groups = sGroups;
 
-	var response = ajaxPost("uiMethods/wmUpdateUser", user);
-	if (response) {
-		if ($("#hidMode").val() === 'edit') {
-			// remove this item from the array
-			var sEditID = $("#hidCurrentEditID").val();
-			var myArray = [];
-			var sArrHolder = $("#hidSelectedArray").val();
-			myArray = sArrHolder.split(',');
+    var response = ajaxPost("uiMethods/wmUpdateUser", user);
+    if (response) {
+        if ($("#hidMode").val() === 'edit') {
+            // remove this item from the array
+            var sEditID = $("#hidCurrentEditID").val();
+            var myArray = [];
+            var sArrHolder = $("#hidSelectedArray").val();
+            myArray = sArrHolder.split(',');
 
-			//how many in the array before you clicked Save?
-			var wereInArray = myArray.length;
+            //how many in the array before you clicked Save?
+            var wereInArray = myArray.length;
 
-			if (jQuery.inArray(sEditID, myArray) > -1) {
-				$("#chk_" + sEditID).prop("checked", false);
-				myArray.remove(sEditID);
-			}
+            if (jQuery.inArray(sEditID, myArray) > -1) {
+                $("#chk_" + sEditID).prop("checked", false);
+                myArray.remove(sEditID);
+            }
 
-			$("#lblItemsSelected").html(myArray.length);
-			$("#hidSelectedArray").val(myArray.toString());
+            $("#lblItemsSelected").html(myArray.length);
+            $("#hidSelectedArray").val(myArray.toString());
 
-			if (wereInArray === 1) {
-				// this was the last or only user edited so close
-				$("#hidCurrentEditID").val("");
-				$("#hidEditCount").val("");
+            if (wereInArray === 1) {
+                // this was the last or only user edited so close
+                $("#hidCurrentEditID").val("");
+                $("#hidEditCount").val("");
 
-				CloseDialog();
-				//leave any search string the user had entered, so just click the search button
-				GetItems();
-			} else {
-				// load the next item to edit
-				$("#hidCurrentEditID").val(myArray[0]);
-				LoadEditDialog(myArray.length, myArray[0]);
-			}
-		} else {
-			CloseDialog();
-			//leave any search string the user had entered, so just click the search button
-			GetItems();
-		}
-	}
+                CloseDialog();
+                //leave any search string the user had entered, so just click the search button
+                GetItems();
+            } else {
+                // load the next item to edit
+                $("#hidCurrentEditID").val(myArray[0]);
+                LoadEditDialog(myArray.length, myArray[0]);
+            }
+        } else {
+            CloseDialog();
+            //leave any search string the user had entered, so just click the search button
+            GetItems();
+        }
+    }
 }
 
 //sLoginID sFullName sAuthType sUserPassword sForcePasswordChange sUserRole sEmail As String
 function SaveNewUser() {
-	//alert('save new user');
-	var bSave = true;
-	var strValidationError = '';
+    //alert('save new user');
+    var bSave = true;
+    var strValidationError = '';
 
-	//some fields are fixed on a new user
-	var sForcePasswordChange = ($("#cbNewUserForcePasswordChange").prop("checked") ? '1' : '0');
+    //some fields are fixed on a new user
+    var sForcePasswordChange = ($("#cbNewUserForcePasswordChange").prop("checked") ? '1' : '0');
 
-	//some client side validation before we attempt to save the user
-	var sLoginID = $("#txtUserLoginID").val();
-	if (sLoginID === '') {
-		bSave = false;
-		strValidationError += 'Login ID required.<br />';
-	}
-	var sFullName = $("#txtUserFullName").val();
-	if (sFullName === '') {
-		bSave = false;
-		strValidationError += 'Full Name required.<br />';
-	}
-	var sAuthType;
-	if (!$("#ddlUserAuthType").val()) {
-		bSave = false;
-		strValidationError += 'Authentication Type required.<br />';
-	} else {
-		sAuthType = $("#ddlUserAuthType").val();
-	}
+    //some client side validation before we attempt to save the user
+    var sLoginID = $("#txtUserLoginID").val();
+    if (sLoginID === '') {
+        bSave = false;
+        strValidationError += 'Login ID required.<br />';
+    }
+    var sFullName = $("#txtUserFullName").val();
+    if (sFullName === '') {
+        bSave = false;
+        strValidationError += 'Full Name required.<br />';
+    }
+    var sAuthType;
+    if (!$("#ddlUserAuthType").val()) {
+        bSave = false;
+        strValidationError += 'Authentication Type required.<br />';
+    } else {
+        sAuthType = $("#ddlUserAuthType").val();
+    }
 
-	var sUserRole;
-	if (!$("#ddlUserRole").val()) {
-		bSave = false;
-		strValidationError += 'Role required.<br />';
-	} else {
-		sUserRole = $("#ddlUserRole").val();
-	}
-	var sEmail = $("#txtUserEmail").val();
-	if (sEmail === '') {
-		bSave = false;
-		strValidationError += 'Email Address required.<br />';
-	}
+    var sUserRole;
+    if (!$("#ddlUserRole").val()) {
+        bSave = false;
+        strValidationError += 'Role required.<br />';
+    } else {
+        sUserRole = $("#ddlUserRole").val();
+    }
+    var sEmail = $("#txtUserEmail").val();
+    if (sEmail === '') {
+        bSave = false;
+        strValidationError += 'Email Address required.<br />';
+    }
 
-	var sStatus;
-	if (!$("#ddlUserStatus").val()) {
-		bSave = false;
-		strValidationError += 'Status required.<br />';
-	} else {
-		sStatus = $("#ddlUserStatus").val();
-	}
+    var sStatus;
+    if (!$("#ddlUserStatus").val()) {
+        bSave = false;
+        strValidationError += 'Status required.<br />';
+    } else {
+        sStatus = $("#ddlUserStatus").val();
+    }
 
-	//passwords must match, unless the check box is checked
-	var sUserPassword = $("#txtUserPassword").val();
-	var sGeneratePW = ($("#chkGeneratePW").prop("checked") ? 1 : 0);
-	if (sGeneratePW === 0) {
-		if ($("#txtUserPassword").val() === '') {
-			bSave = false;
-			strValidationError += 'Password required.<br />';
-		}
-		if ($("#txtUserPassword").val() !== $("#txtUserPasswordConfirm").val()) {
-			bSave = false;
-			strValidationError += 'Passwords do not match!<br />';
-		}
-	}
+    //passwords must match, unless the check box is checked
+    var sUserPassword = $("#txtUserPassword").val();
+    var sGeneratePW = ($("#chkGeneratePW").prop("checked") ? 1 : 0);
+    if (sGeneratePW === 0) {
+        if ($("#txtUserPassword").val() === '') {
+            bSave = false;
+            strValidationError += 'Password required.<br />';
+        }
+        if ($("#txtUserPassword").val() !== $("#txtUserPasswordConfirm").val()) {
+            bSave = false;
+            strValidationError += 'Passwords do not match!<br />';
+        }
+    }
 
-	if (bSave !== true) {
-		showInfo(strValidationError);
-		return false;
-	}
+    if (bSave !== true) {
+        showInfo(strValidationError);
+        return false;
+    }
 
-	var sExpires = $('#txtExpirationDT').val();
+    var sExpires = $('#txtExpirationDT').val();
 
-	//put the users groups in a string for submission
-	var sGroups = "";
-	$("#objects_tags .tag").each(function(intIndex) {
-		if (sGroups === "")
-			sGroups += $(this).attr("id").replace(/ot_/, "");
-		else
-			sGroups += "," + $(this).attr("id").replace(/ot_/, "");
-	});
+    //put the users groups in a string for submission
+    var sGroups = "";
+    $("#objects_tags .tag").each(function(intIndex) {
+        if (sGroups === "")
+            sGroups += $(this).attr("id").replace(/ot_/, "");
+        else
+            sGroups += "," + $(this).attr("id").replace(/ot_/, "");
+    });
 
-	var user = {};
-	user.LoginID = sLoginID;
-	user.FullName = sFullName;
-	user.AuthenticationType = sAuthType;
-	user.Password = packJSON(sUserPassword);
-	user.GeneratePW = sGeneratePW;
-	user.ForceChange = sForcePasswordChange;
-	user.Role = sUserRole;
-	user.Email = sEmail;
-	user.Status = sStatus;
-	user.Expires = sExpires;
-	user.Groups = sGroups;
+    var user = {};
+    user.LoginID = sLoginID;
+    user.FullName = sFullName;
+    user.AuthenticationType = sAuthType;
+    user.Password = packJSON(sUserPassword);
+    user.GeneratePW = sGeneratePW;
+    user.ForceChange = sForcePasswordChange;
+    user.Role = sUserRole;
+    user.Email = sEmail;
+    user.Status = sStatus;
+    user.Expires = sExpires;
+    user.Groups = sGroups;
 
-	var response = ajaxPost("uiMethods/wmCreateUser", user);
-	if (response) {
-		CloseDialog();
-		GetItems();
-	}
+    var response = ajaxPost("uiMethods/wmCreateUser", user);
+    if (response) {
+        CloseDialog();
+        GetItems();
+    }
 }
 
 function LoadEditDialog(editCount, editUserID) {
-	$("#show_log_link").show();
+    $("#show_log_link").show();
 
-	$("#hidMode").val("edit");
+    $("#hidMode").val("edit");
 
-	if (editCount > 1)
-		$('#edit_dialog').dialog('option', 'title', 'Modify Multiple Users');
-	else
-		$("#edit_dialog").dialog("option", "title", "Modify User");
+    if (editCount > 1)
+        $('#edit_dialog').dialog('option', 'title', 'Modify Multiple Users');
+    else
+        $("#edit_dialog").dialog("option", "title", "Modify User");
 
-	$("#trFailedLoginAttempts").show();
+    $("#trFailedLoginAttempts").show();
 
-	$("#hidEditCount").val(editCount);
-	$("#hidCurrentEditID").val(editUserID);
+    $("#hidEditCount").val(editCount);
+    $("#hidCurrentEditID").val(editUserID);
 
-	var user = ajaxPost("uiMethods/wmGetUser", {
-		sUserID : editUserID
-	});
-	if (user) {
-		$("#txtUserLoginID").val(user.LoginID);
-		$("#txtUserFullName").val(user.FullName);
-		$("#txtUserEmail").val(user.Email);
-		//$("#txtUserPassword").val(user.sPasswordMasked);
-		//$("#txtUserPasswordConfirm").val(user.sPasswordMasked)
-		$("#ddlUserAuthType").val(user.AuthenticationType);
-		$("#ddlUserStatus").val(user.Status);
-		$("#txtExpirationDT").val(user.ExpirationDT);
-		$("#ddlUserRole").val(user.Role);
-		$("#cbNewUserForcePasswordChange").prop('checked', user.ForceChange);
-		$("#lblFailedLoginAttempts").html(user.FailedLoginAttempts);
+    var user = ajaxPost("uiMethods/wmGetUser", {
+        sUserID : editUserID
+    });
+    if (user) {
+        $("#txtUserLoginID").val(user.LoginID);
+        $("#txtUserFullName").val(user.FullName);
+        $("#txtUserEmail").val(user.Email);
+        //$("#txtUserPassword").val(user.sPasswordMasked);
+        //$("#txtUserPasswordConfirm").val(user.sPasswordMasked)
+        $("#ddlUserAuthType").val(user.AuthenticationType);
+        $("#ddlUserStatus").val(user.Status);
+        $("#txtExpirationDT").val(user.ExpirationDT);
+        $("#ddlUserRole").val(user.Role);
+        $("#cbNewUserForcePasswordChange").prop('checked', user.ForceChange);
+        $("#lblFailedLoginAttempts").html(user.FailedLoginAttempts);
 
-		SetPasswordControls();
-		if ( typeof (getObjectsTags) !== 'undefined') {
-			getObjectsTags(user.ID);
-		}
+        SetPasswordControls();
+        if ( typeof (getObjectsTags) !== 'undefined') {
+            getObjectsTags(user.ID);
+        }
 
-		$("#edit_dialog").dialog("open");
-	}
+        if (user.Token) {
+            $("#token").text(user.Token);
+            $("#token_create_btn").hide();
+            $("#token_revoke_btn").show();
+        }
+        $("#edit_dialog").dialog("open");
+    }
 }
 
 function ShowItemModify() {
 
-	var myArray = [];
-	var curArray = $("#hidSelectedArray").val();
-	myArray = curArray.split(',');
-	var userCount = myArray.length;
-	if (userCount === 0) {
-		showAlert("Select a user, or multiple users to modify.");
-		return false;
-	}
+    var myArray = [];
+    var curArray = $("#hidSelectedArray").val();
+    myArray = curArray.split(',');
+    var userCount = myArray.length;
+    if (userCount === 0) {
+        showAlert("Select a user, or multiple users to modify.");
+        return false;
+    }
 
-	SetPasswordControls();
+    SetPasswordControls();
 
-	//load up the first or only user to modify
-	var sFirstUserID = myArray[0].toString();
+    //load up the first or only user to modify
+    var sFirstUserID = myArray[0].toString();
 
-	// load the user for editing
-	LoadEditDialog(userCount, sFirstUserID);
+    // load the user for editing
+    LoadEditDialog(userCount, sFirstUserID);
 
 }
 
 function ClearFailedLoginAttempts() {
-	//reset the counter and change the text
-	var user = {};
-	user.ID = $("#hidCurrentEditID").val();
-	user.FailedLoginAttempts = 0;
-	var response = ajaxPost("uiMethods/wmUpdateUser", user);
-	if (response) {
-		$("#lblFailedLoginAttempts").html("0");
-	}
+    //reset the counter and change the text
+    var user = {};
+    user.ID = $("#hidCurrentEditID").val();
+    user.FailedLoginAttempts = 0;
+    var response = ajaxPost("uiMethods/wmUpdateUser", user);
+    if (response) {
+        $("#lblFailedLoginAttempts").html("0");
+    }
 }
 
 function ShowItemCopy() {
-	//copy is pretty simple.
-	//we show the "Edit" dialog for the selected user, but clear a couple of the fields and
-	//set the "mode" to "edit"
+    //copy is pretty simple.
+    //we show the "Edit" dialog for the selected user, but clear a couple of the fields and
+    //set the "mode" to "edit"
 
-	// clear all of the previous values
-	var ArrayString = $("#hidSelectedArray").val();
-	if (ArrayString.length === 0) {
-		showInfo('Select a User to Copy.');
-		return false;
-	}
+    // clear all of the previous values
+    var ArrayString = $("#hidSelectedArray").val();
+    if (ArrayString.length === 0) {
+        showInfo('Select a User to Copy.');
+        return false;
+    }
 
-	// multiple select is allowed, but we only copy the first one
-	var myArray = ArrayString.split(',');
-	var user_copy_id = myArray[0];
+    // multiple select is allowed, but we only copy the first one
+    var myArray = ArrayString.split(',');
+    var user_copy_id = myArray[0];
 
-	//get the data for the selected user
-	LoadEditDialog(1, user_copy_id);
+    //get the data for the selected user
+    LoadEditDialog(1, user_copy_id);
 
-	$("#hidMode").val("add");
-	$('#edit_dialog').dialog("option", "title", 'Create New User like ' + $("#txtUserFullName").val());
+    $("#hidMode").val("add");
+    $('#edit_dialog').dialog("option", "title", 'Create New User like ' + $("#txtUserFullName").val());
 
-	// clear some values...
-	$("#txtUserLoginID").val("");
-	$("#txtUserFullName").val("");
-	$("#txtUserEmail").val("");
+    // clear some values...
+    $("#txtUserLoginID").val("");
+    $("#txtUserFullName").val("");
+    $("#txtUserEmail").val("");
 
-	SetPasswordControls();
+    SetPasswordControls();
 
-	$("#edit_dialog").dialog("open");
-	$("#txtUserLoginID").focus();
-	$("#ddlUserStatus").val("1");
-	$("#ddlUserAuthType").val("local");
-	$("#ddlUserRole").val("User");
+    $("#edit_dialog").dialog("open");
+    $("#txtUserLoginID").focus();
+    $("#ddlUserStatus").val("1");
+    $("#ddlUserAuthType").val("local");
+    $("#ddlUserRole").val("User");
 }
 
 function ResetPassword() {
-	var user = {};
-	user.ID = $("#hidCurrentEditID").val();
-	user.NewRandomPassword = true;
-	var response = ajaxPost("uiMethods/wmUpdateUser", user);
-	if (response) {
-		showInfo('Password successfully reset.');
-	}
+    var user = {};
+    user.ID = $("#hidCurrentEditID").val();
+    user.NewRandomPassword = true;
+    var response = ajaxPost("uiMethods/wmUpdateUser", user);
+    if (response) {
+        showInfo('Password successfully reset.');
+    }
+}
+
+function createToken() {
+    var response = ajaxPost("uiMethods/wmGetToken", {
+        "user_id" : $("#hidCurrentEditID").val()
+    });
+    if (response && response.token) {
+        $("#token").text(response.token);
+        $("#token_create_btn").hide();
+        $("#token_revoke_btn").show();
+    }
+}
+
+function revokeToken() {
+    var response = ajaxPost("uiMethods/wmRevokeToken", {
+        "user_id" : $("#hidCurrentEditID").val()
+    });
+    if (response) {
+        $("#token").empty();
+        $("#token_create_btn").show();
+        $("#token_revoke_btn").hide();
+    }
 }

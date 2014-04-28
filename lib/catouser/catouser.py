@@ -148,17 +148,45 @@ class User(object):
         self.Email = ""
         self.Expires = None
         self.SettingsXML = ""
-        self.LoginToken = None
         self.Tags = []
         
         # only set in the Authenticate method - contains the session_id that *was just issued*.
         # NOT a part of a regular user object, as there can be multiple sessions - one per ui.
         self.SessionID = None
     
+
     def GetToken(self):
-        if self.ID:
-            self.LoginToken = catocommon.create_api_token(self.ID)
-            
+        """ returns the Users token if it exists, and an empty string if not """
+        sql = "select token from api_tokens where user_id = %s"
+        db = catocommon.new_conn()
+        token = db.select_col(sql, (self.ID))
+        db.close()
+        if not token:
+            # generate a new one
+            token = catocommon.new_guid()
+            now_ts = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+        
+            sql = """insert into api_tokens
+                (user_id, token, created_dt)
+                values ('{0}', '{1}', str_to_date('{2}', '%%Y-%%m-%%d %%H:%%i:%%s'))
+                on duplicate key update token='{1}', created_dt=str_to_date('{2}', '%%Y-%%m-%%d %%H:%%i:%%s')
+                """.format(self.ID, token, now_ts)
+        
+            db = catocommon.new_conn()
+            db.exec_db(sql)
+            db.close()
+
+        return token
+
+
+    def RevokeToken(self):
+        """ revokes the Users token """
+        sql = "delete from api_tokens where user_id = %s"
+        db = catocommon.new_conn()
+        db.exec_db(sql, (self.ID))
+        db.close()
+
+
     @staticmethod
     def ValidatePassword(uid, pwd):
         """
@@ -270,7 +298,9 @@ class User(object):
         else: 
             raise Exception("Unable to build User object. User with ID/Login/Name [%s%s%s] could be found." % (user_id, login_id, fullname))
 
-    def AsJSON(self):
+    def AsJSON(self, include_token=False):
+        if include_token:
+            self.Token = self.GetToken()
         if hasattr(self, "_Groups"):
             del self._Groups
         return catocommon.ObjectOutput.AsJSON(self.__dict__)
@@ -278,7 +308,9 @@ class User(object):
     def AsText(self, delimiter=None, headers=None):
         return catocommon.ObjectOutput.AsText(self.__dict__, ["FullName", "Status", "AuthenticationType", "Role", "Email"], delimiter, headers)
 
-    def AsXML(self):
+    def AsXML(self, include_token=False):
+        if include_token:
+            self.Token = self.GetToken()
         return catocommon.ObjectOutput.AsXML(self.__dict__, "User")
 
     def ChangePassword(self, new_password=None, generate=False, force_change=True):

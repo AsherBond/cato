@@ -134,14 +134,13 @@ def authenticate(action, args):
             # check the expiration date of the token
             now_ts = datetime.utcnow()
             
-            mins = 30
-            try:
-                mins = int(catoconfig.CONFIG.get("rest_api_token_lifespan"))
-            except:
-                logger.warning("Config setting [rest_api_token_lifespan] not found or is not a number.  Using the default (30 minutes).")
-            
-            if (now_ts - row["created_dt"]) > timedelta(minutes=mins):
-                return False, "Token expired."
+            if catoconfig.CONFIG.get("rest_api_token_lifespan"):
+                try:
+                    mins = int(catoconfig.CONFIG.get("rest_api_token_lifespan"))
+                    if (now_ts - row["created_dt"]) > timedelta(minutes=mins):
+                        return False, "Token expired."
+                except:
+                    logger.warning("Config setting [rest_api_token_lifespan] must be a number.  Using the default (never expire).")
             
             # still all good?  Update the created_dt.
             dbts = now_ts.strftime('%Y-%m-%d %H:%M:%S')
