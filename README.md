@@ -47,6 +47,6 @@ See the INSTALL.md file in this directory.
 
 ## Documentation
 
-All Cato documentation can be found here:
+All Cato documentation can be found here under Cato:
 
 http://docs.cloudsidekick.com/docs/cato
