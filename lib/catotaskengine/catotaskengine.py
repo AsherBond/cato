@@ -105,7 +105,7 @@ class TaskEngine():
         self.audit_trail_on = 2
         self.current_step_id = ""
         self.loop_break = False
-        self.timeout_value = 20
+        self.timeout_value = 60
         self.summary = ""
         self.rt = runtimes.Runtimes()
         self.submitted_by_user = ""
