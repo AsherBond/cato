@@ -27,7 +27,7 @@ git clone https://github.com/cloudsidekick/cato.git
 ## Sample Tasks
 
 We are building a sample / tutorial library in the following github repo. 
-Instructions for using them are there.
+Instructions for using them are there. Good stuff.
 
 https://github.com/cloudsidekick/cato-tasks
 
@@ -47,6 +47,6 @@ See the INSTALL.md file in this directory.
 
 ## Documentation
 
-All Cato documentation can be found here:
+All Cato documentation can be found here under Cato:
 
 http://docs.cloudsidekick.com/docs/cato

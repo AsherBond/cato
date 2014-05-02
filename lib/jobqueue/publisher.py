@@ -31,4 +31,4 @@ class Publisher(JobQueue):
         """Submits a job to a work queue"""
 
         job_data = {"job_name": job_name, "data": data}
-        self.queue.put(job_data)
+        return self.queue.put(job_data)

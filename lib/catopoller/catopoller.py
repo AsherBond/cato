@@ -158,6 +158,14 @@ class Poller(catoprocess.CatoService):
     def main_process(self):
         """main process loop, parent class will call this"""
 
+        # create the /te log directory if it doesn't exist, do nothing if it does
+        tedir = os.path.join(catolog.LOGPATH, "te")
+        try: 
+            if not os.path.isdir(tedir):
+                os.makedirs(tedir)
+        except:
+            pass
+
         self.update_load()
         self.get_aborting()
         if self.loop_counter == 0:

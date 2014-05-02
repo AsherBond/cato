@@ -115,7 +115,7 @@ def authenticate(action, args):
     db = catocommon.new_conn()
     sset = settings.settings.security()
     # if it fails anywhere along the way just return false ...
-    # we're not returning error messages that would help a hacker.
+    # we're not returning error messages that would help a hacker
     
     # new feature - if a token is provided instead of a full querystring,
     # check that token for validity and timeliness.

@@ -1,5 +1,5 @@
 ########################################################################/
-# Copyright 2011 Cloud Sidekick
+# Copyright 2014 Cloud Sidekick
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -105,7 +105,7 @@ class TaskEngine():
         self.audit_trail_on = 2
         self.current_step_id = ""
         self.loop_break = False
-        self.timeout_value = 20
+        self.timeout_value = 60
         self.summary = ""
         self.rt = runtimes.Runtimes()
         self.submitted_by_user = ""
