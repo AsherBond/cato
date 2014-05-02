@@ -72,6 +72,7 @@ class wmHandler:
         # the keys above in web.input() are valid too, but the post args take precedence.
         # so, merge them.
         if web.data():
+            logger.info("%s" % (web.data()))
             postargs = json.loads(web.data())
             if postargs:
                 logger.info("Post Data: %s" % postargs)
