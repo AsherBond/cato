@@ -1,6 +1,93 @@
 <categories>
 	<category name="vCloud" label="vCloud" description="Commands for interacting with the VMWare vCloud API" icon="static/extensions/vmware/vmware.png">
 		<commands>
+			<command name="vcloud_get_vdc_href" label="vCloud Get Virtual Datacenters" description="" 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#vccallparse' target='_blank'&gt;Cato Documentation&lt;/a&gt;"
+                icon="static/extensions/vmware/vmware.png">
+				<function name="vcloud_get_vdc_href" extension="vcloud.vcloud" >
+					<endpoint_name input_type="dropdown" label="Cloud Endpoint Name" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAllClouds" />
+                    <vdc_name input_type="text" label="Datacenter Name (optional filter)" break_after="true" />
+					<vdc_name_out input_type="text" label="Datacenter Name (out)" />
+					<vdc_href_out input_type="text" label="Datacenter Href (out)" />
+				</function>
+			</command>
+			<command name="vcloud_get_org_network_href" label="vCloud Org Networks" description="" 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#vccallparse' target='_blank'&gt;Cato Documentation&lt;/a&gt;"
+                icon="static/extensions/vmware/vmware.png">
+				<function name="vcloud_get_org_network_href" extension="vcloud.vcloud" >
+					<endpoint_name input_type="dropdown" label="Cloud Endpoint Name" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAllClouds" />
+                    <org_net_name input_type="text" label="Org Network Name (optional filter)" break_after="true" />
+					<net_name_out input_type="text" label="Network Name (out)" />
+					<net_href_out input_type="text" label="Network Href (out)" />
+				</function>
+			</command>
+			<command name="vcloud_get_vapp_href" label="vCloud Get vApps" description="" 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#vccallparse' target='_blank'&gt;Cato Documentation&lt;/a&gt;"
+                icon="static/extensions/vmware/vmware.png">
+				<function name="vcloud_get_vapp_href" extension="vcloud.vcloud" >
+					<endpoint_name input_type="dropdown" label="Cloud Endpoint Name" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAllClouds" />
+                    <vapp_name input_type="text" label="vApp Name" />
+                    <template input_type="dropdown" label="vApp Template?" datasource="local" dataset="no|yes" break_after="true">no</template>
+					<vapp_name_out input_type="text" label="vApp Name (out)" />
+					<vapp_href_out input_type="text" label="vApp Href (out)" />
+				</function>
+			</command>
+			<command name="vcloud_instanciate_vapp" label="vCloud Instanciate vApp" description="" 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#vccallparse' target='_blank'&gt;Cato Documentation&lt;/a&gt;"
+                icon="static/extensions/vmware/vmware.png">
+				<function name="vcloud_instanciate_vapp" extension="vcloud.vcloud" >
+					<endpoint_name input_type="dropdown" label="Cloud Endpoint Name" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAllClouds" />
+                    <vdc_name input_type="text" label="Datacenter Name" />
+                    <org_net_name input_type="text" label="Org Network Name" break_after="true"/>
+                    <source_vapp_name input_type="text" label="Source vApp Name or Href" />
+                    <vapp_name input_type="text" label="vApp Name (Optional)" break_after="true"/>
+                    <descr input_type="text" label="Description" />
+                    <power input_type="dropdown" label="Power On?" datasource="local" dataset="no|yes" >yes</power>
+                    <wait input_type="dropdown" label="Wait Until Complete?" datasource="local" dataset="no|yes" break_after="true">yes</wait>
+					<vapp_href_out input_type="text" label="vApp Href (out)" />
+				</function>
+			</command>
+			<command name="vcloud_compose_vapp" label="vCloud Compose vApp" description="" 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#vccallparse' target='_blank'&gt;Cato Documentation&lt;/a&gt;"
+                icon="static/extensions/vmware/vmware.png">
+				<function name="vcloud_compose_vapp" extension="vcloud.vcloud" >
+					<endpoint_name input_type="dropdown" label="Cloud Endpoint Name" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAllClouds" />
+                    <vdc_name input_type="text" label="Datacenter Name" break_after="true" />
+                    <org_net_name input_type="text" label="Org Network Name" />
+                    <vapp_name input_type="text" label="vApp Name (optional)" break_after="true" />
+                    <values label="Virtual Machines" is_array="true">
+                        <value label="Vm">
+                            <vm_name input_type="text" label="Vm Name (optional)" />
+                            <vm_href input_type="text" label="Source Vm Href" />
+                            <hostname input_type="text" label="Hostname" />
+                            <admin_password input_type="text" label="Admin Password" />
+                            <power input_type="dropdown" label="Power On?" datasource="local" dataset="no|yes" break_after="true">yes</power>
+                        </value>
+                    </values>
+					<vapp_href_out input_type="text" label="vApp Href (out)" />
+				</function>
+			</command>
+			<command name="vcloud_get_vms_from_vapp" label="vCloud Get Vms from Vapp" description="" 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#vccallparse' target='_blank'&gt;Cato Documentation&lt;/a&gt;"
+                icon="static/extensions/vmware/vmware.png">
+				<function name="vcloud_get_vms_from_vapp" extension="vcloud.vcloud" >
+					<endpoint_name input_type="dropdown" label="Cloud Endpoint Name" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAllClouds" />
+                    <vapp_name input_type="text" label="vApp Name or Href" />
+                    <vm_name input_type="text" label="Virtual Machine Name (optional)" />
+                    <template input_type="dropdown" label="vApp Template?" datasource="local" dataset="no|yes" break_after="true">no</template>
+					<vm_href_out input_type="text" label="Vm Href (out)" />
+					<vm_name_out input_type="text" label="Vm Name (out)" break_after="true"/>
+					<vm_ip_out input_type="text" label="Vm Ip Address (out)" />
+				</function>
+			</command>
+			<command name="vcloud_terminate_vapp" label="vCloud Terminate Vapp" description="" 
+                help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#vccallparse' target='_blank'&gt;Cato Documentation&lt;/a&gt;"
+                icon="static/extensions/vmware/vmware.png">
+				<function name="vcloud_terminate_vapp" extension="vcloud.vcloud" >
+					<endpoint_name input_type="dropdown" label="Cloud Endpoint Name" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAllClouds" />
+                    <vapp_name input_type="text" label="vApp Name or Href" />
+				</function>
+			</command>
 			<command name="vcloud_call_parse" label="vCloud API Call and Parse" description="" 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#vccallparse' target='_blank'&gt;Cato Documentation&lt;/a&gt;"
                 icon="static/extensions/vmware/vmware.png">
