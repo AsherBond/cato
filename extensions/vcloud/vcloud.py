@@ -236,7 +236,7 @@ def vcloud_compose_vapp(te, step):
             cloud.conn.power_on_vm(new_vm_href)
 
 
-def vcloud_instanciate_vapp(te, step):
+def vcloud_instantiate_vapp(te, step):
 
     vdc_name, org_net_name, s_vapp_name, vapp_name, descr, power, wait, out_var = te.get_command_params(step.command, 
                         "vdc_name", "org_net_name", "source_vapp_name", "vapp_name", "descr", "power", "wait", "vapp_href_out")[:]
@@ -264,7 +264,7 @@ def vcloud_instanciate_vapp(te, step):
     result = cloud.conn.instantiate_vapp_template(vdc_name, org_net_name, s_vapp_name,
                                             vapp_name, descr, power, wait)
 
-    msg = "vCloud Instanciate vApp\n%s" % (result)
+    msg = "vCloud Instantiate vApp\n%s" % (result)
     te.insert_audit(step.function_name, msg, "")
     if len(out_var):
         te.rt.set(out_var, result)

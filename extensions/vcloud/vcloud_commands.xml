@@ -32,10 +32,10 @@
 					<vapp_href_out input_type="text" label="vApp Href (out)" />
 				</function>
 			</command>
-			<command name="vcloud_instanciate_vapp" label="vCloud Instanciate vApp" description="" 
+			<command name="vcloud_instantiate_vapp" label="vCloud Instantiate vApp" description="" 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#vccallparse' target='_blank'&gt;Cato Documentation&lt;/a&gt;"
                 icon="static/extensions/vmware/vmware.png">
-				<function name="vcloud_instanciate_vapp" extension="vcloud.vcloud" >
+				<function name="vcloud_instantiate_vapp" extension="vcloud.vcloud" >
 					<endpoint_name input_type="dropdown" label="Cloud Endpoint Name" hr_after="true" class="combo w300px" datasource="function" dataset="ddDataSource_GetAllClouds" />
                     <vdc_name input_type="text" label="Datacenter Name" />
                     <org_net_name input_type="text" label="Org Network Name" break_after="true"/>
