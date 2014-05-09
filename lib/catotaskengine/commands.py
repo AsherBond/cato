@@ -1546,8 +1546,8 @@ def route53_cmd(self, task, step):
 
 def http_cmd(self, task, step):
 
-    url, typ, u_data, time_out, retries, stat_code_v, stat_msg_v, header_v, body_v, res_time_v = self.get_command_params(step.command,
-        "url", "type", "data", "timeout", "retries", "status_code", "status_msg", "response_header", "response_body", "response_time_ms")[:]
+    url, typ, u_data, time_out, retries, stat_code_v, stat_msg_v, header_v, body_v, res_time_v, cook = self.get_command_params(step.command,
+        "url", "type", "data", "timeout", "retries", "status_code", "status_msg", "response_header", "response_body", "response_time_ms","cookie_out")[:]
 
     url = self.replace_variables(url)
     u_data = self.replace_variables(u_data)
@@ -1558,6 +1558,7 @@ def http_cmd(self, task, step):
     header_v = self.replace_variables(header_v)
     body_v = self.replace_variables(body_v)
     res_time_v = self.replace_variables(res_time_v)
+    cook = self.replace_variables(cook)
 
     if not len(url):
         raise Exception("HTTP command error, url is empty.")
@@ -1624,6 +1625,9 @@ def http_cmd(self, task, step):
         buff = response.read()
         head = response.headers
         code = response.getcode()
+        if len(cook):
+            c = response.info().getheader("Set-Cookie")
+            self.rt.set(cook, c)
         msg = "ok"
         del(response)
 

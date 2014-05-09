@@ -213,6 +213,7 @@
 					<status_code input_type="text" option_tab="Options" label="Status Code Variable" break_after="true" />
 					<status_msg input_type="text" option_tab="Options" label="Status Message Variable" break_after="true" />
 					<response_header input_type="text" option_tab="Options" label="Response Header Variable" break_after="true" />
+					<cookie_out input_type="text" option_tab="Options" label="Cookie Variable (out)" break_after="true" />
 					<response_body input_type="text" option_tab="Options" label="Response Body Variable " break_after="true" />
 					<response_time_ms input_type="text" option_tab="Options" label="Response Time ms Variable" break_after="true" />
 				</function>
