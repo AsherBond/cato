@@ -28,7 +28,7 @@ function pushClientLog(msg, debug) {
         // ... it's completely silent.
         $.ajax({
             type : "POST",
-            url : "uiMethods/wmWriteClientLog",
+            url : "/uiMethods/wmWriteClientLog",
             data : JSON.stringify({
                 "msg" : msg,
                 "debug" : debug

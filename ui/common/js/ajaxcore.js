@@ -44,22 +44,22 @@ function catoAjax() {
 // Class methods.
 catoAjax.getConfig = function() {"use strict";
     var args = {};
-    return ajaxPost("uiMethods/wmGetConfig", args);
+    return ajaxPost("/uiMethods/wmGetConfig", args);
 };
 
 catoAjax.getSettings = function() {"use strict";
-    return ajaxPost("uiMethods/wmGetSettings");
+    return ajaxPost("/uiMethods/wmGetSettings");
 };
 
 catoAjax.saveMyAccount = function(values) {"use strict";
     var args = {};
     args.values = values;
-    return ajaxPost("uiMethods/wmSaveMyAccount", args);
+    return ajaxPost("/uiMethods/wmSaveMyAccount", args);
 };
 
 //Update a application setting...
 catoAjax.updateSetting = function(category, setting, value) {
-    var response = ajaxPost("uiMethods/wmSetApplicationSetting", {
+    var response = ajaxPost("/uiMethods/wmSetApplicationSetting", {
         "sCategory" : category,
         "sSetting" : setting,
         "sValue" : value
