@@ -150,8 +150,8 @@ function tabWasClicked(tab) {
 	} else if (tab === "schedules") {
 		doGetPlans();
 	} else if (tab === "tags") {
-		if ( typeof (GetObjectsTags) !== 'undefined') {
-			GetObjectsTags($("#hidOriginalTaskID").val());
+		if ( typeof (getObjectsTags) !== 'undefined') {
+			getObjectsTags($("#hidOriginalTaskID").val());
 		}
 	} else if (tab === "clipboard") {
 		doGetClips();
