@@ -1043,7 +1043,9 @@ class CatoObjectTypes(object):
     CloudKeyPair = 45
     CanvasItem = 50
     Pipeline = 60
-    ReleaseCandidate = 61
+    Phase = 61
+    Stage = 62
+    ReleaseCandidate = 64
     Deployment = 70
     DeploymentTemplate = 71
     DeploymentService = 72
