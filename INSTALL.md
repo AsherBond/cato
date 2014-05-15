@@ -129,11 +129,11 @@ $CATO_HOME/services/start_services.sh
 
 This script will start several server processes:
 
-cato_messenger
-cato_rest_api
-cato_admin_ui
-cato_poller
-cato_scheduler
+- cato_messenger
+- cato_rest_api
+- cato_admin_ui
+- cato_poller
+- cato_scheduler
 
 Confirm all processes are running:
 
