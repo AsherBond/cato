@@ -5,6 +5,17 @@
 Cato CE will run on many different Linux distros and versions, but the most tested is Ubuntu 10.04 - 12.04.
 See the Install portion below for the distros and versions supported by the automated install.
 
+### Hardware Requirements
+
+Cato can run on minimal hardware for demo and development purposes.  Hardware should be scaled depending on the workload and level of activity required.
+
+Minimum requirements are:
+
+- 500M RAM
+- 1G Disk Space
+- 2 CPU cores
+- Python 2.6 or 2.7
+
 ## Install
 
 These installation instructions cover installing Cato on a single linux 
