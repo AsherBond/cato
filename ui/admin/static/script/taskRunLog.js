@@ -19,6 +19,9 @@ $(document).ready(function() {
 	g_asset_id = getQuerystringVariable("asset_id");
 	g_rows = getQuerystringVariable("rows");
 
+    // change the page title, to keep track of multiple popups
+    $("title").text("task log: " + g_instance);
+    
 	$(".link").disableSelection();
 
 	$("#resubmit_btn").button({
