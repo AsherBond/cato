@@ -1138,3 +1138,37 @@ class uiMethods:
             return traceback.format_exc()
 
         return result
+
+    def wmSearch(self):
+        """
+        This function will eventually have lots of flexibility based on the 'type' and 'in' 
+        parameters.  For the moment we're starting with the ability to search Task function_xml
+        for the pattern.
+        
+        NOTE: MySql sucks at xml, so if we need to work with an xml object it's faster to retrieve every 
+        row and then iterate.  So we'll have to apply a 'like' clause first to limit the set, then work with it.
+        """
+        _type = uiCommon.getAjaxArg("type")
+        _in = uiCommon.getAjaxArg("in")
+        _pattern = uiCommon.getAjaxArg("pattern")
+
+        out = {}
+        
+        if _type == "task":
+            # bare essentials - is the pattern in the function_xml column
+            where_clause = "where (function_xml like '%%{0}%%')".format(_pattern)
+            
+            sql = """select t.task_id, t.task_name, t.version, s.codeblock_name, 
+                s.step_id, s.step_order, s.function_name, s.function_xml
+                from task_step s join task t on s.task_id = t.task_id
+                %s""" % (where_clause)
+            
+            uiCommon.log(sql)
+            
+            rows = self.db.select_all_dict(sql)
+            rows = list(rows)
+            out["results"] = rows
+        else:
+            out["error"] = "Invalid search 'type'"
+            
+        return catocommon.ObjectOutput.AsJSON(out)

@@ -203,6 +203,11 @@ class settings:
         return render.settings()
 
 
+class search:
+    def GET(self):
+        return render.search()
+
+
 class assetEdit:
     def GET(self):
         return render.assetEdit()
@@ -720,6 +725,7 @@ urls = (
     '/announcement', 'announcement',
     '/getlicense', 'getlicense',
     '/upload', 'upload',
+    '/search', 'search',
     '/settings', 'settings',
     '/temp/(.*)', 'temp',
     '/bypass', 'bypass',

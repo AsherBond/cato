@@ -1,0 +1,33 @@
+$def with ()
+$var jsfiles: search.js
+$var cssfiles:
+
+<style>
+	.resultitem {
+		margin-bottom: 10px;
+		padding: 4px;
+	}
+</style>
+<div id="left_panel">
+    <div class="left_tooltip">
+        <img src="static/images/manage-tasks-192x192.png" alt="" />
+        <div id="left_tooltip_box_outer">
+            <div id="left_tooltip_box_inner">
+                <h2>Search</h2>
+                <p>
+                    The Search screen provides a way to search for specific keywords in Tasks.
+                </p>
+                <p>
+                    Enter search critieria into the box, and press Enter or click the Search button.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="content">
+    Search for: <input type="test" id="pattern" />
+    <span id="search_btn">Search</span>
+    <hr>
+    <ul id="results"></ul>
+</div>
+

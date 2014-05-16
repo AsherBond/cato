@@ -77,6 +77,12 @@
 				"href": "assetEdit"
 			}, {
 				"roles": "developer",
+				"label": "Search",
+				"icon": "static/images/icons/cato/datastore_query.png",
+				"onclick": "showPleaseWait();",
+				"href": "search"
+			}, {
+				"roles": "developer",
 				"label": "Import a Backup File",
 				"icon": "static/images/icons/import_24.png",
 				"onclick": "showPleaseWait();",
