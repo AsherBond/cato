@@ -17,6 +17,8 @@
 import os
 import sys
 import ast
+import base64
+import json
 from datetime import datetime, timedelta
 import dateutil.parser as parser
 from bson.objectid import ObjectId
@@ -27,6 +29,28 @@ sys.path.insert(0, lib_path)
 
 from catolog import catolog
 
+# eval_get requires a safe environment to support some explicit language features for the eval.
+# NOTE: some of these are limited in scope and have non-standard names.
+EVAL_ENVIRONMENT = {
+               'datetime': datetime,
+               'timedelta': timedelta,
+               'ObjectId': ObjectId,
+               'b64encode': base64.b64encode,
+               'b64decode': base64.b64decode,
+               'parsedate': parser.parse,
+               'asjson': json.dumps,
+               'fromjson': json.loads
+               }
+
+# There are many useful and safe Python built-ins, so let's add them
+# to our eval environment.
+for f in [
+    'abs', 'all', 'any', 'bin', 'bool', 'bytearray', 'chr', 'cmp', 'divmod', 'enumerate', 'float', 'format',
+    'hex', 'int', 'isinstance', 'len', 'list', 'long', 'max', 'min', 'oct', 'ord', 'pow', 'range', 'repr',
+    'round', 'set', 'sorted', 'str', 'sum', 'tuple', 'unichr', 'unicode', 'zip'
+]:
+    EVAL_ENVIRONMENT[f] = eval(f)
+
 class Runtimes:
     def __init__(self):
 
@@ -34,7 +58,7 @@ class Runtimes:
 
         # initialize the runtime array dictionary
         self.data = {}
-        
+
         # for the new variable syntax feature
         self.obj_data = {}
 
@@ -45,15 +69,15 @@ class Runtimes:
             out = ast.literal_eval(s)
         except:
             out = s
-        
+
         self.logger.debug("_objectify resulted in %s" % (s))
-        return out        
-        
+        return out
+
     def _fill(self, l, index):
         """fills the array with nothing for specific number of indexes"""
-     
+
         length = len(l)
-        
+
         if index >= length:
             l.extend(None for _ in range(length, index + 1))
 
@@ -71,7 +95,7 @@ class Runtimes:
                 self.obj_data[name] = [objval]
             else:
                 self.obj_data[name].insert(index, objval)
-                            
+
         # LEGACY METHOD
         name = name.upper()
         if not index:
@@ -113,12 +137,12 @@ class Runtimes:
 
     def show(self):
         """prints the full runtime structure, debugging"""
-    
+
         print self.data
 
     def count(self, name):
         """returns the count of a named array, 0 if it does not exist"""
-   
+
         name = name.upper()
         try:
             length = len(self.data[name])
@@ -182,14 +206,14 @@ class Runtimes:
             self.logger.debug("newval is:\n %s" % (newval))
             # exec is dangerous!
             # so, we only allow it to run against our obj_data collection
-            
+
             # this isn't perfect, but we have to assume if _objectify returned a basestring
             # then the value is a string.
             # HOWEVER, it may very well contain quotes.
             # so let's use it's 'repr'esentation
             if isinstance(newval, basestring):
                 newval = repr(newval)
-                
+
             setexpr = "%s=%s" % (expression, newval)
             self.logger.debug("trying to execute:\n %s" % (setexpr))
 
@@ -209,12 +233,7 @@ class Runtimes:
             # so, we only allow it to run against our obj_data collection
             # and a very strict environment
             try:
-                environment = {
-                               'datetime': datetime,
-                               'ObjectId': ObjectId,
-                               'len': len
-                               }
-                return eval(expression, environment, self.obj_data)
+                return eval(expression, EVAL_ENVIRONMENT, self.obj_data)
             except Exception as ex:
                 # write a log message, but fail safely by setting the value to ""
                 self.logger.error("Variable expression %s is not valid.\n%s" % (expression, str(ex)))
