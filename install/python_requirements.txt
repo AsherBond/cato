@@ -10,3 +10,5 @@ https://github.com/cloudsidekick/awspy/archive/master.zip
 https://github.com/pdunnigan/pywinrm/archive/master.zip
 https://github.com/cloudsidekick/catoclient/archive/master.zip
 PyYaml==3.11
+requests==2.3.0
+tornado==3.2.1
