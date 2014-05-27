@@ -9,3 +9,4 @@ argparse
 https://github.com/cloudsidekick/awspy/archive/master.zip
 https://github.com/pdunnigan/pywinrm/archive/master.zip
 https://github.com/cloudsidekick/catoclient/archive/master.zip
+PyYaml==3.11
