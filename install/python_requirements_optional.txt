@@ -16,3 +16,7 @@ https://github.com/cloudsidekick/vcloudpy/archive/0.3.tar.gz
 
 #https://github.com/denisenkom/pytds/archive/master.zip
 python-tds==1.7.0
+
+# optional digital ocean cloud support
+
+https://github.com/cloudsidekick/digocn/archive/master.zip
