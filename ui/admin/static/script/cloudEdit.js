@@ -182,7 +182,7 @@ $(document).ready(function() {
         }
     });
     $("#static_clouds_btn").click(function() {
-        if (confirm("This will import all predefined Clouds in Cato. (AWS endpoints, for example.)\n\n(This will not harm any existing Clouds.)\n\nAre you sure?")) {
+        if (confirm("This will import all predefined Clouds. (AWS endpoints, for example.)\n\n(This will not harm any existing Clouds.)\n\nAre you sure?")) {
             ajaxGet("cloudMethods/wmCreateStaticClouds", function(response) {
                 $("#txtSearch").val("");
                 GetItems();

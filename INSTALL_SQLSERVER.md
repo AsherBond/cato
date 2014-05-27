@@ -1,12 +1,12 @@
-# Installing the MS SQL Server client for Cato use
+# Installing the MS SQL Server client for velocity use
 
 ## Requirements
 
-Cato can interact directly with Microsoft SQL Server databases via a python module called `python-tds`.
+**automate** can interact directly with Microsoft SQL Server databases via a python module called `python-tds`.
 
 ## Install
 
-Modify the following line for your Cato application directory. 
+Modify the following line for your application directory. 
 
 ```
 export CATO_HOME=/opt/cato
@@ -26,5 +26,5 @@ If you'll be required to authenticate with SQL Server using Windows Domain (NTLM
 sudo pip install pydes
 ```
 
-Thats it!  Cato can now access MS SQL Server databases.
+Thats it!  **automate** can now access MS SQL Server databases.
 

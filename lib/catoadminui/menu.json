@@ -24,7 +24,7 @@
 				"href": "taskStatus"
 			}, {
 				"roles": "developer user",
-				"label": "About Cato",
+				"label": "About Automate",
 				"icon": "static/images/icons/info.png",
 				"onclick": "showAbout();",
 				"href": "#"
@@ -136,7 +136,7 @@
 				"onclick": "reportAnIssue();"
 			}, {
 				"roles": "all",
-				"label": "Register Cato",
+				"label": "Register Automate",
 				"icon": "static/images/icons/register_24.png",
 				"onclick": "registerCato();"
 			}

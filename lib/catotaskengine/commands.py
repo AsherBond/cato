@@ -927,7 +927,7 @@ def store_private_key_cmd(self, task, step):
     sql = """select cloud_id from clouds where cloud_name = %s"""
     row = self.select_row(sql, (cloud_name))
     if not row:
-        msg = "Cloud [%s] is not defined in Cato." % (cloud_name)
+        msg = "Cloud [%s] is not defined." % (cloud_name)
         raise Exception(msg)
 
     cloud_id = row[0]
@@ -1451,13 +1451,13 @@ def cato_web_service_cmd(self, task, step):
         host = catoconfig.CONFIG["rest_api_url"]
 
     if not len(host):
-        raise Exception("Cato Web Service Call command requires Host value, and no default is set in cato.conf.")
+        raise Exception("CSK API call command requires Host value, and no default is set in cato.conf.")
     if not len(method):
-        raise Exception("Cato Web Service Call command requires Method value")
+        raise Exception("CSK API call command requires Method value")
     if not len(userid):
-        raise Exception("Cato Web Service Call command requires UserId value")
+        raise Exception("CSK API call command requires UserId value")
     if not len(password):
-        raise Exception("Cato Web Service Call command requires Password value")
+        raise Exception("CSK API call command requires Password value")
 
     pairs = self.get_node_list(step.command, "pairs/pair", "key", "value")
 

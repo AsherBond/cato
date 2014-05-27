@@ -61,7 +61,7 @@ Returns: A UUID authentication token.
 
 Required Arguments: 
 
-* `import_text` - An XML or JSON document in the format of a Cato backup file.
+* `import_text` - An XML or JSON document in the format of a Task backup file.
 
 Returns: A list of items in the backup file, with the success/failure of each import.
 """
@@ -130,7 +130,7 @@ Returns: A list of items in the backup file, with the success/failure of each im
             return R(response=catocommon.ObjectOutput.IterableAsXML(items, "Results", "Result"))
     
     def list_processes(self, args):        
-        """Lists all Cato Processes.
+        """Lists all running processes.
         
 Returns: A list of [Process Objects](restapi/api-response-objects.html#Process){:target="_blank"}.
 """
@@ -446,7 +446,7 @@ Returns: A list of [User Objects](restapi/api-response-objects.html#User){:targe
             return R(response=obj.AsXML())
 
     def update_settings(self, args):
-        """Updates the settings of a Cato process or module.
+        """Updates the settings of a process or module.
 
 NOTE: the update_settings command requires submission of a JSON settings object.
 As a guide for updating settings, first execute this command with the output_format set to json.
@@ -510,7 +510,7 @@ Returns: Nothing if successful, error messages on failure.
                 return R(response=obj.AsXML())
 
     def get_settings(self, args):
-        """Lists all the settings of Cato modules.
+        """Lists all the settings of modules.
 
 Optional Arguments: 
 
@@ -633,7 +633,7 @@ Returns: A list of [Credential Objects](restapi/api-response-objects.html#Creden
 
 
     def get_system_log(self, args):
-        """Gets the Cato system log.  If all arguments are omitted, will return the most recent 100 entries.
+        """Gets the system log.  If all arguments are omitted, will return the most recent 100 entries.
         
 Optional Arguments:
 

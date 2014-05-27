@@ -1,8 +1,8 @@
-# Installing the Oracle client for Cato use
+# Installing the Oracle client for velocity use
 
 ## Requirements
 
-Cato can interact directly with Oracle applicaiton databases via the instant client
+**velocity** can interact directly with Oracle applicaiton databases via the instant client
 and an open source Python package called cx_Oracle. The following instructions
 are provided to install cx_Oracle
 
@@ -51,7 +51,7 @@ unzip instantclient-basiclite-linux.x64-11.2.0.3.0.zip -d /tmp
 unzip instantclient-sdk-linux.x64-11.2.0.3.0.zip -d /tmp
 ```
 
-Move the files into the Cato application directory ($CATO_HOME).
+Move the files into the **automate** application directory ($CATO_HOME).
 
 ```
 mv /tmp/instantclient_11_2 ${CATO_HOME}/lib/.

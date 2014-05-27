@@ -353,7 +353,7 @@ class User(object):
                     
                 body = """%s - your password has been reset by an Administrator.""" % (self.FullName)
                 if self.Email:
-                    catocommon.send_email_via_messenger(self.Email, "Cato - Account Information", body)
+                    catocommon.send_email_via_messenger(self.Email, "Cloud Sidekick - Account Information", body)
                 else:
                     logger.warning("Attempt to send a password message failed - User [%s] has no email defined." % (self.FullName))
             else:
@@ -383,7 +383,7 @@ class User(object):
             body = body.replace("##FULLNAME##", self.FullName).replace("##USERNAME##", self.LoginID).replace("##PASSWORD##", sNewPassword)
 
             if self.Email:
-                catocommon.send_email_via_messenger(self.Email, "Cato - Account Information", body)
+                catocommon.send_email_via_messenger(self.Email, "Cloud Sidekick - Account Information", body)
             else:
                 logger.warning("Attempt to send a password message failed - User [%s] has no email defined." % (self.FullName))
             # f !uiCommon.SendEmailMessage(sEmail.strip(), ag.APP_COMPANYNAME + " Account Management", "Account Action in " + ag.APP_NAME, sBody, 0000BYREF_ARG0000sErr:

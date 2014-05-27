@@ -205,7 +205,7 @@ Returns: A [Task Log Object](restapi/api-response-objects.html#TaskLog){:target=
             return R(response=obj.AsXML())
 
     def run_task(self, args):
-        """Runs a Cato Task.
+        """Runs a Task.
 
 Required Arguments: 
 

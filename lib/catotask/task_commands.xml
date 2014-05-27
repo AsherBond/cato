@@ -229,7 +229,7 @@
 					<return_code input_type="text" option_tab="Options" label="Return Code" break_after="true" />
 				</function>
 			</command>
-			<command name="cato_web_service" label="Cato API Call" description="Makes a call to the Cato REST API to manage the Cato environment." 
+			<command name="cato_web_service" label="CSK API Call" description="Makes a call to the CSK REST API." 
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#api' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
                 icon="static/images/icons/cato/network_service_32.png">
 				<function name="cato_web_service"  >

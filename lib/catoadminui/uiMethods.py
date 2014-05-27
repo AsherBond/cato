@@ -84,9 +84,9 @@ class uiMethods:
             items = []
             regstatus = sset.get_application_detail("general/register_cato")
             if regstatus not in ["skipped", "registered"]:
-                items.append("Register Cato to receive updates about the latest versions, plus the latest news and Community support.")
-                sHTML += self.DrawGettingStartedItem("registercato", "Register Cato", items,
-                     "<a href=\"#\" onclick=\"registerCato();\">Click here</a> to register Cato.<br /><a href=\"#\" id=\"skip_registration_btn\">Click here</a> to skip registering and hide this message.")
+                items.append("Register to receive updates about the latest versions, plus the latest news and Community support.")
+                sHTML += self.DrawGettingStartedItem("registercato", "Register Automate", items,
+                     "<a href=\"#\" onclick=\"registerCato();\">Click here</a> to register.<br /><a href=\"#\" id=\"skip_registration_btn\">Click here</a> to skip registering and hide this message.")
 
 
             items = []

@@ -334,7 +334,7 @@ class Cloud(object):
         # 1) is the provider valid?
         providers = CloudProviders(include_products=False, include_clouds=False)
         if sProvider not in providers.iterkeys():
-            raise InfoException("The specified Provider [%s] is not a valid Cato Cloud Provider." % sProvider)
+            raise InfoException("The specified Provider [%s] is not a valid Cloud Provider." % sProvider)
 
         # 2) if given, does the 'default cloud account' exist
         if sDefaultAccount:
@@ -583,7 +583,7 @@ class CloudAccount(object):
         # 1) is the provider valid?
         providers = CloudProviders(include_products=False, include_clouds=False)
         if sProvider not in providers.iterkeys():
-            raise InfoException("The specified Provider [%s] is not a valid Cato Cloud Provider." % sProvider)
+            raise InfoException("The specified Provider [%s] is not a valid Cloud Provider." % sProvider)
 
         # 2) if given, does the 'default cloud' exist
         c = Cloud()

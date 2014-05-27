@@ -150,7 +150,7 @@ class Cloud:
         row = db.select_row(sql, (cloud_name))
         db.close()
         if not row:
-            msg = "The cloud endpoint name %s is not configured in the Cato database" % cloud_name
+            msg = "The Cloud endpoint name %s is not configured in the database" % cloud_name
             raise Exception(msg) 
 
         self.cloud_id, self.provider, self.url, self.protocol, self.default_account, self.region = row[:]

@@ -170,7 +170,7 @@ Returns: A text value.
                 return R(response="Lookup found no match.")
 
         else:
-            return R(err_code=R.Codes.GetError, err_detail="Unable to find Document for Cato Object ID [%s]." % args["doc_id"])
+            return R(err_code=R.Codes.GetError, err_detail="Unable to find Document for Object ID [%s]." % args["doc_id"])
 
     def set_document_value(self, args):
         """Sets the value of a key in a Datastore document.
