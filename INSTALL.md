@@ -1,13 +1,13 @@
-# Cloud Sidekick Cato CE (Community Edition) 
+# velocity automate
 
 ## Requirements
 
-Cato CE will run on many different Linux distros and versions, but the most tested is Ubuntu 10.04 - 12.04.
+**velocity automate** will run on many different Linux distros and versions, but the most tested is Ubuntu 10.04 - 12.04.
 See the Install portion below for the distros and versions supported by the automated install.
 
 ### Hardware Requirements
 
-Cato can run on minimal hardware for demo and development purposes.  Hardware should be scaled depending on the workload and level of activity required.
+**automate** can run on minimal hardware for demo and development purposes.  Hardware should be scaled depending on the workload and level of activity required.
 
 Minimum requirements are:
 
@@ -18,7 +18,7 @@ Minimum requirements are:
 
 ## Install
 
-These installation instructions cover installing Cato on a single linux 
+These installation instructions cover installing **automate** on a single linux 
 machine with web, database and services residing under the same home 
 directory. 
 
@@ -77,7 +77,8 @@ Download the supplied tar file to the target server. Unpack the file with the fo
 Substitute /opt/cato for any target directory desired.
 
 ```
-export CATO_HOME=/opt/cato
+export CSK_HOME=/opt/csk
+export CATO_HOME=$CSK_HOME/cato
 sudo mkdir $CATO_HOME
 sudo tar -xvzf cloudsidekickcato.tar.gz -C $CATO_HOME --strip-components=1
 ```
@@ -91,7 +92,7 @@ cd $CATO_HOME
 __Optional__
 It is optional to edit the install.sh script to modify user ids, passwords, file locations, etc.
 
-The installation script will create a directory under /var named cato. This directory will hold logfiles, cache
+The installation script will create a directory under /var named `cato`. This directory will hold logfiles, cache
 files and temporary files. If desired, change these parameters in the top of the install.sh script.
 
 #### Run Install
@@ -112,10 +113,10 @@ sudo chown -R ubuntu:ubuntu $CATO_HOME
 sudo chown -R ubuntu:ubuntu  /var/cato
 ```
 
-Add the CATO_HOME environment variable to the .profile (or .bash_profile depending on the flavor of linux).
+Add the CSK_HOME environment variable to the .profile (or .bash_profile depending on the flavor of linux).
 
 ```
-echo "export CATO_HOME=$CATO_HOME" >> ~/.profile
+echo "export CSK_HOME=$CSK_HOME" >> ~/.profile
 ```
 
 Now start all services. Make sure to use the application user account used in the "chown" step above.
@@ -151,10 +152,10 @@ more <logfile_name>
 
 ### Initial Configuration
 
-After Cato services are started, one last step remains - the initial configuration of the system.
+After all services are started, one last step remains - the initial configuration of the system.
 
-Note: in a default Cato install, no Cloud endpoints are defined.  Service providers such as Amazon AWS have a known set of Cloud endpoints.
-To configure Cato with the default AWS Endpoints, add the following option to the configure command.  
+Note: in a default install, no Cloud endpoints are defined.  Service providers such as Amazon AWS have a known set of Cloud endpoints.
+To configure **automate** with the default AWS Endpoints, add the following option to the configure command.  
 (Predefined Clouds can be added at any time in the Cato Admin UI as well.)
 
 This can be done via a web browser, or the *curl* command line utility.
@@ -194,7 +195,7 @@ $CATO_HOME/services/restart_services.sh
 
 ## Firewalls
 
-To enable access to the Cato application, open the following ports locally 
+To enable access to the **automate** application, open the following ports locally 
 on the target machine and any external firewalls. 
 
 Ports 8080, 8082
@@ -215,14 +216,14 @@ sudo chkconfig iptables off
 
 ## Enabling SSL/TLS (https)
 
-By default, the Cato UI and REST API are configured for standard HTTP.  HTTPS (SSL/TLS) can be easily enabled.
+By default, the **automate** UI and REST API are configured for standard HTTP.  HTTPS (SSL/TLS) can be easily enabled.
 
 ```
 vi $CATO_CONFIG/cato.conf (default: /etc/cato/cato.conf)
 ```
 
-- For the Cato UI - change the setting *admin_ui_use_ssl* to *true*
-- For the Cato REST API - change the setting *rest_api_use_ssl* to *true*
+- For the **automate** UI - change the setting *admin_ui_use_ssl* to *true*
+- For the REST API - change the setting *rest_api_use_ssl* to *true*
 - Install your certificate and private key in $CATO_HOME/conf
 - If you want to keep your certificate and key in another location, specify the path and file in the two cato.conf settings: i
 ```    
@@ -257,6 +258,6 @@ Password: password
 
 ##Note on the web server
 
-Cato Community Edition runs on a lightweight webserver that comes with Python web framework Web.py.
-This should be sufficient for most uses Cato CE, however Cato can also be configured to use Apache.
+The **automate** UI runs on a lightweight Python web framework called web.py.
+This should be sufficient for most uses, however **automate** can also be configured to use Apache.
 
