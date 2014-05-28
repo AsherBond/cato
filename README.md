@@ -1,10 +1,10 @@
-# Cloud Sidekick Cato Community Edition (CE)
+# Cloud Sidekick velocity automate
 
 
 ## Description
 
-The Cato automation toolkit consists of 3 major components: webserver, 
-database and the services. Cato users can create automation routines
+The **velocity automate** automation toolkit consists of 3 major components: webserver, 
+database and the services. Users can create automation routines
 through the web interface which are stored in a MySQL database. The 
 automation routines are executed by the services component. There is 
 also a built in Mongodb datastore.
@@ -48,6 +48,6 @@ See the INSTALL.md file in this directory.
 
 ## Documentation
 
-All Cato documentation can be found here under Cato:
+All documentation can be found here:
 
 http://docs.cloudsidekick.com/docs/cato
