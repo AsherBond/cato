@@ -217,7 +217,7 @@ Optional Arguments:
 * `log_level` - an integer (0-4) where 0 is none, 2 is normal and 4 is verbose.  Default is 2.
 * `account` - the ID or Name of a Cloud Account.  Certain Task commands require a Cloud Account.
 * `parameters` - A JSON or XML document defining parameters for the Task.
-* `options` - a JSON object defining certain options for this Task.  Typically used to provide scope for extensions to the Task Engine, such as Maestro.
+* `options` - a JSON object defining certain options for this Task.  Typically used to provide scope for extensions to the Task Engine.
 * `run_later` - if provided, the Task will be scheduled to run at the specified date/time.  ex. "7/4/1776 15:30"
     
 Returns: A [Task Instance Object](restapi/api-response-objects.html#TaskInstance){:target="_blank"}.
