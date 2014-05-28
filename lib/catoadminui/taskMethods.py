@@ -665,7 +665,6 @@ class taskMethods:
                 # display metadata attributes are explicitly stripped off...
                 # to conserve a few bytes in the db,
                 # as well as make exported tasks easier to read.
-                # ALL attributes are removed except 'name'
                 for x in xe.getiterator():
                     leavekeys = ["name", "parse_method", "is_array"]
                     keys_to_del = [k for k in x.attrib.iterkeys() if k not in leavekeys]
@@ -798,19 +797,18 @@ class taskMethods:
                     if xNode is not None:
                         xNode.text = sValue
 
-#                 # NEW OPTIMIZATION FEATURE #336
-#                 # display metadata attributes are explicitly stripped off...
-#                 # to conserve a few bytes in the db,
-#                 # as well as make exported tasks easier to read.
-#                 # ALL attributes are removed except 'name'
-#                 for x in xe.getiterator():
-#                     leavekeys = ["name", "parse_method", "is_array"]
-#                     keys_to_del = [k for k in x.attrib.iterkeys() if k not in leavekeys]
-#                     for k in keys_to_del:
-#                         try:
-#                             del x.attrib[k]
-#                         except:
-#                             pass
+                # NEW OPTIMIZATION FEATURE #336
+                # display metadata attributes are explicitly stripped off...
+                # to conserve a few bytes in the db,
+                # as well as make exported tasks easier to read.
+                for x in xe.getiterator():
+                    leavekeys = ["name", "parse_method", "is_array"]
+                    keys_to_del = [k for k in x.attrib.iterkeys() if k not in leavekeys]
+                    for k in keys_to_del:
+                        try:
+                            del x.attrib[k]
+                        except:
+                            pass
 
                 # Add it!
                 ST.AddToCommandXML(sStepID, sDropXPath, catocommon.ET.tostring(xe))
