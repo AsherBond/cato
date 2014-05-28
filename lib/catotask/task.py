@@ -1342,11 +1342,10 @@ class Step(object):
         del self.XPathPrefix
         del self.Order
 
-        if catocommon.featuretoggle("335"):
-            # "function definition" is actual JSON, not xml-in-json
-            self.FunctionDefinition = self._functionxml_to_dict()
-        else:
-            self.FunctionXML = catocommon.ET.tostring(self.FunctionXDoc)
+        # Feature #335
+        # "function definition" is actual JSON, not xml-in-json
+        self.FunctionDefinition = self._functionxml_to_dict()
+
         del self.FunctionXDoc
         return catocommon.ObjectOutput.AsJSON(self.__dict__)        
 
@@ -1395,17 +1394,10 @@ class Step(object):
         self.Description = step.get("Description", "")
 
         # FUNCTION
-        # feature 335
+        # Feature #335
         # function "xml" is converted to json when backed up, and reconverted to xml when loaded
-        if catocommon.featuretoggle("335"):
-            # "function definition" is actual JSON, not xml-in-json
-            self.FunctionXDoc = self._functionxml_from_dict(step.get("FunctionDefinition"))
-        else:
-            func = step.get("FunctionXML")
-            if not func:
-                raise Exception("ERROR: Step [%s] - function xml is empty or cannot be parsed.")
-            
-            self.FunctionXDoc = catocommon.ET.fromstring(func)
+        # "function definition" is actual JSON, not xml-in-json
+        self.FunctionXDoc = self._functionxml_from_dict(step.get("FunctionDefinition"))
 
         # command_type is for backwards compatilibity in importing tasks from 1.0.8
         self.FunctionName = step.get("FunctionName", "")
@@ -1570,7 +1562,7 @@ class Step(object):
             
             # a critical flow issue... if the node has an attribute "is_array", 
             # that means it CONTAINS a LIST
-            if "is_array" in node.attrib:
+            if "is_array" in node.attrib or node.tag == "step_variables":
                 logger.debug("    [%s] is an array!" % (node.tag))
                 i = 0
                 for n in list(node):
