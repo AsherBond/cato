@@ -176,7 +176,7 @@ function reportAnIssue() {
     var ver = g_config.version;
     var exts = g_config.extensions.join(",");
     var qs = "utm_source=cato_app&utm_medium=menu&utm_campaign=app&ver=" + ver + "&exts=" + exts;
-    openWindow('http://cato.cloudsidekick.com/report-an-issue.html?' + qs, 'report', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');
+    openWindow('http://www.cloudsidekick.com/report-an-issue.html?' + qs, 'report', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');
 }
 
 function registerCato() {
@@ -187,7 +187,7 @@ function registerCato() {
     var ver = g_config.version;
     var exts = g_config.extensions.join(",");
     var qs = "utm_source=cato_app&utm_medium=menu&utm_campaign=app&ver=" + ver + "&exts=" + exts;
-    openWindow('http://cato.cloudsidekick.com/register-cato.html?' + qs, 'register', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');
+    openWindow('http://www.cloudsidekick.com/register-velocity.html?' + qs, 'register', 'location=no,status=no,scrollbars=yes,resizable=yes,width=800,height=700');
 
     //this might not be visible, but try to remove it anyway.
     $("#registercato").remove();

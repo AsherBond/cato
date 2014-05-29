@@ -209,12 +209,9 @@ def GetStepTemplate(oStep):
     if bShowVarButton:
         # IF a command "populates variables" it will be noted in the command xml
         # is the variables xml attribute true?
-        if catocommon.featuretoggle("336"):
-            # NEW OPTIMIZATION FEATURE #336
-            # - separate the display metadata from the step function values.
-            ST = oStep.Function.TemplateXDoc
-        else:
-            ST = oStep.FunctionXDoc
+        # NEW OPTIMIZATION FEATURE #336
+        # - separate the display metadata from the step function values.
+        ST = oStep.Function.TemplateXDoc
 
         if ST is not None:
             sPopulatesVars = ST.get("variables", "false")
@@ -393,18 +390,15 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
     1) a node IsEditable if it has the attribute "is_array".  (It's an array, therefore it's contents are 'editable'.)
     2) a node IsRemovable if it's PARENT IsEditable.  So, we pass IsEditable down to subsequent recursions as IsRemovable.)
     """
-    if catocommon.featuretoggle("336"):
-        # NEW OPTIMIZATION FEATURE #336
-        # - separate the display metadata from the step function values.
-        UI.log("-- XPath: " + sXPath, 4)
-        # NOTE! to look up details in the template, we have to strip any index off the xpath
-        xp = sXPath
-        if xp.endswith("]"):
-            xp = xp[:xp.rfind("[")]
-        ST = oStep.Function.TemplateXDoc.find(xp)
-        UI.log("-- Template: " + catocommon.ET.tostring(ST), 4)
-    else:
-        ST = xeNode
+    # NEW OPTIMIZATION FEATURE #336
+    # - separate the display metadata from the step function values.
+    UI.log("-- XPath: " + sXPath, 4)
+    # NOTE! to look up details in the template, we have to strip any index off the xpath
+    xp = sXPath
+    if xp.endswith("]"):
+        xp = xp[:xp.rfind("[")]
+    ST = oStep.Function.TemplateXDoc.find(xp)
+    UI.log("-- Template: " + catocommon.ET.tostring(ST), 4)
         
     # the base xpath of this command (will be '' unless this is embedded)
     # NOTE: do not append the base_path on any CommonAttribs calls, it's done inside that function.
@@ -530,18 +524,15 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
     Some important notes:
     1) a node IsEditable if it has the attribute "is_array".  (It's an array, therefore it's contents are 'editable'.)
     """
-    if catocommon.featuretoggle("336"):
-        # NEW OPTIMIZATION FEATURE #336
-        # - separate the display metadata from the step function values.
-        UI.log("-- XPath: " + sXPath, 4)
-        # NOTE! to look up details in the template, we have to strip any index off the xpath
-        xp = sXPath
-        if xp.endswith("]"):
-            xp = xp[:xp.rfind("[")]
-        ST = oStep.Function.TemplateXDoc.find(xp)
-        UI.log("-- Template: " + catocommon.ET.tostring(ST), 4)
-    else:
-        ST = xeNode
+    # NEW OPTIMIZATION FEATURE #336
+    # - separate the display metadata from the step function values.
+    UI.log("-- XPath: " + sXPath, 4)
+    # NOTE! to look up details in the template, we have to strip any index off the xpath
+    xp = sXPath
+    if xp.endswith("]"):
+        xp = xp[:xp.rfind("[")]
+    ST = oStep.Function.TemplateXDoc.find(xp)
+    UI.log("-- Template: " + catocommon.ET.tostring(ST), 4)
 
     sHTML = ""
     sNodeName = xeNode.tag
@@ -2537,14 +2528,11 @@ def NewConnection(oStep):
     sStepID = oStep.ID
     xd = oStep.FunctionXDoc
 
-    if catocommon.featuretoggle("336"):
-        # NEW OPTIMIZATION FEATURE #336
-        # - separate the display metadata from the step function values.
-        # NOTE: this one command is a hybrid - it calls DrawField for a few fields.
-        # therefore we need to find and pass the StepTemplate (ST)
-        ft = oStep.Function.TemplateXDoc
-    else:
-        ft = xd
+    # NEW OPTIMIZATION FEATURE #336
+    # - separate the display metadata from the step function values.
+    # NOTE: this one command is a hybrid - it calls DrawField for a few fields.
+    # therefore we need to find and pass the StepTemplate (ST)
+    ft = oStep.Function.TemplateXDoc
     
     xAsset = xd.find("asset")
     xConnName = xd.find("conn_name")
@@ -2666,14 +2654,11 @@ def NewConnection_View(oStep):
     sStepID = oStep.ID
     xd = oStep.FunctionXDoc
 
-    if catocommon.featuretoggle("336"):
-        # NEW OPTIMIZATION FEATURE #336
-        # - separate the display metadata from the step function values.
-        # NOTE: this one command is a hybrid - it calls DrawField for a few fields.
-        # therefore we need to find and pass the StepTemplate (ST)
-        ft = oStep.Function.TemplateXDoc
-    else:
-        ft = xd
+    # NEW OPTIMIZATION FEATURE #336
+    # - separate the display metadata from the step function values.
+    # NOTE: this one command is a hybrid - it calls DrawField for a few fields.
+    # therefore we need to find and pass the StepTemplate (ST)
+    ft = oStep.Function.TemplateXDoc
 
     xAsset = xd.find("asset")
     xConnName = xd.find("conn_name")

@@ -22,12 +22,6 @@
 				"icon": "static/images/icons/task_stat_24.png",
 				"onclick": "showPleaseWait();",
 				"href": "taskStatus"
-			}, {
-				"roles": "developer user",
-				"label": "About Automate",
-				"icon": "static/images/icons/info.png",
-				"onclick": "showAbout();",
-				"href": "#"
 			}
 		]
 	}, {
