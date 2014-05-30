@@ -69,6 +69,7 @@ then
     apt-get update -q
     export DEBIAN_FRONTEND=noninteractive
     apt-get -y -q=2 install mysql-server
+    service mysql start
 
 elif [ "$FLAVOR" = "rh" ];
 then 
