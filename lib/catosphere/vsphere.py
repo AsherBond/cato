@@ -188,7 +188,6 @@ class Server():
             self.username = username
         if password:
             self.password = password
-        print username, password
 
     def connect(self, url=None, username=None, password=None):
         """Connects to vSphere server using optional arguments
@@ -493,14 +492,12 @@ class VM:
             # it into a dict
             val = self._vm._properties.get('net')
             if val and isinstance(val, list) and len(val) == 1:
+                # if guest.net is a list and there is at least one element
+                # get the first in the list
                 val = val[0]
-            else:
-                if val:
-                    # TODO: remove this once it's verified with testing that
-                    #  this is expected format.
-                    raise InternalError('Unexpected inernal format for net property')
-                    # logger.error('Unexpected inernal format for net property')
-
+            elif val:
+                # if guest.net is non None, convert to a string
+                val = str(val)
         else:
             if self._is_custom_property(name):
                 # check if in cache
@@ -519,9 +516,7 @@ class VM:
             val = ""
         return val
 
-        # logger.debug("runTestPySphere: after get_vm_by_path: ;%f" % resident())
-        # msg = '%s %s %s %s' %( vm.properties.config.guestFullName, vm.properties.name, \
-        #  vm.properties.overallStatus, vm.properties.config.template)
+
     def get_property_names(self):
         """Returns all supported property names for this VM.
         
