@@ -188,6 +188,7 @@ class Server():
             self.username = username
         if password:
             self.password = password
+        print username, password
 
     def connect(self, url=None, username=None, password=None):
         """Connects to vSphere server using optional arguments
@@ -514,6 +515,8 @@ class VM:
                 else:
                     logger.warning('get_property: unregistered property %s=%s' % (name, val))
 
+        if val is None:
+            val = ""
         return val
 
         # logger.debug("runTestPySphere: after get_vm_by_path: ;%f" % resident())
