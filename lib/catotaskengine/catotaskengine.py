@@ -1248,6 +1248,7 @@ class TaskEngine():
             # print row
             password = row[6]
             p_password = row[8]
+            pk=row[10]
 
             if password and len(password) > 0:
                 password = catocommon.cato_decrypt(password)
@@ -1257,9 +1258,13 @@ class TaskEngine():
                 p_password = catocommon.cato_decrypt(p_password)
             else:
                 p_password = ""
+            if pk and len(pk) > 0:
+                pk = catocommon.cato_decrypt(pk)
+            else:
+                pk = ""
 
             s = classes.System(row[0], address=row[1], port=row[2], db_name=row[3], conn_type=row[4], userid=row[5],
-                password=password, p_password=p_password, domain=row[7], conn_string=row[9], private_key=row[10])
+                password=password, p_password=p_password, domain=row[7], conn_string=row[9], private_key=pk)
 
             self.systems[asset_id] = s
 
