@@ -106,6 +106,8 @@ def read_config():
 
     # extensions are name/value pairs, so the 'extensions' setting is actually a dictionary.
     cfg["extensions"] = {}
+    # dash_api_alt_repo_dirs are name/value pairs, so the 'dash_api_alt_repo_dirs' setting is actually a dictionary.
+    cfg["dash_api_alt_repo_dirs"] = {}
 
     if not os.path.isfile(CONFFILE):
         if not os.path.isfile(CONFFILE):
@@ -145,6 +147,14 @@ def read_config():
             elif key == "report_store":
                 # report_store requires path environment variable expansion
                 cfg["report_store"] = os.path.expandvars(value.strip())
+            elif key == "dash_api_alt_repo_dirs":
+                # report_store requires splitting and path environment variable expansion
+                pairs = value.split(";")
+                for p in pairs:
+                    if ":" in p:
+                        n, v = p.split(":")
+                        if n and v:
+                            cfg["dash_api_alt_repo_dirs"][n.strip()] = os.path.expandvars(v.strip())
             elif key == "extensions":
                 # extensions require a little parsing, and path environment variable expansion
                 pairs = value.split(";")
