@@ -69,14 +69,14 @@ then
     apt-get update -q
     export DEBIAN_FRONTEND=noninteractive
     apt-get -y -q=2 install mysql-server
-    service mysql start
+    service mysql restart
 
 elif [ "$FLAVOR" = "rh" ];
 then 
     # RedHat, CentOS, Amazon AMI, Fedora, etc.
     yum -y --quiet install mysql-server mysql mysql-client
     chkconfig --levels 235 mysqld on
-    service mysqld start
+    service mysqld restart
 
 elif [ "$FLAVOR" = "suse" ];
 then   
