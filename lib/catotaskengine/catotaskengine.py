@@ -1179,6 +1179,7 @@ class TaskEngine():
                     time.sleep(20)
                     attempt += 1
                 else:
+                    traceback.print_exc(file=sys.stderr)
                     msg = "winrm connection failed with error %s" % (e)
                     raise Exception(msg)
 
