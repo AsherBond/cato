@@ -7,7 +7,7 @@ pexpect==2.4
 #python-tds==1.6.2
 argparse
 https://github.com/cloudsidekick/awspy/archive/master.zip
-https://github.com/pdunnigan/pywinrm/archive/master.zip
+https://github.com/diyan/pywinrm/archive/master.zip
 https://github.com/cloudsidekick/catoclient/archive/master.zip
 PyYaml==3.11
 requests==2.3.0
