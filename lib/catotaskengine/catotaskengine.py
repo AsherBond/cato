@@ -1154,12 +1154,11 @@ class TaskEngine():
         self.logger.debug("Attempting WinRM connection to:")
         self.logger.debug(address)
         
-        import winrm
-        from winrm import winrm_service
+        from winrm import Protocol
         # TODO - allow the user to specify a transport of kerberos, and also test this
         # depends on ubuntu: sudo apt-get install libkrb5-dev; sudo pip install kerberos
 
-        conn = winrm_service.WinRMWebService(endpoint=address, transport=transport, username=user, password=password)
+        conn = Protocol(endpoint=address, transport=transport, username=user, password=password)
         self.logger.debug("Connection established!")
         return conn
 
