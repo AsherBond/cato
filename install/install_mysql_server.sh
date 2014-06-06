@@ -84,7 +84,7 @@ then
     zypper refresh
     zypper --quiet install -y mysql mysql-client
     chkconfig --add mysql
-    service mysql start
+    service mysql restart
 
 else
     set +x
