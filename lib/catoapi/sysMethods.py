@@ -189,6 +189,8 @@ NOTE: to prevent accidental change of an Administrators password, an extra trap 
 Required Arguments: 
 
 * `password` - the new password.
+* - OR -
+* `generate` - generate a random password.
 
 Optional Arguments:
 
@@ -198,6 +200,7 @@ Returns: Success message if successful, error messages on failure.
 """
         user = args.get("user")
         new_pw = args.get("password")
+        generate = catocommon.is_true(args.get("generate"))
 
         # this is a admin function, kick out 
         if user and not api._ADMIN:
@@ -208,7 +211,8 @@ Returns: Success message if successful, error messages on failure.
         if not user and api._ADMIN:
             return R(err_code=R.Codes.Forbidden, err_detail="Administrators must specify a user to change.")
 
-        generate = catocommon.is_true(args.get("generate"))
+        if not new_pw and not generate:
+            return R(err_code=R.Codes.Exception, err_detail="A password must be provided, or 'generate' must be true.")
 
         obj = catouser.User()
         obj.FromName(user)
@@ -326,8 +330,6 @@ Properties will only be updated if the option is provided.  Omitted properties w
 
 NOTE: the "username" of a user cannot be changed.
 
-Password cannot be updated by this method.  Use "reset_password" instead.
-
 If a user has 'locked' their account by numerous failed login attempts, the flag is reset 
 by setting any property.  It's easiest to just the status to 'enabled'.
 
@@ -345,6 +347,10 @@ Optional Arguments:
 * `status` - Status of the account. (Valid values: enabled, disabled, locked)
 * `expires` - Expiration date for this account.  Must be in mm/dd/yyyy format. Can be cleared with "None".
 * `groups` - Add to the list of groups the user belongs to. Group names cannot contain spaces. Comma delimited list.
+
+* `password` - the new password.
+* - OR -
+* `generate` - generate a random password.
 
 Returns: A [User Object](restapi/api-response-objects.html#User){:target="_blank"}.
 """
@@ -364,6 +370,14 @@ Returns: A [User Object](restapi/api-response-objects.html#User){:target="_blank
         if not obj.ID:
             return R(err_code=R.Codes.GetError, err_detail="Cannot find User.")
             
+        # first, we have a procedure for changing password
+        new_pw = args.get("password")
+        generate = catocommon.is_true(args.get("generate"))
+        if new_pw:
+            obj.ChangePassword(new_password=new_pw)
+        elif generate:
+            obj.ChangePassword(generate=generate)
+        
         # now we can change the properties
         
         # these can't be null or empty
@@ -386,7 +400,7 @@ Returns: A [User Object](restapi/api-response-objects.html#User){:target="_blank
 
         # force change
         if args.get("forcechange"):
-            obj.ForceChange = 1 if args["forcechange"] == "true" else 1 if str(args["forcechange"]) == "0" else obj.ForceChange
+            obj.ForceChange = 1 if args["forcechange"] == "true" else 0
         
         """
         OK this group stuff is a little tricky.  User.DBUpdate requires us to send in the complete list of Groups we want.
@@ -404,7 +418,6 @@ Returns: A [User Object](restapi/api-response-objects.html#User){:target="_blank
         if obj.Tags is not None:
             groups = obj.Tags + groups  # merge the lists
         obj._Groups = list(set(groups))  # make it distinct
-        
         
         # all the properties are set... call DBUpdate!
         if obj.DBUpdate():
