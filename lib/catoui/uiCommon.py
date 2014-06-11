@@ -1001,13 +1001,13 @@ def GetLog():
     delivers an html page with a refresh timer.  content is the last n rows of the logfile
     """
     lines = getAjaxArg("lines")
-    lines = lines if lines else "1000"
+    lines = lines if lines else "100"
 
-    refresh = 10000
+    refresh = 30
     r = getAjaxArg("refresh")
     if r:
         try:
-            refresh = int(r) * 1000
+            refresh = int(r)
         except:
             pass
 
@@ -1018,22 +1018,83 @@ def GetLog():
     else:
         process = catolog.LOGFILE
 
-    l = os.popen("tail -n %s %s" % (lines, process)).readlines()
+    buf = os.popen("tail -n %s %s" % (lines, process)).readlines()
+    buf = reversed(buf)
+
+    # this is just easier here
+    svcs = [
+        "cato_admin_ui", 
+        "cato_canvas_api", 
+        "cato_depmarshall", 
+        "cato_messenger", 
+        "cato_poller", 
+        "cato_rest_api", 
+        "cato_scheduler", 
+        "cato_user_ui", 
+        "csk_cd_ui", 
+        "csk_job_handler", 
+        "csk_metrics", 
+        "csk_msghub", 
+        "maestro_newsfeed_api", 
+        "maestro_scheduler"
+        ]
+    
+    pickerhtml = ""
+    for x in svcs:
+        sel = "selected='selected'" if x in process else ""
+        pickerhtml += '<option %s value="%s">%s</option>' % (sel, x, x)
+    
     html = """<!DOCTYPE html>
     <html>
         <head>
+            <title>log - velocity</title>
+            <style>
+                body {
+                    word-wrap: break-word;
+                }
+            </style>
         </head>
         <body>
+            Lines: <input type="text" id="num_lines" onkeypress="enter(event);" value="%s" />
+            Refresh: <input type="text" id="ref_secs" onkeypress="enter(event);" value="%s" />
+            Service: <select id="process" onchange="refresh();">%s</select>
+            <button onclick="refresh();">Go</button>
+            <hr>
+            <h4>%s</h4>
             <pre>%s</pre>
             <div style="height: 20px;"></div>
-            <a id="bottom">
             <script type="text/javascript">
-                window.scrollTo(0, document.body.scrollHeight);
-                setInterval(function() {location.reload();}, %d);
+                function enter(e) {
+                    if ( typeof e == 'undefined' && window.event) {
+                        e = window.event;
+                    }
+                    if (e.keyCode == 13) {
+                        refresh();
+                    }
+                }
+                function refresh() {
+                    var url = "getlog?";
+                    
+                    var nl = document.getElementById('num_lines').value;
+                    if (nl) {
+                        url = url + "&lines=" + nl;
+                    }
+
+                    var r = document.getElementById('ref_secs').value;
+                    if (r) {
+                        url = url + "&refresh=" + r;
+                    }
+
+                    var p = document.getElementById('process').value;
+                    url = url + "&process=" + p;
+
+                    location.href = url;
+                }
+                setInterval(function() {location.reload();}, %d*1000);
             </script>
         </body>
     </html>
-    """ % ("".join(l), refresh)
+    """ % (lines, refresh, pickerhtml, process, "".join(buf), refresh)
 
     return html
 
