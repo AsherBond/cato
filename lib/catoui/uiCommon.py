@@ -256,11 +256,11 @@ def CheckSession(appname, path):
     else:
         # OH NO, we don't have a session!
 
-        # Now, before we throw the user to the login page, 
+        # Now, before we throw the user to the login page,
         # there are two 'passthru' auth options to check
         # (if anything goes wrong, just redirect to the login page)
         i = web.input(page=None, token=None, applink=None)
-        
+
         # is there a 'token' argument?
         if i.token:
             response = AttemptLogin(appname, token=i.token)
@@ -272,7 +272,7 @@ def CheckSession(appname, path):
                 logger.info("Token Authentication failed... [%s]" % response.get("info"))
                 uiGlobals.session.kill()
                 raise web.seeother('/static/login.html?msg=Token%20Authentication%20failed')
-    
+
         # is there an 'applink' argument?
         if i.applink:
             response = AttemptLogin(appname, sid=i.applink)
@@ -285,10 +285,10 @@ def CheckSession(appname, path):
                 uiGlobals.session.kill()
                 raise web.seeother('/static/login.html?msg=Trust%20Authentication%20failed')
 
-        # putting the path in the session will enable us to 
+        # putting the path in the session will enable us to
         # go to the requested page after login
         uiGlobals.session["requested_path"] = path
-        
+
         # DO NOT do a seeother here ... the request may have been ajax.
         # raise a SessionError, and the downstream code will handle it properly
         raise SessionError("Server Session has expired (0). Please log in again.")
@@ -1011,10 +1011,17 @@ def GetLog():
         except:
             pass
 
+    instance = getAjaxArg("instance")
+
     # if 'process' is omitted, return the logfile for this process
     process = getAjaxArg("process")
+    selected = process
     if process:
-        process = os.path.join(catolog.LOGPATH, "%s.log" % process)
+        if process in ["task_instance", "sequence_instance"]:
+            d = process.replace("task_instance", "te").replace("sequence_instance", "se")
+            process = os.path.join(catolog.LOGPATH, "%s/%s.log" % (d, instance))
+        else:
+            process = os.path.join(catolog.LOGPATH, "%s.log" % (process))
     else:
         process = catolog.LOGFILE
 
@@ -1023,27 +1030,29 @@ def GetLog():
 
     # this is just easier here
     svcs = [
-        "cato_admin_ui", 
-        "cato_canvas_api", 
-        "cato_depmarshall", 
-        "cato_messenger", 
-        "cato_poller", 
-        "cato_rest_api", 
-        "cato_scheduler", 
-        "cato_user_ui", 
-        "csk_cd_ui", 
-        "csk_job_handler", 
-        "csk_metrics", 
-        "csk_msghub", 
-        "maestro_newsfeed_api", 
-        "maestro_scheduler"
+        "cato_admin_ui",
+        "cato_canvas_api",
+        "cato_depmarshall",
+        "cato_messenger",
+        "cato_poller",
+        "cato_rest_api",
+        "cato_scheduler",
+        "cato_user_ui",
+        "csk_cd_ui",
+        "csk_job_handler",
+        "csk_metrics",
+        "csk_msghub",
+        "maestro_newsfeed_api",
+        "maestro_scheduler",
+        "task_instance",
+        "sequence_instance"
         ]
-    
+
     pickerhtml = ""
     for x in svcs:
-        sel = "selected='selected'" if x in process else ""
+        sel = "selected='selected'" if x in selected else ""
         pickerhtml += '<option %s value="%s">%s</option>' % (sel, x, x)
-    
+
     html = """<!DOCTYPE html>
     <html>
         <head>
@@ -1053,16 +1062,6 @@ def GetLog():
                     word-wrap: break-word;
                 }
             </style>
-        </head>
-        <body>
-            Lines: <input type="text" id="num_lines" onkeypress="enter(event);" value="%s" />
-            Refresh: <input type="text" id="ref_secs" onkeypress="enter(event);" value="%s" />
-            Service: <select id="process" onchange="refresh();">%s</select>
-            <button onclick="refresh();">Go</button>
-            <hr>
-            <h4>%s</h4>
-            <pre>%s</pre>
-            <div style="height: 20px;"></div>
             <script type="text/javascript">
                 function enter(e) {
                     if ( typeof e == 'undefined' && window.event) {
@@ -1070,6 +1069,14 @@ def GetLog():
                     }
                     if (e.keyCode == 13) {
                         refresh();
+                    }
+                }
+                function showte() {
+                    var p = document.getElementById('process').value;
+                    if (p === "task_instance" || p === "sequence_instance") {
+                        document.getElementById('instancespan').style.display="";
+                    } else {
+                        document.getElementById('instancespan').style.display="none";
                     }
                 }
                 function refresh() {
@@ -1088,13 +1095,32 @@ def GetLog():
                     var p = document.getElementById('process').value;
                     url = url + "&process=" + p;
 
+                    var i = document.getElementById('instance').value;
+                    if (i) {
+                        url = url + "&instance=" + i;
+                    }
+
                     location.href = url;
                 }
+            </script>
+        </head>
+        <body>
+            Lines: <input type="text" id="num_lines" onkeypress="enter(event);" value="%s" />
+            Refresh: <input type="text" id="ref_secs" onkeypress="enter(event);" value="%s" />
+            Service: <select id="process" onchange="showte();">%s</select>
+            <span id="instancespan" style="display: none;">Instance: <input type="text" id="instance" onkeypress="enter(event);" value="%s" /></span>
+            <button onclick="refresh();">Go</button>
+            <hr>
+            <h4>%s</h4>
+            <pre>%s</pre>
+            <div style="height: 20px;"></div>
+            <script>
                 setInterval(function() {location.reload();}, %d*1000);
+                showte();
             </script>
         </body>
     </html>
-    """ % (lines, refresh, pickerhtml, process, "".join(buf), refresh)
+    """ % (lines, refresh, pickerhtml, instance, process, "".join(buf), refresh)
 
     return html
 
