@@ -40,6 +40,12 @@ catoAjax.getProcessLogfile = function(component) {"use strict";
     return ajaxPost("uiMethods/wmGetProcessLogfile", args, "text");
 };
 
+catoAjax.restartService = function(component) {"use strict";
+    var args = {};
+    args.component = component;
+    return ajaxPostAsync("uiMethods/wmRestartService", args, "text");
+};
+
 catoAjax.getLog = function(args) {"use strict";
     return ajaxPost("uiMethods/wmGetLog", args);
 };

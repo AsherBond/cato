@@ -197,7 +197,10 @@ class uiMethods:
             order by component, master desc"""
         rows = self.db.select_all_dict(sSQL)
         if rows:
+            ur = uiCommon.GetSessionUserRole()
+
             for dr in rows:
+                restart = "<span class='ui-icon ui-icon-refresh forceinline restart_service' component='%s'></span>" % (dr.get("Component", "")) if ur == "Administrator" else ""
                 sProcessHTML += """<tr>
                     <td>%s</td>
                     <td>%s</td>
@@ -205,14 +208,15 @@ class uiMethods:
                     <td>%s</td>
                     <td>%s</td>
                     <td>%s</td>
-                    <td><span class='ui-icon ui-icon-document forceinline view_component_log' component='%s'></span></td>
+                    <td><span class='ui-icon ui-icon-document forceinline view_component_log' component='%s'></span>%s</td>
                     </tr>""" % (dr.get("Component", ""),
                                 dr.get("Instance", ""),
                                 dr["LoadValue"] if dr["LoadValue"] is not None else "",
                                 dr.get("Heartbeat", ""),
                                 dr.get("Enabled", ""),
                                 dr.get("mslr", ""),
-                                dr.get("Component", ""))
+                                dr.get("Component", ""),
+                                restart)
 
         sUserHTML = ""
         sSQL = """select u.full_name, us.login_dt, us.heartbeat as last_update, us.address,
@@ -1172,3 +1176,17 @@ class uiMethods:
             out["error"] = "Invalid search 'type'"
             
         return catocommon.ObjectOutput.AsJSON(out)
+
+    def wmRestartService(self):
+        """
+        Restarts a specific service.
+        """
+        user_role = uiCommon.GetSessionUserRole()
+        if user_role != "Administrator":
+            raise Exception("Only Administrators can restart services.")
+
+        component = uiCommon.getAjaxArg("component")
+        uiCommon.log("Service Restart!", 3)
+        os.system("$CSK_HOME/cato/services/restart_specific.sh %s" % (component))
+        
+        return json.dumps({"result": "success"})

@@ -14,53 +14,76 @@
 //
 
 $(document).ready(function() {
-	GetData();
+    GetData();
 
-	//the hook for the 'show log' link
-	$("#show_log_link").click(function() {
-		ShowLogViewDialog(0, '', true);
-	});
+    //the hook for the 'show log' link
+    $("#show_log_link").click(function() {
+        ShowLogViewDialog(0, '', true);
+    });
 
-	$("#logfile_dialog").dialog({
-		autoOpen : false,
-		height : 600,
-		width : 850,
-		bgiframe : true,
-		buttons : {
-			OK : function() {
-				$(this).dialog("close");
-			}
-		}
-	});
+    $("#logfile_dialog").dialog({
+        autoOpen : false,
+        height : 600,
+        width : 850,
+        bgiframe : true,
+        buttons : {
+            OK : function() {
+                $(this).dialog("close");
+            }
+        }
+    });
 
-	//this page updates every 30 seconds
+    //this page updates every 30 seconds
     setInterval(function() {
         GetData();
     }, 30000);
-	
+
 });
 
 function GetData() {
-	ajaxGet("uiMethods/wmGetSystemStatus", function(response) {
-		$("#processes").html(response.processes);
-		$("#users").html(response.users);
-		$("#messages").html(response.messages);
+    ajaxGet("uiMethods/wmGetSystemStatus", function(response) {
+        $("#processes").html(response.processes);
+        $("#users").html(response.users);
+        $("#messages").html(response.messages);
 
-		// the component log links
-		$(".view_component_log").click(function() {
-			component = $(this).attr("component");
+        // the component log links
+        $(".view_component_log").click(function() {
+            component = $(this).attr("component");
 
-			if (component === '')
-				return;
+            if (component === '')
+                return;
 
-			var response = catoAjax.getProcessLogfile(component);
-			if (response) {
-				$("#logfile_text").html(unpackJSON(response));
-				$("#logfile_dialog").dialog("open");
-			}
-		});
+            var response = catoAjax.getProcessLogfile(component);
+            if (response) {
+                $("#logfile_text").html(unpackJSON(response));
+                $("#logfile_dialog").dialog("open");
+            }
+        });
 
-		initJtable(true, true);
-	});
+        // restart link
+        $(".restart_service").click(function() {
+            component = $(this).attr("component");
+
+            if (component === '')
+                return;
+
+            if (component === "cato_admin_ui") {
+                if (confirm("Restart '" + component + "?\n\n** This will log you out. **\n\nAre you sure?")) {
+                    catoAjax.restartService(component);
+                    showPleaseWait("Restarting...");
+                    setTimeout(function() {
+                        location.href = "/static/login.html";
+                    }, 5000);
+
+                }
+            } else {
+                if (confirm("Restart '" + component + "?\n\nAre you sure?")) {
+                    catoAjax.restartService(component);
+                }
+            }
+        });
+
+        initJtable(true, true);
+    });
 }
 
