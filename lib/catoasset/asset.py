@@ -224,11 +224,12 @@ class Asset(object):
                 # an asset can only create a local credential, and uses the asset id as the credential name
                 c.Name = sAssetID
     
-            if c.Username or c.PrivateKey:
-                result = c.DBCreateNew()
-                if not result:
-                    return None, "Unable to create Credential."
-                sCredentialID = c.ID
+                if c.Username or c.PrivateKey:
+                    result = c.DBCreateNew()
+                    if not result:
+                        return None, "Unable to create Credential."
+            
+            sCredentialID = c.ID
 
 
         sSQL = """insert into asset

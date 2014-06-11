@@ -19,6 +19,7 @@ import sys
 import ast
 import base64
 import json
+import re
 from datetime import datetime, timedelta
 import dateutil.parser as parser
 from bson.objectid import ObjectId
@@ -233,7 +234,19 @@ class Runtimes:
             # so, we only allow it to run against our obj_data collection
             # and a very strict environment
             try:
-                return eval(expression, EVAL_ENVIRONMENT, self.obj_data)
+                result = eval(expression, EVAL_ENVIRONMENT, self.obj_data)
+                
+                # here's a helper feature
+                # "task parameter" values are *always* a list, even if they only have one item.
+                # but we don't know here if we're looking at a value that was set by a parameter!
+                # So, IF the result is a list, AND the list has one value, AND the expression is a flat name (no fancy stuff),
+                # THEN, we'll return the first item in the list
+                
+                # (this regex will only match a 'flat' variable name
+                if re.match("^\w+$", expression) and isinstance(result, list):
+                    return result[0]
+                else:
+                    return result
             except Exception as ex:
                 # write a log message, but fail safely by setting the value to ""
                 self.logger.error("Variable expression %s is not valid.\n%s" % (expression, str(ex)))

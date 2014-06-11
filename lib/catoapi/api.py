@@ -269,13 +269,18 @@ def check_required_params(required_params, args):
     if required_params and args:
         for param in required_params:
             if param:
-                if param not in args:
-                    resp = response(err_code="MissingParameter", err_detail="Required parameter '%s' missing." % param)
-                    return False, resp
-                elif len(args[param]) == 0:
-                    resp = response(err_code="EmptyParameter", err_detail="Required parameter '%s' empty." % param)
-                    return False, resp
-
+                # trap a type error in case the param is an int
+                try:
+                    if param not in args:
+                        resp = response(err_code="MissingParameter", err_detail="Required parameter '%s' missing." % param)
+                        return False, resp
+                    elif len(args[param]) == 0:
+                        resp = response(err_code="EmptyParameter", err_detail="Required parameter '%s' empty." % param)
+                        return False, resp
+                except TypeError:
+                    # it's ok, integers are ok no matter what their value is.
+                    pass
+                
         # all good
         return True, None
     else:
