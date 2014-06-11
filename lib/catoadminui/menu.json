@@ -22,6 +22,11 @@
 				"icon": "static/images/icons/task_stat_24.png",
 				"onclick": "showPleaseWait();",
 				"href": "taskStatus"
+			}, {
+				"roles": "developer",
+				"label": "View Process Logs",
+				"icon": "static/images/icons/log_24.png",
+				"onclick": "openWindow('getlog');"
 			}
 		]
 	}, {
