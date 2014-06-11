@@ -12,6 +12,3 @@
 .DS_Store
 
 test/test_output/*.txt
-
-ui/common/vendor/*
-

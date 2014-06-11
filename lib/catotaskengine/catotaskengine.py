@@ -243,8 +243,10 @@ class TaskEngine():
             kf.write(key)
             kf.close()
             os.chmod(kf_name, 0400)
+            self.insert_audit("new_connection", "Attempting ssh private key authentication to %s@%s" % (user, host), "")
             cmd = "ssh %s -i %s -o ForwardAgent=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s" % (verbose, kf_name, user, host)
         else:
+            self.insert_audit("new_connection", "Attempting ssh password authentication to %s@%s" % (user, host), "")
             cmd = "ssh %s -o ForwardAgent=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s" % (verbose, user, host)
 
         reattempt = True
@@ -263,6 +265,9 @@ class TaskEngine():
             while not at_prompt:
 
                 index = c.expect_list(cpl)
+                # we had some match here, we can remove the private key file
+                if key:
+                    self.remove_pk(kf_name)
                 try:
                     buffer += str(c.before) + str(c.after)
                 except:
@@ -296,27 +301,32 @@ class TaskEngine():
                 elif index == 2:
                     c.sendline("yes")
                 elif index == 3:
-                    c.sendline(passphrase)
+                    if not password:
+                        msg = "%s\nA passphrase for the private key requested by the target ssh server %s, but none was provided." % (buffer, host)
+                    else:
+                        c.sendline(passphrase)
                 elif index == 4:
                     at_prompt = True
                     reattempt = False
                 elif index == 5:
                     self.logger.warning("The password for user %s will expire soon! Continuing ..." % (user))
                     c.logfile = None
-                    c.sendline(password)
-                    sent_password = True
-                    # c.logfile=sys.stdout
+                    if not password:
+                        msg = "%s\nA password was requested by the target ssh server %s, but none was provided for the user %s." % (buffer, host, user)
+                    else:
+                        c.sendline(password)
+                        sent_password = True
                 elif index == 6:
                     c.logfile = None
-                    c.sendline(password)
-                    sent_password = True
-                    # c.logfile=sys.stdout
-                    c.delaybeforesend = 0
-                if msg:
-                    # try:
-                    #    msg = msg + "\n" + c.before + c.after
-                    # except:
-                    #    pass
+                    if not password:
+                        msg = "%s\nA password was requested by the target ssh server %s, but none was provided for the user %s." % (buffer, host, user)
+                    else:
+                        c.sendline(password)
+                        sent_password = True
+                        c.delaybeforesend = 0
+                if key:
+                    self.remove_pk(kf_name)
+                if msg and len(msg):
                     if key:
                         self.remove_pk(kf_name)
                     raise Exception(msg)
