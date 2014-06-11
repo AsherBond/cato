@@ -44,8 +44,10 @@ Optional Arguments:
 Returns: A list of [Datastore Document Objects](restapi/api-response-objects.html#DatastoreDocument){:target="_blank"}.
 """
         collection = args["collection"] if "collection" in args else ""
-        fltr = args["filter"] if "filter" in args else ""
-
+        try:
+            fltr = json.loads(args["filter"]) if "filter" in args else {}
+        except ValueError as ex:
+            raise Exception("Filter must be a valid datastore query in JSON format.\n%s" % (ex.__str__()))    
         obj = datastore.Documents(collection, fltr)
         if args.get("output_format") == "json" or args.get("output_format") == "text":
             return R(response=obj.AsJSON())

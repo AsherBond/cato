@@ -332,7 +332,7 @@ class Documents(object):
                 #d['_id'] = str(d['_id'])
                 self.documents.append(d)
         except Exception as ex:
-            raise DatastoreError(ex)
+            raise DatastoreError(ex.__str__())
 
     def count(self):
         """ Returns count of collections """
