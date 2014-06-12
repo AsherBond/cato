@@ -685,8 +685,7 @@ class ExceptionHandlingApplication(web.application):
                 # web.ctx.env.get('HTTP_X_REQUESTED_WITH')
                 web.ctx.status = "400 Bad Request"
                 logger.exception(ex.__str__())
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                return "%s:%s" % (ex.__str__(), str(exc_tb.tb_lineno))
+                return ex.__str__()
 
         return process(self.processors)
 
