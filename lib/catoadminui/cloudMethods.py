@@ -403,24 +403,23 @@ class cloudMethods:
 
         # different providers libs have different methods for building a url
         url = ""
-        if c.Provider.Name.lower() == "openstack":
-            """not yet implemented"""
-            # ACWebMethods.openstackMethods acOS = new ACWebMethods.openstackMethods()
-            # sXML = acOS.GetCloudObjectsAsXML(c.ID, cot, 0000BYREF_ARG0000sErr, null)
-        else:  # Amazon aws, Eucalyptus, and OpenStackAws
+        if c.Provider.Name.lower() == "amazon aws":
+            # Amazon aws, Eucalyptus, and OpenStackAws
             from catocloud import aws
             awsi = aws.awsInterface()
             url, err = awsi.BuildURL(ca, c, cot)
             if err:
-                return json.dumps({"result": "fail", "error": uiCommon.packJSON(err)})
+                raise Exception(err)
+        else:  
+            raise Exception("Testing connection to %s not yet supported." % (c.Provider.Name))
 
         if not url:
-            return json.dumps({"result": "fail", "error": "Unable to build API URL."})
+            raise Exception("Unable to build API URL.")
         result, err = catocommon.http_get(url, 30)
         if err:
-            return json.dumps({"result": "fail", "error": uiCommon.packJSON(err)})
+            raise Exception(err)
 
-        return json.dumps({"result": "success", "response": uiCommon.packJSON(result)})
+        return json.dumps({"result": "success", "response": result})
 
     def wmSaveKeyPair(self):
         sKeypairID = uiCommon.getAjaxArg("sKeypairID")

@@ -261,7 +261,7 @@ function TestConnection() {
             if (response.result === "fail") {
                 $("#conn_test_result").css("color", "red");
                 $("#conn_test_result").text("Connection Failed.");
-                $("#conn_test_error").text(unpackJSON(response.error));
+                $("#conn_test_error").text(response.error);
             }
         }
     } else {
