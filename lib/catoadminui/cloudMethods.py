@@ -400,6 +400,8 @@ class cloudMethods:
 
         full_provider = cloud.Provider.FromName(c.Provider.Name)
         cot = full_provider.GetObjectTypeByName(c.Provider.TestObject)
+        if not cot:
+            raise Exception("Unable to find object type [%s] on Provider [%s] in cloud_providers.xml" % (c.Provider.TestObject, c.Provider.Name))
 
         # different providers libs have different methods for building a url
         url = ""
