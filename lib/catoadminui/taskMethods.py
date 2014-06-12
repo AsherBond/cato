@@ -18,6 +18,7 @@ import re
 import json
 import time
 import cgi
+import copy
 
 from catoui import uiCommon, uiGlobals
 from catolog import catolog
@@ -662,17 +663,7 @@ class taskMethods:
                         xNode.text = sValue
 
                 # NEW OPTIMIZATION FEATURE #336
-                # display metadata attributes are explicitly stripped off...
-                # to conserve a few bytes in the db,
-                # as well as make exported tasks easier to read.
-                for x in xe.getiterator():
-                    leavekeys = ["name", "parse_method", "is_array"]
-                    keys_to_del = [k for k in x.attrib.iterkeys() if k not in leavekeys]
-                    for k in keys_to_del:
-                        try:
-                            del x.attrib[k]
-                        except:
-                            pass
+                self._strip_template_attributes(xe)
 
                 sSQL = "insert into task_step (step_id, task_id, codeblock_name, step_order," \
                     " commented, locked," \
@@ -798,17 +789,7 @@ class taskMethods:
                         xNode.text = sValue
 
                 # NEW OPTIMIZATION FEATURE #336
-                # display metadata attributes are explicitly stripped off...
-                # to conserve a few bytes in the db,
-                # as well as make exported tasks easier to read.
-                for x in xe.getiterator():
-                    leavekeys = ["name", "parse_method", "is_array"]
-                    keys_to_del = [k for k in x.attrib.iterkeys() if k not in leavekeys]
-                    for k in keys_to_del:
-                        try:
-                            del x.attrib[k]
-                        except:
-                            pass
+                self._strip_template_attributes(xe)
 
                 # Add it!
                 ST.AddToCommandXML(sStepID, sDropXPath, catocommon.ET.tostring(xe))
@@ -1032,14 +1013,9 @@ class taskMethods:
 
             # Some commands have embedded commands... so in those cases the button name actually contains that xpath
             # what's stored in the button field is a json dictionary of paths and button names.
-            uiCommon.log("wut")
-            uiCommon.log(buttons)
-            uiCommon.log(sXPathPrefix)
             if sXPathPrefix:
-                uiCommon.log("wutx")
                 buttons[str(sXPathPrefix)] = sButton
             else:
-                uiCommon.log("wut nox")
                 buttons[str("root")] = sButton
 
             uiCommon.log(buttons)
@@ -2735,8 +2711,12 @@ class taskMethods:
         if xGroupNode is None:
             raise Exception("Error: Unable to add.  Template XML does not contain [" + sTemplateNode + "].")
 
+        # NEW OPTIMIZATION FEATURE #336
+        xNew = copy.deepcopy(xGroupNode)
+        self._strip_template_attributes(xNew)
+
         # yeah, this wicked single line aggregates the value of each node
-        sNewXML = "".join(catocommon.ET.tostring(x) for x in list(xGroupNode))
+        sNewXML = "".join(catocommon.ET.tostring(x) for x in list(xNew))
         uiCommon.log(sNewXML, 4)
 
         if sNewXML != "":
@@ -2755,3 +2735,21 @@ class taskMethods:
             return json.dumps({"result": "success"})
         else:
             raise Exception("Unable to modify step. Invalid remove path.")
+
+    def _strip_template_attributes(self, xe):
+        """
+        Given an element, recurse it and strip off any unnecessary attributes.
+
+        NEW OPTIMIZATION FEATURE #336
+        display metadata attributes are explicitly stripped off...
+        to conserve a few bytes in the db,
+        as well as make exported tasks easier to read.
+        """
+        for x in xe.getiterator():
+            leavekeys = ["name", "parse_method", "is_array"]
+            keys_to_del = [k for k in x.attrib.iterkeys() if k not in leavekeys]
+            for k in keys_to_del:
+                try:
+                    del x.attrib[k]
+                except:
+                    pass

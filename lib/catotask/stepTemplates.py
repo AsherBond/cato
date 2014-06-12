@@ -15,6 +15,7 @@
  
 import traceback
 import json
+import re
 from catoui import uiCommon as UI, uiGlobals
 from catotask import task
 from catocommon import catocommon
@@ -394,9 +395,9 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
     # - separate the display metadata from the step function values.
     UI.log("-- XPath: " + sXPath, 4)
     # NOTE! to look up details in the template, we have to strip any index off the xpath
-    xp = sXPath
-    if xp.endswith("]"):
-        xp = xp[:xp.rfind("[")]
+    xp = re.sub("\[[0-9]+\]", "", sXPath)
+
+    UI.log("-- Template Lookup: " + xp, 4)
     ST = oStep.Function.TemplateXDoc.find(xp)
     UI.log("-- Template: " + catocommon.ET.tostring(ST), 4)
         
@@ -528,9 +529,8 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
     # - separate the display metadata from the step function values.
     UI.log("-- XPath: " + sXPath, 4)
     # NOTE! to look up details in the template, we have to strip any index off the xpath
-    xp = sXPath
-    if xp.endswith("]"):
-        xp = xp[:xp.rfind("[")]
+    xp = re.sub("\[[0-9]+\]", "", sXPath)
+
     ST = oStep.Function.TemplateXDoc.find(xp)
     UI.log("-- Template: " + catocommon.ET.tostring(ST), 4)
 
