@@ -2746,7 +2746,7 @@ class taskMethods:
         as well as make exported tasks easier to read.
         """
         for x in xe.getiterator():
-            leavekeys = ["name", "parse_method", "is_array"]
+            leavekeys = ["name", "parse_method", "is_array", "extension"]
             keys_to_del = [k for k in x.attrib.iterkeys() if k not in leavekeys]
             for k in keys_to_del:
                 try:
