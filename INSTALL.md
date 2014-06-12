@@ -57,15 +57,14 @@ Substitute /opt/cato for any target directory desired.
 
 ```
 export CSK_HOME=/opt/csk
-export CATO_HOME=$CSK_HOME/cato
-sudo mkdir $CATO_HOME
-sudo tar -xvzf cloudsidekickcato.tar.gz -C $CATO_HOME --strip-components=1
+sudo mkdir -p $CSK_HOME/cato
+sudo tar -xvzf cloudsidekickcato.tar.gz -C $CSK_HOME/cato --strip-components=1
 ```
 
 Change current directory to the target directory.
 
 ```
-cd $CATO_HOME
+cd $CSK_HOME/cato
 ```
 
 __Optional__
@@ -79,8 +78,7 @@ files and temporary files. If desired, change these parameters in the top of the
 Run the installation script.
 
 ```
-cd install
-sudo ./install.sh
+sudo -E ./install/install.sh
 ```
 
 Change the ownership of the application files and directories to the application user account. 
@@ -88,20 +86,27 @@ The following example changes it to the ubuntu user. Modify the following comman
 for the user, group and target directories.
 
 ``` 
-sudo chown -R ubuntu:ubuntu $CATO_HOME
-sudo chown -R ubuntu:ubuntu  /var/cato
+export CSK_OWNER=`whoami`
+export CSK_GROUP=`id -g -n $CSK_OWNER`
+sudo -E chown -R $CSK_OWNER:$CSK_GROUP $CSK_HOME
 ```
 
 Add the CSK_HOME environment variable to the .profile (or .bash_profile depending on the flavor of linux).
 
 ```
-echo "export CSK_HOME=$CSK_HOME" >> ~/.profile
+if [ -e "$HOME/.bash_profile" ]
+then
+    export WHICHPROFILE="$HOME/.bash_profile"
+else
+    export WHICHPROFILE="$HOME/.profile"
+fi
+echo "export CSK_HOME=$CSK_HOME" >> $WHICHPROFILE
 ```
 
 Now start all services. Make sure to use the application user account used in the "chown" step above.
 
 ```
-$CATO_HOME/services/start_services.sh
+$CSK_HOME/cato/services/start_services.sh
 ```
 
 
@@ -121,7 +126,7 @@ Confirm all processes are running:
 ps -eafl | grep cato_ | grep -v grep
 ```
 
-If all processes are not running, check the logfiles for errors. 
+If all processes are not running, check the logfiles for errors. NOTE: the cato_messenger process will continue to fail until smtp is configured.
 
 ```
 cd /var/cato/log
@@ -157,19 +162,19 @@ the processes and also place monitors in cron.
 To stop the services:
 
 ```
-$CATO_HOME/services/stop_services.sh
+$CSK_HOME/cato/services/stop_services.sh
 ```
 
 To start the services:
 
 ```
-$CATO_HOME/services/start_services.sh
+$CSK_HOME/cato/services/start_services.sh
 ```
 
 To restart the services:
 
 ```
-$CATO_HOME/services/restart_services.sh
+$CSK_HOME/cato/services/restart_services.sh
 ```
 
 ## Firewalls
@@ -198,12 +203,12 @@ sudo chkconfig iptables off
 By default, the **automate** UI and REST API are configured for standard HTTP.  HTTPS (SSL/TLS) can be easily enabled.
 
 ```
-vi $CATO_CONFIG/cato.conf (default: /etc/cato/cato.conf)
+vi /etc/cato/cato.conf (default: /etc/cato/cato.conf)
 ```
 
 - For the **automate** UI - change the setting *admin_ui_use_ssl* to *true*
 - For the REST API - change the setting *rest_api_use_ssl* to *true*
-- Install your certificate and private key in $CATO_HOME/conf
+- Install your certificate and private key in $CSK_HOME/cato/conf
 - If you want to keep your certificate and key in another location, specify the path and file in the two cato.conf settings: i
 ```    
 admin_ui_ssl_cert <path>/mycert.crt
@@ -214,12 +219,12 @@ With OpenSSL, it is easy to generate a self signed certificate and private key. 
 
 To create a self signed certificate, use the following command and fill out the prompts.
 
-```openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $CATO_CONFIG/cato.key -out $CATO_CONFIG/cato.crt```
+```openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/cato/cato.key -out /etc/cato/cato.crt```
 
 Make sure to restart the services and time a change is made to the cato.conf file:
 
 ```
-$CATO_HOME/services/restart_services.sh
+$CSK_HOME/cato/services/restart_services.sh
 ```
 
 ## Administrator UI Login
