@@ -73,12 +73,13 @@ set -ex
 # customize the following values to suit your needs
 
 
-echo off
+stty echo off
 trap "echo !!!!!!!!!!!!!!!!!!!!!!!!!;echo 'Cato install script did not complete successfully!';echo !!!!!!!!!!!!!!!!!!!!!!!!!" ERR
-echo on
+stty echo on
 
 # this script resides in the CATO_HOME/install directory
-INSTALL_DIR=`dirname $0`
+THIS_FILE=`readlink -f $0`
+INSTALL_DIR=`dirname $THIS_FILE`
 
 # set the CATO_HOME directory based on the INSTALL_DIR
 CATO_HOME=`dirname $INSTALL_DIR`
