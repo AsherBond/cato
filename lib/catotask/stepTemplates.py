@@ -383,7 +383,14 @@ def DrawStepFromXMLDocument(oStep):
             sHTML += sNodeHTML
             sOptionHTML += sNodeOptionHTML
             
+        # #364
+        # any nodes in the template and not in the function xml will get added
+        h, o = _add_template_node(oStep.Function.TemplateXDoc, oStep.FunctionXDoc, oStep)
+        sHTML += h
+        sOptionHTML += o
+
     return sHTML, sOptionHTML
+
     
 def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
     """
@@ -391,6 +398,8 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
     1) a node IsEditable if it has the attribute "is_array".  (It's an array, therefore it's contents are 'editable'.)
     2) a node IsRemovable if it's PARENT IsEditable.  So, we pass IsEditable down to subsequent recursions as IsRemovable.)
     """
+    errmsg = ""
+    
     # NEW OPTIMIZATION FEATURE #336
     # - separate the display metadata from the step function values.
     UI.log("-- XPath: " + sXPath, 4)
@@ -399,7 +408,13 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
 
     UI.log("-- Template Lookup: " + xp, 4)
     ST = oStep.Function.TemplateXDoc.find(xp)
-    UI.log("-- Template: " + catocommon.ET.tostring(ST), 4)
+    if ST is None:
+        errmsg = "The '%s' field has no definition in the command template. It may no longer be used." % (xp)
+        UI.log("Step [%s], [%s] - field [%s] is not defined in the template xml." % (oStep.Order, oStep.FunctionName, xp), 1)
+        # just set the "template" to the actual node, at least it will draw with no formatting.
+        ST = xeNode
+    else:
+        UI.log("-- Template: " + catocommon.ET.tostring(ST), 4)
         
     # the base xpath of this command (will be '' unless this is embedded)
     # NOTE: do not append the base_path on any CommonAttribs calls, it's done inside that function.
@@ -420,6 +435,10 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
     UI.log("-- Elements: " + str(len(xeNode)), 4)
     UI.log("-- Option Field?: " + sOptionTab, 4)
     
+    if errmsg:
+        # if we have an error, lets draw a little red icon
+        sHTML += '<div class="ui-state-error"><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>%s</div>' % (errmsg)
+
     # if a node has children we'll draw it with some hierarchical styling.
     # AND ALSO if it's editable, even if it has no children, we'll still draw it as a container.
     
@@ -505,6 +524,11 @@ def DrawNode(xeNode, sXPath, oStep, bIsRemovable=False):
                     UI.log("WARNING: This shouldn't have returned 'option' html.", 2)
                 sHTML += sNodeHTML
     
+            # #364
+            # compare the children of this level in the template and the function
+            h, o = _add_template_node(ST, xeNode, oStep, sXPath)
+            sHTML += h
+            
             sHTML += "</div>"
             sHTML += "</div>"
     else:  # end section
@@ -525,6 +549,8 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
     Some important notes:
     1) a node IsEditable if it has the attribute "is_array".  (It's an array, therefore it's contents are 'editable'.)
     """
+    errmsg = ""
+    
     # NEW OPTIMIZATION FEATURE #336
     # - separate the display metadata from the step function values.
     UI.log("-- XPath: " + sXPath, 4)
@@ -532,7 +558,13 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
     xp = re.sub("\[[0-9]+\]", "", sXPath)
 
     ST = oStep.Function.TemplateXDoc.find(xp)
-    UI.log("-- Template: " + catocommon.ET.tostring(ST), 4)
+    if ST is None:
+        errmsg = "The '%s' field has no definition in the template xml." % (xp)
+        UI.log("Step [%s], [%s] - field [%s] is not defined in the template xml." % (oStep.Order, oStep.FunctionName, xp), 1)
+        # just set the "template" to the actual node, at least it will draw with no formatting.
+        ST = xeNode
+    else:
+        UI.log("-- Template: " + catocommon.ET.tostring(ST), 4)
 
     sHTML = ""
     sNodeName = xeNode.tag
@@ -548,6 +580,10 @@ def DrawReadOnlyNode(xeNode, sXPath, oStep):
     UI.log("-- Elements: " + str(len(xeNode)), 4)
     UI.log("-- Option Field?: " + sOptionTab, 4)
     
+    if errmsg:
+        # if we have an error, lets draw a little red icon
+        sHTML += '<div class="ui-state-error"><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>%s</div>' % (errmsg)
+
     # if a node has children we'll draw it with some hierarchical styling.
     # AND ALSO if it's editable, even if it has no children, we'll still draw it as a container.
     
@@ -3244,3 +3280,27 @@ def BuildReadOnlySteps(oTask, sCodeblockName):
         sHTML = "<li class=\"no_step\">No Commands defined for this Codeblock.</li>"
     
     return sHTML
+
+def _add_template_node(xtemp, xfunc, oStep, xpath=""):
+    """
+    # in case the template and the function have drifted apart...
+    # 1) if the STEP FUNCTION contains an element no longer in the template, 
+    #     then 'DrawNode' will include an alert for the UI.
+    # 2) if the TEMPLATE contains something not in the step function,
+    #     we'll add those fields on to the end of the command.
+    
+    # how? compare the list of tag names between the two, and keep only those
+    # unique to the template document
+    """
+    html = ""
+    optionhtml = ""
+    tempkeys = [(x.tag, x) for x in xtemp]
+    funckeys = [(x.tag, x) for x in xfunc]
+    temponly = [x[1] for x in tempkeys if x[0] not in [tag[0] for tag in funckeys]]
+    for xe in temponly:
+        xpath = xpath + "/" + xe.tag if xpath else xe.tag
+        UI.log("Found [" + xe.tag + "] in the template and not in this step... adding.", 3)
+        h, o = DrawNode(xe, xpath, oStep)
+        html += h
+        optionhtml += o
+    return html, optionhtml
