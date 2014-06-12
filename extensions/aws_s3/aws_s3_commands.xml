@@ -1,0 +1,18 @@
+<categories>
+    <category name="aws" label="AWS" description="Amazon AWS" icon="static/images/icons/aws/aws_32.png">
+        <subcategory name="aws_s3" label="AWS S3" description="AWS S3" icon="static/images/icons/aws/s3.png">
+            <commands>
+                <command name="s3_copy_file" label="S3 Copy File Command" description="Copies a file from one S3 bucket to another" help="This command will copy a file in S3 from one bucket to another. From File and From Bucket are required. If To File is blank, the target filename will be the same as From File. If To Bucket is blank it will be the same as From Bucket." icon="static/images/icons/aws/s3.png">
+                    <function name="s3_copy_file" extension="aws_s3.aws_s3">
+                        <from_file input_type="text" label="From File" class="w95pct" break_after="true"/>
+                        <from_bucket input_type="text" label="From Bucket" class="w95pct" break_after="true"/>
+                        <to_file input_type="text" label="To File" class="w95pct" break_after="true"/>
+                        <to_bucket input_type="text" label="To Bucket" class="w95pct" break_after="true"/>
+                        <storage input_type="dropdown" label="Storage Class" break_before="true" datasource="local" dataset="STANDARD|REDUCED_REDUNDANCY">STANDARD</storage>
+                        <acl input_type="dropdown" label="ACL" datasource="local" dataset="private|public-read|public-read-write|authenticated-read|bucket-owner-read|bucket-owner-full-control|log-delivery-write"></acl>
+                    </function>
+                </command>
+            </commands>
+        </subcategory>
+    </category>
+</categories>
