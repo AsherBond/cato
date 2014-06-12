@@ -6,7 +6,8 @@
 pysphere==0.1.8
 
 # optional jenkins package for jenkins integration support
-jenkinsapi==0.2.18
+#jenkinsapi==0.2.18
+https://github.com/pdunnigan/jenkinsapi/archive/master.zip
 
 # optional vcloudpy package for vmware vCloud support
 
@@ -20,3 +21,7 @@ python-tds==1.7.0
 # optional digital ocean cloud support
 
 https://github.com/cloudsidekick/digocn/archive/master.zip
+
+# optional for S3 copy support
+
+boto==2.29.1
