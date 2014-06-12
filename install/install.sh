@@ -93,9 +93,9 @@ CATO_HOME=`dirname $INSTALL_DIR`
 LOGFILESDIR="$CATOFILESDIR/log"
 TMPDIR="$CATOFILESDIR/tmp"
 
-stty echo off
+stty -echo
 trap "echo !!!!!!!!!!!!!!!!!!!!!!!!!;echo 'Cato install script did not complete successfully!';echo !!!!!!!!!!!!!!!!!!!!!!!!!" ERR
-stty echo on
+stty echo
 
 # create the supporting application directories
 mkdir -p $LOGFILESDIR/te

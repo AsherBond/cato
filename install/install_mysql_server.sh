@@ -50,9 +50,9 @@ fi
 
 set -ex
 
-stty echo off
+stty -echo
 trap "echo !!!!!!!!!!!!!!!!!!!!!!!!!;echo 'Cato install script did not complete successfully!';echo !!!!!!!!!!!!!!!!!!!!!!!!!" ERR
-stty echo on
+stty echo
 
 # this script resides in the CATO_HOME/install directory
 THIS_FILE=`readlink -f $0`

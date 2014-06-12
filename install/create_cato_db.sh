@@ -102,9 +102,9 @@ set -ex
 
 SCRIPT_HOME=`dirname $0`
 
-stty echo off
+stty -echo
 trap "echo !!!!!!!!!!!!!!!!!!!!!!!!!;echo 'Cato install script did not complete successfully!';echo !!!!!!!!!!!!!!!!!!!!!!!!!" ERR
-stty echo on
+stty echo
 
 ### Create the database, logins and permissions in MySQL
 
