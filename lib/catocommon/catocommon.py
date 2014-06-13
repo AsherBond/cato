@@ -1045,6 +1045,7 @@ class CatoObjectTypes(object):
     Pipeline = 60
     Phase = 61
     Stage = 62
+    PipelineInstance = 63
     ReleaseCandidate = 64
     Deployment = 70
     DeploymentTemplate = 71
