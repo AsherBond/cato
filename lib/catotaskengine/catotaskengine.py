@@ -388,7 +388,7 @@ class TaskEngine():
         clean_cs = conn_string.replace(password, "!PASSWORD-REMOVED!")
         self.logger.debug("Attempting connection using connection string:")
         self.logger.debug(clean_cs)
-        
+
         tries = 5
         for ii in range(tries):
             try:
@@ -849,7 +849,7 @@ class TaskEngine():
             ^ = varname followed by an xpath expression
             ex: foo^//root/node 
         """
-        
+
         while "[$" in s:
             varname = None
             # We're doing an rfind... coming in from the right(bottom) so nested variables will work
@@ -874,7 +874,7 @@ class TaskEngine():
                     self.logger.debug("VARNAME: %s" % (new_varname))
                     self.logger.debug("XPATH: %s" % (xpath))
                     self.logger.debug("XML: %s" % (xml))
-                    
+
                     if len(xml):
                         value = self.aws_get_result_var(xml, xpath)
                     else:
@@ -889,7 +889,7 @@ class TaskEngine():
                 s = s.replace(sub_string, str(value))
             # print "after ->" + s
         return s
-    
+
     def find_var(self, s):
 
         z = None
@@ -995,10 +995,10 @@ class TaskEngine():
         # NEW METHOD FIRST
         while re.search(".*\[\$.*\$\]", s):
             s = self.replace_vars_new(s)
-            
+
         while re.search(".*\[\[.*\]\]", s):
             s = self.replace_vars(s)
-            
+
         return s
 
     def replace_html_chars(self, s):
@@ -1163,7 +1163,7 @@ class TaskEngine():
 
         self.logger.debug("Attempting WinRM connection to:")
         self.logger.debug(address)
-        
+
         from winrm import Protocol
         # TODO - allow the user to specify a transport of kerberos, and also test this
         # depends on ubuntu: sudo apt-get install libkrb5-dev; sudo pip install kerberos
@@ -1258,7 +1258,7 @@ class TaskEngine():
             # print row
             password = row[6]
             p_password = row[8]
-            pk=row[10]
+            pk = row[10]
 
             if password and len(password) > 0:
                 password = catocommon.cato_decrypt(password)
