@@ -1170,7 +1170,7 @@ class uiMethods:
             uiCommon.log(sql)
             
             rows = self.db.select_all_dict(sql)
-            rows = list(rows)
+            rows = list(rows) if rows else []
             out["results"] = rows
         else:
             out["error"] = "Invalid search 'type'"
