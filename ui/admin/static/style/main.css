@@ -11,6 +11,15 @@
 	padding:0;
 	padding-right:8px;
 }
+.ui-widget {
+	font-family: inherit;
+}
+.ui-widget input,
+.ui-widget select,
+.ui-widget textarea,
+.ui-widget button {
+	font-family: inherit;
+}
 body {
 	height:100%;
 	max-height:100%;
