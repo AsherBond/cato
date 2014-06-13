@@ -23,11 +23,11 @@
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#get_asset' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
                 icon="static/images/icons/cato/register_host.png">
 				<function name="get_asset">
-					<asset input_type="text" label="Asset Name" />
+					<asset input_type="text" label="Asset Name" break_after="true" />
 					<address_out input_type="text" label="Address Variable (out)" />
-					<db_out input_type="text" label="DB Name Variable (out)" />
-					<port_out input_type="text" label="Port Variable (out)" />
-					<conn_string_out input_type="text" label="Conn String Variable (out)" />
+					<port_out input_type="text" label="Port Variable (out)" break_after="true" />
+					<db_out input_type="text" label="DB Name Variable (out)" break_after="true" />
+					<conn_string_out input_type="text" label="Conn String Variable (out)" break_after="true" />
 					<user_out input_type="text" label="User Variable (out)" />
 					<pass_out input_type="text" label="Password Variable (out)" />
 				</function>
@@ -367,7 +367,7 @@
                 help="&lt;a href='http://docs.cloudsidekick.com/docs/cato/?tasks/task-command-reference.html#creds' target='_blank'&gt;Cato Documentation&lt;/a&gt;" 
                 icon="static/images/icons/cato/encrypted_32.png">
 				<function name="get_shared_cred" >
-					<alias input_type="text" label="Alias" required="true" />
+					<alias input_type="text" label="Credential Name (Alias)" required="true" break_after="true" />
 					<userid input_type="text" label="User ID Variable" />
 					<password input_type="text" label="Password Variable" />
 					<domain input_type="text" label="Domain Variable" />
@@ -378,8 +378,8 @@
                 icon="static/images/icons/cato/key_save_32.png">
 				<function name="store_private_key" snip="name">
 					<name label="Keypair Name" input_type="text" />
-					<cloud_name label="Cloud Name" input_type="text" />
-					<private_key label="Private Key" input_type="textarea" rows="1" class="w50pct" style="height:18px;vertical-align:bottom;" />
+					<cloud_name label="Cloud Name" input_type="text" break_after="true" />
+					<private_key label="Private Key" input_type="textarea" rows="1" class="w95pct" style="height:18px;vertical-align:bottom;" />
 				</function>
 			</command>
 			<command name="generate_password" label="Generate Password" description="Generates a random password" 
