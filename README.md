@@ -13,17 +13,12 @@ also a built in Mongodb datastore.
 
 https://github.com/cloudsidekick/cato
 
-To download _the latest_ stable release:
-
-```
-curl -Lk --output cato.tar.gz https://github.com/cloudsidekick/cato/archive/latest.tar.gz
-```
-
-or clone in git (potentially unstable):
+clone in git (potentially unstable):
 
 ```
 git clone https://github.com/cloudsidekick/cato.git
 ```
+
 
 ## Sample Tasks
 
