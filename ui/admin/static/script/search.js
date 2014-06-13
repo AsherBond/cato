@@ -20,7 +20,7 @@ $(function() {"use strict";
         }
     });
 
-    $("#pattern").keypress(function (e) {
+    $("#pattern").keypress(function(e) {
         if (e.which === 13) {
             search();
             return false;
@@ -29,11 +29,13 @@ $(function() {"use strict";
     $("#search_btn").click(function() {
         search();
     });
+
+    $("#pattern").focus();
 });
 
 function search() {
     $("#results").empty();
-    
+
     var _pattern = $("#pattern").val();
 
     // at the moment we are searching tasks
@@ -51,19 +53,23 @@ function search() {
             }
             // spin the results and draw a strip for each one
             // what happens here will be very dependent on _type
+            if (response.results.length) {
+                $.each(response.results, function(idx, row) {
+                    var $item = $('<li class="resultitem ui-widget-content ui-corner-all">');
 
-            $.each(response.results, function(idx, row) {
-                var $item = $('<li class="resultitem ui-widget-content ui-corner-all">');
-                
-                var url = '/taskEdit?task_id=' + row.task_id + '&codeblock=' + row.codeblock_name;
-                $item.append('<span><b>' + _type + ':</b> <a href="' + url + '">' + row.task_name + '</a></span>');
-                $item.append('<span><b> Codeblock:</b> <a href="' + url + '">' + row.codeblock_name + '</a></span>');
-                $item.append('<span><b> Step:</b> ' + row.step_order + '</span>');
-                $item.append('<div><span><b>Code:</b></span><br><code>' + row.function_xml + '</code></div>');
+                    var url = '/taskEdit?task_id=' + row.task_id + '&codeblock=' + row.codeblock_name;
+                    $item.append('<span><b>' + _type + ':</b> <a href="' + url + '">' + row.task_name + '</a></span>');
+                    $item.append('<span><b> Codeblock:</b> <a href="' + url + '">' + row.codeblock_name + '</a></span>');
+                    $item.append('<span><b> Step:</b> ' + row.step_order + '</span>');
+                    $item.append('<div><span><b>Code:</b></span><br><code>' + row.function_xml + '</code></div>');
 
-                $("#results").append($item);
-            });
+                    $("#results").append($item);
+                });
+            } else {
+                $("#results").append('<li class="resultitem ui-widget-content ui-corner-all">No results found.</li>');
+            }
         });
+
     } else {
         showInfo("Please enter search criteria.");
     }
