@@ -22,8 +22,10 @@ from catocommon import catocommon
 # as well as a dictionary of function objects.
 # it's useful for spinning categories and functions hierarchically, as when building the command toolbox
 class FunctionCategories(object):
-    Categories = []  # all the categories - NOTE that categories contain a list of their own functions
-    Functions = {}  # a dictionary of ALL FUNCTIONS - for when you need to look up a function directly by name without recursing categories
+
+    def __init__(self):
+        self.Categories = []  # all the categories - NOTE that categories contain a list of their own functions
+        self.Functions = {}  # a dictionary of ALL FUNCTIONS - for when you need to look up a function directly by name without recursing categories
     
     # method to load from the disk
     def Load(self, sFileName):
