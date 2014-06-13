@@ -1,599 +1,553 @@
 @import url('/common/css/reset.css');
 @import url('/common/css/text.css');
 @import url('/common/css/sizing.css');
+@import url('/common/css/fonts.css');
 @import url('input.css');
 @import url('/common/css/jquery-ui-1.10.4.custom.css');
 /*@import url('menu/menu.css');
  @import url('ac_pro/css/ac_pro/jquery-ui-1.7.1.custom.css');*/
-
 /* These are custom overrides for the standard jQuery UI classes. */
 .ui-tabs .ui-tabs-nav li a {
-	padding: 0;
-	padding-right: 8px;
+	padding:0;
+	padding-right:8px;
 }
-
 body {
-	height: 100%;
-	max-height: 100%;
-	padding: 0px;
-	margin: 0px;
-	border: 0;
-	background: #f8f8f8;
-	font-family: 'Lato', sans-serif;
-	font-size: 12px;
-	line-height: 20px;
+	height:100%;
+	max-height:100%;
+	padding:0px;
+	margin:0px;
+	border:0;
+	background:#f8f8f8;
+	font-family:'MuseoSans-Light','Lato',sans-serif;
+	font-size:12px;
+	line-height:20px;
 }
-
+#app_header_logo {
+	font-size:24pt;
+	color:#58595B;
+	margin-top:6px;
+	margin-left:10px;
+}
 #app_footer {
-	height: 18px;
-	font-weight: normal;
-	left: 0;
-	bottom: 0;
-	text-align: center;
-	z-index: 10;
-	position: fixed;
-	width: 100%;
+	height:18px;
+	font-weight:normal;
+	left:0;
+	bottom:0;
+	text-align:center;
+	z-index:10;
+	position:fixed;
+	width:100%;
 }
-
+#main-menu {
+	margin-left: 20px;
+}
 #content {
 	/*overflow: auto;*/
-	position: absolute;
-	top: 45px;
-	left: 200px;
-	right: 2px;
-	padding-left: 10px;
-	padding-bottom: 20px; /* to accomodate the fixed footer */
+	position:absolute;
+	top:45px;
+	left:200px;
+	right:2px;
+	padding-left:10px;
+	padding-bottom:20px; /* to accomodate the fixed footer */
 }
-
-#content > table {
-	margin-top: 6px;
+#content> table {
+	margin-top:6px;
 }
-
 * html #content {
-	top: 0px;
-	left: 0px;
-	right: 0px;
-	bottom: 0px;
-	height: 100%;
-	max-height: 100%;
-	width: 100%;
-	overflow: auto;
-	position: absolute;
-	border-top: 39px solid #f0f0f0; /*border-bottom: 20px solid #f0f0f0;*/
-	border-left: 200px solid #f0f0f0;
+	top:0px;
+	left:0px;
+	right:0px;
+	bottom:0px;
+	height:100%;
+	max-height:100%;
+	width:100%;
+	overflow:auto;
+	position:absolute;
+	border-top:39px solid #f0f0f0; /*border-bottom: 20px solid #f0f0f0;*/
+	border-left:200px solid #f0f0f0;
 }
-
 #fullwidthcontent {
-	padding-top: 50px;
+	padding-top:50px;
 }
-
 .row_odd {
-	padding: 0px 0px 0px 0px;
-	background: #e0e0e0;
+	padding:0px 0px 0px 0px;
+	background:#e0e0e0;
 }
-
 .row_even {
-	background: #f0f0f0;
+	background:#f0f0f0;
 }
-
 #head {
-	background: #B0B579;
-	position: absolute;
-	min-width: 1024px;
-	margin: 0px;
-	top: 0px;
-	left: 0px;
-	right: 10px;
-	display: block;
-	width: 100%;
-	height: 38px;
-	border: none; /*overrides the border from the ui-widget_header class*/ /*background-image: url( 'images/header-bg.png' ); 	background-repeat: repeat-x; 	background-attachment: fixed;*/
-	font-family: 'Lato', sans-serif;
-	font-size: 12px;
+	background:#B0B579;
+	position:absolute;
+	min-width:1024px;
+	margin:0px;
+	top:0px;
+	left:0px;
+	right:10px;
+	display:block;
+	width:100%;
+	height:38px;
+	border:none; /*overrides the border from the ui-widget_header class*/ /*background-image: url( 'images/header-bg.png' ); 	background-repeat: repeat-x; 	background-attachment: fixed;*/
+	font-size:12px;
 }
-
 /* fix the meow plugin z-index */
 .meows {
-	z-index: 999;
+	z-index:999;
 }
-
 /* this overwrites the duperfish menu default color */
 .sf-menu a, .sf-menu a:visited {
-	color: #222222 !important;
+	color:#222222 !important;
 }
 /* and make the superfish submenus green like #head */
 .sf-menu li li {
-	background: #B0B579;
+	background:#B0B579;
 }
 /* and the hover effect */
 .sf-menu li:hover, .sf-menu li.sfHover, .sf-menu a:focus, .sf-menu a:hover, .sf-menu a:active {
-	color: #dddddd !important;
+	color:#dddddd !important;
 }
-
 /* fix the jquery tabs plugin to not have giant buttons */
 .ui-tabs .ui-tabs-nav .ui-tabs-anchor {
-	padding: 0;
-	padding-right: 5px;	
+	padding:0;
+	padding-right:5px;
 }
-
 #app_header_icons {
-	right: 10px;
-	padding-top: 12px;
+	right:10px;
+	padding-top:12px;
 }
 .app_header_icon {
-	height: 22px;
-	padding-right: 6px;
+	height:22px;
+	padding-right:6px;
 }
-
 #left_panel {
-	position: absolute;
-	left: 0px;
-	top: 39px;
-	width: 200px;
-	font-size: 1.2em;
-	overflow: auto;
-	background-repeat: no-repeat;
-	padding: 2px 2px 2px 2px;
+	position:absolute;
+	left:0px;
+	top:39px;
+	width:200px;
+	font-size:1.2em;
+	overflow:auto;
+	background-repeat:no-repeat;
+	padding:2px 2px 2px 2px;
 }
-
 * html #left_panel {
-	height: 100%;
-	top: 0px;
-	bottom: 0px;
-	border-top: 39px solid #f0f0f0; /*border-bottom: 20px solid #f0f0f0;*/
-	color: #444;
+	height:100%;
+	top:0px;
+	bottom:0px;
+	border-top:39px solid #f0f0f0; /*border-bottom: 20px solid #f0f0f0;*/
+	color:#444;
 }
-
 .center {
-	text-align: center;
+	text-align:center;
 }
 .hidden {
-	display: none;
+	display:none;
 }
 .pointer {
-	cursor: pointer;
+	cursor:pointer;
 }
 .bold {
-	font-weight: bold;
+	font-weight:bold;
 }
 .italic {
-	font-style: italic;
+	font-style:italic;
 }
-
 .left_tooltip {
-	width: 195px;
+	width:195px;
 }
 #left_tooltip_img {
-	text-align: center;
+	text-align:center;
 }
-
 #left_tooltip_box_outer {
-	margin-top: 10px;
-	margin-left: 10px;
+	margin-top:10px;
+	margin-left:10px;
 }
-
 #left_tooltip_box_inner {
-	background: #eee3d0;
-	padding: 8px 6px 18px 8px;
-	border-radius: 10px;
-	font-size: 0.9em;
+	background:#eee3d0;
+	padding:8px 6px 18px 8px;
+	border-radius:10px;
+	font-size:0.9em;
 }
-
 #left_tooltip_box_inner p {
-	margin: 8px 10px 10px 10px;
-	font-size: .9em;
-	line-height: 1.25em;
+	margin:8px 10px 10px 10px;
+	font-size:.9em;
+	line-height:1.25em;
 }
-
 #left_tooltip_box_inner img {
-	padding: 4px 4px 4px 4px;
-	float: left;
+	padding:4px 4px 4px 4px;
+	float:left;
 }
-
 #left_tooltip_box_inner ul {
-	margin-top: 8px;
-	margin-left: 8px;
-	font-size: .75em;
-	font-weight: bold;
-	color: #333;
+	margin-top:8px;
+	margin-left:8px;
+	font-size:.75em;
+	font-weight:bold;
+	color:#333;
 }
-
 #left_tooltip_box_inner li {
-	margin-top: 3px;
-	margin-left: 10px;
+	margin-top:3px;
+	margin-left:10px;
 }
-
 /* Text alignment. Use these in spans */
 #left {
-	text-align: left;
+	text-align:left;
 }
 #right {
-	text-align: right;
+	text-align:right;
 }
 #center {
-	text-align: center;
+	text-align:center;
 }
 /* End Text alignment. */
-
 /* Credentials */
-
 .row {
-	border: 0px solid #000;
+	border:0px solid #000;
 }
-
 /* Search Picker Dialogs */
 .search_dialog_value {
-	margin: 1px 1px 1px 1px;
-	padding: 1px 1px 1px 1px;
-	cursor: pointer;
-	list-style: none;
-	font-size: 0.8em;
-	border: 1px solid #cccccc;
-	border-radius: 6px;
+	margin:1px 1px 1px 1px;
+	padding:1px 1px 1px 1px;
+	cursor:pointer;
+	list-style:none;
+	font-size:0.8em;
+	border:1px solid #cccccc;
+	border-radius:6px;
 }
 .search_dialog_value_name {
-	display: block;
+	display:block;
 }
 .search_dialog_value_block_item {
-	margin-right: 10px;
-	display: block;
+	margin-right:10px;
+	display:block;
 }
 .search_dialog_value_inline_item {
-	margin-right: 10px;
+	margin-right:10px;
 }
-
 .code {
-	font-family: Courier New;
-	font-size: 10pt;
-	font-weight: normal;
-	color: #11A;
+	font-family:Courier New;
+	font-size:10pt;
+	font-weight:normal;
+	color:#11A;
 }
 .codebox {
-	font-family: Courier New;
-	font-size: 10pt;
-	color: #11A;
-	border: solid 1px #CCC;
-	background-color: #FFFFFF;
-	margin: 0px 0px 4px 0px;
-	padding: 2px;
+	font-family:Courier New;
+	font-size:10pt;
+	color:#11A;
+	border:solid 1px #CCC;
+	background-color:#FFFFFF;
+	margin:0px 0px 4px 0px;
+	padding:2px;
 }
-
 .red_text {
-	color: #FF0000;
+	color:#FF0000;
 }
-
 /*tag picker*/
 .tag_picker_tag {
-	width: 95%;
-	margin: 1px 1px 1px 1px;
-	padding: 1px 1px 1px 1px;
-	cursor: pointer;
-	list-style: none;
+	width:95%;
+	margin:1px 1px 1px 1px;
+	padding:1px 1px 1px 1px;
+	cursor:pointer;
+	list-style:none;
 }
 .tag_picker_tag_selected {
-	background: #eeeeee;
+	background:#eeeeee;
 }
 .tag_picker_tag_hover {
-	background: #eeeeee;
+	background:#eeeeee;
 }
 .tag_description {
-	height: 40px;
+	height:40px;
 }
-
 /*
  These classes are used by all the 'Manage' pages
  (userEdit, scheduleManage, taskManage, etc.)
  They are tabular data classes for the most part.
  */
 th.col_header {
-	border: 1px solid #dddddd;
-	background: #B0B579;
-	font-weight: bold;
-	color: #231F20;
-	padding-left: 4px;
-	padding-right: 4px;
+	border:1px solid #dddddd;
+	background:#B0B579;
+	font-weight:bold;
+	color:#231F20;
+	padding-left:4px;
+	padding-right:4px;
 }
 td.row {
-	border: 1px solid #dddddd;
-	background: #fcfdfd;
-	color: #231F20;
-	line-height: 22px;
-	margin-left: 4px;
-	padding-left: 6px;
+	border:1px solid #dddddd;
+	background:#fcfdfd;
+	color:#231F20;
+	line-height:22px;
+	margin-left:4px;
+	padding-left:6px;
 }
 td.row_alt {
-	background: #ebecec;
+	background:#ebecec;
 }
 td.row_over {
-	background: #DFE1C9;
-	cursor: pointer;
+	background:#DFE1C9;
+	cursor:pointer;
 }
-
 .pager_button {
-	padding: 0px 4px 0px 4px;
-	cursor: pointer;
+	padding:0px 4px 0px 4px;
+	cursor:pointer;
 }
 .pager_button_selected {
-	font-weight: bold;
-	cursor: auto;
+	font-weight:bold;
+	cursor:auto;
 }
 /* End Manage classes */
-
 /* what is this one? */
 .usertextbox {
-	width: 300px;
+	width:300px;
 }
-
 .trans50 {
-	opacity: 0.5;
-	filter: alpha(opacity=50);
+	opacity:0.5;
+	filter:alpha(opacity=50);
 }
-
 /*Group "Tabs" on the home pages, for the different user groups home dashboards...*/
 #group_tabs {
-	margin: 6px 0px 4px 0px;
-	padding-right: 15px;
+	margin:6px 0px 4px 0px;
+	padding-right:15px;
 }
 .group_tab {
-	padding: 3px 3px 3px 10px;
-	border: 1px solid #B0B579;
-	background-color: #E7E9D7;
-	font-weight: normal;
-	font-size: 10pt;
-	color: #231F20;
-	outline: none;
-	cursor: pointer;
-	border-bottom-right-radius: 6px;
-	border-top-right-radius: 6px;
-	margin-top: -1px;
+	padding:3px 3px 3px 10px;
+	border:1px solid #B0B579;
+	background-color:#E7E9D7;
+	font-weight:normal;
+	font-size:10pt;
+	color:#231F20;
+	outline:none;
+	cursor:pointer;
+	border-bottom-right-radius:6px;
+	border-top-right-radius:6px;
+	margin-top:-1px;
 }
 .group_tab_selected {
-	background-color: #C8CBA1;
-	border: none;
-	font-weight: normal;
-	color: #231F20;
-	outline: none;
+	background-color:#C8CBA1;
+	border:none;
+	font-weight:normal;
+	color:#231F20;
+	outline:none;
 }
 .group_tab li:hover {
-	border: 1px solid #999999;
-	background-color: #dadada;
-	font-weight: normal;
-	color: #231F20;
-	outline: none;
+	border:1px solid #999999;
+	background-color:#dadada;
+	font-weight:normal;
+	color:#231F20;
+	outline:none;
 }
 .group_header {
-	padding: 3px;
-	border: 1px solid #949B50;
-	background-color: #949B50;
-	font-weight: bold;
-	font-size: 10pt;
-	color: #231F20;
-	outline: none;
-	border-bottom-right-radius: 6px;
-	border-top-right-radius: 6px;
-	margin-top: 6px;
+	padding:3px;
+	border:1px solid #949B50;
+	background-color:#949B50;
+	font-weight:bold;
+	font-size:10pt;
+	color:#231F20;
+	outline:none;
+	border-bottom-right-radius:6px;
+	border-top-right-radius:6px;
+	margin-top:6px;
 }
-
 /*"Tags" that show up on the various edit pages.*/
 .tag {
-	margin: 4px 4px 4px 4px;
-	padding: 3px 3px 3px 3px;
+	margin:4px 4px 4px 4px;
+	padding:3px 3px 3px 3px;
 }
 /*
  "Attributes" that show up on ONLY THE ASSET AND USER edit pages.
  --this will be overridded by the style on the task/proc pages
  */
 .attribute {
-	border: 1px solid #D3D3D3;
-	background: #FFF;
-	color: #555555;
-	margin: 4px 4px 4px 4px;
+	border:1px solid #D3D3D3;
+	background:#FFF;
+	color:#555555;
+	margin:4px 4px 4px 4px;
 }
 /*
  The "object_tags_table" appears on many pages, however the table is inside a list item.
  We used a table to avoid the annoyance of div float left and right.
  */
 .object_tags_table {
-	width: 95%;
+	width:95%;
 }
-
 /* Buttons */
 .image {
-	position: relative;
-	width: 100%; /* for IE 6 */
+	position:relative;
+	width:100%; /* for IE 6 */
 }
-
 .custom_icon {
-	margin-right: 4px;
+	margin-right:4px;
 }
-
 /*For the task launch popup dialog*/
 .task_launch_column {
-	width: 48%;
+	width:48%;
 }
 .task_launch_parameter {
-	border: solid 1px #e5e5e5;
-	font-size: 9pt;
-	border-radius: 8px;
-	font-weight: bold;
-	margin: 2px 0px 2px 0px;
-	padding: 2px 4px 0px 4px;
+	border:solid 1px #e5e5e5;
+	font-size:9pt;
+	border-radius:8px;
+	font-weight:bold;
+	margin:2px 0px 2px 0px;
+	padding:2px 4px 0px 4px;
 }
 .task_launch_parameter_required {
-	background-color: #eeeeee;
-	box-shadow: 5px 5px 5px #ccc;
+	background-color:#eeeeee;
+	box-shadow:5px 5px 5px #ccc;
 }
 .task_launch_parameter_name {
-	float: left;
-	max-width: 380px;
-	overflow: hidden;
+	float:left;
+	max-width:380px;
+	overflow:hidden;
 }
 .task_launch_parameter_icons {
-	float: right;
+	float:right;
 }
 .task_launch_parameter_value {
-	clear: both;
-	font-size: 8pt;
-	font-weight: normal;
-	border: solid 1px #e5e5e5;
-	padding: 2px 0px 2px 8px;
-	border-radius: 8px;
+	clear:both;
+	font-size:8pt;
+	font-weight:normal;
+	border:solid 1px #e5e5e5;
+	padding:2px 0px 2px 8px;
+	border-radius:8px;
 	/*required for the encoverlay*/
-	position: relative;
+	position:relative;
 }
 .task_launch_parameter_value_input {
-	width: 90%;
+	width:90%;
 }
 .task_launch_params_title {
-	padding: 6px 0px 6px 6px;
-	margin-bottom: 8px;
+	padding:6px 0px 6px 6px;
+	margin-bottom:8px;
 }
 .action_plan {
-	height: 16px;
+	height:16px;
 }
 .action_schedule {
-	height: 16px;
+	height:16px;
 }
-
 /*specifically for the recurring schedule editing on the taskLaunchDialog*/
 .ui-dropslide ol {
-	list-style-image: none;
-	list-style-position: outside;
-	list-style-type: none;
-	margin-top: 2px;
+	list-style-image:none;
+	list-style-position:outside;
+	list-style-type:none;
+	margin-top:2px;
 }
 .ui-dropslide li {
-	float: left;
-	list-style-image: none;
-	list-style-position: outside;
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
+	float:left;
+	list-style-image:none;
+	list-style-position:outside;
+	list-style-type:none;
+	margin:0;
+	padding:0;
 }
 .ui-dropslide span {
-	border-radius: 2px;
-	cursor: pointer;
-	display: block;
-	font-size: 0.7em;
-	margin-left: 1px;
-	padding: 2px 2px;
-	text-align: center;
+	border-radius:2px;
+	cursor:pointer;
+	display:block;
+	font-size:0.7em;
+	margin-left:1px;
+	padding:2px 2px;
+	text-align:center;
 }
 .plan_datepoint {
-	width: 23px;
+	width:23px;
 }
 .plan_datepoint_active span {
-	background: #3679AE !important;
-	color: #FFFFFF !important;
+	background:#3679AE !important;
+	color:#FFFFFF !important;
 }
-
 /*END of the taskLaunchDialog styles*/
-
 /* the parametersondialog class has a couple styles*/
 .encoverlay {
-	top: 0px;
-	left: 0px;
-	height: 100px;
-	width: 100px;
-	position: absolute;
-	z-index: 10;
-	font-size: 16pt;
-	width: 375px;
-	margin-left: 2px;
-	padding: 4px 0px 0px 10px;
+	top:0px;
+	left:0px;
+	height:100px;
+	width:100px;
+	position:absolute;
+	z-index:10;
+	font-size:16pt;
+	width:375px;
+	margin-left:2px;
+	padding:4px 0px 0px 10px;
 }
 .encunderlay {
-	color: #000000;
+	color:#000000;
 }
-
 .parameter_dialog_add_btn {
-	font-size: 8pt;
-	font-weight: normal;
-	cursor: pointer;
+	font-size:8pt;
+	font-weight:normal;
+	cursor:pointer;
 }
 .parameter_dialog_remove_btn {
-	cursor: pointer;
+	cursor:pointer;
 }
-
 /*for floats*/
 .floatleft {
-	float: left;
+	float:left;
 }
 .floatright {
-	float: right;
+	float:right;
 }
 .clearfloat {
-	clear: both;
+	clear:both;
 }
-
 /* css for timepicker */
 .ui-timepicker-div .ui-widget-header {
-	margin-bottom: 8px;
+	margin-bottom:8px;
 }
 .ui-timepicker-div dl {
-	text-align: left;
+	text-align:left;
 }
 .ui-timepicker-div dl dt {
-	height: 25px;
+	height:25px;
 }
 .ui-timepicker-div dl dd {
-	margin: -25px 0 10px 65px;
+	margin:-25px 0 10px 65px;
 }
 .ui-timepicker-div td {
-	font-size: 90%;
+	font-size:90%;
 }
-
 /* jQueryUI doesn't have a "ui-state-happy" to show a nice green "all is good" message.  Now we do. */
 .ui-state-happy {
-	background-color: #A3FFA3;
-	border: 1px solid #3D993D;
-	color: #0A1A0A;
-	padding-left: 4px;
+	background-color:#A3FFA3;
+	border:1px solid #3D993D;
+	color:#0A1A0A;
+	padding-left:4px;
 }
-
 .greenBorder {
-	border: 1px solid green !important;
+	border:1px solid green !important;
 }
-
 .redBorder {
-	border: 1px solid red !important;
+	border:1px solid red !important;
 }
-
 /* sometimes we just easily want block elements to be shown inline, without floating*/
 .forceinline {
-	display: inline-block !important;
+	display:inline-block !important;
 }
-
 .datepicker {
-	width: 80px;
-	font-size: 0.8em !important;
+	width:80px;
+	font-size:0.8em !important;
 }
-
 .log_results {
-	font: .8em Courier New;
-	background: #FFF;
-	padding: 1px 8px 1px 8px;
-	min-height: 10px;
+	font:.8em Courier New;
+	background:#FFF;
+	padding:1px 8px 1px 8px;
+	min-height:10px;
 }
-
 /* fix the meow plugin z-index */
 .meows {
-	z-index: 999;
+	z-index:999;
 }
-
 /* color changes for the jsoneditor */
 div.jsoneditor {
-	border: 1px solid #aaa !important;
+	border:1px solid #aaa !important;
 }
 .jsoneditor .menu {
-	background-color: #ccc !important;
-	border-bottom: 1px solid #aaa !important;
+	background-color:#ccc !important;
+	border-bottom:1px solid #aaa !important;
 }
 .jsoneditor .menu button {
-	border: none !important;
-	background-color: #fff !important;
+	border:none !important;
+	background-color:#fff !important;
 }
 .jsoneditor .search .frame {
-	border: 1px solid #aaa !important;
+	border:1px solid #aaa !important;
 }
-

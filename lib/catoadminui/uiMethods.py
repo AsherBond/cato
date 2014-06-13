@@ -16,6 +16,7 @@
 import os
 import traceback
 import json
+import web
 from datetime import datetime
 
 from catolog import catolog
@@ -41,7 +42,10 @@ class uiMethods:
         return uiCommon.GetQuestion()
 
     def wmGetConfig(self):
-        return json.dumps(catoconfig.SAFECONFIG)
+        cfg = catoconfig.SAFECONFIG
+
+        cfg["csk_ui_url"] = catoconfig.get_url("csk_ui", web.ctx.host.split(":")[0])
+        return catocommon.ObjectOutput.AsJSON(cfg)
 
     def wmUpdateHeartbeat(self):
         uiCommon.UpdateHeartbeat()

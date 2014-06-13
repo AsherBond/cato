@@ -113,6 +113,11 @@ $(function() {
         showMyAccount();
     });
 
+    // click the logo
+    $("#app_header_logo").click(function() {
+        location.href = g_config.csk_ui_url;
+    });
+
 });
 
 function updateHeartbeat() {"use strict";
