@@ -18,7 +18,6 @@ clone in git (potentially unstable):
 git clone https://github.com/cloudsidekick/cato.git
 ```
 
-
 ## Sample Tasks
 
 We are building a sample / tutorial library in the following github repo. 
