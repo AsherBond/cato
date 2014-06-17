@@ -80,6 +80,19 @@ class setdebug():
         return uiCommon.SetDebug()
 
 
+class recache():
+    """
+    rebuilds the UI cached html (commands, menu)
+    for CSK development/support
+    """
+    def GET(self):
+        user_role = uiCommon.GetSessionUserRole()
+        if user_role != "Administrator":
+            raise Exception("Only Administrators can refresh the UI cache.")
+        _build_ui_cache()
+        return "Cache successfully refreshed."
+
+
 def notfound():
     return web.notfound("Sorry, the page you were looking for was not found.")
 
@@ -689,6 +702,23 @@ class ExceptionHandlingApplication(web.application):
 
         return process(self.processors)
 
+
+def _build_ui_cache():
+    # we need to build some static html here...
+    # caching in the session is a bad idea, and this stuff very very rarely changes.
+    # so, when the service is started it will update the files, and the ui
+    # will simply pull in the files when requested.
+
+    # put the task commands in a global for our lookups
+    # and cache the html in a flat file
+    logger.info("Reading configuration files and generating static html...")
+
+    uiCommon.LoadTaskCommands()
+    # rebuild the cache html files
+    CacheTaskCommands()
+    CacheMenu()
+
+
 """
     Main Startup
 """
@@ -731,6 +761,7 @@ urls = (
     '/version', 'version',
     '/getlog', 'getlog',
     '/setdebug', 'setdebug',
+    '/recache', 'recache',
     '/appicon/(.*)', 'appicon',
     '/common/(.*)', 'common',
     '/cache/(.*)', 'cache',
@@ -809,15 +840,7 @@ def main():
     # caching in the session is a bad idea, and this stuff very very rarely changes.
     # so, when the service is started it will update the files, and the ui
     # will simply pull in the files when requested.
-
-    # put the task commands in a global for our lookups
-    # and cache the html in a flat file
-    logger.info("Reading configuration files and generating static html...")
-
-    uiCommon.LoadTaskCommands()
-    # rebuild the cache html files
-    CacheTaskCommands()
-    CacheMenu()
+    _build_ui_cache()
 
     # WEB.PY STARTUP
     if "admin_ui_port" in catoconfig.CONFIG:

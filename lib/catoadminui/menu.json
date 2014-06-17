@@ -1,11 +1,5 @@
 [
 	{
-		"roles": "all",
-		"label": "Home",
-		"icon": "static/images/icons/home_24.png",
-		"onclick": "showPleaseWait();",
-		"href": "home"
-	}, {
 		"roles": "developer user",
 		"label": "Information",
 		"icon": "static/images/icons/info_24.png",

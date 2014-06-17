@@ -72,7 +72,7 @@ def read_config():
     cfg["admin_ui_debug"] = "20"
     cfg["admin_ui_use_ssl"] = "false"
 
-    cfg["user_ui_port"] = "8080"
+    cfg["user_ui_port"] = "8081"
     cfg["user_ui_debug"] = "20"
     cfg["user_ui_client_debug"] = "20"
     cfg["user_ui_enable_refresh"] = "true"
@@ -90,9 +90,6 @@ def read_config():
     cfg["dash_api_post_index"] = "canvas/home/home-post.layout"
     cfg["dash_api_get_index"] = "canvas/home/home.layout"
 
-    cfg["msghub_port"] = "8888"
-    cfg["msghub_debug"] = "00"
-
     cfg["newsfeed_api_port"] = "4004"
     cfg["newsfeed_api_debug"] = "20"
     cfg["newsfeed_api_use_ssl"] = "false"
@@ -100,6 +97,10 @@ def read_config():
     cfg["cd_ui_port"] = "8084"
     cfg["cd_ui_debug"] = "20"
     cfg["cd_ui_use_ssl"] = "false"
+
+    cfg["csk_ui_port"] = "8080"
+    cfg["csk_ui_debug"] = "20"
+    cfg["csk_ui_use_ssl"] = "false"
 
     cfg["msghub_port"] = "4003"
     cfg["msghub_debug"] = "00"
@@ -184,6 +185,7 @@ def read_config():
     cfg["rest_api_protocol"] = "https" if cfg["rest_api_use_ssl"] == "true" else "http"
     cfg["dash_api_protocol"] = "https" if cfg["dash_api_use_ssl"] == "true" else "http"
     cfg["newsfeed_api_protocol"] = "https" if cfg["newsfeed_api_use_ssl"] == "true" else "http"
+    cfg["csk_ui_protocol"] = "https" if cfg["csk_ui_use_ssl"] == "true" else "http"
 
     # something else here...
     # the root cato directory should have a VERSION file.
@@ -216,6 +218,7 @@ def safe_config():
     cfg["dash_api_port"] = CONFIG["dash_api_port"]
     cfg["newsfeed_api_port"] = CONFIG["newsfeed_api_port"]
     cfg["msghub_port"] = CONFIG["msghub_port"]
+    cfg["csk_ui_port"] = CONFIG["csk_ui_port"]
 
     cfg["admin_ui_protocol"] = "https" if CONFIG["admin_ui_use_ssl"] == "true" else "http"
     cfg["user_ui_protocol"] = "https" if CONFIG["user_ui_use_ssl"] == "true" else "http"
@@ -223,6 +226,7 @@ def safe_config():
     cfg["rest_api_protocol"] = "https" if CONFIG["rest_api_use_ssl"] == "true" else "http"
     cfg["dash_api_protocol"] = "https" if CONFIG["dash_api_use_ssl"] == "true" else "http"
     cfg["newsfeed_api_protocol"] = "https" if CONFIG["newsfeed_api_use_ssl"] == "true" else "http"
+    cfg["csk_ui_protocol"] = "https" if CONFIG["csk_ui_use_ssl"] == "true" else "http"
 
     # "safe" config lists extensions, but not the path
     cfg["extensions"] = [x for x in CONFIG["extensions"].iterkeys()]
@@ -250,6 +254,14 @@ def get_url(service, default_host):
         host = CONFIG.get("user_ui_hostname")
         host = host if host else default_host
         out = "%s://%s:%s" % (CONFIG["user_ui_protocol"], host, CONFIG["user_ui_port"])
+    if service == "cd_ui":
+        host = CONFIG.get("cd_ui_hostname")
+        host = host if host else default_host
+        out = "%s://%s:%s" % (CONFIG["cd_ui_protocol"], host, CONFIG["cd_ui_port"])
+    if service == "csk_ui":
+        host = CONFIG.get("csk_ui_hostname")
+        host = host if host else default_host
+        out = "%s://%s:%s" % (CONFIG["csk_ui_protocol"], host, CONFIG["csk_ui_port"])
     if service == "rest_api":
         host = CONFIG.get("rest_api_hostname")
         host = host if host else default_host
