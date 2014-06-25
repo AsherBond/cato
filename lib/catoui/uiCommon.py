@@ -1026,8 +1026,14 @@ def GetLog():
         process = catolog.LOGFILE
 
     buf = os.popen("tail -n %s %s" % (lines, process)).readlines()
-    buf = reversed(buf)
 
+    # the 'raw' flag means just return the actual buffer, no markup
+    if catocommon.is_true(getAjaxArg("raw")):
+        return "".join(buf)
+
+    # if it's not raw, it's reversed
+    buf = reversed(buf)
+    
     # this is just easier here
     svcs = [
         "cato_admin_ui",
