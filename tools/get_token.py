@@ -32,7 +32,7 @@ import time
 
 ### Change the following to meet your specific needs
 
-HOST = "http://localhost:4001"
+HOST = "http://localhost:8081"
 ACCESS_KEY = "catouser"
 SECRET_KEY = "password"
 

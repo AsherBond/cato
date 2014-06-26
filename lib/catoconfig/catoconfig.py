@@ -78,12 +78,12 @@ def read_config():
     cfg["user_ui_enable_refresh"] = "true"
     cfg["user_ui_use_ssl"] = "false"
 
-    cfg["rest_api_port"] = "4001"
+    cfg["rest_api_port"] = "8081"
     cfg["rest_api_debug"] = "20"
     cfg["rest_api_use_ssl"] = "false"
     cfg["rest_api_enable_tokenauth"] = "true"
 
-    cfg["dash_api_port"] = "4002"
+    cfg["dash_api_port"] = "8083"
     cfg["dash_api_debug"] = "20"
     cfg["dash_api_use_ssl"] = "false"
     cfg["dash_api_tmpdir"] = "/tmp"
@@ -102,7 +102,7 @@ def read_config():
     cfg["csk_ui_debug"] = "20"
     cfg["csk_ui_use_ssl"] = "false"
 
-    cfg["msghub_port"] = "4003"
+    cfg["msghub_port"] = "8085"
     cfg["msghub_debug"] = "00"
 
     # extensions are name/value pairs, so the 'extensions' setting is actually a dictionary.

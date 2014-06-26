@@ -146,11 +146,11 @@ This can be done via a web browser, or the *curl* command line utility.
 
 Using curl on localhost _without_ AWS region endpoints
 ```
-curl http://localhost:4001/configure
+curl http://localhost:8081/configure
 ```
 or using curl on localhost _with_ AWS region endpoints
 ```
-curl http://localhost:4001/configure?createclouds=true
+curl http://localhost:8081/configure?createclouds=true
 ```
 
 
@@ -186,7 +186,7 @@ Ports 8080, 8082
 
 To provide remote access to the REST API, open these additional ports.
 
-Port 4001
+Port 8081
 
 To perform a quick test, disable the local firewall via the following commands. 
 NOTE: this is not recommened for a production machine. 

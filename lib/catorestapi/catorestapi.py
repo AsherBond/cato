@@ -404,9 +404,10 @@ def main():
     catolog.set_debug(dbglvl)
 
     if len(sys.argv) < 2:
-        port = "4001"
         if "rest_api_port" in catoconfig.CONFIG:
             port = catoconfig.CONFIG["rest_api_port"]
+        else:
+            port = "8081"
         sys.argv.append(port)
 
     # enable ssl?
