@@ -678,10 +678,10 @@ class ExceptionHandlingApplication(web.application):
             except InfoException as ex:
                 # we're using a custom HTTP status code to indicate 'information' back to the user.
                 web.ctx.status = "280 Informational Response"
-                logger.info(ex.message)
+                logger.info(ex.__str__())
                 return ex.__str__()
             except SessionError as ex:
-                logger.info(ex.message)
+                logger.info(ex.__str__())
                 # now, all our ajax calls are from jQuery, which sets a header - X-Requested-With
                 # so if we have that header, it's ajax, otherwise we can redirect to the login page.
 
