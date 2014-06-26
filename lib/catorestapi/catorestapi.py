@@ -72,8 +72,16 @@ class wmHandler:
         # the keys above in web.input() are valid too, but the post args take precedence.
         # so, merge them.
         if web.data():
-            logger.info("%s" % (web.data()))
-            postargs = json.loads(web.data())
+            # TODO: don't continue to assume JSON, base the unpacking of the args on the Content-Type header
+            ct = web.ctx.env.get('CONTENT_TYPE')
+            logger.debug("Content-Type: %s" % (ct))
+            
+            if ct != "application/json":
+                logger.warning("POST data should set the header - Content-Type: application/json.")
+
+            # TODO: this should be based on content-type, but for now we continue to assume it's json
+            # regardless of the content-type header
+            postargs = catocommon.argloader(web.data())
             if postargs:
                 logger.info("Post Data: %s" % postargs)
                 for k, v in postargs.iteritems():

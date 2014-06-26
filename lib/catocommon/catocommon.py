@@ -116,6 +116,25 @@ def mongo_disconnect(db):
         raise DatastoreError("Error disconnecting %s: %s" % db.name, e)
 
 
+def argloader(obj):
+    """
+    There are many places where an input object is of unknown type.
+    It could be a python object, or a JSON string, which are often and easily 
+    confused at a glance.
+    
+    This function will analyze the input, and return a python object if possible.
+    If the input object is already a python dict or list, it simply gets returned.
+    """
+    if isinstance(obj, dict) or isinstance(obj, list):
+        return obj
+    
+    # Not an object, we're assuming it's a JSON string
+    try:
+        return json.loads(obj)
+    except Exception as ex:
+        raise Exception("Input isn't a valid object, and can't be parsed as JSON.\n%s" % (ex.__str__()))
+    
+
 def msghub_broadcast(channel, msg):
     """
     Shared function for broadcasting a message via the msghub service.
