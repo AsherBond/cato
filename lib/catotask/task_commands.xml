@@ -423,6 +423,7 @@
 							<variable input_type="text" label="Variable Name" />
 						</column>
 					</columns>
+					<result_var input_type="text" label="Result Variable" />
 				</function>
 			</command>
 			<command name="datastore_update" label="Datastore Update" description="Update one or more properties in a Datastore document." 

@@ -418,7 +418,7 @@ def datastore_update_cmd(self, task, step):
 
 def datastore_query_cmd(self, task, step):
 
-    collection, query_string, sort, limit = self.get_command_params(step.command, "collection", "query", "sort", "limit")[:]
+    collection, query_string, sort, limit, result_var = self.get_command_params(step.command, "collection", "query", "sort", "limit", "result_var")[:]
     pairs = self.get_node_list(step.command, "columns/column", "name", "variable")
     collection = self.replace_variables(collection)
     query_string = self.replace_variables(query_string)
@@ -464,6 +464,12 @@ def datastore_query_cmd(self, task, step):
     cur = coll.find(query_dict, fields=cols, sort=sort, limit=limit)
     if cur:
         rows = list(cur)
+        
+    # if a result var was provided, shove the whole result in there
+    if result_var:
+        self.rt.set(result_var, rows)
+        
+    # spin through any explicitly defined columns
     index = 0
     for row in rows:
         index += 1
