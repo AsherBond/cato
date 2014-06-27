@@ -1,0 +1,181 @@
+$def with (content)
+<!DOCTYPE html>
+<!--
+// #########################################################################
+// #
+// # Copyright 2014 Cloud Sidekick
+// # __________________
+// #
+// #  All Rights Reserved.
+// #
+// # NOTICE:  All information contained herein is, and remains
+// # the property of Cloud Sidekick and its suppliers,
+// # if any.  The intellectual and technical concepts contained
+// # herein are proprietary to Cloud Sidekick
+// # and its suppliers and may be covered by U.S. and Foreign Patents,
+// # patents in process, and are protected by trade secret or copyright law.
+// # Dissemination of this information or reproduction of this material
+// # is strictly forbidden unless prior written permission is obtained
+// # from Cloud Sidekick.
+// #
+// #########################################################################
+-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>velocity</title>
+        <link rel="shorcut icon" href="/static/img/favicon.ico" />
+
+        <link rel="stylesheet" href="/common/vendor/css/foundation.css" />
+        <link rel="stylesheet" href="/static/css/main.css" />
+        <link rel="stylesheet" href="/common/vendor/css/jquery.meow.css" />
+
+        <!--Any .css files defined on the content page.-->
+$if content.cssfiles:
+    $for f in content.cssfiles.split():
+        <link type="text/css" href="/static/css/$f" rel="stylesheet" />
+
+    </head>
+    <body>
+        <nav id="app_header" class="top-bar" data-topbar>
+            <ul class="title-area">
+                <li class="name">
+                    <div id="app_header_logo" class="left">
+                        <span style="font-family: MuseoSlab-Light;">velocity</span>
+                    </div>
+                </li>
+            </ul>
+            <div id="app_header_title" class="left">
+                <ul class="inline-list">
+                    <li>
+                        <span id="flow_link"><b>flow</b></span>
+                    </li>
+                    <li>
+                        <span id="deploy_link"><b>deploy</b></span>
+                    </li>
+                    <li>
+                        <span id="automate_link"><b>automate</b></span>
+                    </li>
+                    <li>
+                        <span id="canvas_link"><b>canvas</b></span>
+                    </li>
+                </ul>
+            </div>
+            <div id="app_header_icons" class="right">
+                <div id="secure_menu_buttons"></div>
+                <div id="my_account_link" class="glyphicon glyphicon-user floatleft pointer app_header_icon" title="My Account"></div>
+                <div id="logout_btn" class="glyphicon glyphicon-log-out floatleft pointer app_header_icon" title="Log Out"></div>
+            </div>
+        </nav>
+
+        <div id="app_footer" class="ui-widget-header blur">
+            <div class="left" style="margin-left: 10px;">
+                &copy; 2014 Cloud Sidekick
+            </div>
+            <div class="right" style="margin-right: 10px; cursor: pointer;" title="About Legato">
+                <div id="about_btn" class="glyphicon glyphicon-info-sign"></div>
+            </div>
+        </div>
+        <div id="fullwidthcontent" class="min900px">
+            <!-- This is the MAIN Content section. -->
+$:content
+            <!--  End MAIN Content section. -->
+        </div>
+        <!-- This is the popup "about" dialog. -->
+        <div id="about_dialog" title="About cloud sidekick" class="reveal-modal" data-reveal>
+            <p>
+                <span class="glyphicon glyphicon-info-sign" style="float: left; margin: 0 7px 0px 0;"></span>
+                <span id="app_name">Cloud Sidekick</span>
+                <br />
+                <br />
+                <b>On the Web: </b><span id="app_web">http://www.cloudsidekick.com</span>
+                <br />
+                <br />
+                <b>Version: </b><span id="app_version"></span>
+                <br />
+                <b>Database: </b><span id="db_info"></span>
+                <br />
+                <br />
+                <b>Licensed To: </b><span id="license_company"></span>
+                <br />
+                <b>Utilization: </b><span id="license_instances"></span> Instances
+                <br />
+                <b>Expires: </b><span id="license_expires"></span>
+                <br />
+                <br />
+                &copy; 2014 Cloud Sidekick
+            </p>
+            <a class="close-reveal-modal">&#215;</a>
+        </div>
+        <!-- End "about" dialog. -->
+        <!-- This is the pop up "My Account" dialog. -->
+        <div id="my_account_dialog" class="reveal-modal" data-reveal title="My Account">
+            <table>
+                <tr>
+                    <td>Name:</td><td><span id="my_fullname"></span></td>
+                </tr>
+                <tr>
+                    <td>User Name:</td><td><span id="my_username"></span></td>
+                </tr>
+                <tr>
+                    <td>Email:</td><td>
+                    <input type="text" id="my_email" name="my_email" class="w300px" />
+                    </td>
+                </tr>
+                <tr class="my_localsettings">
+                    <td>Password:</td><td>
+                    <input type="password" id="my_password" name="my_password" class="w300px" />
+                    </td>
+                </tr>
+                <tr class="my_localsettings">
+                    <td>Password Confirm:</td><td>
+                    <input type="password" id="my_password_confirm" class="w300px" />
+                    </td>
+                </tr>
+                <tr class="my_localsettings">
+                    <td style="vertical-align: top;">Security Question:</td><td>                    <textarea id="my_question" name="my_question" class="w300px"></textarea></td>
+                </tr>
+                <tr class="my_localsettings">
+                    <td>Security Answer:</td><td>
+                    <input type="password" id="my_answer" name="my_answer" class="w300px" />
+                    </td>
+                </tr>
+            </table>
+            <a class="close-reveal-modal">&#215;</a>
+        </div>
+        <!-- End "My Account" dialog. -->
+
+        <!-- "Confirm" dialog. -->
+        <div id="csk_confirm" class="reveal-modal" data-reveal>
+            <div class="message"></div>
+            <hr>
+            <div class="button tiny right radius confirm">
+                OK
+            </div>
+            <div class="secondary button tiny right radius cancel">
+                Cancel
+            </div>
+            <a class="close-reveal-modal">&#215;</a>
+        </div>
+        <!-- End "Confirm" dialog. -->
+
+        <script src="/common/vendor/js/jquery/jquery-1.10.2.min.js"></script>
+        <script src="/common/vendor/js/jquery/jquery-ui-1.10.3.min.js"></script>
+        <!-- Plugins -->
+        <script src="/common/vendor/js/foundation.min.js"></script>
+        <script src="/common/vendor/js/jquery/jquery.meow.js"></script>
+        <script src="/common/vendor/js/jquery/jquery.cookie.js"></script>
+        <script src="/common/js/url.js"></script>
+        <script src="/common/js/alert.js"></script>
+        <script src="/common/js/ajaxcore.js"></script>
+        <script src="/static/js/ajax.js"></script>
+        <script src="/static/js/base.js"></script>
+
+        <!--Any .js files defined on the content page.-->
+$if content.jsfiles:
+    $for f in content.jsfiles.split():
+        <script src="/static/js/$f"></script>
+
+    </body>
+</html>

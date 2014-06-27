@@ -1,0 +1,82 @@
+/* Login Page */
+@import url('/common/css/fonts.css');
+body {
+	color: #58595B;
+	font-family: 'MuseoSans-Light', Lato, Arial, lucida, sans-serif;
+	font-size: 10pt;
+	background-color: #BCBEC0;
+}
+#wrapper {
+	margin-left: auto;
+	margin-right: auto;
+	width: 575px;
+	margin-top: 150px;
+}
+#csklogo {
+	font-size: 24pt;
+	color: #58595B;
+	position: absolute;
+    right: 10px;
+    top: 10px;
+}
+#loginlogo {
+	font-size: 42pt;
+	color: #58595B;
+	float: left;
+	margin-left: -40px;
+	margin-top: -90px;
+	background-color: #FFF;
+	box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+	border-radius: 6px 6px 6px 6px;
+	padding: 10px 20px 5px 20px;
+}
+#loginlogo img{
+	width: 175px;
+}
+#loginpanel {
+	padding-top: 20px;
+	padding-bottom: 20px;
+	background-image: url(/common/img/login-banner.png);
+	background-repeat: no-repeat;
+	background-position: -50px 65%; /* shorten it a bit */
+	background-size: 83em;
+	box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+	border-radius: 6px 6px 6px 6px;
+}
+#loginbox {
+	padding: 20px;
+	color: #000;
+	font-weight: bold;
+	margin-left: auto;
+	margin-right: auto;
+	width: 65%;
+	box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+	border-radius: 6px 6px 6px 6px;
+}
+.loginfield {
+	border-radius: 8px;
+	border: 1px solid #BCBEC0;
+	width: 200px;
+	padding: 8px;
+	font-size: 1.1em;
+}
+.loginerror {
+	margin-top: 20px;
+	padding: 20px;
+	font-weight: normal;
+	color: #EE4444;
+	box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+	border-radius: 6px 6px 6px 6px;
+	background-color: #fee;
+}
+.loginannouncement {
+	margin-top: 20px;
+	padding: 5px;
+	font-weight: normal;
+	box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+	border-radius: 6px 6px 6px 6px;
+	background-color: #fff;
+}
+.loginannouncement img {
+	vertical-align: middle;
+}

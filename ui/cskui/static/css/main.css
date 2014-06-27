@@ -1,0 +1,278 @@
+@import url('/common/css/fonts.css');
+body, html {
+	color:#58595B;
+	background-color:#BCBEC0;
+	height:100%;
+	max-height:100%;
+	font-family:'MuseoSans-Light','Lato',sans-serif;
+}
+iframe {
+	border:none;
+	width:100%;
+}
+li {
+	list-style-type:none;
+}
+#app_header {
+	box-shadow:4px 2px 4px #555555;
+	left:0;
+	top:0;
+	margin-bottom:10px;
+	z-index:10;
+	position:fixed;
+	width:100%;
+	height:40px;
+	background-color:#B0B579;
+}
+#app_header_logo {
+	font-size:24pt;
+	color:#58595B;
+	position:absolute;
+	top:-6px;
+	left:10px;
+}
+#app_header_title {
+	margin-top: -6px;
+	margin-left:250px;
+}
+#app_header_title span {
+	font-size:24pt;
+	cursor: pointer;
+}
+#app_header_icons {
+	position:fixed;
+	right:10px;
+}
+.app_header_icon {
+	font-size:18px;
+	margin:0px 4px 0px 4px;
+}
+#app_footer {
+	height:18px;
+	font-weight:normal;
+	left:0;
+	bottom:0;
+	text-align:center;
+	z-index:10;
+	position:fixed;
+	width:100%;
+	background-color:#BCBEC0;
+}
+#maincontent {
+	margin-top:40px;
+	margin-bottom:20px;
+	padding:10px;
+}
+/* this nudges the meow alerts down under the header */
+.meows {
+	top:40px !important;
+}
+.pointer {
+	cursor:pointer;
+}
+.rc {
+	margin-left:20px;
+	margin-right:20px;
+	overflow:auto;
+}
+.pipeline-phase {
+	float:left;
+	border:1px solid #c2c2c2;
+	border-radius:3px;
+	margin:2px;
+	padding-top:4px;
+	padding-bottom:4px;
+	max-width:180px;
+}
+.pipeline-phase-title {
+	text-align:center;
+}
+.pipeline-phase-item {
+	clear:both;
+}
+.stagestatus {
+	float:left;
+	width:125px;
+	overflow:hidden;
+	height:100%;
+	background-color:#c3c3c3 !important;
+	text-align:center;
+	display:table;
+	margin:0 auto;
+}
+.ss-label {
+	font-size:0.8em;
+}
+.stagestatus-gate {
+	font-family:'Glyphicons Halflings';
+	float:left;
+	margin:5px 5px 0px 5px;
+	color:#c3c3c3;
+}
+.stagestatus-gate-empty {
+	float:left;
+	margin:5px 5px 0px 5px;
+	width:16px;
+}
+.stagestatus-gate-pending {
+	color:#008CBA !important;
+	cursor:pointer;
+}
+.stagestatus-gate-success {
+	color:#43ac6a;
+	cursor:pointer;
+}
+.stagestatus-gate-failure {
+	color:#f04124;
+	cursor:pointer;
+}
+.ingate:before {
+	content:"\e161";
+}
+.outgate:before {
+	content:"\e163";
+}
+.ss-meter {
+	display:block;
+	height:16px;
+}
+.stagestatus-success {
+	background-color:#43ac6a !important;
+}
+.stagestatus-failure {
+	background-color:red !important;
+}
+.stagestatus-pending {
+	color:#fff !important;
+	cursor:pointer;
+}
+.stagestatus-none {
+	background-color:#c3c3c3 !important;
+}
+.stagestatus-processing {
+	color:#fff !important;
+	background-color:#008CBA !important;
+	background-image:repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,200,0,.5) 10px, rgba(0,255,0,.5) 16px) !important;
+	background-position:0 50% !important;
+	background-size:68px 60px !important;
+}
+.stagestrip {
+	background-color:#ddd;
+	padding:5px;
+	margin-top:10px !important;
+}
+.stagestrip-gate {
+	background-color:#bcd;
+	padding:5px;
+	margin:5px 0px 0px 20px;
+}
+.stagestrip-step {
+	background-color:#ccc;
+	padding:5px;
+	margin:5px 0px 5px 20px;
+}
+.stagestrip-step em {
+	margin-left:20px;
+}
+.stagestrip-step .plugin {
+	background-color:#f2f2f2;
+	margin-left:20px;
+}
+/* These are additional foundation 'label' color classes. */
+.statuslabel {
+	width:60px;
+	background-color:#c3c3c3;
+	text-align:center;
+	white-space:nowrap;
+	display:inline-block;
+	position:relative;
+	margin-left:5px;
+	padding:0.25em 0.5em 0.375em;
+	font-size:0.6875em;
+	color:white;
+}
+.statuslabel.pending {
+	background-color:#008CBA;
+}
+.statuslabel.success {
+	background-color:#43ac6a;
+}
+.statuslabel.failure {
+	background-color:#f04124;
+}
+.statuslabel.processing {
+	background-color:#008CBA !important;
+	background-image:repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,200,0,.5) 10px, rgba(0,255,0,.5) 16px) !important;
+	background-position:0 50% !important;
+	background-size:68px 60px !important;
+}
+/* fix the meow plugin z-index */
+.meows {
+	z-index:999;
+}
+/* Override the bottom padding on the block-grid list items */
+[class*="block-grid-"]> li {
+	padding:0;
+	background-color:#f2f2f2;
+	border:2px solid #bcbec0;
+}
+/* specifically for the editors */
+.libitem {
+	cursor:pointer;
+	padding:4px;
+}
+.toolbox {
+	position:absolute;
+	top:10px;
+	bottom:20px;
+	width:400px;
+	overflow:scroll-y;
+}
+.detailbox {
+	margin-left:430px;
+}
+[contenteditable="true"] {
+	font-family:"Courier New";
+	font-size:14px;
+	padding:2px;
+	outline:1px dashed #EEE;
+	min-width:100px;
+}
+[contenteditable="true"]:hover {
+	outline:2px dashed #0090D2;
+}
+[contenteditable="true"]:focus {
+	background-color:#f2f2f2;
+}
+span[contenteditable="true"] {
+	display:inline-block;
+}
+/* tweak the foundation vertical tabs */
+.tabs.vertical {
+	float:left;
+	width:10%;
+	margin-left:-10px;
+}
+.tabs-content.vertical {
+	width:90%;
+	float:left;
+	margin-left:-1px;
+}
+.tabs .tab-title> a {
+	padding:0.5 rem;
+	min-width:110px;
+	max-width:110px;
+	margin-bottom:10px;
+	border-top-right-radius:10px;
+	border-bottom-right-radius:10px;
+}
+/* The dropzone for empty lists in the editor */
+.editor-dropzone:before {
+	content:"Drop Here";
+}
+.editor-dropzone {
+	outline:1px dashed #eee;
+	font-size:1.5em;
+	text-align:center;
+	padding-top:0.5em;
+}
