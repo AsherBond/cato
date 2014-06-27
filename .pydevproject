@@ -10,8 +10,8 @@
 <path>/cato</path>
 </pydev_pathproperty>
 <pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
-<path>/Library/Python/2.7/site-packages/web.py-0.37-py2.7.egg</path>
-<path>/Library/Python/2.7/site-packages/PyMySQL-0.6.1-py2.7.egg-info</path>
-<path>/Library/Python/2.7/site-packages/croniter-0.3.3-py2.7.egg</path>
+<path>/Library/Python/2.7/site-packages/web.py-0.37-py2.7.egg-info</path>
+<path>/Library/Python/2.7/site-packages/pymysql</path>
+<path>/Library/Python/2.7/site-packages/croniter-0.3.5.dev0-py2.7.egg-info</path>
 </pydev_pathproperty>
 </pydev_project>
