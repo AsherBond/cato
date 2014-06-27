@@ -792,7 +792,7 @@ if not os.path.exists(uicachepath):
 
 # Hack to make session play nice with the reloader (in debug mode)
 if web.config.get('_session') is None:
-    session = web.session.Session(app, web.session.ShelfStore(shelve.open('%s/uisession.shelf' % uicachepath)))
+    session = web.session.Session(app, web.session.ShelfStore(shelve.open('%s/adminsession.shelf' % uicachepath)))
     web.config._session = session
 else:
     session = web.config._session
