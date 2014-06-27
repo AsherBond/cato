@@ -247,7 +247,7 @@ def ForceLogout(sMsg=""):
 
     # logging out kills the session
     uiGlobals.session.kill()
-    raise web.seeother('/static/login.html')
+    raise web.seeother('/login')
 
 def CheckSession(appname, path):
     uid = GetSessionObject("user", "user_id")
@@ -271,7 +271,7 @@ def CheckSession(appname, path):
             else:
                 logger.info("Token Authentication failed... [%s]" % response.get("info"))
                 uiGlobals.session.kill()
-                raise web.seeother('/static/login.html?msg=Token%20Authentication%20failed')
+                raise web.seeother('/login?msg=Token%20Authentication%20failed')
 
         # is there an 'applink' argument?
         if i.applink:
@@ -283,7 +283,7 @@ def CheckSession(appname, path):
             else:
                 logger.info("Trust Authentication failed... [%s]" % response.get("info"))
                 uiGlobals.session.kill()
-                raise web.seeother('/static/login.html?msg=Trust%20Authentication%20failed')
+                raise web.seeother('/login?msg=Trust%20Authentication%20failed')
 
         # putting the path in the session will enable us to
         # go to the requested page after login

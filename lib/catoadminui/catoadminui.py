@@ -391,8 +391,9 @@ class temp:
 class login:
     def GET(self):
         # visiting the login page kills the session and redirects to login.html
+        msg = "?msg=%s" % (web.input().get("msg")) if "msg" in web.input() else ""
         uiGlobals.session.kill()
-        raise web.seeother('/static/login.html')
+        raise web.seeother('/static/login.html%s' % (msg))
 
 
 class logout:

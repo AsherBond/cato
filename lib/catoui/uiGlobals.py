@@ -35,6 +35,9 @@ web_root = None
 # the lib path relative to the running web.py process.
 lib_path = None
 
+# the master web.py 'urls' list
+urls = ()
+
 # "Categories" and "Functions" are loaded from xml when the service starts and stored here.
 FunctionCategories = None
 
