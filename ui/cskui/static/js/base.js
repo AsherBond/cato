@@ -103,7 +103,7 @@ function lockDown(msg) {
     $inner.append('<br><br>');
     $inner.append('<p style="margin-left: 10px;">' + msg + '</p><br>');
     $inner.append('<p style="margin-left: 10px;">Please contact an Administrator if this condition persists.</p><br>');
-    $inner.append('<p style="margin-left: 10px;"><a href="/static/login.html">Click here</a> to return to the login page.</p>');
+    $inner.append('<p style="margin-left: 10px;"><a href="/login">Click here</a> to return to the login page.</p>');
     $msg.append($inner);
     $("body").append($msg);
 
