@@ -24,7 +24,6 @@ if "CSK_HOME" not in os.environ:
     raise Exception("CSK_HOME environment variable not set.")
 sys.path.insert(0, os.path.join(os.environ["CSK_HOME"], "cato", "lib"))
 
-# for plugin support
 base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
 sys.path.insert(0, os.path.join(base_path, "plugins"))
 

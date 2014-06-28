@@ -33,6 +33,53 @@ from catoerrors import SessionError
 
 logger = catolog.get_logger(__name__)
 
+class Assembler():
+    """
+    This class is the default assembler of UI pages.
+    It grabs the 'base' file, the 'content' file, and various other injections,
+    and puts them all together.
+    """
+    def __init__(self, contentpath, base="", head="", header="", after="", footer=""):
+        self.html = base
+        self.html = self.html.replace("<!--##HEAD##-->", head)
+        self.html = self.html.replace("<!--##HEADER##-->", header)
+        self.html = self.html.replace("<!--##AFTER##-->", after)
+        self.html = self.html.replace("<!--##FOOTER##-->", footer)
+
+        # the 'content' page almost always has a VARS section we will process
+        content = _static_file(contentpath)
+        content = self._process_vars(content)
+        self.html = self.html.replace("<!--##CONTENT##-->", content)
+        
+    def _process_vars(self, s):
+        """
+        Expecting a <!--VARS comment in the code.
+        We pick that comment out, grab the string from within it, 
+        parse it as JSON, and apply it to the overall response text.
+        """
+        out = s
+        m = re.findall('<!--VARS:(.*?)-->', s, re.DOTALL)
+        if m:
+            # we're only taking the first match
+            # first, remove the comment from the content
+            out = out.replace(m[0], "").replace("<!--VARS:-->", "")
+            try:
+                vardict = json.loads(m[0].strip())
+                
+                # we use the vars for replacement on the entire response we're building
+                if "css" in vardict:
+                    css = "".join(['<link type="text/css" href="%s" rel="stylesheet" />\n' % (x) for x in vardict["css"]])
+                    self.html = self.html.replace("<!--##CSS##-->", css)
+                if "js" in vardict:
+                    js = "".join(['<script src="%s"></script>\n' % (x) for x in vardict["js"]])
+                    self.html = self.html.replace("<!--##JS##-->", js)
+            except Exception as ex:
+                msg = "Error parsing VARS: directive on content page.\n%s" % (ex.__str__())
+                logger.error(msg)
+                out += msg
+
+        #TEMPORARY RETURN
+        return out
 
 def _static_file(path):
     """ several urls simply serve static files. """
@@ -55,7 +102,7 @@ def _loadfile(path):
                 return x if x else ""
             else:
                 return ""
-    
+
 
 def set_content_type(path):
     if ".js" in path:
@@ -1056,7 +1103,7 @@ def GetLog():
 
     # if it's not raw, it's reversed
     buf = reversed(buf)
-    
+
     # this is just easier here
     svcs = [
         "cato_admin_ui",

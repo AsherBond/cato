@@ -26,7 +26,7 @@ window.setInterval(updateHeartbeat, 120000);
 // get some important python configuration settings that have relevance on the client
 g_config = catoAjax.getConfig();
 
-// and this one has the global Maestro settings
+// and this one has the global settings
 g_settings = catoAjax.getSettings();
 
 $(function() {"use strict";

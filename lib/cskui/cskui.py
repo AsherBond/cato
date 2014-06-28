@@ -86,7 +86,8 @@ class setdebug():
 class not_allowed:
     def GET(self):
         i = web.input(msg="")
-        return _inject(render.not_allowed(i.msg))
+        x = _buildpage("not_allowed")
+        return x.replace("<!--##MESSAGE##-->", i.msg)
 
 
 def notfound():
@@ -96,7 +97,7 @@ def notfound():
 # the default page if no URI is given, just an information message
 class index:
     def GET(self):
-        return _inject(render.home())
+        return _buildpage("home")
 
 
 # the login announcement hits the Cloud Sidekick web site for a news snip
@@ -200,7 +201,7 @@ class home:
     Why not do a GET login form?  Doh! The credentials would be on the querystring = bad.
     """
     def GET(self):
-        return _inject(render.home())
+        return _buildpage("home")
 
     def POST(self):
         # finally, if the original, pre-login request was a specific path,
@@ -213,7 +214,7 @@ class login:
     def GET(self):
         # visiting the login page kills the session and redirects to login.html
         uiGlobals.session.kill()
-        return render_plain.login()
+        return uiCommon._static_file(os.path.join(web_root, "templates", "login.html"))
 
     def POST(self):
         return uiCommon.AttemptLogin("Velocity UI")
@@ -307,7 +308,8 @@ def auth_app_processor(handle):
         if web.ctx.env.get('HTTP_X_REQUESTED_WITH') == "XMLHttpRequest":
             return ""
         else:
-            return _inject(render.not_allowed("Some content on this page isn't available to your user."))
+            x = _buildpage("not_allowed")
+            return x.replace("<!--##MESSAGE##-->", "Some content on this page isn't available to your user.")
 
 
 class ExceptionHandlingApplication(web.application):
@@ -361,15 +363,24 @@ class ExceptionHandlingApplication(web.application):
         return process(self.processors)
 
 
-def _inject(templateobj):
+def _buildpage(page):
     """
-    We need to wrap each pages html with a middle 'wrapper' before inserting it into
-    the main base page.
+    Construct the requested page.
     
-    So, we take the already rendered html, and do a final replacement on it.
+    If the ui_dev setting is true, we'll load every file from disk for every request.
+    Otherwise, much of this content is cached in memory when the service starts.
     """
-    templateobj["__body__"] = templateobj["__body__"].replace("<!--##HEADER##-->", uiGlobals.static_content["mainheader"])
-    return templateobj
+    if catoconfig.CONFIG["ui_dev_mode"]:
+        logger.info("Server is operating in DEV mode, performance is reduced.")
+        b = uiCommon._loadfile(os.path.join(web_root, "templates", "base.html"))
+        hdr = uiCommon._loadfile(os.path.join(web_root, "static", "_header.html"))
+    else:
+        b = uiGlobals.static_content["base"]
+        hdr = uiGlobals.static_content["mainheader"]
+
+    pp = os.path.join(web_root, "templates", "%s.html" % (page))
+    x = uiCommon.Assembler(pp, base=b, header=hdr)
+    return x.html
 
 
 """
@@ -405,9 +416,6 @@ uiGlobals.urls += (
    '/(.*)', 'wmHandler'
 )
 
-render = web.template.render('templates', base='base')
-render_plain = web.template.render('templates')
-
 web.config.session_parameters["cookie_name"] = app_name
 # cookies won't work in https without this!
 web.config.session_parameters.httponly = False
@@ -437,6 +445,7 @@ uiGlobals.session = session
 uiGlobals.app_name = app_name
 
 # these globals are read once when the process starts, and are used in each request
+uiGlobals.static_content["base"] = uiCommon._loadfile(os.path.join(web_root, "templates", "base.html"))
 uiGlobals.static_content["mainheader"] = uiCommon._loadfile(os.path.join(web_root, "static", "_header.html"))
 
 
