@@ -51,6 +51,9 @@ $(function() {"use strict";
         pushClientLog(msg + "\n" + url + "\n" + line, 4);
     };
 
+    // subapps will tweak the title, but we always clear it here
+    $("#app_header_subapp").text("");
+
     // set the clicks for each of the product links
     var applink = $.cookie("csk_cd_ui-applink");
     $("#flow_link").click(function() {
@@ -64,6 +67,11 @@ $(function() {"use strict";
     });
     $("#canvas_link").click(function() {
         location.href = g_config.dash_api_url + '?applink=' + applink;
+    });
+
+    // click the logo
+    $("#app_header_logo").click(function() {
+        location.href = "/";
     });
 });
 

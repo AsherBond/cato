@@ -34,33 +34,20 @@ $def with (content)
         <!--Any .css files defined on the content page.-->
 $if content.cssfiles:
     $for f in content.cssfiles.split():
-        <link type="text/css" href="/static/css/$f" rel="stylesheet" />
+        <link type="text/css" href="$f" rel="stylesheet" />
 
     </head>
     <body>
         <nav id="app_header" class="top-bar" data-topbar>
             <ul class="title-area">
                 <li class="name">
-                    <div id="app_header_logo" class="left">
-                        <span style="font-family: MuseoSlab-Light;">velocity</span>
+                    <div id="app_header_logo" class="left pointer">
+                        <span style="font-family: MuseoSlab-Light;">velocity</span><b id="app_header_subapp"></b>
                     </div>
                 </li>
             </ul>
             <div id="app_header_title" class="left">
-                <ul class="inline-list">
-                    <li>
-                        <span id="flow_link"><b>flow</b></span>
-                    </li>
-                    <li>
-                        <span id="deploy_link"><b>deploy</b></span>
-                    </li>
-                    <li>
-                        <span id="automate_link"><b>automate</b></span>
-                    </li>
-                    <li>
-                        <span id="canvas_link"><b>canvas</b></span>
-                    </li>
-                </ul>
+                <!--##HEADER##-->
             </div>
             <div id="app_header_icons" class="right">
                 <div id="secure_menu_buttons"></div>
@@ -172,10 +159,13 @@ $:content
         <script src="/static/js/ajax.js"></script>
         <script src="/static/js/base.js"></script>
 
-        <!--Any .js files defined on the content page.-->
+        <!-- The subapps may define an _after.html that's included here -->
+        <!--##AFTER##-->
+
+        <!-- Any .js files defined on the content page. -->
 $if content.jsfiles:
     $for f in content.jsfiles.split():
-        <script src="/static/js/$f"></script>
+        <script src="$content.jsfilesroot/$f"></script>
 
     </body>
 </html>

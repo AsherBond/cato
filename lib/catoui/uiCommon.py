@@ -34,6 +34,29 @@ from catoerrors import SessionError
 logger = catolog.get_logger(__name__)
 
 
+def _static_file(path):
+    """ several urls simply serve static files. """
+    logger.debug("Static Resource: [%s]" % (path))
+    f = _loadfile(path)
+    if f:
+        # make an attempt to set the proper content type
+        set_content_type(path)
+        return f
+    else:
+        web.ctx.status = "404 Not Found"
+        return ""
+
+
+def _loadfile(path):
+    if os.path.exists(path):
+        with open(path, 'r') as f:
+            if f:
+                x = f.read()
+                return x if x else ""
+            else:
+                return ""
+    
+
 def set_content_type(path):
     if ".js" in path:
         web.header('Content-Type', 'application/javascript')
@@ -1044,6 +1067,7 @@ def GetLog():
         "cato_rest_api",
         "cato_scheduler",
         "cato_user_ui",
+        "csk_ui",
         "csk_cd_ui",
         "csk_job_handler",
         "csk_metrics",

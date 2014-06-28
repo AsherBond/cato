@@ -38,6 +38,9 @@ lib_path = None
 # the master web.py 'urls' list
 urls = ()
 
+# a dictionary of static global html snippets for performance
+static_content = {}
+
 # "Categories" and "Functions" are loaded from xml when the service starts and stored here.
 FunctionCategories = None
 
