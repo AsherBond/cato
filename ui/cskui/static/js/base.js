@@ -63,7 +63,7 @@ $(function() {"use strict";
         location.href = g_config.user_ui_url + '?applink=' + applink;
     });
     $("#automate_link").click(function() {
-        location.href = g_config.admin_ui_url + '?applink=' + applink;
+        location.href = '/automate';
     });
     $("#canvas_link").click(function() {
         location.href = g_config.dash_api_url + '?applink=' + applink;
