@@ -63,8 +63,6 @@ class wmHandler:
         return catocommon.FindAndCall("cskui." + method)
 
     def POST(self, method):
-        logger.critical("wtf")
-        logger.critical(method)
         web.header('X-CSK-Method', method)
         return catocommon.FindAndCall("cskui." + method)
 
@@ -178,6 +176,17 @@ class cache:
         else:
             web.ctx.status = "404 Not Found"
             return ""
+
+
+class temp:
+    """all we do for temp is deliver the file."""
+    def GET(self, filename):
+        try:
+            f = open(os.path.join(catoconfig.CONFIG["tmpdir"], filename))
+            if f:
+                return f.read()
+        except Exception as ex:
+            return ex.__str__()
 
 
 class home:
@@ -379,15 +388,18 @@ uiGlobals.urls = (
     '/getlog', 'getlog',
     '/setdebug', 'setdebug',
     '/common/(.*)', 'common',
-    '/cache/(.*)', 'cache'
+    '/cache/(.*)', 'cache',
+    '/temp/(.*)', 'temp'
 )
 
 # let's load up whichever subapplications are required.
 # this will append to the urls
 
+# AUTOMATE
+from cskadminuicore import cskadminuicore
 # FLOW
 from cskcduicore import cskcduicore
-    
+
 # the LAST LINE must be our /(.*) catchall, which is handled by wmHandler.
 uiGlobals.urls += (
    '/(.*)', 'wmHandler'
