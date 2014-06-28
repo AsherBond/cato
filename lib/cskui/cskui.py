@@ -102,6 +102,18 @@ class index:
 
 # the login announcement hits the Cloud Sidekick web site for a news snip
 class announcement:
+    """
+    TODO: This was the older code for presenting a license warning when expiration is near.
+    Should be updated.
+
+    deployment.FEATURES.refresh()
+    msg = deployment.FEATURES.warn()
+    if msg:
+        daysleft = deployment.FEATURES.days_left()
+        img = "information_32" if daysleft > 7 else "warning_32"
+        return '<img alt="" src="/common/img/icons/%s.png" style="vertical-align: middle;">%s' % (img, msg)
+    
+    """
     def GET(self):
         s = catocommon.http_get_nofail("http://announcement.cloudsidekick.com/maestro/announcement.html?utm_source=legato_ui&utm_medium=loginpage&utm_campaign=legato")
         if s:
@@ -223,6 +235,14 @@ class login:
 class logout:
     def GET(self):
         uiCommon.ForceLogout("")
+
+
+class appicon:
+    # used by several guis to retrieve icons from the database
+    def GET(self, name):
+        img = uiCommon.GetAppIcon(name)
+        web.header('Content-type', 'image/png')
+        return img
 
 
 # role based access to specific urls
@@ -400,7 +420,8 @@ uiGlobals.urls = (
     '/setdebug', 'setdebug',
     '/common/(.*)', 'common',
     '/cache/(.*)', 'cache',
-    '/temp/(.*)', 'temp'
+    '/temp/(.*)', 'temp',
+    '/appicon/(.*)', 'appicon',
 )
 
 # let's load up whichever subapplications are required.
@@ -408,6 +429,8 @@ uiGlobals.urls = (
 
 # AUTOMATE
 from cskadminuicore import cskadminuicore
+# DEPLOY
+from cskdeployuicore import cskdeployuicore
 # FLOW
 from cskcduicore import cskcduicore
 

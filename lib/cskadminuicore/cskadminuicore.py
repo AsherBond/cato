@@ -270,13 +270,6 @@ class upload:
             raise web.seeother("static/pages/file_upload.html?ref_id=%s&filename=%s" % (ref_id, filename))
 
 
-class appicon:
-    def GET(self, name):
-        img = uiCommon.GetAppIcon(name)
-        web.header('Content-type', 'image/png')
-        return img
-
-
 def CacheTaskCommands():
     """
     Creates the html cache file for Task Command categories, functions and help.
@@ -529,8 +522,7 @@ uiGlobals.urls += (
     '/automate/upload', 'upload',
     '/automate/search', 'search',
     '/automate/settings', 'settings',
-    '/automate/recache', 'recache',
-    '/automate/appicon/(.*)', 'appicon'
+    '/automate/recache', 'recache'
 )
 
 basetemplate = os.path.join(os.environ["CSK_HOME"], "cato", "ui", "cskui", "templates", "base")

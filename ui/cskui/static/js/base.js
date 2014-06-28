@@ -60,7 +60,7 @@ $(function() {"use strict";
         location.href = '/flow/pis';
     });
     $("#deploy_link").click(function() {
-        location.href = g_config.user_ui_url + '?applink=' + applink;
+        location.href = '/deploy';
     });
     $("#automate_link").click(function() {
         location.href = '/automate';
@@ -73,6 +73,17 @@ $(function() {"use strict";
     $("#app_header_logo").click(function() {
         location.href = "/";
     });
+
+    // MAIN MENU STUFF
+    // if there isn't a MenuCanvas defined, hide the menu button
+    // TODO: this was originally a 'maestro' button, but pull it in to work globalls
+    if (g_settings.MenuCanvas) {
+        $("#menu_btn").click(function() {
+            showMenu();
+        });
+    } else {
+        $("#menu_btn").hide();
+    }
 });
 
 function updateHeartbeat() {"use strict";
@@ -97,14 +108,12 @@ function lockDown(msg) {
     var backlen = history.length;
     history.go(-backlen);
 
-    var $msg = $('<div class="ui-widget-content ui-corner-all" style="margin-left: auto; margin-right: auto; padding: 20px; width: 500px;" />');
-    var $inner = $('<div class="ui-state-highlight ui-corner-all" style="padding: 10px;">');
-    $inner.append('<span class="glyphicon glyphicon-info-sign" style="float: left; margin-right: .3em;"></span><strong>Uh oh...</strong>');
-    $inner.append('<br><br>');
-    $inner.append('<p style="margin-left: 10px;">' + msg + '</p><br>');
-    $inner.append('<p style="margin-left: 10px;">Please contact an Administrator if this condition persists.</p><br>');
-    $inner.append('<p style="margin-left: 10px;"><a href="/login">Click here</a> to return to the login page.</p>');
-    $msg.append($inner);
+    var $msg = $('<div data-alert class="panel radius" style="margin-top: 40px; margin-left: auto; margin-right: auto; width: 500px;">');
+    $msg.append('<span class="glyphicon glyphicon-info-sign" style="float: left; margin-right: .3em;"></span><strong>Uh oh...</strong>');
+    $msg.append('<br><br>');
+    $msg.append('<p style="margin-left: 10px;">' + msg + '</p><br>');
+    $msg.append('<p style="margin-left: 10px;">Please contact an Administrator if this condition persists.</p><br>');
+    $msg.append('<p style="margin-left: 10px;"><a href="/login">Click here</a> to return to the login page.</p>');
     $("body").append($msg);
 
     // this nice little bit gets the index of a new setTimeout, then clears every outstanding timeout.

@@ -81,6 +81,7 @@ class Assembler():
         #TEMPORARY RETURN
         return out
 
+
 def _static_file(path):
     """ several urls simply serve static files. """
     logger.debug("Static Resource: [%s]" % (path))
@@ -102,6 +103,8 @@ def _loadfile(path):
                 return x if x else ""
             else:
                 return ""
+    else:
+        return ""
 
 
 def set_content_type(path):
