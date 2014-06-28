@@ -72,7 +72,7 @@ def read_config():
     cfg["admin_ui_debug"] = "20"
     cfg["admin_ui_use_ssl"] = "false"
 
-    cfg["user_ui_port"] = "8081"
+    cfg["user_ui_port"] = "8080"
     cfg["user_ui_debug"] = "20"
     cfg["user_ui_client_debug"] = "20"
     cfg["user_ui_enable_refresh"] = "true"
@@ -98,7 +98,7 @@ def read_config():
     cfg["cd_ui_debug"] = "20"
     cfg["cd_ui_use_ssl"] = "false"
 
-    cfg["csk_ui_port"] = "8080"
+    cfg["csk_ui_port"] = "8088"
     cfg["csk_ui_debug"] = "20"
     cfg["csk_ui_use_ssl"] = "false"
 
