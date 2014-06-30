@@ -324,8 +324,6 @@ class TaskEngine():
                         c.sendline(password)
                         sent_password = True
                         c.delaybeforesend = 0
-                if key:
-                    self.remove_pk(kf_name)
                 if msg and len(msg):
                     if key:
                         self.remove_pk(kf_name)
