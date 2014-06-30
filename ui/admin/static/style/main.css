@@ -232,7 +232,7 @@ body {
 	margin-right:10px;
 }
 .code {
-	font-family:Courier New;
+	font-family:Courier New !important;
 	font-size:10pt;
 	font-weight:normal;
 	color:#11A;
