@@ -262,10 +262,11 @@ function doGetParams(type, id, editable, snip, readonly) {
 	}, function(response) {
 		$("#parameters").html(response);
 
-		$("#parameters .parameter_name").click(function() {
-			ShowParameterEdit($(this).attr("id"));
+		$("#parameters .parameter_header, #parameters .parameter_detail").click(function() {
+			ShowParameterEdit($(this).attr("data-pid"));
 		});
-		$("#parameters .parameter_remove_btn").click(function() {
+		$("#parameters .parameter_remove_btn").click(function(event) {
+		    event.stopPropagation();
 			$("#hidParamDelete").val($(this).attr("remove_id"));
 			$("#param_delete_confirm_dialog").dialog("open");
 		});

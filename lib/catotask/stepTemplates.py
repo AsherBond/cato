@@ -3217,11 +3217,13 @@ def DrawCommandParameterSection(sParameterXML, bEditable, bSnipValues):
             bEncrypt = catocommon.is_true(xParameter.get("encrypt", ""))
 
             sHTML += "<div class=\"parameter\">"
-            sHTML += "  <div class=\"ui-state-default parameter_header\">"
+            sHTML += "  <div class=\"ui-state-default parameter_header"
+            sHTML += (" pointer" if bEditable else "")  # make the name a pointer if it's editable
+            sHTML += "\" data-pid=\"" + sPID + "\">"
 
             sHTML += "<div class=\"step_header_title\"><span class=\"parameter_name"
             sHTML += (" pointer" if bEditable else "")  # make the name a pointer if it's editable
-            sHTML += "\" id=\"" + sPID + "\">"
+            sHTML += "\" data-pid=\"" + sPID + "\">"
             sHTML += sName
             sHTML += "</span></div>"
 
@@ -3235,7 +3237,9 @@ def DrawCommandParameterSection(sParameterXML, bEditable, bSnipValues):
             sHTML += "</div>"
 
 
-            sHTML += "<div class=\"ui-widget-content ui-corner-bottom clearfloat parameter_detail\">"
+            sHTML += "<div class=\"ui-widget-content ui-corner-bottom clearfloat parameter_detail"
+            sHTML += (" pointer" if bEditable else "")  # make the name a pointer if it's editable
+            sHTML += "\" data-pid=\"" + sPID + "\">"
 
             # desc - a short snip is shown here... 75 chars.
 
