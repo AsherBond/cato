@@ -1,4 +1,8 @@
 @import url('/common/css/fonts.css');
+@import url('/common/css/sizing.css');
+/* @import url('/common/css/text.css');
+@import url('input.css'); */
+
 body, html {
 	color:#58595B;
 	background-color:#BCBEC0;
@@ -36,7 +40,6 @@ li {
 	margin-left:250px;
 }
 #app_header_title span {
-	font-size:24pt;
 	cursor: pointer;
 }
 #app_header_icons {
@@ -63,12 +66,26 @@ li {
 	margin-bottom:20px;
 	padding:10px;
 }
+/*for floats*/
+.floatleft {
+	float: left;
+}
+.floatright {
+	float: right;
+}
+.clearfloat {
+	clear: both;
+}
 /* this nudges the meow alerts down under the header */
 .meows {
 	top:40px !important;
 }
 .pointer {
 	cursor:pointer;
+}
+/* sometimes we just easily want block elements to be shown inline, without floating*/
+.forceinline {
+	display: inline-block !important;
 }
 /* fix the meow plugin z-index */
 .meows {
@@ -79,4 +96,20 @@ li {
 	padding:0;
 	background-color:#f2f2f2;
 	border:2px solid #bcbec0;
+}
+
+/* color changes for the jsoneditor */
+div.jsoneditor {
+	border: 1px solid #aaa !important;
+}
+.jsoneditor .menu {
+	background-color: #ccc !important;
+	border-bottom: 1px solid #aaa !important;
+}
+.jsoneditor .menu button {
+	border: none !important;
+	background-color: #fff !important;
+}
+.jsoneditor .search .frame {
+	border: 1px solid #aaa !important;
 }
