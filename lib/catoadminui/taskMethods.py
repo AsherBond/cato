@@ -278,7 +278,7 @@ class taskMethods:
             sSetClause = "%s='%s'" % (sColumn, sValue)
 
             #  bugzilla 1074, check for existing task_code and task_name
-            if sValue and (sColumn == "task_code" or sColumn == "task_name"):
+            if sValue and (sColumn == "task_name"):
                 sSQL = "select task_id from task where %s='%s' and original_task_id <> '%s'" % (sColumn, sValue, sOriginalTaskID)
 
                 sValueExists = self.db.select_col(sSQL)
