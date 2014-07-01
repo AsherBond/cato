@@ -56,15 +56,6 @@ $(function() {"use strict";
 
     // set the clicks for each of the product links
     var applink = $.cookie("csk_cd_ui-applink");
-    $("#flow_link").click(function() {
-        location.href = '/flow/pis';
-    });
-    $("#deploy_link").click(function() {
-        location.href = '/deploy';
-    });
-    $("#automate_link").click(function() {
-        location.href = '/automate';
-    });
     $("#canvas_link").click(function() {
         location.href = g_config.dash_api_url + '?applink=' + applink;
     });
@@ -74,16 +65,6 @@ $(function() {"use strict";
         location.href = "/";
     });
 
-    // MAIN MENU STUFF
-    // if there isn't a MenuCanvas defined, hide the menu button
-    // TODO: this was originally a 'maestro' button, but pull it in to work globalls
-    if (g_settings.MenuCanvas) {
-        $("#menu_btn").click(function() {
-            showMenu();
-        });
-    } else {
-        $("#menu_btn").hide();
-    }
 });
 
 function updateHeartbeat() {"use strict";

@@ -36,7 +36,7 @@
         <!--##CSS##-->
     </head>
     <body>
-        <nav id="app_header" class="top-bar" data-topbar>
+        <nav id="app_header" class="top-bar" data-topbar data-options="is_hover: false">
             <ul class="title-area">
                 <li class="name">
                     <div id="app_header_logo" class="left pointer">
@@ -47,12 +47,48 @@
             <div id="app_header_title" class="left">
                 <!--##HEADER##-->
             </div>
-            <div id="app_header_icons" class="right">
-                <div id="menu_btn" class="glyphicon glyphicon-list left pointer app_header_icon" title="Menu"></div>
-                <div id="secure_menu_buttons" class="left"></div>
-                <div id="my_account_link" class="glyphicon glyphicon-user left pointer app_header_icon" title="My Account"></div>
-                <div id="logout_btn" class="glyphicon glyphicon-log-out left pointer app_header_icon" title="Log Out"></div>
-            </div>
+            <section class="top-bar-section">
+                <ul class="right">
+                    <li class="has-dropdown menu-icon">
+                        <span id="app_header_icons" class="glyphicon glyphicon-align-justify"></span>
+                        <ul class="dropdown">
+                            <li>
+                                <div class="left">
+                                    <a href="/flow"> flow</a>
+                                </div>
+                                <div class="right">
+                                    <a href="/flow" target="_blank" title="New Tab"><span class="glyphicon glyphicon-share-alt"></span></a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="left">
+                                    <a href="/deploy"> deploy</a>
+                                </div>
+                                <div class="right">
+                                    <a href="/deploy" target="_blank" title="New Tab"><span class="glyphicon glyphicon-share-alt"></span></a>
+                                </div>
+                            </li>
+                            <!--<li>
+                            <a href="/automate"> automate</a>
+                            </li>
+                            <li>
+                            <a href="/canvas"> canvas</a>
+                            </li>
+                            -->
+                            <li>
+                                <hr>
+                            </li>
+                            <li id="secure_menu_buttons"></li>
+                            <li id="my_account_link">
+                                <a href="#"><span class="glyphicon glyphicon-user app_header_icon"></span> my account</a>
+                            </li>
+                            <li id="logout_btn">
+                                <a href="#"><span class="glyphicon glyphicon-log-out app_header_icon"></span> log out</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
         </nav>
 
         <div id="app_footer" class="ui-widget-header blur">
