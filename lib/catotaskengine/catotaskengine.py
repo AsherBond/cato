@@ -659,9 +659,7 @@ class TaskEngine():
             for k, v in variables.iteritems():
                 if ii == 1:
                     self.rt.clear(v)
-                # print "key %s, variable %s" % (k, v)
                 if k in row:
-                    # print "setting %s to %s" % (v,  row[k])
                     self.rt.set(v, row[k], ii)
 
 
@@ -720,9 +718,7 @@ class TaskEngine():
 
         while re.search(".*\[\[.*\]\]", s):
 
-            # print "before ->" + s
             found_var = self.find_var(s)
-            # print "before ->" + s
             if found_var:
                 # we found a variable to replace
                 if found_var.startswith("_"):
@@ -789,9 +785,7 @@ class TaskEngine():
                     period = found_var.find(".")
                     new_found_var = found_var[:period]
                     xpath = found_var[period + 1:]
-                    # print xpath
                     xml = self.rt.get(new_found_var)
-                    # print xml
                     if len(xml):
                         value = self.aws_get_result_var(xml, xpath)
                     else:
@@ -827,9 +821,7 @@ class TaskEngine():
 
                 # now we substitute the variable with the value in the original string
                 sub_string = "[[" + found_var + "]]"
-                # print "sub_string = " + sub_string + " value = " + str(value)
                 s = s.replace(sub_string, str(value))
-            # print "after ->" + s
         return s
 
     def replace_vars_new(self, s):
@@ -883,9 +875,7 @@ class TaskEngine():
 
                 # now we substitute the variable with the value in the original string
                 sub_string = "[$" + varname + "$]"
-                # print "sub_string = " + sub_string + " value = " + str(value)
                 s = s.replace(sub_string, str(value))
-            # print "after ->" + s
         return s
 
     def find_var(self, s):
@@ -900,7 +890,6 @@ class TaskEngine():
                     z = s[fst + 2:nxt]
                     inside = z.rfind("[[")
                     if inside > -1:
-                        # print "we have a sub"
                         z = z[inside + 2:]
         return z
 
@@ -1155,7 +1144,6 @@ class TaskEngine():
             transport = "ssl"
         elif winrm_transport == "plaintext":
             transport = "plaintext"
-        print "transport is %s" % transport
 
         address = "%s://%s:%s/wsman" % (protocol, server, port)
 
@@ -1253,7 +1241,6 @@ class TaskEngine():
             where asset_id = %s"""
         row = self.select_row(sql, (asset_id))
         if row:
-            # print row
             password = row[6]
             p_password = row[8]
             pk = row[10]
@@ -1292,9 +1279,6 @@ class TaskEngine():
 
         if path.startswith("count(") and path.endswith(")"):
             path = "." + path[6:-1]
-            # print "result is " + result
-            # print "path is " + path
-            # print self.get_xml_count(result, path)
             value = self.get_xml_count(result, path)
         else:
             path = "." + path
@@ -2105,6 +2089,7 @@ class TaskEngine():
         except Exception as e:
             self.logger.info(e)
             self.update_status('Error')
+            traceback.print_exc(file=sys.stderr)
             raise Exception(e)
 
 

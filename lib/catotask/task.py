@@ -1867,6 +1867,14 @@ class TaskInstance(object):
 
         else:
             raise InfoException("Did not find any data for Instance [%s]." % sTaskInstance)
+
+    def refresh_status(self):
+        
+        sql = "select task_status from task_instance where task_instance = %s"
+        db = catocommon.new_conn()
+        row = db.select_row(sql, self.task_instance)
+        self.task_status = row[0]
+        return self.task_status
         
     def LoadResultSummary(self):
         # at the moment the result_summary is xml
