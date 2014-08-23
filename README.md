@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Cloud Sidekick velocity automate
 
 
@@ -45,3 +46,14 @@ See the INSTALL.md file in this directory.
 All documentation can be found here:
 
 http://docs.cloudsidekick.com/docs/cato
+=======
+this project has been renamed to `automate`
+
+located here: https://github.com/cloudsidekick/automate
+
+if you are working in the source, do the following:
+
+```
+git remote set-url origin git@github.com:cloudsidekick/automate.git
+```
+>>>>>>> 74edebad54e21073ea2433b5dd092f868c4028a2
